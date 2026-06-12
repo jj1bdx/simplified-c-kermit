@@ -1981,11 +1981,6 @@ extern int tt_bell;
 #ifndef LINUX
 #define LINUX
 #endif /* LINUX */
-#ifdef __ANDROID__
-#ifndef ANDROID
-#define ANDROID
-#endif /* ANDROID */
-#endif /* __ANDROID__ */
 #endif /* __linux__ */
 
 /* Platforms where small size is needed */

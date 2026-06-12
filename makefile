@@ -86,7 +86,6 @@ CKVER= "10.0 Beta.12"
 # environment variables.  For that reason, don't use 'make -e'.
 #
 # Certain UNIX variations have their own separate makefiles:
-#  . For Android, use android.mk.
 #  . For 2.10 or 2.11 BSD on the DEC PDP-11, use ckubs2.mak.
 #  . For Plan 9, use ckpker.mk.
 #
@@ -147,7 +146,6 @@ CKVER= "10.0 Beta.12"
 # --------------------------
 # Some commonly used targets:
 #
-# + "make -f android.mk" (separate makefile) for Android.
 # + "make linux" should work for any version of Linux on any hardware.
 #     Note: new "make linux" (2016) not yet widely tested.
 #     Use "make linux-2015" (the old "make linux")
@@ -6432,10 +6430,6 @@ cie:
 	@echo 'Making C-Kermit $(CKVER) for CIE Systems 680/20 Regulus...'
 	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
 	"CFLAGS = -DATTSV -DNOFILEH -DCIE -DNOLEARN $(KFLAGS) -O" "LNKFLAGS ="
-
-# Android.
-android:
-	@echo Please use \"make -f android.mk\" to build C-Kermit for Android.
 
 # Linux 1.2 or later with gcc, dynamic libraries, ncurses, TCP/IP.
 #

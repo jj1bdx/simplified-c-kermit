@@ -2254,10 +2254,8 @@ sysinit() {
     if (s)
       ckstrncpy((char *)cttnam,s,DEVNAMLEN+1);
 #ifdef SVORPOSIX
-#ifndef ANDROID
     if (!cttnam[0])
       ctermid(cttnam);
-#endif /* ANDROID */
 #endif /* SVORPOSIX */
     if (!cttnam[0])
       ckstrncpy((char *)cttnam,dftty,DEVNAMLEN+1);

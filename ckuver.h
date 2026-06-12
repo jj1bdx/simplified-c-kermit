@@ -793,11 +793,7 @@
 #ifdef RH71
 #define HERALD " Red Hat Linux 7.1"
 #else
-#ifdef ANDROID
-#define HERALD " Android"
-#else
 #define HERALD " Linux"
-#endif /* ANDROID */
 #endif /* RH71 */
 #endif /* RH72 */
 #endif /* RH73 */

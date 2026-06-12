@@ -8229,9 +8229,7 @@ sgetpwnam(name) char *name;
     if (save.pw_name) {
         free(save.pw_name);
         free(save.pw_passwd);
-#ifndef ANDROID
         free(save.pw_gecos);
-#endif
         free(save.pw_dir);
         free(save.pw_shell);
     }
@@ -8249,9 +8247,7 @@ sgetpwnam(name) char *name;
     save.pw_passwd = sgetsave(p->pw_passwd);
 #endif /* HPUX10_TRUSTED */
 #endif /* CK_SHADOW */
-#ifndef ANDROID
     save.pw_gecos = sgetsave(p->pw_gecos);
-#endif	/* ANDROID */
     save.pw_dir = sgetsave(p->pw_dir);
     save.pw_shell = sgetsave(p->pw_shell);
     return(&save);
