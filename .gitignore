@@ -158,3 +158,6 @@ build/
 /wermit
 /wart
 /ckcpro.c
+
+# Local Claude Code session helper
+/resume-claude.sh
