@@ -89,10 +89,6 @@ char * tgoto (const char *, int, int);
 
 
 /* fdc 26 Sep 2022 */
-#ifdef CK_ENCRYPTION
-_PROTOTYP(int ck_tn_encrypting, (void));
-_PROTOTYP(int ck_tn_decrypting, (void));
-#endif /* CK_ENCRYPTION */
 
 #ifdef BSD44
 #include <errno.h>
@@ -160,9 +156,6 @@ extern int tttapi;
 extern int tapipass;
 #endif /* CK_TAPI */
 
-#ifdef CK_KERBEROS
-#include "ckuath.h"
-#endif /* CK_KERBEROS */
 
 #include <signal.h>
 
@@ -4657,14 +4650,6 @@ doexit(exitstat,code) int exitstat, code;
 #endif /* CK_ANSIC */
 {
     extern int x_logged, quitting;
-#ifdef CK_KERBEROS
-#ifdef KRB4
-    extern int krb4_autodel;
-#endif /* KRB4 */
-#ifdef KRB5
-    extern int krb5_autodel;
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
     int i;
 
@@ -4700,27 +4685,6 @@ doexit(exitstat,code) int exitstat, code;
     }
 #endif /* DEBUG */
 
-#ifdef CK_KERBEROS
-    /* If we are automatically destroying Kerberos credentials on Exit */
-    /* do it now. */
-#ifdef KRB4
-    if (krb4_autodel == KRB_DEL_EX) {
-        extern struct krb_op_data krb_op;
-        krb_op.version = 4;
-        krb_op.cache = NULL;
-        ck_krb4_destroy(&krb_op);
-    }
-#endif /* KRB4 */
-#ifdef KRB5
-    if (krb5_autodel == KRB_DEL_EX) {
-        extern struct krb_op_data krb_op;
-        extern char * krb5_d_cc;
-        krb_op.version = 5;
-        krb_op.cache = krb5_d_cc;
-        ck_krb5_destroy(&krb_op);
-    }
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
@@ -6311,9 +6275,6 @@ CK_OFF_T n;     /* a long integer */
 char *s;        /* a string */
 #endif /* CK_ANSIC */
 /* screenc() */ {
-#ifdef CK_SSL
-    extern int tls_active_flag, ssl_active_flag;
-#endif /* CK_SSL */
 #ifdef RLOGCODE
     extern int ttnproto;
 #endif /* RLOGCODE */
@@ -6551,18 +6512,7 @@ char *s;        /* a string */
 #ifdef SSHBUILTIN
                 || IS_SSH()
 #endif /* SSHBUILTIN */
-#ifdef CK_ENCRYPTION
-                || ck_tn_encrypting() && ck_tn_decrypting()
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-                || tls_active_flag || ssl_active_flag
-#endif /* CK_SSL */
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-#ifdef CK_ENCRYPTION
-                || ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN
-#endif /* CK_ENCRYPTION */
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
                  ) {
             /* You may get an "unreachable code" warning in builds with no SSL,

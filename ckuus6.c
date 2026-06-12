@@ -650,15 +650,6 @@ _PROTOTYP(static int renameone,(char *,char *,
 #ifdef NETCONN
 extern int nnetdir;                     /* How many network directories */
 #endif /* NETCONN */
-#ifdef CK_SECURITY
-_PROTOTYP(int ck_krb4_is_installed,(void));
-_PROTOTYP(int ck_krb5_is_installed,(void));
-_PROTOTYP(int ck_ntlm_is_installed,(void));
-_PROTOTYP(int ck_srp_is_installed,(void));
-_PROTOTYP(int ck_ssleay_is_installed,(void));
-_PROTOTYP(int ck_ssh_is_installed,(void));
-_PROTOTYP(int ck_crypt_is_installed,(void));
-#else
 #define ck_krb4_is_installed() (0)
 #define ck_krb5_is_installed() (0)
 #define ck_ntlm_is_installed() (0)
@@ -666,7 +657,6 @@ _PROTOTYP(int ck_crypt_is_installed,(void));
 #define ck_ssleay_is_installed() (0)
 #define ck_ssh_is_installed() (0)
 #define ck_crypt_is_installed() (0)
-#endif /* CK_SECURITY */
 
 #define AV_KRB4   1
 #define AV_KRB5   2

@@ -201,9 +201,6 @@ char *newstxt[] = {
 #ifdef UNIX
 " . Limited Unix Locale support (HELP SET LOCALE)",
 #endif /* UNIX */
-#ifdef CK_SSL
-" . Raw SSL/TLS connections for connecting to POP3 and similar services",
-#endif /* CK_SSL */
 " . At the prompt, Ctrl-K recalls most recent filename",
 " . Scripting and performance improvements",
 #endif /* COMMENT */
@@ -1772,18 +1769,9 @@ unless you override them; use SHOW OPTIONS to see selections currently",
 #ifndef NOHTTP
 static char *hmxxhttp[] = {
 "Syntax:",
-#ifdef CK_SSL
-"HTTP [ <switches> ] OPEN [{ /SSL, /TLS }] <hostname> <service/port>",
-#else
 "HTTP [ <switches> ] OPEN <hostname> <service/port>",
-#endif /*CK_SSL */
 "  Instructs Kermit to open a new connection for HTTP communication with",
 "  the specified host on the specified port.  The default port is \"http\".",
-#ifdef CK_SSL
-"  If /SSL or /TLS are specified or if the service is \"https\" or port 443,",
-"  a secure connection will be established using the current authentication",
-"  settings.  See HELP SET AUTH for details.",
-#endif /* CK_SSL */
 "  If <switches> are specified, they are applied to all subsequent HTTP",
 "  actions (GET, PUT, ...) until an HTTP CLOSE command is executed.",
 "  A URL can be included in place of the hostname and service or port.",
@@ -1879,186 +1867,6 @@ static char *hmxxhttp[] = {
 };
 #endif /* NOHTTP */
 
-#ifdef CK_KERBEROS
-static char *hmxxauth[] = {
-"Syntax:",
-"AUTHENTICATE { KERBEROS4, KERBEROS5 [ switches ] } <action> [ switches ]",
-"  Obtains or destroys Kerberos tickets and lists information about them.",
-"  Actions are INITIALIZE, DESTROY, and LIST-CREDENTIALS.  KERBEROS4 can be",
-"  abbreviated K4 or KRB4; KERBEROS5 can be abbreviated K5 or KRB5.  Use ? to",
-"  see which keywords, switches, or other quantities are valid at each point",
-"  in the command.",
-" ",
-"  The actions are INITIALIZE, DESTROY, and LIST-CREDENTIALS:",
-" ",
-"    AUTH { K4, K5 } { INITIALIZE [switches], DESTROY,",
-"      LIST-CREDENTIALS [switches] }",
-" ",
-"  The INITIALIZE action is the most complex, and its format is different",
-"  for Kerberos 4 and Kerberos 5.  The format for Kerberos 4 is:",
-" ",
-"  AUTH K4 INITIALIZE [ /INSTANCE:<name> /LIFETIME:<minutes> -",
-"    /PASSWORD:<password> /PREAUTH /REALM:<name> <principal> ]",
-" ",
-"  All switches are optional.  Kerberos 4 INITIALIZE switches are:",
-" ",
-"  /INSTANCE:<name>",
-"    Allows an Instance (such as a hostname) to be specified.",
-" ",
-"  /LIFETIME:<number>",
-"    Specifies the requested lifetime in minutes for the ticket.  If no",
-"    lifetime is specified, 600 minutes is used.  If the lifetime is greater",
-"    than the maximum supported by the ticket granting service, the resulting",
-"    lifetime is shortened accordingly.",
-" ",
-"  /NOT-PREAUTH",
-"    Instructs Kermit to send a ticket getting ticket (TGT) request to the",
-"    KDC without any preauthentication data.",
-" ",
-"  /PASSWORD:<string>",
-"    Allows a password to be included on the command line or in a script",
-"    file.  If no /PASSWORD switch is included, you are prompted on a separate"
-,
-"    line.  The password switch is provided on a use-at-your-own-risk basis",
-"    for use in automated scripts.  WARNING: Passwords should not be stored in"
-,
-"    files.",
-" ",
-"  /PREAUTH",
-"    Instructs Kermit to send a preauthenticated Ticket-Getting Ticket (TGT)",
-"    request to the KDC instead of a plaintext request.  The default when",
-"    supported by the Kerberos libraries.",
-" ",
-"  /REALM:<name>",
-"    Allows a realm to be specified (overriding the default realm).",
-" ",
-"  <principal>",
-"    Your identity in the given or default Kerberos realm, of the form:",
-"    userid[.instance[.instance]]@[realm]  ",
-"    Can be omitted if it is the same as your username or SET LOGIN USERID",
-"    value on the client system.",
-" ",
-"  The format for Kerberos 5 is as follows:",
-" ",
-"  AUTH K5 [ /CACHE:<filename> ] { INITIALIZE [ switches ], DESTROY,",
-"    LIST-CREDENTIALS ...}",
-" ",
-"The INITIALIZE command for Kerberos 5 can include a number of switches;",
-"all are optional:",
-" ",
-"AUTH K5 [ /CACHE:<filename> ] INITITIALIZE [ /ADDRESSES:<addr-list>",
-"  /FORWARDABLE /KERBEROS4 /LIFETIME:<minutes> /PASSWORD:<password>",
-"  /POSTDATE:<date-time> /PROXIABLE /REALM:<name> /RENEW /RENEWABLE:<minutes>",
-"  /SERVICE:<name> /VALIDATE <principal> ]",
-" ",
-"  All Kerberos 5 INITIALIZE switches are optional:",
-" ",
-"  /ADDRESSES:{list of ip-addresses}",
-"    Specifies a list of IP addresses that should be placed in the Ticket",
-"    Getting Ticket in addition to the local machine addresses.",
-" ",
-"  /FORWARDABLE",
-"    Requests forwardable tickets.",
-" ",
-"  /INSTANCE:<name>",
-"    Allows an Instance (such as a hostname) to be specified.",
-" ",
-"  /KERBEROS4",
-"    Instructs Kermit to get Kerberos 4 tickets in addition to Kerberos 5",
-"    tickets.  If Kerberos 5 tickets are not supported by the server, a",
-"    mild warning is printed and Kerberos 4 tickets are requested.",
-" ",
-"  /LIFETIME:<number>",
-"    Specifies the requested lifetime in minutes for the ticket.  If no",
-"    lifetime is specified, 600 minutes is used.  If the lifetime is greater",
-"    than the maximum supported by the ticket granting service, the resulting",
-"    lifetime is shortened.",
-" ",
-"  /NO-KERBEROS4",
-"    Instructs Kermit to not attempt to retrieve Kerberos 4 credentials.",
-" ",
-"  /NOT-FORWARDABLE",
-"    Requests non-forwardable tickets.",
-" ",
-"  /NOT-PROXIABLE",
-"    Requests non-proxiable tickets.",
-" ",
-"  /PASSWORD:<string>",
-"    Allows a password to be included on the command line or in a script",
-"    file.  If no /PASSWORD switch is included, you are prompted on a separate"
-,
-"    line.  The password switch is provided on a use-at-your-own-risk basis",
-"    for use in automated scripts.  WARNING: Passwords should not be stored in"
-,
-"    files.",
-" ",
-"  /POSTDATE:<date-time>",
-"    Requests a postdated ticket, valid starting at <date-time>.  Postdated",
-"    tickets are issued with the invalid flag set, and need to be fed back to",
-"    the KDC before use with the /VALIDATE switch.  Type HELP DATE for info",
-"    on date-time formats.",
-" ",
-"  /PROXIABLE",
-"    Requests proxiable tickets.",
-" ",
-"  /REALM:<string>",
-"    Allows an alternative realm to be specified.",
-" ",
-"  /RENEW",
-"    Requests renewal of a renewable Ticket-Granting Ticket.  Note that ",
-"    an expired ticket cannot be renewed even if it is within its renewable ",
-"    lifetime.",
-" ",
-"  /RENEWABLE:<number>",
-"    Requests renewable tickets, with a total lifetime of <number> minutes.",
-" ",
-"  /SERVICE:<string>",
-"    Allows a service other than the ticket granting service to be specified.",
-" ",
-"  /VALIDATE",
-"    Requests that the Ticket Granting Ticket in the cache (with the invalid",
-"    flag set) be passed to the KDC for validation.  If the ticket is within",
-"    its requested time range, the cache is replaced with the validated",
-"    ticket.",
-" ",
-"  <principal>",
-"    Your identity in the given or default Kerberos realm, of the form:",
-"    userid[/instance][@realm]  ",
-"    Can be omitted if it is the same as your username or SET LOGIN USERID",
-"    value on the client system.",
-" ",
-"  Note: Kerberos 5 always attempts to retrieve a Ticket-Getting Ticket (TGT)",
-"  using the preauthenticated TGT request.",
-" ",
-"  AUTHORIZE K5 LIST-CREDENTIALS [ /ADDRESSES /FLAGS /ENCRYPTION ]",
-" ",
-"  Shows start time, expiration time, service or principal name, plus",
-"  the following additional information depending the switches:",
-" ",
-"  /ADDRESSES displays the hostnames and/or IP addresses embedded within",
-"    the tickets.",
-" ",
-"  /FLAGS provides the following information (if applicable) for each ticket:",
-"    F - Ticket is Forwardable",
-"    f - Ticket was Forwarded",
-"    P - Ticket is Proxiable",
-"    p - Ticket is a Proxy",
-"    D - Ticket may be Postdated",
-"    d - Ticket has been Postdated",
-"    i - Ticket is Invalid",
-"    R - Ticket is Renewable",
-"    I - Ticket is the Initial Ticket",
-"    H - Ticket has been authenticated by Hardware",
-"    A - Ticket has been Pre-authenticated",
-" ",
-"  /ENCRYPTION displays the encryption used by each ticket (if applicable):",
-"    DES-CBC-CRC",
-"    DES-CBC-MD4",
-"    DES-CBC-MD5",
-"    DES3-CBC-SHA",
-""
-};
-#endif /* CK_KERBEROS */
 
 #ifndef NOCSETS
 static char *hmxxassoc[] = {
@@ -4675,21 +4483,6 @@ static char *hmxxiks[] = {
 "  available to require a secure authentication method and bidirectional",
 "  encryption.  See HELP SET TELNET for more info.",
 " ",
-#ifdef CK_AUTHENTICATION
-" /AUTH:<type> is equivalent to SET TELNET AUTH TYPE <type> and",
-"   SET TELOPT AUTH REQUIRED with the following exceptions.  If the type",
-"   is AUTO, then SET TELOPT AUTH REQUESTED is executed and if the type",
-"   is NONE, then SET TELOPT AUTH REFUSED is executed.",
-" ",
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-" /ENCRYPT:<type> is equivalent to SET TELNET ENCRYPT TYPE <type>",
-"   and SET TELOPT ENCRYPT REQUIRED REQUIRED with the following exceptions.",
-"   If the type is AUTO then SET TELOPT AUTH REQUESTED REQUESTED is executed",
-"   and if the type is NONE then SET TELOPT ENCRYPT REFUSED REFUSED is",
-"   executed.",
-" ",
-#endif /* CK_ENCRYPTION */
 " /USERID:[<name>]",
 "   This switch is equivalent to SET LOGIN USERID <name> or SET TELNET",
 "   ENVIRONMENT USER <name>.  If a string is given, it sent to host during",
@@ -4698,15 +4491,6 @@ static char *hmxxiks[] = {
 "   current USERID value, \\v(userid), is sent.  When a userid is sent to the",
 "   host it is a request to login as the specified user.",
 " ",
-#ifdef CK_AUTHENTICATION
-" /PASSWORD:[<string>]",
-"   This switch is equivalent to SET LOGIN PASSWORD.  If a string is given,",
-"   it is treated as the password to be used (if required) by any Telnet",
-"   Authentication protocol (Kerberos Ticket retrieval, Secure Remote",
-"   Password, or X.509 certificate private key decryption.)  If no password",
-"   switch is specified a prompt is issued to request the password if one",
-"   is required for the negotiated authentication method.",
-#endif /* CK_AUTHENTICATION */
 ""};
 
 static char *hmxxtel[] = {
@@ -4717,21 +4501,6 @@ static char *hmxxtel[] = {
 "  available to require a secure authentication method and bidirectional",
 "  encryption.  See HELP SET TELNET for more info.",
 " ",
-#ifdef CK_AUTHENTICATION
-" /AUTH:<type> is equivalent to SET TELNET AUTH TYPE <type> and",
-"   SET TELOPT AUTH REQUIRED with the following exceptions.  If the type",
-"   is AUTO, then SET TELOPT AUTH REQUESTED is executed and if the type",
-"   is NONE, then SET TELOPT AUTH REFUSED is executed.",
-" ",
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-" /ENCRYPT:<type> is equivalent to SET TELNET ENCRYPT TYPE <type>",
-"   and SET TELOPT ENCRYPT REQUIRED REQUIRED with the following exceptions.",
-"   If the type is AUTO then SET TELOPT AUTH REQUESTED REQUESTED is executed",
-"   and if the type is NONE then SET TELOPT ENCRYPT REFUSED REFUSED is",
-"   executed.",
-" ",
-#endif /* CK_ENCRYPTION */
 " /USERID:[<name>]",
 "   This switch is equivalent to SET LOGIN USERID <name> or SET TELNET",
 "   ENVIRONMENT USER <name>.  If a string is given, it sent to host during",
@@ -4740,15 +4509,6 @@ static char *hmxxtel[] = {
 "   current USERID value, \\v(userid), is sent.  When a userid is sent to the",
 "   host it is a request to login as the specified user.",
 " ",
-#ifdef CK_AUTHENTICATION
-" /PASSWORD:[<string>]",
-"   This switch is equivalent to SET LOGIN PASSWORD.  If a string is given,",
-"   it is treated as the password to be used (if required) by any Telnet",
-"   Authentication protocol (Kerberos Ticket retrieval, Secure Remote",
-"   Password, or X.509 certificate private key decryption.)  If no password",
-"   switch is specified a prompt is issued to request the password if one",
-"   is required for the negotiated authentication method.",
-#endif /* CK_AUTHENTICATION */
 ""};
 
 static char *hxtopt[] = {
@@ -6423,10 +6183,6 @@ case XXREMV:
     return(hmsga(hmxxremv));
 #endif /* NOXFER */
 
-#ifdef CK_KERBEROS
-case XXAUTH:
-    return(hmsga(hmxxauth));
-#endif /* CK_KERBEROS */
 
 #ifndef NOHTTP
 case XXHTTP:
@@ -7193,16 +6949,6 @@ Enter CONNECT (terminal) mode automatically if the connection is successful.",
 "   current USERID value, \\v(userid), is sent.  When a userid is sent to the",
 "   host it is a request to login as the specified user.",
 " ",
-#ifdef CK_AUTHENTICATION
-" /PASSWORD:[<string>]",
-"   This switch is equivalent to SET LOGIN PASSWORD.  If a string is given,",
-"   it is treated as the password to be used (if required) by any Telnet",
-"   Authentication protocol (Kerberos Ticket retrieval, Secure Remote",
-"   Password, or X.509 certificate private key decryption.)  If no password",
-"   switch is specified a prompt is issued to request the password if one",
-"   is required for the negotiated authentication method.",
-" ",
-#endif /* CK_AUTHENTICATION */
 "The protocol-switches can be:",
 " ",
 " /NO-TELNET-INIT",
@@ -7219,46 +6965,6 @@ Enter CONNECT (terminal) mode automatically if the connection is successful.",
 " /TELNET",
 "   Send initial Telnet negotiations even if this is not a Telnet port.",
 " ",
-#ifdef CK_KERBEROS
-#ifdef RLOGCODE
-#ifdef KRB4
-" /K4LOGIN",
-"   Use Kerberos IV klogin protocol even if this is not a klogin port.",
-" ",
-#ifdef CK_ENCRYPTION
-" /EK4LOGIN",
-"   Use Kerberos IV Encrypted login protocol even if this is not an eklogin",
-"   port.",
-" ",
-#endif /* CK_ENCRYPTION */
-#endif /* KRB4 */
-#ifdef KRB5
-" /K5LOGIN",
-"   Use Kerberos V klogin protocol even if this is not a klogin port.",
-" ",
-#ifdef CK_ENCRYPTION
-" /EK5LOGIN",
-"   Use Kerberos V Encrypted login protocol even if this is not an eklogin",
-"   port.",
-" ",
-#endif /* CK_ENCRYPTION */
-#endif /* KRB5 */
-#endif /* RLOGCODE */
-#endif /* CK_KERBEROS */
-#ifdef CK_SSL
-" /SSL",
-"   Perform SSL negotiations.",
-" ",
-" /SSL-TELNET",
-"   Perform SSL negotiations and if successful start Telnet negotiations.",
-" ",
-" /TLS",
-"   Perform TLS negotiations.",
-" ",
-" /TLS-TELNET",
-"   Perform TLS negotiations and if successful start Telnet negotiations.",
-" ",
-#endif /* CK_SSL */
 "Examples:",
 "  SET HOST kermit.columbia.edu",
 "  SET HOST /CONNECT kermit.columbia.edu",
@@ -7294,340 +7000,6 @@ static char *hmxyauth[] = {
 "Synatx: SET AUTHENTICATION <auth_type> <parameter> <value>",
 "  Sets defaults for the AUTHENTICATE command:",
 " ",
-#ifdef CK_KERBEROS
-"SET AUTHENTICATION KERBEROS5 ADDRESSES {list of ip-addresses}",
-"  Specifies a list of IP addresses that should be placed in the Ticket",
-"  Getting Ticket in addition to the local machine addresses.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } AUTODESTROY",
-"  { ON-CLOSE, ON-EXIT, NEVER }",
-"  When ON, Kermit will destroy all credentials in the default",
-"  credentials cache upon Kermit termination.  Default is NEVER.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } AUTOGET { ON, OFF }",
-"  When ON, if the host offers Kerberos 4 or Kerberos 5 authentication",
-"  and Kermit is configured to use that authentication method and there",
-"  is no TGT, Kermit will automatically attempt to retrieve one by",
-"  prompting for the password (and principal if needed.)  Default is ON.",
-" ",
-"SET AUTHENTICATION KERBEROS5 CREDENTIALS-CACHE <filename>",
-"  Allows an alternative credentials cache to be specified.  This is useful",
-"  when you need to maintain two or more sets of credentials for different",
-"  realms or roles.  The default is specified by the environment variable",
-"  KRB5CCNAME or as reported by the Kerberos 5 library.",
-" ",
-"SET AUTHENTICATION KERBEROS5 FORWARDABLE { ON, OFF }",
-"  When ON, specifies that Kerberos 5 credentials should be forwardable to",
-"  the host.  If SET TELNET AUTHENTICATION FORWARDING is ON, forwardable",
-"  credentials are sent to the host.  The default is OFF.",
-" ",
-"SET AUTHENTICATION KERBEROS5 GET-K4-TGT { ON, OFF }",
-"  When ON, specifies that Kerberos 4 credentials should be requested each",
-"  time Kerberos 5 credentials are requested with AUTH KERBEROS5 INIT.",
-"  Default is OFF.",
-" ",
-"SET AUTHENTICATION KERBEROS4 INSTANCE <instance>",
-"  Allows a Kerberos 4 instance to be specified as a default (if needed).",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } KEYTAB <filename>",
-"  Specifies the location of the keytab file used to authenticate incoming",
-"  connections.  The default is none, which means to use the default value",
-"  configured in the Kerberos installation.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } LIFETIME <minutes>",
-"  Specifies the lifetime of the TGTs requested from the KDC.  The default",
-"  is 600 minutes (10 hours).",
-" ",
-"SET AUTHENTICATION KERBEROS5 NO-ADDRESSES { ON, OFF }",
-"  Specifies whether or not IP addresses will be inserted into the TGT."
-"  Default is OFF.",
-" ",
-"SET AUTHENTICATION KERBEROS4 PREAUTH { ON, OFF }",
-"  Allows Kerberos 4 preauthenticated TGT requests to be turned off.  The",
-"  default is ON.  Only use if absolutely necessary.  We recommend that",
-"  preauthenticated requests be required for all tickets returned by a KDC",
-"  to a requestor.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } PRINCIPAL <name>",
-"  When Kermit starts, it attempts to set the principal name to that stored",
-"  in the current credentials cache.  If no credential cache exists, the",
-"  current SET LOGIN USERID value is used.  SET LOGIN USERID is set to the",
-"  operating system's current username when Kermit is started.  To force",
-"  Kermit to prompt the user for the principal name when requesting TGTs,",
-"  place:",
-" ",
-"    SET AUTH K4 PRINCIPAL {}",
-"    SET AUTH K5 PRINCIPAL {}",
-" ",
-"  in the Kermit initialization file or connection script.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } PROMPT PASSWORD <prompt>",
-"  Specifies a custom prompt to be used when prompting for a password.",
-"  The Kerberos prompt strings may contain two %s replacement fields.",
-"  The first %s is replaced by the principal name; the second by the realm.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } PROMPT PRINCIPAL <prompt>",
-"  Specifies a custom prompt to be used when prompting for the Kerberos",
-"  principal name.  No %s replacement fields may be used.  Kermit prompts",
-"  for a principal name when retrieving a TGT if the command:",
-" ",
-"    SET AUTHENTICATION { KERBEROS4, KERBEROS5 } PRINCIPAL {}",
-" ",
-"  has been issued.",
-" ",
-"SET AUTHENTICATION KERBEROS5 PROXIABLE { ON, OFF }",
-"  When ON, specifies that Kerberos 5 credentials should be proxiable.",
-"  Default is OFF.",
-" ",
-"SET AUTHENTICATION KERBEROS5 RENEWABLE <minutes>",
-"  When <minutes> is greater than the ticket lifetime a TGT may be renewed",
-"  with AUTH K5 INIT /RENEW instead of getting a new ticket as long as the",
-"  ticket is not expired and its within the renewable lifetime.  Default is",
-"  0 (zero) minutes.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } REALM <name>",
-"  If no default is set, the default realm configured for the Kerberos",
-"  libraries is used.  Abbreviations accepted.",
-" ",
-"SET AUTHENTICATION { KERBEROS4, KERBEROS5 } SERVICE-NAME <name>",
-"  This command specifies the service ticket name used to authenticate",
-"  to the host when Kermit is used as a client; or the service ticket",
-"  name accepted by Kermit when it is acting as the host.",
-"  If no default is set, the default service name for Kerberos 4 is",
-"  \"rcmd\" and for Kerberos 5 is \"host\".",
-" ",
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-"SET AUTHENTICATION SRP PROMPT PASSWORD <prompt>",
-"  Specifies a custom prompt to be used when prompting for a password.",
-"  The SRP prompt string may contain one %s replacement fields which is",
-"  replaced by the login userid.",
-" ",
-#endif /* CK_SRP */
-#ifdef CK_SSL
-"In all of the following commands \"SSL\" and \"TLS\" are aliases.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } CIPHER-LIST <list of ciphers>",
-"Applies to both SSL and TLS.  A colon separated list of any of the following",
-"(case sensitive) options depending on the options chosen when OpenSSL was ",
-"compiled: ",
-" ",
-"  Key Exchange Algorithms:",
-"    \"kRSA\"      RSA key exchange",
-"    \"kDHr\"      Diffie-Hellman key exchange (key from RSA cert)",
-"    \"kDHd\"      Diffie-Hellman key exchange (key from DSA cert)",
-"    \"kEDH\"      Ephemeral Diffie-Hellman key exchange (temporary key)",
-"    \"kKRB5\"     Kerberos 5",
-" ",
-"  Authentication Algorithm:",
-"    \"aNULL\"     No authentication",
-"    \"aRSA\"      RSA authentication",
-"    \"aDSS\"      DSS authentication",
-"    \"aDH\"       Diffie-Hellman authentication",
-"    \"aKRB5\"     Kerberos 5",
-" ",
-"  Cipher Encoding Algorithm:",
-"    \"eNULL\"     No encodiing",
-"    \"DES\"       DES encoding",
-"    \"3DES\"      Triple DES encoding",
-"    \"RC4\"       RC4 encoding",
-"    \"RC2\"       RC2 encoding",
-"    \"IDEA\"      IDEA encoding",
-" ",
-"  MAC Digest Algorithm:",
-"    \"MD5\"       MD5 hash function",
-"    \"SHA1\"      SHA1 hash function",
-"    \"SHA\"       SHA hash function (should not be used)",
-" ",
-"  Aliases:",
-"    \"SSLv2\"     all SSL version 2.0 ciphers (should not be used)",
-"    \"SSLv3\"     all SSL version 3.0 ciphers",
-"    \"EXP\"       all export ciphers (40-bit)",
-"    \"EXPORT56\"  all export ciphers (56-bit)",
-"    \"LOW\"       all low strength ciphers (no export)",
-"    \"MEDIUM\"    all ciphers with 128-bit encryption",
-"    \"HIGH\"      all ciphers using greater than 128-bit encryption",
-"    \"RSA\"       all ciphers using RSA key exchange",
-"    \"DH\"        all ciphers using Diffie-Hellman key exchange",
-"    \"EDH\"       all ciphers using Ephemeral Diffie-Hellman key exchange",
-"    \"ADH\"       all ciphers using Anonymous Diffie-Hellman key exchange",
-"    \"DSS\"       all ciphers using DSS authentication",
-"    \"KRB5\"      all ciphers using Kerberos 5 authentication",
-"    \"NULL\"      all ciphers using no encryption",
-" ",
-"Each item in the list may include a prefix modifier:",
-" ",
-"    \"+\"         move cipher(s) to the current location in the list",
-"    \"-\"         remove cipher(s) from the list (may be added again by",
-"                a subsequent list entry)",
-"    \"!\"         kill cipher from the list (it may not be added again",
-"                by a subsequent list entry)",
-" ",
-"If no modifier is specified the entry is added to the list at the current ",
-"position.  \"+\" may also be used to combine tags to specify entries such as "
-,
-"\"RSA+RC4\" describes all ciphers that use both RSA and RC4.",
-" ",
-"For example, all available ciphers not including ADH key exchange:",
-" ",
-"  ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP",
-" ",
-"All algorithms including ADH and export but excluding patented algorithms: ",
-" ",
-"  HIGH:MEDIUM:LOW:EXPORT56:EXP:ADH:!kRSA:!aRSA:!RC4:!RC2:!IDEA",
-" ",
-"The OpenSSL command ",
-" ",
-"  openssl.exe ciphers -v <list of ciphers> ",
-" ",
-"may be used to list all of the ciphers and the order described by a specific",
-"<list of ciphers>.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } CRL-DIR <directory>",
-"specifies a directory that contains certificate revocation files where each",
-"file is named by the hash of the certificate that has been revoked.",
-" ",
-"  OpenSSL expects the hash symlinks to be made like this:",
-" ",
-"    ln -s crl.pem `openssl crl -hash -noout -in crl.pem`.r0",
-" ",
-"  Since not all file systems have symlinks you can use the following command",
-"  in Kermit to copy the crl.pem file to the hash file name.",
-" ",
-"     copy crl.pem {\\fcommand(openssl.exe crl -hash -noout -in crl.pem).r0}",
-" ",
-"  This produces a hash based on the issuer field in the CRL such ",
-"  that the issuer field of a Cert may be quickly mapped to the ",
-"  correct CRL.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } CRL-FILE <filename>",
-"specifies a file that contains a list of certificate revocations.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } DEBUG { ON, OFF }",
-"specifies whether debug information should be displayed about the SSL/TLS",
-"connection.  When DEBUG is ON, the VERIFY command does not terminate",
-"connections when set to FAIL-IF-NO-PEER-CERT when a certificate is",
-"presented that cannot be successfully verified.  Instead each error",
-"is displayed but the connection automatically continues.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } DH-PARAM-FILE <filename>",
-"  Specifies a file containing DH parameters which are used to generate",
-"  temporary DH keys.  If a DH parameter file is not provided Kermit uses a",
-"  fixed set of parameters depending on the negotiated key length.  Kermit",
-"  provides DH parameters for key lengths of 512, 768, 1024, 1536, and 2048",
-"  bits.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } DSA-CERT-CHAIN-FILE <filename>",
-"  Specifies a file containing a DSA certificate chain to be sent along with",
-"  the DSA-CERT to the peer.  This file must only be specified if Kermit is",
-"  being used as a server and the DSA certificate was signed by an",
-"  intermediary certificate authority.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } DSA-CERT-FILE <filename>",
-"  Specifies a file containing a DSA certificate to be sent to the peer to ",
-"  authenticate the host or end user.  The file may contain the matching DH ",
-"  private key instead of using the DSA-KEY-FILE command.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } DSA-KEY-FILE <filename>",
-"Specifies a file containing the private DH key that matches the DSA ",
-"certificate specified with DSA-CERT-FILE.  This command is only necessary if",
-"the private key is not appended to the certificate in the file specified by",
-"DSA-CERT-FILE.",
-" ",
-"  Note: When executing a script in the background or when it is",
-"  running as an Internet Kermit Service Daemon, Kermit cannot support ",
-"  encrypted private keys.  When attempting to load a private key that is",
-"  encrypted, a prompt will be generated requesting the passphrase necessary",
-"  to decrypt the keyfile.  To automate access to the private key you must",
-"  decrypt the encrypted keyfile and create an unencrypted keyfile for use",
-"  by Kermit.  This can be accomplished by using the following command and",
-"  the passphrase:",
-" ",
-"  openssl dsa -in <encrypted-key-file> -out <unencrypted-key-file>",
-" ",
-"SET AUTHENTICATION { SSL, TLS } RANDOM-FILE <filename>",
-"  Specifies a file containing random data to be used as seed for the",
-"  Pseudo Random Number Generator.  The contents of the file are",
-"  overwritten with new random data on each use.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } RSA-CERT-CHAIN-FILE <filename>",
-"  Specifies a file containing a RSA certificate chain to be sent along with",
-"  the RSA-CERT to the peer.  This file must only be specified if Kermit is",
-"  being used as a server and the RSA certificate was signed by an",
-"  intermediary certificate authority.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } RSA-CERT-FILE <filename>",
-"  Specifies a file containing a RSA certificate to be sent to the peer to ",
-"  authenticate the host or end user.  The file may contain the matching RSA ",
-"  private key instead of using the RSA-KEY-FILE command.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } RSA-KEY-FILE <filename>",
-"  Specifies a file containing the private RSA key that matches the RSA",
-"  certificate specified with RSA-CERT-FILE.  This command is only necessary",
-"  if the private key is not appended to the certificate in the file specified"
-,
-"  by RSA-CERT-FILE.  ",
-" ",
-"  Note: When executing a script in the background or when it is",
-"  running as an Internet Kermit Service Daemon, Kermit cannot support ",
-"  encrypted private keys.  When attempting to load a private key that is",
-"  encrypted, a prompt will be generated requesting the passphrase necessary",
-"  to decrypt the keyfile.  To automate access to the private key you must",
-"  decrypt the encrypted keyfile and create an unencrypted keyfile for use",
-"  by Kermit.  This can be accomplished by using the following command and",
-"  the passphrase:",
-" ",
-"  openssl rsa -in <encrypted-key-file> -out <unencrypted-key-file>",
-" ",
-"SET AUTHENTICATION { SSL, TLS } VERBOSE { ON, OFF }",
-"  Specifies whether information about the authentication (ie, the",
-"  certificate chain) should be displayed upon making a connection.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } VERIFY { NO,PEER-CERT,FAIL-IF-NO-PEER-CERT }",
-"  Specifies whether certificates should be requested from the peer verified;",
-"  whether they should be verified when they are presented; and whether they",
-"  should be required.  When set to NO (the default for IKSD), Kermit does",
-"  not request that the peer send a certificate; if one is presented it is",
-"  ignored.  When set to PEER-CERT (the default when not IKSD), Kermit",
-"  requests a certificate be sent by the peer.  If presented, the certificate",
-"  is verified.  Any errors during the verification process result in",
-"  queries to the end user.  When set to FAIL-IF-NO-PEER-CERT, Kermit",
-"  requests a certificate be sent by the peer.  If the certificate is not",
-"  presented or fails to verify, the connection is terminated without",
-"  querying the user.",
-" ",
-"  If an anonymous cipher (i.e., ADH) is desired, the NO setting must be",
-"  used.  Otherwise, the receipt of the peer certificate request is",
-"  interpreted as a protocol error and the negotiation fails.",
-" ",
-"  If you wish to allow the peer to authenticate using either an X509",
-"  certificate to userid mapping function or via use of a ~/.tlslogin file",
-"  you must use either PEER-CERT or FAIL-IF-NO-PEER-CERT.  Otherwise, any",
-"  certificates that are presented is ignored.  In other words, use NO if you",
-"  want to disable the ability to use certificates to authenticate a peer.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } VERIFY-DIR <directory>",
-"  Specifies a directory that contains root CA certificate files used to",
-"  verify the certificate chains presented by the peer.  Each file is named",
-"  by a hash of the certificate.",
-" ",
-"  OpenSSL expects the hash symlinks to be made like this:",
-" ",
-"    ln -s cert.pem `openssl x509 -hash -noout -in cert.pem`.0",
-" ",
-"  Since not all file systems have symlinks you can use the following command",
-"  in Kermit to copy the cert.pem file to the hash file name.",
-" ",
-"    copy cert.pem {\\fcommand(openssl.exe x509 -hash -noout -in cert.pem).0}",
-" ",
-"  This produces a hash based on the subject field in the cert such that the",
-"  certificate may be quickly found.",
-" ",
-"SET AUTHENTICATION { SSL, TLS } VERIFY-FILE <file>",
-"  Specifies a file that contains root CA certificates to be used for",
-"  verifying certificate chains.",
-" ",
-#endif /* CK_SSL */
 ""
 };
 
@@ -7795,58 +7167,6 @@ static char *hxytel[] = {
 " ",
 "For TCP/IP TELNET connections, which are in NVT (ASCII) mode by default:",
 " ",
-#ifdef CK_AUTHENTICATION
-#ifdef COMMENT
-"SET TELNET AUTHENICATION { ACCEPTED, REFUSED, REQUESTED, REQUIRED }",
-"  ACCEPT or REFUSE authentication bids, or actively REQUEST authentication.",
-"  REQUIRED refuses the connection if authentication is not successfully",
-"  negotiated.  ACCEPTED by default.",
-" ",
-#endif /* COMMENT */
-"SET TELNET AUTHENTICATION TYPE { AUTOMATIC, KERBEROS_IV, KERBEROS_V, ...",
-"  ..., SSL, SRP, NONE } [...]",
-"  AUTOMATIC is the default.  Available options can vary depending on the",
-"  features Kermit was built to support and the operating system",
-"  configuration; type SET TELNET AUTHENTICATION TYPE ? for a list.",
-" ",
-"  When Kermit is the Telnet client:",
-"    AUTOMATIC allows the host to choose the preferred type of authentication."
-,
-"    NONE instructs Kermit to refuse all authentication methods when the",
-"    authentication option is negotiated.  A list of one or more other values",
-"    allow a specific subset of the supported authentication methods to be",
-"    used.",
-" ",
-"  When Kermit is the Telnet server:",
-"    AUTOMATIC results in available authentication methods being offered",
-"    to the telnet client in the following order:",
-" ",
-"      KERBEROS_V, KERBEROS_IV, SRP, SSL, NTLM",
-" ",
-"  NONE results in no authentication methods being offered to the Telnet",
-"  server when the authentication option is negotiated.  The preferred",
-"  method of disabling authentication is:",
-" ",
-"    SET TELOPT /SERVER AUTHENTICATION REFUSE",
-" ",
-"  A list of one or more authentication methods specifies the order those",
-"  methods are to be offered to the telnet client.",
-" ",
-#ifdef CK_KERBEROS
-"SET TELNET AUTHENTICATION FORWARDING { ON, OFF }",
-"  Set this to ON to forward Kerberos V ticket-granting-tickets to the host",
-"  after authentication is complete.  OFF by default.",
-" ",
-#endif /* CK_KERBEROS */
-"SET TELNET AUTHENTICATION ENCRYPT-FLAG { ANY, NONE, TELOPT }",
-"  Use this command to specify which AUTH telopt encryption flags may be",
-"  accepted in client mode or offered in server mode.  The default is ANY.",
-" ",
-"SET TELNET AUTHENTICATION HOW-FLAG { ANY, ONE-WAY, MUTUAL }",
-"  Use this command to specify which AUTH telopt how flags may be",
-"  accepted in client mode or offered in server mode.  The default is ANY.",
-" ",
-#endif /* CK_AUTHENTICATION */
 #ifdef COMMENT
 "SET TELNET BINARY-MODE { ACCEPTED, REFUSED, REQUESTED, REQUIRED }",
 "  ACCEPT or REFUSE binary-mode bids, or actively REQUEST binary mode.",
@@ -7901,22 +7221,6 @@ static char *hxytel[] = {
 "  Kermit's initial echoing state for TELNET connections, LOCAL by default.",
 "  After the connection is made, TELNET negotiations determine the echoing.",
 " ",
-#ifdef CK_ENCRYPTION
-#ifdef COMMENT
-"SET TELNET ENCRYPTION { ACCEPTED, REFUSED, REQUESTED, REQUIRED }",
-"  ACCEPT or REFUSE encryption bids, or actively REQUEST encryption in both.",
-"  directions.  REQUIRED refuses the connection if encryption is not",
-"  successfully negotiated in both directions.  ACCEPTED by default.",
-" ",
-#endif /* COMMENT */
-"SET TELNET ENCRYPTION TYPE { AUTOMATIC, CAST128_CFB64, CAST128_OFB64, ",
-"  CAST5_40_CFB64, CAST5_40_OFB64, DES_CFB64, DES_OFB64, NONE }",
-"  AUTOMATIC allows the host to choose the preferred type of encryption.",
-"  Other values allow a specific encryption method to be specified.",
-"  AUTOMATIC is the default.  The list of options will vary depending",
-"  on the encryption types selected at compilation time.",
-" ",
-#endif /* CK_ENCRYPTION */
 #ifdef CK_ENVIRONMENT
 #ifdef COMMENT
 "SET TELNET ENVIRONMENT { ON, OFF, variable-name [ value ] }",
@@ -7941,13 +7245,6 @@ static char *hxytel[] = {
 " ",
 #endif /* COMMENT */
 #endif /* CK_ENVIRONMENT */
-#ifdef CK_FORWARD_X
-"SET TELNET FORWARD-X XAUTHORITY-FILE <file>",
-"  If your X Server requires X authentication and the location of the",
-"  .Xauthority file is not defined by the XAUTHORITY environment variable,",
-"  use this command to specify the location of the .Xauthority file.",
-"  ",
-#endif /* CK_FORWARD_X */
 #ifdef CK_SNDLOC
 "SET TELNET LOCATION [ text ]",
 "  Location string to send to the Telnet server if it asks.  By default this",
@@ -9018,15 +8315,6 @@ case XYFUNC:
     return(hmsga(hxyfunc));
 #endif /* NOSPL */
 
-#ifdef CK_AUTHENTICATION
-case XYAUTH:
-    return(hmsga(hmxyauth));
-#else /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-case XYAUTH:
-    return(hmsga(hmxyauth));
-#endif /* CK_SSL */
-#endif /* CK_AUTHENTICATION */
 
 #ifdef BROWSER
 case XYFTP:
@@ -10074,59 +9362,6 @@ Returns number:\n");
   How many elements were converted.\n");
         break;
 
-#ifdef CK_KERBEROS
-      case FN_KRB_TK:
-        printf("\\fkrbtickets(n)\n\
-  n = Kerberos version number (4 or 5).\n\
-  Returns string:\n\
-  The number of active Kerberos 4 or 5 tickets.\n\
-  Resets the ticket list used by \\fkrbnextticket(n).\n");
-        break;
-
-      case FN_KRB_NX:
-        printf("\\fkrbnextticket(n)\n\
-  n = Kerberos version number (4 or 5).\n\
-  Returns string:\n\
-    The next ticket in the Kerberos 4 or 5 ticket list that was set up by\n\
-    the most recent invocation of \\fkrbtickets(n).\n");
-        break;
-
-      case FN_KRB_IV:
-        printf("\\fkrbisvalid(n,name)\n\
-  n    = Kerberos version number (4 or 5).\n\
-  name = a ticket name as returned by \\fkrbnextticket(n).\n\
-  Returns number:\n\
-    1 if the ticket is valid, 0 if not valid.\n\
-    A ticket is valid if all the following conditions are true:\n\n");
-        printf("\n\
-    (i)   it exists in the current cache file;\n\
-    (ii)  it is not expired;\n\
-    (iii) it is not marked invalid (K5 only);\n\
-    (iv)  it was issued from the current IP address\n");
-        printf("\n  This value can be used in an IF statement, e.g.:\n\n");
-        printf("    if \\fkrbisvalid(4,krbtgt.FOO.BAR.EDU@FOO.BAR.EDU) ...\n");
-        break;
-
-      case FN_KRB_TT:
-        printf("\\fkrbtimeleft(n,name)\n\
-  n    = Kerberos version number (4 or 5).\n\
-  name = a ticket name as returned by \\fkrbnextticket(n).\n\
-  Returns string:\n\
-    The number of seconds remaining in the ticket's lifetime.\n");
-        break;
-
-      case FN_KRB_FG:
-        printf("\\fkrbflags(n,name)\n\
-  n    = Kerberos version number (4 or 5).\n\
-  name = a ticket name as returned by \\fkrbnextticket(n).\n\
-  Returns string:\n");
-        printf(
-"    The flags string as reported with AUTH K5 LIST /FLAGS.  This string can\n\
-    be searched for a particular flag using the \\findex() function when\n\
-    SET CASE is ON (for case sensitive searches).  Flag strings are only\n\
-    available for K5 tickets.\n");
-        break;
-#endif /* CK_KERBEROS */
 
       case FN_PATTERN:
         printf("\\fpattern(s)\n\

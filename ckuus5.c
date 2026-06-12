@@ -55,9 +55,6 @@ int noherald = 0;         /* Whether to print the program herald on startup */
 #ifdef MAC
 #include "ckmasm.h"
 #endif /* MAC */
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 extern char * ck_cryear;       /* (ckcmai.c) Latest C-Kermit copyright year */
 
@@ -271,17 +268,6 @@ extern long vernum;
 extern int inecho, insilence, inbufsize, nvars, inintr;
 extern char *protv, *fnsv, *cmdv, *userv, *ckxv, *ckzv, *ckzsys, *xlav,
  *cknetv, *clcmds;
-#ifdef CK_AUTHENTICATION
-extern char * ckathv;
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-extern char * cksslv;
-#endif /* CK_SSL */
-#ifdef CK_ENCRYPTION
-#ifndef CRYPT_DLL
-extern char * ckcrpv;
-#endif /* CRYPT_DLL */
-#endif /* CK_ENCRYPTION */
 
 #ifdef SSHBUILTIN
 extern char *cksshv;
@@ -1604,10 +1590,6 @@ extern int ckrooterr;
 
 VOID
 doiksdinit() {
-#ifdef CK_SSL
-    /* IKSD doesn't request client certs */
-    ssl_verify_flag = SSL_VERIFY_NONE;
-#endif /* CK_SSL */
 
     if (!cmdinited)
       cmdini();
@@ -4999,19 +4981,6 @@ shover() {
 #endif /* SYSFTP */
 #endif /* NOFTP */
 
-#ifdef CK_AUTHENTICATION
-    printf(" %s\n",ckathv);
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-#ifdef CRYPT_DLL
-    printf(" %s\n",ck_crypt_dll_version());
-#else /* CRYPT_DLL */
-    printf(" %s\n",ckcrpv);
-#endif /* CRYPT_DLL */
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-    printf(" %s\n",cksslv);
-#endif /* CK_SSL */
     printf("\n");
 }
 
@@ -6734,10 +6703,6 @@ doshow(x) int x;
         break;
 #endif  /* IKSD */
 
-#ifdef CK_AUTHENTICATION
-      case SHOAUTH:
-        return(sho_auth(0));
-#endif /* CK_AUTHENTICATION */
 
 #ifndef NOFTP
       case SHOFTP: {
@@ -9610,9 +9575,6 @@ initoptlist() {
 #ifdef TNCODE
     makestr(&(optlist[noptlist++]),"TNCODE");
 #endif /* TNCODE */
-#ifdef CK_FORWARD_X
-    makestr(&(optlist[noptlist++]),"CK_FORWARD_X");
-#endif /* CK_FORWARD_X */
 #ifdef TN_COMPORT
     makestr(&(optlist[noptlist++]),"TN_COMPORT");
 #endif /* TN_COMPORT */
@@ -10733,14 +10695,6 @@ initoptlist() {
 #ifdef CK_TAPI
     makestr(&(optlist[noptlist++]),"CK_TAPI");
 #endif /* CK_TAPI */
-#ifdef CK_SSL
-    makestr(&(optlist[noptlist++]),"CK_SSL");
-#ifdef OPENSSL_VERSION_TEXT
-    ckmakmsg(line,LINBUFSIZ,
-	     "OPENSSL_VERSION_TEXT=","\"",OPENSSL_VERSION_TEXT,"\"");
-    makestr(&(optlist[noptlist++]),line);
-#endif	/* OPENSSL_VERSION_TEXT */
-#endif /* CK_SSL */
 #ifdef CK_CONPTY
     makestr(&(optlist[noptlist++]),"CK_CONPTY");
 #endif  /* CK_CONPTY */
@@ -10821,70 +10775,6 @@ printf("NOWTMP not defined\n");
     printf(" Telnet Kermit Option\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
 #endif /* IKS_OPTION */
-#ifdef CK_AUTHENTICATION
-    printf(" Telnet Authentication Option\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef KRB5
-    printf(" Kerberos(TM) IV and Kerberos V authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#else /* KRB5 */
-    printf(" Kerberos(TM) IV authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* KRB5 */
-#else /* KRB4 */
-#ifdef KRB5
-    printf(" Kerberos(TM) V authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* KRB5 */
-#endif /* KRB4 */
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-    printf(" SRP(TM) (Secure Remote Password) authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_SRP */
-#ifdef CK_SSL
-    printf(" Secure Sockets Layer (SSL)\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    printf(" Transport Layer Security (TLS)\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_SSL */
-#ifdef SSHBUILTIN
-    printf(" Secure Shell (SSH) [internal]\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* SSHBUILTIN */
-#ifdef SSHCMD
-    printf(" Secure Shell (SSH) [external]\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* SSHCMD */
-#ifdef CK_ENCRYPTION
-    printf(" Telnet Encryption Option\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#ifdef CK_DES
-    printf(" Telnet DES Encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_DES */
-#ifdef CK_CAST
-    printf(" Telnet CAST Encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_CAST */
-
-#ifdef CK_KERBEROS
-#ifdef KRB5
-#ifdef ALLOW_KRB_3DES_ENCRYPT
-    printf(" Kerberos 3DES/AES Telnet Encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* ALLOW_KRB_3DES_ENCRYPT */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
-
-#endif /* CK_ENCRYPTION */
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_FORWARD_X
-    printf(" X Windows forwarding\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_FORWARD_X */
 #ifdef TN_COMPORT
     printf(" Telnet Remote Com Port Control Option\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
@@ -11122,7 +11012,6 @@ printf("NOWTMP not defined\n");
     printf(" No Secure Shell (SSH)\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
 #endif /* NOSSH */
-#ifndef CK_AUTHENTICATION
     printf(" No Kerberos(TM) authentication\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
     printf(" No SRP(TM) (Secure Remote Password) protocol\n");
@@ -11134,68 +11023,8 @@ printf("NOWTMP not defined\n");
     printf(" No encryption\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
     flag = 1;
-#else /* CK_AUTHENTICATION */
-#ifndef CK_KERBEROS
-    printf(" No Kerberos(TM) authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#else /* CK_KERBEROS */
-#ifndef KRB4
-    printf(" No Kerberos(TM) IV authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* KRB4 */
-#ifndef KRB5
-    printf(" No Kerberos(TM) V authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
-#ifndef CK_SRP
-    printf(" No SRP(TM) (Secure Remote Password) authentication\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* CK_SRP */
-#ifndef CK_SSL
-    printf(" No Secure Sockets Layer (SSL) protocol\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    printf(" No Transport Layer Security (TLS) protocol\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* CK_SSL */
-#ifndef CK_ENCRYPTION
-    printf(" No Telnet Encryption Option\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#else /* CK_ENCRYPTION */
-#ifndef CK_DES
-    printf(" No Telnet DES encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* CK_DES */
-#ifndef CK_CAST
-    printf(" No Telnet CAST encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-    flag = 1;
-#endif /* CK_CAST */
-
-#ifdef COMMENT
-#ifdef CK_KERBEROS
-#ifdef KRB5
-#ifndef ALLOW_KRB_3DES_ENCRYPT
-    printf(" No Kerberos 3DES/AES Telnet Encryption\n");
-    if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* ALLOW_KRB_3DES_ENCRYPT */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
-#endif /* COMMENT */
-
-#endif /* CK_ENCRYPTION */
-#endif /* CK_AUTHENTICATION */
-#ifndef CK_FORWARD_X
     printf(" No X Windows forwarding\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
-#endif /* CK_FORWARD_X */
 #ifndef TN_COMPORT
     printf(" No Telnet Remote Com Port Control Option\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }

@@ -195,18 +195,6 @@ char *copyright[] = {
 #endif /* pdp11 */
 
 
-#ifdef CK_AUTHENTICATION
-" ",
-"Portions Copyright (C) 1990, Massachusetts Institute of Technology.",
-#ifdef CK_ENCRYPTION
-"Portions Copyright (C) 1991, 1993 Regents of the University of California.",
-"Portions Copyright (C) 1991, 1992, 1993, 1994, 1995 by AT&T.",
-"Portions Copyright (C) 1995, 1997, Eric Young <eay@cryptosoft.com>.",
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SRP
-"Portions Copyright (C) 1997, Stanford University.",
-#endif /* CK_SRP */
-#endif /* CK_AUTHENTICATION */
 
 #ifndef pdp11
 " ",
@@ -562,9 +550,6 @@ ACKNOWLEDGMENTS:
 #include "ckcker.h"                     /* Kermit symbols */
 #include "ckcnet.h"                     /* Network symbols */
 
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 #include "ckuusr.h"
 
@@ -1496,9 +1481,6 @@ int zofblock  = 1;
 int seslimit = 0;
 #endif /* SESLIMIT */
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"
-#endif /* CK_AUTHENTICATION */
 
 _PROTOTYP( int getiobs, (VOID) );
 
@@ -1882,122 +1864,6 @@ VOID ikslogin (  )
         ztime(&s);                      /* Get current date and time */
 
 #ifdef CK_LOGIN
-#ifdef CK_AUTHENTICATION
-        if (x_login) {
-            x_logged = ck_tn_auth_valid(); /* Did Telnet Auth succeed? */
-            debug(F111,"ikslogin","x_logged",x_logged);
-
-
-            if (x_logged == AUTH_VALID) {
-#ifdef CK_SSL
-                if ((ssl_active_flag || tls_active_flag) &&
-                    (!TELOPT_U(TELOPT_AUTHENTICATION) ||
-                     ck_tn_authenticated() == AUTHTYPE_NULL ||
-                     ck_tn_authenticated() == AUTHTYPE_AUTO)
-                    ) {
-#ifdef SSL_KRB5
-                    if (tls_is_krb5(0)) {
-                        printf("Authenticated using Kerberos 5\r\n");
-#ifdef CKSYSLOG
-                        if (ckxsyslog >= SYSLG_LI && ckxlogging) {
-                            extern char szUserNameAuthenticated[];
-                            cksyslog(SYSLG_LI, 1, "AUTH_VALID",
-                                     "Kerberos 5",
-                                     szUserNameAuthenticated
-                                     );
-                        }
-#endif /* CKSYSLOG */
-                    } else
-#endif /* SSL_KRB5 */
-                    {
-                        printf("Authenticated using X.509 certificate\r\n");
-#ifdef CKSYSLOG
-                        if (ckxsyslog >= SYSLG_LI && ckxlogging) {
-                            extern char szUserNameAuthenticated[];
-                            cksyslog(SYSLG_LI, 1, "AUTH_VALID",
-                                     "X.509 certificate",
-                                     szUserNameAuthenticated
-                                     );
-                        }
-#endif /* CKSYSLOG */
-                    }
-                } else
-#endif /* CK_SSL */
-                  {
-                      printf("Authenticated using %s\r\n",
-                             AUTHTYPE_NAME(ck_tn_authenticated()));
-#ifdef CKSYSLOG
-                      if (ckxsyslog >= SYSLG_LI && ckxlogging) {
-                          extern char szUserNameAuthenticated[];
-                          cksyslog(SYSLG_LI, 1, "AUTH_VALID",
-                                   AUTHTYPE_NAME(ck_tn_authenticated()),
-                                   szUserNameAuthenticated
-                                   );
-                      }
-#endif /* CKSYSLOG */
-                  }
-                zvuser(uidbuf);
-                if (zvpass("") == 0)
-                  x_logged = 0;
-            } else if (x_logged == AUTH_USER && !strcmp(uidbuf,"anonymous")) {
-                extern char szUserNameAuthenticated[];
-                zvuser(uidbuf);
-                debug(F110,"szUserNameAuthenticated",
-                      szUserNameAuthenticated,0);
-                if (zvpass(szUserNameAuthenticated) == 0) {
-                  /* Anonymous login failed.  Force a username prompt. */
-                  x_logged = 0;
-                  uidbuf[0] = '\0';
-                } else {
-#ifdef CK_SSL
-                    if ((ssl_active_flag || tls_active_flag) &&
-                        (!TELOPT_U(TELOPT_AUTHENTICATION) ||
-                         ck_tn_authenticated() == AUTHTYPE_NULL ||
-                         ck_tn_authenticated() == AUTHTYPE_AUTO)) {
-                        printf("Authenticated using X.509 certificate\r\n");
-#ifdef CKSYSLOG
-                        if (ckxsyslog >= SYSLG_LI && ckxlogging) {
-                            extern char szUserNameAuthenticated[];
-                            cksyslog(SYSLG_LI, 1, "AUTH_USER",
-                                     "X.509 certificate",
-                                     szUserNameAuthenticated
-                                     );
-                        }
-#endif /* CKSYSLOG */
-                    } else
-#endif /* CK_SSL */
-                      {
-                          printf("Authenticated using %s\r\n",
-                                 AUTHTYPE_NAME(ck_tn_authenticated())
-                                 );
-#ifdef CKSYSLOG
-                          if (ckxsyslog >= SYSLG_LI && ckxlogging) {
-                              cksyslog(SYSLG_LI, 1, "AUTH_USER",
-                                       AUTHTYPE_NAME(ck_tn_authenticated()),
-                                       szUserNameAuthenticated
-                                       );
-                          }
-#endif /* CKSYSLOG */
-                      }
-                }
-            } else {
-#ifdef CKSYSLOG
-                if (ckxsyslog >= SYSLG_LI && ckxlogging &&
-                    x_logged == AUTH_USER) {
-                    extern char szUserNameAuthenticated[];
-                    cksyslog(SYSLG_LI, 1, "AUTH_USER",
-                             AUTHTYPE_NAME(ck_tn_authenticated()),
-                             szUserNameAuthenticated
-                             );
-                }
-#endif /* CKSYSLOG */
-                x_logged = 0;
-                if (!strcmp("(unknown)",uidbuf)
-                    )
-                  uidbuf[0] = '\0';
-            }
-        }
-#endif /* CK_AUTHENTICATION */
 #endif /* CK_LOGIN */
 
 #ifdef IKSD
@@ -2502,17 +2368,6 @@ makever ( )
     b64 = "";
 #endif  /* CK_64BIT */
 
-#ifdef CK_AUTHENTICATION
-#ifdef CK_SSL    
-    ssl = "+SSL";
-#endif	/* CK_SSL */
-#ifdef KRB4
-    krb4 = "+KRB4";
-#endif	/* KRB4 */
-#ifdef KRB5
-    krb5 = "+KRB5";
-#endif	/* KRB5 */
-#endif	/* CK_AUTHENTICATION */
 
     if (x == 0) {
         extern char *ck_s_name;
@@ -2779,9 +2634,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
     zstrip(argv[0],&p);                 /* Get name we were invoked with */
     makestr(&myname,p);
     if (!ckstrcmp(myname,"telnet",-1,0))       howcalled = I_AM_TELNET;
-#ifdef CK_KERBEROS
-    else if (!ckstrcmp(myname,"ktelnet",-1,0)) howcalled = I_AM_TELNET;
-#endif /* CK_KERBEROS */
     else if (!ckstrcmp(myname,"rlogin",-1,0))  howcalled = I_AM_RLOGIN;
     else if (!ckstrcmp(myname,"iksd",-1,0))    howcalled = I_AM_IKSD;
 #ifdef NEWFTP
@@ -2868,12 +2720,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
 #endif /* SYSLOGLEVEL */
 #endif /* CKSYSLOG */
 
-#ifdef CK_KERBEROS
-    ini_kerb();                         /* Initialize Kerberos data */
-#endif /* CK_KERBEROS */
-#ifdef CK_SSL
-    ssl_once_init();
-#endif /* CK_SSL */
 #ifdef TNCODE
     tn_set_modes();                     /* Init Telnet Option tables */
 #endif /* TNCODE */
@@ -3094,10 +2940,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
 #ifdef IKSDB
         dbinit();                       /* Initialize database record */
 #endif /* IKSDB */
-#ifdef CK_AUTHENTICATION
-        /* Before initializating Telnet/Rlogin negotiations, init Kerberos */
-        ck_auth_init(ckgetpeer(),"","",0);
-#endif /* CK_AUTHENTICATION */
 
 #ifdef NON_BLOCK_IO
         {
@@ -3141,43 +2983,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
 #endif /* datageneral */
 #endif /* NOTCPOPTS */
 
-#ifdef CK_SSL
-        if (ck_ssleay_is_installed()) {
-            if (!ssl_tn_init(SSL_SERVER)) {
-                if (bio_err != NULL) {
-                    BIO_printf(bio_err,"do_ssleay_init() failed\r\n");
-                    ERR_print_errors(bio_err);
-                } else {
-                    fflush(stderr);
-                    fprintf(stderr,"do_ssleay_init() failed\r\n");
-                    ERR_print_errors_fp(stderr);
-                }
-                switch (ttnproto) {
-		  case NP_SSL:
-		  case NP_TLS:
-  		  case NP_SSL_RAW:
-		  case NP_TLS_RAW:
-		  case NP_SSL_TELNET:
-		  case NP_TLS_TELNET:
-                    doexit(BAD_EXIT,1);
-                }
-                /* otherwise we will continue to accept the connection   */
-                /* without SSL or TLS support unless required. */
-                if ( TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                    TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-                if ( TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                    TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-                if ( TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                    TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-                if ( TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                    TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            } else {
-                if ( ck_ssl_incoming(0) < 0 ) {
-                    doexit(BAD_EXIT,1);
-                }
-            }
-        }
-#endif /* CK_SSL */
 
 #ifdef TNCODE
         tn_ini();                       /* Start Telnet negotiation now */

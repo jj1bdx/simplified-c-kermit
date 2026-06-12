@@ -33,12 +33,6 @@
 #include <locale.h> 
 #endif /* HAVE_LOCALE */
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 
 /* This section is only for Kermit 95 for MS Windows and IBM OS/2 */
@@ -648,19 +642,6 @@ struct keytab vartab[] = {
     { "kbchar",    VN_KBCHAR,0},        /* 196 */
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
-#ifdef CK_KERBEROS
-    { "krb4errmsg",    VN_K4EMSG,0},
-    { "krb4errno",     VN_K4ENO, 0},
-    { "krb4principal", VN_K4PRN, 0},
-    { "krb4realm",     VN_K4RLM, 0},
-    { "krb4service",   VN_K4SRV, 0},
-    { "krb5cc",        VN_K5CC,  0},
-    { "krb5errmsg",    VN_K5EMSG,0},
-    { "krb5errno",     VN_K5ENO, 0},
-    { "krb5principal", VN_K5PRN, 0},
-    { "krb5realm",     VN_K5RLM, 0},
-    { "krb5service",   VN_K5SRV, 0},
-#endif /* CK_KERBEROS */
     { "lastcommand",   VN_PREVCMD, 0},	/* 299 */
 #ifndef NOLASTFILE
     { "lastfilespec",  VN_LASTFIL, 0},	/* 212 */
@@ -812,10 +793,6 @@ struct keytab vartab[] = {
     { "x25local_nua", VN_X25LA, 0},     /* 193 */
     { "x25remote_nua", VN_X25RA, 0},    /* 193 */
 #endif /* IBMX25 */
-#ifdef CK_SSL
-    { "x509_issuer",  VN_X509_I, 0},
-    { "x509_subject", VN_X509_S, 0},
-#endif /* CK_SSL */
 #ifndef NOXFER
     { "xferstatus",VN_XFSTAT,0},        /* 193 */
     { "xfermsg",   VN_XFMSG, 0},        /* 193 */
@@ -947,13 +924,6 @@ struct keytab fnctab[] = {              /* Function names */
     { "jdate",      FN_JDATE, CM_INV},  /* Date to Day of Year */
     { "join",       FN_JOIN,  0},       /* Join array elements */
     { "keywordvalue",  FN_KWVAL, 0},    /* Keyword=Value */
-#ifdef CK_KERBEROS
-    { "krbflags",      FN_KRB_FG, 0},   /* Kerberos functions */
-    { "krbisvalid",    FN_KRB_IV, 0},
-    { "krbnextticket", FN_KRB_NX, 0},
-    { "krbtickets",    FN_KRB_TK, 0},
-    { "krbtimeleft",   FN_KRB_TT, 0},
-#endif /* CK_KERBEROS */
     { "kwvalue",    FN_KWVAL, CM_INV},	/* Keyword=Value */
     { "left",       FN_LEF,  0},        /* Leftmost n characters of string */
     { "length",     FN_LEN,  0},        /* Return length of argument */
@@ -4070,12 +4040,6 @@ shoparc() {
        if (IS_TELNET()) {
            printf(", telnet protocol");
            if (0
-#ifdef CK_ENCRYPTION
-               || ck_tn_encrypting() && ck_tn_decrypting()
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-               || tls_active_flag || ssl_active_flag
-#endif /* CK_SSL */
                )
              printf(" (SECURE)");
        }
@@ -4086,12 +4050,6 @@ shoparc() {
        else if (ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN)
          printf(", rlogin protocol (SECURE)");
 #endif /* RLOGCODE */
-#ifdef CK_KERBEROS
-#ifdef KRB5
-       else if (ttnproto == NP_K5U2U)
-         printf(", Kerberos 5 User to User protocol (SECURE)");
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 #endif /* NETCONN */
     }
     printf("\n");
@@ -4364,84 +4322,6 @@ shotel(n) int n;
       case TNL_LF:    printf("%s\n","(lf)"); break;
     }
     if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
-#ifdef CK_AUTHENTICATION
-    {
-        int type = ck_tn_authenticated();
-        printf(" authentication: ");
-        switch (sstelnet ?
-                TELOPT_U_MODE(TELOPT_AUTHENTICATION) :
-                 TELOPT_ME_MODE(TELOPT_AUTHENTICATION)
-                ) {
-          case TN_NG_AC: printf( "accepted " ); break;
-          case TN_NG_RF: printf( "refused  " ); break;
-          case TN_NG_RQ: printf( "requested"); break;
-          case TN_NG_MU: printf( "required "); break;
-        }
-
-#ifdef CK_SSL
-        if ((ssl_active_flag || tls_active_flag) &&
-             ck_tn_auth_valid() == AUTH_VALID &&
-             (!TELOPT_U(TELOPT_AUTHENTICATION) ||
-               type == AUTHTYPE_NULL ||
-               type == AUTHTYPE_AUTO))
-            printf("   in use: X.509 certificate\n");
-        else
-#endif /* CK_SSL */
-          printf("   in use: %s\n",AUTHTYPE_NAME(type));
-        if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
-        if (forward_flag)
-          printf("  credentials forwarding requested %s\n",
-                 forwarded_tickets ? "and completed" :
-                 "but not completed");
-        else
-          printf("  credentials forwarding disabled\n");
-        if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
-    }
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-    {
-        int i,x;
-        int e_type = ck_tn_encrypting();
-        int d_type = ck_tn_decrypting();
-        char * e_str = NULL, * d_str = NULL;
-        static struct keytab * tnetbl = NULL;
-        static int ntnetbl = 0;
-
-        x = ck_get_crypt_table(&tnetbl,&ntnetbl);
-
-        for (i = 0; i < ntnetbl; i++) {
-            if (e_type == tnetbl[i].kwval)
-              e_str = tnetbl[i].kwd;
-            if (d_type == tnetbl[i].kwval)
-              d_str = tnetbl[i].kwd;
-        }
-        printf(" encryption: ");
-        switch (TELOPT_ME_MODE(TELOPT_ENCRYPTION)) {
-          /* This should be changed to report both ME and U modes */
-          case TN_NG_AC: printf( "accepted " ); break;
-          case TN_NG_RF: printf( "refused  " ); break;
-          case TN_NG_RQ: printf( "requested"); break;
-          case TN_NG_MU: printf( "required "); break;
-        }
-        printf("       in use: ");
-        switch ((e_type ? 1 : 0) | (d_type ? 2 : 0)) {
-          case 0:
-            printf("plain text in both directions");
-            break;
-          case 1:
-            printf("%s output, plain text input",e_str);
-            break;
-          case 2:
-            printf("plain text output, %s input",d_str);
-            break;
-          case 3:
-            printf("%s output, %s input",e_str,d_str);
-            break;
-        }
-        printf("\n");
-        if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
-    }
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
     printf(" kermit: ");
     switch (TELOPT_U_MODE(TELOPT_KERMIT)) {
@@ -4552,11 +4432,6 @@ shotel(n) int n;
     printf("  LOCATION: %s\n", tn_loc ? tn_loc : "");
     if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
 #endif /* CK_SNDLOC */
-#ifdef CK_FORWARD_X
-    printf(" .Xauthority-file: %s\n", (char *)XauFileName() ?
-            (char *)XauFileName() : "(none)");
-    if (++n > cmd_rows - 3) { if (!askmore()) { return(-1);} else {n = 0;}}
-#endif /* CK_FORWARD_X */
     return(n);
 }
 #endif /* TNCODE */
@@ -4791,31 +4666,7 @@ shonet() {
             printf(" LOGIN (rlogin) protocol\n");
             if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
         }
-#ifdef CK_KERBEROS
-        else if (ttnproto == NP_K4LOGIN) {
-            printf(" Kerberos 4 LOGIN (klogin) protocol\n");
-            if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-        }
-        else if (ttnproto == NP_EK4LOGIN) {
-            printf(" Encrypted Kerberos 4 LOGIN (eklogin) protocol\n");
-            if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-        }
-        else if (ttnproto == NP_K5LOGIN) {
-            printf(" Kerberos 5 LOGIN (klogin) protocol\n");
-            if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-        }
-        else if (ttnproto == NP_EK5LOGIN) {
-            printf(" Encrypted Kerberos 5 LOGIN (eklogin) protocol\n");
-            if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-        }
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
-#ifdef CK_KERBEROS
-        if (ttnproto == NP_K5U2U) {
-            printf(" Kerberos 5 User to User protocol\n");
-            if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-        }
-#endif /* CK_KERBEROS */
 
 #ifdef TNCODE
         if (IS_TELNET()) {
@@ -5982,9 +5833,6 @@ doinput(timo,ms,mp,flags,count)
 #endif /* TNCODE */
           ;
 
-#ifdef CK_SSL
-    if (is_tn) if (ssl_raw_flag || tls_raw_flag) is_tn = 0;
-#endif	/* CK_SSL */
 
     instatus = INP_IE;                  /* 3 = internal error */
     kbchar = 0;
@@ -7847,13 +7695,6 @@ fneval(fn,argp,argn,xp) char *fn, *argp[]; int argn; char * xp;
 #ifdef FN_ERRMSG
           case FN_ERRMSG:
 #endif /* FN_ERRMSG */
-#ifdef CK_KERBEROS
-          case FN_KRB_TK:
-          case FN_KRB_NX:
-          case FN_KRB_IV:
-          case FN_KRB_TT:
-          case FN_KRB_FG:
-#endif /* CK_KERBEROS */
           case FN_MJD2:
           case FN_N2TIM:
           case FN_DIM:
@@ -9299,9 +9140,6 @@ fneval(fn,argp,argn,xp) char *fn, *argp[]; int argn; char * xp;
 
 #ifndef NORANDOM
       case FN_RAND:                     /* Random number */
-#ifdef CK_SSL
-        if (RAND_bytes((unsigned char *)&k,sizeof(k)) < 0)
-#endif /* CK_SSL */
           k = rand();
         x = 0;
         if (argn > 0) {
@@ -9491,135 +9329,6 @@ fneval(fn,argp,argn,xp) char *fn, *argp[]; int argn; char * xp;
 
     switch (y) {
 
-#ifdef CK_KERBEROS
-      case FN_KRB_TK:                   /* Kerberos tickets */
-      case FN_KRB_NX:                   /* Kerberos next ticket */
-      case FN_KRB_IV:                   /* Kerberos ticket is valid */
-      case FN_KRB_FG:                   /* Kerberos Ticket flags */
-      case FN_KRB_TT: {                 /* Kerberos ticket time */
-          int kv = 0;                   /* Kerberos version */
-          int n = 0;
-          char * s = NULL;
-          if (rdigits(bp[0])) {
-              kv = atoi(bp[0]);
-          } else {
-              failed = 1;
-              if (fndiags)
-                ckmakmsg(fnval,FNVALL,
-                         "<ERROR:ARG_NOT_NUMERIC:\\f",fn,"()>",NULL);
-              goto fnend;
-          }
-          if (kv != 4 && kv != 5) {
-              failed = 1;
-              if (fndiags)
-                ckmakmsg(fnval,FNVALL,
-                         "<ERROR:ARG_OUT_OF_RANGE:\\f",fn,"()>",NULL);
-              goto fnend;
-          }
-          if ((cx == FN_KRB_IV || cx == FN_KRB_TT || cx == FN_KRB_FG) &&
-               argn < 2) {
-              failed = 1;
-              if (fndiags)
-                ckmakmsg(fnval,FNVALL,"<ERROR:MISSING_ARG:\\f",fn,"()>",NULL);
-              goto fnend;
-          }
-          switch (y) {
-            case FN_KRB_TK:             /* Number of Kerberos tickets */
-#ifdef CK_AUTHENTICATION
-              switch (kv) {
-                case 4:
-                  n = ck_krb4_get_tkts();
-                  sprintf(fnval, "%d", (n >= 0) ? n : 0); /* SAFE */
-                  goto fnend;
-                case 5: {
-                    extern char * krb5_d_cc;
-                    n = ck_krb5_get_tkts(krb5_d_cc);
-                    sprintf(fnval, "%d", (n >= 0) ? n : 0); /* SAFE */
-                    goto fnend;
-                }
-              }
-#else
-              sprintf(fnval,"%d",0);    /* SAFE */
-#endif /* CK_AUTHENTICATION */
-              goto fnend;
-
-            case FN_KRB_NX:             /* Kerberos next ticket */
-#ifdef CK_AUTHENTICATION
-              switch (kv) {
-                case 4:
-                  s = ck_krb4_get_next_tkt();
-                  ckstrncpy(fnval, s ? s : "",FNVALL);
-                  goto fnend;
-                case 5:
-                  s = ck_krb5_get_next_tkt();
-                  ckstrncpy(fnval, s ? s : "",FNVALL);
-                  goto fnend;
-              }
-#else
-              sprintf(fnval,"k%d next-ticket-string",kv); /* SAFE */
-#endif /* CK_AUTHENTICATION */
-              goto fnend;
-
-            case FN_KRB_IV:             /* Kerberos ticket is valid */
-#ifdef CK_AUTHENTICATION
-              /* Return 1 if valid, 0 if not */
-              switch (kv) {
-                case 4:
-                  n = ck_krb4_tkt_isvalid(bp[1]);
-                  sprintf(fnval, "%d", n > 0 ? 1 : 0); /* SAVE */
-                  goto fnend;
-                case 5: {
-                    extern char * krb5_d_cc;
-                    n = ck_krb5_tkt_isvalid(krb5_d_cc,bp[1]);
-                    sprintf(fnval,"%d", n > 0 ? 1 : 0); /* SAFE */
-                    goto fnend;
-                }
-              }
-#else
-              sprintf(fnval,"%d",0);    /* SAFE */
-#endif /* CK_AUTHENTICATION */
-              goto fnend;
-
-            case FN_KRB_TT:             /* Kerberos ticket time */
-#ifdef CK_AUTHENTICATION
-              switch (kv) {
-                case 4:
-                  n = ck_krb4_tkt_time(bp[1]);
-                  sprintf(fnval,"%d", n >= 0 ? n : 0); /* SAFE */
-                  goto fnend;
-                case 5: {
-                    extern char * krb5_d_cc;
-                    n = ck_krb5_tkt_time(krb5_d_cc,bp[1]);
-                    sprintf(fnval,"%d", n >= 0 ? n : 0); /* SAFE */
-                    goto fnend;
-                }
-              }
-#else
-              ckstrncpy(fnval,"600",FNVALL); /* Some time */
-#endif /* CK_AUTHENTICATION */
-              goto fnend;
-
-            case FN_KRB_FG:             /* Kerberos ticket flags */
-#ifdef CK_AUTHENTICATION
-              switch (kv) {
-                case 4:
-                  fnval[0] = '\0';
-                  goto fnend;
-                case 5: {
-                    extern char * krb5_d_cc;
-                    ckstrncpy(fnval,ck_krb5_tkt_flags(krb5_d_cc,bp[1]),FNVALL);
-                    goto fnend;
-                }
-              }
-#else
-              fnval[0] = '\0';
-#endif /* CK_AUTHENTICATION */
-              goto fnend;
-          }
-          p = fnval;
-          goto fnend;
-      }
-#endif /* CK_KERBEROS */
 
 #ifdef FN_ERRMSG
       case FN_ERRMSG:
@@ -12787,12 +12496,6 @@ char *                                  /* Evaluate builtin variable */
             else if (nettype == NET_TCPB || nettype == NET_TCPA) {
                 if (ttnproto == NP_TELNET)
                   ckstrncpy(vvbuf,"tcp/ip_telnet",VVBUFL);
-#ifdef CK_SSL
-                else if (ttnproto == NP_SSL || ttnproto == NP_SSL_RAW)
-                  ckstrncpy(vvbuf,"tcp/ip_ssl",VVBUFL);
-                else if (ttnproto == NP_TLS || ttnproto == NP_SSL_RAW)
-                  ckstrncpy(vvbuf,"tcp/ip_tls",VVBUFL);
-#endif /* CK_SSL */
                 else
                   ckstrncpy(vvbuf,"tcp/ip",VVBUFL);
             }
@@ -13423,164 +13126,20 @@ char *                                  /* Evaluate builtin variable */
 #ifdef SSHBUILTIN
             || IS_SSH()
 #endif /* SSHBUILTIN */
-#ifdef CK_ENCRYPTION
-            || ck_tn_encrypting() && ck_tn_decrypting()
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-            || tls_active_flag || ssl_active_flag
-#endif /* CK_SSL */
             )
           return("1");
         else
           return("0");
 
       case VN_AUTHN:
-#ifdef CK_AUTHENTICATION
-        {
-            extern char szUserNameAuthenticated[];
-            return((char *)szUserNameAuthenticated);
-        }
-#else /* CK_AUTHENTICATION */
         return((char *)"");
-#endif /* CK_AUTHENTICATION */
 
       case VN_AUTHS:
-#ifdef CK_AUTHENTICATION
-        switch (ck_tn_auth_valid()) {
-          case AUTH_UNKNOWN:
-            return((char *)"unknown");
-          case AUTH_OTHER:
-            return((char *)"other");
-          case AUTH_USER:
-            return((char *)"user");
-          case AUTH_VALID:
-            return((char *)"valid");
-          case AUTH_REJECT:
-          default:
-            return((char *)"rejected");
-        }
-#else /* CK_AUTHENTICATION */
         return((char *)"rejected");
-#endif /* CK_AUTHENTICATION */
 
       case VN_AUTHT:
-#ifdef CK_AUTHENTICATION
-#ifdef CK_SSL
-        if ((ssl_active_flag || tls_active_flag) &&
-            ck_tn_auth_valid() == AUTH_VALID &&
-            (sstelnet ? (!TELOPT_U(TELOPT_AUTHENTICATION)) :
-                        (!TELOPT_ME(TELOPT_AUTHENTICATION))) ||
-             ck_tn_authenticated() == AUTHTYPE_NULL ||
-             ck_tn_authenticated() == AUTHTYPE_AUTO)
-          return("X_509_CERTIFICATE");
-        else
-#endif /* CK_SSL */
-          return(AUTHTYPE_NAME(ck_tn_authenticated()));
-#else /* CK_AUTHENTICATION */
         return((char *)"NULL");
-#endif /* CK_AUTHENTICATION */
 
-#ifdef CK_KERBEROS
-      case VN_K4PRN: {
-          extern char * krb4_d_principal;
-          if (krb4_d_principal)
-            ckstrncpy(vvbuf,krb4_d_principal,VVBUFL+1);
-          else
-            *vvbuf = NUL;
-          return((char *)vvbuf);
-      }
-      case VN_K5PRN: {
-          extern char * krb5_d_principal;
-          if (krb5_d_principal)
-            ckstrncpy(vvbuf,krb5_d_principal,VVBUFL+1);
-          else
-            *vvbuf = NUL;
-          return((char *)vvbuf);
-      }
-      case VN_K4RLM: {
-          extern char * krb4_d_realm;
-          if (krb4_d_realm) {
-              ckstrncpy(vvbuf,krb4_d_realm,VVBUFL+1);
-          } else {
-              char * s = ck_krb4_getrealm();
-              ckstrncpy(vvbuf,s ? s : "",VVBUFL+1);
-          }
-          return((char *)vvbuf);
-      }
-      case VN_K4SRV: {
-          extern char * krb4_d_srv;
-          if (krb4_d_srv)
-            ckstrncpy(vvbuf,krb4_d_srv,VVBUFL+1);
-          else
-            ckstrncpy(vvbuf,"rcmd",VVBUFL);
-          return((char *)vvbuf);
-      }
-      case VN_K5RLM: {
-          extern char * krb5_d_realm;
-          extern char * krb5_d_cc;
-          if (krb5_d_realm) {
-              ckstrncpy(vvbuf,krb5_d_realm,VVBUFL+1);
-          } else {
-              char * s = ck_krb5_getrealm(krb5_d_cc);
-              ckstrncpy(vvbuf,s,VVBUFL+1);
-          }
-          return((char *)vvbuf);
-      }
-      case VN_K5CC: {
-          extern char * krb5_d_cc;
-          if (krb5_d_cc)
-            ckstrncpy(vvbuf,krb5_d_cc,VVBUFL+1);
-          else
-            ckstrncpy(vvbuf,ck_krb5_get_cc_name(),VVBUFL+1);
-          return((char *)vvbuf);
-      }
-      case VN_K5SRV: {
-          extern char * krb5_d_srv;
-          if (krb5_d_srv)
-            ckstrncpy(vvbuf,krb5_d_srv,VVBUFL+1);
-          else
-            ckstrncpy(vvbuf,"host",VVBUFL);
-          return((char *)vvbuf);
-      }
-      case VN_K4ENO: {
-        extern int krb4_errno;
-        sprintf(vvbuf,"%d",krb4_errno); /* SAFE */
-        return((char *)vvbuf);
-      }
-      case VN_K5ENO: {
-        extern int krb5_errno;
-        sprintf(vvbuf,"%d",krb5_errno); /* SAFE */
-        return((char *)vvbuf);
-      }
-      case VN_K4EMSG: {
-        extern char * krb4_errmsg;
-        ckstrncpy(vvbuf,krb4_errmsg?krb4_errmsg:"",VVBUFL+1);
-        return((char *)vvbuf);
-      }
-      case VN_K5EMSG: {
-        extern char * krb5_errmsg;
-        ckstrncpy(vvbuf,krb5_errmsg,VVBUFL+1);
-        return((char *)vvbuf);
-      }
-#endif /* CK_KERBEROS */
-#ifdef CK_SSL
-      case VN_X509_S:
-        if (ssl_active_flag)
-          ckstrncpy(vvbuf,ssl_get_subject_name(ssl_con),VVBUFL+1);
-        else if (tls_active_flag)
-          ckstrncpy(vvbuf,ssl_get_subject_name(tls_con),VVBUFL+1);
-        else
-          ckstrncpy(vvbuf,"",VVBUFL+1);
-        return((char *)vvbuf);
-      case VN_X509_I:
-        if (ssl_active_flag)
-          ckstrncpy(vvbuf,ssl_get_issuer_name(ssl_con),VVBUFL+1);
-        else if (tls_active_flag)
-          ckstrncpy(vvbuf,ssl_get_issuer_name(tls_con),VVBUFL+1);
-        else
-          ckstrncpy(vvbuf,"",VVBUFL+1);
-        return((char *)vvbuf);
-#endif /* CK_SSL */
 
       case VN_OSNAM:
 #ifdef IKSD

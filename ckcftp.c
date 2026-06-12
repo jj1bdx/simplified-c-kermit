@@ -192,9 +192,6 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 #include "ckctel.h"                     /* (then why include it again?) */
 #include "ckcxla.h"
 
-#ifdef CK_SSL
-#include "ckuath.h"			/* SMS 2007/02/15 */
-#endif /* def CK_SSL */
 
 /*
   How to get the struct timeval definition so we can call select().  The
@@ -404,236 +401,17 @@ int ssl_ftp_proxy = 0;                  /* FTP over SSL/TLS Proxy Server */
 
 /* Security... */
 
-#ifdef CK_SRP
-#define FTP_SRP
-#endif /* CK_SRP */
 
-#ifdef CK_KERBEROS
-#ifdef KRB4
-/*
-  There is a conflict between the Key Schedule formats used internally
-  within the standalone MIT KRB4 library and that used by Eric Young
-  in OpenSSL and his standalone DES library.  Therefore, KRB4 FTP AUTH
-  cannot be supported when either of those two packages are used.
-*/
-#ifdef KRB524
-#define FTP_KRB4
-#else /* KRB524 */
-#ifndef CK_SSL
-#ifndef LIBDES
-#define FTP_KRB4
-#endif /* LIBDES */
-#endif /* CK_SSL */
-#endif /* KRB524 */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifndef HEIMDAL
-#ifndef NOFTP_GSSAPI			/* 299 */
-#ifdef HAVE_GSSAPI                      /* fdc 22 November 2022 */
-#define FTP_GSSAPI
-#endif  /* HAVE_GSSAPI */
-#endif	/* NOFTP_GSSAPI */
-#endif /* HEIMDAL */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 /* FTP_SECURITY is defined if any of the above is selected */
-#ifndef FTP_SECURITY
-#ifdef FTP_GSSAPI
-#define FTP_SECURITY
-#else
-#ifdef FTP_KRB4
-#define FTP_SECURITY
-#else
-#ifdef FTP_SRP
-#define FTP_SECURITY
-#else
-#ifdef CK_SSL
-#define FTP_SECURITY
-#endif /* CK_SSL */
-#endif /* FTP_SRP */
-#endif /* FTP_KRB4 */
-#endif /* FTP_GSSAPI */
-#endif /* FTP_SECURITY */
-
-#ifdef CK_DES
-#ifdef CK_SSL
-#ifndef LIBDES
-#define LIBDES
-#endif /* LIBDES */
-#endif /* CK_SSL */
-#endif /* CK_DES */
-
-#ifdef CRYPT_DLL
-#ifndef LIBDES
-#define LIBDES
-#endif /* LIBDES */
-#endif /* CRYPT_DLL */
-
-#ifdef FTP_KRB4
-#define des_cblock Block
-#define des_key_schedule Schedule
-#ifdef KRB524
-#include "kerberosIV/krb.h"
-#else /* KRB524 */
-#ifdef SOLARIS
-#ifndef sun
-/* For some reason lost in history the Makefile Solaris targets have -Usun */
-#define sun
-#endif /* sun */
-#endif /* SOLARIS */
-#include "krb.h"
-#define krb_get_err_text_entry krb_get_err_text
-#endif /* KRB524 */
-#endif /* FTP_KRB4 */
-
-#ifdef CK_SSL
-#ifdef FTP_KRB4
-#ifndef HEADER_DES_H
-#define HEADER_DES_H
-#endif /* HEADER_DES_H */
-#endif /* FTP_KRB4 */
-#include "ck_ssl.h"
-#endif /* CK_SSL */
-
-#ifdef FTP_SRP
-#ifdef HAVE_PWD_H
-#include "pwd.h"
-#endif /* HAVE_PWD_H */
-#include "t_pwd.h"
-#include "t_client.h"
-#include "krypto.h"
-#endif /* FTP_SRP */
-
-#ifdef FTP_GSSAPI
-#include <gssapi/gssapi.h>
-/* #include <gssapi/gssapi_krb5.h> */
-/*
-  Need to include the krb5 file, because we're doing manual fallback
-  from the v2 mech to the v1 mech.  Once there's real negotiation,
-  we can be generic again.
-*/
-#include <gssapi/gssapi_generic.h>
-#include <gssapi/gssapi_krb5.h>
-static gss_ctx_id_t gcontext;
-
-#ifdef MACOSX
-/** exported constants defined in gssapi_krb5{,_nx}.h **/
-
-/* these are bogus, but will compile */
-
-/*
- * The OID of the draft krb5 mechanism, assigned by IETF, is:
- *      iso(1) org(3) dod(5) internet(1) security(5)
- *      kerberosv5(2) = 1.3.5.1.5.2
- * The OID of the krb5_name type is:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      krb5(2) krb5_name(1) = 1.2.840.113554.1.2.2.1
- * The OID of the krb5_principal type is:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      krb5(2) krb5_principal(2) = 1.2.840.113554.1.2.2.2
- * The OID of the proposed standard krb5 mechanism is:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      krb5(2) = 1.2.840.113554.1.2.2
- * The OID of the proposed standard krb5 v2 mechanism is:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      krb5v2(3) = 1.2.840.113554.1.2.3
- *
- */
-
-/*
- * Encoding rules: The first two values are encoded in one byte as 40
- * * value1 + value2.  Subsequent values are encoded base 128, most
- * significant digit first, with the high bit (\200) set on all octets
- * except the last in each value's encoding.
- */
-
-static CONST gss_OID_desc
-ck_krb5_gss_oid_array[] = {
-   /* this is the official, rfc-specified OID */
-   {9, "\052\206\110\206\367\022\001\002\002"},
-   /* this is the unofficial, wrong OID */
-   {5, "\053\005\001\005\002"},
-   /* this is the v2 assigned OID */
-   {9, "\052\206\110\206\367\022\001\002\003"},
-   /* these two are name type OID's */
-   {10, "\052\206\110\206\367\022\001\002\002\001"},
-   {10, "\052\206\110\206\367\022\001\002\002\002"},
-   { 0, 0 }
-};
-
-static
-CONST gss_OID_desc * CONST gss_mech_krb5_v2 = ck_krb5_gss_oid_array+2;
-
-#ifdef MACOSX103
-static
-CONST gss_OID_desc * CONST gss_mech_krb5 = ck_krb5_gss_oid_array+0;
-#endif /* MACOSX103 */
-
-#ifndef MACOSX
-static
-CONST gss_OID_desc * CONST gss_mech_krb5 = ck_krb5_gss_oid_array+0;
-static
-CONST gss_OID_desc * CONST gss_mech_krb5_old = ck_krb5_gss_oid_array+1;
-static
-CONST gss_OID_desc * CONST gss_nt_krb5_name = ck_krb5_gss_oid_array+3;
-static
-CONST gss_OID_desc * CONST gss_nt_krb5_principal = ck_krb5_gss_oid_array+4;
-#endif	/* MACOSX */
-
-/*
- * See krb5/gssapi_krb5.c for a description of the algorithm for
- * encoding an object identifier.
- */
-
-/*
- * The OID of user_name is:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      generic(1) user_name(1) = 1.2.840.113554.1.2.1.1
- * machine_uid_name:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      generic(1) machine_uid_name(2) = 1.2.840.113554.1.2.1.2
- * string_uid_name:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      generic(1) string_uid_name(3) = 1.2.840.113554.1.2.1.3
- * service_name:
- *      iso(1) member-body(2) US(840) mit(113554) infosys(1) gssapi(2)
- *      generic(1) service_name(4) = 1.2.840.113554.1.2.1.4
- * exported_name:
- *      1(iso), 3(org), 6(dod), 1(internet), 5(security), 6(nametypes),
- *          4(gss-api-exported-name)
- * host_based_service_name (v2):
- *      iso (1) org (3), dod (6), internet (1), security (5), nametypes(6),
- *      gss-host-based-services(2)
- */
-
-static gss_OID_desc ck_oids[] = {
-   {10, "\052\206\110\206\367\022\001\002\001\001"},
-   {10, "\052\206\110\206\367\022\001\002\001\002"},
-   {10, "\052\206\110\206\367\022\001\002\001\003"},
-   {10, "\052\206\110\206\367\022\001\002\001\004"},
-   { 6, "\053\006\001\005\006\004"},
-   { 6, "\053\006\001\005\006\002"},
-};
-
-static gss_OID ck_gss_nt_user_name = ck_oids+0;
-static gss_OID ck_gss_nt_machine_uid_name = ck_oids+1;
-static gss_OID ck_gss_nt_string_uid_name = ck_oids+2;
-static gss_OID ck_gss_nt_service_name = ck_oids+3;
-static gss_OID ck_gss_nt_exported_name = ck_oids+4;
-static gss_OID ck_gss_nt_service_name_v2 = ck_oids+5;
-#endif /* MACOSX */
-#endif /* FTP_GSSAPI */
 
 
-#ifdef FTP_KRB4
-static char ftp_realm[REALM_SZ + 1];
-static KTEXT_ST ftp_tkt;
-static CREDENTIALS ftp_cred;
-static MSG_DAT ftp_msg_data;
-static des_key_schedule ftp_sched;
-static int foo[4] = {99,99,99,99};
-#endif /* FTP_KRB4 */
+
+
+
+
+
+
 
 /* getreply() function codes */
 
@@ -657,9 +435,6 @@ static int foo[4] = {99,99,99,99};
 #define MGETMAX 1000
 #endif /* MGETMAX */
 
-#ifdef FTP_SRP
-#define FUDGE_FACTOR 100
-#endif /* FTP_SRP */
 
 /*
   Amount of growth from cleartext to ciphertext.  krb_mk_priv adds this
@@ -667,17 +442,7 @@ static int foo[4] = {99,99,99,99};
   GSSAPI appears to add 52 bytes, but I'm not sure it is a constant--hartmans
   3DES requires 56 bytes.  Lets use 96 just to be sure.
 */
-#ifdef FTP_GSSAPI
-#ifndef FUDGE_FACTOR
-#define FUDGE_FACTOR 96
-#endif /* FUDGE_FACTOR */
-#endif /* FTP_GSSAPI */
 
-#ifdef FTP_KRB4
-#ifndef FUDGE_FACTOR
-#define FUDGE_FACTOR 32
-#endif /* FUDGE_FACTOR */
-#endif /* FTP_KRB4 */
 
 #ifndef FUDGE_FACTOR                    /* In case no auth types define it */
 #define FUDGE_FACTOR 0
@@ -811,16 +576,7 @@ extern char * sndfilter, * rcvfilter;
 extern int ckrooterr;
 #endif /* CKROOT */
 
-#ifdef KRB4
-extern int krb4_autoget;
-_PROTOTYP(char * ck_krb4_realmofhost,(char *));
-#endif /* KRB4 */
 
-#ifdef KRB5
-extern int krb5_autoget;
-extern int krb5_d_no_addresses;
-_PROTOTYP(char * ck_krb5_realmofhost,(char *));
-#endif /* KRB5 */
 
 #ifdef DCMDBUF
 extern char *atmbuf;                    /* Atom buffer (malloc'd) */
@@ -933,9 +689,6 @@ static VOID dbtime( char *, struct tm * );
 static VOID ftscreen( int, char, CK_OFF_T, char * );
 static char * ftp_hookup( char *, int, int );
 static char * radix_error( int );
-#ifdef FTP_SECURITY
-static char * shopl( int );
-#endif /* FTP_SECURITY */
 static char * strval( char *, char * );
 static int check_data_connection( int, int );
 static int chkmodtime( char *, char *, int );
@@ -948,10 +701,6 @@ static int ftp_rename( char *, char * );
 static int ftp_umask( char * );
 static int ftp_user( char *, char *, char * );
 static int ftpcmd( char *, char *, int, int, int );
-#ifdef FTP_SECURITY
-static int fts_cpl( int );
-static int fts_dpl( int );
-#endif /* FTP_SECURITY */
 static int getfile( char *, char *, int, int, char *, int, int, int );
 static int getreply( int, int, int, int, int );
 static int ispathsep( int );
@@ -1105,10 +854,6 @@ static int sfttab[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 static int                              /* SET FTP values... */
   ftp_aut = 1,                          /* Auto-authentication */
-#ifdef FTP_SECURITY
-  ftp_cry = 1,                          /* Auto-encryption */
-  ftp_cfw = 0,                          /* Credential forwarding */
-#endif /* FTP_SECURITY */
   ftp_cpl = FPL_CLR,                    /* Command protection level */
   ftp_dpl = FPL_CLR,                    /* Data protection level */
 #ifdef FTP_PROXY
@@ -1128,10 +873,6 @@ static int                              /* SET FTP values... */
   ftp_err = 0,                          /* Error action */
   ftp_fnc = -1;                         /* Filename collision action */
 
-#ifdef CK_SSL
-static int ftp_bug_use_ssl_v2 = 0;      /* use SSLv2 for AUTH SSL */
-static int ftp_bug_use_ssl_v3 = 0;	/* use SSLv3 for AUTH SSL */
-#endif /* CK_SSL */
 
 static int
 #ifdef NOCSETS
@@ -1299,17 +1040,6 @@ static int nftpcmd = (sizeof(ftpcmdtab) / sizeof(struct keytab)) - 1;
 #define OPN_NIN 8
 #define OPN_NOL 9
 
-#ifdef FTP_SECURITY
-#ifdef CK_SSL
-#define USETLSTAB
-static struct keytab tlstab[] = {       /* FTP SSL/TLS switches */
-    { "/ssl",       OPN_TLS, 0    },
-    { "/tls",       OPN_TLS, 0    },
-    { "", 0, 0 }
-};
-static int ntlstab = (sizeof(tlstab) / sizeof(struct keytab)) - 1;
-#endif /* CK_SSL */
-#endif /* FTP_SECURITY */
 
 static struct keytab ftpswitab[] = {    /* FTP command switches */
     { "/account",   OPN_ACC, CM_ARG },
@@ -1418,114 +1148,18 @@ static struct keytab ftpcolxtab[] = { /* SET FTP COLLISION options */
 static int nftpcolx = (sizeof(ftpcolxtab) / sizeof(struct keytab)) - 1;
 
 
-#ifdef FTP_SECURITY
-/* FTP authentication options */
-
-#define FTA_AUTO 0                      /* Auto */
-#define FTA_SRP  1                      /* SRP */
-#define FTA_GK5  2                      /* Kerberos 5 */
-#define FTA_K4   3                      /* Kerberos 4 */
-#define FTA_SSL  4                      /* SSL */
-#define FTA_TLS  5                      /* TLS */
-
-/* FTP authentication types */
-
-#define FTPATYPS 8
-static int ftp_auth_type[FTPATYPS] = {
-#ifdef FTP_GSSAPI
-    FTA_GK5,                            /* GSSAPI Kerberos 5 */
-#endif /* FTP_GK5 */
-#ifdef FTP_SRP
-    FTA_SRP,                            /* SRP */
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-    FTA_K4,                             /* Kerberos 4 */
-#endif /* FTP_KRB4 */
-#ifdef CK_SSL
-    FTA_TLS,                            /* TLS */
-    FTA_SSL,                            /* SSL */
-#endif /* CK_SSL */
-    0
-};
-
-static struct keytab ftpauth[] = {      /* SET FTP AUTHTYPE cmd table */
-    { "automatic", FTA_AUTO,  CM_INV },
-#ifdef FTP_GSSAPI
-    { "gssapi-krb5", FTA_GK5, 0 },
-#endif /* FTP_GSSAPI */
-#ifdef FTP_KRB4
-    { "k4",       FTA_K4,     CM_INV },
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    { "k5",        FTA_GK5,   CM_INV },
-#endif /* FTP_GSSAPI */
-#ifdef FTP_KRB4
-    { "kerberos4", FTA_K4,    0 },
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    { "kerberos5", FTA_GK5,   CM_INV },
-#endif /* FTP_GSSAPI */
-#ifdef FTP_KRB4
-    { "kerberos_iv",FTA_K4,   CM_INV },
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    { "kerberos_v", FTA_GK5,  CM_INV },
-#endif /* FTP_GSSAPI */
-#ifdef FTP_KRB4
-    { "krb4",     FTA_K4,     CM_INV },
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    { "krb5",     FTA_GK5,    CM_INV },
-#endif /* FTP_GSSAPI */
-#ifdef FTP_SRP
-    { "srp",      FTA_SRP,     0 },
-#endif /* FTP_SRP */
-#ifdef CK_SSL
-    { "ssl",      FTA_SSL,     0 },
-    { "tls",      FTA_TLS,     0 },
-#endif /* CK_SSL */
-    { "", 0, 0 }
-};
-static int nftpauth = (sizeof(ftpauth) / sizeof(struct keytab)) - 1;
-
-#ifdef FTP_SRP
-#define SRP_CIPHER 1
-#define SRP_HASH   2
-static struct keytab ftpsrp[] = {      /* SET FTP SRP command table */
-    { "cipher",   SRP_CIPHER,     0 },
-    { "hash",     SRP_HASH,       0 },
-    { "", 0, 0 }
-};
-static int nftpsrp = (sizeof(ftpsrp) / sizeof(struct keytab)) - 1;
-#endif /* FTP_SRP */
-#endif /* FTP_SECURITY */
 
 static struct keytab ftpset[] = {       /* SET FTP commmand table */
     { "anonymous-password",       FTS_APW, 0 },
-#ifdef FTP_SECURITY
-    { "authtype",                 FTS_ATP, 0 },
-    { "autoauthentication",       FTS_AUT, 0 },
-    { "autoencryption",           FTS_CRY, 0 },
-#endif /* FTP_SECURITY */
     { "autologin",                FTS_LOG, 0 },
     { "bug",                      FTS_BUG, 0 },
 #ifndef NOCSETS
     { "character-set-translation",FTS_XLA, 0 },
 #endif /* NOCSETS */
     { "collision",                FTS_FNC, 0 },
-#ifdef FTP_SECURITY
-    { "command-protection-level", FTS_CPL, 0 },
-    { "cpl",                      FTS_CPL, CM_INV },
-    { "credential-forwarding",    FTS_CFW, 0 },
-    { "da",                       FTS_DAT, CM_INV|CM_ABR },
-    { "data-protection-level",    FTS_DPL, 0 },
-#endif /* FTP_SECURITY */
     { "dates",                    FTS_DAT, 0 },
     { "debug",                    FTS_DBG, 0 },
     { "display",                  FTS_DIS, 0 },
-#ifdef FTP_SECURITY
-    { "dpl",                      FTS_DPL, CM_INV },
-#endif /* FTP_SECURITY */
     { "error-action",             FTS_ERR, 0 },
     { "filenames",                FTS_CNV, 0 },
     { "get-filetype-switching",   FTS_GFT, 0 },
@@ -1538,11 +1172,7 @@ static struct keytab ftpset[] = {       /* SET FTP commmand table */
     { "server-character-set",     FTS_CSR, 0 },
 #endif /* NOCSETS */
     { "server-time-offset",       FTS_STO, 0 },
-#ifdef FTP_SRP
-    { "srp",                      FTS_SRP, 0 },
-#else
     { "srp",                      FTS_SRP, CM_INV },
-#endif /* FTP_SRP */
 #ifdef FTP_TIMEOUT
     { "timeout",                  FTS_TMO, 0 },
 #endif	/* FTP_TIMEOUT */
@@ -1767,16 +1397,6 @@ static struct keytab ftptyp[] = {       /* SET FTP TYPE table */
 };
 static int nftptyp = (sizeof(ftptyp) / sizeof(struct keytab)) - 1;
 
-#ifdef FTP_SECURITY
-static struct keytab ftppro[] = {       /* SET FTP PROTECTION-LEVEL table */
-    { "clear",        FPL_CLR, 0 },
-    { "confidential", FPL_CON, 0 },
-    { "private",      FPL_PRV, 0 },
-    { "safe",         FPL_SAF, 0 },
-    { "", 0, 0 }
-};
-static int nftppro = (sizeof(ftppro) / sizeof(struct keytab)) - 1;
-#endif /* FTP_SECURITY */
 
 /* Definitions for FTP from RFC765. */
 
@@ -1862,11 +1482,6 @@ _PROTOTYP(static int setpbsz,(unsigned int));
 _PROTOTYP(static int recvrequest,(char *,char *,char *,char *,
   int,int,char *,int,int,int));
 _PROTOTYP(static int ftpcmd,(char *,char *,int,int,int));
-#ifdef FTP_SECURITY
-_PROTOTYP(static int fts_cpl,(int));
-_PROTOTYP(static int fts_dpl,(int));
-_PROTOTYP(static int ftp_auth, (void));
-#endif /* FTP_SECURITY */
 _PROTOTYP(static int ftp_user, (char *, char *, char *));
 _PROTOTYP(static int ftp_login, (char *));
 _PROTOTYP(static int ftp_reset, (void));
@@ -1899,114 +1514,10 @@ _PROTOTYP(static VOID changetype, (int, int));
 
 _PROTOTYP(static sigtype cmdcancel, (int));
 
-#ifdef FTP_SRP
-_PROTOTYP(static int srp_reset, ());
-_PROTOTYP(static int srp_ftp_auth, (char *,char *,char *));
-_PROTOTYP(static int srp_put, (CHAR *, CHAR **, int, int *));
-_PROTOTYP(static int srp_get, (CHAR **, CHAR **, int *, int *));
-_PROTOTYP(static int srp_encode, (int, CHAR *, CHAR *, unsigned int));
-_PROTOTYP(static int srp_decode, (int, CHAR *, CHAR *, unsigned int));
-_PROTOTYP(static int srp_selcipher, (char *));
-_PROTOTYP(static int srp_selhash, (char *));
-#endif /* FTP_SRP */
 
-#ifdef FTP_GSSAPI
-_PROTOTYP(static void user_gss_error,(OM_uint32, OM_uint32,char *));
-#endif /* FTP_GSSAPI */
 
 /*  D O F T P A R G  --  Do an FTP command-line argument.  */
 
-#ifdef FTP_SECURITY
-#ifndef NOICP
-#define FT_NOGSS   1
-#define FT_NOK4    2
-#define FT_NOSRP   3
-#define FT_NOSSL   4
-#define FT_NOTLS   5
-#define FT_CERTFI  6
-#define FT_OKCERT  7
-#define FT_DEBUG   8
-#define FT_KEY     9
-#define FT_SECURE 10
-#define FT_VERIFY 11
-
-static struct keytab ftpztab[] = {
-    { "!gss",    FT_NOGSS,  0 },
-    { "!krb4",   FT_NOK4,   0 },
-    { "!srp",    FT_NOSRP,  0 },
-    { "!ssl",    FT_NOSSL,  0 },
-    { "!tls",    FT_NOTLS,  0 },
-    { "cert",    FT_CERTFI, CM_ARG },
-    { "certsok", FT_OKCERT, 0 },
-    { "debug",   FT_DEBUG,  0 },
-    { "key",     FT_KEY,    CM_ARG },
-    { "nogss",   FT_NOGSS,  0 },
-    { "nokrb4",  FT_NOK4,   0 },
-    { "nosrp",   FT_NOSRP,  0 },
-    { "nossl",   FT_NOSSL,  0 },
-    { "notls",   FT_NOTLS,  0 },
-#ifdef COMMENT
-    { "secure",  FT_SECURE, 0 },
-#endif /* COMMENT */
-    { "verify",  FT_VERIFY, CM_ARG },
-    { "", 0, 0 }
-};
-static int nftpztab = sizeof(ftpztab) / sizeof(struct keytab) - 1;
-
-/*
-  The following cipher and hash tables should be replaced with
-  dynamicly created versions based upon the linked library.
-*/
-#define SRP_BLOWFISH_ECB    1
-#define SRP_BLOWFISH_CBC    2
-#define SRP_BLOWFISH_CFB64  3
-#define SRP_BLOWFISH_OFB64  4
-#define SRP_CAST5_ECB       5
-#define SRP_CAST5_CBC       6
-#define SRP_CAST5_CFB64     7
-#define SRP_CAST5_OFB64     8
-#define SRP_DES_ECB         9
-#define SRP_DES_CBC        10
-#define SRP_DES_CFB64      11
-#define SRP_DES_OFB64      12
-#define SRP_DES3_ECB       13
-#define SRP_DES3_CBC       14
-#define SRP_DES3_CFB64     15
-#define SRP_DES3_OFB64     16
-
-static struct keytab ciphertab[] = {
-    { "blowfish_ecb",   SRP_BLOWFISH_ECB,   0 },
-    { "blowfish_cbc",   SRP_BLOWFISH_CBC,   0 },
-    { "blowfish_cfb64", SRP_BLOWFISH_CFB64, 0 },
-    { "blowfish_ofb64", SRP_BLOWFISH_OFB64, 0 },
-    { "cast5_ecb",      SRP_CAST5_ECB,      0 },
-    { "cast5_cbc",      SRP_CAST5_CBC,      0 },
-    { "cast5_cfb64",    SRP_CAST5_CFB64,    0 },
-    { "cast5_ofb64",    SRP_CAST5_OFB64,    0 },
-    { "des_ecb",        SRP_DES_ECB,        0 },
-    { "des_cbc",        SRP_DES_CBC,        0 },
-    { "des_cfb64",      SRP_DES_CFB64,      0 },
-    { "des_ofb64",      SRP_DES_OFB64,      0 },
-    { "des3_ecb",       SRP_DES3_ECB,       0 },
-    { "des3_cbc",       SRP_DES3_CBC,       0 },
-    { "des3_cfb64",     SRP_DES3_CFB64,     0 },
-    { "des3_ofb64",     SRP_DES3_OFB64,     0 },
-    { "none",           0, 0 },
-    { "", 0, 0 }
-};
-static int nciphertab = sizeof(ciphertab) / sizeof(struct keytab) - 1;
-
-#define SRP_MD5  1
-#define SRP_SHA  2
-static struct keytab hashtab[] = {
-    { "md5",              SRP_MD5,        0 },
-    { "none",             0,              0 },
-    { "sha",              SRP_SHA,        0 },
-    { "", 0, 0 }
-};
-static int nhashtab = sizeof(hashtab) / sizeof(struct keytab) - 1;
-#endif /* NOICP */
-#endif /* FTP_SECURITY */
 
 static char *
 #ifdef CK_ANSIC
@@ -2210,15 +1721,6 @@ doftparg(c) char c;
             printf("  -g files     = files to get after autologin\n");
             printf("  -R           = recursive (for use with -p)\n");
 
-#ifdef FTP_SECURITY
-            printf("\nSecurity options:\n");
-            printf("  -k realm     = Kerberos 4 realm\n");
-            printf("  -f           = Kerboros 5 credentials forwarding\n");
-            printf("  -x           = autoencryption mode\n");
-            printf("  -c cipher    = SRP cipher type\n");
-            printf("  -H hash      = SRP encryption hash\n");
-            printf("  -z option    = Security options\n");
-#endif /* FTP_SECURITY */
 
             printf("\n-p or -g, if given, should be last.  Example:\n");
             printf("  ftp -A kermit.columbia.edu -D kermit -ag TESTFILE\n");
@@ -2359,9 +1861,6 @@ doftparg(c) char c;
   Here we try to catch this situation transparently to the user.
 */
                   if (ckstrcmp(g_url.svc,"ftp",-1,0)
-#ifdef CK_SSL
-                       && ckstrcmp(g_url.svc,"ftps",-1,0)
-#endif /* CK_SSL */
                        ) {
                       if (!g_url.usr &&
                           !g_url.psw &&
@@ -2408,192 +1907,6 @@ doftparg(c) char c;
           }
 #endif /* CK_URL */
 
-#ifdef FTP_SECURITY
-          case 'k': {                   /* K4 Realm */
-#ifdef FTP_KRB4
-              ckstrncpy(ftp_realm,*xargv, REALM_SZ);
-#endif /* FTP_KRB4 */
-              if (ftp_deb) printf("K4 Realm = [%s]\n",*xargv);
-              break;
-          }
-          case 'f': {
-#ifdef FTP_GSSAPI
-              ftp_cfw = 1;
-              if (ftp_deb) printf("K5 Credentials Forwarding\n");
-#else /* FTP_GSSAPI */
-              printf("K5 Credentials Forwarding not supported\n");
-#endif /* FTP_GSSAPI */
-              break;
-          }
-          case 'x': {
-              ftp_cry = 1;
-              if (ftp_deb) printf("Autoencryption\n");
-              break;
-          }
-          case 'c': {                   /* Cipher */
-#ifdef FTP_SRP
-              if (!srp_selcipher(*xargv)) {
-                  if (ftp_deb) printf("SRP cipher type: \"%s\"\n",*xargv);
-              } else
-                printf("?Invalid SRP cipher type: \"%s\"\n",*xargv);
-#else /* FTP_SRP */
-              printf("?SRP not supported\n");
-#endif /* FTP_SRP */
-              break;
-          }
-          case 'H': {
-#ifdef FTP_SRP
-              if (!srp_selhash(*xargv)) {
-                  if (ftp_deb) printf("SRP hash type: \"%s\"\n",*xargv);
-              } else
-                printf("?Invalid SRP hash type: \"%s\"\n",*xargv);
-#else /* FTP_SRP */
-              printf("?SRP not supported\n");
-#endif /* FTP_SRP */
-              break;
-          }
-          case 'z': {
-              /* *xargv contains a value of the form tag=value */
-              /* we need to lookup the tag and save the value  */
-              char * p = NULL, * q = NULL;
-              int x, z;
-              makestr(&p,*xargv);
-              y = ckindex("=",p,0,0,1);
-              if (y > 0)
-                p[y-1] = '\0';
-              x = lookup(ftpztab,p,nftpztab,&z);
-              if (x < 0) {
-                  printf("?Invalid security option: \"%s\"\n",p);
-              } else {
-                  if (ftp_deb)
-		    printf("Security option: \"%s",p);
-                  if (ftpztab[z].flgs & CM_ARG) {
-                      if (y <= 0)
-                        fatal("?Missing required value");
-                      q = &p[y];
-                      if (!*q)
-                        fatal("?Missing required value");
-                      if (ftp_deb)
-			printf("=%s\"",q);
-                  }
-                  switch (ftpztab[z].kwval) { /* -z options w/args */
-                    case FT_NOGSS:
-#ifdef FTP_GSSAPI
-                      for (z = 0; z < FTPATYPS && ftp_auth_type[z]; z++) {
-                          if (ftp_auth_type[z] == FTA_GK5) {
-                              for (y = z;
-                                   y < (FTPATYPS-1) && ftp_auth_type[y];
-                                   y++
-                                   )
-                                ftp_auth_type[y] = ftp_auth_type[y+1];
-                              ftp_auth_type[FTPATYPS-1] = 0;
-                              break;
-                          }
-                      }
-#endif /* FTP_GSSAPI */
-                      break;
-                    case FT_NOK4:
-#ifdef FTP_KRB4
-                      for (z = 0; z < FTPATYPS && ftp_auth_type[z]; z++) {
-                          if (ftp_auth_type[z] == FTA_K4) {
-                              for (y = z;
-                                   y < (FTPATYPS-1) && ftp_auth_type[y];
-                                   y++
-                                   )
-                                ftp_auth_type[y] = ftp_auth_type[y+1];
-                              ftp_auth_type[FTPATYPS-1] = 0;
-                              break;
-                          }
-                      }
-#endif /* FTP_KRB4 */
-                      break;
-                    case FT_NOSRP:
-#ifdef FTP_SRP
-                      for (z = 0; z < FTPATYPS && ftp_auth_type[z]; z++) {
-                          if (ftp_auth_type[z] == FTA_SRP) {
-                              for (y = z;
-                                   y < (FTPATYPS-1) && ftp_auth_type[y];
-                                   y++
-                                   )
-                                ftp_auth_type[y] = ftp_auth_type[y+1];
-                              ftp_auth_type[FTPATYPS-1] = 0;
-                              break;
-                          }
-                      }
-#endif /* FTP_SRP */
-                      break;
-                    case FT_NOSSL:
-#ifdef CK_SSL
-                      for (z = 0; z < FTPATYPS && ftp_auth_type[z]; z++) {
-                          if (ftp_auth_type[z] == FTA_SSL) {
-                              for (y = z;
-                                   y < (FTPATYPS-1) && ftp_auth_type[y];
-                                   y++
-                                   )
-                                ftp_auth_type[y] = ftp_auth_type[y+1];
-                              ftp_auth_type[FTPATYPS-1] = 0;
-                              break;
-                          }
-                      }
-#endif /* CK_SSL */
-                      break;
-                    case FT_NOTLS:
-#ifdef CK_SSL
-                      for (z = 0; z < FTPATYPS && ftp_auth_type[z]; z++) {
-                          if (ftp_auth_type[z] == FTA_TLS) {
-                              for (y = z;
-                                   y < (FTPATYPS-1) && ftp_auth_type[y];
-                                   y++
-                                   )
-                                ftp_auth_type[y] = ftp_auth_type[y+1];
-                              ftp_auth_type[FTPATYPS-1] = 0;
-                              break;
-                          }
-                      }
-#endif /* CK_SSL */
-                      break;
-                    case FT_CERTFI:
-#ifdef CK_SSL
-                      makestr(&ssl_rsa_cert_file,q);
-#endif /* CK_SSL */
-                      break;
-                    case FT_OKCERT:
-#ifdef CK_SSL
-                      ssl_certsok_flag = 1;
-#endif /* CK_SSL */
-                      break;
-                    case FT_DEBUG:
-#ifdef DEBUG
-                      if (deblog) {
-                          extern int debtim;
-                          debtim = 1;
-                      } else {
-                          deblog = debopn("debug.log",0);
-                      }
-#endif /* DEBUG */
-                      break;
-                    case FT_KEY:
-#ifdef CK_SSL
-                      makestr(&ssl_rsa_key_file,q);
-#endif /* CK_SSL */
-                      break;
-                    case FT_SECURE:
-                      /* no equivalent */
-                      break;
-                    case FT_VERIFY:
-#ifdef CK_SSL
-                      if (!rdigits(q))
-                        printf("?Bad number: %s\n",q);
-                      ssl_verify_flag = atoi(q);
-#endif /* CK_SSL */
-                      break;
-                  }
-              }
-              if (ftp_deb) printf("\"\n");
-              free(p);
-              break;
-          }
-#endif /* FTP_SECURITY */
 
           default:
             fatal2(*xargv,
@@ -2792,120 +2105,11 @@ dosetftp() {
           if ((x = cmkey(ftpbugtab,nftpbug,"","",xxstring)) < 0) 
 	    return(x);
           switch (x) {
-#ifdef CK_SSL
-          case FTB_SV2:
-	    return seton(&ftp_bug_use_ssl_v2);
-          case FTB_SV3:
-            return seton(&ftp_bug_use_ssl_v3);
-#endif /* CK_SSL */
           default:
 	    return(-2);
           }
       }
 
-#ifdef FTP_SECURITY
-      case FTS_CRY:                     /* Auto-encryption */
-        return(seton(&ftp_cry));
-
-      case FTS_CFW:                     /* Credential-forwarding */
-        return(seton(&ftp_cfw));
-
-      case FTS_CPL:                     /* Command protection level */
-        if ((x = cmkey(ftppro,nftppro,"","",xxstring)) < 0) return(x);
-        if ((y = cmcfm()) < 0) return(y);
-        success = fts_cpl(x);
-        return(success);
-
-      case FTS_DPL:                     /* Data protection level */
-        if ((x = cmkey(ftppro,nftppro,"","",xxstring)) < 0) return(x);
-        if ((y = cmcfm()) < 0) return(y);
-          success = fts_dpl(x);
-          return(success);
-
-      case FTS_ATP: {                   /* FTP Auth Type */
-          int i, j, atypes[8];
-
-          for (i = 0; i < 8; i++) {
-              if ((y = cmkey(ftpauth,nftpauth,"",
-                             (i == 0) ? "automatic" : "",
-                             xxstring)) < 0) {
-                  if (y == -3)
-                    break;
-                  return(y);
-              }
-              if (i > 0 && (y == FTA_AUTO)) {
-                  printf("?Choice may only be used in first position.\r\n");
-                  return(-9);
-              }
-              for (j = 0; j < i; j++) {
-                  if (atypes[j] == y) {
-                      printf("\r\n?Choice has already been used.\r\n");
-                      return(-9);
-                  }
-              }
-              atypes[i] = y;
-              if (y == FTA_AUTO) {
-                  i++;
-                  break;
-              }
-          }
-          if (i < 8)
-            atypes[i] = 0;
-          if ((z = cmcfm()) < 0)
-            return(z);
-          if (atypes[0] == FTA_AUTO) {
-              i = 0;
-#ifdef FTP_GSSAPI
-              ftp_auth_type[i++] = FTA_GK5;
-#endif /* FTP_GSSAPI */
-#ifdef FTP_SRP
-              ftp_auth_type[i++] = FTA_SRP;
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-              ftp_auth_type[i++] = FTA_K4;
-#endif /* FTP_KRB4 */
-#ifdef CK_SSL
-              ftp_auth_type[i++] = FTA_TLS;
-              ftp_auth_type[i++] = FTA_SSL;
-#endif /* CK_SSL */
-              ftp_auth_type[i] = 0;
-          } else {
-              for (i = 0; i < 8; i++)
-                ftp_auth_type[i] = atypes[i];
-          }
-          return(success = 1);
-      }
-
-      case FTS_SRP:
-#ifdef FTP_SRP
-        if ((x = cmkey(ftpsrp,nftpsrp,"","",xxstring)) < 0)
-          return(x);
-        switch (x) {
-          case SRP_CIPHER:
-            if ((x = cmkey(ciphertab,nciphertab,"","",xxstring)) < 0)
-              return(x);
-            if ((z = cmcfm()) < 0)
-              return(z);
-            success = !srp_selcipher(ciphertab[x].kwd);
-            return(success);
-          case SRP_HASH:
-            if ((x = cmkey(hashtab,nhashtab,"","",xxstring)) < 0)
-              return(x);
-            if ((z = cmcfm()) < 0)
-              return(z);
-            success = !srp_selhash(hashtab[x].kwd);
-            return(success = 1);
-          default:
-            if ((z = cmcfm()) < 0)
-              return(z);
-            return(-2);
-        }
-#else /* FTP_SRP */
-        if ((z = cmcfm()) < 0)
-          return(z);
-        return(-2);
-#endif /* FTP_SRP */
-#endif /* FTP_SECURITY */
 
       case FTS_DIS:
 	doxdis(2);			/* 2 == ftp */
@@ -8759,23 +7963,6 @@ doxftp() {                              /* Command parser for built-in FTP */
 }
 
 #ifndef NOSHOW
-#ifdef FTP_SECURITY
-static char *
-#ifdef CK_ANSIC
-shopl( int x )
-#else
-shopl(x) int x;
-#endif /* CK_ANSIC */
-{
-    switch (x) {
-      case FPL_CLR: return("clear");
-      case FPL_PRV: return("private");
-      case FPL_SAF: return("safe");
-      case 0:  return("(not set)");
-      default: return("(unknown)");
-    }
-}
-#endif /* FTP_SECURITY */
 
 int
 #ifdef CK_ANSIC
@@ -8907,40 +8094,8 @@ shoftp(brief) int brief;
     printf("\n");
     if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
 
-#ifdef FTP_SECURITY
-    printf("Available security methods:    ");
-#ifdef FTP_GSSAPI
-    printf("GSSAPI ");
-#endif /* FTP_GSSAPI */
-#ifdef FTP_KRB4
-    printf("Kerberos4 ");
-#endif /* FTP_KRB4 */
-#ifdef FTP_SRP
-    printf("SRP ");
-#endif /* FTP_SRP */
-#ifdef FTP_SSL
-    printf("SSL ");
-#endif /* FTP_SSL */
-
-    n++;
-    printf("\n\n");
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp authtype:                  %s\n",strval(auth_type,NULL));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp auto-encryption:           %s\n",showoff(ftp_cry));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp credential-forwarding:     %s\n",showoff(ftp_cfw));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp command-protection-level:  %s\n",shopl(ftp_cpl));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp data-protection-level:     %s\n",shopl(ftp_dpl));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-    printf(" ftp secure proxy:              %s\n",shopl(ssl_ftp_proxy));
-    if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-#else
     printf("Available security methods:     (none)\n");
     if (++ n > cmd_rows-3) { if (!askmore()) return 0; else n = 0; }
-#endif /* FTP_SECURITY */
 
     if (n <= cmd_rows - 3)
       printf("\n");
@@ -9341,17 +8496,10 @@ static char * fhs_mpu[] = {             /* MPUT */
     ""
 };
 static char * fhs_opn[] = {             /* OPEN */
-#ifdef CK_SSL
-    "Syntax: FTP [ OPEN ] [ { /SSL, /TLS } ] hostname [ port ] [ switches ]",
-    "  Opens a connection to the FTP server on the given host.  The default",
-    "  TCP port is 21 (990 if SSL/TLS is used), but a different port number",
-    "  can be supplied if necessary.  Optional switches are:",
-#else /* CK_SSL */
     "Syntax: FTP [ OPEN ] hostname [ port ] [ switches ]",
     "  Opens a connection to the FTP server on the given host.  The default",
     "  TCP port is 21, but a different port number can be supplied if",
     "  necessary.  Optional switches are:",
-#endif /* CK_SSL */
     " ",
     "  /ANONYMOUS",
     "    Logs you in anonymously.",
@@ -9622,27 +8770,6 @@ dosetftphlp() {
 	printf("  For each bug, the default is OFF\n\n");
 	return(0);
 
-#ifdef FTP_SECURITY
-      case FTS_ATP:                     /* "authtype" */
-        printf("\nSyntax: SET FTP AUTHTYPE list\n");
-        printf("  Specifies an ordered list of authentication methods to be\n"
-               );
-        printf("  when FTP AUTOAUTHENTICATION is ON.  The default list is:\n");
-        printf("  GSSAPI-KRB5, SRP, KERBEROS_V4, TLS, SSL.\n\n");
-        return(0);
-
-      case FTS_AUT:                     /* "autoauthentication" */
-        printf("\nSyntax:SET FTP AUTOAUTHENTICATION { ON, OFF }\n");
-        printf("  Tells whether authentication should be negotiated by the\n");
-        printf("  FTP OPEN command.  Default is ON.\n\n");
-        break;
-
-      case FTS_CRY:                     /* "autoencryption" */
-        printf("\nSET FTP AUTOENCRYPTION { ON, OFF }\n");
-        printf("  Tells whether encryption (privacy) should be negotiated\n");
-        printf("  by the FTP OPEN command.  Default is ON.\n\n");
-        break;
-#endif /* FTP_SECURITY */
 
       case FTS_LOG:                     /* "autologin" */
         printf("\nSET FTP AUTOLOGIN { ON, OFF }\n");
@@ -9673,32 +8800,6 @@ dosetftphlp() {
         printf("  an existing file when downloading with FTP.\n\n");
         break;
 
-#ifdef FTP_SECURITY
-      case FTS_CPL:                     /* "command-protection-level" */
-        printf("\n");
-        printf(
-"Syntax: SET FTP COMMAND-PROTECTION-LEVEL { CLEAR,CONFIDENTIAL,PRIVATE,SAFE }"
-               );
-        printf("\n");
-        printf(
-"  Tells what level of protection is applied to the FTP command channel.\n\n");
-        break;
-      case FTS_CFW:                     /* "credential-forwarding" */
-        printf("\nSyntax: SET FTP CREDENTIAL-FORWARDING { ON, OFF }\n");
-        printf("  Tells whether end-user credentials are to be forwarded\n");
-        printf("  to the server if supported by the authentication method\n");
-        printf("  (GSSAPI-KRB5 only).\n\n");
-        break;
-      case FTS_DPL:                     /* "data-protection-level" */
-        printf("\n");
-        printf(
-"Syntax: SET FTP DATA-PROTECTION-LEVEL { CLEAR,CONFIDENTIAL,PRIVATE,SAFE }"
-               );
-        printf("\n");
-        printf(
-"  Tells what level of protection is applied to the FTP data channel.\n\n");
-        break;
-#endif /* FTP_SECURITY */
 
       case FTS_DBG:                     /* "debug" */
         printf("\nSyntax: SET FTP DEBUG { ON, OFF }\n");
@@ -9854,11 +8955,6 @@ dosetftphlp() {
 #define L_INCR 1
 #endif /* L_INCR */
 
-#ifdef FTP_SRP
-char srp_user[BUFSIZ];                  /* where is BUFSIZ defined? */
-char *srp_pass;
-char *srp_acct;
-#endif /* FTP_SRP */
 
 static int kerror;                      /* Needed for all auth types */
 
@@ -9878,13 +8974,6 @@ UID_T getuid();
 
 static int cpend = 0;                   /* No pending replies */
 
-#ifdef CK_SSL
-extern SSL *ssl_ftp_con;
-extern SSL_CTX *ssl_ftp_ctx;
-extern SSL *ssl_ftp_data_con;
-extern int ssl_ftp_active_flag;
-extern int ssl_ftp_data_active_flag;
-#endif /* CK_SSL */
 
 /*  f t p c m d  --  Send a command to the FTP server  */
 /*
@@ -10004,9 +9093,6 @@ ftpcmd(cmd,arg,lcs,rcs,vbm) char * cmd, * arg; int lcs, rcs, vbm;
     }
 #endif /* DEBUG */
 
-#ifdef CK_ENCRYPTION
-  again:
-#endif /* CK_ENCRYPTION */
     if (scommand(s) == 0) {              /* Send it. */
       signal(SIGINT, oldintr);
       return(0);
@@ -10036,14 +9122,6 @@ ftpcmd(cmd,arg,lcs,rcs,vbm) char * cmd, * arg; int lcs, rcs, vbm;
     if (q > -1)
       quiet = q;
 
-#ifdef CK_ENCRYPTION
-    if (ftpcode == 533 && ftp_cpl == FPL_PRV) {
-        fprintf(stderr,
-               "ENC command not supported at server; retrying under MIC...\n");
-        ftp_cpl = FPL_SAF;
-        goto again;
-    }
-#endif /* CK_ENCRYPTION */
 #ifdef COMMENT
     if (cancelfile && oldintr != SIG_IGN)
       (*oldintr)(SIGINT);
@@ -10057,15 +9135,6 @@ lostpeer() {
     debug(F100,"lostpeer","",0);
     if (connected) {
         if (csocket != -1) {
-#ifdef CK_SSL
-            if (ssl_ftp_active_flag) {
-                SSL_shutdown(ssl_ftp_con);
-                SSL_free(ssl_ftp_con);
-                ssl_ftp_proxy = 0;
-                ssl_ftp_active_flag = 0;
-                ssl_ftp_con = NULL;
-            }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
             socket_close(csocket);
 #else /* TCPIPLIB */
@@ -10077,14 +9146,6 @@ lostpeer() {
             csocket = -1;
         }
         if (data != -1) {
-#ifdef CK_SSL
-            if (ssl_ftp_data_active_flag) {
-                SSL_shutdown(ssl_ftp_data_con);
-                SSL_free(ssl_ftp_data_con);
-                ssl_ftp_data_active_flag = 0;
-                ssl_ftp_data_con = NULL;
-            }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
             socket_close(data);
 #else /* TCPIPLIB */
@@ -10150,15 +9211,6 @@ ftpclose() {
       printlines = 1;
     ftpcmd("QUIT",NULL,0,0,ftp_vbm);
     if (csocket) {
-#ifdef CK_SSL
-        if (ssl_ftp_active_flag) {
-            SSL_shutdown(ssl_ftp_con);
-            SSL_free(ssl_ftp_con);
-            ssl_ftp_proxy = 0;
-            ssl_ftp_active_flag = 0;
-            ssl_ftp_con = NULL;
-        }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
         socket_close(csocket);
 #else /* TCPIPLIB */
@@ -10255,34 +9307,6 @@ ftpopen(remote, service, use_tls) char * remote, * service; int use_tls;
         strcpy(bytename, "8");
         bytesize = 8;
 
-#ifdef FTP_SECURITY
-        if (ftp_aut) {
-            if (ftp_auth()) {
-                if (ftp_cry 
-                     ) {
-                    if (!quiet)
-                      printf("FTP Command channel is Private (encrypted)\n");
-                    ftp_cpl = FPL_PRV;
-                    if (setpbsz(DEFAULT_PBSZ) < 0) {
-                        /* a failure here is most likely caused by a mixup */
-                        /* in the session key used by client and server    */
-			printf("?Protection buffer size negotiation failed\n");
-                        return(0);
-                    }
-                    if (ftpcmd("PROT P",NULL,0,0,ftp_vbm) == REPLY_COMPLETE) {
-                        if (!quiet)
-                          printf("FTP Data channel is Private (encrypted)\n");
-                        ftp_dpl = FPL_PRV;
-                    } else
-                      printf("?Unable to enable encryption on data channel\n");
-                } else {
-                    ftp_cpl = FPL_SAF;
-                }
-            }
-            if (!connected)
-	      goto fail;
-        }
-#endif /* FTP_SECURITY */
         if (ftp_log)			/* ^^^ */
           ftp_login(remote);
 
@@ -10317,206 +9341,6 @@ ftpopen(remote, service, use_tls) char * remote, * service; int use_tls;
     return(0);
 }
 
-#ifdef CK_SSL
-int
-ssl_auth() {
-    int i;
-    char* p;
-    CONST SSL_METHOD *client_method;
-
-    if (ssl_debug_flag) {
-        fprintf(stderr,"SSL DEBUG ACTIVE\n");
-        fflush(stderr);
-        /* for the moment I want the output on screen */
-    }
-    if (ssl_ftp_data_con != NULL) {
-        SSL_free(ssl_ftp_data_con);
-        ssl_ftp_data_con = NULL;
-    }
-    if (ssl_ftp_con != NULL) {
-        SSL_free(ssl_ftp_con);
-        ssl_ftp_con=NULL;
-    }
-    if (ssl_ftp_ctx != NULL) {
-        SSL_CTX_free(ssl_ftp_ctx);
-        ssl_ftp_ctx = NULL;
-    }
-
-    /* The SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS 
-     * was added to OpenSSL 0.9.6e and 0.9.7.  It does not exist in previous
-     * versions
-     */
-#ifndef SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
-#define SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS 0L
-#endif
-/*
-  Pick allowed SSL/TLS versions according to enabled bugs.
-  Modified 5 Feb 2015 to default to TLS 1.0 if no bugs are enabled,
-  instead of to SSL 3.0, which has the POODLE vulnerability.
-
-  Modified 7 Sep 2022 to use the best version of TLS available (DG)
-*/
-    if (ftp_bug_use_ssl_v2) {
-        /* allow SSL 2.0 or later */
-        client_method = SSLv23_client_method();
-#ifndef OPENSSL_NO_SSL3
-    } else if (ftp_bug_use_ssl_v3) {
-        /* allow SSL 3.0 ONLY - previous default */
-        client_method = SSLv3_client_method();
-#endif /* OPENSSL_NO_SSL3 */
-    } else {
-        /* default - use the best version of TLS we can */
-
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-        /* OpenSSL >= 1.1.0: Negotiate the best TLS version possible */
-        client_method = TLS_client_method();
-#else /* OPENSSL_VERSION_NUMBER < 0x10100000L */
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
-        /* OpenSSL >= 1.0.1: Use TLS 1.2 - not yet deprecated as of 2022-09-06 */
-        client_method = TLSv1_2_client_method();
-#else
-        /* OpenSSL 0.9.8 and 1.0.0 can't handle anything newer than TSL 1.0 */
-        client_method = TLSv1_client_method();
-#endif /* OPENSSL_VERSION_NUMBER >= 0x10001000L */
-#endif /* OPENSSL_VERSION_NUMBER >= 0x10100000L */
-    }
-    if (auth_type && !strcmp(auth_type,"TLS")) {
-        ssl_ftp_ctx=SSL_CTX_new(client_method);
-        if (!ssl_ftp_ctx)
-          return(0);
-        SSL_CTX_set_options(ssl_ftp_ctx,
-                            SSL_OP_SINGLE_DH_USE|SSL_OP_EPHEMERAL_RSA
-                            );
-    } else {
-        ssl_ftp_ctx = SSL_CTX_new(client_method);
-        if (!ssl_ftp_ctx)
-          return(0);
-        SSL_CTX_set_options(ssl_ftp_ctx,
-                            (ftp_bug_use_ssl_v2 ? 0 : SSL_OP_NO_SSLv2)|
-                            SSL_OP_SINGLE_DH_USE|SSL_OP_EPHEMERAL_RSA
-                            );
-    }
-    SSL_CTX_set_default_passwd_cb(ssl_ftp_ctx,
-                                  (pem_password_cb *)ssl_passwd_callback);
-    SSL_CTX_set_info_callback(ssl_ftp_ctx,ssl_client_info_callback);
-    SSL_CTX_set_session_cache_mode(ssl_ftp_ctx,SSL_SESS_CACHE_CLIENT);
-
-    SSL_CTX_set_default_verify_paths(ssl_ftp_ctx);
-
-    if (ssl_verify_file &&
-        SSL_CTX_load_verify_locations(ssl_ftp_ctx,ssl_verify_file,NULL) == 0) {
-        debug(F110,
-              "ftp ssl auth unable to load ssl_verify_file",
-              ssl_verify_file,
-              0
-              );
-        if (ssl_debug_flag)
-          printf("?Unable to load verify-file: %s\r\n",ssl_verify_file);
-    }
-    if (ssl_verify_dir &&
-        SSL_CTX_load_verify_locations(ssl_ftp_ctx,NULL,ssl_verify_dir) == 0) {
-        debug(F110,
-              "ftp ssl auth unable to load ssl_verify_dir",
-              ssl_verify_dir,
-              0
-              );
-        if (ssl_debug_flag)
-          printf("?Unable to load verify-dir: %s\r\n",ssl_verify_dir);
-    }
-
-    /* set up the new CRL Store */
-    crl_store = (X509_STORE *)X509_STORE_new();
-    if (crl_store) {
-
-        if (ssl_crl_file || ssl_crl_dir) {
-            if (ssl_crl_file &&
-                X509_STORE_load_locations(crl_store,ssl_crl_file,NULL) == 0) {
-                debug(F110,
-                      "ftp ssl auth unable to load ssl_crl_file",
-                      ssl_crl_file,
-                      0
-                      );
-                if (ssl_debug_flag)
-                  printf("?Unable to load crl-file: %s\r\n",ssl_crl_file);
-            }
-            if (ssl_crl_dir &&
-                X509_STORE_load_locations(crl_store,NULL,ssl_crl_dir) == 0) {
-                debug(F110,
-                      "ftp ssl auth unable to load ssl_crl_dir",
-                      ssl_crl_dir,
-                      0
-                      );
-                if (ssl_debug_flag)
-                  printf("?Unable to load crl-dir: %s\r\n",ssl_crl_dir);
-            }
-        } else {
-            X509_STORE_set_default_paths(crl_store);
-        }
-    }
-    SSL_CTX_set_verify(ssl_ftp_ctx,ssl_verify_flag,
-                       ssl_client_verify_callback);
-    ssl_verify_depth = -1;
-    ssl_ftp_con=(SSL *)SSL_new(ssl_ftp_ctx);
-    tls_load_certs(ssl_ftp_ctx,ssl_ftp_con,0);
-    SSL_set_fd(ssl_ftp_con,csocket);
-    SSL_set_verify(ssl_ftp_con,ssl_verify_flag,NULL);
-    if (ssl_cipher_list) {
-        SSL_set_cipher_list(ssl_ftp_con,ssl_cipher_list);
-    } else {
-        char * p;
-        if ((p = getenv("SSL_CIPHER"))) {
-            SSL_set_cipher_list(ssl_ftp_con,p);
-        } else {
-            SSL_set_cipher_list(ssl_ftp_con,DEFAULT_CIPHER_LIST);
-        }
-    }
-    if (ssl_debug_flag) {
-        fprintf(stderr,"=>START SSL/TLS connect on COMMAND\n");
-        fflush(stderr);
-    }
-    if (SSL_connect(ssl_ftp_con) <= 0) {
-        static char errbuf[1024];
-        ckmakmsg(errbuf,1024,"ftp: SSL/TLS connect COMMAND error: ",
-                 ERR_error_string(ERR_get_error(),NULL),NULL,NULL);
-        fprintf(stderr,"%s\n", errbuf);
-        fflush(stderr);
-        ssl_ftp_active_flag=0;
-        SSL_free(ssl_ftp_con);
-        ssl_ftp_con = NULL;
-    } else {
-        ssl_ftp_active_flag = 1;
-
-        if (!ssl_certsok_flag &&
-	    (ssl_verify_flag & SSL_VERIFY_PEER) && /* JEA 2013-12-10 */
-	    !tls_is_krb5(1)) {
-            char *subject = ssl_get_subject_name(ssl_ftp_con);
-
-            if (!subject) {
-                if (ssl_verify_flag & SSL_VERIFY_FAIL_IF_NO_PEER_CERT) {
-                    debug(F110,"ssl_auth","[SSL - FAILED]",0);
-                    return(ssl_ftp_active_flag = 0);
-                } else {
-                    if (uq_ok("Warning: Server didn't provide a certificate\n",
-                               "Continue? (Y/N)",3,NULL,0) <= 0) {
-                        debug(F110, "ssl_auth","[SSL - FAILED]",0);
-                        return(ssl_ftp_active_flag = 0);
-                    }
-                }
-            } else if (ssl_check_server_name(ssl_ftp_con, ftp_user_host)) {
-                debug(F110,"ssl_auth","[SSL - FAILED]",0);
-                return(ssl_ftp_active_flag = 0);
-            }
-        }
-        debug(F110,"ssl_auth","[SSL - OK]",0);
-        ssl_display_connect_details(ssl_ftp_con,0,ssl_verbose_flag);
-    }
-    if (ssl_debug_flag) {
-        fprintf(stderr,"=>DONE SSL/TLS connect on COMMAND\n");
-        fflush(stderr);
-    }
-    return(ssl_ftp_active_flag);
-}
-#endif /* CK_SSL */
 
 static sigtype
 #ifdef CK_ANSIC
@@ -10550,103 +9374,8 @@ scommand(s) char * s;
 {
     int length = 0, len2;
     char in[FTP_BUFSIZ], out[FTP_BUFSIZ];
-#ifdef CK_SSL
-    if (ssl_ftp_active_flag) {
-        int error, rc;
-        length = strlen(s) + 2;
-        length = ckmakmsg(out,FTP_BUFSIZ,s,"\r\n",NULL,NULL);
-        rc = SSL_write(ssl_ftp_con,out,length);
-        error = SSL_get_error(ssl_ftp_con,rc);
-        switch (error) {
-          case SSL_ERROR_NONE:
-            return(1);
-          case SSL_ERROR_WANT_WRITE:
-          case SSL_ERROR_WANT_READ:
-          case SSL_ERROR_SYSCALL:
-          case SSL_ERROR_WANT_X509_LOOKUP:
-          case SSL_ERROR_SSL:
-          case SSL_ERROR_ZERO_RETURN:
-          default:
-            lostpeer();
-        }
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (auth_type && ftp_cpl != FPL_CLR) {
-#ifdef FTP_SRP
-        if (ck_srp_is_installed() && (strcmp(auth_type,"SRP") == 0))
-          if ((length = srp_encode(ftp_cpl == FPL_PRV,
-                                   (CHAR *)s,
-                                   (CHAR *)out,
-                                   strlen(s))) < 0) {
-              fprintf(stderr, "SRP failed to encode message\n");
-              return(0);
-          }
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-        if (ck_krb4_is_installed() &&
-            (strcmp(auth_type, "KERBEROS_V4") == 0)) {
-            if (ftp_cpl == FPL_PRV) {
-                length =
-                  krb_mk_priv((CHAR *)s, (CHAR *)out,
-                              strlen(s), ftp_sched,
-#ifdef KRB524
-                              ftp_cred.session,
-#else /* KRB524 */
-                              &ftp_cred.session,
-#endif /* KRB524 */
-                              &myctladdr, &hisctladdr);
-            } else {
-                length =
-                  krb_mk_safe((CHAR *)s,
-                              (CHAR *)out,
-                              strlen(s),
-#ifdef KRB524
-                              ftp_cred.session,
-#else /* KRB524 */
-                              &ftp_cred.session,
-#endif /* KRB524 */
-                              &myctladdr, &hisctladdr);
-            }
-            if (length == -1) {
-                fprintf(stderr, "krb_mk_%s failed for KERBEROS_V4\n",
-                        ftp_cpl == FPL_PRV ? "priv" : "safe");
-                return(0);
-            }
-        }
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-        /* Scommand (based on level) */
-        if (ck_gssapi_is_installed() && (strcmp(auth_type, "GSSAPI") == 0)) {
-            gss_buffer_desc in_buf, out_buf;
-            OM_uint32 maj_stat, min_stat;
-            int conf_state;
-            in_buf.value = s;
-            in_buf.length = strlen(s) + 1;
-            maj_stat = gss_seal(&min_stat, gcontext,
-                                (ftp_cpl==FPL_PRV), /* private */
-                                GSS_C_QOP_DEFAULT,
-                                &in_buf, &conf_state,
-                                &out_buf);
-            if (maj_stat != GSS_S_COMPLETE) { /* Generally need to deal */
-                user_gss_error(maj_stat, min_stat,
-                               (ftp_cpl==FPL_PRV)?
-                               "gss_seal ENC didn't complete":
-                               "gss_seal MIC didn't complete");
-            } else if ((ftp_cpl == FPL_PRV) && !conf_state) {
-                fprintf(stderr, "GSSAPI didn't encrypt message");
-            } else {
-                if (ftp_deb)
-                  fprintf(stderr, "sealed (%s) %d bytes\n",
-                          ftp_cpl==FPL_PRV?"ENC":"MIC",
-                          out_buf.length);
-                memcpy(out, out_buf.value,
-                       length=out_buf.length);
-                gss_release_buffer(&min_stat, &out_buf);
-            }
-        }
-#endif /* FTP_GSSAPI */
         /* Other auth types go here ... */
 
         len2 = FTP_BUFSIZ;
@@ -10683,31 +9412,6 @@ mygetc() {
 
     if (bp == ep) {
         bp = ep = 0;
-#ifdef CK_SSL
-        if (ssl_ftp_active_flag) {
-            int error;
-            rc = SSL_read(ssl_ftp_con,inbuf,4096);
-            error = SSL_get_error(ssl_ftp_con,rc);
-            switch (error) {
-              case SSL_ERROR_NONE:
-                break;
-              case SSL_ERROR_WANT_WRITE:
-              case SSL_ERROR_WANT_READ:
-                return(0);
-              case SSL_ERROR_SYSCALL:
-                if (rc == 0) {          /* EOF */
-                    break;
-                } else {
-                    break;
-                }
-              case SSL_ERROR_WANT_X509_LOOKUP:
-              case SSL_ERROR_SSL:
-              case SSL_ERROR_ZERO_RETURN:
-              default:
-                break;
-            }
-        } else
-#endif /* CK_SSL */
           rc = recv(csocket,(char *)inbuf,4096,0);
         if (rc <= 0)
           return(EOF);
@@ -11003,31 +9707,6 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
                     obuf[1] = DONT;
                     obuf[2] = c;
                     obuf[3] = NUL;
-#ifdef CK_SSL
-                    if (ssl_ftp_active_flag) {
-                        int error, rc;
-                        rc = SSL_write(ssl_ftp_con,obuf,3);
-                        error = SSL_get_error(ssl_ftp_con,rc);
-                        switch (error) {
-                          case SSL_ERROR_NONE:
-                            break;
-                          case SSL_ERROR_WANT_WRITE:
-                          case SSL_ERROR_WANT_READ:
-                            return(0);
-                          case SSL_ERROR_SYSCALL:
-                            if (rc == 0) { /* EOF */
-                                break;
-                            } else {
-                                break;
-                            }
-                          case SSL_ERROR_WANT_X509_LOOKUP:
-                          case SSL_ERROR_SSL:
-                          case SSL_ERROR_ZERO_RETURN:
-                          default:
-                            break;
-                        }
-                    } else
-#endif /* CK_SSL */
                       send(csocket,(SENDARG2TYPE)obuf,3,0);
                     break;
                   case DO:
@@ -11037,32 +9716,6 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
                     obuf[1] = WONT;
                     obuf[2] = c;
                     obuf[3] = NUL;
-#ifdef CK_SSL
-                    if (ssl_ftp_active_flag) {
-                        int error, rc;
-                        rc = SSL_write(ssl_ftp_con,obuf,3);
-                        error = SSL_get_error(ssl_ftp_con,rc);
-                        switch (error) {
-                          case SSL_ERROR_NONE:
-                            break;
-                          case SSL_ERROR_WANT_WRITE:
-                          case SSL_ERROR_WANT_READ:
-                              signal(SIGINT,oldintr);
-                              return(0);
-                          case SSL_ERROR_SYSCALL:
-                            if (rc == 0) { /* EOF */
-                                break;
-                            } else {
-                                break;
-                            }
-                          case SSL_ERROR_WANT_X509_LOOKUP:
-                          case SSL_ERROR_SSL:
-                          case SSL_ERROR_ZERO_RETURN:
-                          default:
-                            break;
-                        }
-                    } else
-#endif /* CK_SSL */
                       send(csocket,(SENDARG2TYPE)obuf,3,0);
                     break;
                   default:
@@ -11095,17 +9748,11 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
 		n = c;			/* Save it */
 	    }
             if (auth_type &&
-#ifdef CK_SSL
-                !ssl_ftp_active_flag &&
-#endif /* CK_SSL */
                 !ibuf[0] && (n == '6' || continuation)) {
                 if (c != '\r' && dig > 4)
                   obuf[i++] = c;
             } else {
                 if (auth_type &&
-#ifdef CK_SSL
-                    !ssl_ftp_active_flag &&
-#endif /* CK_SSL */
                     !ibuf[0] && dig == 1 && vbm)
                   printf("Unauthenticated reply received from server:\n");
                 if (reply_parse) {
@@ -11139,9 +9786,6 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
                 }
             }
             if (auth_type &&
-#ifdef CK_SSL
-                !ssl_ftp_active_flag &&
-#endif /* CK_SSL */
                 !ibuf[0] && n != '6')
               continue;
             if (dig < 4 && isdigit(c))
@@ -11228,9 +9872,6 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
 	    }
 	}
         if (auth_type &&
-#ifdef CK_SSL
-            !ssl_ftp_active_flag &&
-#endif /* CK_SSL */
              !ibuf[0] && n != '6') {
             signal(SIGINT,oldintr);
             return(getreply(expecteof,lcs,rcs,vbm,auth));
@@ -11243,20 +9884,15 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
             } else safe = (ftpcode == 631);
         }
         if (obuf[0]                     /* if there is a string to decode */
-#ifdef CK_SSL
-            && !ssl_ftp_active_flag     /* and not SSL/TLS */
-#endif /* CK_SSL */
             ) {
             if (!auth_type) {
                 printf("Cannot decode reply:\n%d %s\n", ftpcode, obuf);
                 n = '5';
             }
-#ifndef CK_ENCRYPTION
             else if (ftpcode == 632) {
                 printf("Cannot decrypt %d reply: %s\n", ftpcode, obuf);
                 n = '5';
             }
-#endif /* CK_ENCRYPTION */
 #ifdef NOCONFIDENTIAL
             else if (ftpcode == 633) {
                 printf("Cannot decrypt %d reply: %s\n", ftpcode, obuf);
@@ -11275,97 +9911,6 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
                            ftpcode, radix_error(kerror), obuf);
                     n = '5';
                 }
-#ifdef FTP_SRP
-                else if (strcmp(auth_type, "SRP") == 0) {
-                    int outlen;
-                    outlen = srp_decode(!safe, (CHAR *)ibuf,
-                                        (CHAR *) ibuf, len);
-                    if (outlen < 0) {
-                        printf("Warning: %d reply %s!\n",
-                               ftpcode, safe ? "modified" : "garbled");
-                        n = '5';
-                    } else {
-                        ckstrncpy(&ibuf[outlen], "\r\n",FTP_BUFSIZ-outlen);
-                        if (ftp_deb)
-                          printf("%c:", safe ? 'S' : 'P');
-                        continue;
-                    }
-                }
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-                else if (strcmp(auth_type, "KERBEROS_V4") == 0) {
-                    if (safe) {
-                        kerror = krb_rd_safe((CHAR *)ibuf, len,
-#ifdef KRB524
-                                             ftp_cred.session,
-#else /* KRB524 */
-                                             &ftp_cred.session,
-#endif /* KRB524 */
-                                             &hisctladdr,
-                                             &myctladdr,
-                                             &ftp_msg_data
-                                             );
-                    } else {
-                        kerror = krb_rd_priv((CHAR *)ibuf, len,
-                                             ftp_sched,
-#ifdef KRB524
-                                             ftp_cred.session,
-#else /* KRB524 */
-                                             &ftp_cred.session,
-#endif /* KRB524 */
-                                             &hisctladdr,
-                                             &myctladdr,
-                                             &ftp_msg_data
-                                             );
-                    }
-                    if (kerror != KSUCCESS) {
-                        printf("%d reply %s! (krb_rd_%s: %s)\n", ftpcode,
-                               safe ? "modified" : "garbled",
-                               safe ? "safe" : "priv",
-                               krb_get_err_text(kerror));
-                        n = '5';
-                    } else if (ftp_msg_data.app_length >= FTP_BUFSIZ - 3) {
-                        kerror = KFAILURE;
-                        n = '5';
-                        printf("reply data too large for buffer\n");
-                    } else {
-                        if (ftp_deb)
-                          printf("%c:", safe ? 'S' : 'P');
-                        memcpy(ibuf,ftp_msg_data.app_data,
-                               ftp_msg_data.app_length);
-                        ckstrncpy(&ibuf[ftp_msg_data.app_length], "\r\n",
-                                  FTP_BUFSIZ - ftp_msg_data.app_length);
-                        continue;
-                    }
-                }
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-                else if (strcmp(auth_type, "GSSAPI") == 0) {
-                    gss_buffer_desc xmit_buf, msg_buf;
-                    OM_uint32 maj_stat, min_stat;
-                    int conf_state;
-                    xmit_buf.value = ibuf;
-                    xmit_buf.length = len;
-                    /* decrypt/verify the message */
-                    conf_state = safe;
-                    maj_stat = gss_unseal(&min_stat, gcontext,
-                                          &xmit_buf, &msg_buf,
-                                          &conf_state, NULL);
-                    if (maj_stat != GSS_S_COMPLETE) {
-                        user_gss_error(maj_stat, min_stat,
-                                       "failed unsealing reply");
-                        n = '5';
-                    } else {
-                        memcpy(ibuf, msg_buf.value, msg_buf.length);
-                        ckstrncpy(&ibuf[msg_buf.length], "\r\n",
-                                  FTP_BUFSIZ-msg_buf.length);
-                        gss_release_buffer(&min_stat,&msg_buf);
-                        if (ftp_deb)
-                          printf("%c:", safe ? 'S' : 'P');
-                        continue;
-                    }
-                }
-#endif /* FTP_GSSAPI */
                 /* Other auth types go here... */
             }
         } else if ((!dpyactive || ftp_deb) && ftp_cmdlin < 2 &&
@@ -11630,14 +10175,6 @@ failftpsend(threadinfo) VOID * threadinfo;
         debug(F111,"ftp sendrequest getreply","null command",ftpsnd.reply);
     }
     if (data >= 0) {
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-        }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
         socket_close(data);
 #else /* TCPIPLIB */
@@ -11700,14 +10237,6 @@ failftpsend2(threadinfo) VOID * threadinfo;
         return;
     }
     if (data >= 0) {
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-        }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
         socket_close(data);
 #else /* TCPIPLIB */
@@ -11901,20 +10430,6 @@ doftpsend2(threadinfo) VOID * threadinfo;
             ffc += n;
             debug(F111,"doftpsend2 zxin",ckltoa(n),ffc);
             ckhexdump("doftpsend2 zxin",buf,16);
-#ifdef CK_SSL
-            if (ssl_ftp_data_active_flag) {
-                for (bufp = buf; n > 0; n -= d, bufp += d) {
-                    if ((d = SSL_write(ssl_ftp_data_con, bufp, n)) <= 0)
-                      break;
-                    spackets++;
-                    pktnum++;
-                    if (fdispla != XYFD_B) {
-                        spktl = d;
-                        ftscreen(SCR_PT,'D',(CK_OFF_T)spackets,NULL);
-                    }
-                }
-            } else {
-#endif /* CK_SSL */
                 for (bufp = buf; n > 0; n -= d, bufp += d) {
                     if (((d = secure_write(dout, (CHAR *)bufp, n)) <= 0)
                         || iscanceled())
@@ -11926,9 +10441,6 @@ doftpsend2(threadinfo) VOID * threadinfo;
                         ftscreen(SCR_PT,'D',(CK_OFF_T)spackets,NULL);
                     }
                 }
-#ifdef CK_SSL
-            }
-#endif /* CK_SSL */
             if (d <= 0)
               break;
         }
@@ -11980,14 +10492,6 @@ doftpsend2(threadinfo) VOID * threadinfo;
       pipesend = 0;
 #endif /* PIPESEND */
 
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-        }
-#endif /* CK_SSL */
 
 #ifdef TCPIPLIB
     socket_close(dout);                 /* Close data connection */
@@ -12186,14 +10690,6 @@ failftprecv(threadinfo) VOID * threadinfo;
         ftprecv.reply = getreply(0,ftprecv.fcs,ftprecv.rcs,ftp_vbm,0);
     }
     if (data >= 0) {
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-        }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
         socket_close(data);
 #else /* TCPIPLIB */
@@ -12302,14 +10798,6 @@ failftprecv2(threadinfo) VOID * threadinfo;
     if (ftpcode > -1)
       ftpcode = -1;
     if (data >= 0) {
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-        }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
         socket_close(data);
 #else /* TCPIPLIB */
@@ -13179,126 +11667,6 @@ initconn() {
     return(-1);
 }
 
-#ifdef CK_SSL
-static int
-ssl_dataconn() {
-    if (ssl_ftp_data_con!=NULL) {       /* Do SSL */
-        SSL_free(ssl_ftp_data_con);
-        ssl_ftp_data_con=NULL;
-    }
-    ssl_ftp_data_con=(SSL *)SSL_new(ssl_ftp_ctx);
-
-    SSL_set_fd(ssl_ftp_data_con,data);
-    SSL_set_verify(ssl_ftp_data_con,ssl_verify_flag,NULL);
-
-    SSL_copy_session_id(ssl_ftp_data_con,ssl_ftp_con);
-
-    if (ssl_debug_flag) {
-        fprintf(stderr,"=>START SSL connect on DATA\n");
-        fflush(stderr);
-    }
-    if (SSL_connect(ssl_ftp_data_con) <= 0) {
-        static char errbuf[1024];
-        ckmakmsg(errbuf,1024,"ftp: SSL_connect DATA error: ",
-                  ERR_error_string(ERR_get_error(),NULL),NULL,NULL);
-        fprintf(stderr,"%s\n", errbuf);
-        fflush(stderr);
-#ifdef TCPIPLIB
-        socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-        shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-        close(data);
-#endif /* TCPIPLIB */
-        data = -1;
-        globaldin = data;
-        return(-1);
-    } else {
-        ssl_ftp_data_active_flag=1;
-
-        if (!ssl_certsok_flag &&
-	    (ssl_verify_flag & SSL_VERIFY_PEER) && /* JEA 2013-12-10 */
-	    !tls_is_krb5(2)) {
-            char *subject = ssl_get_subject_name(ssl_ftp_data_con);
-
-            if (!subject) {
-                if (ssl_verify_flag & SSL_VERIFY_FAIL_IF_NO_PEER_CERT) {
-                    debug(F110,"dataconn","[SSL _- FAILED]",0);
-
-                    ssl_ftp_data_active_flag = 0;
-#ifdef TCPIPLIB
-                    socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                    shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-                    close(data);
-#endif /* TCPIPLIB */
-                    data = -1;
-                    globaldin = data;
-                    return(-1);
-                } else {
-                    if (!out2screen && displa && fdispla) {
-                        ftscreen(SCR_TC,0,(CK_OFF_T)0,"Display canceled");
-                        /* fdispla = XYFD_B; */
-                    }
-
-                    if (uq_ok(
-          "Warning: Server didn't provide a certificate on data connection\n",
-                               "Continue with file transfer? (Y/N)",
-                              3,NULL,0) <= 0) {
-                        debug(F110, "dataconn","[SSL - FAILED]",0);
-                        ssl_ftp_data_active_flag = 0;
-#ifdef TCPIPLIB
-                        socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                        shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-                        close(data);
-#endif /* TCPIPLIB */
-                        data = -1;
-                        globaldin = data;
-                        return(-1);
-                    }
-                }
-            } else {
-                if (!out2screen && displa && fdispla == XYFD_C) {
-                    ftscreen(SCR_TC,0,(CK_OFF_T)0,"Display canceled");
-                    /* fdispla = XYFD_B; */
-                }
-
-                if (ssl_check_server_name(ssl_ftp_data_con,ftp_user_host)) {
-                    debug(F110,"dataconn","[SSL - FAILED]",0);
-                    ssl_ftp_data_active_flag = 0;
-#ifdef TCPIPLIB
-                    socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                    shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-                    close(data);
-#endif /* TCPIPLIB */
-                    data = -1;
-                    globaldin = data;
-                    return(-1);
-                }
-            }
-        }
-        debug(F110,"dataconn","[SSL - OK]",0);
-#ifdef COMMENT
-        /* This messes up the full screen file transfer display */
-        ssl_display_connect_details(ssl_ftp_con,0,ssl_verbose_flag);
-#endif /* COMMENT */
-    }
-    if (ssl_debug_flag) {
-        fprintf(stderr,"=>DONE SSL connect on DATA\n");
-        fflush(stderr);
-    }
-    return(data);
-}
-#endif /* CK_SSL */
 
 static int
 #ifdef CK_ANSIC
@@ -13319,12 +11687,6 @@ dataconn(lmode) char *lmode;
 
 #ifndef NO_PASSIVE_MODE
     if (passivemode) {
-#ifdef CK_SSL
-        ssl_ftp_data_active_flag=0;
-        if (ssl_ftp_active_flag &&
-            (ssl_ftp_proxy || ftp_dpl == FPL_PRV))
-          return(ssl_dataconn());
-#endif /* CK_SSL */
         return(data);
     }
 #endif /* NO_PASSIVE_MODE */
@@ -13362,12 +11724,6 @@ dataconn(lmode) char *lmode;
 #endif /* IPTOS_THROUGHPUT */
 #endif /* IP_TOS */
 
-#ifdef CK_SSL
-    ssl_ftp_data_active_flag=0;
-    if (ssl_ftp_active_flag &&
-        (ssl_ftp_proxy || ftp_dpl == FPL_PRV))
-      return(ssl_dataconn());
-#endif /* CK_SSL */
     return(data);
 }
 
@@ -13402,13 +11758,6 @@ pswitch(flag) int flag; {
         char *authtype;
         int clvl;
         int dlvl;
-#ifdef FTP_KRB4
-        des_cblock session;
-        des_key_schedule ftp_sched;
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-        gss_ctx_id_t gcontext;
-#endif /* GSSAPI */
     } proxstruct, tmpstruct;
     struct comvars *ip, *op;
 
@@ -13480,16 +11829,6 @@ pswitch(flag) int flag; {
       ftp_cpl = FPL_CLR;
     if (!ftp_dpl)
       ftp_dpl = FPL_CLR;
-#ifdef FTP_KRB4
-    memcpy(ip->session, ftp_cred.session, sizeof(ftp_cred.session));
-    memcpy(ftp_cred.session, op->session, sizeof(ftp_cred.session));
-    memcpy(ip->schedule, ftp_sched, sizeof(ftp_sched));
-    memcpy(ftp_sched, op->schedule, sizeof(ftp_sched));
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    ip->gcontext = gcontext;
-    gcontext = op->gcontext;
-#endif /* GSSAPI */
     signal(SIGINT, oldintr);
     if (cancelfile) {
         cancelfile = 0;
@@ -13648,550 +11987,6 @@ proxtrans(cmd, local, remote, unique) char *cmd, *local, *remote; int unique; {
 }
 #endif /* FTP_PROXY */
 
-#ifdef FTP_SECURITY
-#ifdef FTP_GSSAPI
-
-#ifdef COMMENT
-/* ck_gss_mech_krb5 is not declared anywhere */
-struct {
-    CONST gss_OID_desc * CONST * mech_type;
-    char *service_name;
-} gss_trials[] = {
-    { &ck_gss_mech_krb5, "ftp" },
-    { &ck_gss_mech_krb5, "host" },
-};
-#else
-/* This matches what is declared above */
-struct {
-    CONST gss_OID_desc * CONST * mech_type;
-    char *service_name;
-} gss_trials[] = {
-    { &gss_mech_krb5, "ftp" },
-    { &gss_mech_krb5, "host" },
-};
-#endif	/* COMMENT */
-
-
-int n_gss_trials = sizeof(gss_trials)/sizeof(gss_trials[0]);
-#endif /* FTP_GSSAPI */
-
-static int
-ftp_auth() {
-    extern int setsafe();
-    int j = 0, n;
-#ifdef FTP_KRB4
-    char *service, inst[INST_SZ];
-    ULONG cksum;
-    ULONG checksum = (ULONG) getpid();
-    CHAR out_buf[FTP_BUFSIZ];
-    int i;
-#else /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    CHAR out_buf[FTP_BUFSIZ];
-    int i;
-#endif /* FTP_GSSAPI */
-#endif /* FTP_KRB4 */
-
-    if (ssl_ftp_proxy)                  /* Do not allow AUTH over SSL proxy */
-        return(0);
-
-    if (auth_type)
-      return(1);                        /* auth already succeeded */
-
-    /* Try each auth type as specified by the end user */
-    for (j = 0; j < 8 && ftp_auth_type[j] != 0; j++) {
-#ifdef FTP_GSSAPI
-        if (ftp_auth_type[j] == FTA_GK5 && ck_gssapi_is_installed()) {
-            n = ftpcmd("AUTH GSSAPI",NULL,0,0,ftp_vbm);
-            if (n == REPLY_CONTINUE) {
-                OM_uint32 maj_stat, min_stat;
-                gss_name_t target_name;
-                gss_buffer_desc send_tok, recv_tok, *token_ptr;
-                char stbuf[FTP_BUFSIZ];
-                int comcode, trial;
-                struct gss_channel_bindings_struct chan;
-                char * realm = NULL;
-                char tgt[256];
-
-                chan.initiator_addrtype = GSS_C_AF_INET; /* OM_uint32  */
-                chan.initiator_address.length = 4;
-                chan.initiator_address.value = &myctladdr.sin_addr.s_addr;
-                chan.acceptor_addrtype = GSS_C_AF_INET; /* OM_uint32 */
-                chan.acceptor_address.length = 4;
-                chan.acceptor_address.value = &hisctladdr.sin_addr.s_addr;
-                chan.application_data.length = 0;
-                chan.application_data.value = 0;
-
-                if (!quiet)
-                  printf("GSSAPI accepted as authentication type\n");
-
-                realm = ck_krb5_realmofhost(ftp_user_host);
-                if (realm) {
-                    ckmakmsg(tgt,sizeof(tgt),"krbtgt/",realm,"@",realm);
-                    debug(F110,"ftp_auth(GSSAPI) TGT",tgt,0);
-                    if ( krb5_autoget &&
-                         !((ck_krb5_tkt_isvalid(NULL,tgt) > 0) ||
-                            (ck_krb5_is_tgt_valid() > 0)) )
-                        ck_krb5_autoget_TGT(realm);
-                }
-
-                /* Blob from gss-client */
-                for (trial = 0; trial < n_gss_trials; trial++) {
-                    /* ftp@hostname first, the host@hostname */
-                    /* the V5 GSSAPI binding canonicalizes this for us... */
-                    ckmakmsg(stbuf,FTP_BUFSIZ,
-                             gss_trials[trial].service_name,
-                             "@",
-                             ftp_user_host,
-                             NULL
-                             );
-                    if (ftp_deb)
-                      fprintf(stderr,
-                              "Authenticating to <%s>...\n", stbuf);
-                    send_tok.value = stbuf;
-                    send_tok.length = strlen(stbuf);
-                    maj_stat = gss_import_name(&min_stat, &send_tok,
-                                               gss_nt_service_name,
-                                               &target_name
-                                               );
-                    if (maj_stat != GSS_S_COMPLETE) {
-                        user_gss_error(maj_stat, min_stat, "parsing name");
-                        secure_error("name parsed <%s>\n", stbuf);
-                        continue;
-                    }
-                    token_ptr = GSS_C_NO_BUFFER;
-                    gcontext = GSS_C_NO_CONTEXT; /* structure copy */
-
-                    do {
-                        if (ftp_deb)
-                          fprintf(stderr, "calling gss_init_sec_context\n");
-                        maj_stat =
-                          gss_init_sec_context(&min_stat,
-                                               GSS_C_NO_CREDENTIAL,
-                                               &gcontext,
-                                               target_name,
-                                               (gss_OID) *
-                                                 gss_trials[trial].mech_type,
-                                               GSS_C_MUTUAL_FLAG |
-                                               GSS_C_REPLAY_FLAG |
-                                               (ftp_cfw ?
-                                                GSS_C_DELEG_FLAG : 0),
-                                               0,
-                                                /* channel bindings */
-                                                (krb5_d_no_addresses ?
-                                                  GSS_C_NO_CHANNEL_BINDINGS :
-                                                  &chan),
-                                                token_ptr,
-                                               NULL,    /* ignore mech type */
-                                               &send_tok,
-                                               NULL,    /* ignore ret_flags */
-                                               NULL
-                                               );       /* ignore time_rec */
-
-                        if (maj_stat != GSS_S_COMPLETE &&
-                            maj_stat != GSS_S_CONTINUE_NEEDED) {
-                            if (trial == n_gss_trials-1)
-                              user_gss_error(maj_stat,
-                                             min_stat,
-                                             "initializing context"
-                                             );
-                            gss_release_name(&min_stat, &target_name);
-                            /* maybe we missed on the service name */
-                            goto outer_loop;
-                        }
-                        if (send_tok.length != 0) {
-                            int len;
-                            reply_parse = "ADAT="; /* for ftpcmd() later */
-                            len = FTP_BUFSIZ;
-                            kerror =
-                              radix_encode(send_tok.value,
-                                           out_buf,
-                                           send_tok.length,
-                                           &len,
-                                           RADIX_ENCODE
-                                           );
-                            if (kerror)  {
-                                fprintf(stderr,
-                                        "Base 64 encoding failed: %s\n",
-                                        radix_error(kerror)
-                                        );
-                                goto gss_complete_loop;
-                            }
-                            comcode = ftpcmd("ADAT",out_buf,-1,-1,0);
-                            if (comcode != REPLY_COMPLETE
-                                && comcode != REPLY_CONTINUE /* (335) */
-                                ) {
-                                if (trial == n_gss_trials-1) {
-                                    fprintf(stderr, "GSSAPI ADAT failed\n");
-                                    /* force out of loop */
-                                    maj_stat = GSS_S_FAILURE;
-                                }
-                                /*
-                                  Backoff to the v1 gssapi is still possible.
-                                  Send a new AUTH command.  If that fails,
-                                  terminate the loop.
-                                */
-                                if (ftpcmd("AUTH GSSAPI",NULL,0,0,ftp_vbm)
-                                    != REPLY_CONTINUE) {
-                                    fprintf(stderr,
-                                "GSSAPI ADAT failed, AUTH restart failed\n");
-                                    /* force out of loop */
-                                    maj_stat = GSS_S_FAILURE;
-                                }
-                                goto outer_loop;
-                            }
-                            if (!reply_parse) {
-                                fprintf(stderr,
-                              "No authentication data received from server\n");
-                                if (maj_stat == GSS_S_COMPLETE) {
-                                    fprintf(stderr,
-                                            "...but no more was needed\n");
-                                    goto gss_complete_loop;
-                                } else {
-                                    user_gss_error(maj_stat,
-                                                   min_stat,
-                                                   "no reply, huh?"
-                                                   );
-                                    goto gss_complete_loop;
-                                }
-                            }
-                            len = FTP_BUFSIZ;
-                            kerror = radix_encode(reply_parse,out_buf,i,&len,
-                                                  RADIX_DECODE);
-                            if (kerror) {
-                                fprintf(stderr,
-                                        "Base 64 decoding failed: %s\n",
-                                        radix_error(kerror));
-                                goto gss_complete_loop;
-                            }
-
-                            /* everything worked */
-                            token_ptr = &recv_tok;
-                            recv_tok.value = out_buf;
-                            recv_tok.length = len;
-                            continue;
-
-                            /* get out of loop clean */
-                          gss_complete_loop:
-                            trial = n_gss_trials-1;
-                            gss_release_buffer(&min_stat, &send_tok);
-                            gss_release_name(&min_stat, &target_name);
-                            goto outer_loop;
-                        }
-                    } while (maj_stat == GSS_S_CONTINUE_NEEDED);
-
-                  outer_loop:
-                    if (maj_stat == GSS_S_COMPLETE)
-                      break;
-                }
-                if (maj_stat == GSS_S_COMPLETE) {
-                    printf("GSSAPI authentication succeeded\n");
-                    reply_parse = NULL;
-                    auth_type = "GSSAPI";
-                    return(1);
-                } else {
-                    fprintf(stderr, "GSSAPI authentication failed\n");
-                    reply_parse = NULL;
-                }
-            } else {
-                if (ftp_deb)
-                fprintf(stderr, "GSSAPI rejected as an authentication type\n");
-                if (ftpcode == 500 || ftpcode == 502)
-                    return(0);
-            }
-        }
-#endif /* FTP_GSSAPI */
-#ifdef FTP_SRP
-        if (ftp_auth_type[j] == FTA_SRP && ck_srp_is_installed()) {
-            if (srp_ftp_auth(ftp_user_host,NULL,NULL))
-              return(1);
-            else if (ftpcode == 500 || ftpcode == 502)
-              return(0);
-        }
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-        if (ftp_auth_type[j] == FTA_K4 && ck_krb4_is_installed()) {
-            n = ftpcmd("AUTH KERBEROS_V4",NULL,0,0,ftp_vbm);
-            if (n == REPLY_CONTINUE) {
-                char tgt[4*REALM_SZ+1];
-                int rc;
-
-                if (!quiet)
-                  printf("KERBEROS_V4 accepted as authentication type\n");
-                ckstrncpy(inst, (char *) krb_get_phost(ftp_user_host),INST_SZ);
-                ckstrncpy(ftp_realm,
-                          (char *)ck_krb4_realmofhost(ftp_user_host),
-                          REALM_SZ
-                          );
-
-                ckmakmsg(tgt,sizeof(tgt),"krbtgt.",ftp_realm,"@",ftp_realm);
-                rc = ck_krb4_tkt_isvalid(tgt);
-
-                if (rc <= 0 && krb4_autoget)
-                  ck_krb4_autoget_TGT(ftp_realm);
-
-                service = "ftp";
-                kerror = krb_mk_req(&ftp_tkt,service,inst,ftp_realm,checksum);
-                if (kerror == KDC_PR_UNKNOWN) {
-                    service = "rcmd";
-                    kerror = krb_mk_req(&ftp_tkt,
-                                        service,
-                                        inst,
-                                        ftp_realm,
-                                        checksum
-                                        );
-                }
-                if (kerror)
-                  fprintf(stderr, "Kerberos V4 krb_mk_req failed: %s\n",
-                          krb_get_err_text(kerror));
-                if (!kerror) {
-                    kerror = krb_get_cred(service, inst, ftp_realm,&ftp_cred);
-                    if (kerror)
-                      fprintf(stderr, "Kerberos V4 krb_get_cred failed: %s\n",
-                              krb_get_err_text(kerror));
-                }
-                if (!kerror) {
-                    int rc;
-                    rc = des_key_sched(ftp_cred.session, ftp_sched);
-                    if (rc == -1) {
-                       printf("?Invalid DES key specified in credentials\r\n");
-                       debug(F110,"ftp_auth",
-                             "invalid DES Key specified in credentials",0);
-                    } else if ( rc == -2 ) {
-                        printf("?Weak DES key specified in credentials\r\n");
-                        debug(F110,"ftp_auth",
-                              "weak DES Key specified in credentials",0);
-                    } else if ( rc != 0 ) {
-                        printf("?DES Key Schedule not set by credentials\r\n");
-                        debug(F110,"ftp_auth",
-                              "DES Key Schedule not set by credentials",0);
-                    }
-                    reply_parse = "ADAT=";
-                    i = FTP_BUFSIZ;
-                    kerror = radix_encode(ftp_tkt.dat, out_buf, ftp_tkt.length,
-                                          &i, RADIX_ENCODE);
-                    if (kerror) {
-                        fprintf(stderr, "Base 64 encoding failed: %s\n",
-                                radix_error(kerror));
-                        goto krb4_err;
-                    }
-                    if (i > FTP_BUFSIZ - 6)
-                      printf("?ADAT data too long\n");
-                    if (ftpcmd("ADAT",out_buf,-1,-1,0) !=
-                        REPLY_COMPLETE) {
-                        fprintf(stderr, "Kerberos V4 authentication failed\n");
-                        goto krb4_err;
-                    }
-                    if (!reply_parse) {
-                        fprintf(stderr,
-                             "No authentication data received from server\n");
-                        goto krb4_err;
-                    }
-                    i = sizeof(out_buf);
-                    kerror =
-                      radix_encode(reply_parse, out_buf, 0, &i, RADIX_DECODE);
-                    if (kerror) {
-                        fprintf(stderr, "Base 64 decoding failed: %s\n",
-                                radix_error(kerror));
-                        goto krb4_err;
-                    }
-                    kerror = krb_rd_safe(out_buf, i,
-#ifdef KRB524
-                                         ftp_cred.session,
-#else /* KRB524 */
-                                         &ftp_cred.session,
-#endif /* KRB524 */
-                                         &hisctladdr,
-                                         &myctladdr,
-                                         &ftp_msg_data
-                                         );
-                    if (kerror) {
-                        fprintf(stderr, "Kerberos V4 krb_rd_safe failed: %s\n",
-                                krb_get_err_text(kerror));
-                        goto krb4_err;
-                    }
-
-                    /* fetch the (modified) checksum */
-                    memcpy(&cksum, ftp_msg_data.app_data, sizeof(cksum));
-                    if (ntohl(cksum) == checksum + 1) {
-                        if (ftp_vbm)
-                          printf("Kerberos V4 authentication succeeded\n");
-                        reply_parse = NULL;
-                        auth_type = "KERBEROS_V4";
-                        return(1);
-                    } else
-                      fprintf(stderr,
-                              "Kerberos V4 mutual authentication failed\n");
-                  krb4_err:
-                    reply_parse = NULL;
-                }
-            } else {
-                if (ftp_deb)
-		  fprintf(stderr,
-                      "KERBEROS_V4 rejected as an authentication type\n");
-                if (ftpcode == 500 || ftpcode == 502)
-                    return(0);
-            }
-        }
-#endif /* FTP_KRB4 */
-#ifdef CK_SSL
-        if (ftp_auth_type[j] == FTA_TLS && ck_ssleay_is_installed()) {
-#ifdef FTPHOST
-            if (!hostcmd) {
-                ftpcmd("HOST",ftp_user_host,0,0,0);
-                hostcmd = 1;
-            }
-#endif /* FTPHOST */
-            n = ftpcmd("AUTH TLS",NULL,0,0,ftp_vbm);
-            if (n != REPLY_COMPLETE)
-              n = ftpcmd("AUTH TLS-P",NULL,0,0,ftp_vbm);
-            if (n == REPLY_COMPLETE) {
-                if (!quiet)
-                  printf("TLS accepted as authentication type\n");
-
-                auth_type = "TLS";
-                ssl_auth();
-                if (ssl_ftp_active_flag ) {
-                    ftp_dpl = FPL_CLR;
-                    ftp_cpl = FPL_PRV;
-                    return(1);
-                } else {
-                    fprintf(stderr,"TLS authentication failed\n");
-                    auth_type = NULL;
-#ifdef TCPIPLIB
-                    socket_close(csocket);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                    shutdown(csocket, 1+1);
-#endif /* USE_SHUTDOWN */
-                    close(csocket);
-#endif /* TCPIPLIB */
-                    csocket = -1;
-                    if (ftp_hookup(ftp_user_host,ftp_port,0) == NULL)
-                      return(0);
-                }
-            } else {
-                if (ftp_deb)
-		  fprintf(stderr,"TLS rejected as an authentication type\n");
-                if (ftpcode == 500 || ftpcode == 502)
-                    return(0);
-            }
-        }
-        if (ftp_auth_type[j] == FTA_SSL && ck_ssleay_is_installed()) {
-#ifdef FTPHOST
-            if (!hostcmd) {
-                ftpcmd("HOST",ftp_user_host,0,0,0);
-                hostcmd = 1;
-            }
-#endif /* FTPHOST */
-            n = ftpcmd("AUTH SSL",NULL,0,0,ftp_vbm);
-            if (n == REPLY_CONTINUE || n == REPLY_COMPLETE) {
-                if (!quiet)
-                  printf("SSL accepted as authentication type\n");
-                auth_type = "SSL";
-                ssl_auth();
-                if (ssl_ftp_active_flag) {
-                    ftp_dpl = FPL_PRV;
-                    ftp_cpl = FPL_PRV;
-                    setprotbuf(1<<20);
-                    return(1);
-                } else {
-                    fprintf(stderr,"SSL authentication failed\n");
-                    auth_type = NULL;
-#ifdef TCPIPLIB
-                    socket_close(csocket);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                    shutdown(csocket, 1+1);
-#endif /* USE_SHUTDOWN */
-                    close(csocket);
-#endif /* TCPIPLIB */
-                    csocket = -1;
-                    if (ftp_hookup(ftp_user_host,ftp_port,0) == NULL)
-                      return(0);
-                }
-	    } else {
-                if (ftp_deb)
-		  fprintf(stderr, "SSL rejected as an authentication type\n");
-                if (ftpcode == 500 || ftpcode == 502)
-		  return(0);
-            }
-        }
-#endif /* CK_SSL */
-        /* Other auth types go here ... */
-    } /* for (j;;) */
-    return(0);
-}
-
-static int
-#ifdef CK_ANSIC
-setprotbuf(unsigned int size)
-#else
-setprotbuf(size) unsigned int size;
-#endif /* CK_ANSIC */
-/* setprotbuf */ {
-    if (ucbuf)
-      free(ucbuf);
-    ucbuf = NULL;
-    ucbufsiz = 0;
-    actualbuf = size;
-    while ((ucbuf = (CHAR *)malloc(actualbuf)) == NULL) {
-        if (actualbuf)
-          actualbuf /= 2;
-        else
-          return(0);
-    }
-    ucbufsiz = actualbuf - FUDGE_FACTOR;
-    debug(F101,"setprotbuf ucbufsiz","",ucbufsiz);
-    if (ucbufsiz < 128) {
-        printf("WARNING: tiny ucbufsiz: %d\n",ucbufsiz);
-    } else if (ucbufsiz < 0) {
-        printf("ERROR: ucbuf allocation failure\n");
-        return(-1);
-    }
-    maxbuf = actualbuf;
-    return(1);
-}
-
-static int
-#ifdef CK_ANSIC
-setpbsz(unsigned int size)
-#else
-setpbsz(size) unsigned int size;
-#endif /* CK_ANSIC */
-/* setpbsz */ {
-    if (!setprotbuf(size)) {
-        perror("?Error while trying to malloc PROT buffer:");
-#ifdef FTP_SRP
-        srp_reset();
-#endif /* FTP_SRP */
-        ftpclose();
-        return(-1);
-    }
-    reply_parse = "PBSZ=";
-    ckmakmsg(ftpcmdbuf,FTP_BUFSIZ,"PBSZ ",
-#ifdef CK_SSL
-             ssl_ftp_active_flag ? "0" :
-#endif /* CK_SSL */
-             ckuitoa(actualbuf),NULL,NULL);
-    if (ftpcmd(ftpcmdbuf,NULL,0,0,0) != REPLY_COMPLETE) {
-        if (connected) {
-            printf("?Unable to negotiate PROT buffer size with FTP server\n");
-            ftpclose();
-        }
-        return(-1);
-    }
-    if (reply_parse) {
-        if ((maxbuf = (unsigned int) atol(reply_parse)) > actualbuf)
-          maxbuf = actualbuf;
-    } else
-      maxbuf = actualbuf;
-    ucbufsiz = maxbuf - FUDGE_FACTOR;
-    debug(F101,"setpbsz ucbufsiz","",ucbufsiz);    
-    reply_parse = NULL;
-    return(0);
-}
-#endif /* FTP_SECURITY */
 
 static VOID
 #ifdef CK_ANSIC
@@ -14215,39 +12010,6 @@ cancel_remote(din) int din;
     debtim = 1;
 #endif /* DEBUG */
     debug(F100,"ftp cancel_remote entry","",0);
-#ifdef CK_SSL
-    if (ssl_ftp_active_flag) {
-        /*
-         * Send Telnet IP, Telnet DM but do so inline and within the
-         * TLS channel
-         */
-        int count, error;
-
-        buf[0] = IAC;
-        buf[1] = TN_IP;
-        buf[2] = IAC;
-        buf[3] = TN_DM;
-        buf[4] = NUL;
-
-        count = SSL_write(ssl_ftp_con, buf, 4);
-        debug(F111,"ftp cancel_remote","SSL_write(IAC IP IAC DM)",count);
-        error = SSL_get_error(ssl_ftp_con,count);
-        debug(F111,"ftp cancel_remote","SSL_get_error()",error);
-        switch (error) {
-          case SSL_ERROR_NONE:
-            break;
-          case SSL_ERROR_WANT_WRITE:
-          case SSL_ERROR_WANT_READ:
-          case SSL_ERROR_SYSCALL:
-          case SSL_ERROR_WANT_X509_LOOKUP:
-          case SSL_ERROR_SSL:
-          case SSL_ERROR_ZERO_RETURN:
-          default:
-            lostpeer();
-            return;
-        }
-    } else
-#endif /* CK_SSL */
     {
         /*
          * send IAC in urgent mode instead of DM because 4.3BSD places oob mark
@@ -14288,13 +12050,6 @@ cancel_remote(din) int din;
     if (din && FD_ISSET(din, &mask)) {
         /* Security: No threat associated with this read. */
         /* But you can't simply read the TLS data stream  */
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            int count, error;
-            while ((count = SSL_read(ssl_ftp_data_con, buf, FTP_BUFSIZ)) > 0)
-                    /* LOOP */ ;
-        } else
-#endif /* CK_SSL */
         {
             while (recv(din, (SENDARG2TYPE)buf, FTP_BUFSIZ,0) > 0)
                 /* LOOP */ ;
@@ -14323,13 +12078,6 @@ cancel_remote(din) int din;
     }
     debug(F110,"ftp cancel_remote","D",0);
     if (din && select(&din, 1,0,0,1) ) {
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            int count, error;
-            while ((count = SSL_read(ssl_ftp_data_con, buf, FTP_BUFSIZ)) > 0)
-                    /* LOOP */ ;
-        } else
-#endif /* CK_SSL */
         {
             while (recv(din, (SENDARG2TYPE)buf, FTP_BUFSIZ,0) > 0)
                 /* LOOP */ ;
@@ -14354,127 +12102,7 @@ cancel_remote(din) int din;
 #endif /* DEBUG */
 }
 
-#ifdef FTP_SECURITY
-static int
-#ifdef CK_ANSIC
-fts_dpl( int x )
-#else
-fts_dpl(x) int x;
-#endif /* CK_ANSIC */
-{
-    if (!auth_type
-         ) {
-        switch ( x ) {
-          case FPL_PRV:
-            printf("?Cannot set protection level to PRIVATE\n");
-            return(0);
-          case FPL_SAF:
-            printf("?Cannot set protection level to SAFE\n");
-            return(0);
-        }
-        ftp_dpl = x;
-        return(1);
-    }
 
-#ifdef CK_SSL
-    if (x == FPL_SAF &&
-        (!strcmp(auth_type,"SSL") || !strcmp(auth_type,"TLS"))) {
-        printf("Cannot set protection level to safe\n");
-        return(0);
-    }
-#endif /* CK_SSL */
-    /* Start with a PBSZ of 1 meg */
-    if (x != FPL_CLR) {
-        if (setpbsz(DEFAULT_PBSZ) < 0)
-          return(0);
-    }
-    y = ftpcmd(x == FPL_CLR ? "PROT C" :
-               (x == FPL_SAF ? "PROT S" : "PROT P"), NULL, 0, 0,ftp_vbm);
-    if (y == REPLY_COMPLETE) {
-        ftp_dpl = x;
-        return(1);
-    }
-    return(0);
-}
-
-static int
-#ifdef CK_ANSIC
-fts_cpl( int x )
-#else
-fts_cpl(x) int x;
-#endif /* CK_ANSIC */
-{
-    if (!auth_type 
-         ) {
-        switch ( x ) {
-          case FPL_PRV:
-            printf("?Cannot set protection level to PRIVATE\n");
-            return(0);
-          case FPL_SAF:
-            printf("?Cannot set protection level to SAFE\n");
-            return(0);
-        }
-        ftp_cpl = x;
-        return(1);
-    }
-    if (x == FPL_CLR) {
-        y = ftpcmd("CCC",NULL,0,0,ftp_vbm);
-        if (y == REPLY_COMPLETE) {
-            ftp_cpl = x;
-            return(1);
-        }
-        return(0);
-    }
-    ftp_cpl = x;
-    return(1);
-}
-#endif /* FTP_SECURITY */
-
-#ifdef FTP_GSSAPI
-static VOID
-user_gss_error(maj_stat, min_stat, s)
-    OM_uint32 maj_stat, min_stat;
-    char *s;
-{
-    /* a lot of work just to report the error */
-    OM_uint32 gmaj_stat, gmin_stat, msg_ctx;
-    gss_buffer_desc msg;
-    msg_ctx = 0;
-    while (!msg_ctx) {
-        gmaj_stat = gss_display_status(&gmin_stat, maj_stat,
-                                       GSS_C_GSS_CODE,
-                                       GSS_C_NULL_OID,
-                                       &msg_ctx,
-                                       &msg
-                                       );
-        if ((gmaj_stat == GSS_S_COMPLETE)||
-            (gmaj_stat == GSS_S_CONTINUE_NEEDED)) {
-            fprintf(stderr, "GSSAPI error major: %s\n",
-                    (char*)msg.value);
-            gss_release_buffer(&gmin_stat, &msg);
-        }
-        if (gmaj_stat != GSS_S_CONTINUE_NEEDED)
-          break;
-    }
-    msg_ctx = 0;
-    while (!msg_ctx) {
-        gmaj_stat = gss_display_status(&gmin_stat, min_stat,
-                                       GSS_C_MECH_CODE,
-                                       GSS_C_NULL_OID,
-                                       &msg_ctx,
-                                       &msg
-                                       );
-        if ((gmaj_stat == GSS_S_COMPLETE)||
-            (gmaj_stat == GSS_S_CONTINUE_NEEDED)) {
-            fprintf(stderr, "GSSAPI error minor: %s\n", (char*)msg.value);
-            gss_release_buffer(&gmin_stat, &msg);
-        }
-        if (gmaj_stat != GSS_S_CONTINUE_NEEDED)
-          break;
-    }
-    fprintf(stderr, "GSSAPI error: %s\n", s);
-}
-#endif /* FTP_GSSAPI */
 
 #ifndef NOMHHOST
 #ifdef datageneral
@@ -14735,26 +12363,6 @@ ftp_hookup(host, port, tls) char * host; int port; int tls;
 
     csocket = s;
 
-#ifdef CK_SSL
-    if (tls) {
-        /* FTP over SSL
-         * If the connection is over an SSL proxy then the
-         * auth_type will be NULL.  However, I'm not sure
-         * whether we should protect the data channel in
-         * that case or not.
-         */
-
-        debug(F100,"ftp hookup use_tls","",0);
-        if (!ssl_auth()) {
-            debug(F100,"ftp hookup ssl_auth failed","",0);
-            auth_type = NULL;
-            ftpcode = -1;
-            csocket = -1;
-            goto bad;
-        }
-        ssl_ftp_proxy = 1;
-    }
-#endif /* CK_SSL */
 
 #ifdef IP_TOS
 #ifdef IPTOS_LOWDELAY
@@ -14930,13 +12538,6 @@ ftp_login(host) char * host;
     if (!ckstrcmp(ftp_logname,"ftp",-1,0))
       anonymous = 1;
 
-#ifdef FTP_SRP
-    if (auth_type && !strcmp(auth_type, "SRP")) {
-        user = srp_user;
-        pass = srp_pass;
-        acct = srp_acct;
-    } else
-#endif /* FTP_SRP */
       if (anonymous) {
           user = "anonymous";
           if (ftp_tmp) {		/* They gave a password */
@@ -14994,9 +12595,6 @@ ftp_login(host) char * host;
         if (ftpcmd("PWD",NULL,0,0,0) != REPLY_COMPLETE)
           ftpcmd("PASS dummy",NULL,0,0,1);
     } else if (n == REPLY_CONTINUE) {
-#ifdef CK_ENCRYPTION
-        int oldftp_cpl;
-#endif /* CK_ENCRYPTION */
 
         if (pass == NULL) {
             int ok;
@@ -15007,21 +12605,12 @@ ftp_login(host) char * host;
                 pass = brstrip(ftppass);
         }
 
-#ifdef CK_ENCRYPTION
-        oldftp_cpl = ftp_cpl;
-        ftp_cpl = FPL_PRV;
-#endif /* CK_ENCRYPTION */
         n = ftpcmd("PASS",pass,-1,-1,1);
         if (!anonymous && pass) {
             char * p = pass;
             while (*p++) *(p-1) = NUL;
             makestr(&ftp_tmp,NULL);
         }
-#ifdef CK_ENCRYPTION
-        /* level may have changed */
-        if (ftp_cpl == FPL_PRV)
-          ftp_cpl = oldftp_cpl;
-#endif /* CK_ENCRYPTION */
     }
     if (n == REPLY_CONTINUE) {
         aflag++;
@@ -15155,21 +12744,11 @@ ftp_user(user,pass,acct) char * user, * pass, * acct;
     char pwd[PWDSIZ];
 
     if (!auth_type && ftp_aut) {
-#ifdef FTP_SRP
-        if (ck_srp_is_installed()) {
-            if (srp_ftp_auth( NULL, user, pass)) {
-                makestr(&pass,srp_pass);
-            }
-        }
-#endif /* FTP_SRP */
     }
     n = ftpcmd("USER",user,-1,-1,ftp_vbm);
     if (n == REPLY_COMPLETE)
       n = ftpcmd("PASS dummy",NULL,0,0,1);
     else if (n == REPLY_CONTINUE) {
-#ifdef CK_ENCRYPTION
-        int oldftp_cpl;
-#endif /* CK_ENCRYPTION */
         if (pass == NULL || !pass[0]) {
             int ok;
             pwd[0] = '\0';
@@ -15180,17 +12759,8 @@ ftp_user(user,pass,acct) char * user, * pass, * acct;
                 pass = brstrip(pwd);
         }
 
-#ifdef CK_ENCRYPTION
-        if ((oldftp_cpl = ftp_cpl) == PROT_S)
-          ftp_cpl = PROT_P;
-#endif /* CK_ENCRYPTION */
         n = ftpcmd("PASS",pass,-1,-1,1);
         memset(pass, 0, strlen(pass));
-#ifdef CK_ENCRYPTION
-        /* level may have changed */
-        if (ftp_cpl == PROT_P)
-          ftp_cpl = oldftp_cpl;
-#endif /* CK_ENCRYPTION */
     }
     if (n == REPLY_CONTINUE) {
         if (acct == NULL || !acct[0]) {
@@ -15877,172 +13447,11 @@ secure_putbuf(fd, buf, nbyte) int fd; CHAR * buf; unsigned int nbyte;
 #endif /* CK_ANSIC */
 {
     static char *outbuf = NULL;         /* output ciphertext */
-#ifdef FTP_SECURITY
-    static unsigned int bufsize = 0;    /* size of outbuf */
-#endif /* FTP_SECURITY */
     ftp_int32 length   = 0;
     ftp_uint32 net_len = 0;
 
     /* Other auth types go here ... */
-#ifdef CK_SSL
-    if (ssl_ftp_data_active_flag) {
-        int count, error;
 
-        /* there is no need to send an empty buffer when using SSL/TLS */
-        if ( nbyte == 0 )
-	  return(0);
-
-        count = SSL_write(ssl_ftp_data_con, buf, nbyte);
-        error = SSL_get_error(ssl_ftp_data_con,count);
-        switch (error) {
-          case SSL_ERROR_NONE:
-            return(0);
-          case SSL_ERROR_WANT_WRITE:
-          case SSL_ERROR_WANT_READ:
-          case SSL_ERROR_SYSCALL:
-          case SSL_ERROR_WANT_X509_LOOKUP:
-          case SSL_ERROR_SSL:
-          case SSL_ERROR_ZERO_RETURN:
-          default:
-            SSL_shutdown(ssl_ftp_data_con);
-            SSL_free(ssl_ftp_data_con);
-            ssl_ftp_data_active_flag = 0;
-            ssl_ftp_data_con = NULL;
-#ifdef TCPIPLIB
-            socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-            shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-            close(data);
-#endif /* TCPIPLIB */
-            data = -1;
-            globaldin = data;
-            return(-1);
-        }
-        return(-1);
-    }
-#endif /* CK_SSL */
-
-#ifdef FTP_SRP
-    if (ck_srp_is_installed() && (strcmp(auth_type, "SRP") == 0)) {
-        if (bufsize < nbyte + FUDGE_FACTOR) {
-            if (outbuf?
-                (outbuf = realloc(outbuf, (unsigned) (nbyte + FUDGE_FACTOR))):
-                (outbuf = malloc((unsigned) (nbyte + FUDGE_FACTOR)))) {
-                bufsize = nbyte + FUDGE_FACTOR;
-            } else {
-                bufsize = 0;
-                secure_error("%s (in malloc of PROT buffer)", ck_errstr());
-                return(ERR);
-            }
-        }
-        if ((length =
-             srp_encode(ftp_dpl == FPL_PRV,
-                        (CHAR *) buf,
-                        (CHAR *) outbuf,
-                        nbyte
-                        )
-             ) < 0) {
-            secure_error ("srp_encode failed");
-            return ERR;
-        }
-    }
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-    if (ck_krb4_is_installed() && (strcmp(auth_type, "KERBEROS_V4") == 0)) {
-        struct sockaddr_in myaddr, hisaddr;
-        GSOCKNAME_T len;
-        len = sizeof(myaddr);
-        if (getsockname(fd, (struct sockaddr*)&myaddr, &len) < 0) {
-            secure_error("secure_putbuf: getsockname failed");
-            return(ERR);
-        }
-        len = sizeof(hisaddr);
-        if (getpeername(fd, (struct sockaddr*)&hisaddr, &len) < 0) {
-            secure_error("secure_putbuf: getpeername failed");
-            return(ERR);
-        }
-        if (bufsize < nbyte + FUDGE_FACTOR) {
-            if (outbuf ?
-                (outbuf = realloc(outbuf, (unsigned) (nbyte + FUDGE_FACTOR))):
-                 (outbuf = malloc((unsigned) (nbyte + FUDGE_FACTOR)))) {
-                bufsize = nbyte + FUDGE_FACTOR;
-            } else {
-                bufsize = 0;
-                secure_error("%s (in malloc of PROT buffer)", ck_errstr());
-                return(ERR);
-            }
-        }
-        if (ftp_dpl == FPL_PRV) {
-            length = krb_mk_priv(buf, (CHAR *) outbuf, nbyte,
-                                 ftp_sched,
-#ifdef KRB524
-                                 ftp_cred.session,
-#else /* KRB524 */
-                                 &ftp_cred.session,
-#endif /* KRB524 */
-                                 &myaddr,
-                                 &hisaddr
-                                 );
-        } else {
-            length = krb_mk_safe(buf, (CHAR *) outbuf, nbyte,
-#ifdef KRB524
-                                 ftp_cred.session,
-#else /* KRB524 */
-                                 &ftp_cred.session,
-#endif /* KRB524 */
-                                 &myaddr,
-                                 &hisaddr
-                                 );
-        }
-        if (length == -1) {
-            secure_error("krb_mk_%s failed for KERBEROS_V4",
-                         ftp_dpl == FPL_PRV ? "priv" : "safe");
-            return(ERR);
-        }
-    }
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-    if (ck_gssapi_is_installed() && (strcmp(auth_type, "GSSAPI") == 0)) {
-        gss_buffer_desc in_buf, out_buf;
-        OM_uint32 maj_stat, min_stat;
-        int conf_state;
-
-        in_buf.value = buf;
-        in_buf.length = nbyte;
-        maj_stat = gss_seal(&min_stat, gcontext,
-                            (ftp_dpl == FPL_PRV), /* confidential */
-                            GSS_C_QOP_DEFAULT,
-                            &in_buf,
-                            &conf_state,
-                            &out_buf
-                            );
-        if (maj_stat != GSS_S_COMPLETE) {
-            /* generally need to deal */
-            /* ie. should loop, but for now just fail */
-            user_gss_error(maj_stat, min_stat,
-                           ftp_dpl == FPL_PRV?
-                           "GSSAPI seal failed":
-                           "GSSAPI sign failed");
-            return(ERR);
-        }
-        if (bufsize < out_buf.length) {
-            if (outbuf ?
-                (outbuf = realloc(outbuf, (unsigned) out_buf.length)):
-                (outbuf = malloc((unsigned) out_buf.length))) {
-                bufsize = out_buf.length;
-            } else {
-                bufsize = 0;
-                secure_error("%s (in malloc of PROT buffer)",
-                             ck_errstr());
-                return(ERR);
-            }
-        }
-        memcpy(outbuf, out_buf.value, length=out_buf.length);
-        gss_release_buffer(&min_stat, &out_buf);
-    }
-#endif /* FTP_GSSAPI */
     net_len = htonl((ULONG) length);
     if (looping_write(fd, (char *)&net_len, 4) == -1)
       return(-1);
@@ -16080,55 +13489,6 @@ secure_getbyte(fd,fc) int fd,fc;
 	  return(-3);
 #endif	/* FTP_TIMEOUT */
 
-#ifdef CK_SSL
-        if (ssl_ftp_data_active_flag) {
-            int count, error;
-            count = SSL_read(ssl_ftp_data_con, ucbuf, ucbufsiz);
-            error = SSL_get_error(ssl_ftp_data_con,count);
-#ifdef DEBUG
-	    if (error != SSL_ERROR_NONE)
-	      debug(F101,"ftp secure_getbyte error","",error);
-	    if (count == 0)
-	      debug(F101,"ftp secure_getbyte count","",count);
-#endif	/* DEBUG */
-            switch (error) {
-              case SSL_ERROR_NONE:
-		if (count > 0) {
-		    nin = bufp = count;
-		    rpackets++;
-		    pktnum++;
-		    if (fdispla != XYFD_B) {
-			rpktl = count;
-			ftscreen(SCR_PT,'D',(CK_OFF_T)rpackets,NULL);
-		    }
-		    break;
-		}
-              case SSL_ERROR_WANT_WRITE:
-              case SSL_ERROR_WANT_READ:
-              case SSL_ERROR_SYSCALL:
-              case SSL_ERROR_WANT_X509_LOOKUP:
-              case SSL_ERROR_SSL:
-              case SSL_ERROR_ZERO_RETURN:
-              default:
-                nin = bufp = count = 0;
-                SSL_shutdown(ssl_ftp_data_con);
-                SSL_free(ssl_ftp_data_con);
-                ssl_ftp_data_active_flag = 0;
-                ssl_ftp_data_con = NULL;
-#ifdef TCPIPLIB
-                socket_close(data);
-#else /* TCPIPLIB */
-#ifdef USE_SHUTDOWN
-                shutdown(data, 1+1);
-#endif /* USE_SHUTDOWN */
-                close(data);
-#endif /* TCPIPLIB */
-                data = -1;
-                globaldin = data;
-                break;
-            }
-        } else
-#endif /* CK_SSL */
           {
               kerror = looping_read(fd, (char *)&length, sizeof(length));
               if (kerror != sizeof(length)) {
@@ -16159,83 +13519,6 @@ secure_getbyte(fd,fc) int fd,fc;
               }
 
               /* Other auth types go here ... */
-#ifdef FTP_SRP
-              if (strcmp(auth_type, "SRP") == 0) {
-                  if ((nin = bufp = srp_decode (ftp_dpl == FPL_PRV,
-                                                (CHAR *) ucbuf,
-                                                ucbuf,
-                                                length
-                                                )
-                       ) == -1) {
-                      secure_error ("srp_encode failed" );
-                      return ERR;
-                  }
-              }
-#endif /* FTP_SRP */
-#ifdef FTP_KRB4
-              if (strcmp(auth_type, "KERBEROS_V4") == 0) {
-                  struct sockaddr_in myaddr, hisaddr;
-                  GSOCKNAME_T len;
-                  len = sizeof(myaddr);
-                  if (getsockname(fd, (struct sockaddr*)&myaddr, &len) < 0) {
-                      secure_error("secure_putbuf: getsockname failed");
-                      return(ERR);
-                  }
-                  len = sizeof(hisaddr);
-                  if (getpeername(fd, (struct sockaddr*)&hisaddr, &len) < 0) {
-                      secure_error("secure_putbuf: getpeername failed");
-                      return(ERR);
-                  }
-                  if (ftp_dpl) {
-                      kerror = krb_rd_priv(ucbuf, length, ftp_sched,
-#ifdef KRB524
-                                           ftp_cred.session,
-#else /* KRB524 */
-                                           &ftp_cred.session,
-#endif /* KRB524 */
-                                           &hisaddr, &myaddr, &ftp_msg_data);
-                  } else {
-                      kerror = krb_rd_safe(ucbuf, length,
-#ifdef KRB524
-                                           ftp_cred.session,
-#else /* KRB524 */
-                                           &ftp_cred.session,
-#endif /* KRB524 */
-                                           &hisaddr, &myaddr, &ftp_msg_data);
-                  }
-                  if (kerror) {
-                      secure_error("krb_rd_%s failed for KERBEROS_V4 (%s)",
-                                   ftp_dpl == FPL_PRV ? "priv" : "safe",
-                                   krb_get_err_text(kerror));
-                      return(ERR);
-                  }
-                  memcpy(ucbuf,ftp_msg_data.app_data,ftp_msg_data.app_length);
-                  nin = bufp = ftp_msg_data.app_length;
-              }
-#endif /* FTP_KRB4 */
-#ifdef FTP_GSSAPI
-              if (strcmp(auth_type, "GSSAPI") == 0) {
-                  gss_buffer_desc xmit_buf, msg_buf;
-                  OM_uint32 maj_stat, min_stat;
-                  int conf_state;
-
-                  xmit_buf.value = ucbuf;
-                  xmit_buf.length = length;
-                  conf_state = (ftp_dpl == FPL_PRV);
-                  /* decrypt/verify the message */
-                  maj_stat = gss_unseal(&min_stat, gcontext, &xmit_buf,
-                                        &msg_buf, &conf_state, NULL);
-                  if (maj_stat != GSS_S_COMPLETE) {
-                      user_gss_error(maj_stat, min_stat,
-                                     (ftp_dpl == FPL_PRV)?
-                                     "failed unsealing ENC message":
-                                     "failed unsealing MIC message");
-                      return ERR;
-                  }
-                  memcpy(ucbuf, msg_buf.value, nin = bufp = msg_buf.length);
-                  gss_release_buffer(&min_stat, &msg_buf);
-              }
-#endif /* FTP_GSSAPI */
               /* Other auth types go here ... */
 
               /* Update file transfer display */
@@ -16678,506 +13961,6 @@ radix_error(e) int e;
 }
 /* END_RUSERPASS */
 
-#ifdef FTP_SRP
-/*---------------------------------------------------------------------------+
- |                                                                           |
- |   Package: srpftp                                                         |
- |   Author: Eugene Jhong                                                    |
- |                                                                           |
- +---------------------------------------------------------------------------*/
-
-/*
- * Copyright (c) 1997-1999  The Stanford SRP Authentication Project
- * All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
- * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
- *
- * IN NO EVENT SHALL STANFORD BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
- * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
- * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
- * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
- * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * In addition, the following conditions apply:
- *
- * 1. Any software that incorporates the SRP authentication technology
- *    must display the following acknowlegment:
- *    "This product uses the 'Secure Remote Password' cryptographic
- *     authentication system developed by Tom Wu (tjw@CS.Stanford.EDU)."
- *
- * 2. Any software that incorporates all or part of the SRP distribution
- *    itself must also display the following acknowledgment:
- *    "This product includes software developed by Tom Wu and Eugene
- *     Jhong for the SRP Distribution (http://srp.stanford.edu/srp/)."
- *
- * 3. Redistributions in source or binary form must retain an intact copy
- *    of this copyright notice and list of conditions.
- */
-
-#define SRP_PROT_VERSION        1
-
-#ifdef CK_ENCRYPTION
-#define SRP_DEFAULT_CIPHER      CIPHER_ID_CAST5_CBC
-#else
-#define SRP_DEFAULT_CIPHER      CIPHER_ID_NONE
-#endif /* CK_ENCRYPTION */
-
-#define SRP_DEFAULT_HASH        HASH_ID_SHA
-
-CHAR srp_pref_cipher = CIPHER_ID_DES3_ECB;
-CHAR srp_pref_hash = HASH_ID_SHA;
-
-static struct t_client *tc = NULL;
-static CHAR *skey = NULL;
-static krypto_context *incrypt = NULL;
-static krypto_context *outcrypt = NULL;
-
-typedef unsigned int srp_uint32;
-
-/*--------------------------------------------------------------+
- | srp_selcipher: select cipher                                 |
- +--------------------------------------------------------------*/
-static int
-srp_selcipher (cname) char *cname; {
-    cipher_desc *cd;
-
-    if (!(cd = cipher_getdescbyname (cname))) {
-        int i;
-        CHAR *list = cipher_getlist ();
-
-        fprintf (stderr, "ftp: supported ciphers:\n\n");
-        for (i = 0; i < strlen (list); i++)
-          fprintf (stderr, "    %s\n", (cipher_getdescbyid(list[i]))->name);
-        fprintf (stderr, "\n");
-        return -1;
-    }
-    srp_pref_cipher = cd->id;
-    return 0;
-}
-
-/*--------------------------------------------------------------+
- | srp_selhash: select hash                                     |
- +--------------------------------------------------------------*/
-static int
-srp_selhash (hname) char *hname; {
-    hash_desc *hd;
-
-    if (!(hd = hash_getdescbyname (hname))) {
-        int i;
-        CHAR *list = hash_getlist ();
-
-        fprintf (stderr, "ftp: supported hash functions:\n\n");
-        for (i = 0; i < strlen (list); i++)
-          fprintf (stderr, "    %s\n", (hash_getdescbyid(list[i]))->name);
-        fprintf (stderr, "\n");
-        return -1;
-    }
-    srp_pref_hash = hd->id;
-    return 0;
-}
-
-/*--------------------------------------------------------------+
- | srp_userpass: get username and password                      |
- +--------------------------------------------------------------*/
-static int
-srp_userpass (host) char *host; {
-    char tmp[BUFSIZ], prompt[PROMPTSIZ];
-    char *user;
-
-    user = NULL;
-#ifdef USE_RUSERPASS
-    ruserpass (host, &user, &srp_pass, &srp_acct);
-#endif /* USE_RUSERPASS */
-
-    while (user == NULL)     {
-        char *myname;
-        int ok;
-
-        myname = whoami();
-        if (!myname) myname = "";
-        if (myname[0])
-          ckmakxmsg(prompt,PROMPTSIZ," Name (",host,":",myname,"): ",
-                    NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-        else
-          ckmakmsg(prompt,PROMPTSIZ," Name (",host,"): ",NULL);
-        tmp[0] = '\0';
-        ok = uq_txt(NULL,prompt,1,NULL,tmp,BUFSIZ,NULL,
-                    DEFAULT_UQ_TIMEOUT);
-        if (!ok || *tmp == '\0')
-          user = myname;
-        else
-          user = brstrip(tmp);
-    }
-    ckstrncpy (srp_user, user,BUFSIZ);
-    return(0);
-}
-
-/*--------------------------------------------------------------+
- | srp_reset: reset srp information                             |
- +--------------------------------------------------------------*/
-static int
-srp_reset () {
-    if (tc) { t_clientclose (tc); tc = NULL; }
-    if (incrypt) { krypto_delete (incrypt); incrypt = NULL; }
-    if (outcrypt) { krypto_delete (outcrypt); outcrypt = NULL; }
-    return(0);
-}
-
-/*--------------------------------------------------------------+
- | srp_ftp_auth: perform srp authentication                         |
- +--------------------------------------------------------------*/
-static int
-srp_ftp_auth(host, user, pass)
-    char *host;
-    char *user;
-    char *pass;
-{
-    struct t_num *wp;
-    struct t_num N;
-    struct t_num g;
-    struct t_num s;
-    struct t_num yp;
-    CHAR buf[FTP_BUFSIZ];
-    CHAR tmp[FTP_BUFSIZ];
-    CHAR *bp, *cp;
-    int n, e, clen, blen, len, i;
-    CHAR cid = 0;
-    CHAR hid = 0;
-
-    srp_pass = srp_acct = 0;
-
-    n = ftpcmd("AUTH SRP",NULL,0,0,ftp_vbm);
-    if (n != REPLY_CONTINUE) {
-        if (ftp_deb)
-            fprintf(stderr, "SRP rejected as an authentication type\n");
-        return(0);
-    } else {                            /* Send protocol version */
-        CHAR vers[4];
-        memset (vers, 0, 4);
-        vers[3] = SRP_PROT_VERSION;
-        if (!quiet)
-          printf ("SRP accepted as authentication type.\n");
-        bp = tmp; blen = 0;
-        srp_put (vers, &bp, 4, &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-    }
-    if (n == REPLY_CONTINUE) {          /* Get protocol version */
-        bp = buf;
-        if (!reply_parse)
-          goto data_error;
-        blen = FTP_BUFSIZ;
-        if (e = radix_encode(reply_parse, bp, 0, &blen, RADIX_DECODE))
-          goto decode_error;
-        if (srp_get (&bp, &cp, &blen, &clen) != 4)
-          goto data_error;
-
-        if (host) {                     /* Get username/password if needed */
-            srp_userpass (host);
-        } else {
-            ckstrncpy (srp_user, user, BUFSIZ);
-            srp_pass = pass;
-        }
-        bp = tmp; blen = 0;             /* Send username */
-        srp_put (srp_user, &bp, strlen (srp_user), &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-    }
-    if (n == REPLY_CONTINUE) {          /* Get N, g and s */
-        bp = buf;
-        if (!reply_parse)
-          goto data_error;
-        blen = FTP_BUFSIZ;
-        if (e = radix_encode (reply_parse, bp, 0, &blen, RADIX_DECODE))
-          goto decode_error;
-        if (srp_get (&bp, &(N.data), &blen, &(N.len)) < 0)
-          goto data_error;
-        if (srp_get (&bp, &(g.data), &blen, &(g.len)) < 0)
-          goto data_error;
-        if (srp_get (&bp, &(s.data), &blen, &(s.len)) < 0)
-          goto data_error;
-        if ((tc = t_clientopen (srp_user, &N, &g, &s)) == NULL) {
-            fprintf (stderr, "Unable to open SRP client structure.\n");
-            goto bad;
-        }
-        wp = t_clientgenexp (tc);       /* Send wp */
-        bp = tmp; blen = 0;
-        srp_put (wp->data, &bp, wp->len, &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-    }
-    if (n == REPLY_CONTINUE) {          /* Get yp */
-        bp = buf;
-        if (!reply_parse)
-          goto data_error;
-        blen = FTP_BUFSIZ;
-        if (e = radix_encode (reply_parse, bp, 0, &blen, RADIX_DECODE))
-          goto decode_error;
-        if (srp_get (&bp, &(yp.data), &blen, &(yp.len)) < 0)
-          goto data_error;
-        if (!srp_pass) {
-            static char ftppass[PASSBUFSIZ];
-            int ok;
-            setint();
-            ok = uq_txt(NULL," SRP Password: ",2,NULL,ftppass,PASSBUFSIZ,NULL,
-                        DEFAULT_UQ_TIMEOUT);
-            if (ok)
-	      srp_pass = brstrip(ftppass);
-        }
-        t_clientpasswd (tc, srp_pass);
-        memset (srp_pass, 0, strlen (srp_pass));
-        skey = t_clientgetkey (tc, &yp); /* Send response */
-        bp = tmp; blen = 0;
-        srp_put (t_clientresponse (tc), &bp, 20, &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-    }
-    if (n == REPLY_CONTINUE) {          /* Get response */
-        bp = buf;
-        if (!reply_parse)
-          goto data_error;
-        blen = FTP_BUFSIZ;
-        if (e = radix_encode (reply_parse, bp, 0, &blen, RADIX_DECODE))
-          goto encode_error;
-        if (srp_get (&bp, &cp, &blen, &clen) != 20)
-          goto data_error;
-        if (t_clientverify (tc, cp)) {
-            fprintf (stderr, "WARNING: bad response to client challenge.\n");
-            goto bad;
-        }
-        bp = tmp; blen = 0;             /* Send nothing */
-        srp_put ("\0", &bp, 1, &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-    }
-    if (n == REPLY_CONTINUE) {          /* Get cipher & hash lists, seqnum */
-        CHAR seqnum[4];
-        CHAR *clist;
-        CHAR *hlist;
-        CHAR *p1;
-        int clist_len, hlist_len;
-        bp = buf;
-        if (!reply_parse)
-          goto data_error;
-        blen = FTP_BUFSIZ;
-        if (e = radix_encode (reply_parse, bp, 0, &blen, RADIX_DECODE))
-          goto encode_error;
-        if (srp_get (&bp, &clist, &blen, &clist_len) < 0)
-          goto data_error;
-        if (srp_get (&bp, &hlist, &blen, &hlist_len) < 0)
-          goto data_error;
-        if (srp_get (&bp, &cp, &blen, &clen) != 4)
-          goto data_error;
-        memcpy (seqnum, cp, 4);
-        if (cipher_supported (clist, srp_pref_cipher)) /* Choose cipher */
-          cid = srp_pref_cipher;
-        if (!cid && cipher_supported (clist, SRP_DEFAULT_CIPHER))
-          cid = SRP_DEFAULT_CIPHER;
-        if (!cid) {
-            CHAR *loclist = cipher_getlist ();
-            for (i = 0; i < strlen (loclist); i++)
-              if (cipher_supported (clist, loclist[i])) {
-                  cid = loclist[i];
-                  break;
-              }
-        }
-        if (!cid) {
-            fprintf (stderr, "Unable to agree on cipher.\n");
-            goto bad;
-        }
-        /* Choose hash */
-
-        if (srp_pref_hash && hash_supported (hlist, srp_pref_hash))
-          hid = srp_pref_hash;
-
-        if (!hid && hash_supported (hlist, SRP_DEFAULT_HASH))
-          hid = SRP_DEFAULT_HASH;
-
-        if (!hid) {
-            CHAR *loclist = hash_getlist ();
-            for (i = 0; i < strlen (loclist); i++)
-              if (hash_supported (hlist, loclist[i])) {
-                  hid = loclist[i];
-                  break;
-              }
-        }
-        if (!hid) {
-            fprintf (stderr, "Unable to agree on hash.\n");
-            goto bad;
-        }
-        /* Set incrypt */
-
-        if (!(incrypt = krypto_new (cid, hid, skey, 20, NULL, 0, seqnum,
-                                    KRYPTO_DECODE)))
-          goto bad;
-
-        /* Generate random number for outkey and outseqnum */
-
-        t_random (seqnum, 4);
-
-        /* Send cid, hid, outkey, outseqnum */
-
-        bp = tmp; blen = 0;
-        srp_put (&cid, &bp, 1, &blen);
-        srp_put (&hid, &bp, 1, &blen);
-        srp_put (seqnum, &bp, 4, &blen);
-        len = FTP_BUFSIZ;
-        if (e = radix_encode (tmp, buf, blen, &len, RADIX_ENCODE))
-          goto encode_error;
-        reply_parse = "ADAT=";
-        n = ftpcmd("ADAT",buf,-1,-1,0);
-
-        /* Set outcrypt */
-
-        if (!(outcrypt = krypto_new (cid, hid, skey+20, 20, NULL, 0, seqnum,
-                                     KRYPTO_ENCODE)))
-          goto bad;
-
-        t_clientclose (tc);
-        tc = NULL;
-    }
-    if (n != REPLY_COMPLETE)
-      goto bad;
-
-    if (ftp_vbm) {
-        if (ftp_deb)
-          printf("\n");
-        printf ("SRP authentication succeeded.\n");
-        printf ("Using cipher %s and hash function %s.\n",
-                (cipher_getdescbyid(cid))->name,
-                (hash_getdescbyid(hid))->name
-                );
-    }
-    reply_parse = NULL;
-    auth_type = "SRP";
-    return(1);
-
-  encode_error:
-    fprintf (stderr, "Base 64 encoding failed: %s.\n", radix_error (e));
-    goto bad;
-
-  decode_error:
-    fprintf (stderr, "Base 64 decoding failed: %s.\n", radix_error (e));
-    goto bad;
-
-  data_error:
-    fprintf (stderr, "Unable to unmarshal authentication data.\n");
-    goto bad;
-
-  bad:
-    fprintf (stderr, "SRP authentication failed, trying regular login.\n");
-    reply_parse = NULL;
-    return(0);
-}
-
-/*--------------------------------------------------------------+
- | srp_put: put item to send buffer                             |
- +--------------------------------------------------------------*/
-static int
-srp_put (in, out, inlen, outlen)
-    CHAR *in;
-    CHAR **out;
-    int inlen;
-    int *outlen;
-{
-    srp_uint32 net_len;
-
-    net_len = htonl (inlen);
-    memcpy (*out, &net_len, 4);
-
-    *out += 4; *outlen += 4;
-
-    memcpy (*out, in, inlen);
-
-    *out += inlen; *outlen += inlen;
-    return(0);
-}
-
-/*--------------------------------------------------------------+
- | srp_get: get item from receive buffer                        |
- +--------------------------------------------------------------*/
-static int
-srp_get (in, out, inlen, outlen)
-    CHAR **in;
-    CHAR **out;
-    int *inlen;
-    int *outlen;
-{
-    srp_uint32 net_len;
-
-    if (*inlen < 4) return -1;
-
-    memcpy (&net_len, *in, 4); *inlen -= 4; *in += 4;
-    *outlen = ntohl (net_len);
-
-    if (*inlen < *outlen) return -1;
-
-    *out = *in; *inlen -= *outlen; *in += *outlen;
-
-    return *outlen;
-}
-
-/*--------------------------------------------------------------+
- | srp_encode: encode control message                           |
- +--------------------------------------------------------------*/
-static int
-srp_encode (private, in, out, len)
-    int private;
-    CHAR *in;
-    CHAR *out;
-    unsigned len;
-{
-    if (private)
-      return krypto_msg_priv (outcrypt, in, out, len);
-    else
-      return krypto_msg_safe (outcrypt, in, out, len);
-}
-
-/*--------------------------------------------------------------+
- | srp_decode: decode control message                           |
- +--------------------------------------------------------------*/
-static int
-srp_decode (private, in, out, len)
-    int private;
-    CHAR *in;
-    CHAR *out;
-    unsigned len;
-{
-    if (private)
-      return krypto_msg_priv (incrypt, in, out, len);
-    else
-      return krypto_msg_safe (incrypt, in, out, len);
-}
-
-#endif /* FTP_SRP */
 
 
 

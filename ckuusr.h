@@ -874,41 +874,6 @@ struct stringint {			/* String and (wide) integer */
 #define KRB_S_CA  1	/* /CACHE: */
 #define KRB_S_MAX 1	/* Highest KERBEROS switch number */
 
-#ifdef CK_KERBEROS
-
-/* KERBEROS actions */
-
-#define KRB_A_IN  0	/* INITIALIZE */
-#define KRB_A_DE  1	/* DESTROY */
-#define KRB_A_LC  2	/* LIST-CREDENTIALS */
-
-/* KERBEROS INIT switches */
-
-#define KRB_I_FW  0	/* /FORWARDABLE */
-#define KRB_I_LF  1	/* /LIFETIME: */
-#define KRB_I_PD  2	/* /POSTDATE: */
-#define KRB_I_PR  3	/* /PROXIABLE */
-#define KRB_I_RB  4	/* /RENEWABLE: */
-#define KRB_I_RN  5	/* /RENEW */
-#define KRB_I_SR  6	/* /SERVICE: */
-#define KRB_I_VA  7	/* /VALIDATE */
-#define KRB_I_RL  8     /* /REALM: */
-#define KRB_I_IN  9     /* /INSTANCE: */
-#define KRB_I_PW  10    /* /PASSWORD: */
-#define KRB_I_PA  11    /* /PREAUTH */
-#define KRB_I_VB  12    /* /VERBOSE */
-#define KRB_I_BR  13    /* /BRIEF */
-#define KRB_I_NFW 14	/* /NOT-FORWARDABLE */
-#define KRB_I_NPR 15	/* /NOT-PROXIABLE */
-#define KRB_I_NPA 16    /* /NOT-PREAUTH */
-#define KRB_I_K4  17    /* /KERBEROS4    (should k5 get k4 as well) */
-#define KRB_I_NK4 18    /* /NO-KERBEROS4 */
-#define KRB_I_POP 19    /* /POPUP */
-#define KRB_I_ADR 20    /* /ADDRESSES: */
-#define KRB_I_NAD 21    /* /NO-ADDRESSES */
-#define KRB_I_MAX 21    /* Highest KERBEROS INIT switch number */
-
-#endif /* CK_KERBEROS */
 
 /* SET parameters */
 
@@ -2566,9 +2531,6 @@ _PROTOTYP( int doxget, (int) );
 _PROTOTYP( int doxconn, (int) );
 _PROTOTYP( int clsconnx, (int) );
 _PROTOTYP( VOID ftreset, (void) );
-#ifdef CK_KERBEROS
-_PROTOTYP (int cp_auth, ( void ) );
-#endif /* CK_KERBEROS */
 _PROTOTYP( long mjd, (char *) );
 _PROTOTYP( char * mjd2date, (long) );
 _PROTOTYP( char * ckgetpid, (void) );
@@ -2620,9 +2582,6 @@ _PROTOTYP( int doshodial, (void) );
 _PROTOTYP( int shonet, (void) );
 _PROTOTYP( int shotopt, (int) );
 _PROTOTYP( int shotel, (int) );
-#ifdef CK_AUTHENTICATION
-_PROTOTYP (int sho_auth,( int  ) );
-#endif /* CK_AUTHENTICATION */
 #endif /* NONET */
 _PROTOTYP( VOID shomdm, (void) );
 #endif /* NOLOCAL */

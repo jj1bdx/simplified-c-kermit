@@ -94,9 +94,6 @@ static struct timeval tv;
 #endif /* CLIX */
 
 #include "ckcnet.h"			/* Symbols for network types. */
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 /*
   The directory-related includes are here because we need to test some
@@ -1263,10 +1260,6 @@ int ckxech = 0; /* 0 if system normally echoes console characters, else 1 */
 
 int ckmaxfiles = 0;			/* Max number of open files */
 
-#ifdef CK_ENCRYPTION			/* Kerberos */
-#include "ckuath.h"
-extern int me_encrypt, u_encrypt;
-#endif /* CK_ENCRYPTION */
 
 #include "ckcker.h"
 #include "ckucmd.h"
@@ -3641,24 +3634,6 @@ ttclos(foo) int foo;
           TELOPT_UNANSWERED_DO(TELOPT_LOGOUT) = 1;
           tn_reset();                   /* The Reset Telnet Option table.  */
 #endif /* TNCODE */
-#ifdef CK_SSL
-	  if (ssl_active_flag) {
-	      if (ssl_debug_flag)
-		BIO_printf(bio_err,"calling SSL_shutdown(ssl)\n");
-	      SSL_shutdown(ssl_con);
-	      SSL_free(ssl_con);
-	      ssl_con = NULL;
-	      ssl_active_flag = 0;
-	  }
-	  if (tls_active_flag) {
-	      if (ssl_debug_flag)
-		BIO_printf(bio_err,"calling SSL_shutdown(tls)\n");
-	      SSL_shutdown(tls_con);
-	      SSL_free(tls_con);
-	      tls_con = NULL;
-	      tls_active_flag = 0;
-	  }
-#endif /* CK_SSL */
     }
 #endif /* IKSD */
 #ifdef NETCMD
@@ -8862,74 +8837,6 @@ myfillbuf() {
     } else
 #endif /* IBMX25 */
 
-#ifdef CK_SSL
-      if (ssl_active_flag || tls_active_flag) {
-	  int error, n = 0;
-	  debug(F100,"myfillbuf calling SSL_read() fd","",0);
-	  while (n == 0) {
-	      if (ssl_active_flag)
-                n = SSL_read(ssl_con, (char *)mybuf, sizeof(mybuf));
-	      else if (tls_active_flag)
-                n = SSL_read(tls_con, (char *)mybuf, sizeof(mybuf));
-              else
-		break;
-	      switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,n)) {
-		case SSL_ERROR_NONE:
-		  if (n > 0)
-                    return(n);
-		  if (n < 0)
-                    return(-2);
-		  msleep(50);
-		  break;
-		case SSL_ERROR_WANT_WRITE:
-		case SSL_ERROR_WANT_READ:
-		  return(-1);
-		case SSL_ERROR_SYSCALL:
-		  if (n != 0)
-		    return(-1);
-		case SSL_ERROR_WANT_X509_LOOKUP:
-		case SSL_ERROR_SSL:
-		case SSL_ERROR_ZERO_RETURN:
-		default:
-		  ttclos(0);
-		  return(-3);
-            }
-        }
-    }
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-	debug(F101,"myfillbuf calling krb4_des_read() fd","",ttyfd);
-        if ((n = krb4_des_read(ttyfd,(char *)mybuf,sizeof(mybuf))) < 0)
-	  return(-3);
-        else
-	  return(n);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-	debug(F101,"myfillbuf calling krb5_des_read() fd","",ttyfd);
-        if ((n = krb5_des_read(ttyfd,(char *)mybuf,sizeof(mybuf),0)) < 0)
-	  return(-3);
-        else
-	  return(n);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-	debug(F101,"myfillbuf calling krb5_u2u_read() fd","",ttyfd);
-        if ((n = krb5_u2u_read(ttyfd,(char *)mybuf,sizeof(mybuf))) < 0)
-	  return(-3);
-        else
-	  return(n);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 #ifdef NETPTY
 #ifdef HAVE_PTYTRAP
@@ -9030,68 +8937,6 @@ myfillbuf() {
     }
 #endif /* SUNX25 */
 
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        int error, n = 0;
-        while (n == 0) {
-            if (ssl_active_flag)
-	      n = SSL_read(ssl_con, (char *)mybuf, sizeof(mybuf));
-            else
-	      n = SSL_read(tls_con, (char *)mybuf, sizeof(mybuf));
-            switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,n)) {
-	      case SSL_ERROR_NONE:
-                if (n > 0)
-		  return(n);
-                if (n < 0)
-		  return(-2);
-                msleep(50);
-                break;
-	      case SSL_ERROR_WANT_WRITE:
-	      case SSL_ERROR_WANT_READ:
-                return(-1);
-	      case SSL_ERROR_SYSCALL:
-		if (n != 0)
-		  return(-1);
-	      case SSL_ERROR_WANT_X509_LOOKUP:
-	      case SSL_ERROR_SSL:
-	      case SSL_ERROR_ZERO_RETURN:
-	      default:
-                ttclos(0);
-                return(-2);
-            }
-        }
-    }
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        if ((x = krb4_des_read(ttyfd,mybuf,sizeof(mybuf))) < 0)
-	  return(-1);
-        else
-	  return(x);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        if ((x = krb5_des_read(ttyfd,mybuf,sizeof(mybuf),0)) < 0)
-	  return(-1);
-        else
-	  return(x);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        if ((x = krb5_u2u_read(ttyfd,mybuf,sizeof(mybuf))) < 0)
-	  return(-1);
-        else
-	  return(x);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
     errno = 0;
     debug(F101,"myfillbuf calling FIONREAD ioctl","",xlocal);
@@ -9132,68 +8977,6 @@ int
 myfillbuf() {
     int x;
 
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        int error, n = 0;
-        while (n == 0) {
-            if (ssl_active_flag)
-	      n = SSL_read(ssl_con, (char *)mybuf, sizeof(mybuf));
-            else
-	      count = SSL_read(tls_con, (char *)mybuf, sizeof(mybuf));
-            switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,n)) {
-	      case SSL_ERROR_NONE:
-                if (n > 0)
-		  return(n);
-                if (n < 0)
-		  return(-2);
-                msleep(50);
-                break;
-	      case SSL_ERROR_WANT_WRITE:
-	      case SSL_ERROR_WANT_READ:
-                return(-1);
-	      case SSL_ERROR_SYSCALL:
-		if (n != 0)
-		  return(-1);
-	      case SSL_ERROR_WANT_X509_LOOKUP:
-	      case SSL_ERROR_SSL:
-	      case SSL_ERROR_ZERO_RETURN:
-	      default:
-                ttclos(0);
-                return(-2);
-            }
-        }
-    }
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        if ((len = krb4_des_read(ttyfd,mybuf,sizeof(mybuf))) < 0)
-	  return(-1);
-        else
-	  return(len);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        if ((len = krb5_des_read(ttyfd,mybuf,sizeof(mybuf),0)) < 0)
-	  return(-1);
-        else
-	  return(len);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        if ((len = krb5_u2u_read(ttyfd,mybuf,sizeof(mybuf))) < 0)
-	  return(-1);
-        else
-	  return(len);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 #ifdef NETCMD
     if (ttpipe)
@@ -9320,20 +9103,12 @@ ttflux() {				/* But first... */
 	CHAR ch = '\0';
         while (my_count > 0) {
 	    ch = myread();
-#ifdef CK_ENCRYPTION
-            if (TELOPT_U(TELOPT_ENCRYPTION))
-	      ck_tn_decrypt((char *)&ch,1);
-#endif /* CK_ENCRYPTION */
             if (ch == IAC)
 	      x = tt_tnopt(ch);
         }
     } else
 #endif /* TCPSOCKET */
 #ifdef COMMENT
-#ifdef CK_ENCRYPTION
-    if (TELOPT_U(TELOPT_ENCRYPTION) && my_count > 0)
-      ck_tn_decrypt(&mybuf[my_item+1],my_count);
-#endif /* CK_ENCRYPTION */
 #endif /* COMMENT */
     my_count = 0;			/* Reset count to zero */
     my_item = -1;			/* And buffer index to -1 */
@@ -10237,46 +10012,7 @@ in_chk(channel, fd) int channel, fd;
 
 /* We seem to have a connection so now see if any bytes are waiting on it */
 
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        n += SSL_pending(ssl_active_flag?ssl_con:tls_con);
-        debug(F101,"in_chk SSL_pending","",n);
-        if (n < 0) {
-            ttclos(0);
-            return(-1);
-        } else if (n > 0) {
-            return(n);
-        }
-    }
-#endif /* CK_SSL */
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-    /* It is not safe to read any data when using encrypted Klogin */
-    if (ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN) {
-#ifdef KRB4
-        if (ttnproto == NP_EK4LOGIN) {
-            n += krb4_des_avail(ttyfd);
-            debug(F101,"in_chk krb4_des_avail","",n);
-        }
-#endif /* KRB4 */
-#ifdef KRB5
-        if (ttnproto == NP_EK5LOGIN) {
-            n += krb5_des_avail(ttyfd);
-            debug(F101,"in_chk krb5_des_avail","",n);
-        }
-#ifdef KRB5_U2U
-        if (ttnproto == NP_K5U2U) {
-            n += krb5_u2u_avail(ttyfd);
-            debug(F101,"in_chk krb5_des_avail","",n);
-        }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-        if (n < 0)			/* Is this right? */
-	  return(-1);
-        else
-	  return(n);
-    }
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
 
     errno = 0;				/* Reset this so we log good info */
@@ -10600,22 +10336,7 @@ ttxin(n,buf) int n; CHAR *buf;
         }
 	buf[x++] = c & ttpmsk;
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-        /* It is impossible to know how many characters are waiting */
-        /* to be read when you are using Encrypted Rlogin or SSL    */
-        /* as the transport since the number of real data bytes     */
-        /* can be greater or less than the number of bytes on the   */
-        /* wire which is what ttchk() returns.                      */
-        if (netconn && (ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN))
-	  if (ttchk() <= 0)
-	    break;
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
-#ifdef CK_SSL
-        if (ssl_active_flag || tls_active_flag)
-	  if (ttchk() <= 0)
-	    break;
-#endif /* CK_SSL */
     }
 #else
     debug(F101,"ttxin READ","",n);
@@ -10636,10 +10357,6 @@ ttxin(n,buf) int n; CHAR *buf;
    >= 0 on success, number of characters actually written.
    -1 on failure.
 */
-#ifdef CK_ENCRYPTION
-CHAR * xpacket = NULL;
-int nxpacket = 0;
-#endif /* CK_ENCRYPTION */
 
 #define TTOLMAXT 5
 int
@@ -10704,41 +10421,9 @@ ttol(s,n) int n; CHAR *s;
     tries = TTOLMAXT;			/* Allow up to this many tries */
     len = n;				/* Remember original length */
 
-#ifdef CK_ENCRYPTION
-/*
-  This is to avoid encrypting a packet that is already encrypted, e.g.
-  when we resend a packet directly out of the packet buffer, and also to
-  avoid encrypting a constant (literal) string, which can cause a memory
-  fault.
-*/
-    if (TELOPT_ME(TELOPT_ENCRYPTION)) {
-	int x;
-	if (nxpacket < n) {
-	    if (xpacket) {
-		free(xpacket);
-		xpacket = NULL;
-		nxpacket = 0;
-	    }
-	    x = n > 10240 ? n : 10240;
-	    xpacket = (CHAR *)malloc(x);
-	    if (!xpacket) {
-		fprintf(stderr,"ttol malloc failure\n");
-		return(-1);
-	    } else
-	      nxpacket = x;
-	}
-	memcpy((char *)xpacket,(char *)s,n);
-	s = xpacket;
-	ck_tn_encrypt((char *)s,n);
-    }
-#endif /* CK_ENCRYPTION */
 
     while (n > 0 &&
 	   (tries-- > 0
-#ifdef CK_ENCRYPTION
-	    /* keep trying if we are encrypting */
-	    || TELOPT_ME(TELOPT_ENCRYPTION)
-#endif /* CK_ENCRYPTION */
             )) {			/* Be persistent */
 	debug(F101,"ttol try","",TTOLMAXT - tries);
 #ifdef BEOSORBEBOX
@@ -10755,59 +10440,6 @@ ttol(s,n) int n; CHAR *s;
 	    x = x25write(ttyfd, s, n);
 	  else
 #endif /* IBMX25 */
-#ifdef CK_SSL
-	    if (ssl_active_flag || tls_active_flag) {
-		int error;
-		/* Write using SSL */
-                ssl_retry:
-		if (ssl_active_flag)
-                  x = SSL_write(ssl_con, s, n);
-		else
-                  x = SSL_write(tls_con, s, n);
-		switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,x)) {
-                case SSL_ERROR_NONE:
-                    if (x == n)
-		      return(len);
-                    s += x;
-                    n -= x;
-                    goto ssl_retry;
-		  case SSL_ERROR_WANT_WRITE:
-		  case SSL_ERROR_WANT_READ:
-		    x = 0;
-		    break;
-		  case SSL_ERROR_SYSCALL:
-                    if (x != 0)
-		      return(-1);
-		  case SSL_ERROR_WANT_X509_LOOKUP:
-		  case SSL_ERROR_SSL:
-		  case SSL_ERROR_ZERO_RETURN:
-		  default:
-		    ttclos(0);
-		    return(-3);
-		}
-	    } else
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-	    if (ttnproto == NP_EK4LOGIN) {
-		return(krb4_des_write(ttyfd,s,n));
-	    } else
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-            if (ttnproto == NP_EK5LOGIN) {
-                return(krb5_des_write(ttyfd,(char *)s,n,0));
-            } else
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-            if (ttnproto == NP_K5U2U) {
-                return(krb5_u2u_write(ttyfd,(char *)s,n));
-            } else
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 	      x = write(fd,s,n);	/* Write string to device */
 
 	if (x == n) {			/* Worked? */
@@ -10928,10 +10560,6 @@ ttoc(c) char c;
         else
 #endif /*  BEOSORBEBOX */
 #endif /* NETCONN */
-#ifdef CK_ENCRYPTION
-	  if (TELOPT_ME(TELOPT_ENCRYPTION))
-	    ck_tn_encrypt(&c,1);
-#endif /* CK_ENCRYPTION */
 #ifdef IBMX25
 	/* riehm: maybe this isn't necessary after all. Test program
 	 * worked fine with data being sent and retrieved with normal
@@ -10941,54 +10569,6 @@ ttoc(c) char c;
 	  rc = x25write(ttyfd,&c,1); /* as above for X25 streams */
 	else
 #endif /* IBMX25 */
-#ifdef CK_SSL
-	  if (ssl_active_flag || tls_active_flag) {
-	      int error;
-	      /* Write using SSL */
-	      if (ssl_active_flag)
-                rc = SSL_write(ssl_con, &c, 1);
-	      else
-                rc = SSL_write(tls_con, &c, 1);
-	      switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,rc)){
-		case SSL_ERROR_NONE:
-		  break;
-		case SSL_ERROR_WANT_WRITE:
-		case SSL_ERROR_WANT_READ:
-		  rc = 0;
-		  break;
-		case SSL_ERROR_SYSCALL:
-		  if (rc != 0)
-		    return(-1);
-		case SSL_ERROR_WANT_X509_LOOKUP:
-		case SSL_ERROR_SSL:
-		case SSL_ERROR_ZERO_RETURN:
-		default:
-		  ttclos(0);
-		  return(-1);
-	      }
-	  } else
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-	  if (ttnproto == NP_EK4LOGIN) {
-	      rc = (krb4_des_write(ttyfd,(char *)&c,1) == 1);
-	  } else
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-          if (ttnproto == NP_EK5LOGIN) {
-              rc = (krb5_des_write(ttyfd,&c,1,0) == 1);
-          } else
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-          if (ttnproto == NP_K5U2U) {
-              rc = (krb5_u2u_write(ttyfd,&c,1) == 1);
-          } else
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 	    rc = write(fd,&c,1);	/* Try to write the character. */
 	if (rc < 1) {			/* Failed */
 	    ttimoff();			/* Turn off the alarm. */
@@ -11205,15 +10785,6 @@ ttinl(dest,max,timo,eol) int max,timo; CHAR *dest, eol;
 
 	    /* Get here with char in n */
 
-#ifdef CK_ENCRYPTION
-	    if (TELOPT_U(TELOPT_ENCRYPTION) && !pushedback) {
-		CHAR ch = n;
-		ck_tn_decrypt((char *)&ch,1);
-		n = ch;
-		debug(F000,"TTINL decryp char","",n);
-	    }
-	    pushedback = 0;
-#endif /* CK_ENCRYPTION */
 
 #ifdef TCPSOCKET
 	    if (n == IAC &&		/* Handle Telnet options */
@@ -11397,14 +10968,6 @@ ttinl(dest,max,timo,eol) int max,timo; CHAR *dest, eol;
 		    while (my_count > 0) {
 			x = myread();	   /* (was ttinc(0) */
 			debug(F000,"TTINL lkread char","",x);
-#ifdef CK_ENCRYPTION
-			if (TELOPT_U(TELOPT_ENCRYPTION)) {
-			    CHAR ch = x;
-			    ck_tn_decrypt((char *)&ch,1);
-			    x = ch;
-			    debug(F000,"TTINL lkdecr char","",x); 
-			}
-#endif	/* CK_ENCRYPTION */
 			/*
 			  Note: while it might seem more elegant to simply
 			  push back the encrypted byte, that desynchronizes
@@ -11520,14 +11083,6 @@ ttinc(timo) int timo;
         /* Comm line failure returns -1 thru myread, so no &= 0377 */
 	n = myread();			/* Wait for a character... */
 	/* debug(F000,"ttinc MYREAD n","",n); */
-#ifdef CK_ENCRYPTION
-	/* debug(F101,"ttinc u_encrypt","",TELOPT_U(TELOPT_ENCRYPTION)); */
-	if (TELOPT_U(TELOPT_ENCRYPTION) && n >= 0) {
-	    ch = n;
-	    ck_tn_decrypt((char *)&ch,1);
-	    n = ch;
-	}
-#endif /* CK_ENCRYPTION */
 
 #ifdef NETPTY
 	if (ttpty && n < 0) {
@@ -11562,12 +11117,6 @@ debug(F110,"XXX netclos in ifdef NETCONN...OK","B",0);
 	/* debug(F101,"ttinc","",ch); */
 #ifdef TNCODE
 	if ((n > 0) && is_tn) {
-#ifdef CK_ENCRYPTION
-	    if (TELOPT_U(TELOPT_ENCRYPTION)) {
-		ck_tn_decrypt(&ch,1);
-		n = ch;
-	    }
-#endif /* CK_ENCRYPTION */
 	    return((unsigned)(ch & 0xff));
 	} else
 #endif /* TNCODE */
@@ -11599,11 +11148,6 @@ debug(F110,"XXX netclos in ifdef NETCONN...OK","B",0);
 	    debug(F101,"ttinc read","",n);
 #endif /* MYREAD */
 
-#ifdef CK_ENCRYPTION
-	    if (TELOPT_U(TELOPT_ENCRYPTION) && n >= 0) {
-		ck_tn_decrypt((char *)&ch,1);
-	    }
-#endif /* CK_ENCRYPTION */
 	    if (n >= 0)
 	      n = (unsigned) (ch & 0xff);
 	    else
@@ -12953,10 +12497,6 @@ conoc(c) char c;
     if (inserver && !local)
       return(ttoc(c));
 
-#ifdef CK_ENCRYPTION
-    if (inserver && TELOPT_ME(TELOPT_ENCRYPTION))
-        ck_tn_encrypt(&c,1);
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 
 #ifdef Plan9
@@ -12979,10 +12519,6 @@ conxo(x,s) int x; char *s;
     if (inserver && !local)
       return(ttol((CHAR *)s,x));
 
-#ifdef CK_ENCRYPTION
-    if (inserver && TELOPT_ME(TELOPT_ENCRYPTION))
-        ck_tn_encrypt(s,x);
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 
 #ifdef Plan9
@@ -13011,27 +12547,6 @@ conol(s) char *s;
     if (inserver && !local)
       return(ttol((CHAR *)s,len));
 
-#ifdef CK_ENCRYPTION
-    if (inserver && TELOPT_ME(TELOPT_ENCRYPTION)) {
-	if (nxpacket < len) {
-	    if (xpacket) {
-		free(xpacket);
-		xpacket = NULL;
-		nxpacket = 0;
-	    }
-	    len = len > 10240 ? len : 10240;
-	    xpacket = (CHAR *)malloc(len);
-	    if (!xpacket) {
-		fprintf(stderr,"ttol malloc failure\n");
-		return(-1);
-	    } else
-	      nxpacket = len;
-	}
-	memcpy(xpacket,s,len);
-	s = (char *)xpacket;
-	ck_tn_encrypt(s,len);
-    }
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 
 #ifdef Plan9
@@ -13095,10 +12610,6 @@ conoll(s) char *s;
 
     if (*s) conol(s);
 #ifdef IKSD
-#ifdef CK_ENCRYPTION
-    if (inserver && TELOPT_ME(TELOPT_ENCRYPTION))
-      ck_tn_encrypt((char *)buf,2);
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 
 #ifdef Plan9
@@ -13211,11 +12722,6 @@ coninc(timo) int timo;
 	    if (n == 0) continue;	/* Shouldn't happen. */
 	    if (n > 0) {		/* If read was successful, */
 #ifdef IKSD
-#ifdef CK_ENCRYPTION
-                debug(F100,"coninc decrypt 1","",0);
-                if (inserver && !local && TELOPT_U(TELOPT_ENCRYPTION))
-		  ck_tn_decrypt((char *)&ch,1);
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 		return((unsigned)(ch & 0xff)); /* return the character. */
             }
@@ -13298,11 +12804,6 @@ coninc(timo) int timo;
     ttimoff();				/* Turn off timer */
     if (n > 0) {			/* Got character OK. */
 #ifdef IKSD
-#ifdef CK_ENCRYPTION
-        debug(F100,"coninc decrypt 2","",0);
-        if (inserver && !local && TELOPT_U(TELOPT_ENCRYPTION))
-	  ck_tn_decrypt((char *)&ch,1);
-#endif /* CK_ENCRYPTION */
 #endif /* IKSD */
 	return((unsigned)(ch & 0xff));	/* Return it. */
     }
@@ -14488,18 +13989,7 @@ tt_is_secure() {	  /* Tells whether the current connection is secure */
 #ifdef SSHBUILTIN
 	|| IS_SSH()
 #endif /* SSHBUILTIN */
-#ifdef CK_ENCRYPTION
-	|| ck_tn_encrypting() && ck_tn_decrypting()
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-	|| tls_active_flag || ssl_active_flag
-#endif /* CK_SSL */
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-#ifdef CK_ENCRYPTION
-	|| ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN
-#endif /* CK_ENCRYPTION */
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
 	)
       return(1);
@@ -16335,42 +15825,6 @@ ckxfprintf(va_alist) va_dcl
 #endif /* TNCODE */
              )
             str2[j++] = '\0';
-#ifdef CK_ENCRYPTION
-#ifdef TNCODE
-        if (TELOPT_ME(TELOPT_ENCRYPTION))
-	  ck_tn_encrypt(str2,j);
-#endif /* TNCODE */
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-	if (inserver && (ssl_active_flag || tls_active_flag)) {
-	    /* Write using SSL */
-            char * p = str2;
-          ssl_retry:
-            if (ssl_active_flag)
-	      rc = SSL_write(ssl_con, p, j);
-            else
-	      rc = SSL_write(tls_con, p, j);
-	    debug(F111,"ckxfprintf","SSL_write",rc);
-            switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,rc)) {
-	      case SSL_ERROR_NONE:
-                if (rc == j)
-		  break;
-                p += rc;
-                j -= rc;
-                goto ssl_retry;
-	      case SSL_ERROR_WANT_WRITE:
-	      case SSL_ERROR_WANT_READ:
-	      case SSL_ERROR_SYSCALL:
-                if (rc != 0)
-		  return(-1);
-	      case SSL_ERROR_WANT_X509_LOOKUP:
-	      case SSL_ERROR_SSL:
-	      case SSL_ERROR_ZERO_RETURN:
-	      default:
-                rc = 0;
-            }
-	} else
-#endif /* CK_SSL */
         fwrite(str2,sizeof(char),j,stdout);
     }
     va_end(args);
@@ -16459,42 +15913,6 @@ ckxprintf(va_alist) va_dcl
 #endif /* TNCODE */
              )
             str2[j++] = '\0';
-#ifdef CK_ENCRYPTION
-#ifdef TNCODE
-        if (TELOPT_ME(TELOPT_ENCRYPTION))
-	  ck_tn_encrypt(str2,j);
-#endif /* TNCODE */
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-	if (inserver && (ssl_active_flag || tls_active_flag)) {
-            char * p = str2;
-	    /* Write using SSL */
-          ssl_retry:
-            if (ssl_active_flag)
-	      rc = SSL_write(ssl_con, p, j);
-            else
-	      rc = SSL_write(tls_con, p, j);
-	    debug(F111,"ckxprintf","SSL_write",rc);
-            switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,rc)) {
-	      case SSL_ERROR_NONE:
-                if (rc == j)
-		  break;
-                p += rc;
-                j -= rc;
-                goto ssl_retry;
-	      case SSL_ERROR_WANT_WRITE:
-	      case SSL_ERROR_WANT_READ:
-	      case SSL_ERROR_SYSCALL:
-                if (rc != 0)
-		  return(-1);
-	      case SSL_ERROR_WANT_X509_LOOKUP:
-	      case SSL_ERROR_SSL:
-	      case SSL_ERROR_ZERO_RETURN:
-	      default:
-                rc = 0;
-            }
-	} else
-#endif /* CK_SSL */
 	  rc = fwrite(str2,sizeof(char),j,stdout);
     }
     va_end(args);

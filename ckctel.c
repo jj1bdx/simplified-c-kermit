@@ -58,12 +58,6 @@ int sstelnet = 0;                       /* Do server-side Telnet negotiation */
 #define TNC_NAMES
 #include "ckcnet.h"
 #include "ckctel.h"
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 #ifndef NOTERM
 #endif /* NOTERM */
@@ -104,18 +98,11 @@ int tn_auth_how = TN_AUTH_HOW_ANY;
 int tn_auth_enc = TN_AUTH_ENC_ANY;
 int tn_deb = 0;                         /* Telnet Debug mode */
 int tn_sfu = 0;                         /* Microsoft SFU compatibility */
-#ifdef CK_FORWARD_X
-char * tn_fwdx_xauthority = NULL;       /* Xauthority File */
-int    fwdx_no_encrypt = 0;             /* Forward-X requires encryption */
-#endif /* CK_FORWARD_X */
 
 
 char tn_msg[TN_MSG_LEN];                /* Telnet data can be rather long */
 char hexbuf[TN_MSG_LEN];
 char tn_msg_out[TN_MSG_LEN];
-#ifdef CK_FORWARD_X
-CHAR fwdx_msg_out[TN_MSG_LEN];
-#endif /* CK_FORWARD_X */
 
 /*
   In order to prevent an infinite telnet negotiation loop we maintain a
@@ -153,11 +140,7 @@ char tncnts[NTELOPTS+1][4];             /* Counts */
 char tnopps[4] = { 1,0,3,2 };           /* Opposites */
 
 #ifdef CK_ENVIRONMENT
-#ifdef CK_FORWARD_X
-#define TSBUFSIZ 2056
-#else /* CK_FORWARD_X */
 #define TSBUFSIZ 1024
-#endif /* CK_FORWARD_X */
 char tn_env_acct[64];
 char tn_env_disp[64];
 char tn_env_job[64];
@@ -295,10 +278,6 @@ tn_outst(notquiet) int notquiet;
 {
     int outstanding = 0;
     int x = 0;
-#ifdef CK_ENCRYPTION
-    int e = 0;
-    int d = 0;
-#endif /* CK_ENCRYPTION */
 
     if (tn_wait_flg) {
         for (x = TELOPT_FIRST; x <= TELOPT_LAST; x++) {
@@ -350,67 +329,6 @@ tn_outst(notquiet) int notquiet;
                 }
             }
         }
-#ifdef CK_AUTHENTICATION
-        if (ck_tn_auth_in_progress()) {
-            if (TELOPT_ME(TELOPT_AUTHENTICATION)) {
-                if (notquiet)
-                  printf("?Telnet waiting for WILL %s subnegotiation\r\n",
-                         TELOPT(TELOPT_AUTHENTICATION));
-                debug(F111,
-                      "tn_outst",
-                      "ME authentication in progress",
-                      TELOPT_AUTHENTICATION
-                      );
-                outstanding = 1;
-            } else if (TELOPT_U(TELOPT_AUTHENTICATION)) {
-                if (notquiet)
-                  printf("?Telnet waiting for DO %s subnegotiation\r\n",
-                         TELOPT(TELOPT_AUTHENTICATION));
-                debug(F111,
-                      "tn_outst",
-                      "U authentication in progress",
-                      TELOPT_AUTHENTICATION
-                      );
-                outstanding = 1;
-            }
-        }
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-        if (!outstanding) {
-            e = ck_tn_encrypting();
-            d = ck_tn_decrypting();
-            if (TELOPT_ME(TELOPT_ENCRYPTION)) {
-                if (TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop && e ||
-                    !TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop && !e
-                    ) {
-                    if ( notquiet )
-                      printf("?Telnet waiting for WILL %s subnegotiation\r\n",
-                             TELOPT(TELOPT_ENCRYPTION));
-                    debug(F111,
-                          "tn_outst",
-                          "encryption mode switch",
-                          TELOPT_ENCRYPTION
-                          );
-                    outstanding = 1;
-                }
-            }
-            if (TELOPT_U(TELOPT_ENCRYPTION)) {
-                if (TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop && d ||
-                    !TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop && !d
-                    ) {
-                    if ( notquiet )
-                      printf("?Telnet waiting for DO %s subnegotiation\r\n",
-                             TELOPT(TELOPT_ENCRYPTION));
-                    debug(F111,
-                          "tn_outst",
-                          "decryption mode switch",
-                           TELOPT_ENCRYPTION
-                          );
-                    outstanding = 1;
-                }
-            }
-        }
-#endif /* CK_ENCRYPTION */
     } /* if (tn_wait_flg) */
 
 #ifdef IKS_OPTION
@@ -762,11 +680,6 @@ tn_sopt(cmd,opt) int cmd, opt;
         if (cmd == DONT && TELOPT_UNANSWERED_DONT(opt)) return(0);
         if (cmd == WONT && TELOPT_UNANSWERED_WONT(opt)) return(0);
     }
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (cmd == DO && opt == TELOPT_AUTHENTICATION)
       buf[0] = 0;
@@ -841,14 +754,6 @@ tn_ssbopt(opt,sub,data,len) int opt, sub; CHAR * data; int len;
         debug(F111,"Unable to Send TELNET SB - data too long","len",len);
         return(-1);                     /* Data too long */
     }
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        if (ttchk() < 0)
-          return(-1);
-        else
-          return(1);
-    }
-#endif /* CK_SSL */
 
     if (!data) len = 0;
 
@@ -1026,22 +931,6 @@ tn_get_display()
     return((CHAR *)disp);
 }
 
-#ifdef CK_FORWARD_X
-static Xauth fake_xauth = {0,0,NULL,0,NULL,0,NULL,0,NULL};
-static Xauth *real_xauth=NULL;
-
-/*
- * Author:  Jim Fulton, MIT X Consortium
- *
- * fwdx_parse_displayname -
- * display a display string up into its component parts
- */
-#ifdef UNIX
-#define UNIX_CONNECTION "unix"
-#define UNIX_CONNECTION_LENGTH 4
-#endif
-
-#endif /* CK_FORWARD_X */
 
 #ifdef CK_FWDX_PARSE_DISPN
 
@@ -1279,925 +1168,6 @@ fwdx_parse_displayname (displayname, familyp, hostp, dpynump, scrnump, restp)
 
 #endif /* CK_FWDX_PARSE_DISPN */
 
-#ifdef CK_FORWARD_X
-
-int
-#ifdef CK_ANSIC
-fwdx_tn_sb( unsigned char * sb, int n )
-#else
-fwdx_tn_sb( sb, n ) unsigned char * sb; int n;
-#endif /* CK_ANSIC */
-{
-    unsigned short hchannel, nchannel;
-    unsigned char * p;
-    int i;
-    int rc = -1;
-
-    /* check to ensure we have negotiated Forward X */
-    if ( sstelnet && !TELOPT_ME(TELOPT_FORWARD_X) ||
-         !sstelnet && !TELOPT_U(TELOPT_FORWARD_X) ) {
-        debug(F100,"fwdx_tn_sb() not negotiated","",0);
-        return(0);
-    }
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    switch (sb[0]) {
-    case FWDX_SCREEN:
-        if (sstelnet && n == 4)
-            rc = fwdx_create_listen_socket(sb[1]);
-        break;
-    case FWDX_OPEN:
-        if ( !sstelnet && n >= 5 ) {
-            p = (unsigned char *) &nchannel;
-            i = 1;
-            /* IAC quoting has been stripped in tn_sb() */
-            p[0] = sb[i++];
-            p[1] = sb[i++];
-            hchannel = ntohs(nchannel);
-            rc = fwdx_open_client_channel(hchannel);
-            if ( rc < 0 ) {
-                /* Failed; Send CLOSE channel */
-                fwdx_send_close(hchannel);
-                rc = 0;         /* Do not consider this to be a telnet error */
-            }
-        }
-        break;
-    case FWDX_CLOSE:
-        p = (unsigned char *) &nchannel;
-        i = 1;
-        /* IAC quoting has been stripped in tn_sb() */
-        p[0] = sb[i++];
-        p[1] = sb[i++];
-        hchannel = ntohs(nchannel);
-        fwdx_close_channel(hchannel);
-        rc = 0; /* no errors when closing */
-        break;
-    case FWDX_DATA:
-        p = (unsigned char *) &nchannel;
-        i = 1;
-        /* IAC quoting has been stripped in tn_sb() */
-        p[0] = sb[i++];
-        p[1] = sb[i++];
-        hchannel = ntohs(nchannel);
-        rc = fwdx_send_xauth_to_xserver(hchannel,(CHAR *)&sb[3],n-5);
-        if ( rc >= 0 && n-5-rc > 0) {
-            rc = fwdx_write_data_to_channel(hchannel,(char *)&sb[3+rc],n-5-rc);
-            if ( rc < 0 ) {
-                /* Failed; Send CLOSE channel */
-                rc = fwdx_send_close(hchannel);
-            }
-        }
-        break;
-    case FWDX_OPTIONS:
-        if ( sstelnet ) {
-#ifndef FWDX_SERVER
-            rc = 0;
-#else
-            rc = fwdx_server_accept_options((char*)&sb[2],n-3);
-#endif
-        } else {
-            rc = fwdx_client_reply_options((char *)&sb[2],n-3);
-            if ( rc >= 0 ) {
-                rc = tn_sndfwdx();
-            }
-        }
-        break;
-    case FWDX_OPT_DATA:
-        switch ( sb[1] ) {
-        default:
-            rc = 0;             /* we don't recognize, not an error */
-        }
-        break;
-
-    case FWDX_XOFF:
-    case FWDX_XON:
-        if ( !sstelnet ) {
-            p = (unsigned char *) &nchannel;
-            i = 1;
-            /* IAC quoting has been stripped in tn_sb() */
-            p[0] = sb[i++];
-            p[1] = sb[i++];
-            hchannel = ntohs(nchannel);
-            TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[hchannel].suspend =
-                (sb[0] == FWDX_XOFF);
-            rc = 0;
-        }
-        break;
-    }
-    return(rc < 0 ? -1 : 0);
-}
-
-int
-#ifdef CK_ANSIC
-fwdx_send_xauth_to_xserver(int channel, unsigned char * data, int len)
-#else
-fwdx_send_xauth_to_xserver(channel, data, len)
-    int channel; unsigned char * data; int len;
-#endif /* CK_ANSIC */
-{
-    int name_len, data_len, i;
-
-    for (i = 0; i < MAXFWDX ; i++) {
-        if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id == channel)
-            break;
-    }
-    if ( i == MAXFWDX )
-        goto auth_err;
-
-    if (!TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth)
-        return(0);
-
-    if (len < 12)
-        goto auth_err;
-
-    /* Parse the lengths of variable-length fields. */
-    if (data[0] == 0x42) {              /* byte order MSB first. */
-        /* Xauth packets appear to always have this format */
-        if ( data[1] != 0x00 ||
-             data[2] != 0x00 ||
-             data[3] != 0x0B ||
-             data[4] != 0x00 ||
-             data[5] != 0x00 )
-            goto auth_err;
-
-        name_len = (data[6] << 8) + data[7];
-        data_len = (data[8] << 8) + data[9];
-    } else if (data[0] == 0x6c) {       /* Byte order LSB first. */
-        /* Xauth packets appear to always have this format */
-        if ( data[1] != 0x00 ||
-             data[2] != 0x0B ||
-             data[3] != 0x00 ||
-             data[4] != 0x00 ||
-             data[5] != 0x00 )
-            goto auth_err;
-
-        name_len = data[6] + (data[7] << 8);
-        data_len = data[8] + (data[9] << 8);
-    } else {
-        /* bad byte order byte */
-        goto auth_err;
-    }
-
-    /* Check if the whole packet is in buffer. */
-    if (len < 12 + ((name_len + 3) & ~3) + ((data_len + 3) & ~3))
-        goto auth_err;
-    /* If the Telnet Server allows a real Xauth message to be sent */
-    /* Then let the message be processed by the Xserver.           */
-    if (name_len + data_len > 0) {
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-       return(0);
-    }
-    else
-    /* If an empty Xauth message was received.  We are going to   */
-    /* send our own Xauth message using the real Xauth data.  And */
-    /* then send any other data in the buffer.                    */
-    {
-        int dpynum, scrnum, family;
-        char *display, *host = NULL, *rest = NULL;
-
-        /* parse the local DISPLAY env var */
-        display = getenv("DISPLAY");
-        if ( !display )
-            display = "127.0.0.1:0.0";
-
-        if (fwdx_parse_displayname(display,
-                                   &family, &host, &dpynum, &scrnum, &rest)) {
-            char * disp_no = ckitoa(dpynum);    /* should be unsigned */
-            if (family == FamilyLocal) {
-                /* call with address = "<local host name>" */
-                char address[300] = "localhost";
-                gethostname(address, sizeof(address) - 1);
-                real_xauth = XauGetAuthByAddr(family,
-                                              strlen(address),
-                                              address,
-                                              strlen(disp_no),
-                                              disp_no, 0, NULL);
-            }
-            else if (family == FamilyInternet) {
-                /* call with address = 4 bytes numeric ip addr (MSB) */
-                struct hostent *hi;
-                if ((hi = gethostbyname(host)))
-                    real_xauth = XauGetAuthByAddr(family, 4,
-                                                  hi->h_addr, strlen(disp_no),
-                                                  disp_no, 0, NULL);
-            }
-        }
-        if (host) free(host);
-        if (rest) free(rest);
-        if (!real_xauth) {
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-            return(0);
-        }
-
-        if (!strncmp(real_xauth->name,
-                     "MIT-MAGIC-COOKIE-1",
-                     real_xauth->name_length)) {
-            char msg[64];
-
-            name_len = real_xauth->name_length;
-            data_len = 16;
-
-            if ( data[0] == 0x42 ) {
-                msg[0] = 0x42; /* MSB order */
-                msg[1] = msg[2] = 0;
-                msg[3] = 0x0B;
-                msg[4] = msg[5] = 0;
-                msg[6] = (name_len >> 8);
-                msg[7] = (name_len & 0xFF);
-                msg[8] = (data_len >> 8);
-                msg[9] = (data_len & 0xFF);
-            } else {
-                msg[0] = 0x6c; /* LSB order */
-                msg[1] = 0;
-                msg[2] = 0x0B;
-                msg[3] = msg[4] = msg[5] = 0;
-                msg[6] = (name_len & 0xFF);
-                msg[7] = (name_len >> 8);
-                msg[8] = (data_len & 0xFF);
-                msg[9] = (data_len >> 8);
-            }
-            msg[10] = msg[11] = 0;
-            memcpy(&msg[12],real_xauth->name,18);
-            msg[30] = msg[31] = 0;
-            memcpy(&msg[32],real_xauth->data,16);
-
-            if (fwdx_write_data_to_channel(channel,(char *)msg,48) < 0) {
-  TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-                return(-1);
-            } else {
-  TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-                return(12);
-            }
-        } else {
-  TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-            return(0);        /* we do not know how to handle this type yet */
-        }
-    }
-
-  auth_err:
-        debug(F100,"fwdx_send_xauth_to_xserver error","",0);
-    return(-1);
-}
-
-
-#ifdef COMMENT
-int
-#ifdef CK_ANSIC
-fwdx_authorize_channel(int channel, unsigned char * data, int len)
-#else
-fwdx_authorize_channel(channel, data, len)
-    int channel; unsigned char * data; int len;
-#endif /* CK_ANSIC */
-{
-    /* XXX maybe we should have some retry handling if not the whole first
-    * authorization packet arrives complete
-    */
-    if ( !TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[channel].authorized ) {
-        int name_len, data_len;
-
-        if (len < 12)
-            goto auth_err;
-
-        /* Parse the lengths of variable-length fields. */
-        if (data[0] == 0x42) {          /* byte order MSB first. */
-            /* Xauth packets appear to always have this format */
-            if ( data[1] != 0x00 ||
-                 data[2] != 0x00 ||
-                 data[3] != 0x0B ||
-                 data[4] != 0x00 ||
-                 data[5] != 0x00 )
-                goto auth_err;
-
-            name_len = (data[6] << 8) + data[7];
-            data_len = (data[8] << 8) + data[9];
-        } else if (data[0] == 0x6c) {   /* Byte order LSB first. */
-            /* Xauth packets appear to always have this format */
-            if ( data[1] != 0x00 ||
-                 data[2] != 0x0B ||
-                 data[3] != 0x00 ||
-                 data[4] != 0x00 ||
-                 data[5] != 0x00 )
-                goto auth_err;
-
-            name_len = data[6] + (data[7] << 8);
-            data_len = data[8] + (data[9] << 8);
-        } else {
-            /* bad byte order byte */
-            goto auth_err;
-        }
-        /* Check if authentication protocol matches. */
-        if (name_len != fake_xauth.name_length ||
-             memcmp(data + 12, fake_xauth.name, name_len) != 0) {
-            /* connection uses different authentication protocol */
-            goto auth_err;
-        }
-        /* Check if authentication data matches our fake data. */
-        if (data_len != fake_xauth.data_length ||
-             memcmp(data + 12 + ((name_len + 3) & ~3),
-                     fake_xauth.data, fake_xauth.data_length) != 0) {
-            /* auth data does not match fake data */
-            goto auth_err;
-        }
-        /* substitute the fake data with real data if we have any */
-        if (real_xauth && real_xauth->data)
-            memcpy(data + 12 + ((name_len + 3) & ~3),
-                   real_xauth->data, data_len);
-
-        TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[channel].authorized = 1;
-    }
-    return(0);
-  auth_err:
-    return(-1);
-}
-#endif /* COMMENT */
-
-int
-#ifdef CK_ANSIC
-fwdx_send_close(int channel)
-#else
-fwdx_send_close(channel) int channel;
-#endif /* CK_ANSIC */
-{
-    unsigned short nchannel;
-    int i,rc;
-    CHAR * p;
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    nchannel = htons(channel);
-    p = (unsigned char *) &nchannel;
-
-    i = 0;
-    sb_out[i++] = (CHAR) IAC;               /* I Am a Command */
-    sb_out[i++] = (CHAR) SB;                /* Subnegotiation */
-    sb_out[i++] = TELOPT_FORWARD_X;         /* Forward X */
-    sb_out[i++] = FWDX_CLOSE;               /* Open */
-    sb_out[i++] = p[0];                     /* First Byte of Channel */
-    if ( p[0] == IAC )
-        sb_out[i++] = IAC;
-    sb_out[i++] = p[1];                     /* Second Byte of Channel */
-    if ( p[1] == IAC )
-        sb_out[i++] = IAC;
-    sb_out[i++] = (CHAR) IAC;               /* End of Subnegotiation */
-    sb_out[i++] = (CHAR) SE;                /* marked by IAC SE */
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakxmsg((char *)fwdx_msg_out,TN_MSG_LEN,"TELNET SENT SB ",
-                  TELOPT(TELOPT_FORWARD_X),
-                  " CLOSE CHANNEL=",ckitoa(channel)," IAC SE",
-                  NULL,NULL,NULL,NULL,NULL,NULL,NULL
-                  );
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = (ttol((CHAR *)sb_out,i) < 0);      /* Send it. */
-    if (rc)
-      return(-1);
-    return(0);
-}
-
-int
-#ifdef CK_ANSIC
-fwdx_send_open(int channel)
-#else /* CK_ANSIC */
-fwdx_send_open(channel) int channel;
-#endif /* CK_ANSIC */
-{
-    unsigned short nchannel;
-    int i, rc;
-    CHAR * p;
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    nchannel = htons(channel);
-    p = (unsigned char *) &nchannel;
-
-    i = 0;
-    sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
-    sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
-    sb_out[i++] = TELOPT_FORWARD_X;           /* Forward X */
-    sb_out[i++] = FWDX_OPEN;                  /* Open */
-    sb_out[i++] = p[0];                       /* First Byte of Channel */
-    if ( p[0] == IAC )
-        sb_out[i++] = IAC;
-    sb_out[i++] = p[1];                       /* Second Byte of Channel */
-    if ( p[1] == IAC )
-        sb_out[i++] = IAC;
-    sb_out[i++] = (CHAR) IAC;                 /* End of Subnegotiation */
-    sb_out[i++] = (CHAR) SE;                  /* marked by IAC SE */
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakxmsg((char *)fwdx_msg_out,TN_MSG_LEN,"TELNET SENT SB ",
-                  TELOPT(TELOPT_FORWARD_X),
-                  " OPEN CHANNEL=",ckitoa(channel)," IAC SE",
-                  NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = (ttol((CHAR *)sb_out,i) < 0);        /* Send it. */
-    if (rc)
-      return(-1);
-    return(0);
-}
-
-int
-#ifdef CK_ANSIC
-fwdx_client_reply_options(char *opts, int n)
-#else
-fwdx_client_reply_options(opts, n) char *opts; int n;
-#endif /* CK_ANSIC */
-{
-    int i,j,rc;
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    i = 0;
-    sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
-    sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
-    sb_out[i++] = TELOPT_FORWARD_X;           /* Forward X */
-    sb_out[i++] = FWDX_OPTIONS;               /* Options */
-
-    /* Look for the options we recognize and will support for this session */
-    /* and reply with their bytes set                                      */
-    for (j=0; j<n; j++,i++) {
-        sb_out[i] = FWDX_OPT_NONE;          /* Add zero byte - no options */
-#ifdef COMMENT
-        /* If we had any options to support, this is how we would do it */
-        if ( j == 0 ) {
-            if (opts[j] & FWDX_OPT_XXXX) {
-                /* set flag to remember option is in use */
-                flag = 1;
-                sb_out[i] |= FWDX_OPT_XXXX;
-            }
-        }
-#endif /* COMMENT */
-    }
-    sb_out[i++] = (CHAR) IAC;                 /* End of Subnegotiation */
-    sb_out[i++] = (CHAR) SE;                  /* marked by IAC SE */
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakxmsg((char *)fwdx_msg_out,TN_MSG_LEN,"TELNET SENT SB ",
-                  TELOPT(TELOPT_FORWARD_X),
-                  " OPTIONS ",ckctox(sb_out[4],1)," IAC SE",
-                  NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = (ttol((CHAR *)sb_out,i) < 0);        /* Send it. */
-    if (rc)
-      return(-1);
-    return(0);
-}
-
-
-int
-fwdx_send_options() {
-    int i, rc;
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    i = 0;
-    sb_out[i++] = (CHAR) IAC;               /* I Am a Command */
-    sb_out[i++] = (CHAR) SB;                /* Subnegotiation */
-    sb_out[i++] = TELOPT_FORWARD_X;         /* Forward X */
-    sb_out[i++] = FWDX_OPTIONS;             /* Options */
-    sb_out[i]   = FWDX_OPT_NONE;
-    /* activate options here */
-    i++;
-    sb_out[i++] = (CHAR) IAC;                 /* End of Subnegotiation */
-    sb_out[i++] = (CHAR) SE;                  /* marked by IAC SE */
-
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakmsg((char *)fwdx_msg_out,TN_MSG_LEN,"TELNET SENT SB ",
-                 TELOPT(TELOPT_FORWARD_X),
-                 " OPTIONS 00 IAC SE",NULL);
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = (ttol((CHAR *)sb_out,i) < 0);        /* Send it. */
-    if (rc)
-      return(-1);
-    return(0);
-}
-
-int
-#ifdef CK_ANSIC
-fwdx_send_data_from_channel(int channel, char * data, int len)
-#else
-fwdx_send_data_from_channel(channel, data, len)
-    int channel; char * data; int len;
-#endif
-{
-    unsigned short nchannel;
-    /* static */ CHAR sb_priv[2048];
-    CHAR * p;
-    int i, j, j_sav, rc;
-    unsigned int tmp;
-
-    debug(F111,"fwdx_send_data_from_channel()","channel",channel);
-
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    nchannel = htons(channel);
-    p = (unsigned char *) &nchannel;
-
-    j = 0;
-    sb_priv[j++] = (CHAR) IAC;                 /* I Am a Command */
-    sb_priv[j++] = (CHAR) SB;                  /* Subnegotiation */
-    sb_priv[j++] = TELOPT_FORWARD_X;           /* Forward X */
-    sb_priv[j++] = FWDX_DATA;                  /* Data */
-    sb_priv[j++] = p[0];                       /* First Byte of Channel */
-    if ( p[0] == IAC )
-        sb_priv[j++] = IAC;
-    sb_priv[j++] = p[1];                       /* Second Byte of Channel */
-    if ( p[1] == IAC )
-        sb_priv[j++] = IAC;
-    j_sav = j;
-
-    for (i = 0; i < len; i++) {
-        tmp = (unsigned int)data[i];
-        if ( tmp == IAC ) {
-            sb_priv[j++] = IAC;
-            sb_priv[j++] = IAC;
-        } else {
-            sb_priv[j++] = tmp;
-        }
-        if ( j >= 2045 && (i < len-1) ) {
-            sb_priv[j++] = (CHAR) IAC;  /* End of Subnegotiation */
-            sb_priv[j++] = (CHAR) SE;   /* marked by IAC SE */
-
-#ifdef DEBUG
-            if (deblog || tn_deb || debses) {
-                ckmakxmsg( (char *)fwdx_msg_out,TN_MSG_LEN,"TELNET SENT SB ",
-                           TELOPT(TELOPT_FORWARD_X),
-                           " DATA CHANNEL=",ckitoa(channel)," ",
-                           NULL,NULL,NULL,NULL,NULL,NULL,NULL );
-                tn_hex((CHAR *)fwdx_msg_out,
-		       TN_MSG_LEN,&sb_priv[j_sav],j-(j_sav+2));
-                ckstrncat((char *)fwdx_msg_out," IAC SE",TN_MSG_LEN);
-            }
-#endif /* DEBUG */
-#ifdef DEBUG
-            debug(F100,(char *)fwdx_msg_out,"",0);
-            if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-            rc = (ttol(sb_priv,j) < 0);                /* Send it. */
-            if (rc) {
-                debug(F110,"fwdx_send_data_from_channel()","ttol() failed",0);
-                return(-1);
-            }
-
-            j = 0;
-            sb_priv[j++] = (CHAR) IAC;                 /* I Am a Command */
-            sb_priv[j++] = (CHAR) SB;                  /* Subnegotiation */
-            sb_priv[j++] = TELOPT_FORWARD_X;           /* Forward X */
-            sb_priv[j++] = FWDX_DATA;                  /* Data */
-            sb_priv[j++] = p[0];                       /* First Byte of Channel */
-            if ( p[0] == IAC )
-                sb_priv[j++] = IAC;
-            sb_priv[j++] = p[1];                       /* Second Byte of Channel */
-            if ( p[1] == IAC )
-                sb_priv[j++] = IAC;
-        }
-    }
-
-    sb_priv[j++] = (CHAR) IAC;                 /* End of Subnegotiation */
-    sb_priv[j++] = (CHAR) SE;                  /* marked by IAC SE */
-
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakxmsg( (char *)fwdx_msg_out,TN_MSG_LEN,
-                   "TELNET SENT SB ",TELOPT(TELOPT_FORWARD_X),
-                   " DATA ",ckctox(p[0],1)," ",ckctox(p[1],1)," ",
-                   NULL,NULL,NULL,NULL,NULL);
-        tn_hex((CHAR *)fwdx_msg_out,TN_MSG_LEN,&sb_priv[6],j-8);
-        ckstrncat((char *)fwdx_msg_out," IAC SE",TN_MSG_LEN);
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = (ttol(sb_priv,j) < 0);                /* Send it. */
-    if ( rc ) {
-        debug(F110,"fwdx_send_data_from_channel()","ttol() failed",0);
-        return(-1);
-    }
-
-
-    return(0);
-}
-
-#ifdef COMMENT
-static unsigned char *
-#ifdef CK_ANSIC
-fwdx_add_quoted_twobyte(unsigned char *p, unsigned short twobyte)
-#else
-fwdx_add_quoted_twobyte(p, twobyte)
-    unsigned char *p; unsigned short twobyte;
-#endif /* CK_ANSIC */
-/* adds the IAC quoted (MSB) representation of 'channel' at buffer pointer 'p',
- * returning pointer to new buffer position. NO OVERFLOW CHECK!
- */
-{
-    *p++ = (unsigned char)((twobyte >> 8) & 0xFF);
-    if (*(p - 1) == 0xFF)
-        *p++ = 0xFF;
-    *p++ = (unsigned char)(twobyte & 0xFF);
-    if (*(p - 1) == 0xFF)
-        *p++ = 0xFF;
-    return p;
-}
-#endif /* COMMENT */
-
-int
-#ifdef CK_ANSIC
-fwdx_create_fake_xauth(char *name, int name_len, int data_len)
-#else
-fwdx_create_fake_xauth(name, name_len, data_len)
-    char *name; int name_len; int data_len;
-#endif /* CK_ANSIC */
-{
-    char stackdata[256];
-    unsigned int c, n;
-
-    if (!name_len || !data_len)
-        return 1;
-    fake_xauth.name = malloc(name_len);
-    fake_xauth.data = malloc(data_len);
-    if (!fake_xauth.name || !fake_xauth.data)
-        return 2;
-    fake_xauth.name_length = name_len;
-    memcpy(fake_xauth.name, name, name_len);
-    fake_xauth.data_length = data_len;
-
-    /* try to make a random unsigned int to feed srand() */
-    c = time(NULL);
-    c *= getpid();
-    for (n = 0; n < sizeof(stackdata); n++)
-        c += stackdata[n];
-    srand((unsigned int)c);
-    for (c = 0; c < data_len; c++)
-        fake_xauth.data[c] = (unsigned char)rand();
-    return 0;
-}
-
-#ifdef COMMENT
-/* No longer used */
-int
-fwdx_send_xauth(void)
-{
-    int c, err, dpynum, family, sb_len, rc;
-    char *display, *host = NULL;
-    unsigned char *sb_priv, *p;
-
-    /* parse the local DISPLAY env var */
-    if (!(display = tn_get_display()))
-        return (-1);
-    if (fwdx_parse_displayname(display, &family, &host, &dpynum, NULL, NULL)) {
-        char * disp_no = ckitoa(dpynum);
-        if (family == FamilyLocal) {
-            /* call with address = "<local host name>" */
-            char address[300] = "localhost";
-            gethostname(address, sizeof(address) - 1);
-            real_xauth = XauGetAuthByAddr(family,
-                                          strlen(address),
-                                          address,
-                                          strlen(disp_no),
-                                          disp_no, 0, NULL
-                                          );
-        }
-        else if (family == FamilyInternet) {
-            /* call with address = 4 bytes numeric ip addr (MSB) */
-            struct hostent *hi;
-            if ((hi = gethostbyname(host)))
-                real_xauth = XauGetAuthByAddr(family, 4,
-                                              hi->h_addr,
-                                              strlen(disp_no),
-                                              disp_no, 0, NULL
-                                              );
-        }
-    }
-    if (host) {
-        free(host);
-        host = NULL;
-    }
-    if (real_xauth)
-        err = fwdx_create_fake_xauth(real_xauth->name,
-                                     real_xauth->name_length,
-                                     real_xauth->data_length
-                                     );
-    else
-      err = fwdx_create_fake_xauth("MIT-MAGIC-COOKIE-1",
-                                   strlen("MIT-MAGIC-COOKIE-1"), 16);
-    if (err)
-        return(-1);
-
-    /* allocate memory for the SB block, alloc for worst case              */
-    /* the following sprintf() calls are safe due to length checking       */
-    /* buffer is twice as big as the input just in case every byte was IAC */
-    sb_len = 5 + 2 + 2 + fake_xauth.name_length + fake_xauth.data_length + 2;
-    if (!(sb_priv = malloc(2 * sb_len)))
-        return(-1);
-    p = sb_priv;
-    sprintf(p, "%c%c%c%c%c", IAC, SB, TELOPT_FORWARD_X,
-            FWDX_OPT_DATA, FWDX_OPT_XAUTH);
-    p += 5;
-    p = fwdx_add_quoted_twobyte(p, fake_xauth.name_length);
-    p = fwdx_add_quoted_twobyte(p, fake_xauth.data_length);
-    for (c = 0; c < fake_xauth.name_length; c++) {
-        *p++ = fake_xauth.name[c];
-        if ((unsigned char)fake_xauth.name[c] == 0xFF)
-            *p++ = 0xFF;
-    }
-    for (c = 0; c < fake_xauth.data_length; c++) {
-        *p++ = fake_xauth.data[c];
-        if ((unsigned char)fake_xauth.data[c] == 0xFF)
-            *p++ = 0xFF;
-    }
-    sprintf(p, "%c%c", IAC, SE);
-    p += 2;
-
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        sprintf((char *)fwdx_msg_out,"TELNET SENT SB %s OPTION_DATA XAUTH ",
-                 TELOPT(TELOPT_FORWARD_X));
-        tn_hex((char *)fwdx_msg_out,TN_MSG_LEN,&sb_priv[5],(p-sb_priv)-7);
-        ckstrncat((char *)fwdx_msg_out," IAC SE",TN_MSG_LEN);
-    }
-#endif /* DEBUG */
-
-    /* Add Telnet Debug info here */
-#ifdef DEBUG
-    debug(F100,(char *)fwdx_msg_out,"",0);
-    if (tn_deb || debses) tn_debug((char *)fwdx_msg_out);
-#endif /* DEBUG */
-    rc = ( ttol(sb_priv,p-sb_priv) < 0 );                /* Send it. */
-    if (rc) {
-        debug(F110,"fwdx_send_xauth()","ttol() failed",0);
-        return(-1);
-    }
-
-
-    free(sb_priv);
-    return(0);
-}
-#endif /* COMMENT */
-#ifdef FWDX_SERVER
-/* Only if we ever become a server - not yet ported to Kermit   */
-/* And even so most of this code does not belong in this module */
-
-int
-fwdx_write_xauthfile(void)
-{
-    int dpynum, scrnum, family;
-    char myhost[300], *host, *rest = NULL;
-    FILE *file;
-    struct sockaddr_in saddr;
-    struct hostent *hi;
-
-    if (!fwdx_display && !fwdx_xauthfile)
-        return 1;
-    if (!parse_displayname(fwdx_display,
-                           &family, &host, &dpynum, &scrnum, &rest))
-        return 2;
-    if (rest) free(rest);
-    if (host) free(host);
-    if (family != FamilyInternet)
-        return 3; /* every thing but FamilyInternet is unexpected */
-
-    /* X connections to localhost:1 is actually treated as local unix sockets,
-     * see the 'xauth' man page.
-     */
-    xauth.family = FamilyLocal;
-    if (gethostname(myhost, sizeof(myhost) - 1))
-        return 5;
-    xauth.address_length = strlen(myhost);
-    if (!(xauth.address = malloc(xauth.address_length)))
-        return 5;
-    memcpy(xauth.address, myhost, xauth.address_length);
-
-    /* the display number is written as a string, not numeric */
-    if (!(xauth.number = malloc(6)))
-        return 6;
-    snprintf(xauth.number, 5, "%u", dpynum);
-    xauth.number_length = strlen(xauth.number);
-    if (!(file = fopen(fwdx_xauthfile, "wb")))
-        return 7;
-    if (!XauWriteAuth(file, &xauth))
-        return 8;
-    fclose(file);
-    setenv("XAUTHORITY", fwdx_xauthfile, 1);
-    return 0;
-}
-
-int
-fwdx_setup_xauth(unsigned char *sp, int len)
-/* called with 'len' xauth bytes, starting at 'sp'
- * the data format is: <uint16 name_length> <uint16 data_length> <name> <data>
- */
-{
-    int xauthfd;
-
-    if (!fwdx_options[FWDX_OPT_XAUTH])
-        return 1;
-    if (len < 4)
-        return 2;
-
-    /* setup the xauth struct */
-    xauth.name_length = (sp[0] << 8) + sp[1];
-    xauth.data_length = (sp[2] << 8) + sp[3];
-    if (len != 4 + xauth.name_length + xauth.data_length)
-        return 3;
-    xauth.name = malloc(xauth.name_length);
-    xauth.data = malloc(xauth.data_length);
-    if (!xauth.name || !xauth.data)
-        return 4;
-    memcpy(xauth.name, sp + 4, xauth.name_length);
-    memcpy(xauth.data, sp + 4 + xauth.name_length, xauth.data_length);
-
-    /* Setup to always have a local .Xauthority. */
-    fwdx_xauthfile = malloc(CKMAXPATH+1);
-    snprintf(fwdx_xauthfile, CKMAXPATH, "/tmp/XauthXXXXXX");
-    if ((xauthfd = mkstemp(fwdx_xauthfile)) != -1)
-        /* we change file ownership later, when we know who is to be owner! */
-        close(xauthfd);
-    else {
-        free(fwdx_xauthfile);
-        fwdx_xauthfile = NULL;
-        return 5;
-    }
-/* Must have the subshell's new DISPLAY env var to write xauth to xauthfile */
-    if (fwdx_display)
-        if (fwdx_write_xauthfile())
-            return 6;
-
-    return 0;
-}
-
-void fwdx_set_xauthfile_owner(int uid)
-{
-    struct passwd *pwd;
-
-    if (!fwdx_xauthfile || !(pwd = getpwuid(uid)))
-        return;
-    chown(fwdx_xauthfile, pwd->pw_uid, pwd->pw_gid);
-}
-
-int
-fwdx_server_accept_options(unsigned char *sp, int len)
-/* called with 'len' option bytes, starting at 'sp' */
-{
-    int c;
-
-    for (c = 0; c < len-2; c++) {
-        if (c == 0) {
-            if (sp[c] & FWDX_OPT_XAUTH)
-                flag = 1;
-        }
-    }
-    return(0);
-}
-#endif /* FWDX_SERVER */
-#endif /* CK_FORWARD_X */
 
 #ifdef IKS_OPTION
 /*
@@ -2474,9 +1444,6 @@ iks_tn_sb(sb, n) CHAR * sb; int n;
 int
 tn_set_modes() {
     int opt,cmd;
-#ifdef CK_FORWARD_X
-    int x;
-#endif /* CK_FORWARD_X */
 #ifdef CK_ENVIRONMENT
     {
         int i;
@@ -2513,20 +1480,12 @@ tn_set_modes() {
     TELOPT_SB(TELOPT_KERMIT).kermit.sop = 0;
 #endif /* IKS_OPTION */
 
-#ifdef CK_ENCRYPTION
-    TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop = 0;
-#endif /* CK_ENCRYPTION */
 
 #ifdef  CK_NAWS
     TELOPT_SB(TELOPT_NAWS).naws.x = 0;
     TELOPT_SB(TELOPT_NAWS).naws.y = 0;
 #endif /* CK_NAWS */
 
-#ifdef CK_SSL
-    TELOPT_SB(TELOPT_START_TLS).start_tls.u_follows = 0;
-    TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows = 0;
-    TELOPT_SB(TELOPT_START_TLS).start_tls.auth_request = 0;
-#endif /* CK_SSL */
 
     /* Now set the ones we want to accept to the proper values */
     TELOPT_DEF_S_ME_MODE(TELOPT_SGA) = TN_NG_RQ;
@@ -2551,12 +1510,6 @@ tn_set_modes() {
     TELOPT_DEF_C_U_MODE(TELOPT_KERMIT) = TN_NG_RQ;
 #endif /* IKS_OPTION */
 
-#ifdef CK_ENCRYPTION
-    TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RQ;
-    TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RQ;
-    TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RQ;
-    TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RQ;
-#endif /* CK_ENCRYPTION */
 
     TELOPT_DEF_S_ME_MODE(TELOPT_ECHO) = TN_NG_RQ;
 #ifdef IKSD
@@ -2568,16 +1521,7 @@ tn_set_modes() {
     TELOPT_DEF_S_U_MODE(TELOPT_NEWENVIRON) = TN_NG_RQ;
 #endif /* CK_ENVIRONMENT */
 
-#ifdef CK_AUTHENTICATION
-    TELOPT_DEF_S_U_MODE(TELOPT_AUTHENTICATION) = TN_NG_RQ;
-#endif /* CK_AUTHENTICATION */
 
-#ifdef CK_SSL
-    if (ck_ssleay_is_installed()) {
-        TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = TN_NG_RQ;
-        TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = TN_NG_AC;
-    }
-#endif /* CK_SSL */
 
 #ifdef CK_NAWS
     TELOPT_DEF_S_U_MODE(TELOPT_NAWS) = TN_NG_RQ;
@@ -2590,9 +1534,6 @@ tn_set_modes() {
     TELOPT_DEF_C_ME_MODE(TELOPT_NEWENVIRON) = TN_NG_RQ;
 #endif /* CK_ENVIRONMENT */
 
-#ifdef CK_AUTHENTICATION
-    TELOPT_DEF_C_ME_MODE(TELOPT_AUTHENTICATION) = TN_NG_RQ;
-#endif /* CK_AUTHENTICATION */
 
 #ifdef CK_NAWS
     TELOPT_DEF_C_ME_MODE(TELOPT_NAWS) = TN_NG_RQ;
@@ -2602,16 +1543,6 @@ tn_set_modes() {
     TELOPT_DEF_C_ME_MODE(TELOPT_SNDLOC) = TN_NG_RQ;
 #endif /* CK_SNDLOC */
 
-#ifdef CK_FORWARD_X
-    TELOPT_DEF_C_U_MODE(TELOPT_FORWARD_X) = TN_NG_AC;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket = -1;
-    for (x = 0; x < MAXFWDX; x++) {
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd = -1;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].id = -1;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].need_to_send_xauth = 0;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].suspend = 0;
-    }
-#endif /* CK_FORWARD_X */
 
 #ifdef TN_COMPORT
     TELOPT_DEF_C_ME_MODE(TELOPT_COMPORT) = TN_NG_RQ;
@@ -2671,13 +1602,6 @@ tn_sdsb() {
         TELOPT_SB(TELOPT_SNDLOC).sndloc.need_to_send = 0;
     }
 #endif /* CK_SNDLOC */
-#ifdef CK_FORWARD_X
-    if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.need_to_send) {
-        if ( sstelnet )
-            fwdx_send_options();
-        TELOPT_SB(TELOPT_FORWARD_X).forward_x.need_to_send = 0;
-    }
-#endif /* CK_FORWARD_X */
 #ifdef TN_COMPORT
     if (TELOPT_SB(TELOPT_COMPORT).comport.need_to_send) {
         tn_sndcomport();
@@ -2768,10 +1692,6 @@ tn_reset() {
     TELOPT_SB(TELOPT_KERMIT).kermit.me_req_stop = 0;
     TELOPT_SB(TELOPT_KERMIT).kermit.sop = 0;
 #endif /* IKS_OPTION */
-#ifdef CK_ENCRYPTION
-    TELOPT_SB(TELOPT_ENCRYPTION).encrypt.stop = 0;
-    TELOPT_SB(TELOPT_ENCRYPTION).encrypt.need_to_send = 0;
-#endif /* CK_ENCRYPTION */
 #ifdef  CK_NAWS
     TELOPT_SB(TELOPT_NAWS).naws.need_to_send = 0;
     TELOPT_SB(TELOPT_NAWS).naws.x = 0;
@@ -2795,50 +1715,7 @@ tn_reset() {
 #ifdef CK_SNDLOC
     TELOPT_SB(TELOPT_SNDLOC).sndloc.need_to_send = 0;
 #endif /* CK_SNDLOC */
-#ifdef CK_FORWARD_X
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.need_to_send = 0;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket = -1;
-    for (x = 0; x < MAXFWDX; x++) {
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd = -1;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].id = -1;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].need_to_send_xauth = 0;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].suspend = 0;
-    }
-    /* Reset Xauth data */
-    if ( real_xauth ) {
-        XauDisposeAuth(real_xauth);
-        real_xauth = NULL;
-    }
-    if ( fake_xauth.name )
-        free(fake_xauth.name);
-    if ( fake_xauth.data )
-        free(fake_xauth.data);
-    if ( fake_xauth.address )
-        free(fake_xauth.address);
-    if ( fake_xauth.number )
-        free(fake_xauth.number);
-    memset(&fake_xauth,0,sizeof(fake_xauth));
-#endif /* CK_FORWARD_X */
-#ifdef CK_SSL
-    if (tls_only_flag || ssl_only_flag) {
-        TELOPT_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-        TELOPT_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-    }
-    TELOPT_SB(TELOPT_START_TLS).start_tls.u_follows = 0;
-    TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows = 0;
-    TELOPT_SB(TELOPT_START_TLS).start_tls.auth_request = 0;
-#endif /* CK_SSL */
 
-#ifdef CK_ENCRYPTION
-    if (!ck_crypt_is_installed()
-#ifdef CK_SSL
-        || tls_only_flag || ssl_only_flag
-#endif /* CK_SSL */
-        ) {
-        TELOPT_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-        TELOPT_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-    }
-#endif /* CK_ENCRYPTION */
 
 #ifdef TN_COMPORT
     TELOPT_SB(TELOPT_COMPORT).comport.need_to_send = 0;
@@ -2869,49 +1746,7 @@ tn_start() {
         oldplex = duplex;               /* save old duplex value */
         duplex = 1;                     /* and set to half duplex for telnet */
     }
-#ifdef CK_SSL
-    if (!TELOPT_ME(TELOPT_START_TLS) &&
-        TELOPT_ME_MODE(TELOPT_START_TLS) >= TN_NG_RQ) {
-        if (tn_sopt(WILL, TELOPT_START_TLS) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_WILL(TELOPT_START_TLS) = 1;
-        wait = 1;
-    }
-    if (!TELOPT_U(TELOPT_START_TLS) &&
-        TELOPT_U_MODE(TELOPT_START_TLS) >= TN_NG_RQ) {
-        if (tn_sopt(DO, TELOPT_START_TLS) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_DO(TELOPT_START_TLS) = 1;
-        wait = 1;
-    }
-#endif /* CK_SSL */
 
-#ifdef CK_AUTHENTICATION
-    debug(F110,"tn_ini() CK_AUTHENTICATION","",0);
-    if (tn_init)                /* tn_ini() might be called recursively */
-      return(0);
-    if (!TELOPT_ME(TELOPT_AUTHENTICATION) &&
-        TELOPT_ME_MODE(TELOPT_AUTHENTICATION) >= TN_NG_RQ) {
-        if (tn_sopt(WILL, TELOPT_AUTHENTICATION) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_WILL(TELOPT_AUTHENTICATION) = 1;
-        wait = 1;
-    }
-    if (!TELOPT_U(TELOPT_AUTHENTICATION) &&
-        TELOPT_U_MODE(TELOPT_AUTHENTICATION) >= TN_NG_RQ) {
-        if (tn_sopt(DO, TELOPT_AUTHENTICATION) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_DO(TELOPT_AUTHENTICATION) = 1;
-        wait = 1;
-    }
-#ifdef CK_ENCRYPTION
-    if (TELOPT_U_MODE(TELOPT_AUTHENTICATION) == TN_NG_RF &&
-         TELOPT_ME_MODE(TELOPT_AUTHENTICATION) == TN_NG_RF) {
-        TELOPT_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-        TELOPT_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-    }
-#endif /* CK_ENCRYPTION */
-#endif /* CK_AUTHENTICATION */
 
 #ifdef CK_NAWS
 #ifndef NOLOCAL
@@ -3029,15 +1864,6 @@ tn_start() {
     }
 #endif /* CK_SNDLOC */
 #ifdef CK_ENVIRONMENT
-#ifdef CK_FORWARD_X
-    if (!TELOPT_U(TELOPT_FORWARD_X) &&
-         TELOPT_U_MODE(TELOPT_FORWARD_X) >= TN_NG_RQ) {
-        if (tn_sopt(WILL, TELOPT_FORWARD_X) < 0)
-            return(-1);
-        TELOPT_UNANSWERED_WILL(TELOPT_FORWARD_X) = 1;
-        wait = 1;
-    }
-#endif /* FORWARD_X */
 #ifdef CK_XDISPLOC
     if (!TELOPT_ME(TELOPT_XDISPLOC) &&
          TELOPT_ME_MODE(TELOPT_XDISPLOC) >= TN_NG_RQ) {
@@ -3110,35 +1936,6 @@ tn_start() {
         wait = 0;
     }
 
-#ifdef CK_ENCRYPTION
-    if (tn_init)                /* tn_ini() may be called recursively */
-      return(0);
-
-    if (!TELOPT_ME(TELOPT_ENCRYPTION) &&
-        TELOPT_ME_MODE(TELOPT_ENCRYPTION) >= TN_NG_RQ) {
-        if (tn_sopt(WILL, TELOPT_ENCRYPTION) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_WILL(TELOPT_ENCRYPTION) = 1;
-        wait = 1;
-    }
-    if (!TELOPT_U(TELOPT_ENCRYPTION) &&
-        TELOPT_U_MODE(TELOPT_ENCRYPTION) >= TN_NG_RQ) {
-        if (tn_sopt(DO, TELOPT_ENCRYPTION) < 0)
-          return(-1);
-        TELOPT_UNANSWERED_DO(TELOPT_ENCRYPTION) = 1;
-        wait = 1;
-    }
-
-    /* If we are going to encrypt, we want to do it before we send any more */
-    /* data, especially the terminal type and environment variables.        */
-    if (wait) {
-        if (tn_wait("post-encrypt") < 0) {
-            tn_push();
-            return(-1);
-        }
-        wait = 0;
-    }
-#endif /* CK_ENCRYPTION */
 
     tn_sdsb();
 
@@ -3390,11 +2187,6 @@ tn_siks(cmd) int cmd;
     if (cmd < KERMIT_START || cmd > KERMIT_RESP_STOP) /* Illegal subcommand */
       return(-1);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
     if (cmd == KERMIT_START || cmd == KERMIT_RESP_START) {
         TELOPT_SB(TELOPT_KERMIT).kermit.me_start = 1;
     } else if (cmd == KERMIT_STOP || cmd == KERMIT_RESP_STOP) {
@@ -3511,43 +2303,6 @@ tn_sb( opt, len, fn ) int opt; int * len; int (*fn)();
             }
         }
 
-#ifdef CK_FORWARD_X
-        if ( opt == TELOPT_FORWARD_X && sb[0] == FWDX_DATA &&
-             n >= (TSBUFSIZ-4) && !flag ) {
-            /* do not let the buffer over flow */
-            /* write the data to the channel and continue processing */
-            /* the incoming data until IAC SE is reached. */
-            sb[n++] = IAC;
-            sb[n++] = SE;
-
-#ifdef DEBUG
-            if ( deblog || tn_deb || debses ) {
-                ckmakmsg( tn_msg,TN_MSG_LEN,
-                          "TELNET RCVD SB ",TELOPT(opt),
-			  " DATA(buffer-full) ",NULL);
-                tn_hex((CHAR *)tn_msg,TN_MSG_LEN,&sb[1],n-3);
-                if (flag == 2)
-                    ckstrncat(tn_msg," SE",TN_MSG_LEN);
-                else if (flag == 3)
-                    ckstrncat(tn_msg," IAC DONT",TN_MSG_LEN);
-                else
-                    ckstrncat(tn_msg," IAC SE",TN_MSG_LEN);
-                debug(F100,tn_msg,"",0);
-                if (tn_deb || debses)
-                    tn_debug(tn_msg);
-            }
-#endif /* DEBUG */
-
-            if ( fwdx_tn_sb(sb,n) < 0 ) {
-                debug(F100,"fxdx_tn_sb() failed","",0);
-                /* We can't return though because that would leave  */
-                /* data to be forwarded in the queue to the be sent */
-                /* to the terminal emulator.                        */
-            }
-            /* reset leave the msg type and channel number in place */
-            n = 3;
-        }
-#endif /* CK_FORWARD_X */
     }
     debug(F111,"tn_sb end of while loop","flag",flag);
     if (!flag) {                        /* Make sure we got a valid SB */
@@ -4213,34 +2968,6 @@ _PROTOTYP(int tgetent,(char *, char *));
 extern char * trmbuf;                   /* Real curses */
 #endif /* CK_CURSES */
 
-#ifdef CK_ENCRYPTION
-static int
-tn_no_encrypt()
-{
-    /* Prevent Encryption from being negotiated */
-    TELOPT_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-    TELOPT_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-
-    /* Cancel any negotiation that might have started */
-    ck_tn_enc_stop();
-
-    if (TELOPT_ME(TELOPT_ENCRYPTION) ||
-         TELOPT_UNANSWERED_WILL(TELOPT_ENCRYPTION)) {
-        TELOPT_ME(TELOPT_ENCRYPTION) = 0;
-        if (tn_sopt(WONT,TELOPT_ENCRYPTION) < 0)
-            return(-1);
-        TELOPT_UNANSWERED_WONT(TELOPT_ENCRYPTION) = 1;
-    }
-    if (TELOPT_U(TELOPT_ENCRYPTION) ||
-         TELOPT_UNANSWERED_DO(TELOPT_ENCRYPTION)) {
-        TELOPT_U(TELOPT_ENCRYPTION) = 0;
-        if (tn_sopt(DONT,TELOPT_ENCRYPTION) < 0)
-            return(-1);
-        TELOPT_UNANSWERED_DONT(TELOPT_ENCRYPTION) = 1;
-    }
-    return(0);
-}
-#endif /* CK_ENCRYPTION */
 
 /* The following note came from the old SGA negotiation code.  This should */
 /* no longer be necessary with the New Telnet negotiation state machine.   */
@@ -4385,30 +3112,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
     /* Now handle the command */
     switch (c) {
       case WILL:
-#ifdef CK_SSL
-        if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows)
-            return(0);
-#endif /* CK_SSL */
-#ifdef CK_FORWARD_X
-          if (x == TELOPT_FORWARD_X) {
-              if (!fwdx_server_avail() || !(fwdx_no_encrypt ||
-#ifdef CK_SSL
-                 (ssl_active_flag || tls_active_flag)
-#else /* CK_SSL */
-                 0
-#endif /* CK_SSL */
-                 ||
-#ifdef CK_ENCRYPTION
-                 (ck_tn_encrypting() && ck_tn_decrypting())
-#else /* CK_ENCRYPTION */
-                 0
-#endif /* CK_ENCRYPTION */
-                 )) {
-                  TELOPT_U_MODE(TELOPT_FORWARD_X) = TN_NG_RF;
-                  TELOPT_ME_MODE(TELOPT_FORWARD_X) = TN_NG_RF;
-              }
-          }
-#endif /* CK_FORWARD_X */
         if (!TELOPT_OK(x) || TELOPT_U_MODE(x) == TN_NG_RF) {
             if (tn_sopt(DONT,x) < 0)
               return(-1);
@@ -4424,75 +3127,7 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
             TELOPT_U(x) = 1;
 
             switch (x) {
-#ifdef CK_SSL
-              case TELOPT_START_TLS:
-                /*
-                   If my proposal is accepted, at this point the Telnet
-                   protocol is turned off and a TLS negotiation takes
-                   place.
 
-                   Start by sending SB START_TLS FOLLOWS  to signal
-                   we are ready.  Wait for the peer to send the same
-                   and then start the TLS negotiation.
-
-                   If the TLS negotiation succeeds we call tn_ini()
-                   again to reset the telnet state machine and restart
-                   the negotiation process over the now secure link.
-
-                   If the TLS negotiation fails, we call ttclos()
-                   to terminate the connection.
-
-                   Only the server should receive a WILL START_TLS
-                 */
-                tn_ssbopt(TELOPT_START_TLS,1,NULL,0);
-                TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows = 1;
-                break;
-#endif /* CK_SSL */
-
-#ifdef CK_AUTHENTICATION
-              case TELOPT_AUTHENTICATION: {
-                  /* We now have to perform a SB SEND to identify the  */
-                  /* supported authentication types to the other side. */
-                  extern int authentication_version;
-
-#ifdef CK_SSL
-                  /* if we have an outstanding DO START_TLS then we must 
-                   * wait for the response before we determine what to do
-                   */
-                  if (TELOPT_UNANSWERED_DO(TELOPT_START_TLS)) {
-                      TELOPT_SB(TELOPT_START_TLS).start_tls.auth_request = 1;
-                      break;
-                  }
-#endif /* CK_SSL */
-                  authentication_version = AUTHTYPE_AUTO;
-                  ck_tn_auth_request();
-                  break;
-              }
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-              case TELOPT_ENCRYPTION:
-                if (!(TELOPT_ME(TELOPT_AUTHENTICATION) ||
-                      TELOPT_U(TELOPT_AUTHENTICATION))
-                    ) {
-                    if (tn_sopt(DONT,x) < 0)
-                      return(-1);
-                    TELOPT_U(x) = 0;
-                } else {
-                    if (ck_tn_auth_in_progress()) {
-                        TELOPT_SB(TELOPT_ENCRYPTION).encrypt.need_to_send = 1;
-                    } else {
-                        /* Perform subnegotiation */
-                        ck_encrypt_send_support();
-                    }
-                    if (!(TELOPT_ME(x) || TELOPT_UNANSWERED_WILL(x))
-                        && TELOPT_ME_MODE(x) != TN_NG_RF) {
-                        if (tn_sopt(WILL, x) < 0)
-                          return(-1);
-                        TELOPT_UNANSWERED_WILL(x) = 1;
-                    }
-                }
-                break;
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
               case TELOPT_KERMIT:
                 if (!TELOPT_ME(x)) {
@@ -4549,10 +3184,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
         }
         break;
       case WONT:
-#ifdef CK_SSL
-        if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows)
-            return(0);
-#endif /* CK_SSL */
         if (TELOPT_U(x) || TELOPT_UNANSWERED_DO(x)) {
             /* David Borman says we should not respond DONT when
              * the WONT is a response to a DO that we sent.
@@ -4571,49 +3202,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
                 TELOPT_U(x) = 0;
             }
             switch(x) {
-#ifdef CK_SSL
-            case TELOPT_START_TLS:
-                if (sstelnet) {
-                    if (TELOPT_U_MODE(x) == TN_NG_MU) {
-                        printf("Telnet Start-TLS refused.\n");
-                        ttclos(0);
-                        whyclosed = WC_TELOPT;
-                        return(-3);
-                    }
-                    if (TELOPT_SB(x).start_tls.auth_request) {
-                        extern int authentication_version;
-                        TELOPT_SB(x).start_tls.auth_request = 0;
-                        authentication_version = AUTHTYPE_AUTO;
-                        ck_tn_auth_request();
-                    }
-                }
-                break;
-#endif /* CK_SSL */
-#ifdef CK_AUTHENTICATION
-              case TELOPT_AUTHENTICATION:
-                if (sstelnet && TELOPT_U_MODE(x) == TN_NG_MU) {
-                    printf("Telnet authentication refused.\n");
-                    ttclos(0);
-                    whyclosed = WC_TELOPT;
-                    return(-3);
-                } else if (TELOPT_U_MODE(x) == TN_NG_RQ) {
-                    TELOPT_U_MODE(x) = TN_NG_AC;
-                }
-                if (ck_tn_auth_in_progress())
-                  printf("Telnet authentication refused.\n");
-#ifdef CK_ENCRYPTION
-                if (sstelnet) {
-                    if (tn_no_encrypt()<0)
-                        return(-1);
-                }
-#endif /* CK_ENCRYPTION */
-                break;
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-              case TELOPT_ENCRYPTION:
-                ck_tn_enc_stop();
-                break;
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
               case TELOPT_KERMIT:
                 TELOPT_SB(x).kermit.u_start = 0;
@@ -4687,10 +3275,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
         break;
 
       case DO:
-#ifdef CK_SSL
-        if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows)
-            return(0);
-#endif /* CK_SSL */
         if (!TELOPT_OK(x) || TELOPT_ME_MODE(x) == TN_NG_RF) {
             if (tn_sopt(WONT,x) < 0)
               return(-1);
@@ -4706,63 +3290,7 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
             TELOPT_ME(x) = 1;
 
             switch (x) {
-#ifdef CK_SSL
-              case TELOPT_START_TLS:
-                /*
-                   If my proposal is accepted at this point the Telnet
-                   protocol is turned off and a TLS negotiation takes
-                   place.
 
-                   Start by sending SB START_TLS FOLLOWS  to signal
-                   we are ready.  Wait for the peer to send the same
-                   and then start the TLS negotiation.
-
-                   If the TLS negotiation succeeds we call tn_ini()
-                   again to reset the telnet state machine and restart
-                   the negotiation process over the now secure link.
-
-                   If the TLS negotiation fails, we call ttclos()
-                   to terminate the connection.  Then we set the
-                   U_MODE and ME_MODE for TELOPT_START_TLS to REFUSE
-                   and then call ttopen() to create a new connection
-                   to the same host but this time do not attempt
-                   TLS security.
-
-                   Only the client should receive DO START_TLS.
-                */
-                tn_ssbopt(TELOPT_START_TLS,1,NULL,0);
-                TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows = 1;
-                break;
-#endif /* CK_SSL */
-
-#ifdef CK_AUTHENTICATION
-              case TELOPT_AUTHENTICATION: {
-                  /* We don't know what authentication we are using yet */
-                  /* but it is not NULL until a failure is detected so */
-                  /* use AUTO in the meantime. */
-                  extern int authentication_version;
-                  authentication_version = AUTHTYPE_AUTO;
-                  break;
-              }
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-              case TELOPT_ENCRYPTION:
-                if (!(TELOPT_ME(TELOPT_AUTHENTICATION) ||
-                      TELOPT_U(TELOPT_AUTHENTICATION))
-                    ) {
-                    if (tn_sopt(WONT,x) < 0)
-                      return(-1);
-                    TELOPT_ME(x) = 0;
-                } else {
-                    if (!(TELOPT_U(x) || TELOPT_UNANSWERED_DO(x))
-                        && TELOPT_U_MODE(x) != TN_NG_RF) {
-                        if (tn_sopt(DO, x) < 0)
-                          return(-1);
-                        TELOPT_UNANSWERED_DO(x) = 1;
-                    }
-                }
-                break;
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
               case TELOPT_KERMIT:
 /* If currently processing Kermit server packets, must tell the other side */
@@ -4831,19 +3359,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
                   }
                   break;
 #endif /* CK_SNDLOC */
-#ifdef CK_FORWARD_X
-               case TELOPT_FORWARD_X:
-                  if ( !tn_delay_sb || !tn_outst(0) || tn_init ) {
-                      if (fwdx_send_options() < 0) {
-                          if (tn_sopt(DONT,x) < 0)
-                              return(-1);
-                          TELOPT_UNANSWERED_DONT(x) = 1;
-                      }
-                  } else {
-                      TELOPT_SB(TELOPT_FORWARD_X).forward_x.need_to_send = 1;
-                  }
-                  break;
-#endif /* CK_FORWARD_X */
 #ifdef TN_COMPORT
               case TELOPT_COMPORT: {
                 extern int reliable;
@@ -4866,10 +3381,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
         break;
 
       case DONT:
-#ifdef CK_SSL
-        if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows)
-            return(0);
-#endif /* CK_SSL */
         if (TELOPT_ME(x) || TELOPT_UNANSWERED_WILL(x)) {
             /* David Borman says we should not respond WONT when
              * the DONT is a response to a WILL that we sent.
@@ -4889,48 +3400,7 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
               TELOPT_ME(x) = 0;
 
             switch (x) {
-#ifdef CK_SSL
-            case TELOPT_START_TLS:
-                if (!sstelnet && TELOPT_ME_MODE(x) == TN_NG_MU) {
-                    printf("Telnet Start-TLS refused.\n");
-                    ttclos(0);
-                    whyclosed = WC_TELOPT;
-                    return(-3);
-                }
-                break;
-#endif /* CK_SSL */
-#ifdef CK_AUTHENTICATION
-              case TELOPT_AUTHENTICATION:
-                if (!sstelnet && TELOPT_ME_MODE(x) == TN_NG_MU) {
-#ifdef CK_SSL
-                    if (tls_active_flag) {
-                        TELOPT_ME_MODE(x) = TN_NG_AC;
-                        break;
-                    } else
-#endif /* CK_SSL */
-                    {
-                        printf("Telnet authentication refused.\n");
-                        ttclos(0);
-                        whyclosed = WC_TELOPT;
-                        return(-3);
-                    }
-                } else if (TELOPT_ME_MODE(x) == TN_NG_RQ) {
-                    TELOPT_ME_MODE(x) = TN_NG_AC;
-                }
-                if (ck_tn_auth_in_progress())
-                  printf("Telnet authentication refused.\n");
-#ifdef CK_ENCRYPTION
-                if (!sstelnet) {
-                    if (tn_no_encrypt()<0)
-                        return(-1);
-                }
-#endif /* CK_ENCRYPTION */
-                break;
-#endif /* CK_AUTHENTICATION */
               case TELOPT_ENCRYPTION:
-#ifdef CK_ENCRYPTION
-                ck_tn_enc_stop();
-#endif /* CK_ENCRYPTION */
                 break;
               case TELOPT_KERMIT:
 #ifdef IKS_OPTION
@@ -4975,13 +3445,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
         if ((y = tn_sb(x,&n,fn)) <= 0)
           return(y);
 
-#ifdef CK_SSL
-        /* Do not process subnegotiations other than START_TLS after we */
-        /* have agreed to begin the TLS negotiation sequence.           */
-        if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows &&
-             x != TELOPT_START_TLS)
-            break;
-#endif /* CK_SSL */
 
         if (!TELOPT_OK(x)) {
             ckhexdump("unknown telnet subnegotiation",sb,n);
@@ -5014,221 +3477,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
 
         TELOPT_UNANSWERED_SB(x)=0;
         switch (x) {
-#ifdef CK_FORWARD_X
-          case TELOPT_FORWARD_X:
-            return(fwdx_tn_sb(sb, n));
-#endif /* CK_FORWARD_X */
-#ifdef CK_SSL
-          case TELOPT_START_TLS: {
-              /*
-                 the other side is saying SB START_TLS FOLLOWS
-                 the incoming channel is now ready for starting the
-                 TLS negotiation.
-                 */
-              int def_tls_u_mode, def_tls_me_mode;
-              int def_enc_u_mode, def_enc_me_mode;
-              int rc = 0;
-
-                          if (sb[0] != 1) {
-                                  break;
-                          }
-
-              TELOPT_SB(TELOPT_START_TLS).start_tls.u_follows = 1;
-              /* Preserve the default modes and make sure we will */
-              /* refuse START_TLS when we retry. */
-              if (sstelnet) {
-                  def_tls_u_mode = TELOPT_DEF_S_U_MODE(TELOPT_START_TLS);
-                  def_tls_me_mode = TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS);
-                  TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-                  TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS)= TN_NG_RF;
-#ifdef CK_ENCRYPTION
-                  def_enc_u_mode = TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION);
-                  def_enc_me_mode = TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION);
-                  TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-                  TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION)= TN_NG_RF;
-#endif /* CK_ENCRYPTION */
-              } else {
-                  def_tls_u_mode = TELOPT_DEF_C_U_MODE(TELOPT_START_TLS);
-                  def_tls_me_mode = TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS);
-                  TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-                  TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS)= TN_NG_RF;
-#ifdef CK_ENCRYPTION
-                  def_enc_u_mode = TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION);
-                  def_enc_me_mode = TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION);
-                  TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-                  TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION)= TN_NG_RF;
-#endif /* CK_ENCRYPTION */
-              }
-              /* Negotiate TLS */
-              ttnproto = NP_TLS;
-              tn_init = 0;
-              tn_begun = 0;
-              if (ck_tn_tls_negotiate()<0) {
-                  /* we failed.  disconnect and if we are the client */
-                  /* then reconnect and try without START_TLS.       */
-                  extern char * line;
-                  int x = -1;
-                  extern int mdmtyp;
-
-                  if (sstelnet) {
-                      printf("TLS failed:  Disconnecting.\n");
-                      TELOPT_DEF_S_U_MODE(TELOPT_START_TLS)  = def_tls_u_mode;
-                      TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = def_tls_me_mode;
-#ifdef CK_ENCRYPTION
-                     TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION)  = def_enc_u_mode;
-                     TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION) = def_enc_me_mode;
-#endif /* CK_ENCRYPTION */
-                      ttclos(0);
-                      whyclosed = WC_TELOPT;
-                      ttnproto = NP_TELNET;
-                      rc = -3;
-                  } else {
-#ifndef NOLOCAL
-                      extern int tls_norestore;
-#endif /* NOLOCAL */
-                      printf("TLS failed:  Disconnecting...\n");
-#ifdef CK_ENCRYPTION
-                     TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION)  = def_enc_u_mode;
-                     TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION) = def_enc_me_mode;
-#endif /* CK_ENCRYPTION */
-                      /* if START_TLS is not REQUIRED, then retry without it */
-                      if ( def_tls_me_mode != TN_NG_MU ) {
-                          extern char ttname[];
-#ifndef NOLOCAL
-                          tls_norestore = 1;
-#endif /* NOLOCAL */
-                          ttclos(0);
-                          whyclosed = WC_TELOPT;
-#ifndef NOLOCAL
-                          tls_norestore = 0;
-#endif /* NOLOCAL */
-                          ttnproto = NP_TELNET;
-                          printf("Reconnecting without TLS.\n");
-                          sleep(2);
-                          if (ttopen(ttname,&x,mdmtyp,0)<0)
-                              rc = -3;
-                      } else {
-                          TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) =
-                            def_tls_u_mode;
-                          TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) =
-                            def_tls_me_mode;
-                          ttclos(0);
-                          whyclosed = WC_TELOPT;
-                          ttnproto = NP_TELNET;
-                          rc = -3;
-                      }
-                  }
-              } else {
-#ifdef CK_AUTHENTICATION
-                  /* we succeeded.  restart telnet negotiations from */
-                  /* the beginning.  However, if we have received a  */
-                  /* client certificate and we are a server, then do */
-                  /* not offer TELOPT_AUTH.                          */
-                  if ( ck_tn_auth_valid() == AUTH_VALID ) {
-                      TELOPT_DEF_S_U_MODE(TELOPT_AUTHENTICATION) = TN_NG_AC;
-                      TELOPT_DEF_S_ME_MODE(TELOPT_AUTHENTICATION)= TN_NG_AC;
-                  }
-#endif /* CK_AUTHENTICATION */
-                  ttnproto = NP_TELNET;
-                  if (tn_ini() < 0)
-                    if (ttchk() < 0)
-                      rc = -1;
-              }
-              /* Restore the default modes */
-              if (sstelnet) {
-                  TELOPT_DEF_S_U_MODE(TELOPT_START_TLS)  = def_tls_u_mode;
-                  TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = def_tls_me_mode;
-#ifdef CK_ENCRYPTION
-                  TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION)  = def_enc_u_mode;
-                  TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION) = def_enc_me_mode;
-#endif /* CK_ENCRYPTION */
-              } else {
-                  TELOPT_DEF_C_U_MODE(TELOPT_START_TLS)  = def_tls_u_mode;
-                  TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = def_tls_me_mode;
-#ifdef CK_ENCRYPTION
-                  TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION)  = def_enc_u_mode;
-                  TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION) = def_enc_me_mode;
-#endif /* CK_ENCRYPTION */
-              }
-              return(rc);
-          }
-#endif /* CK_SSL */
-#ifdef CK_AUTHENTICATION
-          case TELOPT_AUTHENTICATION:
-            if (ck_tn_sb_auth((char *)sb,n) < 0) {
-                if (sstelnet && TELOPT_U_MODE(x) == TN_NG_MU) {
-                    ttclos(0);
-                    whyclosed = WC_TELOPT;
-                    return(-3);
-                } else if (!sstelnet && TELOPT_ME_MODE(x) == TN_NG_MU) {
-                    ttclos(0);
-                    whyclosed = WC_TELOPT;
-                    return(-3);
-                } else {
-                    if (TELOPT_ME_MODE(x) == TN_NG_RQ)
-                      TELOPT_ME_MODE(x) = TN_NG_AC;
-                    if (TELOPT_U_MODE(x) == TN_NG_RQ)
-                      TELOPT_U_MODE(x) = TN_NG_AC;
-                }
-                if (TELOPT_ME(x)) {
-                    TELOPT_ME(x) = 0;
-                    if (tn_sopt(WONT,x) < 0)
-                      return(-1);
-                }
-                if (TELOPT_U(x)) {
-                    TELOPT_U(x) = 0;
-                    if (tn_sopt(DONT,x) < 0)
-                      return(-1);
-                }
-#ifdef CK_ENCRYPTION
-                if (tn_no_encrypt()<0)
-                    return(-1);
-#endif /* CK_ENCRYPTION */
-            } else {
-#ifdef CK_ENCRYPTION
-                if (!ck_tn_auth_in_progress()) { /* we are finished */
-                    if (ck_tn_authenticated() == AUTHTYPE_SSL) {
-                        /* TLS was successful.  Disable ENCRYPTION */
-                        TELOPT_U_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-                        TELOPT_ME_MODE(TELOPT_ENCRYPTION) = TN_NG_RF;
-                    }
-                    if (TELOPT_SB(TELOPT_ENCRYPTION).encrypt.need_to_send) {
-                        ck_encrypt_send_support();
-                        TELOPT_SB(TELOPT_ENCRYPTION).encrypt.need_to_send = 0;
-                    }
-                }
-#endif /* CK_ENCRYPTION */
-            }
-            break;
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-          case TELOPT_ENCRYPTION:
-            if (ck_tn_sb_encrypt((char *)sb, n) < 0) {
-                if (TELOPT_U_MODE(x) == TN_NG_MU ||
-                    TELOPT_ME_MODE(x) == TN_NG_MU)
-                  {
-                      ttclos(0);
-                      whyclosed = WC_TELOPT;
-                      return(-3);
-                } else {
-                    if (TELOPT_ME_MODE(x) == TN_NG_RQ)
-                      TELOPT_ME_MODE(x) = TN_NG_AC;
-                    if (TELOPT_U_MODE(x) == TN_NG_RQ)
-                      TELOPT_U_MODE(x) = TN_NG_AC;
-                }
-                if (TELOPT_ME(x)) {
-                    TELOPT_ME(x) = 0;
-                    if (tn_sopt(WONT,x) < 0)
-                      return(-1);
-                }
-                if (TELOPT_U(x)) {
-                    TELOPT_U(x) = 0;
-                    if (tn_sopt(DONT,x) < 0)
-                      return(-1);
-                }
-            }
-            break;
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
           case TELOPT_KERMIT:
             return(iks_tn_sb(sb, n-2));
@@ -5435,10 +3683,6 @@ tn_doop(z, echo, fn) CHAR z; int echo; int (*fn)();
 
     if (!IS_TELNET()) return(3);
 
-#ifdef CK_SSL
-    debug(F101,"tn_doop ssl_raw_flag","",ssl_raw_flag);
-    if (ssl_raw_flag || tls_raw_flag) return(7);
-#endif	/* CK_SSL */
     debug(F100,"tn_doop ttnproto proceeding...","",0);
 
     if (z != (CHAR) IAC) {
@@ -5507,50 +3751,7 @@ tn_rnenv(sb, len) CHAR * sb; int len;
                 debug(F111,"tn_rnenv varname",varname,type);
                 debug(F111,"tn_rnenv value",value,type);
                 if (!strcmp(varname,"USER")) {
-#ifdef CK_AUTHENTICATION
-                    if (ck_tn_auth_valid() != AUTH_VALID) {
-                        extern char szUserNameRequested[];
-                        debug(F100,"tn_rnenv != AUTH_VALID","",0);
-                        ckstrncpy(szUserNameRequested,value,UIDBUFLEN);
-                        ckstrncpy(uidbuf,value,UIDBUFLEN);
-#ifdef CK_SSL
-                        if (ssl_active_flag) {
-                            if ( tls_is_user_valid(ssl_con, uidbuf) ) {
-                                extern char szUserNameAuthenticated[];
-                                ckstrncpy(szUserNameAuthenticated,uidbuf,
-                                           UIDBUFLEN);
-                                auth_finished(AUTH_VALID);
-                            }
-                        } else if (tls_active_flag) {
-                            if ( tls_is_user_valid(tls_con, uidbuf) ) {
-                                extern char szUserNameAuthenticated[];
-                                ckstrncpy(szUserNameAuthenticated,uidbuf,
-                                           UIDBUFLEN);
-                                auth_finished(AUTH_VALID);
-                            }
-                        }
-#endif /* CK_SSL */
-                    } else {    /* AUTH_VALID */
-                        int x = 0;
-                        debug(F110,"tn_rnenv AUTH_VALID uidbuf",uidbuf,0);
-
-                        x = ckstrcmp(value,uidbuf,-1,1); /* case sensitive */
-                        if ( x ) {
-                            extern char szUserNameRequested[];
-                            ckstrncpy(uidbuf,value,UIDBUFLEN);
-                            ckstrncpy(szUserNameRequested,value,UIDBUFLEN);
-                            auth_finished(AUTH_USER);
-#ifdef CK_SSL
-                            if (ssl_active_flag || tls_active_flag) {
-                                if ( tls_is_user_valid(ssl_con, uidbuf) )
-                                    auth_finished(AUTH_VALID);
-                            }
-#endif /* CK_SSL */
-                        }
-                    }
-#else /* CK_AUTHENTICATION */
                     ckstrncpy(uidbuf,value,UIDBUFLEN);
-#endif /* CK_AUTHENTICATION */
                 }
                 break;
             }
@@ -5620,17 +3821,7 @@ tn_snenv(sb, len) CHAR * sb; int len;
     if (ttnproto != NP_TELNET) return(0);
     if (!sb) return(-1);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
-#ifdef CK_FORWARD_X
-    if (TELOPT_U(TELOPT_FORWARD_X)) {
-        disp = NULL;
-    } else
-#endif /* CK_FORWARD_X */
         disp = (char *)tn_get_display();
 
     if (ck_lcname) {
@@ -5989,11 +4180,6 @@ tn_sttyp() {                            /* Send telnet terminal type. */
 
     if (!TELOPT_ME(TELOPT_TTYPE)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
     ttn = NULL;
 
 #ifndef NOTERM
@@ -6062,17 +4248,7 @@ tn_sxdisploc() {                        /* Send telnet X display location. */
 
     if (!TELOPT_ME(TELOPT_XDISPLOC)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
-#ifdef CK_FORWARD_X
-    if (TELOPT_U(TELOPT_FORWARD_X)) {
-        disp = NULL;
-    } else
-#endif /* CK_FORWARD_X */
         disp = (char *)tn_get_display();
     debug(F110,"tn_sxdisploc",disp,0);
 
@@ -6114,69 +4290,6 @@ tn_sxdisploc() {                        /* Send telnet X display location. */
 #endif /* CK_XDISPLOC */
 #endif /* CK_ENVIRONMENT */
 
-#ifdef CK_FORWARD_X
-int
-tn_sndfwdx() {                          /* Send Fwd X Screen number to host */
-    unsigned char screen = 0;
-    char * disp;
-    int i,rc;
-
-    /* if (!IS_TELNET()) return(0); */
-
-    if (!TELOPT_U(TELOPT_FORWARD_X)) return(0);
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
-
-    /*
-     * The format of the DISPLAY variable is [<host>:]<display>[.<screen>]
-     * where <host> is an optional DNS name or ip address with a default of
-     * the localhost; the screen defaults to 0
-     */
-
-    disp = (char *)tn_get_display();
-    if (disp) {
-        int colon,dot;
-        colon = ckindex(":",disp,0,0,1);
-        dot   = ckindex(".",&disp[colon],0,0,1);
-
-        if ( dot ) {
-            screen = atoi(&disp[colon+dot]);
-        }
-    } else {
-        screen = 0;
-    }
-
-    i = 0;
-    sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
-    sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
-    sb_out[i++] = TELOPT_FORWARD_X;           /* Forward X */
-    sb_out[i++] = FWDX_SCREEN;                /* Screen */
-    sb_out[i++] = screen;
-    if ( screen == IAC )
-        sb_out[i++] = IAC;
-    sb_out[i++] = (CHAR) IAC;                 /* End of Subnegotiation */
-    sb_out[i++] = (CHAR) SE;                  /* marked by IAC SE */
-#ifdef DEBUG
-    if (deblog || tn_deb || debses) {
-        ckmakxmsg( tn_msg_out,TN_MSG_LEN,
-                   "TELNET SENT SB ",TELOPT(TELOPT_FORWARD_X),
-                   " SCREEN ",ckctox(screen,1)," IAC SE",
-                   NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-    }
-#endif /* DEBUG */
-#ifdef DEBUG
-    debug(F100,tn_msg_out,"",0);
-    if (tn_deb || debses) tn_debug(tn_msg_out);
-#endif /* DEBUG */
-    rc = (ttol((CHAR *)sb_out,i) < 0);      /* Send it. */
-    if (rc)
-        return(-1);
-    return(0);
-}
-#endif /* CK_FORWARD_X */
 
 #ifdef CK_SNDLOC
 int
@@ -6188,11 +4301,6 @@ tn_sndloc() {                           /* Send location. */
 
     if (!TELOPT_ME(TELOPT_SNDLOC)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
     ttloc = (tn_loc ? tn_loc : "");     /* In case we are being called even */
                                         /* though there is no location. */
     sb_out[0] = (CHAR) IAC;                 /* I Am a Command */
@@ -6234,11 +4342,6 @@ tn_snaws() {                    /*  Send terminal width and height, RFC 1073 */
     if (ttnproto != NP_TELNET) return(0);
     if (!TELOPT_ME(TELOPT_NAWS)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
     if (x < 0) x = 0;
     if (y < 0) y = 0;
 
@@ -6401,11 +4504,6 @@ tnc_tn_sb(sb, len) CHAR * sb; int len;
 
     if (!sb) return(-1);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     debug(F111,"tnc_tn_sb","sb[0]",sb[0]);
     debug(F111,"tnc_tn_sb","len",len);
@@ -6759,11 +4857,6 @@ tnc_get_signature()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(NULL);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(NULL);
-    }
-#endif /* CK_SSL */
 
     if ( tnc_signature )
         return(tnc_signature);
@@ -6818,11 +4911,6 @@ tnc_send_signature(signature) char * signature;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -6903,11 +4991,6 @@ tnc_set_baud(baud) long baud;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (baud <= 0)
         return(0);
@@ -7004,11 +5087,6 @@ tnc_get_baud()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7073,11 +5151,6 @@ tnc_set_datasize(datasize) int datasize;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( !(datasize >= 5 && datasize <= 8) )
         return(0);
@@ -7135,11 +5208,6 @@ tnc_get_datasize()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7198,11 +5266,6 @@ tnc_set_parity(parity) int parity;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( !(parity >= 1 && parity <= 5) )
         return(0);
@@ -7259,11 +5322,6 @@ tnc_get_parity()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7319,11 +5377,6 @@ tnc_set_stopsize(stopsize) int stopsize;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (!(stopsize >= 1 && stopsize <= 3) )
       return(0);
@@ -7380,11 +5433,6 @@ tnc_get_stopsize()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7442,11 +5490,6 @@ tnc_set_oflow(control) int control;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (control != 1 && control != 2 && control != 3 &&
         control != 17 && control != 19)
@@ -7504,11 +5547,6 @@ tnc_get_oflow()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7567,11 +5605,6 @@ tnc_set_iflow(control) int control;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if (control != 14 && control != 15 && control != 16 && control != 18)
       return(0);
@@ -7628,11 +5661,6 @@ tnc_get_iflow()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7689,11 +5717,6 @@ tnc_set_break_state(onoff) int onoff;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( onoff != 0 && onoff == tnc_break )
         return(tnc_break);
@@ -7750,11 +5773,6 @@ tnc_get_break_state()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7811,11 +5829,6 @@ tnc_set_dtr_state(onoff) int onoff;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( onoff != 0 && onoff == tnc_dtr )
         return(tnc_dtr);
@@ -7872,11 +5885,6 @@ tnc_get_dtr_state()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -7933,11 +5941,6 @@ tnc_set_rts_state(onoff) int onoff;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( onoff != 0 && onoff == tnc_rts )
         return(tnc_rts);
@@ -7994,11 +5997,6 @@ tnc_get_rts_state()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -8060,11 +6058,6 @@ tnc_set_ls_mask(mask) int mask;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( mask != 0 && mask == tnc_ls_mask )
         return(tnc_ls_mask);
@@ -8152,11 +6145,6 @@ tnc_set_ms_mask(mask) int mask;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( mask != 0 && mask == tnc_ms_mask )
         return(tnc_ms_mask);
@@ -8239,11 +6227,6 @@ tnc_send_purge_data(mode) int mode;
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     if ( !(mode >= 1 && mode <= 3) )
         return(0);
@@ -8304,11 +6287,6 @@ tnc_suspend_flow()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */
@@ -8351,11 +6329,6 @@ tnc_resume_flow()
 
     if (!TELOPT_ME(TELOPT_COMPORT)) return(0);
 
-#ifdef CK_SSL
-    if (TELOPT_SB(TELOPT_START_TLS).start_tls.me_follows) {
-        return(0);
-    }
-#endif /* CK_SSL */
 
     sb_out[i++] = (CHAR) IAC;                 /* I Am a Command */
     sb_out[i++] = (CHAR) SB;                  /* Subnegotiation */

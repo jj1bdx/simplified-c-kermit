@@ -489,11 +489,6 @@ extern char * telopts[];
 #endif /* CK_TTGWSIZ */
 #endif /* CK_NAWS */
 
-#ifdef CK_FORWARD_X
-#ifndef MAXFWDX
-#define MAXFWDX 64                      /* Num of X windows to be fwd'd */
-#endif /* MAXFWDX */
-#endif /* CK_FORWARD_X */
 
 /* Telnet State structures and definitions */
 struct _telopt_state {
@@ -520,12 +515,6 @@ struct _telopt_state {
       unsigned char sop;            /* Have we received the SOP char? */
     } kermit;
 #endif /* IKS_OPTION */
-#ifdef CK_ENCRYPTION
-    struct _telopt_encrypt {        /* Encryption Option States */
-      unsigned char need_to_send;
-      unsigned char  stop;          /* Is encryption stopped?   */
-    } encrypt;
-#endif /* CK_ENCRYPTION */
 #ifdef CK_NAWS
     struct _telopt_naws {           /* NAWS Option Information  */
       unsigned char need_to_send;
@@ -533,13 +522,6 @@ struct _telopt_state {
       int y;                        /* Last Height              */
     } naws;
 #endif /* CK_NAWS */
-#ifdef CK_SSL
-    struct _telopt_start_tls {      /* Start TLS Option             */
-       unsigned char u_follows;     /* u ready for TLS negotiation  */
-       unsigned char me_follows;    /* me ready for TLS negotiation */
-       unsigned char auth_request;  /* Rcvd WILL AUTH before WONT START_TLS */
-    } start_tls;
-#endif /* CK_SSL */
     struct _telopt_term {          /* Terminal Type            */
        unsigned char need_to_send;
        unsigned char type[41];     /* Last terminal type       */
@@ -561,18 +543,6 @@ struct _telopt_state {
        unsigned char need_to_send;
     } sndloc;
 #endif /* CK_SNDLOC */
-#ifdef CK_FORWARD_X
-    struct _telopt_fwd_x {
-        unsigned char need_to_send;
-        int listen_socket;
-        struct _channel {
-            int fd;
-            int id;
-            unsigned char need_to_send_xauth;
-            unsigned char suspend;
-        } channel[MAXFWDX];
-    } forward_x;
-#endif /* CK_FORWARD_X */
 #ifdef TN_COMPORT
       struct _telopt_comport {
           unsigned char need_to_send;
@@ -1079,35 +1049,12 @@ _PROTOTYP( int tn_sndloc, (void) );
  * Kermit 95 for Windows supports both, but Kermit 95 for OS/2 only supports
  * X11 forwarding over SSH.
  */
-#ifdef CK_FORWARD_X
-#define CK_FWDX_PARSE_DISPN
-#else /* CK_FORWARD_X */
 #ifdef SSHBUILTIN
 #ifndef CK_FWDX_PARSE_DISPN
 #define CK_FWDX_PARSE_DISPN
 #endif /* CK_FWDX_PARSE_DISPN */
 #endif /* SSHBUILTIN */
-#endif /* CK_FORWARD_X */
 
-#ifdef CK_FORWARD_X
-/* From Xauth.h */
-typedef struct xauth {
-    unsigned short   family;
-    unsigned short   address_length;
-    char            *address;
-    unsigned short   number_length;
-    char            *number;
-    unsigned short   name_length;
-    char            *name;
-    unsigned short   data_length;
-    char            *data;
-} Xauth;
-
-#include <stdio.h>
-#include "ckuusr.h"
-#include "ckcfnp.h"
-
-#endif /* CK_FORWARD_X */
 
 #ifdef CK_FWDX_PARSE_DISPN
 /* from X.h */
@@ -1122,58 +1069,6 @@ typedef struct xauth {
 # define FamilyLocalHost (252)  /* for local non-net authentication */
 #endif /* CK_FWDX_PARSE_DISPN */
 
-#ifdef CK_FORWARD_X
-char *XauFileName();
-
-Xauth *XauReadAuth(
-FILE*   /* auth_file */
-);
-
-int XauWriteAuth(
-FILE*           /* auth_file */,
-Xauth*          /* auth */
-);
-
-Xauth *XauGetAuthByName(
-const char*     /* display_name */
-);
-
-Xauth *XauGetAuthByAddr(
-unsigned int    /* family */,
-unsigned int    /* address_length */,
-const char*     /* address */,
-unsigned int    /* number_length */,
-const char*     /* number */,
-unsigned int    /* name_length */,
-const char*     /* name */
-);
-
-void XauDisposeAuth(
-Xauth*          /* auth */
-);
-
-
-_PROTOTYP( int fwdx_create_listen_socket,(int));
-_PROTOTYP( int fwdx_open_client_channel,(int));
-_PROTOTYP( int fwdx_open_server_channel,(VOID));
-_PROTOTYP( int fwdx_close_channel,(int));
-_PROTOTYP( int fwdx_write_data_to_channel,(int, char *,int));
-_PROTOTYP( int fwdx_send_data_from_channel,(int, char *,int));
-_PROTOTYP( int fwdx_close_all,(VOID));
-_PROTOTYP( int fwdx_tn_sb,(unsigned char *, int));
-_PROTOTYP( int tn_sndfwdx, (void));
-_PROTOTYP( int fwdx_send_close,(int));
-_PROTOTYP( int fwdx_send_open,(int));
-_PROTOTYP( int fwdx_client_reply_options,(char *, int));
-_PROTOTYP( int fwdx_send_options,(VOID));
-_PROTOTYP( VOID fwdx_check_sockets,(fd_set *));
-_PROTOTYP( int fwdx_init_fd_set,(fd_set *));
-_PROTOTYP( int fwdx_authorize_channel, (int, unsigned char *, int));
-_PROTOTYP( int fwdx_create_fake_xauth, (char *, int, int));
-_PROTOTYP( int fwdx_send_xauth_to_xserver, (int, unsigned char *, int len));
-_PROTOTYP( int fwdx_server_avail, (VOID));
-
-#endif /* CK_FORWARD_X */
 
 #ifdef CK_FWDX_PARSE_DISPN
 /* This function is used for SSH X11 forwarding which works

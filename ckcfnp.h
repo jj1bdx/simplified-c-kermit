@@ -46,9 +46,6 @@ MAINTYPE MAINNAME( int argc, char ** argv );
 
 /* PROTOTYPES ADDED 6 May 2023... */
 
-#ifdef CK_AUTHENTICATION
-int show_auth( int );
-#endif /* CK_AUTHENTICATION */
 
 /* PROTOTYPES ADDED 11-14 April 2023... */
 

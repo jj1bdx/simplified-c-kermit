@@ -873,9 +873,6 @@ prompt(f) xx_strp f;
 #endif /* CK_ANSIC */
 {
     char *sx, *sy; int n;
-#ifdef CK_SSL
-    extern int ssl_active_flag, tls_active_flag;
-#endif /* CK_SSL */
 
     if (psetf == 0)			/* If no prompt set, set default. */
       cmsetp(dfprom);
@@ -914,9 +911,6 @@ prompt(f) xx_strp f;
     } else
 #endif /* IKSD */
       printf("\r%s",sx);
-#ifdef CK_SSL
-    if (!(ssl_active_flag || tls_active_flag))
-#endif /* CK_SSL */
       fflush(stdout);			/* Now! */
 #endif /* MAC */
 #endif /* OSK */

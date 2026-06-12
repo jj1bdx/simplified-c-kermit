@@ -99,11 +99,7 @@ struct timeval {
 #endif /* SCO_OSR504 */
 
 #ifndef FD_SETSIZE
-#ifdef CK_FORWARD_X
-#define FD_SETSIZE 256
-#else
 #define FD_SETSIZE 32
-#endif /* CK_FORWARD_X */
 #endif /* FD_SETSIZE */
 
 #ifdef HPUX
@@ -117,9 +113,6 @@ struct timeval {
 #endif /* HPUX10 */
 #endif /* HPUX */
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"                     /* fdc 2021-12-17 */
-#endif /* CK_AUTHENTICATION */
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
@@ -201,9 +194,6 @@ extern CHAR stchr;
 extern int kstartactive;
 #endif /* CK_AUTODL */
 
-#ifdef CK_ENCRYPTION
-extern int me_auth;
-#endif /* CK_ENCRYPTION */
 
 #ifdef CK_XYZ
 #ifdef XYZ_INTERNAL
@@ -793,19 +783,7 @@ ckcgetc(dummy) int dummy;
 #endif /* CK_ANSIC */
 {
     int c, n;
-#ifdef CK_SSL
-    extern int ssl_active_flag, tls_active_flag;
-#endif /* CK_SSL */
 
-#ifdef CK_ENCRYPTION
-    /* No buffering for possibly encrypted connections */
-    if (network && IS_TELNET() && TELOPT_ME(TELOPT_AUTHENTICATION))
-      return(ttinc(0));
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag)
-        return(ttinc(0));
-#endif /* CK_SSL */
 
     if (ibc < 1) {			/* Need to refill buffer? */
 	ibc = 0;			/* Yes, reset count */
@@ -1292,12 +1270,6 @@ conect() {
     if (msgflg) {
 #ifdef NETCONN
 	if (network) {
-#ifdef CK_ENCRYPTION
-	    extern int me_encrypt, u_encrypt;
-	    if (ck_tn_encrypting() && ck_tn_decrypting())
-	      printf("SECURE connection to host %s",ttname);
-	    else
-#endif /* CK_ENCRYPTION */
 	      if (ttpipe || ttpty)
 		printf("Connecting via command \"%s\"",ttname);
 	      else
@@ -1571,9 +1543,6 @@ conect() {
 	    }
 #endif /* BEBOX */
             FD_SET(ttyfd, &err);
-#ifdef CK_FORWARD_X
-            fwdx_init_fd_set(&in);
-#endif /* CK_FORWARD_X */
 
 	    /* Wait till the first one of the above is ready for i/o */
 	    /* or TERM IDLE-SEND is active and we time out. */
@@ -1678,9 +1647,6 @@ conect() {
 #endif /* DEBUG */
 #endif /* BEBOX */
 
-#ifdef CK_FORWARD_X
-            fwdx_check_sockets(&in);
-#endif /* CK_FORWARD_X */
 
 	    if (FD_ISSET(ttyfd, &in)) {	/* Read from net? */
 		debug(F110,"CONNECT SELECT ttyfd","in",0);
@@ -1982,11 +1948,7 @@ conect() {
 	    debug(F111,"CONNECT","network",network);
 	    debug(F111,"CONNECT","IS_TELNET",IS_TELNET());
 	    if ((c == IAC) && network && IS_TELNET()) {
-#ifdef CK_ENCRYPTION
-		int x_auth = TELOPT_ME(TELOPT_AUTHENTICATION);
-#else
 		int x_auth = 0;
-#endif /* CK_ENCRYPTION */
 		int me_bin = TELOPT_ME(TELOPT_BINARY);
 		int u_bin = TELOPT_U(TELOPT_BINARY);
 		debug(F100,"CONNECT got IAC","",0);
@@ -1996,25 +1958,6 @@ conect() {
 			me_bin = TELOPT_ME(TELOPT_BINARY);
 		    } else if (u_bin != TELOPT_U(TELOPT_BINARY)) {
 			u_bin = TELOPT_U(TELOPT_BINARY);
-#ifdef CK_ENCRYPTION
-/*
-  Here we have to push back any bytes we have read using block reads, so we
-  can read them again using single-character reads, so they can be decrypted
-  in case there was a switch to encryption in the block.  Note that we can't
-  handle switches in the encryption state itself this way -- which would be
-  nice, since it would eliminate the need for single-character reads.  Why?
-  Because if a series of characters has already been decrypted that shouldn't
-  have been, then (a) it's ruined, and (b) so is the state of the decryption
-  machine.  Too bad.
-*/
-		    } else if (TELOPT_ME(TELOPT_AUTHENTICATION) != 0 &&
-			       TELOPT_ME(TELOPT_AUTHENTICATION) != x_auth
-			       ) {
-			if (ttpushback((CHAR *)ibp,ibc) > -1) {
-			    ibc = 0;
-			    ibp = ibuf;
-			}
-#endif /* CK_ENCRYPTION */
 		    }
 		    continue;
 		} else if (tx == -1) {	/* I/O error */

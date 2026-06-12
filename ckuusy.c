@@ -34,9 +34,6 @@ extern int debtim;
 #include "ckcnet.h"
 #include "ckuusr.h"
 #include "ckcxla.h"
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 #include <signal.h>
 
 #ifdef CK_ANSIC
@@ -615,10 +612,6 @@ xx_ftp(host, port) char * host, * port;
 	  port = "ftp";
     }
 
-#ifdef CK_SSL
-    if (haveurl && g_url.svc)
-      use_tls = !ckstrcmp("ftps",g_url.svc,-1,0);
-#endif /* CK_SSL */
 
     if (ftpopen(ftp_host,port,use_tls) < 1)
       return(-1);
@@ -651,36 +644,9 @@ char * http_hlp[] = {
     " -p pathname    Put remote pathname.\n",
     " -H pathname    Head remote pathname.\n",
     " -l pathname    Local path for -g, -p, and -H.\n",
-#ifdef CK_SSL
-    " -z opt[=value] Security options...\n",
-    "    cert=file   Client certificate file\n",
-    "    certsok     Accept all certificates\n",
-    "    key=file    Client private key file\n",
-    "    secure      Use SSL\n",
-    "    verify=n    0 = none, 1 = peer , 2 = certificate required\n",
-#endif /* CK_SSL */
     ""
 };
 
-#ifdef CK_SSL
-#ifndef NOICP
-#define HT_CERTFI 0
-#define HT_OKCERT 1
-#define HT_KEY    2
-#define HT_SECURE 3
-#define HT_VERIFY 4
-
-static struct keytab httpztab[] = {
-    { "cert",    HT_CERTFI, CM_ARG },
-    { "certsok", HT_OKCERT, 0 },
-    { "key",     HT_KEY,    CM_ARG },
-    { "secure",  HT_SECURE, 0 },
-    { "verify",  HT_VERIFY, CM_ARG },
-    { "", 0, 0 }
-};
-static int nhttpztab = sizeof(httpztab) / sizeof(struct keytab) - 1;
-#endif /* NOICP */
-#endif /* CK_SSL */
 #endif /* NOHTTP */
 
 /*  U S A G E */
@@ -884,53 +850,6 @@ cmdlin() {
 			  }
 			  break;
 
-#ifdef CK_SSL
-#ifndef NOICP
-                        case 'z': {
-			    /* *xargv contains a value of the form tag=value */
-			    /* we need to lookup the tag and save the value  */
-			    int x,y,z;
-			    char * p, * q;
-			    makestr(&p,*xargv);
-			    y = ckindex("=",p,0,0,1);
-			    if (y > 0)
-                              p[y-1] = '\0';
-			    x = lookup(httpztab,p,nhttpztab,&z);
-			    if (x < 0) {
-				printf("?Invalid security option: \"%s\"\n",p);
-			    } else {
-				printf("Security option: \"%s",p);
-				if (httpztab[z].flgs & CM_ARG) {
-				    q = &p[y];
-				    if (!*q)
-                                      fatal("?Missing required value");
-				}
-				/* -z options w/args */
-				switch (httpztab[z].kwval) {
-				  case HT_CERTFI:
-				    makestr(&ssl_rsa_cert_file,q);
-				    break;
-				  case HT_OKCERT:
-				    ssl_certsok_flag = 1;
-				    break;
-				  case HT_KEY:
-				    makestr(&ssl_rsa_key_file,q);
-				    break;
-				  case HT_SECURE:
-				    svc="https";
-				    break;
-				  case HT_VERIFY:
-				    if (!rdigits(q))
-                                      printf("?Bad number: %s\n",q);
-				    ssl_verify_flag = atoi(q);
-				    break;
-				}
-			    }
-			    free(p);
-			    break;
-                        }
-#endif /* NOICP */
-#endif /* CK_SSL */
 
 			case 'h':	/* Help */
 			default:
@@ -4077,17 +3996,10 @@ dotnarg(x) char x;
 
 	  case 'f':			/* Forward credentials to host */
 	    {
-#ifdef CK_AUTHENTICATION
-		extern int forward_flag;
-		forward_flag = 1;
-#endif
 		break;
 	    }
 
 	  case 'k': {
-#ifdef CK_KERBEROS
-	      extern char * krb5_d_realm, * krb4_d_realm;
-#endif /* CK_KERBEROS */
 	      if (*(xp+1)) {
 		  XFATAL("invalid argument bundling");
 	      }
@@ -4095,13 +4007,6 @@ dotnarg(x) char x;
 	      if ((xargc < 1) || (**xargv == '-')) {
 		  XFATAL("missing realm");
 	      }
-#ifdef CK_KERBEROS
-	      if ((int)strlen(*xargv) > 63) {
-		  XFATAL("realm too long");
-	      }
-	      makestr(&krb5_d_realm,*xargv);
-	      makestr(&krb4_d_realm,*xargv);
-#endif /* CK_KERBEROS */
 	      break;
 	  }
 
@@ -4113,26 +4018,6 @@ dotnarg(x) char x;
 	      if ((xargc < 1) || (**xargv == '-')) {
 		  XFATAL("missing cert=, key=, crlfile=, crldir=, or cipher=");
 	      }
-#ifdef CK_SSL
-	      if (!strncmp(*xargv,"cert=",5)) {
-		  extern char * ssl_rsa_cert_file;
-		  makestr(&ssl_rsa_cert_file,&(*xargv[5]));
-	      } else if ( !strncmp(*xargv,"key=",4) ) {
-		  extern char * ssl_rsa_key_file;
-		  makestr(&ssl_rsa_key_file,&(*xargv[4]));
-	      } else if ( !strncmp(*xargv,"crlfile=",8) ) {
-		  extern char * ssl_crl_file;
-		  makestr(&ssl_crl_file,&(*xargv[8]));
-	      } else if ( !strncmp(*xargv,"crldir=",7) ) {
-		  extern char * ssl_crl_dir;
-		  makestr(&ssl_crl_dir,&(*xargv[7]));
-	      } else if ( !strncmp(*xargv,"cipher=",7) ) {
-		  extern char * ssl_cipher_list;
-		  makestr(&ssl_cipher_list,&(*xargv[7]));
-	      } else {
-		  XFATAL("invalid parameter");
-	      }
-#endif /* CK_SSL */
 	      break;
 	  }
 

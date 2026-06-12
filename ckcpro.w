@@ -43,9 +43,6 @@ int kactive = 0;			/* Kermit protocol is active */
 #include "ckcasc.h"
 #include "ckcker.h"
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"                     /* fdc 2021-12-17 */
-#endif /* CK_AUTHENTICATION */
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
 /*
@@ -154,9 +151,6 @@ _PROTOTYP( int cmdsrc, (void) );
 
 #ifdef TNCODE
   extern int tn_b_nlm, tn_b_xfer, tn_nlm;
-#ifdef CK_ENCRYPTION
-  extern int tn_no_encrypt_xfer;
-#endif /* CK_ENCRYPTION */
 #endif /* TNCODE */
 
 #ifdef TCPSOCKET
@@ -3040,11 +3034,6 @@ proto() {
             }
         }
 #endif /* IKS_OPTION */
-#ifdef CK_ENCRYPTION
-        if (tn_no_encrypt_xfer && !(sstelnet || inserver)) {
-            ck_tn_enc_stop(); /* fdc 2021-12-17 */
-        }
-#endif /* CK_ENCRYPTION */
     }
 #endif /* TNCODE */
 
@@ -3058,11 +3047,6 @@ proto() {
     kactive = 0;
 
 #ifdef TNCODE
-#ifdef CK_ENCRYPTION
-        if (tn_no_encrypt_xfer && !(sstelnet || inserver)) {
-            ck_tn_enc_start(); /* fdc 2021-12-17 */
-        }
-#endif /* CK_ENCRYPTION */
 #ifdef IKS_OPTION
     if (TELOPT_ME(TELOPT_KERMIT) &&
         TELOPT_SB(TELOPT_KERMIT).kermit.me_start && !_me_start) {

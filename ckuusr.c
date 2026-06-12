@@ -87,9 +87,6 @@ char *userv = "User Interface 10.0.332, 02 May 2023";
 #include "ckuusr.h"
 #include "ckcxla.h"
 
-#ifdef CK_AUTHENTICATION      /* fdc - only include this for secure builds  */
-#include "ckuath.h"           /* AGN missing Kerberos prototypes 4-Nov-2021 */
-#endif /* CK_AUTHENTICATION */
 
 int g_fncact = -1;			/* Needed for NOICP builds */
 int noinit = 0;				/* Flag for skipping init file */
@@ -654,13 +651,6 @@ struct keytab cmdtab[] = {
     { "associate",   XXNOTAV, CM_INV },	/* ASSOCIATE */
 #endif /* NOCSETS */
 #endif /* NOXFER */
-#ifdef CK_KERBEROS
-#ifdef CK_AUTHENTICATION
-    { "authenticate",XXAUTH, 0 },	/* Authentication */
-#else
-    { "authenticate",XXAUTH, CM_INV },
-#endif /* CK_AUTHENTICATION */
-#endif /* CK_KERBEROS */
 #endif /* NOSPL */
 #ifndef NOFRILLS
     { "back",        XXBACK, 0 },	/* BACK to previous directory */
@@ -1828,13 +1818,6 @@ struct keytab prmtab[] = {
 #ifndef NOXFER
     { "attributes",       XYATTR,  0 },
 #endif /* NOXFER */
-#ifdef CK_AUTHENTICATION
-    { "authentication",   XYAUTH,  0 },
-#else  /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-    { "authentication",   XYAUTH,  0 },
-#endif /* CK_SSL */
-#endif /* CK_AUTHENTICATION */
     { "b",		  XYBACK,  CM_INV|CM_ABR|CM_PSH },
     { "ba",		  XYBACK,  CM_INV|CM_ABR|CM_PSH },
     { "background",       XYBACK,  CM_PSH },
@@ -2751,9 +2734,6 @@ struct keytab shotab[] = {
     { "attributes",   SHATT, 0 },
 #endif /* NOXFER */
 
-#ifdef CK_AUTHENTICATION
-    { "authentication", SHOAUTH, CM_INV },
-#endif /* CK_AUTHENTICATION */
 
 #ifndef NOPUSH
 #ifdef BROWSER
@@ -3423,12 +3403,6 @@ static struct keytab telcmd[] = {
     { "el",    TN_EL,    0 },
     { "eof",   TN_EOF,   0 },
     { "eor",   TN_EOR,   0 },
-#ifdef CK_KERBEROS
-#ifdef KRB5
-#define TN_FWD 1
-    { "forward", TN_FWD, CM_INV },
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
     { "ga",    TN_GA,    0 },
     { "ip",    TN_IP,    0 },
     { "nop",   TN_NOP,   0 },
@@ -3442,11 +3416,7 @@ static struct keytab telcmd[] = {
 static int ntelcmd = (sizeof(telcmd) / sizeof(struct keytab));
 
 static struct keytab tnopts[] = {
-#ifdef CK_AUTHENTICATION
-    { "auth",   TELOPT_AUTHENTICATION,   0 },
-#else
     { "auth",   TELOPT_AUTHENTICATION,   CM_INV },
-#endif /* CK_AUTHENTICATION */
     { "binary", TELOPT_BINARY, 0 },
 #ifdef TN_COMPORT
     { "c",      TELOPT_COMPORT, CM_INV|CM_ABR},
@@ -3459,16 +3429,8 @@ static struct keytab tnopts[] = {
     { "comport-control", TELOPT_COMPORT, CM_INV},
 #endif /* TN_COMPORT */
     { "echo", TELOPT_ECHO, 0 },
-#ifdef CK_ENCRYPTION
-    { "encrypt", TELOPT_ENCRYPTION, 0 },
-#else
     { "encrypt", TELOPT_ENCRYPTION, CM_INV },
-#endif /* CK_ENCRYPTION */
-#ifdef CK_FORWARD_X
-    { "forward-x", TELOPT_FORWARD_X, 0 },
-#else
     { "forward-x", TELOPT_FORWARD_X, CM_INV },
-#endif /* CK_FORWARD_X */
 #ifdef IKS_OPTION
     { "kermit", TELOPT_KERMIT, 0 },
 #else
@@ -3496,11 +3458,7 @@ static struct keytab tnopts[] = {
     { "send-location",   TELOPT_SNDLOC,  CM_INV },
 #endif /* CK_SNDLOC */
     { "sga", TELOPT_SGA, 0 },
-#ifdef CK_SSL
-    { "start-tls",       TELOPT_START_TLS,  0 },
-#else
     { "start-tls",       TELOPT_START_TLS,  CM_INV },
-#endif /* CK_SSL */
     { "ttype", TELOPT_TTYPE, 0 },
 #ifdef CK_ENVIRONMENT
     { "xdisplay-location", TELOPT_XDISPLOC, 0 },
@@ -6405,13 +6363,6 @@ dotelopt() {
 	}
         return(success = 0);
 
-#ifdef CK_KERBEROS
-#ifdef KRB5
-      case TN_FWD:
-        success = (kerberos5_forward() == AUTH_SUCCESS);
-        return(success);
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
       default:
 	if ((z = cmcfm()) < 0) return(z);
@@ -6676,12 +6627,6 @@ domanual() {
 
 #ifndef NOHTTP
 #ifdef TCPSOCKET
-#ifdef CK_SSL
-static struct keytab sslswtab[] = {
-    { "/ssl", 1, 0 },
-    { "/tls", 1, 0 }
-};
-#endif /* CK_SSL */
 
 #ifndef NOURL
 struct urldata http_url = {NULL,NULL,NULL,NULL,NULL,NULL,NULL};
@@ -7011,39 +6956,6 @@ dohttp() {				/* HTTP */
       }
       case HTTP_OPN: {
 	  int sslswitch = 0;
-#ifdef CK_SSL
-	  struct FDB sw, fl;
-	  cmfdbi(&sw,
-		 _CMKEY,		/* fcode */
-		 "IP host name or address, or switch", /* hlpmsg */
-		 "",			/* default */
-		 "",			/* addtl string data */
-		 2,			/* addtl numeric data 1: tbl size */
-		 4,			/* addtl numeric data 2: 4 = cmswi */
-		 xxstring,		/* Processing function */
-		 sslswtab,		/* Keyword table */
-		 &fl			/* Pointer to next FDB */
-		 );
-	  cmfdbi(&fl,			/* 2nd FDB - host */
-		 _CMFLD,		/* fcode */
-		 "",			/* hlpmsg */
-		 "",			/* default */
-		 "",			/* addtl string data */
-		 0,			/* addtl numeric data 1 */
-		 0,			/* addtl numeric data 2 */
-		 xxstring,
-		 NULL,
-		 NULL
-		 );
-	  x = cmfdb(&sw);		/* Parse switch or host */
-	  if (x < 0)			/* Error */
-	    goto xhttp;
-	  if (cmresult.fcode == _CMFLD) { /* Host */
-	      s = cmresult.sresult;	  /* Set up expected pointer */
-	      goto havehost;              /* Go parse rest of command */
-	  }
-	  sslswitch = 1;		/* /SSL or /TLS switch - set flag */
-#endif /* CK_SSL */
 
 	  /* Parse host */
 
@@ -7055,9 +6967,6 @@ dohttp() {				/* HTTP */
 	      goto xhttp;
 	  }
 
-#ifdef CK_SSL
-	havehost:			/* Come here with s -> host */
-#endif /* CK_SSL */
 #ifdef CK_URL
 	  x = urlparse(s,&http_url);	/* Was a URL given? */
 	  if (x < 1) {			/* Not a URL */
@@ -12468,20 +12377,6 @@ docmd(cx) int cx;
       return(dochroot());
 #endif /* CKROOT */
 
-#ifdef CK_KERBEROS
-    if (cx == XXAUTH) {			/* KERBEROS */
-	x = cp_auth();			/* Parse it */
-#ifdef IKSD
-        if (inserver) {
-            printf("?Command disabled in IKSD.\r\n");
-            return(success = 0);
-        }
-#endif /* IKSD */
-	if (x < 0)			/* Pass parse errors back */
-	  return(x);
-	return(success = doauth(cx));
-    }
-#endif /* CK_KERBEROS */
 
 #ifndef NOLOCAL
     if (cx == XXTERM) {

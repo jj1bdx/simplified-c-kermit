@@ -67,9 +67,6 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 #endif /* I386IX */
 #include "ckcnet.h"                     /* which includes ckctel.h */
 #include "ckuusr.h"
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 
 #ifdef CK_DNS_SRV
 #include <arpa/inet.h>
@@ -327,14 +324,8 @@ _PROTOTYP( int rlog_naws, (void) );
 #endif /* RLOGCODE */
 #endif /* CK_NAWS */
 
-#ifdef CK_AUTHENTICATION
-#include "ckuusr.h"
-#endif /* CK_AUTHENTICATION */
 
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"
-#endif /* CK_AUTHENTICATION */
 
 #include "ckcsig.h"
 
@@ -594,230 +585,6 @@ le_getchar(pch) CHAR * pch;
 
 int tcpsrfd = -1;
 
-#ifdef CK_KERBEROS
-
-char * krb5_d_principal = NULL;         /* Default principal */
-char * krb5_d_instance = NULL;          /* Default instance */
-char * krb5_d_realm = NULL;             /* Default realm */
-char * krb5_d_cc = NULL;                /* Default credentials cache */
-char * krb5_d_srv   = NULL;             /* Default Service */
-int    krb5_d_lifetime = 600;           /* Default lifetime (10 hours) */
-int    krb5_d_forwardable = 0;          /* creds not forwardable */
-int    krb5_d_proxiable = 0;            /* creds not proxiable */
-int    krb5_d_renewable = 0;            /* creds not renewable (0 min) */
-int    krb5_autoget = 1;                /* Autoget TGTs */
-int    krb5_autodel = 0;                /* Auto delete TGTs */
-int    krb5_d_getk4 = 0;                /* K5 Kinit gets K4 TGTs */
-int    krb5_checkaddrs = 1;             /* Check TGT Addrs */
-int    krb5_d_no_addresses = 0;         /* Do not include IP Addresses */
-char * krb5_d_addrs[KRB5_NUM_OF_ADDRS+1]={NULL,NULL}; /* Addrs to include */
-int    krb5_errno = 0;                  /* Last K5 errno */
-char * krb5_errmsg = NULL;              /* Last K5 errmsg */
-char * k5_keytab = NULL;
-
-char * krb4_d_principal = NULL;         /* Default principal */
-char * krb4_d_realm = NULL;             /* Default realm */
-char * krb4_d_srv   = NULL;             /* Default Service */
-int    krb4_d_lifetime = 600;           /* Default lifetime (10 hours) */
-int    krb4_d_preauth = 1;              /* Use preauth requests */
-char * krb4_d_instance = NULL;          /* Default instance */
-int    krb4_autoget = 1;                /* Autoget TGTs */
-int    krb4_autodel = 0;                /* Auto delete TGTs */
-int    krb4_checkaddrs = 1;             /* Check TGT Addrs */
-char * k4_keytab = NULL;
-
-int    krb4_errno = 0;                  /* Last K4 errno */
-char * krb4_errmsg = NULL;              /* Last K4 errmsg */
-
-struct krb_op_data krb_op = {           /* Operational data structure */
-    0, NULL                             /* (version, cachefile) */
-};
-
-struct krb4_init_data krb4_init = {     /* Kerberos 4 INIT data structure */
-    0, NULL, NULL, NULL, NULL
-};
-
-struct krb5_init_data krb5_init = {     /* Kerberos 5 INIT data structure */
-    0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0,
-    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-    0
-};
-
-struct krb5_list_cred_data krb5_lc = {  /* List Credentials data structure */
-    0, 0, 0
-};
-
-int krb_action = -1;                    /* Kerberos action to perform */
-
-#ifndef CK_AUTHENTICATION
-char *
-ck_krb4_getrealm() {
-    return("");
-}
-char *
-ck_krb5_getrealm(cc) char * cc; {
-    return("");
-}
-char *
-ck_krb4_getprincipal() {
-    return("");
-}
-char *
-ck_krb5_getprincipal(cc) char * cc; {
-    return("");
-}
-#endif /* CK_AUTHENTICATION */
-
-/*  I N I _ K E R B  --  Initialize Kerberos data  */
-
-VOID
-ini_kerb() {
-    int i;
-
-    krb_action = -1;                    /* No action specified */
-
-    krb_op.version = 0;                 /* Kerberos version (none) */
-    krb_op.cache = NULL;                /* Cache file (none) */
-
-/* Kerberos 5 */
-
-    krb5_init.forwardable = krb5_d_forwardable; /* Init switch values... */
-    krb5_init.proxiable   = krb5_d_proxiable;
-    krb5_init.lifetime    = krb5_d_lifetime;
-    krb5_init.renew       = 0;
-    krb5_init.renewable   = krb5_d_renewable;
-    krb5_init.validate    = 0;
-    krb5_init.no_addresses = krb5_d_no_addresses;
-    krb5_init.getk4       = krb5_d_getk4;
-    if (krb5_init.postdate) {
-        free(krb5_init.postdate);
-        krb5_init.postdate = NULL;
-    }
-    if (krb5_init.service) {
-        free(krb5_init.service);
-        krb5_init.service = NULL;
-    }
-    if (!krb5_d_cc || !krb5_d_cc[0]) {  /* Set default cache */
-        char * p;
-        p = ck_krb5_get_cc_name();
-        makestr(&krb5_d_cc,(p && p[0]) ? p : NULL);
-    }
-    if (!krb5_d_realm || !krb5_d_realm[0]) { /* Set default realm */
-        char * p;
-        p = ck_krb5_getrealm(krb5_d_cc);
-        makestr(&krb5_d_realm,(p && p[0]) ? p : NULL);
-    }
-    makestr(&krb5_init.instance,krb5_d_instance);
-    makestr(&krb5_init.realm,krb5_d_realm); /* Set realm from default */
-    if (krb5_init.password) {
-        memset(krb5_init.password,0xFF,strlen(krb5_init.password));
-        free(krb5_init.password);
-        krb5_init.password = NULL;
-    }
-    if (!krb5_d_principal) {            /* Default principal */
-        /* a Null principal indicates the user should be prompted */
-        char * p = ck_krb5_getprincipal(krb5_d_cc);
-        if (!p || !(*p))
-          p = (char *)uidbuf;           /* Principal = user */
-                makestr(&krb5_d_principal,(p && p[0]) ? p : NULL);
-    }
-    makestr(&krb5_init.principal,krb5_d_principal);
-    for (i = 0; i <= KRB5_NUM_OF_ADDRS; i++) {
-        if (krb5_init.addrs[i])
-          free(krb5_init.addrs[i]);
-        krb5_init.addrs[i] = NULL;
-    }
-    for (i = 0; i <= KRB5_NUM_OF_ADDRS && krb5_d_addrs[i]; i++) {
-        makestr(&krb5_init.addrs[i],krb5_d_addrs[i]);
-    }
-
-    /* Kerberos 4 */
-
-    krb4_init.lifetime = krb4_d_lifetime;
-    krb4_init.preauth  = krb4_d_preauth;
-    makestr(&krb4_init.instance,krb4_d_instance);
-    if (!krb4_d_realm || !krb4_d_realm[0]) {/* Set default realm */
-        char * p;
-        p = ck_krb4_getrealm();
-                makestr(&krb4_d_realm,(p && p[0]) ? p : NULL);
-    }
-    makestr(&krb4_init.realm,krb4_d_realm);
-    if (krb4_init.password) {
-        memset(krb4_init.password,0xFF,strlen(krb4_init.password));
-        free(krb4_init.password);
-        krb4_init.password = NULL;
-    }
-    if (!krb4_d_principal) {            /* Default principal */
-        /* a Null principal indicates the user should be prompted */
-        char * p = ck_krb4_getprincipal();
-        if (!p || !(*p))
-          p = (char *)uidbuf;           /* Principal = user */
-        makestr(&(krb4_d_principal),(p && p[0]) ? p : NULL);
-    }
-    makestr(&(krb4_init.principal),krb4_d_principal);
-}
-
-/*  D O A U T H  --  AUTHENTICATE action routine  */
-
-int
-doauth(cx) int cx; {                    /* AUTHENTICATE action routine */
-    int rc = 0;                         /* Return code */
-
-#ifdef CK_AUTHENTICATION
-    if (krb_op.version == 4) {          /* Version = 4 */
-#ifdef COMMENT
-        sho_auth(AUTHTYPE_KERBEROS_V4);
-#endif /* COMMENT */
-        if (!ck_krb4_is_installed()) {
-            printf("?Kerberos 4 is not installed\n");
-            return(0);
-        }
-        switch (krb_action) {           /* Perform V4 functions */
-          case KRB_A_IN:                /* INIT */
-            rc |= !(ck_krb4_initTGT(&krb_op,&krb4_init) < 0);
-            break;
-          case KRB_A_DE:                /* DESTROY */
-            rc |= !(ck_krb4_destroy(&krb_op) < 0);
-            break;
-          case KRB_A_LC:                /* LIST-CREDENTIALS */
-            rc |= !(ck_krb4_list_creds(&krb_op) < 0);
-            break;
-        }
-    }
-    if (krb_op.version == 5) {          /* V5 functions */
-#ifdef COMMENT
-        sho_auth(AUTHTYPE_KERBEROS_V5);
-#endif /* COMMENT */
-        if (!ck_krb5_is_installed()) {
-            printf("?Kerberos 5 is not installed\n");
-            return(0);
-        }
-        switch (krb_action) {
-          case KRB_A_IN:                /* INIT */
-            rc |= !(ck_krb5_initTGT(&krb_op,&krb5_init,
-                                     krb5_init.getk4 ? &krb4_init : 0) < 0);
-            break;
-          case KRB_A_DE:                /* DESTROY */
-            rc |= !(ck_krb5_destroy(&krb_op) < 0);
-            break;
-          case KRB_A_LC:                /* LIST-CREDENTIALS */
-            if (krb_op.version == 0)
-              printf("\n");
-            rc |= !(ck_krb5_list_creds(&krb_op,&krb5_lc) < 0);
-            break;
-        }
-    }
-#else
-#ifndef NOICP
-#ifndef NOSHOW
-    rc = sho_auth(0);                   /* Show all */
-#endif /* NOSHOW */
-#endif /* NOICP */
-#endif /* CK_AUTHENTICATION */
-    return(rc);
-}
-#endif /* CK_KERBEROS */
 
 #ifdef TCPSOCKET
 #ifndef NOLISTEN                        /* For incoming connections */
@@ -931,78 +698,6 @@ ttbufr() {                              /* TT Buffer Read */
       count = 1;
     debug(F101,"ttbufr count 1","",count);
 
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        int error;
-      ssl_read:
-        if (ssl_active_flag)
-          count = SSL_read(ssl_con, ttibuf, count);
-        else
-          count = SSL_read(tls_con, ttibuf, count);
-        error = SSL_get_error(ssl_active_flag?ssl_con:tls_con,count);
-        switch (error) {
-          case SSL_ERROR_NONE:
-            debug(F111,"ttbufr SSL_ERROR_NONE","count",count);
-            if (count > 0) {
-                ttibp = 0;              /* Reset buffer pointer. */
-                ttibn = count;
-                return(ttibn);          /* Return buffer count. */
-            } else if (count < 0) {
-                return(-1);
-            } else {
-                netclos();
-                return(-2);
-            }
-          case SSL_ERROR_WANT_WRITE:
-            debug(F100,"ttbufr SSL_ERROR_WANT_WRITE","",0);
-            return(-1);
-          case SSL_ERROR_WANT_READ:
-            debug(F100,"ttbufr SSL_ERROR_WANT_READ","",0);
-            return(-1);
-          case SSL_ERROR_SYSCALL:
-              if ( count == 0 ) { /* EOF */
-                  netclos();
-                  return(-2);
-              } else {
-                  int rc = -1;
-                  return(rc);
-              }
-          case SSL_ERROR_WANT_X509_LOOKUP:
-            debug(F100,"ttbufr SSL_ERROR_WANT_X509_LOOKUP","",0);
-            netclos();
-            return(-2);
-          case SSL_ERROR_SSL:
-              if (bio_err!=NULL) {
-                  int len;
-                  extern char ssl_err[];
-                  BIO_printf(bio_err,"ttbufr SSL_ERROR_SSL\n");
-                  ERR_print_errors(bio_err);
-                  len = BIO_read(bio_err,ssl_err,SSL_ERR_BFSZ);
-                  ssl_err[len < SSL_ERR_BFSZ ? len : SSL_ERR_BFSZ] = '\0';
-                  debug(F110,"ttbufr SSL_ERROR_SSL",ssl_err,0);
-                  if (ssl_debug_flag)                  
-                      printf(ssl_err);
-              } else if (ssl_debug_flag) {
-                  debug(F100,"ttbufr SSL_ERROR_SSL","",0);
-                  fflush(stderr);
-                  fprintf(stderr,"ttbufr SSL_ERROR_SSL\n");
-                  ERR_print_errors_fp(stderr);
-              }
-#ifdef COMMENT
-	      netclos();
-#endif /* COMMENT */
-            return(-2);
-          case SSL_ERROR_ZERO_RETURN:
-            debug(F100,"ttbufr SSL_ERROR_ZERO_RETURN","",0);
-            netclos();
-            return(-2);
-          default:
-              debug(F100,"ttbufr SSL_ERROR_?????","",0);
-              netclos();
-              return(-2);
-          }
-    }
-#endif /* CK_SSL */
 
 #ifdef COMMENT
 /*
@@ -1928,16 +1623,9 @@ tcpsocket_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo {
     ckstrncpy(ipaddr,(char *)inet_ntoa(saddr.sin_addr),20);
 
     if (tcp_rdns == SET_ON
-#ifdef CK_KERBEROS
-        || tcp_rdns == SET_AUTO &&
-         (ck_krb5_is_installed() || ck_krb4_is_installed())
-#endif /* CK_KERBEROS */
 #ifndef NOHTTP
           && (tcp_http_proxy == NULL)
 #endif /* NOHTTP */
-#ifdef CK_SSL
-          && !(ssl_only_flag || tls_only_flag)
-#endif /* CK_SSL */
          ) {                            /* Reverse DNS */
         if (!quiet) {
             printf(" Reverse DNS Lookup... ");
@@ -1999,15 +1687,6 @@ tcpsocket_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo {
       if (ttnproto != NP_TCPRAW)
 #endif	/* COMMENT */
 	ttnproto = NP_TELNET;		/* Yes, set global flag. */
-#ifdef CK_SECURITY
-    /* Before Initialization Telnet/Rlogin Negotiations Init Kerberos */
-    ck_auth_init((tcp_rdns && host && host->h_name && host->h_name[0]) ?
-                host->h_name : ipaddr,
-                ipaddr,
-                uidbuf,
-                ttyfd
-                );
-#endif /* CK_SECURITY */
     if (tn_ini() < 0)                   /* Start/Reset TELNET negotiations */
       if (ttchk() < 0)                  /* Did it fail due to connect loss? */
         return(-1);
@@ -2055,9 +1734,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
     } tv;
 #endif /* BELLSELECT */
 #endif /* BSDSELECT */
-#ifdef CK_SSL
-    int ssl_failed = 0;
-#endif /* CK_SSL */
 
     debug(F101,"tcpsrv_open nett","",nett);
     *ipaddr = '\0';
@@ -2209,45 +1885,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
         tcpsrv_port = ntohs((unsigned short)service->s_port);
     }
 
-#ifdef CK_SSL
-    if (ck_ssleay_is_installed()) {
-        if (!ssl_tn_init(SSL_SERVER)) {
-            ssl_failed = 1;
-            if (bio_err!=NULL) {
-                BIO_printf(bio_err,"do_ssleay_init() failed\n");
-                ERR_print_errors(bio_err);
-            } else {
-                fflush(stderr);
-                fprintf(stderr,"do_ssleay_init() failed\n");
-                ERR_print_errors_fp(stderr);
-            }
-            if (tls_only_flag || ssl_only_flag) {
-#ifdef TCPIPLIB
-                socket_close(ttyfd);
-                socket_close(tcpsrfd);
-#else /* TCPIPLIB */
-                close(ttyfd);
-                close(tcpsrfd);
-#endif /* TCPIPLIB */
-                ttyfd = -1;
-                wasclosed = 1;
-                tcpsrfd = -1;
-                tcpsrv_port = 0;
-                return(-1);
-            }
-            /* we will continue to accept the connection   */
-            /* without SSL or TLS support unless required. */
-            if ( TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-        }
-    }
-#endif /* CK_SSL */
 
     printf("\nWaiting to Accept a TCP/IP connection on port %d ...\n",
            ntohs((unsigned short)service->s_port));
@@ -2424,34 +2061,7 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
         }
         if (!quiet) fflush(stdout);
 
-#ifdef CK_SECURITY
-        /* Before Initialization Telnet/Rlogin Negotiations Init Kerberos */
-        ck_auth_init((tcp_rdns && host && host->h_name && host->h_name[0]) ?
-                     (char *)host->h_name : ipaddr,
-                     ipaddr,
-                     uidbuf,
-                     ttyfd
-                     );
-#endif /* CK_SECURITY */
 
-#ifdef CK_SSL
-        if (ck_ssleay_is_installed() && !ssl_failed) {
-            if (ck_ssl_incoming(ttyfd) < 0) {
-#ifdef TCPIPLIB
-                    socket_close(ttyfd);
-                    socket_close(tcpsrfd);
-#else /* TCPIPLIB */
-                    close(ttyfd);
-                    close(tcpsrfd);
-#endif /* TCPIPLIB */
-                    ttyfd = -1;
-                    wasclosed = 1;
-                    tcpsrfd = -1;
-                    tcpsrv_port = 0;
-                    return(-1);
-            }
-        }
-#endif /* CK_SSL */
 
 #ifndef datageneral
         /* Find out our own IP address. */
@@ -2486,27 +2096,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
         if (*lcl < 0)                   /* Set local mode. */
           *lcl = 1;
 
-#ifdef CK_KERBEROS
-#ifdef KRB5_U2U
-        if ( ttnproto == NP_K5U2U ) {
-            if (k5_user_to_user_server_auth() != 0) {
-                i = errno;                /* save error code */
-#ifdef TCPIPLIB
-                socket_close(tcpsrfd);
-#else /* TCPIPLIB */
-                close(tcpsrfd);
-#endif /* TCPIPLIB */
-                ttyfd = -1;
-                wasclosed = 1;
-                tcpsrfd = -1;
-                tcpsrv_port = 0;
-                errno = i;                /* and report this error */
-                debug(F101,"tcpsrv_open accept errno","",errno);
-                return(-1);
-            }
-        }
-#endif /* KRB5_U2U */
-#endif /* CK_KERBEROS */
         return(0);                      /* Done. */
     } else {
         i = errno;                      /* save error code */
@@ -2734,38 +2323,6 @@ setnproto(p) char * p;
         else if (!strcmp("login",p))
           ttnproto = NP_RLOGIN;
 #endif /* RLOGCODE */
-#ifdef CK_SSL
-        /* Commonly used SSL ports (might not be in services file) */
-        else if (!strcmp("https",p)) {
-          ttnproto = NP_SSL_RAW;
-          ssl_only_flag = 1;
-        } else if (!strcmp("ssl-telnet",p)) {
-          ttnproto = NP_TELNET;
-          ssl_only_flag = 1;
-        } else if (!strcmp("telnets",p)) {
-          ttnproto = NP_TELNET;
-          ssl_only_flag = 1;
-        }
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef RLOGCODE
-        else if (!strcmp("klogin",p)) {
-            if (ck_krb5_is_installed())
-              ttnproto = NP_K5LOGIN;
-            else if (ck_krb4_is_installed())
-              ttnproto = NP_K4LOGIN;
-            else
-              ttnproto = NP_RLOGIN;
-        } else if (!strcmp("eklogin",p)) {
-            if (ck_krb5_is_installed())
-              ttnproto = NP_EK5LOGIN;
-            else if (ck_krb4_is_installed())
-              ttnproto = NP_EK4LOGIN;
-            else
-              ttnproto = NP_RLOGIN;
-        }
-#endif /* RLOGCODE */
-#endif /* CK_KERBEROS */
         else
           ttnproto = NP_NONE;
     } else {
@@ -2779,41 +2336,6 @@ setnproto(p) char * p;
           case 1649:
             ttnproto = NP_KERMIT;
             break;
-#ifdef CK_SSL
-          case 443:
-#ifdef COMMENT
-	    /* Jeff 2005/12/30 */
-            ttnproto = NP_SSL_RAW;
-#else
-	    /* fdc 2005/12/04 */
-            ttnproto = NP_SSL;
-#endif	/* COMMENT */
-            ssl_only_flag = 1;
-            break;
-          case 151:
-          case 992:
-            ttnproto = NP_TELNET;
-            ssl_only_flag = 1;
-            break;
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-          case 543:
-            if (ck_krb5_is_installed())
-              ttnproto = NP_K5LOGIN;
-            else if (ck_krb4_is_installed())
-              ttnproto = NP_K4LOGIN;
-            else
-              ttnproto = NP_RLOGIN;
-            break;
-          case 2105:
-            if (ck_krb5_is_installed())
-              ttnproto = NP_EK5LOGIN;
-            else if (ck_krb4_is_installed())
-              ttnproto = NP_EK4LOGIN;
-            else
-              ttnproto = NP_RLOGIN;
-            break;
-#endif /* CK_KERBEROS */
           case 80:                      /* HTTP */
             ttnproto = NP_TCPRAW;
             break;
@@ -2908,30 +2430,6 @@ ckgetservice(hostname, servicename, ip, iplen)
             service->s_port = htons(513);
         }
 #endif /* RLOGCODE */
-#ifdef CK_SSL
-        /* Commonly used SSL ports (might not be in services file) */
-        else if (!ckstrcmp("https",servicename,-1,0)) {
-            service = &servrec;
-            service->s_port = htons(443);
-        } else if (!ckstrcmp("ssl-telnet",servicename,-1,0)) {
-            service = &servrec;
-            service->s_port = htons(151);
-        } else if (!ckstrcmp("telnets",servicename,-1,0)) {
-            service = &servrec;
-            service->s_port = htons(992);
-        }
-#endif /* CK_SSL */
-#ifdef CK_KERBEROS
-#ifdef RLOGCODE
-        else if (!ckstrcmp("klogin",servicename,-1,0)) {
-            service = &servrec;
-            service->s_port = htons(543);
-        } else if (!ckstrcmp("eklogin",servicename,-1,0)) {
-            service = &servrec;
-            service->s_port = htons(2105);
-        }
-#endif /* RLOGCODE */
-#endif /* CK_KERBEROS */
     }
     return(service);
 }
@@ -3316,9 +2814,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 #ifdef RLOGCODE
             !ckstrcmp("rlogin",namecopy,NAMECPYL,0) ||
 #endif /* RLOGCODE */
-#ifdef CK_SSL
-            !ckstrcmp("telnets",namecopy,NAMECPYL,0) ||
-#endif /* CK_SSL */
             !ckstrcmp("iksd",namecopy,NAMECPYL,0)
             ) {
             char temphost[256], tempservice[80], temppath[256];
@@ -3947,31 +3442,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     else if (x == RLOGIN_PORT) {
         ttnproto = NP_RLOGIN;
     }
-#ifdef CK_KERBEROS
-    /* There is no good way to do this.  If the user didn't tell    */
-    /* which one to use up front.  We may guess wrong if the user   */
-    /* has both Kerberos versions installed and valid TGTs for each */
-    else if (x == KLOGIN_PORT &&
-             ttnproto != NP_K4LOGIN &&
-             ttnproto != NP_K5LOGIN) {
-        if (ck_krb5_is_installed() &&
-            ck_krb5_is_tgt_valid())
-          ttnproto = NP_K5LOGIN;
-        else if (ck_krb4_is_installed() && ck_krb4_is_tgt_valid())
-          ttnproto = NP_K4LOGIN;
-        else
-          ttnproto = NP_K4LOGIN;
-    } else if (x == EKLOGIN_PORT &&
-               ttnproto != NP_EK4LOGIN &&
-               ttnproto != NP_EK5LOGIN) {
-        if (ck_krb5_is_installed() && ck_krb5_is_tgt_valid())
-          ttnproto = NP_EK5LOGIN;
-        else if (ck_krb4_is_installed() && ck_krb4_is_tgt_valid())
-          ttnproto = NP_EK4LOGIN;
-        else
-          ttnproto = NP_EK4LOGIN;
-    }
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
 #ifdef IKS_OPTION
     else if (x == KERMIT_PORT) {        /* IKS uses Telnet protocol */
@@ -4013,18 +3483,10 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 #ifdef RLOGCODE
 #ifdef TCPIPLIB
     if (ttnproto == NP_RLOGIN
-#ifdef CK_KERBEROS
-        || ttnproto == NP_K4LOGIN || ttnproto == NP_EK4LOGIN
-        || ttnproto == NP_K5LOGIN || ttnproto == NP_EK5LOGIN
-#endif /* CK_KERBEROS */
       )
       on = 0;
 #else /* TCPIPLIB */
     if (ttnproto == NP_RLOGIN
-#ifdef CK_KERBEROS
-         || ttnproto == NP_K4LOGIN || ttnproto == NP_EK4LOGIN
-         || ttnproto == NP_K5LOGIN || ttnproto == NP_EK5LOGIN
-#endif /* CK_KERBEROS */
          ) {
         debug(F100,"Installing rlogoobh on SIGURG","",0);
         signal(SIGURG, rlogoobh);
@@ -4135,17 +3597,10 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
   accessed by an alias used to represent a cluster.
 */
      if ((tcp_rdns && dns || tcp_rdns == SET_ON
-#ifdef CK_KERBEROS
-         || tcp_rdns == SET_AUTO &&
-          (ck_krb5_is_installed() || ck_krb4_is_installed())
-#endif /* CK_KERBEROS */
          )
 #ifndef NOHTTP
           && (tcp_http_proxy == NULL)
 #endif /* NOHTTP */
-#ifdef CK_SSL
-          && !(ssl_only_flag || tls_only_flag)
-#endif /* CK_SSL */
          ) {
         if (!quiet) {
             printf(" Reverse DNS Lookup... ");
@@ -4214,70 +3669,9 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     /* This should already have been done but just in case */
     ckstrncpy(ipaddr,(char *)inet_ntoa(r_addr.sin_addr),20);
 
-#ifdef CK_SECURITY
-
-    /* Before Initialization Telnet/Rlogin Negotiations Init Kerberos */
-#ifndef NOHTTP
-    if (tcp_http_proxy) {
-        for (i=strlen(proxycopy); i >= 0 ; i--)
-            if ( proxycopy[i] == ':' )
-                proxycopy[i] = '\0';
-    }
-#endif /* NOHTTP */
-    ck_auth_init(
-#ifndef NOHTTP
-                 tcp_http_proxy ? proxycopy :
-#endif /* NOHTTP */
-                 (tcp_rdns && host && host->h_name && host->h_name[0]) ?
-                 (char *)host->h_name : (namecopy2[0] ? namecopy2 : 
-                                        (namecopy[0] ? namecopy : ipaddr)),
-                 ipaddr,
-                 uidbuf,
-                 ttyfd
-                 );
-#endif /* CK_SECURITY */
-#ifdef CK_SSL
-    if (ck_ssleay_is_installed()) {
-        if (!ssl_tn_init(SSL_CLIENT)) {
-            debug(F100,"netopen ssl_tn_init() failed","",0);
-            if (bio_err!=NULL) {
-                BIO_printf(bio_err,"ssl_tn_init() failed\n");
-                ERR_print_errors(bio_err);
-            } else {
-                fflush(stderr);
-                fprintf(stderr,"ssl_tn_init() failed\n");
-                ERR_print_errors_fp(stderr);
-            }
-            if (tls_only_flag || ssl_only_flag) {
-                debug(F100,"netopen ssl/tls required","",0);
-                netclos();
-                return(-1);
-            }
-
-            /* we will continue to accept the connection   */
-            /* without SSL or TLS support unless required. */
-            if ( TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = TN_NG_RF;
-            if ( TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) != TN_NG_MU )
-                TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) = TN_NG_RF;
-        } else if ( ck_ssl_outgoing(ttyfd) < 0 ) {
-            debug(F100,"ck_ssl_outgoing() failed","",0);
-            netclos();
-            return(-1);
-        }
-    }
-#endif /* CK_SSL */
 
 #ifdef RLOGCODE
     if (ttnproto == NP_RLOGIN
-#ifdef CK_KERBEROS
-        || ttnproto == NP_K4LOGIN || ttnproto == NP_EK4LOGIN
-        || ttnproto == NP_K5LOGIN || ttnproto == NP_EK5LOGIN
-#endif /* CK_KERBEROS */
         ) {                             /* Similar deal for rlogin */
         if (rlog_ini(((tcp_rdns && host && host->h_name && host->h_name[0]) ?
                       (CHAR *)host->h_name : (CHAR *)ipaddr),
@@ -4298,16 +3692,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
         netclos();
         return(-1);
     }
-#ifdef CK_KERBEROS
-#ifdef KRB5_U2U
-   if ( ttnproto == NP_K5U2U ) {
-       if (k5_user_to_user_client_auth()) {
-           netclos();
-           return(-1);
-       }
-   }
-#endif /* KRB5_U2U */
-#endif /* CK_KERBEROS */
 
     debug(F101,"netopen service","",svcnum);
     debug(F110,"netopen name",name,0);
@@ -4323,9 +3707,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 /*  N E T C L O S  --  Close current network connection.  */
 
 #ifndef NOLOCAL
-#ifdef CK_SSL
-int tls_norestore = 0;
-#endif /* CK_SSL */
 #endif /* NOLOCAL */
 
 int
@@ -4352,9 +3733,6 @@ netclos() {
     /* the reality is that we do not have pure interfaces.  If we ever   */
     /* decide to clean this up the UI level should assign this function  */
     /* via a pointer assignment.  - Jeff 9/10/1999                       */
-#ifdef CK_SSL
-    if (!tls_norestore)
-#endif /* CK_SSL */
       slrestor();
 #endif /* NOLOCAL */
     if (ttyfd > -1)                     /* Was. */
@@ -4364,9 +3742,6 @@ netclos() {
             if (!TELOPT_ME(TELOPT_LOGOUT)
 #ifdef COMMENT
 /* Jeff 2005/12/30 */
-#ifdef CK_SSL
-		 && !ssl_raw_flag && !tls_raw_flag
-#endif	/* CK_SSL */
 #endif	/* COMMENT */
 		) {
 		/* Send LOGOUT option before close */
@@ -4378,20 +3753,6 @@ netclos() {
             tn_push();			/* Place any waiting data into input*/
           }
 #endif /* TNCODE */
-#ifdef CK_SSL
-          if (ssl_active_flag) {
-              if (ssl_debug_flag)
-                BIO_printf(bio_err,"calling SSL_shutdown\n");
-              SSL_shutdown(ssl_con);
-              ssl_active_flag = 0;
-          }
-          if (tls_active_flag) {
-              if (ssl_debug_flag)
-                BIO_printf(bio_err,"calling SSL_shutdown\n");
-              SSL_shutdown(tls_con);
-              tls_active_flag = 0;
-          }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
           x = socket_close(ttyfd);      /* Close it. */
 #else
@@ -4428,9 +3789,6 @@ netclos() {
     ttyfd = -1;                         /* Mark it as closed. */
     wasclosed = 1;
 #ifdef TNCODE
-#ifdef CK_FORWARD_X
-    fwdx_close_all();                   /* Shut down any Forward X sockets */
-#endif /* CK_FORWARD_X */
     tn_reset();                   /* The Reset Telnet Option table.  */
     debug(F100,"netclose setting tn_init = 0","",0);
     tn_init = 0;                        /* Remember about telnet protocol... */
@@ -4448,27 +3806,6 @@ netclos() {
     ttibp = 0;
     ttibn = 0;
 #endif /* TCPIPLIB */
-#ifdef CK_KERBEROS
-    /* If we are automatically destroying Kerberos credentials on Close */
-    /* do it now. */
-#ifdef KRB4
-    if (krb4_autodel == KRB_DEL_CL) {
-        extern struct krb_op_data krb_op;
-        krb_op.version = 4;
-        krb_op.cache = NULL;
-        ck_krb4_destroy(&krb_op);
-    }
-#endif /* KRB4 */
-#ifdef KRB5
-    if (krb5_autodel == KRB_DEL_CL) {
-        extern struct krb_op_data krb_op;
-        extern char * krb5_d_cc;
-        krb_op.version = 5;
-        krb_op.cache = krb5_d_cc;
-        ck_krb5_destroy(&krb_op);
-    }
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
     close_in_progress = 0;              /* Remember we are done. */
     return(x);
 }
@@ -4530,31 +3867,6 @@ nettchk() {                             /* for reading from network */
 #endif /* COMMENT */
 
 
-#ifdef CK_SSL
-    if (ssl_active_flag) {
-#ifndef IKSDONLY
-#endif /* IKSDONLY */
-        count = SSL_pending(ssl_con);
-        if (count < 0) {
-            debug(F111,"nettchk","SSL_pending error",count);
-            netclos();
-            return(-1);
-        }
-        if ( count > 0 )
-            return(count);                  /* Don't perform a read */
-    } else if (tls_active_flag) {
-#ifndef IKSDONLY
-#endif /* IKSDONLY */
-        count = SSL_pending(tls_con);
-        if (count < 0) {
-            debug(F111,"nettchk","TLS_pending error",count);
-            netclos();
-            return(-1);
-        }
-        if ( count > 0 )
-            return(count);                  /* Don't perform a read */
-    } else
-#endif /* CK_SSL */
 
     if (socket_ioctl(ttyfd,FIONREAD,
 #ifdef COMMENT
@@ -4626,9 +3938,6 @@ nettchk() {                             /* for reading from network */
 
     if (count == 0
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-        && ttnproto != NP_EK4LOGIN && ttnproto != NP_EK5LOGIN
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
         ) {
         int s_errno = 0;
@@ -4647,12 +3956,6 @@ nettchk() {                             /* for reading from network */
         z = socket_ioctl(ttyfd,FIONBIO,&y);
         debug(F111,"nettchk FIONBIO","on",z);
 #endif /* NON_BLOCK_IO */
-#ifdef CK_SSL
-        if ( ssl_active_flag || tls_active_flag ) {
-	    /* Do not block */
-	    x = -1;
-        } else
-#endif /* CK_SSL */
         {
         x = socket_read(ttyfd,&c,1);    /* Returns -1 if no data */
         }
@@ -4674,12 +3977,6 @@ nettchk() {                             /* for reading from network */
             goto nettchk_return;
         }
         if (x >= 1) {                   /* Oops, actually got a byte? */
-#ifdef CK_SSL
-	    if ( ssl_active_flag || tls_active_flag ) {
-		ckhexdump("nettchk got real data",&ttibuf[ttibp+ttibn],x);
-		ttibn += x;
-	    } else 
-#endif /* CK_SSL */
 	    {
 		debug(F101,"nettchk socket_read char","",c);
 		debug(F101,"nettchk ttibp","",ttibp);
@@ -4711,24 +4008,6 @@ nettchk() {                             /* for reading from network */
         }
 #endif /* NOCOUNT */
     }
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN)
-      count += krb4_des_avail(ttyfd);
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN)
-      count += krb5_des_avail(ttyfd);
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U)
-      count += krb5_u2u_avail(ttyfd);
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
     debug(F101,"nettchk returns","",count+ttibn);
     rc = count + ttibn;
@@ -4810,36 +4089,6 @@ netxin(n,buf) int n; CHAR * buf;
         debug(F100,"netxin socket is closed","",0);
         return(-2);
     }
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        if ((len = krb4_des_read(ttyfd,buf,n)) < 0)
-          return(-1);
-        else
-          return(len);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        if ((len = krb5_des_read(ttyfd,(char *)buf,n,0)) < 0)
-          return(-1);
-        else
-          return(len);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        if ((len = krb5_u2u_read(ttyfd,(char *)buf,n)) < 0)
-          return(-1);
-        else
-          return(len);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 #ifdef TCPIPLIB
     if (ttibn == 0)
@@ -4872,16 +4121,6 @@ netxin(n,buf) int n; CHAR * buf;
 #endif /* TCPIPLIB */
 
 #ifdef COMMENT
-#ifdef CK_ENCRYPTION
-    /* This would be great if it worked.  But what if the buffer we read  */
-    /* contains a telnet negotiation that changes the state of the        */
-    /* encryption.  If so, we would be either decrypting unencrypted text */
-    /* or not decrypting encrypted text.  So we must move this call to    */
-    /* all functions that call ttxin().  In OS2 that means os2_netxin()   */
-    /* where the Telnet Negotiations are handled.                         */
-    if (u_encrypt)
-      ck_tn_decrypt(buf,len);
-#endif /* CK_ENCRYPTION */
 #endif /* COMMENT */
 
     return(len);
@@ -4928,42 +4167,6 @@ netinc(timo) int timo;
         return(-2);
     }
 
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        if ((x = krb4_des_read(ttyfd,&c,1)) == 0)
-          return(-1);
-        else if (x < 0)
-          return(-2);
-        else
-          return(c);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        if ((x = krb5_des_read(ttyfd,&c,1,0)) == 0)
-          return(-1);
-        else if (x < 0)
-          return(-2);
-        else
-          return(c);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        if ((x = krb5_u2u_read(ttyfd,&c,1)) == 0)
-          return(-1);
-        else if (x < 0)
-          return(-2);
-        else
-          return(c);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
     if (ttibn > 0) {                    /* Something in internal buffer? */
 #ifdef COMMENT
@@ -4975,45 +4178,6 @@ netinc(timo) int timo;
 #ifdef DEBUG
         debug(F101,"netinc goes to net, timo","",timo);
 #endif /* DEBUG */
-#ifdef CK_SSL
-        /*
-         * In the case of OpenSSL, it is possible that there is still
-         * data waiting in the SSL session buffers that has not yet
-         * been read by Kermit.  If this is the case we must process
-         * it without calling select() because select() will not return
-         * with an indication that there is data to be read from the
-         * socket.  If there is no data pending in the SSL session
-         * buffers then fall through to the select() code and wait for
-         * some data to arrive.
-         */
-        if (ssl_active_flag) {
-            x = SSL_pending(ssl_con);
-            if (x < 0) {
-                debug(F111,"netinc","SSL_pending error",x);
-                netclos();
-                return(-1);
-            } else if ( x > 0 ) {
-                if ( ttbufr() >= 0 ) {
-                    x = netinc(timo);
-                    return(x);
-                }
-            }
-            x = -1;
-        } else if (tls_active_flag) {
-            x = SSL_pending(tls_con);
-            if (x < 0) {
-                debug(F111,"netinc","TLS_pending error",x);
-                netclos();
-                return(-1);
-            } else if ( x > 0 ) {
-                if ( ttbufr() >= 0 ) {
-                    x = netinc(timo);
-                    return(x);
-                }
-            }
-            x = -1;
-        }
-#endif /* CK_SSL */
 #ifndef LEBUF
         if (timo == 0) {                /* Untimed case. */
             while (1) {                 /* Wait forever if necessary. */
@@ -5208,10 +4372,6 @@ netinc(timo) int timo;
         }
         ttibp++;
         ttibn--;
-#ifdef CK_ENCRYPTION
-        if (TELOPT_U(TELOPT_ENCRYPTION))
-          ck_tn_decrypt(&c,1);
-#endif /* CK_ENCRYPTION */
         return(c);
     }
 #else /* Not using TCPIPLIB */
@@ -5247,103 +4407,8 @@ nettol(s,n) CHAR *s; int n;
     ckhexdump("nettol",s,n);
 #endif /* COMMENT */
 
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        return(krb4_des_write(ttyfd,s,n));
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        return(krb5_des_write(ttyfd,s,n,0));
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        return(krb5_u2u_write(ttyfd,s,n));
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
-#ifdef CK_ENCRYPTION
-    if (TELOPT_ME(TELOPT_ENCRYPTION))
-      ck_tn_encrypt(s,n);
-#endif /* CK_ENCRYPTION */
 
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        int error, r;
-        /* Write using SSL */
-      ssl_retry:
-        if (ssl_active_flag)
-          r = SSL_write(ssl_con, s, len /* >1024?1024:len */);
-        else
-          r = SSL_write(tls_con, s, len /* >1024?1024:len */);
-        switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,r)) {
-          case SSL_ERROR_NONE:
-            debug(F111,"nettol","SSL_write",r);
-            if ( r == len )
-                return(n);
-             s += r;
-             len -= r;
-             goto ssl_retry;
-          case SSL_ERROR_WANT_WRITE:
-            debug(F100,"nettol SSL_ERROR_WANT_WRITE","",0);
-            return(-1);
-          case SSL_ERROR_WANT_READ:
-            debug(F100,"nettol SSL_ERROR_WANT_READ","",0);
-            return(-1);
-          case SSL_ERROR_SYSCALL:
-              if ( r == 0 ) { /* EOF */
-                  netclos();
-                  return(-2);
-              } else {
-                  int rc = -1;
-                  return(rc);
-              }
-          case SSL_ERROR_WANT_X509_LOOKUP:
-            debug(F100,"nettol SSL_ERROR_WANT_X509_LOOKUP","",0);
-            netclos();
-            return(-2);
-          case SSL_ERROR_SSL:
-            debug(F100,"nettol SSL_ERROR_SSL","",0);
-              if (bio_err!=NULL) {
-                  int len;
-                  extern char ssl_err[];
-                  BIO_printf(bio_err,"nettol() SSL_ERROR_SSL\n");
-                  ERR_print_errors(bio_err);
-                  len = BIO_read(bio_err,ssl_err,SSL_ERR_BFSZ);
-                  ssl_err[len < SSL_ERR_BFSZ ? len : SSL_ERR_BFSZ] = '\0';
-                  debug(F110,"nettol SSL_ERROR_SSL",ssl_err,0);
-                  if (ssl_debug_flag)
-                      printf(ssl_err);
-              } else if (ssl_debug_flag) {
-                  debug(F100,"nettol SSL_ERROR_SSL","",0);
-                  fflush(stderr);
-                  fprintf(stderr,"nettol() SSL_ERROR_SSL\n");
-                  ERR_print_errors_fp(stderr);
-              }
-#ifdef COMMENT
-              netclos();
-              return(-2);
-#else
-              return(-1);
-#endif
-          case SSL_ERROR_ZERO_RETURN:
-            debug(F100,"nettol SSL_ERROR_ZERO_RETURN","",0);
-            netclos();
-            return(-2);
-          default:
-            debug(F100,"nettol SSL_ERROR_?????","",0);
-            netclos();
-            return(-2);
-        }
-    }
-#endif /* CK_SSL */
 
   nettol_retry:
     try++;                              /* Increase the try counter */
@@ -5458,83 +4523,7 @@ nettoc(c) CHAR c;
     cc = c;
     debug(F101,"nettoc cc","",cc);
 
-#ifdef CK_KERBEROS
-#ifdef KRB4
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK4LOGIN) {
-        return(krb4_des_write(ttyfd,&cc,1)==1?0:-1);
-    }
-#endif /* RLOGCODE */
-#endif /* KRB4 */
-#ifdef KRB5
-#ifdef RLOGCODE
-    if (ttnproto == NP_EK5LOGIN) {
-        return(krb5_des_write(ttyfd,&cc,1,0)==1?0:-1);
-    }
-#endif /* RLOGCODE */
-#ifdef KRB5_U2U
-    if (ttnproto == NP_K5U2U) {
-        return(krb5_u2u_write(ttyfd,&cc,1)==1?0:-1);
-    }
-#endif /* KRB5_U2U */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
-#ifdef CK_ENCRYPTION
-        if ( TELOPT_ME(TELOPT_ENCRYPTION) )
-            ck_tn_encrypt(&cc,1);
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag) {
-        int len, error;
-        /* Write using SSL */
-      ssl_retry:
-        if (ssl_active_flag)
-          len = SSL_write(ssl_con, &cc, 1);
-        else
-          len = SSL_write(tls_con, &cc, 1);
-        switch (SSL_get_error(ssl_active_flag?ssl_con:tls_con,len)) {
-          case SSL_ERROR_NONE:
-            debug(F111,"nettoc","SSL_write",len);
-            return(len == 1 ? 0 : -1);
-          case SSL_ERROR_WANT_WRITE:
-  	  case SSL_ERROR_WANT_READ:
-            return(-1);
-          case SSL_ERROR_SYSCALL:
-              if ( len == 0 ) { /* EOF */
-                  netclos();
-                  return(-2);
-              } else {
-                  int rc = -1;
-                  return(rc);
-              }
-        case SSL_ERROR_SSL:
-              if (bio_err!=NULL) {
-                  int len;
-                  extern char ssl_err[];
-                  BIO_printf(bio_err,"nettoc() SSL_ERROR_SSL\n");
-                  ERR_print_errors(bio_err);
-                  len = BIO_read(bio_err,ssl_err,SSL_ERR_BFSZ);
-                  ssl_err[len < SSL_ERR_BFSZ ? len : SSL_ERR_BFSZ] = '\0';
-                  debug(F110,"nettoc SSL_ERROR_SSL",ssl_err,0);
-                  if (ssl_debug_flag)
-                      printf(ssl_err);
-              } else if (ssl_debug_flag) {
-                  debug(F100,"nettoc SSL_ERROR_SSL","",0);
-                  fflush(stderr);
-                  fprintf(stderr,"nettoc() SSL_ERROR_SSL\n");
-                  ERR_print_errors_fp(stderr);
-              }
-              return(-1);
-              break;
-          case SSL_ERROR_WANT_X509_LOOKUP:
-          case SSL_ERROR_ZERO_RETURN:
-          default:
-            netclos();
-            return(-2);
-        }
-    }
-#endif /* CK_SSL */
     if (ttnet == NET_TCPB) {
 #ifdef BSDSELECT
         fd_set wfds;
@@ -5658,11 +4647,6 @@ netflui() {
     {
         ttibuf[ttibp+ttibn] = '\0';
         debug(F111,"netflui 1",ttibuf,ttibn);
-#ifdef CK_ENCRYPTION
-        if (TELOPT_U(TELOPT_ENCRYPTION)) {
-            ck_tn_decrypt(&ttibuf[ttibp],ttibn);
-        }
-#endif /* CK_ENCRYPTION */
         ttibn = ttibp = 0;              /* Flush internal buffer *FIRST* */
         if (ttyfd < 1)
           goto exit_flui;
@@ -5672,11 +4656,6 @@ netflui() {
             n = socket_read(ttyfd,ttibuf,n); /* into our buffer */
             if (n >= 0) ttibuf[n] = '\0';
             debug(F111,"netflui 3",ttibuf,n);
-#ifdef CK_ENCRYPTION
-            if (TELOPT_U(TELOPT_ENCRYPTION)) {
-                ck_tn_decrypt(&ttibuf[ttibp],n);
-            }
-#endif /* CK_ENCRYPTION */
             ttibuf[0] = '\0';
         }
     }
@@ -5710,71 +4689,6 @@ netflui() {
     return(0);
 }
 
-#ifdef CK_KERBEROS
-/* The following two functions are required for encrypted rlogin */
-/* They are called with nettoc() or nettol() are transmitting    */
-/* encrypted data.  They call a function to encrypt the data     */
-/* and that function needs to be able to write to/read from the  */
-/* network in an unimpeded manner.  Hence, these two simple fns. */
-int
-net_write(fd, buf, len)
-    int fd;
-    register const char *buf;
-    int len;
-{
-    int cc;
-    register int wrlen = len;
-    do {
-#ifdef TCPIPLIB
-        cc = socket_write(fd, buf, wrlen);
-#else
-        cc = write(fd,buf,wrlen);
-#endif /* TCPIPLIB */
-        if (cc < 0) {
-            int s_errno = socket_errno;
-            debug(F101,"net_write error","",s_errno);
-            if (errno == EINTR)
-                continue;
-            return(-1);
-        }
-        else {
-            buf += cc;
-            wrlen -= cc;
-        }
-    } while (wrlen > 0);
-    return(len);
-}
-int
-net_read(fd, buf, len)
-    int fd;
-    register char *buf;
-    register int len;
-{
-    int cc, len2 = 0;
-
-    do {
-#ifdef TCPIPLIB
-        cc = socket_read(fd, buf, len);
-#else
-        cc = read(fd,buf,len);
-#endif
-        if (cc < 0) {
-            int s_errno = socket_errno;
-            debug(F101,"net_read error","",s_errno);
-            return(cc);          /* errno is already set */
-        }
-        else if (cc == 0) {
-            netclos();
-            return(len2);
-        } else {
-            buf += cc;
-            len2 += cc;
-            len -= cc;
-        }
-    } while (len > 0);
-    return(len2);
-}
-#endif /* CK_KERBEROS */
 
 /* getlocalipaddr() attempts to resolve an IP Address for the local machine.
  *   If the host is multi-homed it returns only one address.
@@ -5969,12 +4883,6 @@ rlog_naws()
     if (ttnet != NET_TCPB)
       return 0;
     if (ttnproto != NP_RLOGIN
-#ifdef CK_KERBEROS
-        && ttnproto != NP_K4LOGIN
-        && ttnproto != NP_EK4LOGIN
-        && ttnproto != NP_K5LOGIN
-        && ttnproto != NP_EK5LOGIN
-#endif /* CK_KERBEROS */
          )
       return 0;
     if (!TELOPT_ME(TELOPT_NAWS))
@@ -6128,41 +5036,6 @@ rlog_ini(hostname, port, l_addr, r_addr)
         debug(F110,"rlog_ini term_speed 3",term_speed,0);
     }
 
-#ifdef CK_KERBEROS
-    if (ttnproto == NP_K4LOGIN || ttnproto == NP_EK4LOGIN ||
-        ttnproto == NP_K5LOGIN || ttnproto == NP_EK5LOGIN) {
-        int kver, encrypt, rc;
-        switch (ttnproto) {
-          case NP_K4LOGIN:
-            kver = 4;
-            encrypt = 0;
-            break;
-          case NP_EK4LOGIN:
-            kver = 4;
-            encrypt = 1;
-            break;
-          case NP_K5LOGIN:
-            kver = 5;
-            encrypt = 0;
-            break;
-          case NP_EK5LOGIN:
-            kver = 5;
-            encrypt = 1;
-            break;
-        default:
-            kver = 0;
-            encrypt = 0;
-        }
-        rc = ck_krb_rlogin(hostname, port,
-                           localuser, remoteuser, term_speed,
-                           l_addr, r_addr, kver, encrypt);
-        if (!rc) {                      /* success */
-            TELOPT_ME(TELOPT_NAWS) = 1;
-            rc = rlog_naws();
-        }
-        return(rc);
-    } else
-#endif /* CK_KERBEROS */
     if (ttnproto == NP_RLOGIN) {
 #ifdef RLOGOUTBUF
         /*
@@ -8880,10 +7753,8 @@ new (aug 2001) cmcvtdate() calling conventions.
     return(nowstr);
 }
 
-#ifndef CK_AUTHENTICATION
 /* from ckuusr.h, which this module normally doesn't include */
 _PROTOTYP( int dclarray, (char, int) );
-#endif /* CK_AUTHENTICATION */
 /*
   Assign http response pairs to given array.
   For best results, response pairs should contain no spaces.
@@ -8974,19 +7845,6 @@ http_security()
 {
     if ( httpfd == -1 )
         return("NULL");
-#ifdef CK_SSL
-    if (tls_http_active_flag) {
-        SSL_CIPHER * cipher;
-        const char *cipher_list;
-        static char buf[128];
-        buf[0] = NUL;
-        /* cast added by fdc 26 September 2022 */
-        cipher = (SSL_CIPHER *)SSL_get_current_cipher(tls_http_con);
-        cipher_list = SSL_CIPHER_get_name(cipher);
-        SSL_CIPHER_description(cipher,buf,sizeof(buf));
-        return(buf);
-    }
-#endif /* CK_SSL */
     return("NULL");
 }
 
@@ -9557,25 +8415,6 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
     }
     makestr(&http_agent,agent);
 
-#ifdef CK_SSL
-    if (use_ssl && ck_ssleay_is_installed()) {
-        if (!ssl_http_init(hostname)) {
-            if (bio_err!=NULL) {
-                BIO_printf(bio_err,"ssl_tn_init() failed\n");
-                ERR_print_errors(bio_err);
-            } else {
-                fflush(stderr);
-                fprintf(stderr,"ssl_tn_init() failed\n");
-                ERR_print_errors_fp(stderr);
-            }
-            http_close();
-            return(-1);
-        } else if ( ck_ssl_http_client(httpfd,hostname) < 0 ) {
-            http_close();
-            return(-1);
-        }
-    }
-#endif /* CK_SSL */
 #endif /* TCPSOCKET */
 
     return(0);                          /* Done. */
@@ -9601,14 +8440,6 @@ http_close()
 
     if (httpfd > -1)                     /* Was. */
       {
-#ifdef CK_SSL
-          if (tls_http_active_flag) {
-              if (ssl_debug_flag)
-                BIO_printf(bio_err,"calling SSL_shutdown\n");
-              SSL_shutdown(tls_http_con);
-              tls_http_active_flag = 0;
-          }
-#endif /* CK_SSL */
 #ifdef TCPIPLIB
           x = socket_close(httpfd);      /* Close it. */
 #else
@@ -9648,53 +8479,6 @@ http_tol(s,n) CHAR *s; int n;
     ckhexdump("http_tol",s,n);
 #endif /* COMMENT */
 
-#ifdef CK_SSL
-    if (tls_http_active_flag) {
-        int error, r;
-        /* Write using SSL */
-      ssl_retry:
-          r = SSL_write(tls_http_con, s, len /* >1024?1024:len */);
-        switch (SSL_get_error(tls_http_con,r)) {
-          case SSL_ERROR_NONE:
-            debug(F111,"http_tol","SSL_write",r);
-            if ( r == len )
-                return(n);
-             s += r;
-             len -= r;
-             goto ssl_retry;
-          case SSL_ERROR_WANT_WRITE:
-            debug(F100,"http_tol SSL_ERROR_WANT_WRITE","",0);
-	      return(-1);
-          case SSL_ERROR_WANT_READ:
-            debug(F100,"http_tol SSL_ERROR_WANT_READ","",0);
-            return(-1);
-          case SSL_ERROR_SYSCALL:
-              if ( r == 0 ) { /* EOF */
-                  http_close();
-                  return(-2);
-              } else {
-                  int rc = -1;
-                  return(rc);
-              }
-          case SSL_ERROR_WANT_X509_LOOKUP:
-            debug(F100,"http_tol SSL_ERROR_WANT_X509_LOOKUP","",0);
-            http_close();
-            return(-2);
-          case SSL_ERROR_SSL:
-            debug(F100,"http_tol SSL_ERROR_SSL","",0);
-            http_close();
-            return(-2);
-          case SSL_ERROR_ZERO_RETURN:
-            debug(F100,"http_tol SSL_ERROR_ZERO_RETURN","",0);
-            http_close();
-            return(-2);
-          default:
-            debug(F100,"http_tol SSL_ERROR_?????","",0);
-            http_close();
-            return(-2);
-        }
-    }
-#endif /* CK_SSL */
 
   http_tol_retry:
     try++;                              /* Increase the try counter */
@@ -9806,76 +8590,6 @@ http_inc(timo) int timo;
         return(-2);
     }
 
-#ifdef CK_SSL
-    /*
-     * In the case of OpenSSL, it is possible that there is still
-     * data waiting in the SSL session buffers that has not yet
-     * been read by Kermit.  If this is the case we must process
-     * it without calling select() because select() will not return
-     * with an indication that there is data to be read from the
-     * socket.  If there is no data pending in the SSL session
-     * buffers then fall through to the select() code and wait for
-     * some data to arrive.
-     */
-    if (tls_http_active_flag) {
-        int error;
-
-        x = SSL_pending(tls_http_con);
-        if (x < 0) {
-            debug(F111,"http_inc","SSL_pending error",x);
-            http_close();
-            return(-1);
-        } else if ( x > 0 ) {
-	  ssl_read:
-            x = SSL_read(tls_http_con, &c, 1);
-            error = SSL_get_error(tls_http_con,x);
-            switch (error) {
-            case SSL_ERROR_NONE:
-                debug(F111,"http_inc SSL_ERROR_NONE","x",x);
-                if (x > 0) {
-                    return(c);          /* Return character. */
-                } else if (x < 0) {
-                    return(-1);
-                } else {
-                    http_close();
-                    return(-2);
-                }
-            case SSL_ERROR_WANT_WRITE:
-                debug(F100,"http_inc SSL_ERROR_WANT_WRITE","",0);
-                return(-1);
-            case SSL_ERROR_WANT_READ:
-                debug(F100,"http_inc SSL_ERROR_WANT_READ","",0);
-                return(-1);
-            case SSL_ERROR_SYSCALL:
-                if ( x == 0 ) { /* EOF */
-                    http_close();
-                    return(-2);
-                } else {
-                    int rc = -1;
-                    return(rc);
-                }
-            case SSL_ERROR_WANT_X509_LOOKUP:
-                debug(F100,"http_inc SSL_ERROR_WANT_X509_LOOKUP","",0);
-                http_close();
-                return(-2);
-            case SSL_ERROR_SSL:
-                debug(F100,"http_inc SSL_ERROR_SSL","",0);
-#ifdef COMMENT
-                http_close();
-#endif /* COMMENT */
-                return(-2);
-            case SSL_ERROR_ZERO_RETURN:
-                debug(F100,"http_inc SSL_ERROR_ZERO_RETURN","",0);
-                http_close();
-                return(-2);
-            default:
-                debug(F100,"http_inc SSL_ERROR_?????","",0);
-                http_close();
-                return(-2);
-            }
-        }
-    }
-#endif /* CK_SSL */
 
 #ifdef HTTP_BUFFERING
     /* Skip all the select() stuff if we have bytes buffered locally */
@@ -9980,58 +8694,6 @@ http_inc(timo) int timo;
         return(-1); /* Call it an i/o error */
     }
 
-#ifdef CK_SSL
-        if ( tls_http_active_flag ) {
-            int error;
-	  ssl_read2:
-            x = SSL_read(tls_http_con, &c, 1);
-            error = SSL_get_error(tls_http_con,x);
-            switch (error) {
-            case SSL_ERROR_NONE:
-                debug(F111,"http_inc SSL_ERROR_NONE","x",x);
-                if (x > 0) {
-                    return(c);          /* Return character. */
-                } else if (x < 0) {
-                    return(-1);
-                } else {
-                    http_close();
-                    return(-2);
-                }
-            case SSL_ERROR_WANT_WRITE:
-                debug(F100,"http_inc SSL_ERROR_WANT_WRITE","",0);
-                return(-1);
-            case SSL_ERROR_WANT_READ:
-                debug(F100,"http_inc SSL_ERROR_WANT_READ","",0);
-                return(-1);
-            case SSL_ERROR_SYSCALL:
-                if ( x == 0 ) { /* EOF */
-                    http_close();
-                    return(-2);
-                } else {
-                    int rc = -1;
-                    return(rc);
-                }
-            case SSL_ERROR_WANT_X509_LOOKUP:
-                debug(F100,"http_inc SSL_ERROR_WANT_X509_LOOKUP","",0);
-                http_close();
-                return(-2);
-            case SSL_ERROR_SSL:
-                debug(F100,"http_inc SSL_ERROR_SSL","",0);
-#ifdef COMMENT
-                http_close();
-#endif /* COMMENT */
-                return(-2);
-            case SSL_ERROR_ZERO_RETURN:
-                debug(F100,"http_inc SSL_ERROR_ZERO_RETURN","",0);
-                http_close();
-                return(-2);
-            default:
-                debug(F100,"http_inc SSL_ERROR_?????","",0);
-                http_close();
-                return(-2);
-            }
-        }
-#endif /* CK_SSL */
 
 #ifdef HTTP_BUFFERING
 /*
@@ -12275,725 +10937,5 @@ locate_txt_rr(prefix, name, retstr) char *prefix, *name; char **retstr;
 #endif /* CK_DNS_SRV */
 
 #ifdef TNCODE
-#ifdef CK_FORWARD_X
-#ifdef UNIX
-#include <sys/un.h>
-#define FWDX_UNIX_SOCK
-#ifndef AF_LOCAL
-#define AF_LOCAL AF_UNIX
-#endif
-#ifndef PF_LOCAL
-#define PF_LOCAL PF_UNIX
-#endif
-#ifndef SUN_LEN
-/* Evaluate to actual length of the `sockaddr_un' structure.  */
-#define SUN_LEN(ptr) ((size_t) (((struct sockaddr_un *) 0)->sun_path)         \
-                      + strlen ((ptr)->sun_path))
-#endif
-#endif /* UNIX */
-
-#ifdef CK_ANSIC
-/* prototypes for static functions - fdc 30 November 2022 */
-static SIGTYP rlogoobh( int );
-static int rlog_oob( CHAR *, int );
-#endif /* CK_ANSIC */
-
-#include "ckcfnp.h"                     /* Prototypes (must be last) */
-
-int
-#ifdef CK_ANSIC
-fwdx_create_listen_socket(int screen)
-#else
-fwdx_create_listen_socket(screen) int screen;
-#endif  /* CK_ANSIC */
-{
-#ifdef NOPUTENV
-    return(-1);
-#else /* NOPUTENV */
-    struct sockaddr_in saddr;
-    int display, port, sock=-1, i;
-    static char env[512];
-
-    /*
-     * X Windows Servers support multiple displays by listening on
-     * one socket per display.  Display 0 is port 6000; Display 1 is
-     * port 6001; etc.
-     *
-     * We start by trying to open port 6001 so that display 0 is
-     * reserved for the local X Windows Server.
-     */
-
-    for ( display=1; display < 1000 ; display++  ) {
-
-        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            debug(F111,"fwdx_create_listen_socket()","socket() < 0",sock);
-            return(-1);
-        }
-
-        port = 6000 + display;
-        bzero((char *)&saddr, sizeof(saddr));
-        saddr.sin_family = AF_INET;
-        saddr.sin_addr.s_addr = inet_addr(myipaddr);
-        saddr.sin_port = htons(port);
-
-        if (bind(sock, (struct sockaddr *)&saddr, sizeof(saddr)) < 0) {
-            i = errno;                  /* Save error code */
-#ifdef TCPIPLIB
-            socket_close(sock);
-#else /* TCPIPLIB */
-            close(sock);
-#endif /* TCPIPLIB */
-            sock = -1;
-            debug(F110,"fwdx_create_listen_socket()","bind() < 0",0);
-            continue;
-        }
-
-        debug(F100,"fdwx_create_listen_socket() bind OK","",0);
-        break;
-    }
-
-    if ( display > 1000 ) {
-        debug(F100,"fwdx_create_listen_socket() Out of Displays","",0);
-        return(-1);
-    }
-
-    if (listen(sock, 5) < 0) {
-        i = errno;                  /* Save error code */
-#ifdef TCPIPLIB
-        socket_close(sock);
-#else /* TCPIPLIB */
-        close(sock);
-#endif /* TCPIPLIB */
-        debug(F101,"fdwx_create_listen_socket() listen() errno","",errno);
-        return(-1);
-    }
-    debug(F100,"fwdx_create_listen_socket() listen OK","",0);
-
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket = sock;
-    if (!myipaddr[0])
-        getlocalipaddr();
-    if ( myipaddr[0] )
-        ckmakxmsg(env,sizeof(env),"DISPLAY=",myipaddr,":",
-                  ckuitoa(display),":",ckuitoa(screen),
-                  NULL,NULL,NULL,NULL,NULL,NULL);
-    else
-        ckmakmsg(env,sizeof(env),"DISPLAY=",ckuitoa(display),":",
-                 ckuitoa(screen));
-    putenv(env);
-    return(0);
-#endif /* NOPUTENV */
-}
-
-
-int
-#ifdef CK_ANSIC
-fwdx_open_client_channel(int channel)
-#else
-fwdx_open_client_channel(channel) int channel;
-#endif  /* CK_ANSIC */
-{
-    char * env;
-    struct sockaddr_in saddr;
-#ifdef FWDX_UNIX_SOCK
-    struct sockaddr_un saddr_un = { AF_LOCAL };
-#endif /* FWDX_UNIX_SOCK */
-    int display, port, sock, i, screen;
-    int family;
-    char buf[256], * host=NULL, * rest=NULL;
-#ifdef TCP_NODELAY
-    int on=1;
-#endif /* TCP_NODELAY */
-
-    debug(F111,"fwdx_create_client_channel()","channel",channel);
-
-    for ( i=0; i<MAXFWDX ; i++ ) {
-        if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id == channel) {
-            /* Already open */
-            debug(F110,"fwdx_create_client_channel()","already open",0);
-            return(0);
-        }
-    }
-
-    env = getenv("DISPLAY");
-    if ( !env )
-      env = (char *)tn_get_display();
-    if ( env )
-      ckstrncpy(buf,env,256);
-    else
-      ckstrncpy(buf,"127.0.0.1:0.0",256);
-
-    bzero((char *)&saddr,sizeof(saddr));
-    saddr.sin_family = AF_INET;
-
-    if (!fwdx_parse_displayname(buf,
-                                &family,
-                                &host,
-                                &display,
-                                &screen,
-                                &rest
-                                )
-        ) {
-        if ( host ) free(host);
-        if ( rest ) free(rest);
-        return(0);
-    }
-    if (rest) free(rest);
-
-#ifndef FWDX_UNIX_SOCK
-  /* if $DISPLAY indicates use of unix domain sockets, but we don't support it,
-   * we change things to use inet sockets on the ip loopback interface instead,
-   * and hope that it works.
-   */
-    if (family == FamilyLocal) {
-        debug(F100,"fwdx_create_client_channel() FamilyLocal","",0);
-        family = FamilyInternet;
-        if (host) free(host);
-        if (host = malloc(strlen("localhost") + 1))
-            strcpy(host, "localhost");
-        else {
-            return(-1);
-        }
-    }
-#else /* FWDX_UNIX_SOCK */
-    if (family == FamilyLocal) {
-        if (host) free(host);
-        sock = socket(PF_LOCAL, SOCK_STREAM, 0);
-        if (sock < 0)
-            return(-1);
-
-        ckmakmsg(buf,sizeof(buf),"/tmp/.X11-unix/X",ckitoa(display),NULL,NULL);
-        strncpy(saddr_un.sun_path, buf, sizeof(saddr_un.sun_path));
-        if (connect(sock,(struct sockaddr *)&saddr_un, SUN_LEN(&saddr_un)) < 0)
-          return(-1);
-    } else
-#endif  /* FWDX_UNIX_SOCK */
-    {
-        /* Otherwise, we are assuming FamilyInternet */
-        if (host) {
-            ckstrncpy(buf,host,sizeof(buf));
-            free(host);
-        } else
-            ckstrncpy(buf,myipaddr,sizeof(buf));
-
-        debug(F111,"fwdx_create_client_channel()","display",display);
-
-        port = 6000 + display;
-        saddr.sin_port = htons(port);
-
-        debug(F110,"fwdx_create_client_channel() ip-address",buf,0);
-        saddr.sin_addr.s_addr = inet_addr(buf);
-
-        /* 2022-12-05  SMS.  64-bit "long" miscompares with 32-bit
-         * "in_addr_t".  (Why use "(unsigned long) -1" if INADDR_NONE
-         * _is_ available?  Note, too, use of "(unsigned int) -1L",
-         * above.)  In any case, any system new enough to have a 64-bit
-         * "long" should define __LP64__, so we can avoid the problem
-         * with minimal disturbance to existing (gooofy?) code.
-         */
-#ifdef __LP64__
-#define ADDR_TYPE unsigned int
-#else /* def __LP64__ */
-#define ADDR_TYPE unsigned long
-#endif /* def __LP64__ [else] */
-
-        if ( saddr.sin_addr.s_addr == (ADDR_TYPE) -1
-#ifdef INADDR_NONE
-             || saddr.sin_addr.s_addr == INADDR_NONE
-#endif /* INADDR_NONE */
-             )
-        {
-            struct hostent *host;
-            host = gethostbyname(buf);
-            if ( host == NULL )
-                return(-1);
-            host = ck_copyhostent(host);
-#ifdef HADDRLIST
-#ifdef h_addr
-            /* This is for trying multiple IP addresses - see <netdb.h> */
-            if (!(host->h_addr_list))
-                return(-1);
-            bcopy(host->h_addr_list[0],
-                   (caddr_t)&saddr.sin_addr,
-                   host->h_length
-                   );
-#else
-            bcopy(host->h_addr, (caddr_t)&saddr.sin_addr, host->h_length);
-#endif /* h_addr */
-#else  /* HADDRLIST */
-            bcopy(host->h_addr, (caddr_t)&saddr.sin_addr, host->h_length);
-#endif /* HADDRLIST */
-        }
-
-        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            debug(F111,"fwdx_create_client_channel()","socket() < 0",sock);
-            return(-1);
-        }
-
-        if ( connect(sock, (struct sockaddr *)&saddr, sizeof(saddr)) < 0) {
-            debug(F110,"fwdx_create_client_channel()","connect() failed",0);
-#ifdef TCPIPLIB
-            socket_close(sock);
-#else /* TCPIPLIB */
-            close(sock);
-#endif /* TCPIPLIB */
-            return(-1);
-        }
-
-#ifdef TCP_NODELAY
-        setsockopt(sock,IPPROTO_TCP,TCP_NODELAY,(char *)&on,sizeof(on));
-#endif /* TCP_NODELAY */
-    }
-
-    for (i = 0; i < MAXFWDX; i++) {
-     if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id == -1) {
-         TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].fd = sock;
-         TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id = channel;
-       TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 1;
-         debug(F111,"fwdx_create_client_channel()","socket",sock);
-         return(0);
-     }
-    }
-    return(-1);
-}
-
-int
-fwdx_server_avail() {
-    char * env;
-    struct sockaddr_in saddr;
-#ifdef FWDX_UNIX_SOCK
-    struct sockaddr_un saddr_un = { AF_LOCAL };
-#endif  /* FWDX_UNIX_SOCK */
-    int display, port, sock, screen;
-    char buf[256], *host=NULL, *rest=NULL;
-    int family;
-
-    env = getenv("DISPLAY");
-    if ( !env )
-      env = (char *)tn_get_display();
-    if ( env )
-      ckstrncpy(buf,env,256);
-    else
-      ckstrncpy(buf,"127.0.0.1:0.0",256);
-
-    bzero((char *)&saddr,sizeof(saddr));
-    saddr.sin_family = AF_INET;
-
-    if (!fwdx_parse_displayname(buf,&family,&host,&display,&screen,&rest)) {
-        if ( host ) free(host);
-        if ( rest ) free(rest);
-        return(0);
-    }
-    if (rest) free(rest);
-
-#ifndef FWDX_UNIX_SOCK
-  /* if $DISPLAY indicates use of unix domain sockets, but we don't support it,
-   * we change things to use inet sockets on the ip loopback interface instead,
-   * and hope that it works.
-   */
-    if (family == FamilyLocal) {
-        family = FamilyInternet;
-        if (host) free(host);
-        if (host = malloc(strlen("localhost") + 1))
-            strcpy(host, "localhost");
-        else {
-            return(-1);
-        }
-    }
-#else /* FWDX_UNIX_SOCK */
-    if (family == FamilyLocal) {
-        debug(F100,"fwdx_server_avail() FamilyLocal","",0);
-        if (host) free(host);
-        sock = socket(PF_LOCAL, SOCK_STREAM, 0);
-        if (sock < 0)
-            return(0);
-
-        ckmakmsg(buf,sizeof(buf),"/tmp/.X11-unix/X",ckitoa(display),NULL,NULL);
-        strncpy(saddr_un.sun_path, buf, sizeof(saddr_un.sun_path));
-        if (connect(sock,(struct sockaddr *)&saddr_un,SUN_LEN(&saddr_un)) < 0)
-            return(0);
-        close(sock);
-        return(1);
-    }
-#endif  /* FWDX_UNIX_SOCK */
-
-    /* Otherwise, we are assuming FamilyInternet */
-    if (host) {
-        ckstrncpy(buf,host,sizeof(buf));
-        free(host);
-    } else
-        ckstrncpy(buf,myipaddr,sizeof(buf));
-
-    debug(F111,"fwdx_server_avail()","display",display);
-
-    port = 6000 + display;
-    saddr.sin_port = htons(port);
-
-    debug(F110,"fwdx_server_avail() ip-address",buf,0);
-    saddr.sin_addr.s_addr = inet_addr(buf);
-    if ( saddr.sin_addr.s_addr == (ADDR_TYPE) -1
-#ifdef INADDR_NONE
-         || saddr.sin_addr.s_addr == INADDR_NONE
-#endif /* INADDR_NONE */
-         )
-    {
-        struct hostent *host;
-        host = gethostbyname(buf);
-        if ( host == NULL ) {
-            debug(F110,"fwdx_server_avail() gethostbyname() failed",
-                   myipaddr,0);
-            return(-1);
-        }
-        host = ck_copyhostent(host);
-#ifdef HADDRLIST
-#ifdef h_addr
-        /* This is for trying multiple IP addresses - see <netdb.h> */
-        if (!(host->h_addr_list))
-            return(-1);
-        bcopy(host->h_addr_list[0],
-               (caddr_t)&saddr.sin_addr,
-               host->h_length
-               );
-#else
-        bcopy(host->h_addr, (caddr_t)&saddr.sin_addr, host->h_length);
-#endif /* h_addr */
-#else  /* HADDRLIST */
-        bcopy(host->h_addr, (caddr_t)&saddr.sin_addr, host->h_length);
-#endif /* HADDRLIST */
-    }
-
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        debug(F111,"fwdx_server_avail()","socket() < 0",sock);
-        return(0);
-    }
-
-    if ( connect(sock, (struct sockaddr *)&saddr, sizeof(saddr)) < 0) {
-        debug(F110,"fwdx_server_avail()","connect() failed",0);
-#ifdef TCPIPLIB
-        socket_close(sock);
-#else /* TCPIPLIB */
-        close(sock);
-#endif /* TCPIPLIB */
-        return(0);
-    }
-
-#ifdef TCPIPLIB
-    socket_close(sock);
-#else /* TCPIPLIB */
-    close(sock);
-#endif /* TCPIPLIB */
-    return(1);
-}
-
-int
-fwdx_open_server_channel() {
-    int sock, ready_to_accept, sock2,channel;
-#ifdef TCP_NODELAY
-    int on=1;
-#endif /* TCP_NODELAY */
-    static SOCKOPT_T saddrlen;
-    struct sockaddr_in saddr;
-    extern char tn_msg[];
-#ifdef BSDSELECT
-    fd_set rfds;
-    struct timeval tv;
-#else
-#ifdef BELLSELCT
-    fd_set rfds;
-#else
-    fd_set rfds;
-    struct timeval {
-        long tv_sec;
-        long tv_usec;
-    } tv;
-#endif /* BELLSELECT */
-#endif /* BSDSELECT */
-
-    sock = TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket;
-
-  try_again:
-
-#ifdef BSDSELECT
-    tv.tv_sec  = tv.tv_usec = 0L;
-    tv.tv_usec = 50;
-    FD_ZERO(&rfds);
-    FD_SET(sock, &rfds);
-    ready_to_accept =
-        ((select(FD_SETSIZE,
-#ifdef HPUX
-#ifdef HPUX1010
-                  (fd_set *)
-#else
-
-                  (int *)
-#endif /* HPUX1010 */
-#else
-#ifdef __DECC
-                  (fd_set *)
-#endif /* __DECC */
-#endif /* HPUX */
-                  &rfds, NULL, NULL, &tv) > 0) &&
-          FD_ISSET(sock, &rfds));
-#else /* BSDSELECT */
-#ifdef IBMSELECT
-    ready_to_accept = (select(&sock, 1, 0, 0, 50) == 1);
-#else
-#ifdef BELLSELECT
-    FD_ZERO(rfds);
-    FD_SET(sock, rfds);
-    ready_to_accept =
-        ((select(128, rfds, NULL, NULL, 50) > 0) &&
-          FD_ISSET(sock, rfds));
-#else
-/* Try this - what's the worst that can happen... */
-
-    tv.tv_sec  = tv.tv_usec = 0L;
-    tv.tv_usec = 50;
-    FD_ZERO(&rfds);
-    FD_SET(sock, &rfds);
-    ready_to_accept =
-        ((select(FD_SETSIZE,
-                  (fd_set *) &rfds, NULL, NULL, &tv) > 0) &&
-          FD_ISSET(sock, &rfds));
-#endif /* BELLSELECT */
-#endif /* IBMSELECT */
-#endif /* BSDSELECT */
-
-    if ( !ready_to_accept )
-        return(0);
-
-    if ((sock2 = accept(sock,(struct sockaddr *)&saddr,&saddrlen)) < 0) {
-        int i = errno;                  /* save error code */
-        debug(F101,"tcpsrv_open accept errno","",i);
-        return(-1);
-    }
-
-    /*
-     * Now we have the open socket.  We must now find a channel to store
-     * it in, and then notify the client.
-     */
-
-    for ( channel=0;channel<MAXFWDX;channel++ ) {
-        if ( TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[channel].fd == -1 )
-            break;
-    }
-
-    if ( channel == MAXFWDX ) {
-#ifdef TCPIPLIB
-        socket_close(sock2);
-#else /* TCPIPLIB */
-        close(sock2);
-#endif /* TCPIPLIB */
-        return(-1);
-    }
-
-    if ( fwdx_send_open(channel) < 0 ) {
-#ifdef TCPIPLIB
-        socket_close(sock2);
-#else /* TCPIPLIB */
-        close(sock2);
-#endif /* TCPIPLIB */
-    }
-
-#ifdef TCP_NODELAY
-    setsockopt(sock2,IPPROTO_TCP,TCP_NODELAY,(char *)&on,sizeof(on));
-#endif /* TCP_NODELAY */
-
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[channel].fd = sock2;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[channel].id = channel;
-    goto try_again;
-
-    return(0);  /* never reached */
-}
-
-int
-#ifdef CK_ANSIC
-fwdx_close_channel(int channel)
-#else
-fwdx_close_channel(channel) int channel;
-#endif  /* CK_ANSIC */
-{
-    int i,fd;
-
-    for ( i=0; i<MAXFWDX ; i++ ) {
-        if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id == channel)
-            break;
-    }
-    if ( i == MAXFWDX )
-        return(-1);
-
-    fd = TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].fd;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].fd = -1;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id = -1;
-    TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].need_to_send_xauth = 0;
-
-#ifdef TCPIPLIB
-    socket_close(fd);
-#else /* TCPIPLIB */
-    close(fd);
-#endif /* TCPIPLIB */
-    return(0);
-}
-
-int
-fwdx_close_all() {
-    int x,fd;
-
-    debug(F111,"fwdx_close_all()",
-          "TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket",
-          TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket);
-
-    if ( TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket != -1 ) {
-#ifdef TCPIPLIB
-        socket_close(TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket);
-#else /* TCPIPLIB */
-        close(TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket);
-#endif /* TCPIPLIB */
-        TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket = -1;
-    }
-
-    for (x = 0; x < MAXFWDX; x++) {
-     if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd != -1) {
-      fd = TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd;
-      TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd = -1;
-      TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].id = -1;
-      TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].need_to_send_xauth = 0;
-      TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].suspend = 0;
-#ifdef TCPIPLIB
-      socket_close(fd);
-#else /* TCPIPLIB */
-      close(fd);
-#endif /* TCPIPLIB */
-     }
-    }
-    return(0);
-}
-
-/* The following definitions are for Unix */
-#ifndef socket_write
-#define socket_write(f,s,n)    write(f,s,n)
-#endif /* socket_write */
-#ifndef socket_read
-#define socket_read(f,s,n)     read(f,s,n)
-#endif /* socket_read */
-
-int
-#ifdef CK_ANSIC
-fwdx_write_data_to_channel(int channel, char *data, int len)
-#else
-fwdx_write_data_to_channel(channel, data, len)
-    int channel; char * data; int len;
-#endif  /* CK_ANSIC */
-{
-    int sock, count, length = len, i;
-
-    if ( len <= 0 )
-        return(0);
-
-    for ( i=0; i<MAXFWDX ; i++ ) {
-        if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].id == channel)
-            break;
-    }
-    if ( i == MAXFWDX ) {
-        debug(F110,"fwdx_write_data_to_channel",
-               "attempting to write to closed channel",0);
-        return(-1);
-    }
-
-    sock = TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[i].fd;
-    debug(F111,"fwdx_write_data_to_channel","socket",sock);
-    ckhexdump("fwdx_write_data_to_channel",data,len);
-
-  fwdx_write_data_to_channel_retry:
-
-    if ((count = socket_write(sock,data,len)) < 0) {
-        int s_errno = socket_errno; /* maybe a function */
-        debug(F101,"fwdx_write_data_to_channel socket_write error","",s_errno);
-#ifdef COMMENT
-        printf("fwdx_write_data_to_channel error\r\n");
-#endif /* COMMENT */
-        return(-1);                 /* Call it an i/o error */
-    }
-    if (count < len) {
-        debug(F111,"fwdx_write_data_to_channel socket_write",data,count);
-        if (count > 0) {
-            data += count;
-            len -= count;
-        }
-        debug(F111,"fwdx_write_data_to_channel retry",data,len);
-        if ( len > 0 )
-            goto fwdx_write_data_to_channel_retry;
-    }
-
-    debug(F111,"fwdx_write_data_to_channel complete",data,length);
-    return(length); /* success - return total length */
-}
-
-VOID
-fwdx_check_sockets(fd_set *ibits)
-{
-    int x, sock, channel, bytes;
-    static char buffer[32000];
-
-    debug(F100,"fwdx_check_sockets()","",0);
-    if ( sstelnet && !TELOPT_ME(TELOPT_FORWARD_X) ||
-         !sstelnet && !TELOPT_U(TELOPT_FORWARD_X)) {
-        debug(F110,"fwdx_check_sockets()","TELOPT_FORWARD_X not negotiated",0);
-        return;
-    }
-
-    for (x = 0; x < MAXFWDX; x++) {
-        if ( TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd == -1 ||
-             TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].suspend )
-            continue;
-
-        sock = TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd;
-        if (FD_ISSET(sock, ibits))
-        {
-            channel = TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].id;
-            debug(F111,"fwdx_check_sockets()","channel set",channel);
-
-            bytes = socket_read(sock, buffer, sizeof(buffer));
-            if (bytes > 0)
-                fwdx_send_data_from_channel(channel, buffer, bytes);
-            else if (bytes == 0) {
-                fwdx_close_channel(channel);
-                fwdx_send_close(channel);
-            }
-        }
-    }
-}
-
-int
-fwdx_init_fd_set(fd_set *ibits)
-{
-    int x,set=0,cnt=0;
-
-    if ( sstelnet && !TELOPT_ME(TELOPT_FORWARD_X) ||
-         !sstelnet && !TELOPT_U(TELOPT_FORWARD_X)) {
-        debug(F110,"fwdx_init_fd_set()","TELOPT_FORWARD_X not negotiated",0);
-        return(0);
-    }
-
-    if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket != -1) {
-        set++;
-        FD_SET(TELOPT_SB(TELOPT_FORWARD_X).forward_x.listen_socket, ibits);
-    }
-    for (x = 0; x < MAXFWDX; x++) {
-        if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd != -1) {
-            cnt++;
-            if (TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].suspend)
-                continue;
-            set++;
-            FD_SET(TELOPT_SB(TELOPT_FORWARD_X).forward_x.channel[x].fd, ibits);
-        }
-    }
-    if (set + cnt == 0) {
-        return(-1);
-    } else {
-        return(set);
-    }
-}
-
-#endif /* CK_FORWARD_X */
 #endif /* TNCODE */
 #endif /* NETCONN */

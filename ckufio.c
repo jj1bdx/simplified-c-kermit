@@ -144,9 +144,6 @@ extern int eofmethod;
 #endif /* CK_CTRLZ */
 
 #include <pwd.h>                        /* Password file for shell name */
-#ifdef CK_SRP
-#include <t_pwd.h>                      /* SRP Password file */
-#endif /* CK_SRP */
 
 #ifdef HPUX10_TRUSTED
 #include <hpsecurity.h>
@@ -1005,9 +1002,6 @@ extern int ckxlogging;
 #define printf ckxprintf
 #endif /* CKXPRINTF */
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"                     /* fdc 2021-12-17 */
-#endif /* CK_AUTHENTICATION */
 
 #include "ckuusr.h"
 #include "ckcnet.h"                     /* struct sockaddr */
@@ -8687,9 +8681,6 @@ _PROTOTYP(int initgroups, (const char *, gid_t) );
         return(0);
     }
     if (!guest
-#ifdef CK_AUTHENTICATION
-        && ck_tn_auth_valid() != AUTH_VALID
-#endif /* CK_AUTHENTICATION */
         ) {                     /* "ftp" is only account allowed no password */
 #ifdef CK_PAM
         debug(F110,"zvpass","calling pam_set_item(AUTHTOK)",0);
@@ -8774,17 +8765,9 @@ _PROTOTYP(int initgroups, (const char *, gid_t) );
               strcmp(xpasswd, pw->pw_passwd))
              && !kpass(pw->pw_name, p))
 #else
-#ifdef CK_SRP
-            /* check with tpasswd first if there */
-            pw == NULL || *pw->pw_passwd == '\0' ||
-            t_verifypw (pw->pw_name, p) == 0 ||
-            (t_verifypw (pw->pw_name, p) < 0 &&
-            strcmp (xpasswd, pw->pw_passwd))
-#else /* CK_SRP */
             /* The strcmp does not catch null passwords! */
             (pw == NULL) || (*pw->pw_passwd == '\0') ||
             strcmp(xpasswd, pw->pw_passwd)
-#endif /* CK_SRP */
 #endif /* FTP_KERBEROS */
             ) {
             debug(F100,"zvpass denied","",0);
@@ -8930,9 +8913,6 @@ _PROTOTYP(int initgroups, (const char *, gid_t) );
         extern unsigned long myflags;
         extern unsigned int mydbslot;
         extern struct iksdbfld dbfld[];
-#ifdef CK_AUTHENTICATION
-        extern unsigned long myamode, myatype;
-#endif /* CK_AUTHENTICATION */
         myflags |= DBF_LOGGED;
 #ifdef DEBUG
 	if (deblog) {
@@ -8956,12 +8936,6 @@ _PROTOTYP(int initgroups, (const char *, gid_t) );
         strncpy(&dbrec[DB_ULEN],ulongtohex((unsigned long)k,4),4);
         lset(&dbrec[dbfld[db_USER].off],p2,1024,32);
         strncpy(&dbrec[DB_FLAGS],ulongtohex(myflags,4),4);
-#ifdef CK_AUTHENTICATION
-        myamode = ck_tn_auth_valid();
-        strncpy(&dbrec[DB_AMODE],ulongtohex(myamode,4),4);
-        myatype = ck_tn_authenticated();
-        strncpy(&dbrec[DB_ATYPE],ulongtohex(myatype,4),4);
-#endif /* CK_AUTHENTICATION */
         if (guest) {
             p2 = dir;
         } else {

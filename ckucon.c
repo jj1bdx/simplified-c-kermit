@@ -789,19 +789,7 @@ ckcputc(c) int c; {
 int
 ckcgetc(dummy) int dummy; {
     int c, n;
-#ifdef CK_SSL
-    extern int ssl_active_flag, tls_active_flag;
-#endif /* CK_SSL */
 
-#ifdef CK_ENCRYPTION
-    /* No buffering for possibly encrypted connections */
-    if (network && IS_TELNET() && TELOPT_ME(TELOPT_AUTHENTICATION))
-      return(ttinc(0));
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-    if (ssl_active_flag || tls_active_flag)
-        return(ttinc(0));
-#endif /* CK_SSL */
 #ifdef COMMENT
 /* too much */
     debug(F101,"CONNECT CKCGETC 1 ibc","",ibc); /* Log */
@@ -833,10 +821,6 @@ ckcgetc(dummy) int dummy; {
 	    if (n > (IBUFL - ibc))	/* Get them all at once. */
 	      n = IBUFL - ibc;		/* Don't overflow buffer */
 	    if ((n = ttxin(n,(CHAR *)ibp)) > 0) {
-#ifdef CK_ENCRYPTION
-		if (TELOPT_U(TELOPT_ENCRYPTION))
-		  ck_tn_decrypt(ibp,n);
-#endif /* CK_ENCRYPTION */
 		ibc += n;			/* Advance counter */
 	    }
 	} else if (n < 0) {		/* Error? */

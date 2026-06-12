@@ -78,44 +78,10 @@
 
 /* others here... */
 
-#ifdef CK_SSL
-#define IS_TELNET()      (nettype == NET_TCPB && (ttnproto == NP_TELNET \
-                         || ttnproto == NP_SSL_TELNET \
-                         || ttnproto == NP_TLS_TELNET \
-                         || ttnproto == NP_KERMIT))
-#else /* CK_SSL */
 #define IS_TELNET()      (nettype == NET_TCPB && (ttnproto == NP_TELNET \
                          || ttnproto == NP_KERMIT))
-#endif /* CK_SSL */
 
-#ifdef CK_KERBEROS
-#ifdef KRB5
-#ifdef KRB4
-#define IS_RLOGIN()      (nettype == NET_TCPB && (ttnproto == NP_RLOGIN \
-                         || ttnproto == NP_K5LOGIN \
-                         || ttnproto == NP_EK5LOGIN \
-                         || ttnproto == NP_K4LOGIN \
-                         || ttnproto == NP_EK4LOGIN \
-                         ))
-#else /* KRB4 */
-#define IS_RLOGIN()      (nettype == NET_TCPB && (ttnproto == NP_RLOGIN \
-                         || ttnproto == NP_K5LOGIN \
-                         || ttnproto == NP_EK5LOGIN \
-                         ))
-#endif /* KRB4 */
-#else /* KRB5 */
-#ifdef KRB4
-#define IS_RLOGIN()      (nettype == NET_TCPB && (ttnproto == NP_RLOGIN \
-                         || ttnproto == NP_K4LOGIN \
-                         || ttnproto == NP_EK4LOGIN \
-                         ))
-#else /* KRB4 */
-KERBEROS defined without either KRB4 or KRB5
-#endif /* KRB4 */
-#endif /* KRB5 */
-#else /* CK_KERBEROS */
 #define IS_RLOGIN()      (nettype == NET_TCPB && (ttnproto == NP_RLOGIN))
-#endif /* CK_KERBEROS */
 
 #define IS_SSH()         (nettype == NET_SSH)
 
@@ -1017,13 +983,6 @@ SORRY_CK_NAWS_REQUIRES_TTGWSIZ_see_ckcplm.doc
 #define IPPORT_ECHO 7
 #endif /* IPPORT_ECHO */
 
-#ifdef CK_KERBEROS
-#ifdef RLOGCODE
-_PROTOTYP(int ck_krb_rlogin,(CHAR *, int, CHAR *, CHAR *, CHAR *,
-                              struct sockaddr_in *,
-                              struct sockaddr_in *, int, int));
-#endif /* RLOGCODE */
-#endif /* CK_KERBEROS */
 
 _PROTOTYP( VOID ini_kerb, ( void ) );   /* Kerberos initialization routine */
 _PROTOTYP( int doauth, (int) );         /* AUTHENTICATE action routine */

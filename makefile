@@ -150,34 +150,22 @@ CKVER= "10.0 Beta.12"
 #     Note: new "make linux" (2016) not yet widely tested.
 #     Use "make linux-2015" (the old "make linux")
 #     if "make linux" causes problems.
-# + "make linux+ssl" ditto, with OpenSSL security added.
-# + "make linux+krb5" ditto, with Kerberos 5 security added.
-# + "make linux+krb5+ssl" Linux with OpenSSL and Kerberos 5.
 #     Note: the Linux targets work for Raspberry Pi with Debian 7.0 (Raspbian)
 # + "make netbsd", NetBSD, any version.
-# + "make netbsd+ssl", NetBSD with OpenSSL 0.9.7 or later.
-# + "make netbsd+krb5", NetBSD with Kerberos 5.
-# + "make netbsd+krb5+ssl", NetBSD with Kerberos 5 and OpenSSL 0.9.7 or later.
 # ? "make freebsd1" for FreeBSD 1.x
 # ? "make freebsd2" for FreeBSD 2.x
 # + "make freebsd3" for FreeBSD 3.x
 # ? "make freebsd4" for FreeBSD 4.0
 # + "make freebsd", FreeBSD 4.1 or later.
-# + "make freebsd+ssl", FreeBSD 5.0 or later with OpenSSL 0.9.7 or later.
 # + "make openbsd", OpenBSD 2.3 or later.
-# + "make openbsd+ssl", OpenBSD 2.3 or later with OpenSSL 0.9.7 or later.
 # + "make mirbsd", MirBSD.
-# + "make mirbsd+ssl", MirBSD with OpenSSL 0.9.7 or later.
 # More recent macOS re-branded releases for Intel (x86_64) Sierra (10.12),
 # High Sierra (10.13), Mojave (10.14), Catalina (10.15), and Intel x86_64/ARM
 # Big Sur (11), Monterey (12)
 # + "make macos" (without 'x') should be used for 10.12 and later.
 # + "make macosx" should work for any Mac OS X version up until 10.8 or 10.12.
-# + "make macosx+krb5+openssl" Mac OS X 10.3.9 or later + Kerberos V + OpenSSL.
 # + "make aix" should work for any version of AIX 4.2 or later.
 # + "make aixg" should work for any version of AIX 4.2 or later, using gcc.
-# + "make aix+ssl" ditto, with OpenSSL (specifying SSLLIB and SSLINC)
-# + "make aix+ibmssl" ditto, with IBM OpenSSL
 # + "make solaris9", "make solaris10" for Solaris 9 or 10 with Sun cc.
 # + "make solaris9g", "make solaris10g" for Solaris 9 or 10 with gcc.
 # + "make solaris11" for Solaris 11 with Sun CC
@@ -522,14 +510,6 @@ CKVER= "10.0 Beta.12"
 # + for Linux 1.2 and later with no curses support at all, "make linuxnc".
 # + for Linux with no TCP/IP, "make linuxnotcp"
 # (The following Linux targets are historic and might not work...)
-# ? for Red Hat Linux 7.1 through RH9, fully configured (krb5, SSL, etc):
-#     "make redhat71", "make redhat72", "make redhat73", "make redhat80"
-#     "make redhat9"
-#     NOTE: You must use this target for Red Hat 7.1 since it
-#     also includes a workaround for its broken curses library.
-#     WARNING: These targets create binaries that include code for
-#     strong encryption and are therefore not exportable. DO NOT PUT
-#     THESE BINARIES ON US OR CANADIAN WEB OR FTP SITES.
 # ? for Linux on PowerMac (Mklinux DR3), "make mklinux".
 # ? for Linux 1.2 and later, to build with egcs, "make linuxegcs".
 # ? for Linux with lcc compiler, no TCP/IP, "make linuxnotcp-lcc"
@@ -572,7 +552,6 @@ CKVER= "10.0 Beta.12"
 # ? for NCR System 3000, NCR UNIX 02.02.01, same as above.
 # ? for NCR MP-RAS System V R4 V2.03 or 3.02, "make mpras" or "make mprastcpc"
 # + for NetBSD any version on any architecture, "make netbsd"
-# + for NetBSD with OpenSSL, "make netbsd+ssl"
 # ? for NetBSD with ncurses specified instead of curses, "make netbsdn"
 # ? for NetBSD with all curses support omitted, "make netbsdnc"
 # ? for NeXT with NeXTSTEP 1.0 through 3.2, "make next" (on a NeXT)
@@ -676,7 +655,6 @@ CKVER= "10.0 Beta.12"
 # ? for SCO UnixWare 2.1.3, "make uw213"
 # + for SCO UnixWare 7, "make uw7" (includes large file support)
 # ? for SCO UnixWare 7 with IKSD support, "make uw7iksd" or "make uw7iksdudk"
-# ? for SCO UnixWare 7 with OpenSSL, "make uw7ssl"
 # ? for SCO (Caldera) Open UNIX 8, "make ou8"
 # ? for Sharp Zaurus SL5500 PDA, "make zsl5500".
 # ? for Sequent with DYNIX/ptx 1.2.1, "make dynixptx12"
@@ -713,7 +691,6 @@ CKVER= "10.0 Beta.12"
 # + for Silicon Graphics (SGI) IRIX 6.5, "make irix65"
 # +   or "make irix65mips2" to force MIPS2, or "make irix65gcc" for GCC.
 # + for Silicon Graphics (SGI) IRIX 6.5, "make irix65" or "make irix65mips2"
-# ? for SGI IRIX 6.5 with SSL/TLS, SRP, and ZLIB "make irix65+ssl+srp+zlib"
 # ? for Solaris 2.0-2.3 on SPARC or Intel, SunPro CC, "make solaris2x",
 # ?   or to add SunLink X.25 8.0x support, "make solaris2x25".
 # ? for Solaris 2.4 built with gcc, "make solaris24g".
@@ -803,150 +780,14 @@ CKVER= "10.0 Beta.12"
 # To run lint on the source files, "make lintsun", "make lintbsd",
 # "make lints5", as appropriate.
 #
-# ******************************
-# SECURE TARGETS
-#
-# Beginning with C-Kermit 7.0, secure targets are included, as are the
-# source modules (ckuat*.[ch], ck_*.[ch]) needed to build them.  Secure
-# target names are like the regular names, but with security features
-# indicated by plus (+) signs.  The features are:
-#
-# krb4     MIT Kerberos IV
-# krb5     MIT Kerberos V
-# openssl  OpenSSL (SSL/TLS)
-# zlib     ZLIB compression for SSL/TLS
-# srp      Stanford Secure Remote Password
-# pam      PAM (pluggable authentication module)
-# shadow   Shadow Password File
-#
-# You can build these targets if you have the Kermit source files and the
-# required libraries (Kerberos, OpenSSL, SRP, etc) and header files.  See:
-#   http://www.columbia.edu/kermit/security.html
-# for specific details regarding supported versions.
-#
-# NOTE: OpenSSL 0.9.6 and earlier are not compatible with 0.9.7 and later.
-# C-Kermit code was originally designed for 0.9.6.  To build with 0.9.7 you
-# must add -DOPENSSL_097 to avoid missing symbols in the DES library and to
-# use the entry points that were renamed to avoid conflict with Kerberos 4.
-# If you have OpenSSL 0.9.8, add -DOPENSSL_098, which is a synonym for
-# -DOPENSSL_097.  If you have 1.0.0 or later, add -DOPENSSL_100, which is
-# another synonym.
-
-# In OpenSSL builds add -ldl if you get unresolved references for
-# dlopen, dlclose, dlsym, and/or dlerror.
-#
-# In order to build a secure version of Kermit, you need to know the location
-# of the header (include) files and libraries for the desired form of
-# security.  Unless you specify a location, this makefile looks in /usr/local
-# and if the required files are not found, the build fails.
-#
-# If the secure headers and libraries are not on your computer, you have
-# to download and install them, for example from http://www.openssl.org .
-#
 # The following symbols are used to specify library and header file locations.
 # prefix statement changed in 10.0 Beta.06 to allow prefix to be specified
 # from the make command line e.g. $ env PREFIX=/usr/pkg make install.
 # October 2022.
 # 
 prefix  = $${PREFIX:-/usr/local}
-srproot = $(prefix)
-sslroot = $(prefix)
 manroot = $(prefix)
 
-# The default Kerberos settings seem to be based on AIX, Irix, and Solaris
-# but are not appropriate for (e.g.) Linux.
-
-K4LIB=-L/usr/kerberos/lib
-K4INC=-I/usr/kerberos/include
-K5LIB=-L/usr/kerberos/lib
-K5INC=-I/usr/kerberos/include
-SRPLIB=-L$(srproot)/lib
-SRPINC=-I$(srproot)/include
-SSLLIB=-L$(sslroot)/ssl/lib
-SSLINC=-I$(sslroot)/ssl/include
-
-# To override these assignments; for example, if your OpenSSL files are
-# not in /usr/local/ssl, invoke the desired target like this:
-# 
-#  make solaris9+openssl "SSLINC=-I/opt/openssl-0.9.8k/include" \
-#   "SSLLIB=-L/opt/openssl-0.9.8k/lib"
-#
-# (don't set the variables and then do "make -e" because that breaks 
-# chaining of makefile targets.)
-#
-# Here are some up-to-date secure targets as of Sep 2009: 
-#
-# aix+openssl:                        IBM AIX 4.2 or later with OpenSSL
-# freebsd44+srp+openssl               FreeBSD 4.4 with SRP and OpenSSL
-# freebsd50+openssl                   FreeBSD 5.0 with OpenSSL
-# hpux1100o+openssl:                  HP-UX 11.xx with OpenSSL
-# hpux1000gcc+openssl:                HP-UX 10.xx with OpenSSL (build with gcc)
-# hpux1100gcc+openssl:                HP-UX 11.xx with OpenSSL (build with gcc)
-# irix6x+krb5:                        IRIX 6.x with Kerberos V
-# irix65+krb5:                        etc etc...
-# solaris9+openssl                    Solaris 9,10, or 11 with Openssl (Sun cc)
-# solaris9g+openssl                   Solaris 9,10, or 11 with Openssl (gcc)
-# linux+ssl                           OpenSSL only
-# linux+krb5+ssl                      Linux with Kerberos 5 and OpenSSL
-# linux+krb5:                         Kerberos 5 only
-# 
-# The following secure Linux targets have not been updated or tested recently.
-# linux+krb5+krb4:
-# linux+srp:
-# linux+srp+pam:
-# linux+srp+gmp:
-# linux+srp+gmp+no-des:
-# linux+srp+gmp-export:
-# linux+srp+gmp+pam:
-# linux+shadow+pam:
-# linux+openssl:
-# linux+openssl+shadow:
-# linux+openssl+zlib+shadow+pam:
-# linux+srp+openssl:
-# linux+krb5+krb4+srp:
-# linux+krb5+krb4+srp+openssl:
-# linux+krb5+krb4+openssl:
-# linux+krb5+krb4+openssl+shadow:
-# linux+krb5+krb4+openssl+zlib+shadow:
-# linux+krb5+krb4+srp-export:
-# linux+krb5+krb4+srp+pam:
-# linux+krb5+krb4+srp+openssl+pam-debug:
-# linux+krb5+krb4+srp+openssl+pam:
-# linux+krb5+krb4+srp+openssl+zlib+pam:
-# linux+krb5+krb4+openssl+shadow+pam:
-# linux+krb5+openssl+zlib+shadow+pam:
-# 
-# The following have not been tested recently either and might
-# need adjustment.
-#
-# macosx+krb5+ssl:     Mac OS X 10.3.9 or later + OpenSSL and Kerberos 5
-# macosx103+secure:    This one is probably redundant
-# netbsd+openssl:      NetBSD with OpenSSL
-# openbsd30+ssl:       OpenBSD 3.0 with OpenSSL
-# redhat71,redhat72,redhat73,redhat80,redhat9 (Krb5,OpenSSL,Showdow,PAM,Zlib)
-# sco32v500net+ssl:
-# sco32v505net+ssl:
-# solaris2x+krb4:
-# solaris2xg+krb4:
-# solaris2xg+openssl+pam+shadow:
-# solaris2xg+openssl+zlib+pam+shadow:
-# solaris2xg+krb5+krb4+openssl+shadow:
-# solaris25+krb4:
-# solaris25g+krb4:
-# solaris26g+openssl:
-# solaris8g+openssl+zlib+pam+shadow:
-# solaris8g+krb4:
-# solaris9g+openssl+zlib+pam+shadow:
-# solaris9g+openssl+shadow+pam+zlib
-# sunos41gcc+krb4:                    SunOS 4.1 built with gcc with Kerberos IV
-# sunos41gcc+openssl:                 SunOS 4.1 built with gcc with OpenSSL
-# sunos41gcc+krb4+openssl:            ...with Kerberos IV and OpenSSL
-# sunos41gcc+krb4+openssl+zlib:       ditto, plus ZLIB compression
-# sunos41gcc+krb4+srp+openssl+zlib:   ditto, plus SRP
-# sunos41gcc+srp+openssl+zlib:
-# tru64-51b-openssl:                  Tru64 (Digital) Unix 5.1B with OpenSSL
-# uw7ssl                              Unixware 7 with SSL
-#
 ###########################################################################
 #
 #  Compile and Link variables:
@@ -1006,7 +847,6 @@ MANDIR = $(manroot)/man/man1
 MANEXT = 1
 SRCDIR =
 INFODIR =
-CERTDIR =
 
 TEXTFILES = COPYING.TXT ckcbwr.txt ckubwr.txt ckuins.txt ckccfg.txt \
 		ckcplm.txt ckermit.ini ckermod.ini ckermit70.txt ckermit80.txt
@@ -1035,31 +875,17 @@ ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckcpro.$(EXT) ckcfns.$(EXT) \
 ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) ckucon.$(EXT) ckutio.$(EXT) \
 ckufio.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) ckwart.$(EXT) ckuusx.$(EXT) \
 ckuusy.$(EXT) ckcnet.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) ckusig.$(EXT) \
-ckucns.$(EXT) ckcmdb.$(EXT) ckuath.$(EXT) ckctel.$(EXT) ckclib.$(EXT) \
-ckcuni.$(EXT) ck_crp.$(EXT) ck_ssl.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
+ckucns.$(EXT) ckcmdb.$(EXT) ckctel.$(EXT) ckclib.$(EXT) \
+ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
 ckcpro.c wart
 
 show:
 	@echo prefix=$(prefix)
-	@echo srproot=$(srproot)
-	@echo sslroot=$(sslroot)
 	@echo manroot=$(manroot)
-	@echo K4LIB=$(K4LIB)
-	@echo K4INC=$(K4INC)
-	@echo K5LIB=$(K5LIB)
-	@echo K5INC=$(K5INC)
-	@echo SRPLIB=$(SRPLIB)
-	@echo SRPINC=$(SRPINC)
-	@echo SSLLIB=$(SSLLIB)
-	@echo SSLINC=$(SSLINC)
 	@exit
 
 # Install C-Kermit after building -- IMPORTANT: Read the instructions above
-# (SAMPLE INSTALLATION SCRIPT).  For SSL/TLS versions, ca_certs.pem file
-# should be installed in the appropriate place for your OpenSSL library, e.g.:
-#
-#   cp ca_certs.pem /usr/local/ssl/
-#   cp ca_certs.pem /usr/share/ssl/
+# (SAMPLE INSTALLATION SCRIPT).
 #
 # To make sure 'man' notices the new source file and doesn't keep
 # showing the old formatted version, remove the old formatted version,
@@ -1171,27 +997,6 @@ install:
 	else\
 		echo "Not installing man page!\n";\
 	fi;\
-	echo CERTDIR=$(CERTDIR);\
-	if test -n "$(CERTDIR)"; then\
-		if test -f ca_certs.pem; then\
-			if test -d $(CERTDIR); then\
-				echo  "$(CERTDIR) exists...";\
-			else\
-				echo "Creating $(CERTDIR)...";\
-				mkdir $(CERTDIR) || exit 1;\
-				chmod 755 $(CERTDIR) || exit 1;\
-			fi;\
-			echo "Installing certificates file...";\
-			cp ca_certs.pem $(CERTDIR) || exit 1;\
-			echo 'set flag=f' >&3;\
-			echo 'PrC Removing certificates file' >&3;\
-			echo "RmF $(CERTDIR)/ca_certs.pem" >&3;\
-			echo 'EfM' >&3;\
-			echo;\
-		fi;\
-	else\
-		echo "Not installing certificates file!\n";\
-	fi;\
 	echo SRCDIR=$(DESTDIR)$(SRCDIR);\
 	if test -n "$(SRCDIR)"; then\
 		echo "Installing source files...";\
@@ -1243,7 +1048,6 @@ install:
 	echo "RmD $(DESTDIR)$(BINDIR)" >&3;\
 	echo "RmD $(DESTDIR)$(SRCDIR)" >&3;\
 	echo "RmD $(DESTDIR)$(INFODIR)" >&3;\
-	echo "RmD $(CERTDIR)" >&3;\
 	echo "RmD $(MANDIR)" >&3;\
 	echo "RmD $(DESTDIR)" >&3;\
 	echo "EfM" >&3;\
@@ -1328,8 +1132,7 @@ xermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
 		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
 		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) ckuath.$(EXT) \
-		ck_crp.$(EXT) ck_ssl.$(EXT)
+		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT)
 	$(CC2) $(LNKFLAGS) -o wermit \
 		ckcmai.$(EXT) ckclib.$(EXT) ckutio.$(EXT) ckufio.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
@@ -1338,7 +1141,7 @@ xermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckuusx.$(EXT) ckuusy.$(EXT) ckuusr.$(EXT) ckucns.$(EXT) \
 		ckudia.$(EXT) ckuscr.$(EXT) ckcnet.$(EXT) ckusig.$(EXT) \
 		ckctel.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
-		ckuath.$(EXT) ck_crp.$(EXT) ck_ssl.$(EXT) $(LIBS)
+		$(LIBS)
 
 # Malloc Debugging version
 
@@ -1357,105 +1160,6 @@ mermit:	ckcmdb.$(EXT) ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) \
 		ckuusr.$(EXT) ckucon.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
 		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckcuni.$(EXT) \
 		ckupty.$(EXT) ckcftp.$(EXT) $(LIBS)
-
-# Kerberized Version - Subject to USA export restrictions.
-
-# NOTE: We don't use this any more -- As of 15 Feb 2003, the "xermit"
-# target is used for both secure and regular version.
-
-krbmit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
-		ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) \
-		ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) ckcpro.$(EXT) \
-		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
-		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
-		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckuath.$(EXT) ck_crp.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) \
-		ckcftp.$(EXT) ck_ssl.$(EXT)
-	$(CC2) $(LNKFLAGS) -o krbmit ckcmai.$(EXT) ckclib.$(EXT) \
-		ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) \
-		ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) ckucmd.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckuusr.$(EXT) ckucns.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
-		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckuath.$(EXT) \
-		ck_crp.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
-		ck_ssl.$(EXT) $(LIBS)
-
-krbmit-debug:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckcpro.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) \
-		ckuxla.$(EXT) ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) \
-		ckudia.$(EXT) ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) \
-		ckusig.$(EXT) ckuath.$(EXT) ck_crp.$(EXT) ckcuni.$(EXT) \
-		ckupty.$(EXT) ck_ssl.$(EXT) ckcmdb.$(EXT) ckcftp.$(EXT) 
-	$(CC2) $(LNKFLAGS) -o krbmit ckcmdb.$(EXT) ckcmai.$(EXT) \
-		ckclib.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) \
-		ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) \
-		ckucmd.$(EXT) ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) \
-		ckuus5.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) \
-		ckuusy.$(EXT) ckuusr.$(EXT) ckucns.$(EXT) ckudia.$(EXT) \
-		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckuath.$(EXT) ck_crp.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) \
-		ckcftp.$(EXT) ck_ssl.$(EXT) $(LIBS)
-
-# SRP(TM) Version - Subject to USA export restrictions.
-
-srpmit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
-		ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) \
-		ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) ckcpro.$(EXT) \
-		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
-		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
-		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckuath.$(EXT) ck_crp.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) \
-		ckcftp.$(EXT) ck_ssl.$(EXT)
-	$(CC2) $(LNKFLAGS) -o srpmit ckcmai.$(EXT) ckclib.$(EXT) \
-		ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) \
-		ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) ckucmd.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckuusr.$(EXT) ckucns.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
-		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckuath.$(EXT) \
-		ck_crp.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ck_ssl.$(EXT) \
-		ckcftp.$(EXT) $(LIBS)
-
-# Kerberized Version - Not subject to USA export restrictions.
-
-krbmit-export:	ckcmai.$(EXT) \
-		ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
-		ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) \
-		ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) ckcpro.$(EXT) \
-		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
-		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
-		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckuath.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT)
-	$(CC2) $(LNKFLAGS) -o krbmit-export ckcmai.$(EXT) ckclib.$(EXT) \
-		ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) \
-		ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) ckucmd.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckuusr.$(EXT) ckucns.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
-		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckuath.$(EXT) \
-		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) $(LIBS)
-
-# SRP(TM) Version - Not subject to USA export restrictions.
-
-srpmit-export:	ckcmai.$(EXT) \
-		ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
-		ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) \
-		ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) ckcpro.$(EXT) \
-		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
-		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
-		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckuath.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT)
-	$(CC2) $(LNKFLAGS) -o srpmit-export ckcmai.$(EXT) ckclib.$(EXT) \
-		ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) \
-		ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) ckucmd.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckuusr.$(EXT) ckucns.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
-		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckuath.$(EXT) \
-		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) $(LIBS)
 
 ###########################################################################
 # man page...
@@ -1558,14 +1262,6 @@ ckcftp.$(EXT): ckcftp.c ckcdeb.h ckcasc.h ckcker.h ckucmd.h ckuusr.h \
 		ckcnet.h ckctel.h ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
 ckupty.$(EXT): ckupty.c ckupty.h ckcdeb.h ckcfnp.h
-
-ckuath.$(EXT): ckuath.c ckcdeb.h ckucmd.h ckuath.h ckuat2.h ckctel.h \
-		 ckclib.h ckcnet.h ckcfnp.h
-
-ck_crp.$(EXT): ck_crp.c ckcdeb.h ckcnet.h ckuath.h ckclib.h ckcfnp.h
-
-ck_ssl.$(EXT): ck_ssl.c ckcdeb.h ckucmd.h ckuath.h ckuat2.h ckctel.h \
-		 ckclib.h ck_ssl.h ckcfnp.h
 
 ###########################################################################
 #
@@ -1827,40 +1523,6 @@ freebsd freebsd41 freebsd72 freebsd5 freebsd6 freebsd7 freebsd8 freebsd9:
 	-O2 -pipe"\
 	"LIBS= -lncurses -lcrypt -lutil -lm $(LIBS)"
 
-#FreeBSD 5.0 or later with OpenSSL.
-#OK 2011/06/15 FreeBSD 4.7 and 8.2
-#OK 2011/08/20 FreeBSD 9.0-CURRENT
-freebsd+ssl freebsd+openssl freebsd50+openssl:
-	@echo 'Making C-Kermit $(CKVER) for FreeBSD with Kerberos 5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) freebsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	KFLAGS="-DCK_AUTHENTICATION -DCK_SSL $(SSLINC) -DZLIB $$OPENSSLOPTION \
-	$$HAVE_DES $(KFLAGS)"  "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS= -lncurses -lcrypt -lssl -lcrypto -lutil -lm \
-	$(SSLLIB) $$DES_LIB $(LIBS)"; \
-	if [ ! -f ./wermit ] || [ ./ckcmai.o -nt ./wermit ] ; then \
-		echo ""; \
-		echo "If build failed try:"; \
-		echo ""; \
-		echo "  make clean ; make $${KTARGET:-$(@)} KFLAGS=-UCK_DES"; \
-		echo ""; \
-	fi
-
 #NetBSD 1.4.1 or later with vanity banner automated with uname
 #and automatic inclusion of large file support if it is available.
 #This target tested successfully on NetBSD 1.4.1, 1.5.2, and 2.0.3 (Jan 2006).
@@ -1932,263 +1594,6 @@ netbsd-nodeprecated: \
 	"LNKFLAGS = $(LNKFLAGS)" \
 	netbsd
 
-#NetBSD 1.4.1 or later with OpenSSL
-#OK: 2011/06/15 on NetBSD 5.1 (but not 1.5.2 with OpenSSL 0.9.5a)
-#OK: 2011/08/21 on 5.1.
-#OK (but with warnings) 2022/11/03.
-#Use "make netbsd+ssl-des" (minus DES) to get rid of DES warnings.
-netbsd+ssl netbsd+openssl:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD+OpenSSL SSLLIB=$(SSLLIB)'
-	@echo 'If you get DES-related warnings try make netbsd+ssl-des'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_CAST $$HAVE_DES \
-	-DCK_SSL -DCK_PAM -DZLIB -DNO_DCL_INET_ATON $$OPENSSLOPTION \
-	-I/usr/include/des $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS= -L/usr/pkg/lib -R/usr/pkg/lib -lssl $$DES_LIB -lcurses \
-	-lcrypto -lcrypt -lz -lm -lpam -lutil $(LIBS)"
-
-# ONLY ON PANIX5, which, as of 16 November 2022, has OpenSSL3 in a nonstandard
-# place because the production version, 1.1.1g is installed in the normal
-# place, so have to "export LD_LIBRARY_PATH=/usr/local/openssl3/lib"; adding
-# these to the this target doesn't work:
-# 	"LD_LIBRARY_PATH=/usr/local/openssl3/lib \
-#	"LD_RUN_PATH=/usr/local/openssl3/lib \
-# But all this is only because we're doing an end-run around the production
-# SSL libs.  If SSL3 is installed as the production version, the regular
-# netbsd+ssl target should work.
-#
-netbsd+ssl3:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD+OpenSSL SSLLIB=$(SSLLIB)'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS=-DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_CAST $$HAVE_DES \
-	-DCK_SSL -DCK_PAM -DZLIB -DNO_DCL_INET_ATON $$OPENSSLOPTION \
-	-I/usr/local/openssl3/include $(KFLAGS)" \
-	"LNKFLAGS = -L/usr/local/openssl3/lib $(LNKFLAGS)" \
-	"LIBS= -lssl -lcurses -R/usr/pkg/lib -lcrypto -lcrypt -lz -lm -lpam \
-	-lutil -W $(LIBS)"
-
-netbsd+ssl-des:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD+OpenSSL SSLLIB=$(SSLLIB)'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_CAST $$HAVE_DES \
-	-DCK_SSL -DCK_PAM -DZLIB -DNO_DCL_INET_ATON $$OPENSSLOPTION \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS= -L/usr/pkg/lib -R/usr/pkg/lib -lssl $$DES_LIB -lcurses \
-	-lcrypto -lcrypt -lz -lm -lpam -lutil $(LIBS)"
-
-#NetBSD with MIT Kerberos 5:
-# OK 2011/06/15 (once K5INC and K5LIB were set right).
-# NOT OK for Heimdal - Heimdal Kerberos support in C-Kermit needs work.
-# OK: 2011/08/21 on 5.1.
-netbsd+krb5:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD with Kerberos 5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_KERBEROS -DKRB5 \
-	-DCK_CAST $$HAVE_DES -DNOFTP_GSSAPI $(K5INC) $(K5INC)/krb5 \
-	$(KFLAGS)" \
-	"LIBS= $(K5LIB) -L/usr/pkg/lib -R/usr/pkg/lib -lcurses $$DES_LIB \
-	-lcrypto -lgssapi -lkrb5 -lm -lutil $(LIBS)"
-
-# This target added 24 Nov 2022, based on linux+krb5-new.
-# This is for Heimdal Kerberos, not MIT.
-# It doesn't work.  - fdc Thu Nov 24 19:15:47 2022
-netbsd+krb5-new:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD with Kerberos 5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	K5LIB=''; \
-	if ld -lkrb5 > /dev/null 2> /dev/null; then \
-	  K5LIB='-lkrb5'; else \
-	  echo "Failed - Can't find Kerberos 5 library" ; exit 2; \
-	fi; \
-	KRB5_H=''; \
-	KRB5_KRB5_H=''; \
-	if test -f /usr/include/krb5/krb.h; then \
-	    KRB5_H=-DKRB5_H; \
-	fi; \
-	CRYPT_H=''; \
-	if test -f /usr/include/crypt.h; then \
-	  CRYPT_H='-DCRYPT_H'; \
-	fi; \
-	LIBCRYPT=''; \
-	if ld -lcrypt > /dev/null 2> /dev/null; then \
-	  LIBCRYPT='-lcrypt'; \
-	fi; \
-	LIBCRYPTO=''; \
-	if ld -lcrypto > /dev/null 2> /dev/null; then \
-	  LIBCRYPTO='-lcrypto'; \
-	fi; \
-	LIBK5CRYPTO=''; \
-	if ld -lk5crypto > /dev/null 2> /dev/null; then \
-	  LIBK5CRYPTO='-lk5crypto'; \
-	fi; \
-	HAVE_DES=''; \
-	if ld -ldes > /dev/null 2> /dev/null; then \
-	  LIBDES='-ldes'; \
-	  HAVE_DES='-DCK_DES -DLIBDES'; \
-	fi; \
-	XX_COM_ERR=H''; \
-	K5_COM_ERR_H=''; \
-	ET_COM_ERR_H=''; \
-	COM_ERR_LIB=''; \
-	if ld -lcom_err > /dev/null 2> /dev/null; then \
-	  if test -f /usr/include/krb5/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DK5_COM_ERR_H'; \
-	  else if test -f /usr/include/et/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DET_COM_ERR_H'; \
-	  else if test -f /usr/include/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DXX_COM_ERR_H'; \
-	   fi; \
-	  fi; \
-	 fi; \
-	fi; \
-	GSSAPILIB=''; \
-	HAVE_GSSAPI=''; \
-	if name=`locate libgssapi | grep ^/usr/lib | head -1`; then \
-	  echo name=$$name; \
-	  path=$${name%/*}; \
-	  echo PATH=$$path; \
-	  GSSAPILIB=$$(basename $$name); \
-	  echo GSSAPILIB=$$GSSAPILIB ; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi ; \
-	if [ -z "$$LD_LIBRARY_PATH" ] ; then \
-	  export LD_LIBRARY_PATH=$$path ; else \
-	  export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$path; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi; \
-	if ls $${path}/libgssapi_krb5.* >/dev/null 2>/dev/null; then \
-	  echo HAVE libgssapi_krb5 ; \
-	  GSSAPILIB=-lgssapi_krb5 ;  else \
-	  if ls $${path}/libgssapi.* >/dev/null 2>/dev/null; then \
-	    GSSAPILIB=-lgssapi ; \
-	  fi; \
-	fi; \
-	echo GSSAPILIB=$GSSAPILIB; \
-	echo LD_LIBRARY_PATH=$$LD_LIBRARY_PATH; \
-	if ld -lggssapi_krb5 > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi_krb5'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-1=$$GSSAPILIB; \
-	else if ld -lggssapi > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-2=$$GSSAPILIB; \
-	 fi; \
-	fi; \
-	echo GSSAPILIB=$$GSSAPILIB; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_KERBEROS -DKRB5 \
-	-DCK_CAST $$HAVE_DES $$CRYPT_H $$COM_ERR_H $$KRB5_H \
-	-I/usr/include -I/usr/include/et /$(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS=  $$LIBCRYPT $$LIBCRYPTO $$LIBK5CRYPTO $$LIBDES $$COM_ERR_LIB \
-	$$K5LIB $$GSSAPILIB $(K5LIB) -L/usr/pkg/lib -R/usr/pkg/lib \
-	-lcurses $$DES_LIB -lm -lutil $(LIBS)"
-
-# NetBSD - With Kerberos 5 and SSL and Zlib.
-# OK: 2011/08/21 on 5.1 with MIT Kerberos.
-netbsd+krb5+ssl netbsd+krb5+openssl+zlib:
-	@echo 'Making C-Kermit $(CKVER) for NetBSD+OpenSSL+Kerberos5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) netbsd KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_CAST $$HAVE_DES \
-	-DCK_KERBEROS -DKRB5 -DNOFTP_GSSAPI $(K5INC) $(K5INC)/krb5 \
-	-DCK_SSL -DCK_PAM -DZLIB -DNO_DCL_INET_ATON $$OPENSSLOPTION \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS= $(K5LIB) -L/usr/pkg/lib -R/usr/pkg/lib -lssl $$DES_LIB \
-	-lcrypto -lcrypt -lgssapi -lkrb5 -lz -lm -lpam -lutil -lcurses $(LIBS)"
-
-#Special Security Enhanced NetBSD target with SRP, SSL, and zlib support.
-#To build this, you need to BUILD the pkgsrc srp_client package.  After
-#you build it, you must go into work/srp-x.y.z/libkrypto and "bmake install"
-#then go to work/srp-x.y.z/libsrp and "bmake install".  As of 2005Q3, the
-#pkgsrc install only installed the statically linked client applications.  You
-#need to manually install the libraries to build your own applications.
-#NOT TESTED RECENTLY - probably needs work.
-netbsd+ssl+srp+zlib:
-	@echo Making C-Kermit $(CKVER) for NetBSD with curses...
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DBSD44 -DCK_CURSES -DTCPSOCKET -DUSE_STRERROR -DNETBSD15 \
-	-DCK_DTRCD -DCK_DTRCTS -DTPUTSARGTYPE=int \
-	-I/usr/include/openssl -I/usr/pkg/include \
-	-DCK_AUTHENTICATION -DCK_SRP -DPRE_SRP_1_4_5 -DCK_ENCRYPTION \
-	-DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DZLIB -DFNFLOAT $(KFLAGS) -O" \
-	"LIBS= -L/usr/pkg/lib -R/usr/pkg/lib -lcurses -lsrp -lgmp -ldes \
-	-lssl -lkrypto -lcrypto -lcrypt -lz -lm -lutil $(LIBS)"
-
 #NetBSD with curses left out (e.g. for use as IKSD).
 netbsdnc:
 	@echo Making C-Kermit $(CKVER) for NetBSD with no curses...
@@ -2259,36 +1664,6 @@ mirbsd:
 	-DUSE_UU_LOCK -DFNFLOAT -DUSE_STRERROR $(KFLAGS) -O" \
 	"LIBS= -lcurses -lutil -lm"
 
-#New OpenBSD + OpenSSL target from Piotr Kolasinski, 18 September 2023...
-openbsd+ssl:
-	@echo Making C-Kermit $(CKVER) for OpenBSD 3.0 or later...
-	NOTIMEBH='' ;
-	if test -f /usr/include/sys/timeb.h ; \
-	then if `grep deprecated /usr/include/sys/timeb.h` ; \
-	then NOSYSTIMEBH='-DNOSYSTIMEBH' ; fi ; \
-	else NOSYSTIMEBH='-DNOSYSTIMEBH' ; fi; \
-	if test -f /usr/include/sys/wait.h ; \
-	then HAVE_WAITH='-DHAVEWAITH' ; \
-	else HAVE_WAITH='' ; fi; \
-	if `grep -q "[[:space:]]utimes" /usr/include/sys/time.h` ; \
-	then HAVE_UTIMES='-DHAVE_UTIMES' ; \
-	else HAVE_UTIMES=''; fi; \
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DBSD44 -DCK_CURSES -DCK_NEWTERM -DTCPSOCKET -DOPENBSD \
-	$$NOSYSTIMEBH -DHERALD=\"\\\" OpenBSD `uname -r`\\\"\" \
-	-DUSE_UU_LOCK -DFNFLOAT -DUSE_STRERROR -DCK_AUTHENTICATION \
-	-DCK_SSL $$HAVE_WAITH $$HAVE_UTIMES $(KFLAGS) -O" \
-	"LIBS= -lcurses -lutil -lm -lssl -lcrypto"
-
-mirbsd+ssl:
-	@echo Making C-Kermit $(CKVER) for OpenBSD 3.0 or later...
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DBSD44 -DCK_CURSES -DCK_NEWTERM -DTCPSOCKET -DOPENBSD \
-	-DHERALD=\"\\\" MirBSD `uname -r`\\\"\" \
-	-DUSE_UU_LOCK -DFNFLOAT -DUSE_STRERROR -DCK_AUTHENTICATION \
-	-DCK_SSL -DNO_DCL_INET_ATON $(KFLAGS) -O" \
-	"LIBS= -lcurses -lutil -lm -lssl -lcrypto"
-
 # make 386bsd 0.0new, posix
 # for  386bsd 0.1.24, change /usr/include/termios.h to #define NCCS if
 #  _POSIX_SOURCE is #defined. (source: lewine, posix prgmrs guide, o`reilly)
@@ -2356,18 +1731,7 @@ oldmacosx103:
 	-DUSE_STRERROR -DUSE_NAMESER_COMPAT -O \
 	$(KFLAGS) " "LIBS= -lncurses -lresolv $(LIBS)"
 
-#Mac OS X 10.3 (Panther) with Kerberos 5 and SSL, assumes ncurses is installed.
-oldmacosx103+secure:
-	@echo Making Secure C-Kermit $(CKVER) for `uname -s` + ncurses...
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DMACOSX10 -DMACOSX103 -DCK_NCURSES -DTCPSOCKET \
-	-DUSE_STRERROR -DUSE_NAMESER_COMPAT -O -DCK_PAM \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DZLIB \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL \
-	$(KFLAGS) " "LIBS= -lssl -lcrypto -lkrb5 -lcom_err \
-	-lk5crypto -lgssapi_krb5 -lpam -lncurses -lresolv $(LIBS)"
-
-# THIS IS THE MAIN MAC OS X TARGET (the next one is for Kerberos/SSL builds).
+# THIS IS THE MAIN MAC OS X TARGET.
 # Use this target for 10.3.9 (or maybe earlier) through 10.6 (maybe later)
 # on both Power and Intel architectures.  This one uses utmp.h on 10.4 and
 # earlier and utmpx.h on 10.5 onwards.
@@ -2392,45 +1756,6 @@ macosx macosx10 macosx10.3.9 macosx10.4 macosx10.5 macosx10.6:
 	-DNOUUCP -O -DHERALD=\"\\\" $${MACOSNAME} $${MACOSV}\\\"\" \
 	-DCKCPU=\"\\\"$${MACCPU}\\\"\" \
 	$(KFLAGS)" "LIBS= -lncurses -lresolv $(LIBS)"
-
-# Mac OS X 10.3.9 or later with Kerberos 5 and OpenSSL...
-# NOTE: Apple has removed all support for DES in OpenSSL and Kerberos
-#   in Mac OS X 10.6 and later.  The DES flags are included or left out
-#   automatically based on the Mac OS X version number.
-# See note about UUCP in previous target.
-#OK: 2009/11/16 (for 10.3.9, 10.4.11, 10.5.8, 10.6.1)
-#OK: 2011/06/14 (for 10.4.11, 10.5.8, 10.6.7)
-macosx+krb5+ssl macosx10.5+krb5+ssl macosx10.6+krb5+ssl \
-macosx+krb5+openssl macosx10.5+krb5+openssl macosx10.6+krb5+openssl:
-	@MACOSNAME=`/usr/bin/sw_vers -productName`; \
-	MACOSV=`/usr/bin/sw_vers -productVersion`; \
-	echo Making C-Kermit $(CKVER) for $$MACOSNAME $$MACOSV... ; \
-	MACCPU=$$HOSTTYPE; \
-	if test `uname -r | cut -d . -f 1` -gt 8; \
-	then if test -f /usr/include/utmpx.h ; \
-	then HAVE_UTMPX='-DHAVEUTMPX -D_UTMPX_COMPAT' ; \
-	else HAVE_UTMPX='' ; fi ; fi; \
-	if test `uname -r | cut -d . -f 1` -eq 7; \
-	then IS_MACOSX103='-DMACOSX103' ; \
-	else IS_MACOSX103='' ; fi; \
-	case $$MACOSV in \
-	  10.[012345].*) HAVE_DES='-DCK_DES -DLIBDES' ;; \
-	  *.*) HAVE_DES='' ;; \
-	esac ; \
-	if test -x /usr/bin/krb5-config ; \
-	then HAVE_KRB5CONFIG=`/usr/bin/krb5-config --libs krb5 gssapi` ; \
-	else HAVE_KRB5CONFIG='-lgssapi_krb5 -lkrb5 -lk5crypto \
-	-lcom_err -lresolv' ; fi; \
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DMACOSX10 $$IS_MACOSX103 -DCK_NCURSES -DTCPSOCKET \
-	-DUSE_STRERROR -DUSE_NAMESER_COMPAT -DNOCHECKOVERFLOW -DFNFLOAT \
-	-DCKHTTP -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 $$HAVE_UTMPX \
-	-DNODCLINITGROUPS -DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DZLIB \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_SSL -DOPENSSL_098 $$HAVE_DES \
-	-DNOUUCP -DHERALD=\"\\\" $${MACOSNAME} $${MACOSV}\\\"\" \
-	-DCKCPU=\"\\\"$${MACCPU}\\\"\" \
-	-funsigned-char -O $(KFLAGS)" \
-	"LIBS= $$HAVE_KRB5CONFIG -lssl -lcrypto -lpam -lncurses $(LIBS)"
 
 # Additional target "macos" by Tony Nicholson 4-Nov-2021.
 #
@@ -2463,65 +1788,6 @@ macos:
 	-DNOUUCP -O -DHERALD=\"\\\" $${MACOSNAME} $${MACOSV}\\\"\" \
 	-DCKCPU=\"\\\"$${MACCPU}\\\"\" \
 	$(KFLAGS)" "LIBS= -lncurses -lresolv $(LIBS)"
-
-# Experimental.  2022-11-30  SMS.
-macos+ssl macos+openssl:
-	if test -n "$(KZLIBDIR)" ; then \
-	   ZLIBDIR="$(KZLIBDIR)" ; \
-	else \
-	   ZLIBDIR='/usr/local/lib' ; \
-	fi ; \
-	case "$(KTARGET)" in \
-	   *-zlib*) ZLIBFLAG='' ; ZLIBOPT='' ;; \
-	   *) ZLIBFLAG='-DZLIB' ; ZLIBOPT="-L $$ZLIBDIR -lz" ;; \
-	esac ; \
-	case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; \
-	SSLINC=$${KSSLINC:-$(SSLINC)}; \
-	SSLLIB=$${KSSLLIB:-$(SSLLIB)}; \
-	$(MAKE) CC=$(CC) CC2=$(CC2) macos KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DCK_AUTHENTICATION -DCK_SSL $(KCFLAGS) \
-	$$OPENSSLOPTION $$ZLIBFLAG $$SSLINC" \
-	"LIBS= $$SSLLIB -lssl -lcrypto $$ZLIBOPT $(KLIBS)"
-
-macos+ssl-zlib macos+openssl-zlib:
-	$(MAKE) macos+ssl KTARGET=$${KTARGET:-$(@)}
-
-# Trial using the Homebrew install of krb5 and openssl
-# (newer versions of macOS have dropped the Kerberos5 include
-# files and moved to LibreSSL).
-# NB: not yet working  **DON'T USE THIS TARGET**
-#
-macos+krb5+ssl macos+krb5+openssl:
-	@MACOSNAME=`/usr/bin/sw_vers -productName`; \
-	MACOSV=`/usr/bin/sw_vers -productVersion`; \
-	echo Making C-Kermit $(CKVER) for $$MACOSNAME $$MACOSV... ; \
-	MACCPU=$$HOSTTYPE; \
-	HAVE_UTMPX=''; \
-	IS_MACOSX103=''; \
-	HAVE_DES=''; \
-	if test -x ${HOMEBREW_PREFIX}/opt/krb5/bin/krb5-config ; \
-	then HAVE_KRB5CONFIG=`${HOMEBREW_PREFIX}/opt/krb5/bin/krb5-config \
---libs krb5 gssapi` ; \
-	else HAVE_KRB5CONFIG='-lgssapi_krb5 -lkrb5 -lk5crypto \
-	-lcom_err -lresolv' ; fi; \
-	$(MAKE) CC=$(CC) CC2=$(CC2) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS=-Wno-dangling-else -DMACOSX10 $$IS_MACOSX103 -DCK_NCURSES \
-	-DTCPSOCKET -DUSE_STRERROR -DUSE_NAMESER_COMPAT -DNOCHECKOVERFLOW \
-	-DFNFLOAT -DCKHTTP -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
-	$$HAVE_UTMPX -DNODCLINITGROUPS -DCK_AUTHENTICATION -DCK_KERBEROS \
-	-DKRB5 -DZLIB -DCK_ENCRYPTION -DCK_CAST -DCK_SSL -DOPENSSL_098 \
-	$$HAVE_DES -DNOUUCP -DHERALD=\"\\\" $${MACOSNAME} $${MACOSV}\\\"\" \
-	-DCKCPU=\"\\\"$${MACCPU}\\\"\" \
-	$${K5INC} $${SSLINC} \
-	-funsigned-char -O $(KFLAGS)" \
-	"LIBS= $$HAVE_KRB5CONFIG $${SSLLIB} \
--lssl -lcrypto -lpam -lncurses $(LIBS)"
 
 # End of Mac OS X Section
 
@@ -2856,16 +2122,6 @@ tru64-51b:
 	$(MAKE) CC=$(CC) CC2=$(CC2) osf KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS= -DTRU64 -DOSF50 -DOSF51A -DOSF51B -DHDBUUCP \
 	-unsigned -std1 -O3 -Olimit 2400 $(KFLAGS)"
-
-# Added 5.1b version with OpenSSL - CDW 6-13-2005...
-tru64-51b+openssl:
-	@echo Making C-Kermit $(CKVER) for Tru64 UNIX 5.1b
-	@echo  including OpenSSL...
-	$(MAKE) CC=$(CC) CC2=$(CC2) osf KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS= -DTRU64 -DOSF50 -DOSF51A -DOSF51B -DHDBUUCP \
-	-unsigned -std1 -O3 -Olimit 2400 \
-	-DCK_AUTHENTICATION -DCK_SSL $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -rpath $(sslroot)/ssl/lib -lssl -lcrypto"
 
 du50:
 	$(MAKE) CC=$(CC) CC2=$(CC2) tru64-50a KTARGET=$${KTARGET:-$(@)}
@@ -3210,7 +2466,6 @@ bsdi4:
 bsdiposix:
 	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi
 
-
 #Build a BSDI 4.x binary that also runs under FreeBSD (Terry Kennedy).
 #But watch out for details like serial-port locking.
 bsdix:
@@ -3333,51 +2588,6 @@ aixg:
 	$(MAKE) aix KTARGET=$${KTARGET:-$(@)} \
 	CC=gcc CC2=gcc "KFLAGS=-pipe -funsigned-char"
 
-# AIX 4.2 or later with OpenSSL 0.9.7 or later: "make aix+ssl"
-# For earlier OpenSSL remove -DOPENSSL_097 or add "KFLAGS=-UOPENSSL_097".
-# Synonym target names added to cover old redundant targets that were removed.
-# If SSL is not installed in the /usr/local tree (see SSLINC and SSLLIB
-# definitions near the top), you can specify the locations in your make
-# command as in this example:
-#
-#  SSLINC=-I/opt/ssl/include SSLLIB=-L/opt/ssl/lib make -e aix+ssl
-#
-# To build with gcc use "make aix CC=gcc CC2=gcc", or "make aixg"
-#
-#OK: 2011/06/15
-aix+ssl aix51+openssl aix52+openssl aix53+openssl:
-	@echo "Making C-Kermit $(CKVER) for IBM AIX with OpenSSL..."
-	@echo "SSLINC=$(SSLINC) SSLLIB=$(SSLLIB)"
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	CC=$(CC) CC2=$(CC2) \
-	"CFLAGS=-DAIXRS -DAIX41 -DAIX42 -DSVR4 -DSTERMIOX -DTCPSOCKET \
-	-DDIRENT -DCK_ANSIC -DCLSOPN -DCK_CURSES -DCK_NEWTERM -DFNFLOAT \
-	-D_LARGE_FILES -DSELECT -DSELECT_H -DNOGETUSERSHELL \
-	-DCKCPU=\\\"`uname -p`\\\" \
-	-DHERALD=\"\\\" IBM AIX `uname -v`.`uname -r`\\\"\" \
-	-DCK_AUTHENTICATION -DCK_SSL -DOPENSSL_097 $(SSLINC) $(KFLAGS)" \
-	"LNKFLAGS=-s" "LIBS=$(SSLLIB) -lssl -lcrypto -lcurses -lm -lcrypt"
-
-# AIX 5.3 or 6.1 or later with IBM OpenSSL, which is always in the directories
-# shown below so you don't have to set SSLINC and SSLLIB.  If for some reason
-# the SSL include files and libraries are not in the places assumed, then use
-# "make aix+ssl" (just above) and set SSLINC and SSLLIB to indicate where the
-# SSL files are.  To build with gcc use "make aix+ibmssl CC=gcc CC2=gcc".
-aix+ibmssl:
-	@echo "Making C-Kermit $(CKVER) for IBM AIX 6.1 with OpenSSL..."
-	@echo "If this fails use 'make aix+ss' and specify SSLINC and SSLLIB"
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	CC=$(CC) CC2=$(CC2) \
-	"CFLAGS=-DAIXRS -DAIX41 -DAIX42 -DSVR4 -DSTERMIOX -DTCPSOCKET \
-	-DDIRENT -DCK_ANSIC -DCLSOPN -DCK_CURSES -DCK_NEWTERM -DFNFLOAT \
-	-D_LARGE_FILES -DSELECT -DSELECT_H -DNOGETUSERSHELL \
-	-DCKCPU=\\\"`uname -p`\\\" \
-	-DHERALD=\"\\\" IBM AIX `uname -v`.`uname -r`\\\"\" \
-	-DCK_AUTHENTICATION -DCK_SSL -DOPENSSL_098 \
-	-I/usr/include/openssl $(KFLAGS)" \
-	"LNKFLAGS=-s" \
-	"LIBS=-L/usr/lib/openssl -lssl -lcrypto -lcurses -lm -lcrypt"
-
 # Old AIX versions...
 
 #IBM AIX 3.0, 3.1, or 3.2 for RISC System/6000.
@@ -3445,19 +2655,6 @@ aix41g:
 	-DCK_ANSIC -DCLSOPN -DCK_CURSES -DCK_NEWTERM -DSELECT -DSELECT_H \
 	-DNOGETUSERSHELL -O $(KFLAGS)" \
 	"LNKFLAGS = -s -Xlinker -bbigtoc" "LIBS=-lcurses"
-
-# Add -bbigtoc in case ld fails with TOC overflow.
-aix41+krb5+krb4:
-	@echo Making C-Kermit $(CKVER) for IBM AIX 4.1.1 RS/6000 or PowerPC...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DAIXRS -DAIX41 -DSVR4 -DSTERMIOX -DTCPSOCKET -DDIRENT \
-	-DCK_ANSIC -DCLSOPN -DCK_CURSES -DCK_NEWTERM -DSELECT -DSELECT_H \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_DES $(K5INC) $(K5INC)/krb5  \
-	-DNOGETUSERSHELL -qmaxmem=16000 -O $(KFLAGS)" \
-	"LNKFLAGS = -s" \
-	"LIBS = $(K5LIB) -lcurses -lkrb4 -ldes425 -lkrb5 \
-	-lcom_err -lk5crypto -lgssapi_krb5"
 
 #Old name for "aix41".
 rs6aix41c:
@@ -3570,48 +2767,6 @@ aix43gccz:
 	-DSTERMIOX -DTCPSOCKET -DFNFLOAT -DNOGETUSERSHELL $(KFLAGS)" \
 	"LIBS= -L. -lcurses -bloadmap -bnoquiet"
 
-#AIX 4.3 with MIT Kerberos 5 and Kerberos 4 compatibility mode
-# Must NOT have CK_NEWTERM or else C-Kermit hangs after curses.
-# -mminimal-toc needed on some systems but not others to avoid TOC overflow.
-# "man ld" says -bbigtoc makes program run slower.
-aix43gcc+krb5+krb4:
-	@echo Making C-Kermit $(CKVER) for IBM AIX 4.3 or higher w/Kerberos...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS= -mminimal-toc -g -O -DAIXRS -DAIX41 -DAIX43 -DSVR4 \
-	-DDIRENT -DCK_ANSIC -DCLSOPN -DCK_CURSES -DSELECT -DSELECT_H \
-	-DSTERMIOX -DTCPSOCKET -DFNFLOAT -DNOGETUSERSHELL \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_DES -funsigned-char $(K5INC) $(K5INC)/krb5 \
-	$(KFLAGS)" \
-	"LIBS=$(K5LIB) -lcurses -lm -lkrb4 -ldes425 -lkrb5 \
-	-lcom_err -lk5crypto -lcrypt -lgssapi_krb5"
-
-#AIX 4.3 with MIT Kerberos 5, Kerberos 4 compatibility mode and OpenSSL
-# Must NOT have CK_NEWTERM or else C-Kermit hangs after curses.
-# -mminimal-toc needed on some systems but not others to avoid TOC overflow.
-# "man ld" says -bbigtoc makes program run slower.
-aix43gcc+krb5+krb4+openssl:
-	@echo Making C-Kermit $(CKVER) for IBM AIX 4.3 or higher w/Kerberos...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS= -mminimal-toc -g -O -DAIXRS -DAIX41 -DAIX43 -DSVR4 \
-	-DDIRENT -DCK_ANSIC -DCLSOPN -DCK_CURSES -DSELECT -DSELECT_H \
-	-DSTERMIOX -DTCPSOCKET -DFNFLOAT -DNOGETUSERSHELL \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_DES -DCK_CAST -DLIBDES -DCK_SSL \
-	-funsigned-char $(K5INC) $(K5INC)/krb5 $(SSLINC) $(KFLAGS)" \
-	"LIBS=$(K5LIB) $(SSLLIB) -lssl -lcrypto \
-	-lcurses -lm -lkrb4 -ldes425 -lkrb5 -lcom_err -lk5crypto -lcrypt \
-	-lgssapi_krb5"
-
-aix43gcc+openssl:
-	@echo Making C-Kermit $(CKVER) for IBM AIX 4.3 or higher w/OpenSSL...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS= -mminimal-toc -g -O -DAIXRS -DAIX41 -DAIX43 -DSVR4 \
-	-DDIRENT -DCK_ANSIC -DCLSOPN -DCK_CURSES -DSELECT -DSELECT_H \
-	-DSTERMIOX -DTCPSOCKET -DFNFLOAT -DNOGETUSERSHELL \
-	-DCK_AUTHENTICATION -DCK_SSL -funsigned-char $(SSLINC) $(KFLAGS)" \
-	"LIBS=$(SSLLIB) -lssl -lcrypto -lcurses -lm -lcrypt"
-
 aix44gcc:
 	$(MAKE) aix43g "KFLAGS=-DAIX44 $(KFLAGS)" \
 	KTARGET=$${KTARGET:-$(@)}
@@ -3711,72 +2866,6 @@ sunos41gccfork:
 	-DNOLEARN -funsigned-char $(KFLAGS)" \
 	"LIBS= -lcurses -ltermcap -lresolv -lm"
 
-#as above but configured for Kerberos IV
-sunos41gcc+krb4:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1, gcc, curses, krb4...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DTCPSOCKET -DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB4 \
-	-DCK_ENCRYPTION -DCK_DES -DCK_CAST -DBIGBUFOK -funsigned-char \
-	$(K4INC) $(KFLAGS)" \
-	"LIBS= $(K4LIB) -lcurses -ltermcap -lresolv -lm -lkrb -ldes"
-
-#as above but configured for SSL/TLS
-sunos41gcc+openssl:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1, gcc, curses, ssl...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DCK_AUTHENTICATION -funsigned-char \
-	-DCK_SSL -DTCPSOCKET -DBIGBUFOK $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -lcurses -ltermcap -lresolv -lm -lssl -lcrypto"
-
-#as above but configured for Kerberos IV and SSL/TLS
-sunos41gcc+krb4+openssl:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1, gcc, curses, krb4...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB4 -DCK_ENCRYPTION -DCK_DES \
-	-DCK_CAST -DCK_SSL -DLIBDES -DTCPSOCKET -DBIGBUFOK -funsigned-char \
-	$(K4INC) $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(K4LIB) $(SSLLIB) \
-	-lcurses -ltermcap -lresolv -lm -lkrb -lssl -lcrypto"
-
-#as above but configured for Kerberos IV and ZLIB enabled SSL/TLS
-sunos41gcc+krb4+openssl+zlib:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1, gcc, curses, krb4...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB4 -DCK_ENCRYPTION -DCK_DES \
-	-DCK_CAST -DCK_SSL -DLIBDES -DTCPSOCKET -DBIGBUFOK -funsigned-char \
-	-DZLIB $(K4INC) $(SSLINC) \
-	$(KFLAGS)" \
-	"LIBS= $(K4LIB) $(SSLLIB) \
-	-lcurses -ltermcap -lresolv -lm -lkrb -lssl -lcrypto -lz"
-
-#as above but configured for Kerberos IV and SRP and ZLIB enabled SSL/TLS
-sunos41gcc+krb4+srp+openssl+zlib:
-	@echo "C-Kermit $(CKVER) SunOS 4.1: gcc,curses,krb4,srp,ssl,zlib..."
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB4 -DCK_ENCRYPTION -DCK_DES \
-	-DCK_CAST -DCK_SSL -DLIBDES -DTCPSOCKET -DBIGBUFOK -funsigned-char \
-	-DZLIB -DCK_SRP $(K4INC) $(SRPINC) $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(K4LIB) $(SRPLIB) $(SSLLIB) \
-	-lcurses -ltermcap -lresolv -lm -lkrb -lkrypto \
-	-lsrp -lssl -lcrypto -lz"
-
-#as above but configured for Kerberos IV and SRP and ZLIB enabled SSL/TLS
-sunos41gcc+srp+openssl+zlib:
-	@echo "C-Kermit $(CKVER) SunOS 4.1: gcc,curses,srp,ssl,zlib..."
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_DES \
-	-DCK_CAST -DCK_SSL -DLIBDES -DTCPSOCKET -DBIGBUFOK -funsigned-char \
-	-DZLIB -DCK_SRP $(SRPINC) $(SSLINC) \
-	$(KFLAGS)" \
-	"LIBS= $(SRPLIB) $(SSLLIB) \
-	-lcurses -ltermcap -lresolv -lm -lkrypto -lsrp -lssl -lcrypto -lz "
-
 #SUNOS 4.1 as sunos41 above, but also with curses support
 sunos41c:
 	@echo Curses support
@@ -3868,17 +2957,6 @@ solaris2x:
 	-DSELECT -DCK_CURSES -DCK_NEWTERM -DSTERMIOX -DTCPSOCKET $(KFLAGS)" \
 	"LNKFLAGS = -s" "LIBS= -ltermlib -lsocket -lnsl -lm -lresolv"
 
-#as above but configured for Kerberos IV
-solaris2x+krb4:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x, SunPro cc, krb4...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -O -Usun -i -DSVR4 -DDIRENT -DSOLARIS -DHDBUUCP -DFNFLOAT \
-	-DSELECT -DCK_CURSES -DCK_NEWTERM -DSTERMIOX -DTCPSOCKET  \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB4 \
-	-DCK_ENCRYPTION -DCK_DES -DCK_CAST $(K4INC) $(KFLAGS)" \
-	"LNKFLAGS = -s" \
-	"LIBS= $(K4LIB) -ltermlib -lsocket -lnsl -lm -lresolv -lkrb -ldes"
-
 #C-Kermit for Solaris 2.0-2.4 compiled with gcc, includes curses and TCP/IP.
 #Change -O2 to -O if -O2 gives trouble.
 #Remove -Usun if it causes trouble.
@@ -3906,84 +2984,6 @@ solaris2xgnc:
 	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
 	-DDIRENT -DHDBUUCP -DTCPSOCKET $(KFLAGS)" \
 	"LIBS= -lsocket -lnsl -lm -lresolv $(LIBS)"
-
-#and with Kerberos IV
-solaris2xg+krb4:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with GNU cc, krb4...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB4 -DCK_ENCRYPTION \
-	-DCK_DES -DCK_CAST -DBIGBUFOK $(K4INC) $(KFLAGS)" \
-	"LIBS= $(K4LIB) -ltermlib -lsocket -lnsl -lm -lresolv -lkrb -ldes \
-	$(LIBS)"
-
-#and with OpenSSL,ZLIB,PAM,SHADOW
-solaris2xg+openssl+zlib+pam+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with gcc, OpenSSL...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_SSL -DCK_PAM -DCK_SHADOW  -DZLIB \
-	-DBIGBUFOK $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -ltermlib \
-	-lsocket -lnsl -lm -lresolv -lssl -lcrypto -lpam -lz"
-
-#Ditto but with GCC 3.1 in which you have to specify 32-bit with -m32.
-#In Solaris 9 (and maybe 8) you'll also need specifiy the Library path.
-#Reportedly this can be done here, but only with:
-# crle -l /usr/lib:/usr/local/ssl/lib
-#prior to building.  Note: 64-bit not tested with SSL.
-#For no-crypto 64-bit builds see the solaris9g64 target.
-solaris2xg32+openssl+zlib+pam+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with gcc, OpenSSL...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC="gcc -m32" CC2="gcc -m32" \
-	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_SSL -DCK_PAM -DCK_SHADOW  -DZLIB \
-	-DBIGBUFOK $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -ltermlib \
-	-lsocket -lnsl -lm -lresolv -lssl -lcrypto -lpam -lz"
-
-#and with Krb5,Krb4,OpenSSL,SHADOW
-solaris2xg+krb5+krb4+openssl+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with gcc,k5,k4,ssl...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_SSL -DCK_DES -DCK_CAST -DBIGBUFOK \
-	$(K5INC) $(K5INC)/krb5 $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(K5LIB) $(SSLLIB) -ltermlib -lsocket -lnsl -lm -lresolv \
-	-lkrb4 -lssl -lcrypto -lgssapi_krb5 -lkrb5 -lcom_err -lk5crypto \
-	-ldes $(LIBS)"
-
-#and with OpenSSL
-solaris2xg+openssl+pam+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with gcc, OpenSSL...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_SSL -DCK_PAM -DCK_SHADOW \
-	-DBIGBUFOK $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -ltermlib \
-	-lsocket -lnsl -lm -lresolv -lssl -lcrypto -lpam"
-
-solaris2xg+openssl+zlib+srp+pam+shadow:	
-	@echo 'Making C-Kermit $(CKVER) for Solaris 2.x with gcc, OpenSSL...'
-	@echo 'Please read the comments that accompany the solaris2xg target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -g -O -Usun -DSVR4 -DSOLARIS -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET -DBIGBUFOK \
-	-DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_DES -DLIBDES -DCK_CAST \
-	-DCK_SSL -DCK_PAM -DCK_SHADOW -DZLIB -DCK_SRP $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -ltermlib -lsocket -lnsl -lm -lresolv -lsrp -lssl \
-	-ldes -lkrypto -lcrypto -lpam -lz"
 
 solaris22g:
 	$(MAKE) "MAKE=$(MAKE)" "KFLAGS=-DPOSIX_CRTSCTS $(KFLAGS)" solaris2xg \
@@ -4069,25 +3069,9 @@ solaris25:
 	$(MAKE) "MAKE=$(MAKE)" solaris25x KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=-DSOLARIS25 $(KFLAGS)"
 
-#Solaris 2.5, SunPro compiler, curses, TCP/IP, Kerberos IV
-solaris25+krb4:
-	$(MAKE) "MAKE=$(MAKE)" solaris25x+krb4 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS25 $(KFLAGS)"
-
 #Solaris 2.5 built with gcc
 solaris25g:
 	$(MAKE) "MAKE=$(MAKE)" solaris2xg KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-funsigned-char -DSOLARIS25 $(KFLAGS)"
-
-#Solaris 2.5 built with gcc and Kerberos IV
-solaris25g+krb4:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+krb4 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-funsigned-char -DSOLARIS25 $(KFLAGS)"
-
-#Solaris 2.5 built with gcc and Kerberos V/IV, SSL, ...
-solaris25g+krb5+krb4+openssl+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+krb5+krb4+openssl+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=-funsigned-char -DSOLARIS25 $(KFLAGS)"
 
 #Solaris 2.5, gcc, SunLink X.25 added.
@@ -4112,11 +3096,6 @@ solaris26g:
 	$(MAKE) "MAKE=$(MAKE)" KTARGET=$${KTARGET:-$(@)} solaris2xg \
 	"KFLAGS= -DSOLARIS26 -DCK_PAM -DCK_SHADOW $(KFLAGS)" \
 	"LIBS = -lpam"
-
-#Solaris 2.6 with gcc and SSL
-solaris26g+openssl:
-	$(MAKE) "MAKE=$(MAKE)"  solaris2xg+openssl+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS= -DSOLARIS26 $(KFLAGS)"
 
 #Solaris 2.6 with gcc, no curses (e.g. because libtermlib is missing).
 solaris26gnc:
@@ -4147,23 +3126,6 @@ solaris7g:
 	"KFLAGS=-DSOLARIS7 -DCK_PAM -DCK_SHADOW $(KFLAGS)" \
 	"LIBS= -lpam"
 
-#Solaris 7 with gcc + Kerberos IV (32-bit)
-solaris7g+krb4:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+krb4 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS7 -DCK_PAM -DCK_SHADOW $(KFLAGS)" \
-	"LIBS= -lpam"
-
-solaris7g+openssl+zlib+pam+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+openssl+zlib+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS7 -DCK_PAM -DCK_SHADOW $(KFLAGS)"
-
-#Solaris 7 with gcc + OpenSSL (32-bit)
-solaris7g+openssl+zlib+srp+pam+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+openssl+zlib+srp+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS7 -DCK_PAM -DCK_SHADOW $(KFLAGS)"
-
 #Solaris 8
 solaris8:
 	$(MAKE) "MAKE=$(MAKE)" solaris25x KTARGET=$${KTARGET:-$(@)} \
@@ -4173,20 +3135,6 @@ solaris8:
 #Solaris 8 with gcc (32-bit)
 solaris8g:
 	$(MAKE) "MAKE=$(MAKE)" solaris2xg KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS8 -DCK_PAM -DCK_SHADOW $(KFLAGS)" \
-	"LIBS= -lpam"
-
-# In OpenSSL builds add -ldl if you get unresolved references for
-# dlclose, dlsym, dlopen, dlerror.
-
-#Solaris 8 with gcc + OpenSSL (32-bit)
-solaris8g+openssl+zlib+pam+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+openssl+zlib+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS=-DSOLARIS8 $(KFLAGS)"
-
-#Solaris 8 with gcc + Kerberos IV (32-bit)
-solaris8g+krb4:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+krb4 KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=-DSOLARIS8 -DCK_PAM -DCK_SHADOW $(KFLAGS)" \
 	"LIBS= -lpam"
 
@@ -4202,37 +3150,6 @@ solaris9md:
 	-DSOLARIS9 -Dmalloc=dmalloc -Dfree=dfree -DMDEBUG \
 	-DCK_PAM -DCK_SHADOW -DUSE_STRERROR $(KFLAGS)" \
 	"LIBS= -lpam -ltermlib -lsocket -lnsl -lm -lresolv"
-
-#Solaris 9 with gcc + OpenSSL + Shadow (32-bit)
-#Add -DOPENSSL_097 for OpenSSL 0.9.7 or later.
-solaris9g+openssl+shadow+pam+zlib:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+openssl+zlib+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS9 -DHDBUUCP -DDIRENT -D_FILE_OFFSET_BITS=64 \
-	-DNO_DCL_INET_ATON -DZLIB -DCK_PAM -DCK_SHADOW -DLIBDES $(KFLAGS)" \
-	"LIBS= -lpam -ldes425 -lz $(LIBS)"
-
-#Solaris 9 with gcc + OpenSSL + Kerberos 5 + Krb4 + Shadow (32-bit)
-#Add -DOPENSSL_097 for OpenSSL 0.9.7 or later.
-solaris9g+krb5+krb4+openssl+shadow+pam+zlib:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg+krb5+krb4+openssl+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS9 -DHDBUUCP -DDIRENT -D_FILE_OFFSET_BITS=64 \
-	-DNO_DCL_INET_ATON -DZLIB -DCK_PAM -DCK_SHADOW -DLIBDES $(KFLAGS)" \
-	"LIBS= -lpam -ldes -lz $(LIBS)"
-
-#Solaris 9 with gcc + Kerberos 4 and 5:
-solaris9g+krb5+krb4:
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -O -Usun -DSVR4 -DSOLARIS9 -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DKRB4 -DKRB524 \
-	-D_FILE_OFFSET_BITS=64 \
-	-DCK_ENCRYPTION -DCK_DES -DCK_CAST -DBIGBUFOK \
-	$(K5INC) $(K5INC)/krb5 $(KFLAGS)" \
-	"LIBS= $(K5LIB) -ltermlib -lsocket -lnsl -lm -lresolv \
-	-lkrb4 -lcrypto -lgssapi_krb5 -lkrb5 -lcom_err -lk5crypto \
-	-ldes $(LIBS)"
 
 #Solaris 9, 10, or 11 with gcc...  
 #Uses streams PTYs rather than BSD ptys as in C-Kermit 8.0 and earlier.
@@ -4254,41 +3171,6 @@ solaris9g solaris10g solaris11g:
 	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
 	-D_FILE_OFFSET_BITS=64 $(KFLAGS)" \
 	"LIBS= -ltermlib -lsocket -lnsl -lm -lresolv -lpam $(LIBS)"
-
-#Solaris 9, 10, or 11 with gcc + Kerberos 5 + OpenSSL.
-#OK C-Kermit 9.0.301.
-solaris9g+krb5+ssl solaris10g+krb5+ssl solaris11g+krb5+ssl:
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	GSSAPILIB=''; \
-	K5DIR=`echo $(K5LIB) | sed 's|-L||'`; \
-	echo K5DIR=$$K5DIR; \
-	if ls $$K5DIR/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-		else GSSAPILIB='-lgssapi'; \
-	fi; \
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -O -Usun -DSVR4 -DSOLARIS9 -DSTERMIOX -DSELECT -DFNFLOAT \
-	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET  -DBIGBUFOK \
-	-DCK_AUTHENTICATION -DCK_SSL -DZLIB -DCK_KERBEROS -DKRB5 \
-	-DCK_ENCRYPTION -DCK_CAST $$OPENSSLOPTION \
-	$$HAVE_DES $(SSLINC) $(K5INC) $(K5INC)/krb5 $(KFLAGS)" \
-	"LIBS= $(SSLLIB) $(K5LIB) -lz -lssl -ltermlib -lsocket -lnsl -lm \
-	-lresolv -lcrypto \
-	$$GSSAPILIB -lkrb5 -lcom_err -lk5crypto $$DES_LIB $(LIBS)"
 
 #Solaris 9, 10, or 11 with gcc, 64 bit build.
 #Peeking inside FILE struct not allowed in 64-bit world.
@@ -4332,112 +3214,6 @@ solaris9 solaris10 solaris11:
 	-DCK_CURSES -DCK_NEWTERM -DDIRENT -DHDBUUCP -DTCPSOCKET \
 	-D_FILE_OFFSET_BITS=64 $(KFLAGS)" \
 	"LIBS= $(LIBS) -ltermlib -lsocket -lnsl -lm -lresolv -lpam"
-
-# Solaris 9, 10, or 11 with OpenSSL built with Sun CC.
-# Here's an example of how to invoke this target in case your OpenSSL
-# headers and libraries are not in /usr/local:
-#
-# make solaris9+openssl "SSLINC=" "SSLLIB=" \
-#  "KFLAGS= -I/opt/openssl-0.9.8k/include -L/opt/openssl-0.9.8k/lib"
-#
-# Don't use 'make -e' because that inhibits passing of KFLAGS to
-# the base (solaris9) target.
-#
-#OK C-Kermit 9.0
-solaris9+ssl solaris10+ssl solaris11+ssl \
-solaris9+openssl solaris10+openssl solaris11+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 9/10/11 with OpenSSL: cc'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) "MAKE=$(MAKE)" solaris9 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DCK_AUTHENTICATION -DCK_SSL -DZLIB $$HAVE_DES \
-	-DNO_DCL_INET_ATON $$OPENSSLOPTION $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -lz -lssl $$DES_LIB -lcrypto  $(LIBS)"
-
-# Solaris 9 or later with OpenSSL, built with gcc.
-# Remove -DNO_DCL_INET_ATON if inet_aton comes up missing.  This target nicely
-# chains to the solaris{9,10,11}g target but for some reason it doesn't work if
-# you add the -DFORWARD_X option, thus the solaris9g+openssl+forward_x target.
-#
-#OK: 2011/06/14
-solaris9g+ssl solaris10g+ssl solaris11g+ssl \
-solaris9g+openssl solaris10g+openssl solaris11g+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 9/10/11 with OpenSSL: gcc'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-		echo "HAVE DES"; \
-	      else echo "NO DES"; \
-	fi; \
-	$(MAKE) "MAKE=$(MAKE)" solaris9g KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DCK_AUTHENTICATION -DCK_SSL -DZLIB $$HAVE_DES \
-	-DNO_DCL_INET_ATON $$OPENSSLOPTION $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -lz -lssl $$DES_LIB -lcrypto  $(LIBS)"
-
-# Solaris 9 or later with gcc + OpenSSL + Shadow (32-bit).
-# Remove -DNO_DCL_INET_ATON if inet_aton comes up missing.
-# Includes long file support - not sure if this was available before Solaris 9.
-# Detects Solaris version automatically.
-#
-solaris9g+openssl+forward_x:
-	@echo 'Making C-Kermit $(CKVER) for Solaris 9 or later with OpenSSL...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; case `uname -r` in \
-	  5.9) SOLARISVERSION="-DSOLARIS9" ;; \
-	  5.10) SOLARISVERSION="-DSOLARIS10" ;; \
-	  5.11) SOLARISVERSION="-DSOLARIS11" ;; \
-	  *) SOLARISVERSION="-DSOLARIS" ;; \
-	esac ; \
-	$(MAKE) xermit 	KTARGET=$${KTARGET:-$(@)} CC=gcc CC2=gcc \
-	"CFLAGS = -g -O -Usun -DSVR4 $$SOLARISVERSION \
-	-DHAVE_STREAMS -DHAVE_GRANTPT -DHAVE_PTSNAME -DPUSH_PTEM \
-	-DPUSH_LDTERM -DPUSH_TTCOMPAT \
-	-DSTERMIOX -DSELECT -DFNFLOAT -DBIGBUFOK -D_FILE_OFFSET_BITS=64 \
-	-DCK_AUTHENTICATION -DCK_SSL -DCK_PAM -DCK_SHADOW -DZLIB -DLIBDES \
-	-DFORWARD_X $$OPENSSLOPTION $(SSLINC) $(KFLAGS)" \
-	"LIBS= $(SSLLIB) -lpam -ldes425 -lz -ltermlib \
-	-lsocket -lnsl -lm -lresolv -lssl -lcrypto -lpam -lz $(LIBS)"
-
-# These two should be folded in with the ones just above.
-
-#Solaris 9 with gcc 3.1 + OpenSSL (32-bit)
-solaris9g+openssl+zlib+pam+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg32+openssl+zlib+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS9 -DUSE_STRERROR $(KFLAGS)"
-
-#Solaris 10 with gcc 3.1 + OpenSSL (32-bit)
-solaris10g+openssl+zlib+pam+shadow:
-	$(MAKE) "MAKE=$(MAKE)" solaris2xg32+openssl+zlib+pam+shadow \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSOLARIS10 -DUSE_STRERROR $(KFLAGS)"
 
 #The following (old, old) sunosxxx entries are for debugging and testing only.
 
@@ -4494,7 +3270,7 @@ sunos41min:
 	-DNOSHOW -DNOSETKEY -DNOUUCP -DNORECALL -DNOREDIRECT \
 	-DNOPUSH -DNOMDMHUP -DNOJC -DNOFDZERO -DNOESCSEQ \
 	-DNONET -DCK_SMALL -DNOCKSPEED -DNOCKTIMERS -DNOLOGIN \
-	-DNOCKXYZ -DNOKERBEROS -DNOMKDIR -DNOPATTERNS -DNOPERMS -DNOPIPESEND \
+	-DNOCKXYZ -DNOMKDIR -DNOPATTERNS -DNOPERMS -DNOPIPESEND \
 	-DNORECURSIVE -DNORENAME -DNORESEND -DNOSETKEY \
 	-DNOTRIGGER -DNOTUNING $(KFLAGS)" "LNKFLAGS = -s"
 
@@ -5066,19 +3842,6 @@ ou8:
 	$(MAKE) "MAKE=$(MAKE)" "KFLAGS=-DOU8 $(KFLAGS)" unixware7t \
 	KTARGET=$${KTARGET:-$(@)}
 
-#UnixWare 7 with OpenSSL
-uw7ssl uw7+ssl:
-	@echo 'Making C-Kermit $(CKVER) for UnixWare 7 and OpenSSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -O -DCK_AUTHENTICATION -DCK_SSL -DCK_SHADOW \
-	-DUNIXWARE -DSELECT -DSVR4 -DDIRENT -DHDBUUCP -DBIGBUFOK \
-	-DFNFLOAT -DNOGETUSERSHELL -DSTERMIOX -DCK_CURSES -DTCPSOCKET -DPOSIX \
-	-DUW7 -DUSETCSETSPEED -DCK_NEWTERM -DNOLSTAT -DDCLTIMEVAL \
-	$(SSLINC) $(KFLAGS)" \
-	"LIBS=-lsocket -lnsl -lcurses -ltermcap -lcrypt -lm -lresolv \
-	-lgen -lcudk70 $(SSLLIB) -lssl -lcrypto $(LIBS)" \
-	"LNKFLAGS = -s"
-
 #As above but includes Shadow password support needed for IKSD.
 uw7iksd:
 	$(MAKE) "MAKE=$(MAKE)" "KFLAGS=-DCK_SHADOW $(KFLAGS)" \
@@ -5450,44 +4213,6 @@ irix65mips2:
 	"KFLAGS=-DIRIX65 -DCK_RTSCTS -OPT:Olimit=0 -o32 -mips2 \
 	-woff 1110,1552,1174 $(KFLAGS)" \
 	irix6x KTARGET=$${KTARGET:-$(@)}
-
-#Special target that adds srp, ssl, and zlib support.  This requires
-#that you have pkgsrc installed instead of Irix Freeware.  See
-#NetBSD.org for pkgsrc for Irix.  You will need to BUILD the srp_client
-#package yourself.  Install it manually using the directions found
-#in the netbsds+ssl+srp+zlib target comments.
-irix65+ssl+srp+zlib:
-	@echo 'Making C-Kermit $(CKVER) for IRIX 6.5 with gcc and SSL SRP ZLIB'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CC = gcc" "CC2 = gcc" \
-	"CFLAGS= -DIRIX65 -DSVR4 -DDIRENT -DHDBUUCP -DNOGETUSERSHELL -DSELECT \
-	-DTCPSOCKET -DNOCOTFMC -DCK_NEWTERM -DPWID_T=uid_t -DCK_ANSIC \
-	-I/usr/pkg/include -DCK_AUTHENTICATION -DCK_SRP -DPRE_SRP_1_4_5 \
-	-DCK_RTSCTS -DCK_NCURSES -DCK_ENCRYPTION -DCK_CAST -DCK_DES -DCK_SSL \
-	-DLIBDES -DZLIB -DFNFLOAT -I/usr/pkg/include/openssl $(KFLAGS) -O" \
-	"LIBS= -L/usr/pkg/lib -rpath /usr/pkg/lib -lncurses -lsrp -lgmp -ldes \
-	-lssl -lkrypto -lcrypto -lcrypt -lz -lm"
-
-irix6x+krb5:
-	@echo 'Includes fullscreen file display and Yellow Pages...'
-	@echo 'Add -mips<n> to specify a particular hardware target.'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -DSVR4 -DDIRENT -DHDBUUCP -DNOGETUSERSHELL \
-	-DCK_CURSES -DCK_NEWTERM -DPWID_T=uid_t -DCK_ANSIC -DTCPSOCKET\
-	-DSELECT -DCK_RTSCTS -O \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 -DCK_ENCRYPTION -DCK_DES \
-	$(K5INC) $(K5INC)/krb5 $(KFLAGS)" \
-	"LIBS = -lcurses $(K5LIB) -ldes425 -lkrb5 \
-	-lcom_err -lcrypto -lcrypt -lgssapi_krb5" \
-	"LNKFLAGS = -s $(LNKFLAGS)"
-
-irix65+krb5:
-	@echo 'Making C-Kermit $(CKVER) for SGI IRIX 6.5'
-	@$(MAKE) "MAKE=$(MAKE)" \
-	LNKFLAGS="-Wl,-woff,84" \
-	"KFLAGS=-DIRIX65 -DCK_RTSCTS -OPT:Olimit=0 -woff 1110,1552,1174 \
-	$(KFLAGS)" \
-	irix6x+krb5 KTARGET=$${KTARGET:-$(@)}
 
 #In case they type "make sys5"...
 sys5:
@@ -6235,8 +4960,6 @@ hpux1000gcc:
 # echo KFLAGS=$(KFLAGS) YTARGET YTARGET=$(YTARGET) $(XTARGET) ;
 hpux1000t:
 	@case "$(KTARGET)" in \
-	   *+openssl | *+ssl) \
-		KENTRY=hpux1000o+openssl ;; \
 	   *gcc) \
 		KENTRY=hpux1000gcc ;; \
 	   *o+) KENTRY=hpux1000o+ ;; \
@@ -6254,12 +4977,6 @@ hpux1000to+:
 	$(MAKE) hpux1000t KTARGET=$${KTARGET:-$(@)}
 
 hpux1000tgcc:
-	$(MAKE) hpux1000t KTARGET=$${KTARGET:-$(@)}
-
-hpux1000to+ssl hpux1000to+openssl:
-	$(MAKE) hpux1000t KTARGET=$${KTARGET:-$(@)}
-
-hpux1000tgcc+ssl hpux1000tgcc+openssl:
 	$(MAKE) hpux1000t KTARGET=$${KTARGET:-$(@)}
 
 #HP-9000 HP-UX 10.00 and higher with ANSI prototyping and optimization.
@@ -6303,90 +5020,6 @@ hpux1000o+:
 	$(MAKE) hpux1000o \
 	"KFLAGS = $(KFLAGS) +Onolimit"
 
-#HP-UX 10.xx + 11.xx with optimizing ANSI compiler and OpenSSL.
-#Define SSLLIB and SSLINC appropriately for your OpenSSL installation.
-#To overwrite the default SSLLIB and SSLINC settings you can also use the
-#command-line variable KSSLLIB and KSSLINC like:
-#make hpux1000o+openssl KSSLLIB=-L/opt/openssl/lib KSSLINC=-I/...
-#To specify the path for the zlib library: KZLIBDIR=dir
-#This entry works for C-Kermit 8.0.206 on HP-UX 10.20 + 11.11
-#with OpenSSL 0.9.6 + 0.9.7
-#NOTE: an ANSI C compiler is required for the SSL interface.  If you don't
-#have the HP Optimizing ANSI compiler, see the hpux1000gcc+openssl target
-#below.
-hpux1000o+ssl hpux1000o+openssl:
-	@case "$(KTARGET)" in \
-	   *gcc+*) \
-	        KENTRY=hpux1000gcc ;; \
-	   *)   KENTRY=hpux1000o ;; \
-	esac ; \
-	if test -n "$(KZLIBDIR)" ; then \
-	   ZLIBDIR="$(KZLIBDIR)" ; \
-	else \
-	   ZLIBDIR='/usr/local/lib' ; \
-	fi ; \
-	case "$(KTARGET)" in \
-	   *-zlib*) ZLIBFLAG='' ; ZLIBOPT='' ;; \
-	   *) ZLIBFLAG='-DZLIB' ; ZLIBOPT="-L $$ZLIBDIR -lz" ;; \
-	esac ; \
-	case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac ; \
-	SSLINC=$${KSSLINC:-$(SSLINC)}; \
-	SSLLIB=$${KSSLLIB:-$(SSLLIB)}; \
-	MESSAGE1="and with OpenSSL $(MESSAGE1)" \
-	$(MAKE) $$KENTRY KTARGET=$${KTARGET:-$(@)} \
-	KFLAGS="-DCK_AUTHENTICATION -DCK_SSL $$OPENSSLOPTION $$ZLIBFLAG \
-	$$SSLINC $(KFLAGS)" \
-	KLIBS="$(KLIBS) \
-	$$SSLLIB -lssl -lcrypto \
-	$$ZLIBOPT \
-	"
-
-# Ditto but without Zlib:
-hpux1000o+ssl-zlib hpux1000o+openssl-zlib:
-	@MESSAGE1="but without Zlib $(MESSAGE1)" \
-	$(MAKE) hpux1000o+ssl KTARGET=$${KTARGET:-$(@)}
-
-#HP-UX 10.00 or higher with OpenSSL 0.9.7.  Compiled with gcc.
-#From Chris Chaney, NEC America Inc.  His instructions:
-# (1) Install gcc version 3.2.3 & binutils version 2.13.2
-#     (used binary depot from http://hpux.cs.utah.edu/)
-# (2) Install gcc make version 3.80 from http://hpux.cs.utah.edu/
-#
-# or: gcc 2.9.2000-12-1 from "Linux to hp-ux 11.0/11i porting kit version 1.0
-#     (2CD)" free from:  http://www.software.hp.com
-#
-# (3) Install openSSL version 0.9.7b from http://www.software.hp.com
-# (4) Install flex version 2.5.4 from http://hpux.cs.utah.edu/
-# (5) Install gmp version 3.1.1 from http://hpux.cs.utah.edu/
-#
-#Note from Peter Eichhorn, assyst Munich. It works also without gcc make!
-hpux1000gcc+ssl hpux1000gcc+openssl:
-	$(MAKE) hpux1000o+openssl KTARGET=$${KTARGET:-$(@)}
-
-# Ditto but without Zlib:
-hpux1000gcc+ssl-zlib hpux1000gcc+openssl-zlib:
-	$(MAKE) hpux1000o+openssl-zlib KTARGET=$${KTARGET:-$(@)}
-
-# Same for HP-UX 11
-hpux1100o+ssl hpux1100o+openssl:
-	$(MAKE) hpux1000o+openssl KTARGET=$${KTARGET:-$(@)}
-
-#OK: 2009/09/26
-hpux1100gcc+ssl hpux1100gcc+openssl:
-	$(MAKE) hpux1000gcc+openssl KTARGET=$${KTARGET:-$(@)}
-
-hpux1100o+ssl-zlib hpux1100o+openssl-zlib:
-	$(MAKE) hpux1000o+openssl-zlib KTARGET=$${KTARGET:-$(@)}
-
-hpux1100gcc+ssl-zlib hpux1100gcc+openssl-zlib:
-	$(MAKE) hpux1000gcc+openssl-zlib KTARGET=$${KTARGET:-$(@)}
-
 # HP-UX 11
 # Note: these are 32-bit builds even on IA64.
 # Adding +DD64 to CFLAGS produces 64-bit object files,
@@ -6418,12 +5051,6 @@ hpux1100to+:
 
 hpux1100tgcc:
 	$(MAKE) hpux1000tgcc KTARGET=$${KTARGET:-$(@)}
-
-hpux1100to+ssl hpux1100to+openssl:
-	$(MAKE) hpux1000to+openssl KTARGET=$${KTARGET:-$(@)}
-
-hpux1100tgcc+ssl hpux1100tgcc+openssl:
-	$(MAKE) hpux1000tgcc+openssl KTARGET=$${KTARGET:-$(@)}
 
 #Regulus on CIE Systems 680/20
 cie:
@@ -6795,379 +5422,12 @@ linuxso:
 # target so we pick up all the other new stuff - large files, baudboy.h, the
 # appropriate pty interface, etc.
 
-# Linux with Kerberos 5.
-# Use "make linux+krb5 KFLAGS=-DNO_KRB5_INIT_ETS" if necessary.
-#OK 2011/06/16 on Fedora 14 with:
-# make linux+krb5 "LIBS=$LIBS /lib/libk5crypto.so.3 /lib/libcom_err.so.2"
-# On RHEL5.x: make linux+krb5 -UCK_DES
-# On RHEL6.6: make linux+krb5 "K5LIB=-L /lib64"
-# This one tends to have trouble finding all its pieces.
-# As of C-Kermit 10.0 Beta.08 this target was renamed from linux+krb5
-# to linux+krb5-old and the next target, originally called linux+krb5-new
-# is now linux+krb5, and should work in most cases.
-linux+krb5-old:
-	@echo 'Making C-Kermit $(CKVER) for Linux with Kerberos 5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-	      echo "HAVE DES"; \
-	else echo "NO DES"; \
-	fi; \
-	K5CRYPTO=''; \
-	if ls /lib/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls /usr/lib/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls /usr/lib64/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls usr/lib/x86_64-linux-gnu/libk5crypto* \
-		> /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	fi; fi; fi; fi; \
-	COM_ERR=''; \
-	if ls /lib/libcom_err* > /dev/null 2> /dev/null; then \
-		COM_ERR='-lcom_err'; \
-	else if ls /lib64/libcom_err* > /dev/null 2> /dev/null; then \
-		COM_ERR='-lcom_err'; \
-	else if ls /x86_64-linux-gnu/libcom_err* >/dev/null 2>/dev/null; then \
-	        COM_ERR='-lcom_err'; \
-	fi; fi; fi; \
-	GSSAPILIB='-lgssapi'; \
-	if ls /lib/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-	else if ls /usr/lib/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-	else if ls /usr/lib/x86_64-linux-gnu/libgssapi_krb5* > \
-		/dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-	else K5DIR=`echo $(K5LIB) | sed 's|-L||'`; \
-		if ls $$K5DIR/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-			GSSAPILIB='-lgssapi_krb5'; \
-	fi; fi; fi; fi; \
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 $$OPENSSLOPTION \
-	-DCK_ENCRYPTION $$HAVE_DES $(K5INC) $(K5INC)/krb5 \
-	-I/usr/include/et $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $$DES_LIB -lcrypto $$COM_ERR \
-	$$GSSAPILIB -lkrb5 $$K5CRYPTO $(LIBS)"
-
-# The previous linux+krb was a big mess, with hardwired pathnames for all the
-# possible places the Kerberos libs might be.  This version just relies on the
-# linker to find them.  It also handles the frequent situation where the
-# gssapi library is install but the linker doesn't know about it.  Thanks to
-# Peter Eichhorn for a great deal of help with the syntax in the gssapi
-# section! - fdc 24 November 2022 (renamed to linux+krb5 15 December 2022)
-linux+krb5 linux+krb5-new:
-	@echo 'NEW Making C-Kermit $(CKVER) for Linux with Kerberos 5...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	K5LIB=''; \
-	if ld -lkrb5 > /dev/null 2> /dev/null; then \
-	  K5LIB='-lkrb5'; else \
-	  echo "Failed - Can't find Kerberos 5 library" ; exit 2; \
-	fi; \
-	KRB5_H=''; \
-	if test -f /usr/include/krb5/krb.h; then \
-	    KRB5_H=-DKRB5_H; \
-	fi; \
-	CRYPT_H=''; \
-	if test -f /usr/include/crypt.h; then \
-	  CRYPT_H='-DCRYPT_H'; \
-	fi; \
-	LIBCRYPT=''; \
-	if ld -lcrypt > /dev/null 2> /dev/null; then \
-	  LIBCRYPT='-lcrypt'; \
-	fi; \
-	LIBCRYPTO=''; \
-	if ld -lcrypto > /dev/null 2> /dev/null; then \
-	  LIBCRYPTO='-lcrypto'; \
-	fi; \
-	LIBK5CRYPTO=''; \
-	if ld -lk5crypto > /dev/null 2> /dev/null; then \
-	  LIBK5CRYPTO='-lk5crypto'; \
-	fi; \
-	HAVE_DES=''; \
-	if ld -ldes > /dev/null 2> /dev/null; then \
-	  LIBDES='-ldes'; \
-	  HAVE_DES='-DCK_DES -DLIBDES'; \
-	fi; \
-	XX_COM_ERR=H''; \
-	K5_COM_ERR_H=''; \
-	ET_COM_ERR_H=''; \
-	COM_ERR_LIB=''; \
-	if ld -lcom_err > /dev/null 2> /dev/null; then \
-	  if test -f /usr/include/krb5/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DK5_COM_ERR_H'; \
-	  else if test -f /usr/include/et/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DET_COM_ERR_H'; \
-	  else if test -f /usr/include/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DXX_COM_ERR_H'; \
-	   fi; \
-	  fi; \
-	 fi; \
-	fi; \
-	GSSAPILIB=''; \
-	HAVE_GSSAPI=''; \
-	if name=`locate libgssapi | grep ^/usr/lib | head -1`; then \
-	  echo name=$$name; \
-	  path=$${name%/*}; \
-	  echo PATH=$$path; \
-	  GSSAPILIB=$$(basename $$name); \
-	  echo GSSAPILIB=$$GSSAPILIB ; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi ; \
-	if [ -z "$$LD_LIBRARY_PATH" ] ; then \
-	  export LD_LIBRARY_PATH=$$path ; else \
-	  export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$path; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi; \
-	if ls $${path}/libgssapi_krb5.* >/dev/null 2>/dev/null; then \
-	  echo HAVE libgssapi_krb5 ; \
-	  GSSAPILIB=-lgssapi_krb5 ;  else \
-	  if ls $${path}/libgssapi.* >/dev/null 2>/dev/null; then \
-	  GSSAPILIB=-lgssapi ; \
-	 fi; \
-	fi; \
-	echo GSSAPILIB=$GSSAPILIB; \
-	echo LD_LIBRARY_PATH=$$LD_LIBRARY_PATH; \
-	if ld -lggssapi_krb5 > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi_krb5'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-1=$$GSSAPILIB; \
-	else if ld -lggssapi_krb5 > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-2=$$GSSAPILIB; \
-	 fi; \
-	fi; \
-	echo GSSAPILIB=$$GSSAPILIB; \
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_KERBEROS -DKRB5 \
-	$$HAVE_GSSAPI $$HAVE_DES $$OPENSSLOPTION $$CRYPT_H $$COM_ERR_H \
-	$$KRB5_H $(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $$LIBCRYPT $$LIBCRYPTO $$LIBK5CRYPTO $$LIBDES $$COM_ERR_LIB \
-	$$K5LIB $$GSSAPILIB  $(LIBS)"
-
-# Linux with Kerberos 5 and Kerberos 4.
-# Use "make linux+krb5 KFLAGS=-DNO_KRB5_INIT_ETS" if necessary.
-# Add "KFLAGS=-UCK_DES" if failure messages look DES-related.
-# UNTESTED (because I can't find a box with Krb4 and Krb5 installed)
-linux+krb5+krb4:
-	@echo 'Making C-Kermit for Linux with Kerberos 4 and Kerberos 5'
-	$(MAKE) linux+krb5 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DKRB4 -DKRB524 $(KFLAGS)" "LIBS=$(LIBS) -lkrb4"
-
-# Linux with OpenSSL 
-# In Linux, SSL libs are often in /lib or /usr/lib and so found by default.
-# This targets takes into account the DES library might or might not
-# exist.  If it does exist, however, the target will require some editing
-# if its basename is not libdes425.  - fdc Tue Sep 21 14:28:00 2010
-# IMPORTANT: Some Linux platforms have DES libraries but they are missing
-# functions used by Kermit.  In that case you will get fatal errors at
-# link time involving routines such as des_ecb3_encrypt, des_random_seed,
-# and des_set_odd_parity.  In that case, "make linux KFLAGS=-UCK_DES"
-# There's a new warning at the end that should come out if this happens,
-# and that should not come out if it didn't.
-#
-# Newer versions of OpenSSL cause profuse "-Wdeprecated-declarations"
-# warnings, meaning C-Kermit's SSL code needs to be updated to allow (by
-# copious use if #ifdefs) for both old and new versions.  Also it has been
-# noted that libpam0g-dev must be installed for OpenSSL 3 builds, which
-# is needed for /usr/include/security/pam_appl.h, which ckufio.c #includes.
-# - fdc 14 May 2023
-#
-linux+ssl linux+openssl linux+openssl+zlib+shadow+pam linux+openssl+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Linux+OpenSSL SSLLIB=$(SSLLIB)'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-	      echo "HAVE DES"; \
-	   else echo "NO DES"; \
-	fi; \
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} "CC = $(CC)" "CC2 = $(CC2)" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_ENCRYPTION -DCK_CAST $$HAVE_DES \
-	-DCK_SSL -DCK_PAM -DZLIB -DCK_SHADOW $$OPENSSLOPTION $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SSLLIB) -lssl $$DES_LIB -lcrypto -lpam -ldl -lz $(LIBS)"
-
-# Linux with Kerberos 5 and OpenSSL
-# OK 2011/05/16
-# Add -UCK_DES if functions like des_ecb3_encrypt, es_random_seed,
-# come up missing at link time.
-# NOTE: MULTIARCH is defined externally, e.g. in DEB_HOST_MULTIARCH
-# On RHEL6.6: make linux+krb5+ssl "K5LIB=-L /lib64"
-linux+krb5+ssl linux+krb5+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Linux with Krb5 and OpenSSL...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-	      echo "HAVE DES"; \
-	   else echo "NO DES"; \
-	fi; \
-	K5CRYPTO=''; \
-	if ls /lib/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls /usr/lib/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls /usr/lib64/libk5crypto* > /dev/null 2> /dev/null; then \
-		K5CRYPTO='-lk5crypto'; \
-	else if ls /usr/lib/$(MULTIARCH)/libk5crypto* \
-	        > /dev/null 2> /dev/null; then K5CRYPTO='-lk5crypto'; \
-	fi; fi; fi; fi; \
-	COM_ERR=''; \
-	if ls /lib/libcom_err* > /dev/null 2> /dev/null; then \
-		COM_ERR='-lcom_err'; \
-	else if ls /lib/$(MULTIARCH)/libcom_err* \
-	        > /dev/null 2> /dev/null; then COM_ERR='-lcom_err'; \
-	else if ls /lib64/libcom_err* > /dev/null 2> /dev/null; then \
-		COM_ERR='-lcom_err'; \
-	fi; fi; fi; \
-	GSSAPILIB='-lgssapi'; \
-	if ls /lib/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-	else if ls /usr/lib/$(MULTIARCH)/libgssapi_krb5* \
-	        > /dev/null 2> /dev/null; then \
-		GSSAPILIB='-lgssapi_krb5'; \
-	else K5DIR=`echo $(K5LIB) | sed 's|-L||'`; \
-		if ls $$K5DIR/libgssapi_krb5* > /dev/null 2> /dev/null; then \
-			GSSAPILIB='-lgssapi_krb5'; \
-	fi; fi; fi; \
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 \
-	-DCK_SSL -DCK_PAM -DZLIB -DCK_SHADOW $$OPENSSLOPTION $(SSLINC) \
-	-DCK_ENCRYPTION $$HAVE_DES $(K5INC) $(K5INC)/krb5 \
-	-I/usr/include/et $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) -lssl $$DES_LIB -lpam -lz \
-	-lcrypto $$GSSAPILIB -lkrb5 $$K5CRYPTO $$COM_ERR $(LIBS)"
-
-linux+krb5+ssl-new:
-	@echo 'Making C-Kermit $(CKVER) for Linux with Krb5 and OpenSSL...'
-	@case `openssl version` in \
-	  *0.9.7*) OPENSSLOPTION="-DOPENSSL_097" ;; \
-	  *0.9.8*) OPENSSLOPTION="-DOPENSSL_098" ;; \
-	  *1.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_100" ;; \
-	  *3.[0-9].[0-9]*) OPENSSLOPTION="-DOPENSSL_300" ;; \
-	  *) OPENSSLOPTION="" ;; \
-	esac; \
-	HAVE_DES=''; \
-	DES_LIB=''; \
-	if ls /usr/lib/libdes* > /dev/null 2> /dev/null || \
-	   ls $(SSLLIB)/libdes* > /dev/null 2> /dev/null; then \
-	      DES_LIB='-ldes425'; \
-	      HAVE_DES='-DCK_DES -DLIBDES'; \
-	      echo "HAVE DES"; \
-	   else echo "NO DES"; \
-	fi; \
-	LIBK5CRYPTO=''; \
-	if ld -lk5crypto > /dev/null 2> /dev/null; then \
-	  LIBK5CRYPTO='-lk5crypto'; \
-	fi; \
-	XX_COM_ERR=H''; \
-	K5_COM_ERR_H=''; \
-	ET_COM_ERR_H=''; \
-	COM_ERR_LIB=''; \
-	if ld -lcom_err > /dev/null 2> /dev/null; then \
-	  if test -f /usr/include/krb5/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DK5_COM_ERR_H'; \
-	  else if test -f /usr/include/et/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DET_COM_ERR_H'; \
-	  else if test -f /usr/include/com_err.h; then  \
-	    COM_ERR_LIB='-lcom_err'; \
-	    COM_ERR_H='-DXX_COM_ERR_H'; \
-	   fi; \
-	  fi; \
-	 fi; \
-	fi; \
-	GSSAPILIB=''; \
-	HAVE_GSSAPI=''; \
-	if name=`locate libgssapi | grep ^/usr/lib | head -1`; then \
-	  echo name=$$name; \
-	  path=$${name%/*}; \
-	  echo PATH=$$path; \
-	  GSSAPILIB=$$(basename $$name); \
-	  echo GSSAPILIB=$$GSSAPILIB ; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi ; \
-	if [ -z "$$LD_LIBRARY_PATH" ] ; then \
-	  export LD_LIBRARY_PATH=$$path ; else \
-	  export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$path; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	fi; \
-	if ls $${path}/libgssapi_krb5.* >/dev/null 2>/dev/null; then \
-	  echo HAVE libgssapi_krb5 ; \
-	  GSSAPILIB=-lgssapi_krb5 ;  else \
-	  if ls $${path}/libgssapi.* >/dev/null 2>/dev/null; then \
-	  GSSAPILIB=-lgssapi ; \
-	 fi; \
-	fi; \
-	echo GSSAPILIB=$GSSAPILIB; \
-	echo LD_LIBRARY_PATH=$$LD_LIBRARY_PATH; \
-	if ld -lggssapi_krb5 > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi_krb5'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-1=$$GSSAPILIB; \
-	else if ld -lggssapi_krb5 > /dev/null 2> /dev/null; then \
-	  GSSAPILIB='-lgssapi'; \
-	  HAVE_GSSAPI='-DHAVE_GSSAPI'; \
-	  echo GSSAPILIB-2=$$GSSAPILIB; \
-	 fi; \
-	fi; \
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"KFLAGS= -DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 \
-	-DCK_SSL -DCK_PAM -DZLIB -DCK_SHADOW $$OPENSSLOPTION $(SSLINC) \
-	-DCK_ENCRYPTION $$HAVE_DES $(K5INC) $(K5INC)/krb5 \
-	-I/usr/include -I/usr/include/et /$(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) -lssl $$DES_LIB -lpam -lz \
-	-lcrypto $$GSSAPILIB -lkrb5 $$K5CRYPTO $$COM_ERR $(LIBS)"
-
 # ::BEGIN_OLD_LINUX_TARGETS::
 
 # The remaining Linux entries are for special or customized builds.  They have
 # not been generalized ("subroutinized") like the ones above.  Ideally, we
 # should allow for every combination of libc vs glibc, gcc vs egcs, curses vs
-# ncurses, Kerberos IV vs Kerberos V vs SRP (in any combination), and so on.
+# ncurses, and so on.
 # The best way to do this is to set KFLAGS and LIBS values and then chain to
 # the main "linux" target, as in the examples just above.  To skip past all of
 # these old targets (and there are many) search for ::END_OLD_LINUX_TARGETS::
@@ -7214,7 +5474,6 @@ linuxppc:
 	    fi \
 	fi
 
-
 # Like "make linux" but built with egcs rather than gcc.
 # If you get "Internal compiler error xxx, output pipe has been closed",
 # try removing -pipe.
@@ -7225,437 +5484,6 @@ linuxegcs:
 	-DPOSIX -DCK_POSIX_SIG -DCK_NCURSES -DNOCOTFMC \
 	-DTCPSOCKET -DLINUXFSSTND $(KFLAGS)" \
 	"LNKFLAGS = $(LNKFLAGS)" "LIBS = -lncurses -lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.1 (no K4 compatibility).
-linux+krb5-older:
-	@echo 'Making C-Kermit $(CKVER) for Linux on Intel with Kerberos...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS -DKRB5 \
-	-DCK_ENCRYPTION -DCK_DES -DCK_CURSES -DCK_POSIX_SIG \
-	-DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H $(K5INC) $(K5INC)/krb5 \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) -lncurses -ltermcap -ldes425 -lkrb5 \
-	-lcom_err -lk5crypto -lgssapi_krb5 -lcrypt -lresolv"
-
-# Linux on Intel PC with SRP 1.7.4 using GNU MP, Krypto, and Eric Young's
-# DES library.  Remove the -DCK_DES, -DLIBDES and -ldes if you do not have
-# Eric Young's# libdes.a installed.
-#
-linux+srp+gmp:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) srpmit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(SRPINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) \
-	-lncurses -ltermcap -lsrp -lgmp -ldes -lkrypto -lcrypt -lresolv"
-
-linux+srp+gmp+no-des:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP ...'
-	$(MAKE) srpmit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(SRPINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) \
-	-lncurses -ltermcap -lsrp -lgmp -lkrypto -lcrypt -lresolv"
-
-linux+srp+gmp-export:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) srpmit-export KTARGET=$${KTARGET:-$(@)} \
-	"CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DFNFLOAT \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(SRPINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) \
-	-lncurses -ltermcap -lsrp -lgmp -lkrypto -lcrypt -lm -lresolv"
-
-linux+srp+gmp+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) srpmit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_PAM -DFNFLOAT $(SRPINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) -lncurses -ltermcap -lsrp -lgmp -ldes -lkrypto \
-	-lcrypt -lpam -ldl -lm -lresolv"
-
-#Linux on Intel PC with SRP 1.7.4 built with OpenSSL for Big Number Math
-#and Cryptographic functionality.
-#
-linux+srp:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) srpmit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(SRPINC) $(SSLINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(SSLLIB) \
-	-lncurses -ltermcap -lsrp -lkrypto -lcrypto -lcrypt -lresolv"
-
-linux+srp+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) srpmit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_PAM -DFNFLOAT $(SRPINC) $(SSLINC) $(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(SSLLIB) -lncurses -ltermcap -lsrp -lkrypto \
-	-lcrypto -lcrypt -lpam -ldl -lm -lresolv"
-
-#Linux on Intel PC with SRP and SSL/TLS.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 or higher to be compiled with KRB4 compatibility.
-#Remove -ltermcap if it causes trouble e.g. in Debian 2.2.
-#If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+srp+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(SRPINC) $(SSLINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(SSLLIB) \
-	-lncurses -ltermcap -lsrp -lssl -lkrypto -lcrypto \
-	-lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2 and SRP.
-#
-# libsrp.a should be build with GNU MP (libgmp.a)
-# instead of AT&T CryptoLib (libcrypt.a) due to naming conflicts with
-# standard distribution Linux libraries.
-# Requires the Kerberos 1.2.2 or higher to be compiled with KRB4 compatibility.
-linux+krb5+krb4+srp:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB54+SRP...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SRPINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SRPLIB) \
-	-lncurses -ltermcap -lsrp -lgmp -lgssapi_krb5 -lkrypto \
-	-ldes -lkrb4 -ldes425 -lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, SRP and SSL/TLS.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 or higher to be compiled with KRB4 compatibility.
-# Requires OpenSSL 0.9.6a or higher
-#If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+srp+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SRPINC) $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SRPLIB) $(SSLLIB) \
-	-lncurses -ltermcap -lsrp \
-	-lkrb4 -lssl -lkrypto -lcrypto \
-	-lkrb5 -lcom_err -lk5crypto -lgssapi_krb5 -lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, SSL/TLS.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-#If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+openssl:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) \
-	-lncurses -ltermcap \
-	-lkrb4 -lssl -lcrypto -lkrb5 -lcom_err \
-	-lk5crypto -lgssapi_krb5 -lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.1, SSL/TLS.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+openssl+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_SHADOW \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB)  \
-	-lncurses -ltermcap \
-	-lkrb4 -lssl -lcrypto -lkrb5 -lcom_err \
-	-lk5crypto -lgssapi_krb5 -lcrypt -lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2, SSL/TLS.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+openssl+zlib+shadow:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 -DZLIB \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_SHADOW \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) \
-	-lncurses -ltermcap \
-	-lkrb4 -lssl -lcrypto -lkrb5 -lcom_err \
-	-lk5crypto -lgssapi_krb5 -lcrypt -lresolv -lz"
-
-linux+krb5+krb4+srp-export:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) xermit-export KTARGET=$${KTARGET:-$(@)} \
-	"CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SRPINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) \
-	-lncurses -ltermcap -lsrp -lgmp -lkrb4 -ldes425 -lkrb5 -lgssapi_krb5 \
-	-lcom_err -lk5crypto -lkrypto -lcrypt -lresolv"
-
-linux+krb5+krb4+srp+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with SRP...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_PAM $(K5INC) $(K5INC)/krb5 $(SRPINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) \
-	-lncurses -ltermcap -lsrp -lgmp -ldes -lkrb4 -ldes425 -lkrb5 \
-	-lcom_err -lk5crypto -lgssapi_krb5 -lkrypto -lcrypt -lpam -ldl \
-	-lresolv"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, SRP and SSL/TLS.
-# and PAM.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+srp+openssl+pam-debug:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit-debug KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-w -Dmalloc=dmalloc -Dfree=dfree -DMDEBUG $(K5INC) $(K5INC)/krb5 \
-	$(SRPINC) $(SSLINC) $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) $(SSLLIB) \
-	-lncurses -ltermcap -lsrp -lkrb4 -lssl -lkrypto -lcrypto \
-	-lkrb5 -lcom_err -lk5crypto -lgssapi_krb5 -lcrypt -lresolv -lpam -ldl"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.1, SRP and SSL/TLS.
-# and PAM.
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+srp+openssl+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SRPINC) $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) $(SSLLIB)  \
-	-lm -lncurses -ltermcap -lsrp \
-	-lkrb4 -lssl -lkrypto  -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, SRP, OpenSSL
-# with ZLIB and PAM
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+srp+openssl+zlib+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM -DZLIB \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SRPINC) $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) $(SSLLIB) \
-	-lm -lncurses -ltermcap -lsrp \
-	-lkrb4 -lssl -lkrypto  -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl -lz"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, SRP, OpenSSL
-# with ZLIB, Shadow Passwords, and PAM
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+srp+openssl+zlib+shadow+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_SRP -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM -DZLIB \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_SHADOW $(K5INC) $(K5INC)/krb5 $(SRPINC) $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(SRPLIB) $(K5LIB) $(SSLLIB) \
-	-lm -lncurses -ltermcap -lsrp -lkrypto \
-	-lkrb4 -lssl -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl -lz"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, OpenSSL
-# with Shadow Passwords, PAM
-#
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-linux+krb5+krb4+openssl+shadow+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SSL,...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_SHADOW $(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) \
-	-lm -lncurses -ltermcap \
-	-lkrb4 -lssl -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, OpenSSL
-# with ZLIB, Shadow Passwords, PAM
-#
-# libsrp.a should be build with OpenSSL
-# Requires the Kerberos 1.2.2 be compiled with KRB4 compatibility.
-# If you have OpenSSL 0.9.7 or later, add -DOPENSSL_097 to KFLAGS.
-linux+krb5+krb4+openssl+zlib+shadow+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB,SRP,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DKRB4 -DKRB524 \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM -DZLIB \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	-DCK_SHADOW $(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) \
-	-lm -lncurses -ltermcap \
-	-lkrb4 -lssl -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl -lz"
-
-#Red Hat 9 - full install includes Kerberos 5 (4 compat), PAM, SSL.
-#Also works around bug in curses in which terminal goes dead after
-#returning from file-transfer display.  Assumes OpenSSL 0.9.7 or later.
-redhat9:
-	@echo "Building SECURE Kermit for Red Hat 9.0..."
-	$(MAKE) linux+krb5+krb4+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH90 -DOPENSSL_097 $(KFLAGS)"
-
-#Ditto plus SRP (which is not normally included with RH Linux).
-redhat9+srp:
-	@echo "Building SECURE Kermit for Red Hat 9.0..."
-	$(MAKE) linux+krb5+krb4+srp+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH90 -DOPENSSL_097 $(KFLAGS)"
-
-#For Red Hat AS 2.1 with OpenSSL
-redhat21+ssl:
-	@echo "Building SECURE Kermit for Red Hat 2.1..."
-	$(MAKE) linux+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS =  $(KFLAGS)"
-
-#Red Hat Linux 8.0 - full install includes Kerberos 5 (4 compat), PAM, SSL.
-#Also works around bug in curses in which terminal goes dead after
-#returning from file-transfer display.
-redhat80:
-	@echo "Building SECURE Kermit for Red Hat 8.0..."
-	$(MAKE) linux+krb5+krb4+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH80 $(KFLAGS)"
-
-redhat80+srp:
-	@echo "Building SECURE Kermit for Red Hat 8.0..."
-	$(MAKE) linux+krb5+krb4+srp+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH80 $(KFLAGS)"
-
-#Red Hat Linux 7.3 - full install includes Kerberos 5 (4 compat), PAM, SSL.
-#Also works around bug in curses in which terminal goes dead after
-#returning from file-transfer display.
-redhat73:
-	@echo "Building SECURE Kermit for Red Hat 7.3..."
-	$(MAKE) linux+krb5+krb4+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH73 $(KFLAGS)"
-
-redhat73+srp:
-	@echo "Building SECURE Kermit for Red Hat 7.3..."
-	$(MAKE) linux+krb5+krb4+srp+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH73 $(KFLAGS)"
-
-#Red Hat Linux 7.2 - full install includes Kerberos 5 (4 compat), PAM, SSL.
-#Also works around bug in curses in which terminal goes dead after
-#returning from file-transfer display.
-redhat72:
-	@echo "Building SECURE Kermit for Red Hat 7.2..."
-	$(MAKE) linux+krb5+krb4+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH72 $(KFLAGS)"
-
-redhat72+srp:
-	@echo "Building SECURE Kermit for Red Hat 7.2..."
-	$(MAKE) linux+krb5+krb4+srp+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH72 $(KFLAGS)"
-
-#Red Hat Linux 7.1 - full install includes Kerberos 5 (4 compat), PAM, SSL.
-#Also works around bug in curses in which terminal goes dead after
-#returning from file-transfer display.
-redhat71:
-	@echo "Building SECURE Kermit for Red Hat 7.1..."
-	$(MAKE) linux+krb5+krb4+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH71 $(KFLAGS)"
-
-redhat71+srp:
-	@echo "Building SECURE Kermit for Red Hat 7.1..."
-	$(MAKE) linux+krb5+krb4+srp+openssl+zlib+shadow+pam \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS = -DRH71 $(KFLAGS)"
-
-#Linux on Intel PC with Cygnus or MIT Kerberos 5 1.2.2, OpenSSL
-# with ZLIB and PAM and Shadow passwords
-linux+krb5+openssl+zlib+shadow+pam:
-	@echo 'Making C-Kermit $(CKVER) for Linux on i386 with KRB5,SSL...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS = -g -O -funsigned-char -pipe -DPOSIX -DLINUX -DNOCOTFMC \
-	-DCK_AUTHENTICATION -DCK_KERBEROS  -DKRB5 -DCK_SHADOW -DHAVE_PTMX \
-	-DCK_ENCRYPTION -DCK_CAST -DCK_DES -DLIBDES -DCK_SSL -DCK_PAM -DZLIB \
-	-DCK_CURSES -DCK_POSIX_SIG -DTCPSOCKET -DLINUXFSSTND -DHAVE_CRYPT_H \
-	$(K5INC) $(K5INC)/krb5 $(SSLINC) \
-	$(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
-	"LIBS = $(K5LIB) $(SSLLIB) \
-	-lm -lncurses -ltermcap -lssl -lcrypto -lgssapi_krb5 \
-	-lkrb5 -lcom_err -lk5crypto -lcrypt -lresolv -lpam -ldl -lz"
 
 # "make linuxnotcp" with lcc (see http://www.cs.princeton.edu/software/lcc)
 # lcc does not understand various gcc extensions:
@@ -8188,7 +6016,6 @@ sco32v500:
 sco32v5:
 	$(MAKE) "MAKE=$(MAKE)" "KFLAGS=$(KFLAGS)" sco32v500
 
-
 #SCO OpenServer 5.0 with networking, SCO development tools.
 #Networking libraries are now provided with the OS.
 sco32v500net:
@@ -8203,20 +6030,6 @@ sco32v500net:
 
 sco32v5net:
 	$(MAKE) "MAKE=$(MAKE)" "KFLAGS=$(KFLAGS)" sco32v500net
-
-#SCO OpenServer 5.0 with networking and OpenSSL, SCO development tools.
-#Networking libraries are now provided with the OS.
-sco32v500net+ssl:
-	@echo Making C-Kermit $(CKVER) for SCO OSR5 with OpenSSL...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DDIRENT -DHDBUUCP -DSVR4 -DCK_SCOV5 -DCK_RTSCTS \
-	-DCK_CURSES -DCK_WREFRESH -DCK_NEWTERM -DSELECT -DSELECT_H \
-	-DNOGETUSERSHELL -DNOLSTAT -DNOLINKBITS -DTCPSOCKET \
-	-DNO_DNS_SRV -DCK_AUTHENTICATION -DCK_SSL -DCK_TRIGGER \
-	-DNORLOGIN -DNO_PTY_XOPEN_SOURCE \
-	$(SSLINC) $(SSLLIB) $(KFLAGS)" \
-	"LIBS=$(SSLLIB) -lcurses -lsocket -lssl -lcrypto $(LIBS)" \
-	"LNKFLAGS=$(LNKFLAGS)"
 
 #SCO OpenServer 5.0 with gcc, no networking.
 #Note: NOSYSLOG required for non-net entries because it requires <socket.h>
@@ -8313,15 +6126,6 @@ sco32v505net:
 	@echo TCP/IP networking added...
 	$(MAKE) "MAKE=$(MAKE)" sco32v500net KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=-DSCO_OSR505 -DNOSHADOW -b elf -DPOSIX $(KFLAGS)"
-
-#SCO OpenServer 5.0.5 with networking and OpenSSL, SCO /bin/cc.
-#See comments with sco32v505 targets.
-sco32v505net+ssl:
-	@echo TCP/IP networking and OpenSSL added...
-	$(MAKE) "MAKE=$(MAKE)" sco32v500net+ssl KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DSCO_OSR505 -DNOSHADOW -b elf -DPOSIX $(KFLAGS) " \
-	"LIBS=$(SSLLIB) -lcurses -lsocket -lssl -lcrypto $(LIBS)" \
-	"LNKFLAGS=$(LNKFLAGS)"
 
 #SCO OpenServer 5.0.5 with networking, SCO UDK.
 #See comments with above sco32v505 targets.

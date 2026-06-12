@@ -2695,44 +2695,14 @@ extern long ztmsec, ztusec;		/* Fraction of sec of current time */
 #endif /* TCPSOCKET */
 
 #ifdef TNCODE
-#ifndef CK_AUTHENTICATION
-#endif /* CK_AUTHENTICATION */
 
-#ifdef CK_AUTHENTICATION		/* Encryption must have Auth */
-#ifndef CK_ENCRYPTION
-#ifndef NO_ENCRYPTION
-#endif /* NO_ENCRYPTION */
-#endif /* CK_ENCRYPTION */
-#endif /* CK_AUTHENTICATION */
 
 #ifdef NO_AUTHENTICATION                /* Allow authentication to be */
-#ifdef CK_AUTHENTICATION                /* disabled in NT and OS/2    */
-#undef CK_AUTHENTICATION
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_KERBEROS
-#undef CK_KERBEROS
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-#undef CK_SRP
-#endif /* CK_SRP */
-#ifdef CK_ENCRYPTION
-#undef CK_ENCRYPTION
-#endif /* CK_ENCRYPTION */
 #endif /* NO_AUTHENTICATION */
 
 #ifdef NO_ENCRYPTION                    /* Allow encryption to be */
-#ifdef CK_ENCRYPTION                    /* disabled in NT and OS/2 */
-#undef CK_ENCRYPTION
-#endif /* CK_ENCRYPTION */
 #endif /* NO_ENCRYPTION */
 
-#ifdef CK_KERBEROS      /* Disable funcs not yet supported with Heimdal */
-#ifdef KRB5
-#ifndef HEIMDAL
-#define KRB5_U2U
-#endif /* HEIMDAL */
-#endif /* KRB5 */
-#endif /* CK_KERBEROS */
 
 /*
   SSH section.  NOSSH disables any form of SSH support.
@@ -2802,14 +2772,6 @@ extern long ztmsec, ztusec;		/* Fraction of sec of current time */
 /* This is in case #ifdef SSH is used anywhere in the K95 modules */
 
 
-#ifdef CK_AUTHENTICATION
-#define CK_SECURITY
-#else
-#ifdef CK_SSL
-#define CK_AUTHENTICATION
-#define CK_SECURITY
-#endif /* CK_SSL */
-#endif /* CK_AUTHENTICATION */
 
 /* Environment stuff */
 
@@ -2837,11 +2799,6 @@ extern long ztmsec, ztusec;		/* Fraction of sec of current time */
 #ifndef NOFORWARDX
 #ifndef NOPUTENV
 #ifndef NOSELECT
-#ifndef CK_FORWARD_X
-#ifdef CK_AUTHENTICATION
-#define CK_FORWARD_X
-#endif /* CK_AUTHENTICATION */
-#endif /* CK_FORWARD_X */
 #endif /* NOSELECT */
 #endif /* NOPUTENV */
 #endif /* NOFORWARDX */
@@ -5772,11 +5729,6 @@ _PROTOTYP( void *memcpy, (void *, const void *, size_t));
 #endif /* TNCODE */
 #endif /* CK_LOGIN */
 
-#ifdef CK_AUTHENTICATION
-#ifdef NOSENDUID
-#undef NOSENDUID
-#endif /* NOSENDUID */
-#endif /* CK_AUTHENTICATION */
 
 #ifdef TNCODE				/* Should TELNET send user ID? */
 #ifndef NOSENDUID
@@ -6019,15 +5971,6 @@ _PROTOTYP( int ftpissecure, (void));
 #ifdef CKWTMP
 #undef CKWTMP
 #endif /* CKWTMP */
-#ifdef CK_AUTHENTICATION                /* No Internet security protocols */
-#undef CK_AUTHENTICATION
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-#undef CK_ENCRYPTION
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-#undef CK_SSL
-#endif /* CK_SSL */
 #ifndef NOSSL
 #define NOSSL
 #endif  /* NOSSL */
@@ -6080,7 +6023,6 @@ _PROTOTYP( int readtext, (char *, char *, int));
 #ifdef CK_ANSIC                     /* New C-Kermit 10.0 Beta.09 */
 #include "ckucmd.h"                 /* For typedefs */
 #include "ckcnet.h"                 /* For typedefs */
-#include "ckuath.h"                 /* For typedefs */
 #include "ckucmd.h"                 /* For typedefs */
 #include "ckcker.h"                 /* For typedefs */
 #include "ckuusr.h"                 /* For typedefs */

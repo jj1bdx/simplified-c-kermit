@@ -38,12 +38,6 @@ int pwcrypt = 0;
 
 #ifndef NOICP
 
-#ifdef CK_AUTHENTICATION
-#include "ckuath.h"
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_SSL
-#include "ck_ssl.h"
-#endif /* CK_SSL */
 #include "ckuusr.h"                     /* User interface symbols */
 
 extern char * exedir;
@@ -89,15 +83,6 @@ int cmd_quoting = 1;
 int cmd_err = 1;
 extern int hints, xcmdsrc;
 
-#ifdef CK_KERBEROS
-char * k4pwprompt = NULL;               /* Kerberos 4 password prompt */
-char * k4prprompt = NULL;               /* Kerberos 4 principal prompt */
-char * k5pwprompt = NULL;               /* Kerberos 5 password prompt */
-char * k5prprompt = NULL;               /* Kerberos 5 principal prompt */
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-char * srppwprompt = NULL;
-#endif /* CK_SRP */
 
 extern char * ckprompt, * ikprompt;     /* Default prompt */
 extern xx_strp xxstring;
@@ -1310,179 +1295,6 @@ extern int tn_rem_echo;
 extern int tn_deb;
 extern int tn_auth_how;
 extern int tn_auth_enc;
-#ifdef CK_FORWARD_X
-extern char * tn_fwdx_xauthority;
-#endif /* CK_FORWARD_X */
-#ifdef CK_AUTHENTICATION
-static struct keytab setauth[] = {
-#ifdef CK_KERBEROS
-    "k4",        AUTH_KRB4, CM_INV,
-    "k5",        AUTH_KRB5, CM_INV,
-    "kerberos4", AUTH_KRB4, 0,
-    "kerberos5", AUTH_KRB5, 0,
-    "kerberos_iv",AUTH_KRB4, CM_INV,
-    "kerberos_v", AUTH_KRB5, CM_INV,
-    "krb4",      AUTH_KRB4, CM_INV,
-    "krb5",      AUTH_KRB5, CM_INV,
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-    "srp",       AUTH_SRP,  0,
-#endif /* CK_SRP */
-#ifdef CK_SSL
-    "ssl",      AUTH_SSL,   0,
-    "tls",      AUTH_TLS,   0,
-#endif /* CK_SSL */
-    "",         0,      0
-};
-static int nsetauth = sizeof(setauth)/sizeof(struct keytab) - 1;
-#ifdef CK_KERBEROS
-extern char * krb5_d_principal;         /* Default principal */
-extern char * krb5_d_instance;
-extern char * krb5_d_realm;             /* Default realm */
-extern char * krb5_d_cc;                /* Default credentials cache */
-extern char * krb5_d_srv;               /* Default service name */
-extern int    krb5_d_lifetime;          /* Default lifetime */
-extern int    krb5_d_forwardable;
-extern int    krb5_d_proxiable;
-extern int    krb5_d_renewable;
-extern int    krb5_autoget;
-extern int    krb5_autodel;
-extern int    krb5_d_getk4;
-extern int    krb5_checkaddrs;          /* Check TGT Addrs */
-extern int    krb5_d_no_addresses;
-extern char * krb5_d_addrs[];
-extern char * k5_keytab;                /* Keytab file */
-
-extern struct krb4_init_data krb4_init;
-extern char * krb4_d_principal;         /* Default principal */
-extern char * krb4_d_realm;             /* Default realm */
-extern char * krb4_d_srv;               /* Default service name */
-extern int    krb4_d_lifetime;          /* Default lifetime */
-extern int    krb4_d_preauth;
-extern char * krb4_d_instance;
-extern int    krb4_autoget;
-extern int    krb4_autodel;
-extern int    krb4_checkaddrs;          /* Check TGT Addrs */
-extern char * k4_keytab;                /* Keytab file */
-#ifdef KRB4
-extern int    k4debug;
-#endif /* KRB4 */
-static struct keytab krbver[] = {
-    "4",                 4, 0,
-    "5",                 5, 0,
-    "iv",                4, CM_INV,
-    "v",                 5, CM_INV
-};
-static int nkrbver = sizeof(krbver)/sizeof(struct keytab);
-
-static struct keytab kdestab[] = {
-    "never",            KRB_DEL_NO, 0,
-    "no",               KRB_DEL_NO, CM_INV,
-    "on-close",         KRB_DEL_CL, 0,
-    "on-exit",          KRB_DEL_EX, 0
-};
-static int nkdestab = sizeof(kdestab)/sizeof(struct keytab);
-
-static struct keytab k4tab[] = {
-    "autodel",           XYKRBDEL, CM_INV,
-    "autodestroy",       XYKRBDEL, 0,
-    "autoget",           XYKRBGET, 0,
-    "check-address",     XYKRBADR, 0,
-    "debug",             XYKRBDBG, CM_INV,
-    "instance",          XYKRBINS, 0,
-    "keytab",            XYKRBKTB, 0,
-    "lifetime",          XYKRBLIF, 0,
-    "preauth",           XYKRBPRE, 0,
-    "principal",         XYKRBPR,  0,
-    "prompt",            XYKRBPRM, 0,
-    "realm",             XYKRBRL,  0,
-    "service-name",      XYKRBSRV, 0
-};
-static int nk4tab = sizeof(k4tab)/sizeof(struct keytab);
-
-static struct keytab k5tab[] = {
-    "addresses",         XYKRBADD, 0,
-    "autodelete",        XYKRBDEL, CM_INV,
-    "autodestroy",       XYKRBDEL, 0,
-    "autoget",           XYKRBGET, 0,
-    "cc",                XYKRBCC,  CM_INV,
-    "check-address",     XYKRBADR, 0,
-    "credentials-cache", XYKRBCC,  0,
-    "forwardable",       XYKRBFWD, 0,
-    "get-k4-tgt",        XYKRBK5K4,0,
-    "instance",          XYKRBINS, 0,
-    "keytab",            XYKRBKTB, 0,
-    "lifetime",          XYKRBLIF, 0,
-    "no-addresses",      XYKRBNAD, 0,
-    "principal",         XYKRBPR,  0,
-    "prompt",            XYKRBPRM, 0,
-    "proxiable",         XYKRBPRX, 0,
-    "realm",             XYKRBRL,  0,
-    "renewable",         XYKRBRNW, 0,
-    "service-name",      XYKRBSRV, 0
-};
-static int nk5tab = sizeof(k5tab)/sizeof(struct keytab);
-
-#define KRB_PW_PRM 1
-#define KRB_PR_PRM 2
-
-static struct keytab krbprmtab[] = {
-    "password",  KRB_PW_PRM, 0,
-    "principal", KRB_PR_PRM, 0
-};
-
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-static struct keytab srptab[] = {
-    "prompt",            XYSRPPRM, 0
-};
-static int nsrptab = sizeof(srptab)/sizeof(struct keytab);
-#define SRP_PW_PRM 1
-
-static struct keytab srpprmtab[] = {
-    "password",  SRP_PW_PRM, 0
-};
-#endif /* CK_SRP */
-#ifdef CK_SSL
-static struct keytab ssltab[] = {
-    "certs-ok",          XYSSLCOK,  CM_INV,
-    "cipher-list",       XYSSLCL,   0,
-    "crl-dir",           XYSSLCRLD, 0,
-    "crl-file",          XYSSLCRL,  0,
-    "debug",             XYSSLDBG,  0,
-    "dh-key-file",       XYSSLDKFL, CM_INV,
-    "dh-param-file",     XYSSLDPFL, 0,
-    "dsa-cert-chain-file", XYSSLDCCF, 0,
-    "dsa-cert-file",     XYSSLDCFL, 0,
-    "dsa-key-file",      XYSSLDKFL, 0,
-    "dummy",             XYSSLDUM,  CM_INV,
-    "only",              XYSSLON,   CM_INV,
-    "random-file",       XYSSLRND,  0,
-    "rsa-cert-chain-file", XYSSLRCCF, 0,
-    "rsa-cert-file",     XYSSLRCFL, 0,
-    "rsa-key-file",      XYSSLRKFL, 0,
-    "verbose",           XYSSLVRB,  0,
-    "verify",            XYSSLVRF,  0,
-    "verify-dir",        XYSSLVRFD, 0,
-    "verify-file",       XYSSLVRFF, 0
-};
-static int nssltab = sizeof(ssltab)/sizeof(struct keytab);
-static struct keytab sslvertab[] = {
-    "fail-if-no-peer-cert", SSL_VERIFY_PEER |
-                            SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0,
-    "no",               SSL_VERIFY_NONE, 0,
-    "none",             SSL_VERIFY_NONE, CM_INV,
-    "off",              SSL_VERIFY_NONE, CM_INV,
-    "on",               SSL_VERIFY_PEER, CM_INV,
-    "peer-cert",        SSL_VERIFY_PEER, 0
-};
-static int nsslvertab = sizeof(sslvertab)/sizeof(struct keytab);
-#endif /* CK_SSL */
-#endif /* CK_AUTHENTICATION */
-#ifdef CK_ENCRYPTION
-int cx_type = CX_AUTO;
-extern int sl_cx_type;
-#endif /* CK_ENCRYPTION */
 extern char *tcp_address;
 #ifndef NOHTTP
 extern char * tcp_http_proxy;
@@ -1516,36 +1328,7 @@ static struct keytab tnnegtab[] = {     /* TELNET NEGOTIATION table */
 };
 static int ntnnegtab = sizeof(tnnegtab)/sizeof(struct keytab);
 
-#ifdef CK_ENCRYPTION
-static struct keytab typkwd[] = {
-    "/type", 0, CM_ARG
-};
 
-static struct keytab tnenctab[] = {     /* TELNET ENCRYPTION table */
-    "accepted",   TN_NG_AC,    CM_INV,
-    "refused",    TN_NG_RF,    CM_INV,
-    "req",        TN_NG_RQ,    CM_INV|CM_ABR,
-    "requ",       TN_NG_RQ,    CM_INV|CM_ABR,
-    "reque",      TN_NG_RQ,    CM_INV|CM_ABR,
-    "reques",     TN_NG_RQ,    CM_INV|CM_ABR,
-    "request",    TN_NG_RQ,    CM_INV|CM_ABR,
-    "requeste",   TN_NG_RQ,    CM_INV|CM_ABR,
-    "requested",  TN_NG_RQ,    CM_INV,
-    "required",   TN_NG_MU,    CM_INV,
-    "start",      TN_EN_START, CM_INV,
-    "stop",       TN_EN_STOP,  CM_INV,
-    "type",       TN_EN_TYP,   0
-};
-static int ntnenc = sizeof(tnenctab)/sizeof(struct keytab) ;
-#endif /* CK_ENCRYPTION */
-
-#ifdef CK_FORWARD_X
-static struct keytab tnfwdxtab[] = {    /* TELNET FORWARD-X table */
-    "no-encryption",    1,  CM_INV,
-    "xauthority-file",  0,  0
-};
-static int ntnfwdx = sizeof(tnfwdxtab)/sizeof(struct keytab) ;
-#endif /* CK_FORWARD_X */
 
 static struct keytab tnbugtab[] = {     /* TELNET BUG table */
     "auth-krb5-des",         4, 0,
@@ -1572,67 +1355,6 @@ static struct keytab tnenvtab[] = {     /* TELNET ENVIRONMENT table */
 static int ntnenv = sizeof(tnenvtab)/sizeof(struct keytab) - 1;
 #endif /* CK_ENVIRONMENT */
 
-#ifdef CK_AUTHENTICATION
-static struct keytab tnauthtab[] = {    /* TELNET AUTHENTICATION table */
-    "accepted",   TN_NG_AC,  CM_INV,
-    "encrypt-flag", TN_AU_ENC, 0,
-    "forwarding", TN_AU_FWD,   0,
-    "how-flag",   TN_AU_HOW,   0,
-    "refused",    TN_NG_RF,  CM_INV,
-    "req",        TN_NG_RQ,  CM_INV|CM_ABR,
-    "requ",       TN_NG_RQ,  CM_INV|CM_ABR,
-    "reque",      TN_NG_RQ,  CM_INV|CM_ABR,
-    "reques",     TN_NG_RQ,  CM_INV|CM_ABR,
-    "request",    TN_NG_RQ,  CM_INV|CM_ABR,
-    "requeste",   TN_NG_RQ,  CM_INV|CM_ABR,
-    "requested",  TN_NG_RQ,  CM_INV,
-    "required",   TN_NG_MU,  CM_INV,
-    "type",       TN_AU_TYP, 0
-};
-static int ntnauth = sizeof(tnauthtab)/sizeof(struct keytab) ;
-
-struct keytab autyptab[] = {    /* TELNET AUTHENTICATION TYPE table */
-    "automatic",  AUTH_AUTO, 0,
-#ifdef CK_KERBEROS
-    "k4",         AUTH_KRB4, CM_INV,
-    "k5",         AUTH_KRB5, CM_INV,
-    "kerberos4",  AUTH_KRB4, 0,
-    "kerberos5",  AUTH_KRB5, 0,
-    "kerberos_iv",AUTH_KRB4, CM_INV,
-    "kerberos_v", AUTH_KRB5, CM_INV,
-    "krb4",       AUTH_KRB4, CM_INV,
-    "krb5",       AUTH_KRB5, CM_INV,
-#endif /* CK_KERBEROS */
-    "none",       AUTH_NONE, 0,
-#ifdef CK_SRP
-    "srp",        AUTH_SRP,  0,
-#endif /* CK_SRP */
-#ifdef CK_SSL
-    "ssl",        AUTH_SSL,  0,
-#endif /* CK_SSL */
-    "", 0, 0
-};
-int nautyp = sizeof(autyptab)/sizeof(struct keytab) - 1;
-
-struct keytab auhowtab[] = {    /* TELNET AUTHENTICATION HOW table */
-    "any",     TN_AUTH_HOW_ANY,     0,
-    "mutual",  TN_AUTH_HOW_MUTUAL,  0,
-    "one-way", TN_AUTH_HOW_ONE_WAY, 0,
-    "", 0, 0
-};
-int nauhow = sizeof(auhowtab)/sizeof(struct keytab) - 1;
-
-struct keytab auenctab[] = {    /* TELNET AUTHENTICATION ENCRYPT table */
-    "any",     TN_AUTH_ENC_ANY,     0,
-    "none",    TN_AUTH_ENC_NONE,    0,
-    "telopt",  TN_AUTH_ENC_TELOPT,  0,
-#ifdef CK_SSL
-    "tls",     TN_AUTH_ENC_TLS,     0,
-#endif /* CK_SSL */
-    "", 0, 0
-};
-int nauenc = sizeof(auenctab)/sizeof(struct keytab) - 1;
-#endif /* CK_AUTHENTICATION */
 
 #define TN_NL_BIN 3
 #define TN_NL_NVT 4
@@ -1657,9 +1379,6 @@ static struct keytab tnlmtab[] = {      /* TELNET NEWLINE-MODE table */
 static int ntnlm = (sizeof(tnlmtab) / sizeof(struct keytab));
 
 struct keytab tntab[] = {
-#ifdef CK_AUTHENTICATION
-    "authentication",       CK_TN_AU,  0,
-#endif /* CK_AUTHENTICATION */
     "b",                    CK_TN_BM,  CM_INV|CM_ABR,
     "bi",                   CK_TN_BM,  CM_INV|CM_ABR,
     "bin",                  CK_TN_BM,  CM_INV|CM_ABR,
@@ -1674,15 +1393,9 @@ struct keytab tntab[] = {
     "debug",                CK_TN_DB,  0,
     "delay-sb",             CK_TN_DL,  0,
     "echo",                 CK_TN_EC,  0,
-#ifdef CK_ENCRYPTION
-    "encryption",      CK_TN_ENC,  0,
-#endif /* CK_ENCRYPTION */
 #ifdef CK_ENVIRONMENT
     "environment",     CK_TN_ENV,  0,
 #endif /* CK_ENVIRONMENT */
-#ifdef CK_FORWARD_X
-    "forward-x",       CK_TN_FX,   0,
-#endif /* CK_FORWARD_X */
 #ifdef IKS_OPTION
     "kermit",          CK_TN_IKS,  CM_INV,
 #endif /* IKS_OPTION */
@@ -1696,9 +1409,6 @@ struct keytab tntab[] = {
     "no-encrypt-during-xfer", CK_TN_NE, CM_INV,
     "prompt-for-userid",CK_TN_PUID,0,
     "remote-echo",     CK_TN_RE,   0,
-#ifdef CK_SSL
-    "start-tls",       CK_TN_TLS,  CM_INV,
-#endif /* CK_SSL */
     "sfu-compatibility", CK_TN_SFU, CM_INV,
     "terminal-type",   CK_TN_TT,   0,
     "wait-for-negotiations", CK_TN_WAIT, 0,
@@ -1710,11 +1420,7 @@ struct keytab tntab[] = {
 int ntn = (sizeof(tntab) / sizeof(struct keytab)) - 1;
 
 struct keytab tnopttab[] = {
-#ifdef CK_AUTHENTICATION
-    "authentication",  CK_TN_AU,   0,
-#else
     "authentication",  CK_TN_AU,   CM_INV,
-#endif /* CK_AUTHENTICATION */
     "binary-mode",     CK_TN_BM,   0,
 #ifdef TN_COMPORT
     "c",               CK_TN_CPC,   CM_INV|CM_ABR,
@@ -1727,16 +1433,8 @@ struct keytab tnopttab[] = {
     "comport-control", CK_TN_CPC,   CM_INV,
 #endif /* TN_COMPORT */
     "echo",            CK_TN_EC,   0,
-#ifdef CK_ENCRYPTION
-    "encryption",      CK_TN_ENC,  0,
-#else
     "encryption",      CK_TN_ENC,  CM_INV,
-#endif /* CK_ENCRYPTION */
-#ifdef CK_FORWARD_X
-    "forward-x",       CK_TN_FX,   0,
-#else /* CK_FORWARD_X */
     "forward-x",       CK_TN_FX,   CM_INV,
-#endif /* CK_FORWARD_X */
     "ibm-sak",         CK_TN_SAK,  CM_INV,
 #ifdef IKS_OPTION
     "kermit",          CK_TN_IKS,  0,
@@ -1765,11 +1463,7 @@ struct keytab tnopttab[] = {
     "send-location",   CK_TN_LOC,  CM_INV,
 #endif /* CK_SNDLOC */
     "sga",             CK_TN_SGA, CM_INV|CM_ABR,
-#ifdef CK_SSL
-    "start-tls",       CK_TN_TLS,  0,
-#else
     "start-tls",       CK_TN_TLS,  CM_INV,
-#endif /* CK_SSL */
     "suppress-go-aheads", CK_TN_SGA, 0,
     "terminal-type",   CK_TN_TT,   0,
     "ttype",           CK_TN_TT,   CM_INV|CM_ABR,
@@ -1896,11 +1590,7 @@ struct keytab ftrtab[] = {              /* Feature table */
 "kermit",               1, 0,
 #endif /* NOXFER */
 
-#ifdef CK_KERBEROS
-"kerberos",             0, 0,
-#else
 "kerberos",             1, 0,
-#endif /* CK_KERBEROS */
 
 #ifndef NOCSETS
 "latin1",               0, 0,
@@ -2005,11 +1695,7 @@ struct keytab ftrtab[] = {              /* Feature table */
 "show-command",         1, 0,
 #endif /* NOSHOW */
 
-#ifdef CK_SRP
-"srp",                  0, 0,
-#else
 "srp",                  1, 0,
-#endif /* CK_SRP */
 
 #ifdef SSHBUILTIN
 "ssh",                  0, 0,
@@ -2017,11 +1703,7 @@ struct keytab ftrtab[] = {              /* Feature table */
 "ssh",                  1, 0,
 #endif /* SSHBUILTIN */
 
-#ifdef CK_SSL
-"ssl/tls",              0, 0,
-#else
 "ssl/tls",              1, 0,
-#endif /* CK_SSL */
 
 #ifndef NOXMIT
 "transmit",             0, 0,
@@ -4743,18 +4425,7 @@ dologshow(fc) int fc;
 #ifdef SSHBUILTIN
         if ( IS_SSH() ) x++;
 #endif /* SSHBUILTIN */
-#ifdef CK_ENCRYPTION
-        if (ck_tn_encrypting() && ck_tn_decrypting()) x++;
-#endif /* CK_ENCRYPTION */
-#ifdef CK_SSL
-        if (tls_active_flag || ssl_active_flag) x++;
-#endif /* CK_SSL */
 #ifdef RLOGCODE
-#ifdef CK_KERBEROS
-#ifdef CK_ENCRYPTION
-        if (ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN) x++;
-#endif /* CK_ENCRYPTION */
-#endif /* CK_KERBEROS */
 #endif /* RLOGCODE */
 #endif /* NETCONN */
         if (z > 0)
@@ -9308,12 +8979,6 @@ case XYCARR:                            /* CARRIER-WATCH */
           int tnserver = 0;             /* Client by default */
           int opt = -1;                 /* Telnet Option */
           struct FDB sw, op;            /* FDBs for each parse function */
-#ifdef CK_AUTHENTICATION
-          extern int sl_topt_a_s_saved;
-          extern int sl_topt_a_c_saved;
-          extern int sl_topt_e_s_saved;
-          extern int sl_topt_e_c_saved;
-#endif /* CK_AUTHENTICATION */
 #ifdef IKSD
           if (inserver)                 /* Server by default when IKSD */
             tnserver = 1;
@@ -9481,17 +9146,9 @@ case XYCARR:                            /* CARRIER-WATCH */
               if (tnserver) {
                   TELOPT_DEF_S_U_MODE(opt) = x;
                   TELOPT_U_MODE(opt) = x;
-#ifdef CK_AUTHENTICATION
-                  if (opt == TELOPT_AUTHENTICATION)
-                    sl_topt_a_s_saved = 0;
-#endif /* CK_AUTHENTICATION */
               } else {
                   TELOPT_DEF_C_ME_MODE(opt) = x;
                   TELOPT_ME_MODE(opt) = x;
-#ifdef CK_AUTHENTICATION
-                  if (opt == TELOPT_AUTHENTICATION)
-                    sl_topt_a_c_saved = 0;
-#endif /* CK_AUTHENTICATION */
               }
               break;
 
@@ -9522,19 +9179,11 @@ case XYCARR:                            /* CARRIER-WATCH */
                   TELOPT_ME_MODE(opt) = x;
                   TELOPT_DEF_S_U_MODE(opt) = y;
                   TELOPT_U_MODE(opt) = y;
-#ifdef CK_ENCRYPTION
-                  if (opt == TELOPT_ENCRYPTION)
-                    sl_topt_e_s_saved = 0;
-#endif /* CK_ENCRYPTION */
               } else {
                   TELOPT_DEF_C_ME_MODE(opt) = x;
                   TELOPT_ME_MODE(opt) = x;
                   TELOPT_DEF_C_U_MODE(opt) = y;
                   TELOPT_U_MODE(opt) = y;
-#ifdef CK_ENCRYPTION
-                  if (opt == TELOPT_ENCRYPTION)
-                    sl_topt_e_c_saved = 0;
-#endif /* CK_ENCRYPTION */
               }
           }
           return(success = 1);
@@ -9576,25 +9225,6 @@ case XYCARR:                            /* CARRIER-WATCH */
                 return(success = 1);
             } else return(success = 0);
 
-#ifdef CK_FORWARD_X
-          case CK_TN_FX:                /* FORWARD-X */
-            if ((x=cmkey(tnfwdxtab,ntnfwdx,"","xauthority-file",xxstring)) < 0)
-              return(x);
-            switch (x) {
-              case 0: {                 /* Xauthority-File */
-                  x = cmifi("Full path of .Xauthority file","",&s,&y,xxstring);
-                  if (x < 0 && x != -3)
-                    return(x);
-                  makestr(&tn_fwdx_xauthority,s);
-                  return(success = 1);
-              }
-              case 1: {                 /* No-Encryption */
-                  extern int fwdx_no_encrypt;
-                  return(success = seton(&fwdx_no_encrypt));
-              }
-            }
-            return(success = 0);
-#endif /* CK_FORWARD_X */
 
           case CK_TN_NL:                /* TELNET NEWLINE-MODE */
             if ((x = cmkey(tn_nlmtab,ntn_nlm,"","nvt",xxstring)) < 0)
@@ -9664,20 +9294,6 @@ case XYCARR:                            /* CARRIER-WATCH */
             return(success = 1);
 #endif /* IKS_OPTION */
 
-#ifdef CK_SSL
-          case CK_TN_TLS:               /* START_TLS */
-            if ((x = cmkey(tnnegtab,ntnnegtab,"me","accept",xxstring)) < 0)
-              return(x);
-            if ((y = cmkey(tnnegtab,ntnnegtab,"u","accept",xxstring)) < 0)
-              return(y);
-            if ((z = cmcfm()) < 0)
-              return(z);
-            TELOPT_DEF_S_ME_MODE(TELOPT_START_TLS) = x;
-            TELOPT_DEF_S_U_MODE(TELOPT_START_TLS) = y;
-            TELOPT_DEF_C_ME_MODE(TELOPT_START_TLS) = x;
-            TELOPT_DEF_C_U_MODE(TELOPT_START_TLS) = y;
-            return(success = 1);
-#endif /* CK_SSL */
 
 #ifdef CK_NAWS
           case CK_TN_NAWS:              /* NAWS */
@@ -9694,135 +9310,7 @@ case XYCARR:                            /* CARRIER-WATCH */
             return(success = 1);
 #endif /* CK_NAWS */
 
-#ifdef CK_AUTHENTICATION
-          case CK_TN_AU:                /* AUTHENTICATION */
-            if ((x = cmkey(tnauthtab,ntnauth,"","",xxstring)) < 0)
-              return(x);
-            if (x == TN_AU_FWD) {
-                extern int forward_flag;
-                return(success = seton(&forward_flag));
-            } else if (x == TN_AU_TYP) {
-                extern int auth_type_user[];
-                extern int sl_auth_type_user[];
-                extern int sl_auth_saved;
-                int i, j, atypes[AUTHTYPLSTSZ];
 
-                for (i = 0; i < AUTHTYPLSTSZ; i++) {
-                    if ((y = cmkey(autyptab,nautyp,"",
-                                   i == 0 ? "automatic" : "" ,
-                                   xxstring)) < 0) {
-                        if (y == -3)
-                          break;
-                        return(y);
-                    }
-                    if (i > 0 && (y == AUTHTYPE_AUTO || y == AUTHTYPE_NULL)) {
-                        printf(
-                        "\r\n?Choice may only be used in first position.\r\n");
-                        return(-9);
-                    }
-                    for (j = 0; j < i; j++) {
-                        if (atypes[j] == y) {
-                            printf("\r\n?Choice has already been used.\r\n");
-                            return(-9);
-                        }
-                    }
-                    atypes[i] = y;
-                    if (y == AUTHTYPE_NULL || y == AUTHTYPE_AUTO) {
-                        i++;
-                        break;
-                    }
-                }
-                if (i < AUTHTYPLSTSZ)
-                  atypes[i] = AUTHTYPE_NULL;
-                if ((z = cmcfm()) < 0)
-                  return(z);
-                sl_auth_saved = 0;
-                for (i = 0; i < AUTHTYPLSTSZ; i++) {
-                    auth_type_user[i] = atypes[i];
-                    sl_auth_type_user[i] = 0;
-                }
-            } else if (x == TN_AU_HOW) {
-                if ((y = cmkey(auhowtab,nauhow,"","any",xxstring)) < 0)
-                  return(y);
-                if ((z = cmcfm()) < 0)
-                  return(z);
-                tn_auth_how = y;
-            } else if (x == TN_AU_ENC) {
-                if ((y = cmkey(auenctab,nauenc,"","encrypt",xxstring)) < 0)
-                  return(y);
-                if ((z = cmcfm()) < 0)
-                  return(z);
-                tn_auth_enc = y;
-            } else {
-                if ((y = cmcfm()) < 0)
-                  return(y);
-                TELOPT_DEF_C_ME_MODE(TELOPT_AUTHENTICATION) = x;
-                TELOPT_DEF_S_U_MODE(TELOPT_AUTHENTICATION) = x;
-            }
-            return(success = 1);
-#endif /* CK_AUTHENTICATION */
-
-#ifdef CK_ENCRYPTION
-          case CK_TN_ENC: {             /* ENCRYPTION */
-              int c, tmp = -1;
-              int getval = 0;
-              static struct keytab * tnetbl = NULL;
-              static int ntnetbl = 0;
-
-              if ((y = cmkey(tnenctab,ntnenc,"","",xxstring)) < 0)
-                return(y);
-              switch (y) {
-                case TN_EN_TYP:
-                  x = ck_get_crypt_table(&tnetbl,&ntnetbl);
-                  debug(F101,"ck_get_crypt_table x","",x);
-                  debug(F101,"ck_get_crypt_table n","",ntnetbl);
-                  if (x < 1 || !tnetbl || ntnetbl < 1) /* Didn't get it */
-                    x = 0;
-                  if (!x) {
-                      printf("?Oops, types not loaded\n");
-                      return(-9);
-                  }
-                  if ((x = cmkey(tnetbl,ntnetbl,"type of encryption",
-                                 "automatic",xxstring)) < 0)
-                    return(x);
-                  if ((z = cmcfm()) < 0)
-                    return(z);
-                  cx_type = x;
-                  sl_cx_type = 0;
-                  break;
-                case TN_EN_START:
-                  if ((z = cmcfm()) < 0)
-                    return(z);
-#ifdef CK_APC
-                  /* Don't let this be set remotely */
-                  if (apcactive == APC_LOCAL ||
-                      apcactive == APC_REMOTE && !(apcstatus & APC_UNCH))
-                    return(success = 0);
-#endif /* CK_APC */
-                  ck_tn_enc_start(); /* fdc 2021-12-17 */
-                  break;
-                case TN_EN_STOP:
-                  if ((z = cmcfm()) < 0)
-                    return(z);
-#ifdef CK_APC
-                  /* Don't let this be set remotely */
-                  if (apcactive == APC_LOCAL ||
-                      apcactive == APC_REMOTE && !(apcstatus & APC_UNCH))
-                    return(success = 0);
-#endif /* CK_APC */
-                  ck_tn_enc_stop(); /* fdc 2021-12-17 */
-                  break;
-                default:
-                  if ((z = cmcfm()) < 0)
-                    return(z);
-                  TELOPT_DEF_C_ME_MODE(TELOPT_ENCRYPTION) = y;
-                  TELOPT_DEF_C_U_MODE(TELOPT_ENCRYPTION) = y;
-                  TELOPT_DEF_S_ME_MODE(TELOPT_ENCRYPTION) = y;
-                  TELOPT_DEF_S_U_MODE(TELOPT_ENCRYPTION) = y;
-              }
-              return(success = 1);
-          }
-#endif /* CK_ENCRYPTION */
 
           case CK_TN_BUG:               /* BUG */
             if ((x = cmkey(tnbugtab,4,"",
@@ -11697,679 +11185,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
           return(success = 1);
       }
 
-#ifdef CK_AUTHENTICATION
-      case XYAUTH: {                    /* SET AUTHENTICATION */
-#ifdef CK_KERBEROS
-          int kv = 0;
-          extern struct krb_op_data krb_op;
-#endif /* CK_KERBEROS */
-          if ((x =
-               cmkey(setauth,nsetauth,"authentication type","",xxstring)) < 0)
-            return(x);
-          switch (x) {
-#ifdef CK_KERBEROS
-            case AUTH_KRB4: kv = 4; break; /* Don't assume values are same */
-            case AUTH_KRB5: kv = 5; break;
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-            case AUTH_SRP: break;
-#endif /* CK_SRP */
-#ifdef CK_SSL
-            case AUTH_SSL:
-            case AUTH_TLS:
-              break;
-#endif /* CK_SSL */
-            default:
-              printf("?Authorization type not supported yet - \"%s\"\n",
-                     atmbuf);
-              return(-9);
-          }
-#ifdef IKSD
-          if (inserver &&
-#ifdef IKSDCONF
-              iksdcf
-#else
-              1
-#endif /* IKSDCONF */
-              ) {
-              if ((y = cmcfm()) < 0) return(y);
-              printf("?Sorry, command disabled.\n");
-              return(success = 0);
-          }
-#endif /* IKSD */
-#ifdef CK_APC
-          /* Don't let this be set remotely */
-          if (apcactive == APC_LOCAL ||
-              apcactive == APC_REMOTE && !(apcstatus & APC_UNCH)) {
-              if ((y = cmcfm()) < 0) return(y);
-              return(success = 0);
-          }
-#endif /* CK_APC */
-
-          switch(x) {
-#ifdef CK_KERBEROS
-            case AUTH_KRB4:
-            case AUTH_KRB5: {
-                if ((x = cmkey(kv == 4 ? k4tab : k5tab,
-                               kv == 4 ? nk4tab : nk5tab,
-                               "Kerberos parameter","",xxstring)) < 0) {
-                    return(x);
-                }
-                s = "";
-                switch (x) {
-#ifdef KRB4
-                  case XYKRBDBG:
-                    if (kv == 4) {
-                        if ((y = seton(&k4debug)) < 0)
-                          return(y);
-                    } else {
-                        return(-9);
-                    }
-                    break;
-#endif /* KRB4 */
-                  case XYKRBLIF:
-                    if ((y = cmnum("TGT lifetime","600",10,&z,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBPRE:
-                    if (kv == 4) {
-                        if ((y = seton(&krb4_d_preauth)) < 0)
-                          return(y);
-                    } else {
-                        return(-9);
-                    }
-                    break;
-                  case XYKRBINS:
-                    if ((y = cmtxt("Instance name","",&s,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBFWD:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_d_forwardable)) < 0)
-                          return(y);
-                    } else {
-                        return(-9);
-                    }
-                    break;
-                  case XYKRBPRX:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_d_proxiable)) < 0)
-                          return(y);
-                    } else {
-                        return(-9);
-                    }
-                    break;
-                  case XYKRBRNW:
-                    if ((y = cmnum("TGT renewable lifetime",
-                                   "0",10,&z,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBADR:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_checkaddrs)) < 0)
-                          return(y);
-                    } else {
-                        if ((y = seton(&krb4_checkaddrs)) < 0)
-                          return(y);
-                    }
-                    break;
-                  case XYKRBNAD:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_d_no_addresses)) < 0)
-                          return(y);
-                    }
-                    break;
-                  case XYKRBADD:
-                    if (kv == 5) {
-                        char * tmpaddrs[KRB5_NUM_OF_ADDRS];
-                        for (i = 0; i < KRB5_NUM_OF_ADDRS; i++)
-                          tmpaddrs[i] = NULL;
-
-                        if ((y =
-                             cmfld("List of IP addresses","",&s,xxstring)) < 0)
-                          return(y);
-                        makelist(s,tmpaddrs,KRB5_NUM_OF_ADDRS);
-                        if ((y = cmcfm()) < 0) {
-                            for (i = 0; i < KRB5_NUM_OF_ADDRS; i++) {
-                                if (tmpaddrs[i] != NULL)
-                                  free(tmpaddrs[i]);
-                            }
-                            return(y);
-                        }
-                        for (i = 0;
-                             i < KRB5_NUM_OF_ADDRS && tmpaddrs[i];
-                             i++) {
-                            if (inet_addr(tmpaddrs[i]) == 0xffffffff) {
-                                printf("invalid ip address: %s\n",
-                                       tmpaddrs[i]);
-                                for (i = 0; i < KRB5_NUM_OF_ADDRS; i++) {
-                                    if (tmpaddrs[i] != NULL)
-                                      free(tmpaddrs[i]);
-                                }
-                                return(-9);
-                            }
-                        }
-                        for (i = 0;
-                             i < KRB5_NUM_OF_ADDRS && krb5_d_addrs[i];
-                             i++) {
-                            if (krb5_d_addrs[i])
-                              free(krb5_d_addrs[i]);
-                            krb5_d_addrs[i] = NULL;
-                        }
-                        for (i = 0;
-                             i < KRB5_NUM_OF_ADDRS && tmpaddrs[i];
-                             i++) {
-                            krb5_d_addrs[i] = tmpaddrs[i];
-                            tmpaddrs[i] = NULL;
-                        }
-                        krb5_d_addrs[i] = NULL;
-                        return(success = 1);
-                    }
-                    break;
-
-                  case XYKRBGET:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_autoget)) < 0)
-                          return(y);
-                    } else {
-                        if ((y = seton(&krb4_autoget)) < 0)
-                          return(y);
-                    }
-                    break;
-                  case XYKRBDEL:
-                    if ((z = cmkey(kdestab,nkdestab,
-                                   "Auto Destroy Tickets",
-                                   "never",xxstring)) < 0)
-                      return(z);
-                    break;
-                  case XYKRBPR:
-                    if ((y = cmtxt("User ID",uidbuf,&s,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBRL:
-                    if ((y = cmtxt("Name of realm","",&s,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBKTB:
-                    y = cmifi("Filename","",&s,&z,xxstring);
-                    if (y != -3) {
-                       if (y < 0)
-                         return(y);
-                       if (z) {
-                         printf("?Wildcards not allowed\n");
-                         return(-9);
-                       }
-                    }
-                    break;
-                  case XYKRBCC:
-                    if ((y = cmofi("Filename","",&s,xxstring)) < 0)
-                      return(y);
-                    break;
-                  case XYKRBSRV:
-                    if ((y = cmtxt("Name of service to use in ticket",
-                                   (kv == 4 ? "rcmd" : "host"),
-                                   &s,
-                                   xxstring
-                                   )) < 0)
-                      return(y);
-                    break;
-                  case XYKRBK5K4:
-                    if (kv == 5) {
-                        if ((y = seton(&krb5_d_getk4)) < 0)
-                          return(y);
-                    } else {
-                        return(-9);
-                    }
-                    break;
-                  case XYKRBPRM:        /* Prompt */
-                    if ((z = cmkey(krbprmtab,2,"","",xxstring)) < 0)
-                      return(z);
-                    if ((y = cmtxt((z == KRB_PW_PRM) ?
-  "Text of prompt;\nmay contain \"%s\" to be replaced by principal name" :
-  "Text of prompt",
-                                   "",
-                                   &s,
-                                   xxstring
-                                   )
-                         ) < 0)
-                      return(y);
-                    break;
-                }
-                ckstrncpy(line,s,LINBUFSIZ);
-                s = line;
-                if ((y = cmcfm()) < 0)
-                  return(y);
-#ifdef IKSD
-                if (inserver &&
-#ifdef IKSDCONF
-                    iksdcf
-#else /* IKSDCONF */
-                    1
-#endif /* IKSDCONF */
-                    )
-                  return(success = 0);
-#endif /* IKSD */
-
-                switch (x) {            /* Copy value to right place */
-                  case XYKRBLIF:        /* Lifetime */
-                    if (kv == 4)
-                      krb4_d_lifetime = z;
-                    else
-                      krb5_d_lifetime = z;
-                    break;
-                  case XYKRBRNW:
-                    if (kv == 5)
-                      krb5_d_renewable = z;
-                    break;
-                  case XYKRBPR:         /* Principal */
-                    s = brstrip(s);	/* Strip braces around. */
-                    if (kv == 4)
-                      makestr(&krb4_d_principal,s);
-                    else
-                      makestr(&krb5_d_principal,s);
-                    break;
-                  case XYKRBINS:        /* Instance */
-                    if (kv == 4)
-                      makestr(&krb4_d_instance,s);
-                    else
-                      makestr(&krb5_d_instance,s);
-                    break;
-                  case XYKRBRL:         /* Realm */
-                    if (kv == 4)
-                      makestr(&krb4_d_realm,s);
-                    else
-                      makestr(&krb5_d_realm,s);
-                    break;
-                  case XYKRBKTB:        /* Key Table */
-                    if (kv == 4)
-                      makestr(&k4_keytab,s);
-                    else
-                      makestr(&k5_keytab,s);
-                    break;
-                  case XYKRBCC:         /* Credentials cache */
-                    makestr(&krb5_d_cc,s);
-                    break;
-                  case XYKRBSRV:        /* Service Name */
-                    if (kv == 4)
-                      makestr(&krb4_d_srv,s);
-                    else
-                      makestr(&krb5_d_srv,s);
-                    break;
-                  case XYKRBDEL:
-                    if (kv == 5)
-                      krb5_autodel = z;
-                    else
-                      krb4_autodel = z;
-                    break;
-                  case XYKRBPRM:        /* Prompt */
-		    s = brstrip(s);
-                    switch (z) {
-                      case KRB_PW_PRM: { /* Password */
-                          /* Check that there are no more than */
-                          /* two % fields and % must followed by 's'. */
-                          int i,n,len;
-                          len = strlen(s);
-                          for (i = 0, n = 0; i < len; i++) {
-                              if (s[i] == '%') {
-                                  if (s[i+1] != '%') {
-                                      if (s[i+1] != 's') {
-                                          printf(
-                                           "Only %%s fields are permitted.\n"
-                                                 );
-                                          return(-9);
-                                      }
-                                      if (++n > 2) {
-                                          printf(
-                                      "Only two %%s fields are permitted.\n");
-                                          return(-9);
-                                      }
-                                  }
-                                  i++;
-                              }
-                          }
-                          if (kv == 5)
-                            makestr(&k5pwprompt,s);
-                          else
-                            makestr(&k4pwprompt,s);
-                          break;
-                      }
-                      case KRB_PR_PRM: { /* Principal */
-                          /* Check to make sure there are no % fields */
-                          int i,len;
-                          len = strlen(s);
-                          for (i = 0; i < len; i++) {
-                              if (s[i] == '%') {
-                                  if (s[i+1] != '%') {
-                                      printf(
-                                  "%% fields are not used in this command.\n");
-                                      return(-9);
-                                  }
-                                  i++;
-                              }
-                          }
-                          if (kv == 5)
-                            makestr(&k5prprompt,s);
-                          else
-                            makestr(&k4prprompt,s);
-                          break;
-                      }
-                    }
-                }
-                break;
-            }
-#endif /* CK_KERBEROS */
-#ifdef CK_SRP
-            case AUTH_SRP: {
-                if ((x = cmkey(srptab, nsrptab,
-                               "SRP parameter","",xxstring)) < 0) {
-                    return(x);
-                }
-                s = "";
-                switch (x) {
-                  case XYSRPPRM:        /* Prompt */
-                    if ((z = cmkey(srpprmtab,1,"","",xxstring)) < 0)
-                      return(z);
-                    if ((y = cmtxt(
-  "Text of prompt;\nmay contain one \"%s\" to be replaced by the username",
-                                   "",
-                                   &s,
-                                   xxstring
-                                   )
-                         ) < 0)
-                      return(y);
-                    break;
-                }
-                ckstrncpy(line,s,LINBUFSIZ);
-                s = line;
-                if ((y = cmcfm()) < 0)
-                  return(y);
-                switch (x) {            /* Copy value to right place */
-                  case XYSRPPRM:        /* Prompt */
-		    s = brstrip(s);
-                    switch (z) {
-                      case SRP_PW_PRM: { /* Password */
-                          /* Check %s fields */
-                          int i,n,len;
-                          len = strlen(s);
-                          for (i = 0, n = 0; i < len; i++) {
-                              if (s[i] == '%') {
-                                  if (s[i+1] != '%') {
-                                      if (s[i+1] != 's') {
-                                          printf(
-                                          "Only %%s fields are permitted.\n");
-                                          return(-9);
-                                      }
-                                      if (++n > 1) {
-                                          printf(
-                                       "Only one %%s field is permitted.\n");
-                                          return(-9);
-                                      }
-                                  }
-                                  i++;
-                              }
-                          }
-                          makestr(&srppwprompt,s);
-                          break;
-                      }
-                    }
-                }
-                break;
-            }
-#endif /* CK_SRP */
-#ifdef CK_SSL
-            case AUTH_SSL:
-            case AUTH_TLS: {
-                if ((z = cmkey(ssltab, nssltab,
-                           (x == AUTH_SSL ? "SSL parameter" : "TLS parameter"),
-                           "",xxstring)) < 0)
-                  return(z);
-                s = "";
-                switch (z) {
-                  case XYSSLRCFL:       /* SSL/TLS RSA Certs file */
-                  case XYSSLRCCF:       /* SSL/TLS RSA Certs Chain file */
-                  case XYSSLRKFL:       /* SSL/TLS RSA Key File */
-                  case XYSSLDCFL:       /* SSL/TLS DSA Certs file */
-                  case XYSSLDCCF:       /* SSL/TLS DSA Certs Chain file */
-                  case XYSSLDKFL:       /* SSL/TLS DH Key File */
-                  case XYSSLDPFL:       /* SSL/TLS DH Param File */
-                  case XYSSLCRL:        /* SSL/TLS CRL File */
-                  case XYSSLVRFF:       /* SSL/TLS Verify File */
-                  case XYSSLRND:        /* SSL/TLS Random File */
-                    y = cmifi("Filename","",&s,&x,xxstring);
-                    if (y != -3) {
-                        if (y < 0)
-                          return(y);
-                        if (x) {
-                            printf("?Wildcards not allowed\n");
-                            return(-9);
-                        }
-                    }
-                    ckstrncpy(line,s,LINBUFSIZ);
-                    s = line;
-                    s = brstrip(s);
-                    if ((y = cmcfm()) < 0)
-                      return(y);
-                    switch (z) {
-                      case XYSSLRCFL:   /* SSL/TLS RSA Certs file */
-                        if (!s[0] && ssl_rsa_cert_file) {
-                            free(ssl_rsa_cert_file);
-                            ssl_rsa_cert_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_rsa_cert_file,s);
-                            if (!ssl_rsa_key_file)
-                              makestr(&ssl_rsa_key_file,s);
-                        }
-                        break;
-                      case XYSSLRCCF:   /* SSL/TLS RSA Certs Chain file */
-                          if (!s[0] && ssl_rsa_cert_chain_file) {
-                              free(ssl_rsa_cert_chain_file);
-                              ssl_rsa_cert_chain_file = NULL;
-                          } else if (s[0]) {
-                              makestr(&ssl_rsa_cert_chain_file,s);
-                          }
-                          break;
-                      case XYSSLRKFL:   /* SSL/TLS RSA Key File */
-                        if (!s[0] && ssl_rsa_key_file) {
-                            free(ssl_rsa_key_file);
-                            ssl_rsa_key_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_rsa_key_file,s);
-                        }
-                        break;
-                      case XYSSLDCFL:   /* SSL/TLS DSA Certs file */
-                        if (!s[0] && ssl_dsa_cert_file) {
-                            free(ssl_dsa_cert_file);
-                            ssl_dsa_cert_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_dsa_cert_file,s);
-                            if (!ssl_dh_key_file)
-                              makestr(&ssl_dh_key_file,s);
-                        }
-                        break;
-                      case XYSSLDCCF:   /* SSL/TLS DSA Certs Chain file */
-                          if (!s[0] && ssl_dsa_cert_chain_file) {
-                              free(ssl_dsa_cert_chain_file);
-                              ssl_dsa_cert_chain_file = NULL;
-                          } else if (s[0]) {
-                              makestr(&ssl_dsa_cert_chain_file,s);
-                          }
-                          break;
-                      case XYSSLDKFL:   /* SSL/TLS DH Key File */
-                        if (!s[0] && ssl_dh_key_file) {
-                            free(ssl_dh_key_file);
-                            ssl_dh_key_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_dh_key_file,s);
-                        }
-                        break;
-                      case XYSSLDPFL:   /* SSL/TLS DH Param File */
-                        if (!s[0] && ssl_dh_param_file) {
-                            free(ssl_dh_param_file);
-                            ssl_dh_param_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_dh_param_file,s);
-                        }
-                        break;
-                      case XYSSLCRL:    /* SSL/TLS CRL File */
-                        if (!s[0] && ssl_crl_file) {
-                            free(ssl_crl_file);
-                            ssl_crl_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_crl_file,s);
-                        }
-                        break;
-                      case XYSSLVRFF:   /* SSL/TLS Verify File */
-                        if (!s[0] && ssl_verify_file) {
-                            free(ssl_verify_file);
-                            ssl_verify_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_verify_file,s);
-                        }
-                        break;
-                      case XYSSLRND:    /* SSL/TLS Random File */
-                        if (!s[0] && ssl_rnd_file) {
-                            free(ssl_rnd_file);
-                            ssl_rnd_file = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_rnd_file,s);
-                        }
-                        break;
-                    }
-                    break;
-
-                  case XYSSLCRLD:
-                  case XYSSLVRFD: {
-                    char * d = NULL;
-                    if (z == XYSSLVRFD)
-                      d= getenv("SSL_CERT_DIR");
-                    if (d == NULL)
-                        d = "";
-                    if ((y = cmdir("Directory",d,&s,xxstring)) < 0)
-		      if (y != -3)
-			return(y);
-                    ckstrncpy(line,s,LINBUFSIZ);
-                    s = line;
-                    s = brstrip(s);
-                    if ((y = cmcfm()) < 0)
-                      return(y);
-                    switch(z) {
-                      case XYSSLCRLD:
-                        if (!s[0] && ssl_crl_dir) {
-                            free(ssl_crl_dir);
-                            ssl_crl_dir = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_crl_dir,s);
-                        }
-                        break;
-                      case XYSSLVRFD:
-                        if (!s[0] && ssl_verify_dir) {
-                            free(ssl_verify_dir);
-                            ssl_verify_dir = NULL;
-                        } else if (s[0]) {
-                            makestr(&ssl_verify_dir,s);
-                        }
-                        break;
-                    }
-                    break;
-                  }
-                  case XYSSLCOK:        /* SSL/TLS Certs-Ok flag */
-                    if ((y = seton(&ssl_certsok_flag)) < 0)
-                      return(y);
-                    break;
-                  case XYSSLDBG:                /* SSL/TLS Debug flag */
-                    if ((y = seton(&ssl_debug_flag)) < 0)
-                      return(y);
-                    break;
-                  case XYSSLON:         /* SSL/TLS Only flag */
-                    switch (x) {
-                      case AUTH_SSL:
-                        if ((y = seton(&ssl_only_flag)) < 0)
-                          return(y);
-                        break;
-                      case AUTH_TLS:
-                        if ((y = seton(&tls_only_flag)) < 0)
-                          return(y);
-                        break;
-                    }
-                    break;
-                  case XYSSLVRB:        /* SSL/TLS Verbose flag */
-                    if ((y = seton(&ssl_verbose_flag)) < 0)
-                      return(y);
-                    break;
-                  case XYSSLVRF:        /* SSL/TLS Verify flag */
-                    if ((x = cmkey(sslvertab, nsslvertab,
-                                   "SSL/TLS verify mode",
-                                   "peer-cert",xxstring)) < 0)
-                      return(x);
-                    if ((y = cmcfm()) < 0)
-                      return(y);
-                    ssl_verify_flag = x;
-                    break;
-                  case XYSSLDUM:
-                    if ((y = seton(&ssl_dummy_flag)) < 0)
-                      return(y);
-                    break;
-                  case XYSSLCL: {               /* SSL/TLS Cipher List */
-#ifdef COMMENT
-                      /* This code is used to generate a colon delimited */
-                      /* list of the ciphers currently in use to be used */
-                      /* as the default for cmtxt().  However, a better  */
-                      /* default is simply the magic keyword "ALL".      */
-                      CHAR def[1024] = "";
-                      if (ssl_con != NULL) {
-                          CHAR * p = NULL, *q = def;
-                          int i, len;
-
-                          for (i = 0; ; i++) {
-                              p = (CHAR *) SSL_get_cipher_list(ssl_con,i);
-                              if (p == NULL)
-                                break;
-                              len = strlen(p);
-                              if (q+len+1 >= def+1024)
-                                break;
-                              if (i != 0)
-                                *q++ = ':';
-                              strcpy(q,p);
-                              q += len;
-                          }
-                      }
-#endif /* COMMENT */
-                      char * p = getenv("SSL_CIPHER");
-                      if (!p)
-                        p = "ALL";
-                      if ((y = cmtxt(
-                    "Colon-delimited list of ciphers or ALL (case-sensitive)",
-                                     p,
-                                     &s,
-                                     xxstring
-                                     )
-                           ) < 0)
-                        return(y);
-                      makestr(&ssl_cipher_list,s);
-                      if (ssl_con == NULL) {
-                          SSL_library_init();
-                          ssl_ctx = (SSL_CTX *)
-/* Changed in 9.0.305 Alpha.03 from NetBSD 'rhialto' */
-/* from: SSL_CTX_new((SSL_METHOD *)TLSv1_method()); to:...*/
-                            SSL_CTX_new((SSL_METHOD *)SSLv23_method());
-                          if (ssl_ctx != NULL)
-                            ssl_con= (SSL *) SSL_new(ssl_ctx);
-                      }
-                      if (ssl_con) {
-                          SSL_set_cipher_list(ssl_con,ssl_cipher_list);
-                      }
-                      break;
-                  }
-                }
-                break;
-            }
-#endif /* CK_SSL */
-            default:
-              break;
-          }
-          return(success = 1);
-      }
-#endif /* CK_AUTHENTICATION */
 
 #ifndef NOSPL
       case XYFUNC:

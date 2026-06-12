@@ -6,24 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 C-Kermit 10.0 Beta.12 test repository (serial/network communication software, file transfer via the Kermit protocol). Original author: Frank da Cruz, kermitproject.org. Changelog: https://www.kermitproject.org/ckdaily.html#changelog
 
-Windows, OS/2, and VMS support was removed from this tree on 2026-06-12 (see `SIMPLIFY_20260612.md`): all `ckv*` files were deleted and the corresponding `#ifdef` blocks stripped with unifdef. That state is the initial git commit (`5a8fc5a`). Android support was removed the same day in commit `ad4139f` (see `SIMPLIFY_20260612_2.md`). Linux/macOS/Unix code is unaffected.
+Windows, OS/2, and VMS support was removed from this tree on 2026-06-12 (see `SIMPLIFY_20260612.md`): all `ckv*` files were deleted and the corresponding `#ifdef` blocks stripped with unifdef. That state is the initial git commit (`5a8fc5a`). Android support was removed the same day in commit `ad4139f` (see `SIMPLIFY_20260612_2.md`). SSL/TLS and Kerberos support (and with them the whole Telnet authentication/encryption stack: KRB4, SRP, DES/CAST) was removed on 2026-06-13 (see `SIMPLIFY_20260613.md`): the `ck_*` security files plus `ckuath.*`/`ckuat2.h` were deleted and all `+ssl`/`+krb*`/`+srp` makefile targets removed. Linux/macOS/Unix platform code is unaffected.
 
 ## Build
 
-There is no autoconf/configure; the hand-maintained `makefile` (~9500 lines) contains per-platform targets that invoke `make` recursively, passing options through `KFLAGS`/`LIBS` environment variables. Do not use `make -e`.
+There is no autoconf/configure; the hand-maintained `makefile` (~7300 lines) contains per-platform targets that invoke `make` recursively, passing options through `KFLAGS`/`LIBS` environment variables. Do not use `make -e`.
 
-The standard build on this machine (macOS with Homebrew OpenSSL) is in `makecmd.sh`:
+The standard build on this machine is in `makecmd.sh`:
 
 ```sh
-env KSSLINC=-I/opt/homebrew/opt/openssl/include \
-    KSSLLIB=-L/opt/homebrew/opt/openssl/lib \
-    make macos+ssl
+make macos
 ```
 
 Other useful invocations:
 
 ```sh
-make macos          # plain macOS build, no SSL
 make clean          # removes objects, the wart binary, and generated ckcpro.c
 make check          # reports SUCCESS if an executable wermit exists (rm wermit before building so this is meaningful)
 ```
@@ -53,5 +50,4 @@ The first letters of each filename encode its layer — this is the primary stru
 
 - `ckc*` — system-independent "common" modules: `ckcmai.c` (main program, version/copyright), `ckcfns.c`/`ckcfn2.c`/`ckcfn3.c` (protocol support functions), `ckcnet.c` (network), `ckctel.c` (Telnet), `ckcftp.c` (FTP client), `ckclib.c` (library routines), `ckcuni.c` (Unicode/character sets), `ckcpro.w` (protocol grammar, see above)
 - `cku*` — Unix-specific: `ckutio.c` (serial/tty I/O), `ckufio.c` (file I/O), `ckucns.c`/`ckucon.c` (CONNECT modules), `ckucmd.c` (command parser engine), `ckuusr.c` + `ckuus2.c`–`ckuus7.c` (the interactive user interface / command tables), `ckuusx.c`/`ckuusy.c` (UI support, command-line args), `ckudia.c` (modem dialing), `ckuscr.c` (script command), `ckupty.c` (pty)
-- `ck_*` — security: `ck_ssl.c` (SSL/TLS), `ck_crp.c` (encryption), `ck_des.c`; plus `ckuath.c` (authentication)
 - `ckwart.c` — the wart preprocessor itself
