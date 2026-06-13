@@ -14,86 +14,28 @@
 /* Arranged more or less alphabetically by compiler symbol */
 /* Must be included AFTER ckcdeb.h. */
 
+/* Removed obsolete herald strings as of June 2026 */
+/*
+  Nested #ifdef - #define - #else - #ifdef -... clauses
+  renders clang-format simply unusable due to parsing workload
+*/
+
 #ifndef HERALD
 
 #ifdef BSD44
 #ifdef MACOSX
-#define HERALD " Mac OS X"
+#define HERALD " macOS" /* Use a newer name */
 #else
 #ifdef __OpenBSD__
 #define HERALD " OpenBSD"
 #else
 #ifdef __NetBSD__
 #ifndef HERALD
-#ifdef NETBSD16
-#define HERALD " NetBSD 1.6"
-#else
-#ifdef NETBSD15
-#define HERALD " NetBSD 1.5"
-#else
 #define HERALD " NetBSD"
-#endif /* NETBSD15 */
-#endif /* NETBSD16 */
 #endif /* HERALD */
 #else  /* __NetBSD__ */
 #ifdef __FreeBSD__
-#ifdef FREEBSD51
-#define HERALD " FreeBSD 5.1"
-#else
-#ifdef FREEBSD50
-#define HERALD " FreeBSD 5.0"
-#else
-#ifdef FREEBSD49
-#define HERALD " FreeBSD 4.9"
-#else
-#ifdef FREEBSD48
-#define HERALD " FreeBSD 4.8"
-#else
-#ifdef FREEBSD47
-#define HERALD " FreeBSD 4.7"
-#else
-#ifdef FREEBSD46
-#define HERALD " FreeBSD 4.6"
-#else
-#ifdef FREEBSD45
-#define HERALD " FreeBSD 4.5"
-#else
-#ifdef FREEBSD44
-#define HERALD " FreeBSD 4.4"
-#else
-#ifdef FREEBSD43
-#define HERALD " FreeBSD 4.3"
-#else
-#ifdef FREEBSD42
-#define HERALD " FreeBSD 4.2"
-#else
-#ifdef FREEBSD41
-#define HERALD " FreeBSD 4.1"
-#else
-#ifdef FREEBSD4
-#define HERALD " FreeBSD 4.0"
-#else
-#ifdef FREEBSD3
-#define HERALD " FreeBSD 3.0"
-#else
-#ifdef FREEBSD2
-#define HERALD " FreeBSD 2.0"
-#else
 #define HERALD " FreeBSD"
-#endif /* FREEBSD2 */
-#endif /* FREEBSD3 */
-#endif /* FREEBSD4 */
-#endif /* FREEBSD41 */
-#endif /* FREEBSD42 */
-#endif /* FREEBSD43 */
-#endif /* FREEBSD44 */
-#endif /* FREEBSD45 */
-#endif /* FREEBSD46 */
-#endif /* FREEBSD47 */
-#endif /* FREEBSD48 */
-#endif /* FREEBSD49 */
-#endif /* FREEBSD50 */
-#endif /* FREEBSD51 */
 #else
 #define HERALD " 4.4BSD"
 #endif /* __FreeBSD__ */
@@ -140,11 +82,7 @@
 
 #ifndef HERALD
 #ifdef SVR4
-#ifdef i386
-#define HERALD " AT&T System V/386 R4"
-#else
 #define HERALD " AT&T System V R4"
-#endif /* i386 */
 #else
 #ifdef SVR3
 #define HERALD " AT&T System V R3"
