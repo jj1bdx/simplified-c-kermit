@@ -53,15 +53,6 @@
 #include <signal.h>
 
 
-#ifdef COMMENT
-/* I don't think we actually use this for anything */
-/* and it kills Slackware builds, where there is no select.h. */
-#ifndef NO_SYS_SELECT_H
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif /* HAVE_SYS_SELECT_H */
-#endif /* NO_SYS_SELECT_H */
-#endif /* COMMENT */
 
 #ifdef HAVE_STREAMS
 #include <sys/stream.h>
@@ -91,21 +82,6 @@
 #endif /* HAVE_SYS_PTYVAR_H */
 #endif /* HAVE_STREAMS */
 
-#ifdef COMMENT
-/* This block moved to ckcdeb.h */
-#ifndef NO_OPENPTY
-/* For NetBSD, see makefile */
-#ifndef HAVE_OPENPTY
-#ifdef __FreeBSD__
-#define HAVE_OPENPTY
-#else
-#ifdef MACOSX10
-#define HAVE_OPENPTY
-#endif	/* MACOSX10 */
-#endif	/* __FreeBSD__ */
-#endif	/* HAVE_OPENPTY */
-#endif	/* NO_OPENPTY */
-#endif	/* COMMENT */
 
 #ifdef HAVE_VHANGUP
 #ifndef OPEN_CTTY_ONLY_ONCE

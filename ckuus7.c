@@ -218,10 +218,6 @@ static struct keytab shtab[] = {        /* SET HOST command options */
     { "/pty",          SL_PTY,    0 },
 #endif /* NETPTY */
     { "/server",       SL_SRV,    0 },
-#ifdef COMMENT
-/* The code implementing this was never written */
-    { "/timeout",      SL_TMO,    CM_ARG },
-#endif  /* COMMENT */
     { "/userid",       SL_UID,    CM_ARG },
     { "/wait",         SL_WAIT,   0 },
     { "", 0, 0 }
@@ -347,17 +343,6 @@ extern char slat_pwd[18];
 #endif /* SUPERLAT */
 #endif /* NETCONN */
 
-#ifdef COMMENT
-#ifndef NOSETKEY
-extern KEY *keymap;
-#define mapkey(x) keymap[x]
-extern MACRO *macrotab;
-#ifndef NOKVERBS
-extern struct keytab kverbs[];
-extern int nkverbs;
-#endif /* NOKVERBS */
-#endif /* NOSETKEY */
-#else
 #ifndef NOSETKEY
 extern KEY *keymap;
 extern MACRO *macrotab;
@@ -366,7 +351,6 @@ extern struct keytab kverbs[];
 extern int nkverbs;
 #endif /* NOKVERBS */
 #endif /* NOSETKEY */
-#endif /* COMMENT */
 
 
 /* Keyword tables ... */
@@ -427,10 +411,6 @@ static struct keytab filtab[] = {
 #ifdef PATTERNS
     { "patterns",         XYFIPA, 0 },
 #endif /* PATTERNS */
-#ifdef COMMENT /* Not implemented (but see CHMOD) */
-    { "permissions",      XYF_PRM, CM_INV },
-    { "protection",       XYF_PRM, 0 },
-#endif /* COMMENt */
     { "scan",             XYF_INSP, 0 },
 
 #ifdef UNIX
@@ -606,9 +586,6 @@ int nxmit = (sizeof(xmitab) / sizeof(struct keytab));
 
 struct keytab colxtab[] = { /* SET FILE COLLISION options */
     { "append",    XYFX_A, 0 },         /* append to old file */
-#ifdef COMMENT
-    { "ask",       XYFX_Q, 0 },         /* ask what to do (not implemented) */
-#endif
     { "backup",    XYFX_B, 0 },         /* rename old file */
     /* This crashes Mac Kermit. */
     { "discard",   XYFX_D, CM_INV },	/* don't accept new file */
@@ -786,9 +763,6 @@ static struct keytab fdtab[] = {        /* SET FILE DISPLAY options */
     { "brief", XYFD_B, 0 },             /* Brief */
     { "crt", XYFD_S, 0 },               /* CRT display */
 #ifdef CK_CURSES
-#ifdef COMMENT
-    { "curses",     XYFD_C,  CM_INV },  /* Full-screen, curses */
-#endif /* COMMENT */
     { "fullscreen", XYFD_C,  0 },       /* Full-screen, whatever the method */
 #endif /* CK_CURSES */
     { "none",   XYFD_N, 0      },       /* No display */
@@ -879,9 +853,6 @@ int nrms = (sizeof(rmstab) / sizeof(struct keytab));
 
 struct keytab attrtab[] = {
     { "all",           AT_XALL, 0 },
-#ifdef COMMENT
-    { "blocksize",     AT_BLKS, 0 },    /* (not used) */
-#endif /* COMMENT */
 #ifndef NOCSETS
     { "character-set", AT_ENCO, 0 },
 #endif /* NOCSETS */
@@ -892,9 +863,6 @@ struct keytab attrtab[] = {
     { "length",        AT_LENK, 0 },
     { "off",           AT_ALLN, 0 },
     { "on",            AT_ALLY, 0 },
-#ifdef COMMENT
-    { "os-specific",   AT_SYSP, 0 },    /* (not used by UNIX or VMS) */
-#endif /* COMMENT */
 #ifdef CK_PERMS
     { "protection",    AT_LPRO, 0 },
     { "permissions",   AT_LPRO, CM_INV },
@@ -1941,9 +1909,6 @@ doxdis( int which )                     /* 1 = Kermit, 2 = FTP */
     extern int ftp_dis;
 #endif /* NEWFTP */
 
-#ifdef COMMENT
-    char *s;
-#endif /* COMMENT */
 
     if ((x = cmkey(fdtab,nfdtab,"file transfer display style","",
                    xxstring)) < 0)
@@ -1955,37 +1920,11 @@ doxdis( int which )                     /* 1 = Kermit, 2 = FTP */
     if ((z = cmcfm()) < 0) return(z);
 #ifdef CK_CURSES
     if (x == XYFD_C) {                  /* FULLSCREEN */
-#ifdef COMMENT
-#ifndef MYCURSES
-        extern char * trmbuf;           /* Real curses */
-        int z;
-#endif /* MYCURSES */
-#endif /* COMMENT */
 
         if (nolocal)                    /* Nothing to do in this case */
 	  return(success = 1);
 
-#ifdef COMMENT
-#ifndef MYCURSES
-        s = getenv("TERM");
-        debug(F110,"doxdis TERM",s,0);
-        if (!s) s = "";
         fxdinit(x);
-        if (*s && trmbuf) {             /* Don't call tgetent */
-            z = tgetent(trmbuf,s);      /* if trmbuf not allocated */
-            debug(F111,"doxdis tgetent",s,z);
-        } else {
-            z = 0;
-            debug(F110,"doxdis tgetent skipped",s,0);
-        }
-        if (z < 1) {
-            printf("Sorry, terminal type unknown: \"%s\"\n",s);
-            return(success = 0);
-        }
-#endif /* MYCURSES */
-#else
-        fxdinit(x);
-#endif /* COMMENT */
 
 #ifdef CK_PCT_BAR
         thermometer = y;
@@ -2008,9 +1947,6 @@ doxdis( int which )                     /* 1 = Kermit, 2 = FTP */
 int
 setfil( int rmsflg )
 {
-#ifdef COMMENT
-    extern int en_del;
-#endif /* COMMENT */
 #ifndef NOXFER
     if (rmsflg) {
         if ((y = cmkey(rfiltab,nrfilp,"Remote file parameter","",
@@ -2028,19 +1964,6 @@ setfil( int rmsflg )
     }
 #endif /* NOXFER */
     switch (y) {
-#ifdef COMMENT                          /* Not needed */
-      case XYFILB:                      /* Blocksize */
-        if ((y = cmnum("file block size",ckitoa(DBLKSIZ),10,&z,xxstring)) < 0)
-          return(y);
-        if ((x = cmcfm()) < 0) return(x);
-        if (rmsflg) {
-            sstate = setgen('S', "311", ckitoa(z), "");
-            return((int) sstate);
-        } else {
-            fblksiz = z;
-            return(success = 1);
-        }
-#endif /* COMMENT */
 
 #ifndef NOXFER
       case XYFILS:                      /* Byte size */
@@ -2169,50 +2092,8 @@ setfil( int rmsflg )
             return(success = 1);
         }
 
-#ifdef COMMENT
-      case XYFILO:                      /* Organization */
-        if ((x = cmkey(forgtab,nforg,"file organization","sequential",
-                       xxstring)) < 0)
-          return(x);
-        if ((y = cmcfm()) < 0) return(y);
-        if (rmsflg) {
-            sstate = setgen('S', "314", ckitoa(x), "");
-            return((int) sstate);
-        } else {
-            forg = x;
-            return(success = 1);
-        }
-#endif /* COMMENT */
 
-#ifdef COMMENT                          /* Not needed */
-      case XYFILF:                      /* Format */
-        if ((x = cmkey(frectab,nfrec,"file record format","stream",
-                       xxstring)) < 0)
-          return(x);
-        if ((y = cmcfm()) < 0) return(y);
-        if (rmsflg) {
-            sstate = setgen('S', "313", ckitoa(x), "");
-            return((int) sstate);
-        } else {
-            frecfm = x;
-            return(success = 1);
-        }
-#endif /* COMMENT */
 
-#ifdef COMMENT
-      case XYFILP:                      /* Printer carriage control */
-        if ((x = cmkey(fcctab,nfcc,"file carriage control","newline",
-                       xxstring)) < 0)
-          return(x);
-        if ((y = cmcfm()) < 0) return(y);
-        if (rmsflg) {
-            sstate = setgen('S', "315", ckitoa(x), "");
-            return((int) sstate);
-        } else {
-            fcctrl = x;
-            return(success = 1);
-        }
-#endif /* COMMENT */
 #endif /* NOXFER */
 
       case XYFILT:                      /* Type */
@@ -2249,14 +2130,6 @@ setfil( int rmsflg )
             return(-9);
         }
 #endif /* CK_LOGIN */
-#ifdef COMMENT
-        /* Not appropriate - DISABLE DELETE only refers to server */
-        if ((x == XYFX_X || x == XYFX_B || x == XYFX_U || x == XYFX_A) &&
-            (!ENABLED(en_del))) {
-            printf("?Sorry, file deletion is disabled.\n");
-            return(-9);
-        }
-#endif /* COMMENT */
         fncact = x;
         ptab[protocol].fnca = x;
         if (rmsflg) {
@@ -3127,13 +3000,6 @@ settrm() {
       default:                          /* Shouldn't get here. */
         return(-2);
     }
-#ifdef COMMENT
-    /*
-      This was supposed to shut up picky compilers but instead it makes
-      most compilers complain about "statement not reached".
-    */
-    return(-2);
-#endif /* COMMENT */
 }
 
 
@@ -3307,15 +3173,6 @@ setsr( int xx, int rmsflg )
 Remember to SET BLOCK 2 or 3 for long packets.\n");
             }
             if (speed <= 0L) speed = ttgspd();
-#ifdef COMMENT
-/*
-  Kermit does this now itself.
-*/
-            if (speed <= 0L && z > 200 && msgflg) {
-                printf("\
-Make sure your timeout interval is long enough for %d-byte packets.\n",z);
-            }
-#endif /* COMMENT */
         }
         return(success = y);
 
@@ -3458,14 +3315,6 @@ Make sure your timeout interval is long enough for %d-byte packets.\n",z);
           /* Make space for a temporary copy of the ignore/double table */
 
           zz = y;
-#ifdef COMMENT
-          if (zz == XYIGN && xx == XYSEND) {
-              blah blah who cares
-          }
-          if (zz == XYDBL && xx == XYRECV) {
-              blah blah
-          }
-#endif /* COMMENT */
           p = (short *)malloc(256 * sizeof(short));
           if (!p) {
               printf("?Internal error - malloc failure\n");
@@ -3649,24 +3498,14 @@ Make sure your timeout interval is long enough for %d-byte packets.\n",z);
         }
 
       case XYMOVE:
-#ifdef COMMENT
-        y = cmdir("Directory to move file(s) to after successful transfer",
-                  "",&s,xxstring);
-#else
         y = cmtxt("Directory to move file(s) to after successful transfer",
 		  "",&s,xxstring);
-#endif /* COMMENT */
 
         if (y < 0 && y != -3)
           return(y);
         ckstrncpy(line,s,LINBUFSIZ);
         s = brstrip(line);
 
-#ifdef COMMENT
-	/* Only needed for cmdir() */
-        if ((x = cmcfm()) < 0)
-          return(x);
-#endif /* COMMENT */
 	
 	/* Check directory existence if absolute */
 	/* THIS MEANS IT CAN'T INCLUDE ANY DEFERRED VARIABLES! */
@@ -3678,10 +3517,6 @@ Make sure your timeout interval is long enough for %d-byte packets.\n",z);
 	}
         if (xx == XYSEND) {
             if (*s) {
-#ifdef COMMENT
-		/* Allow it to be relative */
-                zfnqfp(s,LINBUFSIZ,line);
-#endif /* COMMENT */
                 makestr(&snd_move,line);
                 makestr(&g_snd_move,line);
             } else {
@@ -3690,10 +3525,6 @@ Make sure your timeout interval is long enough for %d-byte packets.\n",z);
             }
         } else {
             if (*s) {
-#ifdef COMMENT
-		/* Allow it to be relative */
-                zfnqfp(s,LINBUFSIZ,line);
-#endif /* COMMENT */
                 makestr(&rcv_move,line);
                 makestr(&g_rcv_move,line);
             } else {
@@ -3857,20 +3688,6 @@ or type carriage return to confirm the command";
   communication connection, mixed in with the packets.  Pretty amazing that
   the file transfer still works, right?
 */
-#ifdef COMMENT
-    if (!*s) {                          /* No redirection indicator */
-        if (!local &&
-            (xzcmd == XZDIR || xzcmd == XZTYP ||
-             xzcmd == XZXIT || xzcmd == XZSPA ||
-             xzcmd == XZHLP || xzcmd == XZPWD ||
-             xzcmd == XZLGI || xzcmd == XZLGO ||
-             xzcmd == XZWHO || xzcmd == XZHOS)) {
-            printf("?\"%s\" has no effect in remote mode\n",cmdbuf);
-            return(-9);
-        } else
-          return(1);
-    }
-#endif	/* COMMENT */
 
     if (!s) s = "";                     /* 2014-11-03 */
     if (!*s) return(1);                 /* 2014-11-03 */
@@ -3963,23 +3780,6 @@ remtxt( char ** p )
     s = *p;
     if (!s)                             /* No redirection indicator */
       s = "";
-#ifdef COMMENT
-    if (!*s) {                          /* Ditto */
-        if (!local &&
-            (xzcmd == XZDIR || xzcmd == XZTYP ||
-             xzcmd == XZXIT || xzcmd == XZSPA ||
-             xzcmd == XZHLP || xzcmd == XZPWD ||
-             xzcmd == XZLGI || xzcmd == XZLGO ||
-             xzcmd == XZWHO || xzcmd == XZHOS)) {
-            printf("?\"%s\" has no effect in remote mode\n",cmdbuf);
-            if (hints) {
-                printf("Hint: Try again with an output redirector.\n");
-            }
-            return(-9);
-        } else
-          return(1);
-    }
-#endif	/* COMMENT */
     bpos = -1;                          /* Position of > (bracket) */
     ppos = -1;                          /* Position of | (pipe) */
     x = strlen(s);                      /* Length of cmtxt() string */
@@ -3994,20 +3794,6 @@ remtxt( char ** p )
           ppos = i;
     }
     if (bpos < 0 && ppos < 0) {         /* No redirectors. */
-#ifdef COMMENT
-        if (!local &&
-            (xzcmd == XZDIR || xzcmd == XZTYP ||
-             xzcmd == XZXIT || xzcmd == XZSPA ||
-             xzcmd == XZHLP || xzcmd == XZPWD ||
-             xzcmd == XZLGI || xzcmd == XZLGO ||
-             xzcmd == XZWHO || xzcmd == XZHOS)) {
-            printf("?\"%s\" has no effect in remote mode\n",cmdbuf);
-            if (hints) {
-                printf("Hint: Try again with an output redirector.\n");
-            }
-            return(-9);
-        }
-#endif	/* COMMENT */
         s = brstrip(s);                 /* Remove outer braces if any. */
         *p = s;                         /* Point to result */
         return(1);                      /* and return. */
@@ -4498,20 +4284,6 @@ dormt( int xx )
             return(x);
           if ((x = remtxt(&s)) < 0)
             return(x);
-#ifdef COMMENT
-/*
-  Server commands can't be long packets.  In principle there's no reason
-  why they shouldn't be, except that we don't know at this point if the
-  server is capable of accepting long packets because we haven't started
-  the protocol yet.  In practice, allowing a long packet here breaks a lot
-  of assumptions, causes buffer overruns and crashes, etc.  To be fixed
-  later.  (But since this is commented out, evidently I fixed it later...)
-*/
-          if ((int)strlen(s) > 85) {    /* Allow for encoding expansion */
-              printf("?Sorry, value is too long - 85 characters max\n");
-              return(-9);
-          }
-#endif /* COMMENT */
           retcode = sstate = setgen('V',"S",(char *)buf,s);
           break;
       }
@@ -5902,38 +5674,6 @@ cx_net( int net, int protocol, char * xhost, char * svc,
 	      case NET_TCPA:
 	      case NET_TCPB:
 		cxtype = CXT_TCPIP;
-#ifdef COMMENT
-/* This works but it messes up interactive anonymous login */
-#ifndef NOXFER
-#ifdef IKS_OPTION
-		/* If we have connected to an Internet Kermit service */
-		/* and a /USER: switch was given, then log in. */
-
-		if (TELOPT_U(TELOPT_KERMIT) || TELOPT_ME(TELOPT_KERMIT)) {
-		    debug(F111,"cx_net IKSD /USER:",uidbuf,haveuser);
-		    if (haveuser /* && cx == 0 */ ) { /* /USER: given */
-			char * psw = pwbuf; /* Do we have a password? */
-			if (!*psw) {        /* No... */
-			    if (!strcmp(uidbuf,"anonymous") ||
-				!strcmp(uidbuf,"ftp")) {
-				extern char myhost[];
-				char * u = (char *)sl_uidbuf;
-				char * h = (char *)myhost;
-				if (!*u) u = "nobody";
-				if (!*h) h = "nowhere";
-				ckmakmsg(tmpbuf,TMPBUFSIZ,u,"@",h,NULL);
-				psw = tmpbuf;
-				debug(F110,"cx_net IKSD anon",psw,0);
-			    } else {
-				readpass(" Password: ",pwbuf,PWBUFL);
-			    }
-			}
-			sstate = setgen('I',uidbuf,psw,"");
-		    }
-		}
-#endif /* IKS_OPTION */
-#endif /* NOXFER */
-#endif /* COMMENT */
 		break;
 	      case NET_SSH:
 		cxtype = CXT_SSH;
@@ -7364,15 +7104,9 @@ extern int ckmaxfiles;                  /* Filled in by sysinit(). */
 /* from FILLM and CHANNELCNT -- find out about these... */
 
 static char * fopnargs[] = {            /* Mode combinations for fopen() */
-#ifdef COMMENT
-    /* All combinations of rwa */
-    "",  "r",  "w",  "rw",  "a",  "ra",  "wa",  "rwa", /* Text mode */
-    "b", "rb", "wb", "rwb", "ab", "rab", "wab", "rwab" /* Binary mode */
-#else
     /* Combinations and syntax permitted by C libraries... */
     "",  "r",  "w",  "r+",  "a",  "",   "a",  "", /* Text mode */
     "",  "r",   "w", "r+",  "a",  "",   "a",  "" /* Binary modes for UNIX */
-#endif /* COMMENT */
 };
 static int nfopnargs = sizeof(fopnargs) / sizeof(char *);
 
@@ -7458,18 +7192,6 @@ z_open( char * name, int flags )
         /* Note: This could be a pretty big chunk of memory */
         /* if z_maxchan is a big number.  If this becomes a problem */
         /* we'll need to malloc and free each element at open/close time */
-#ifdef COMMENT
-	/* May 2006 - it's time - in current Linux this about 3MB */
-        if (!(z_file = (struct ckz_file *)
-              malloc(sizeof(struct ckz_file) * (z_maxchan + 1))))
-          return(z_error = FX_NMF);
-        for (i = 0; i < z_maxchan; i++) {
-            z_file[i].z_fp = NULL;
-            z_file[i].z_flags = 0;
-            z_file[i].z_nline = 0;
-            *(z_file[i].z_name) = '\0';
-        }
-#else
 	/* New economical way, allocate storage for each channel as needed */
 	if (!z_file) {
             debug(F100,"z_file[] is NULL","",0);
@@ -7484,17 +7206,10 @@ z_open( char * name, int flags )
 	      z_file[i] = NULL;
             debug(F101,"z_open z_maxchan 5","",z_maxchan);
 	}
-#endif	/* COMMENT */
         debug(F101,"z_open z_maxchan 6","",z_maxchan);
         z_inited = 1;                   /* Remember we initialized */
     }
     for (n = -1, i = 0; i < z_maxchan; i++) { /* Find a free channel */
-#ifdef COMMENT
-        if (!z_file[i].z_fp) {
-            n = i;
-            break;
-        }
-#else
         debug(F101,"z_open find-free-channel loop","",i);
         if (!z_file[i]) {
 	    z_file[i] = (struct ckz_file *) malloc(sizeof(struct ckz_file));
@@ -7503,7 +7218,6 @@ z_open( char * name, int flags )
             n = i;
             break;
         }
-#endif	/* COMMENT */
 
     }
     debug(F101,"z_open found free channel","",n);
@@ -7560,16 +7274,6 @@ z_open( char * name, int flags )
 	z_file[n] = NULL;
         return(z_error = (errno ?  FX_SYS : FX_UNK)); /* Return error code */
     }
-#ifdef COMMENT
-    /*
-     * 2024-08-19 DavidG: This started crashing on Windows 11 in CKW Beta 6. The
-     * call to setmode seems ok, it just doesn't like O_SEQUENTIAL anymore. Not
-     * sure if this is something unsupported now, or if its a bug in the CRT.
-     * For some reason I've not looked into too closely I'm not even getting
-     * O_SEQUENTIAL defined on my local PC, while its clearly there on the
-     * Gitub build agents.
-     */
-#endif /* COMMENT */
 
     z_nopen++;                          /* Open, count it. */
     z_file[n]->z_fp = t;		/* Stash the file pointer */
@@ -7757,7 +7461,6 @@ z_in( int channel, char * s, int buflen, int length, int flags )
 	/* Current line no longer known */
         z_file[channel]->z_nline = (CK_OFF_T)-1;
     } else {                            /* Read line */
-#ifndef COMMENT
         /* This method is used because it's simpler than the others */
         /* and also marginally faster. */
         debug(F101,"z_in getc loop","",CKFTELL(t));
@@ -7777,50 +7480,6 @@ z_in( int channel, char * s, int buflen, int length, int flags )
         debug(F111,"z_in line got",s,z_file[channel]->z_nline);
         if (z_file[channel]->z_nline > -1)
           z_file[channel]->z_nline++;
-#else
-#ifdef COMMENT2
-        /* Straightforward but strlen() slows it down. */
-        s[0] = '\0';
-        i = 0;
-        if (fgets(s,length,t)) {
-            i = strlen(s);
-            if (i > 0 && s[i-1] == '\n') i--;
-        }
-        debug(F111,"z_in line fgets",ckitoa(errno),i);
-        if (z_file[channel]->z_nline > -1)
-          z_file[channel]->z_nline++;
-#else
-        /* This is a do-it-yourself fgets() with its own readahead and */
-        /* putback.  It's a bit faster than real fgets() but not enough */
-        /* to justify the added complexity or the risk of the ftell() and */
-        /* fseek() calls failing. */
-        int j, k, flag = 0;
-        CK_OFF_T pos;
-        for (i = 0; !flag && i <= (length - Z_INBUFLEN); i += Z_INBUFLEN) {
-            k = ((length - i) < Z_INBUFLEN) ? length - i : Z_INBUFLEN;
-            if ((x = fread(s+i,1,k,t)) < 1)
-              break;
-            s[i+x] = '\0';
-            for (j = 0; j < x; j++) {
-                if (s[i+j] == '\n') {
-                    s[i+j] = '\0';
-                    flag ++;
-                    pos = CKFTELL(t);
-                    if (pos > -1) {
-                        pos -= (x - j - 1);
-                        x = CKFSEEK(t, pos, 0);
-                        i += j;
-                        break;
-                    } else
-                      return(z_error = FX_SYS);
-                }
-            }
-        }
-        if (z_file[channel]->z_nline > -1)
-          z_file[channel]->z_nline++;
-        debug(F111,"z_in line chunk loop",ckitoa(errno),i);
-#endif /* COMMENT2 */
-#endif /* COMMENT */
     }
     debug(F111,"z_in i",ckitoa(errno),i);
     if (i < 0) i = 0;                   /* NUL-terminate result */
@@ -8096,13 +7755,6 @@ z_count( int channel, int what )
     errno = 0;
     z_error = 0;
     if (what == RD_CHAR) {              /* Size in bytes requested */
-#ifdef COMMENT
-        if (!CKFSEEK(t,0L,2)) {		/* Seek to end */
-            count = CKFTELL(t);		/* Get file pointer */
-            CKFSEEK(t,pos,0);		/* Restore file file pointer */
-            return(count);
-        } else                          /* Fallback in case seek fails */
-#endif	/* COMMENT */
           return(zgetfs(z_file[channel]->z_name));
     }
     rewind(t);                          /* Line count requested - rewind. */
@@ -8135,9 +7787,6 @@ int nfctab = (sizeof (fctab) / sizeof (struct keytab));
 static struct keytab fcswtab[] = {      /* OPEN modes */
     { "/append",    FM_APP,  0 },
     { "/binary",    FM_BIN,  0 },
-#ifdef COMMENT
-    { "/command",   FM_CMD,  0 },       /* Not implemented */
-#endif /* COMMENT */
     { "/read",      FM_REA,  0 },
 #ifdef UNIX                             /* Could be expanded to VMS etc.. */
     { "/stderr",    FM_STDERR,0 },
@@ -8298,13 +7947,6 @@ dofile( int op )                        /* Do the FILE command */
                     printf("?This switch does not take an argument\n");
                     return(-9);
                 }
-#ifdef COMMENT
-                /* Uncomment if we add any FOPEN switches that take args */
-                if (!getval && (cmgkwflgs() & CM_ARG)) {
-                    printf("?This switch requires an argument\n");
-                    return(-9);         /* (none do...) */
-                }
-#endif /* COMMENT */
                 debug(F101,"filmode A","",filmode);
                 filmode |= cmresult.nresult; /* OR in the file mode */
                 debug(F101,"filmode B","",filmode);
@@ -8424,18 +8066,6 @@ dofile( int op )                        /* Do the FILE command */
         return(success = 1);
 
       case FIL_CLS:                     /* CLOSE */
-#ifdef COMMENT				/* fdc 20100804 - bad idea */
-         {
-	    int i, j, k;		/* Supply default if only one open */
-	    s = "";
-	    for (k = 0, j = 0, i = 0; i < z_maxchan; i++) {
-		if (z_file)
-		  if (z_file[i])
-		    if (z_file[i]->z_fp) { k++; j = i; }
-	    }
-	    if (k == 1) s = ckitoa(j);
-	 }
-#endif	/* COMMENT */
           cmfdbi(&nu,                   /* Second FDB - channel number */
                  _CMNUM,                /* fcode */
                  "Channel number or ALL", /* Help message */
@@ -8689,10 +8319,6 @@ dofile( int op )                        /* Do the FILE command */
 	    if (n == -8) return(success = 1);
 
             line[0] = NUL;              /* Clear destination buffer */
-#ifdef COMMENT
-            if (rsize >= LINBUFSIZ)     /* Don't overrun it */
-              rsize = LINBUFSIZ - 1;
-#endif	/* COMMENT */
 
             if (rsize == 0) {		/* Read a line */
 		rc = z_in(n,line,LINBUFSIZ,LINBUFSIZ-1,0);
@@ -9171,24 +8797,17 @@ savkeys( char * name, int disp )
                       if (kverbs[j].kwval == (keymap[i] & ~F_KVERB))
                         break;
                     if (j != nkverbs) {
-#ifdef COMMENT
-                        sprintf(buf, "set key \\%d \\K%s", i, kverbs[j].kwd);
-#else
                         ckmakmsg(buf,1024,
                                  "set key \\",
                                  ckitoa(i),
                                  " \\K",
                                  kverbs[j].kwd
                                  );
-#endif /* COMMENT */
                         zsoutl(ZMFILE,buf);
                     }
                 } else
 #endif /* NOKVERBS */
                   {
-#ifdef COMMENT
-                      sprintf(buf, "set key \\%d \\{%d}", i, keymap[i]);
-#else
                       ckmakxmsg(buf,1024,
                                "set key \\",
                                ckitoa(i),
@@ -9196,7 +8815,6 @@ savkeys( char * name, int disp )
                                ckitoa(keymap[i]),
                                "}",
                                NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-#endif /* COMMENT */
                       zsoutl(ZMFILE,buf);
                   }
             }
@@ -9346,10 +8964,6 @@ readpass( char * prmpt, char * buffer, int bufsiz )
 #ifdef NOICP
     if (!prmpt) prmpt = "";
     printf("%s", prmpt);
-#ifdef COMMENT
-    /* Some linkers won't allow this because it's unsafe */
-    gets(buffer);
-#else  /* COMMENT */
     {
         int c, i; char * p;
         p = buffer;
@@ -9362,7 +8976,6 @@ readpass( char * prmpt, char * buffer, int bufsiz )
         }
         buffer[i] = NUL;
     }
-#endif /* COMMENT */
     return(1);
 #else  /* NOICP */
 #ifdef CK_RECALL
@@ -9512,9 +9125,6 @@ ckxlogin(CHAR * userid, CHAR * passwd, CHAR * acct, int promptok)
 #ifdef CK_RECALL
     extern int on_recall;               /* around Password prompting */
 #endif /* CK_RECALL */
-#ifdef COMMENT
-    extern int guest;
-#endif /* COMMENT */
     int rprompt = 0;                    /* Restore prompt */
 #ifdef CKSYSLOG
     int savlog;
@@ -9630,9 +9240,6 @@ ckxlogin(CHAR * userid, CHAR * passwd, CHAR * acct, int promptok)
     debug(F111,"ckxlogin zvuser",userid,ok);
 
     if (!*passwd && promptok
-#ifdef COMMENT
-        && guest
-#endif /* COMMENT */
         ) {
         char prmpt[80];
 

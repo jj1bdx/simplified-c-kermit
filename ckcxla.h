@@ -211,21 +211,6 @@
 
 #define MAXTCSETS 10   /* Highest Transfer Character Set Number */
 
-#ifdef COMMENT
-/*
-  Not used and probably won't be due to ISO-10646 / Unicode.
-*/
-#define TC_3LATIN 11  /* ISO 8859-3, Latin-3 */
-#define TC_4LATIN 12   /* ISO 8859-4, Latin-4 */
-#define TC_5LATIN 13  /* ISO 8859-9, Latin-5 */
-#define TC_ARABIC 14  /* ISO-8859-6, Latin/Arabic */
-#define TC_JIS208 15  /* Japanese JIS X 0208 multibyte set */
-#define TC_CHINES 16  /* Chinese Standard GB 2312-80 */
-#define TC_KOREAN 17  /* Korean KS C 5601-1987 */
-#define TC_ISCII  18  /* Indian standard code for ii... */
-#define TC_VSCII  19  /* Vietnam standard code for ii... */
-/* etc... */
-#endif /* COMMENT */
 
 /* Structure for character-set information */
 

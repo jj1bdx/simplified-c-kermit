@@ -517,10 +517,6 @@ ftreset() {
 #endif /* CK_TMPDIR */
 
 #ifdef CK_SPEED
-#ifdef COMMENT
-    extern int f_ctlp;
-    extern short s_ctlp[], ctlp[];
-#endif /* COMMENT */
 #endif /* CK_SPEED */
 
 #ifndef NOCSETS
@@ -545,15 +541,6 @@ ftreset() {
     rs_len = 0L;			/* REGET position */
 #endif /* CK_RESEND */
 
-#ifdef COMMENT
-#ifdef CK_SPEED
-    if (f_ctlp) {
-        for (i = 0; i < 256; i++)
-          ctlp[i] = s_ctlp[i];
-        f_ctlp = 0;
-    }
-#endif /* CK_SPEED */
-#endif /* COMMENT */
 
 #ifdef CK_TMPDIR
     if (f_tmpdir) {			/* If we changed to download dir */
@@ -1231,12 +1218,6 @@ scanfile( char * name, int * flag, int nscanfile )
     int notutf8 = 1;
 #endif /* UNICODE */
 
-#ifdef COMMENT
-#ifdef EVENMAX
-    int oddrun = 0, oddmax = 0, oddbyte = 0, oddmaxbyte = 0;
-    int evenrun = 0, evenmax = 0, evenbyte = 0, evenmaxbyte = 0;
-#endif /* EVENMAX */
-#endif /* COMMENT */
 
 #ifndef NOXFER
     if (pipesend || calibrate || sndarray) /* Only for real files */
@@ -1403,32 +1384,6 @@ scanfile( char * name, int * flag, int nscanfile )
 		runzero = 0;
 	    }
 
-#ifdef COMMENT
-#ifdef EVENMAX
-
-/* This is to catch UCS-2 with a non-ASCII, non-Latin-1 repertoire  */
-
-	    if (i > 1) {	      /* Look for runs of alternating chars */
-		if (i&1) {
-		    if (c == buf[i-2]) { /* In odd positions */
-			oddrun++;
-			oddbyte = c;
-		    } else {
-			oddmax = oddrun;
-			oddmaxbyte = oddbyte;
-		    }
-		} else {		/* and even positions */
-		    if (c == buf[i-2]) {
-			evenrun++;
-			evenbyte = c;
-		    } else {
-			evenmax = evenrun;
-			evenmaxbyte = evenbyte;
-		    }
-		}
-	    }
-#endif /* EVENMAX */
-#endif /* COMMENT */
 
 	    if ((c & 0x80) == 0) {	/* We have a 7-bit byte */
 #ifdef UNICODE
@@ -1444,9 +1399,6 @@ scanfile( char * name, int * flag, int nscanfile )
 			  c0noniso++;
 		    }
 		    if (c == '\032'	/* Ctrl-Z */
-#ifdef COMMENT
-			&& eof && (i >= count - 2)
-#endif /* COMMENT */
 			) {
 			c0controls--;
 			c0noniso--;
@@ -1512,16 +1464,6 @@ scanfile( char * name, int * flag, int nscanfile )
 
 #ifdef EVENMAX
     /* In case we had a run that never broke... */
-#ifdef COMMENT
-    if (oddmax == 0) {
-	oddmax = oddrun;
-	oddmaxbyte = oddbyte;
-    }
-    if (evenmax == 0) {
-	evenmax = evenrun;
-	evenmaxbyte = evenbyte;
-    }
-#endif /* COMMENT */
     if (runmax == 0) {
 	runmax = runzero;
     }
@@ -1550,14 +1492,6 @@ scanfile( char * name, int * flag, int nscanfile )
 	debug(F101,"scanfile odd/even   ","",(oddzero / (evenzero + 1)));
 	debug(F101,"scanfile pctzero    ","",pctzero);
 #endif /* UNICODE */
-#ifdef COMMENT
-#ifdef EVENMAX
-	debug(F101,"scanfile oddmax     ","",oddmax);
-	debug(F101,"scanfile oddmaxbyte ","",oddmaxbyte);
-	debug(F101,"scanfile evenmax    ","",evenmax);
-	debug(F101,"scanfile evenmaxbyte","",evenmaxbyte);
-#endif /* EVENMAX */
-#endif /* COMMENT */
 	debug(F101,"scanfile runmax     ","",runmax);
     }
 #endif /* DEBUG */
@@ -1607,25 +1541,6 @@ scanfile( char * name, int * flag, int nscanfile )
 	rc = FT_UCS2;
 	val = 1;
 
-#ifdef COMMENT
-#ifdef EVENMAX
-/*
-  If the tests above fail, we still might have UCS-2 if there are significant
-  runs of identical bytes in alternating positions, but only if it also has
-  unusual C0 controls (otherwise we'd pick up hex files here).  NOTE: We
-  don't actually do this -- EVENMAX is not defined (see comments above at
-  first occurrence of EVENMAX).
-*/
-    } else if (c0noniso && evenmax > bytes / 4) {
-	debug(F100,"scanfile UCS2 BE (evenmax)","",0);
-	rc = FT_UCS2;
-	val = 0;
-    } else if (c0noniso && oddmax > bytes / 4) {
-	debug(F100,"scanfile UCS2 LE (evenmax)","",0);
-	rc = FT_UCS2;
-	val = 1;
-#endif /* EVENMAX */
-#endif /* COMMENT */
 
     }
 /*
@@ -2286,14 +2201,6 @@ rdebu( CHAR *d, int len )
     debug(F101," rpsiz(extended)","",rpsiz);
 }
 
-#ifdef COMMENT
-/*  C H K E R R  --  Decide whether to exit upon a protocol error  */
-
-VOID
-chkerr() {
-    if (backgrd && !server) fatal("Protocol error");
-}
-#endif /* COMMENT */
 #endif /* NOXFER */
 
 /*  F A T A L  --  Fatal error message */
@@ -3714,9 +3621,6 @@ _PROTOTYP( VOID conbgt, (int) );
 
       case SCR_AN:                      /* As-name */
         if (fdispla == XYFD_B) {
-#ifdef COMMENT
-            printf("(as %s) ",s);
-#endif /* COMMENT */
             return;
         }
         if (abuf[0]) {
@@ -4071,13 +3975,6 @@ doclean( int fc )                       /* General cleanup */
 
     debug(F100,"doclean calling dologend","",0);
     dologend();                         /* End current log record if any */
-#ifdef COMMENT
-    if (dialog) {                       /* If connection log open */
-	dialog = 0;
-        *diafil = '\0';                 /* close it. */
-        zclose(ZDIFIL);
-    }
-#endif /* COMMENT */
 
 #ifndef NOICP
 #ifndef NOSPL
@@ -4191,14 +4088,9 @@ doclean( int fc )                       /* General cleanup */
         char * cmd = "on_exit";         /* MSVC 2.x compiler error */
         k = mlook(mactab,cmd,nmac);     /* Look up "on_exit" */
         if (k >= 0) {                   /* If found, */
-#ifdef COMMENT
-	    /* This makes a mess if ON_EXIT itself executes macros */
-            *(mactab[k].kwd) = NUL;     /* poke its name from the table, */
-#else
 	    /* Replace the keyword with something that doesn't wreck the */
 	    /* order of the keyword table */
 	    ckstrncpy(mactab[k].kwd,"on_exxx",8);
-#endif /* COMMENT */
             if (dodo(k,"",0) > -1)      /* set it up, */
               parser(1);                /* and execute it */
         }
@@ -4210,10 +4102,6 @@ doclean( int fc )                       /* General cleanup */
 */
     conres();                           /* Restore console terminal. */
 
-#ifdef COMMENT
-/* Should be no need for this, and maybe it's screwing things up? */
-    connoi();                           /* Turn off console interrupt traps */
-#endif /* COMMENT */
 
     /* Delete the Startup File if we are supposed to. */
 #ifndef NOICP
@@ -4420,11 +4308,6 @@ dodebug(int f, char *s1, char *s2, CK_OFF_T n)
     if (!deblog || !debok)
       return(0);
 
-#ifdef COMMENT
-    /* expensive... */
-    if (!chkfn(ZDFILE))			/* Debug log not open, don't. */
-      return(0);
-#endif /* COMMENT */
     if (!dbptr) {                       /* Allocate memory buffer */
         dbptr = malloc(DBUFL+4);        /* This only happens once */
         if (!dbptr) {
@@ -4459,49 +4342,7 @@ dodebug(int f, char *s1, char *s2, CK_OFF_T n)
     len1 = strlen(s1);
     len2 = strlen(s2);
 
-#ifdef COMMENT
-/*
-  This should work, but it doesn't.
-  So instead we'll cope with overflow via sprintf formats.
-  N.B.: UNFORTUNATELY, this means we have to put constants in the
-  sprintf formats.
-*/
-    if (f != F011 && (!f || (f & 6))) { /* String argument(s) included? */
-        x = (int) strlen(s1) + (int) strlen(s2) + 18;
-        if (x > dbufl) {                /* Longer than buffer? */
-            if (dbptr)                  /* Yes, free previous buffer */
-              free(dbptr);
-            dbptr = (char *) malloc(x + 2); /* Allocate a new one */
-            if (!dbptr) {
-                zsoutl(ZDFILE,"DEBUG: Memory allocation failure");
-                deblog = 0;
-                zclose(ZDFILE);
-                goto xdebug;
-            } else {
-                dbufl = x;
-                sprintf(dbptr,"DEBUG: Buffer expanded to %d\n", x + 18);
-                zsoutl(ZDFILE,dbptr);
-            }
-        }
-    }
-#endif /* COMMENT */
 
-#ifdef COMMENT
-/* The aforementioned sprintf() formats were like this: */
-        if (n > 31 && n < 127)
-          sprintf(sp,"%.100s%.2000s:%c\n",s1,s2,(CHAR) n);
-        else if (n < 32 || n == 127)
-          sprintf(sp,"%.100s%.2000s:^%c\n",s1,s2,(CHAR) ((n+64) & 0x7F));
-        else if (n > 127 && n < 160)
-          sprintf(sp,"%.100s%.2000s:~^%c\n",s1,s2,(CHAR)((n-64) & 0x7F));
-        else if (n > 159 && n < 256)
-          sprintf(sp,"%.100s%.2000s:~%c\n",s1,s2,(CHAR) (n & 0x7F));
-        else sprintf(sp,"%.100s%.2000s:%ld\n",s1,s2,n);
-/*
-  But, naturally, it turns out these are not portable either, so now
-  we do the stupidest possible thing.
-*/
-#endif /* COMMENT */
 
 #ifdef BIGBUFOK
 /* Need to accept longer strings when debugging authenticated connections */
@@ -4551,10 +4392,6 @@ dodebug(int f, char *s1, char *s2, CK_OFF_T n)
         break;
 
       case F001:                        /* 1, "=n" */
-#ifdef COMMENT
-        /* This was never used */
-        sprintf(sp,"=%s\n",ckfstoa(n));
-#else
         /* Like F111, but shows number n in hex */
 	ckmakxmsg(sp,DBUFL,
 		  s1,
@@ -4565,7 +4402,6 @@ dodebug(int f, char *s1, char *s2, CK_OFF_T n)
 		  "\n",
 		  NULL,NULL,NULL,NULL,NULL,NULL
 		  );
-#endif /* COMMENT */
         if (zsout(ZDFILE,dbptr) < 0) {
             deblog = 0;
             zclose(ZDFILE);
@@ -5057,12 +4893,6 @@ fxdinit(int xdispla )
                 fdispla = XYFD_S;
                 return;
             }
-#ifdef COMMENT
-            debug(F111,"fxdinit malloc trmbuf","OK",TRMBUFL);
-            debug(F001,"fxdinit trmbuf","",trmbuf);
-            memset(trmbuf,'\0',(size_t)TRMBUFL);
-            debug(F100,"fxdinit memset OK","",0);
-#endif /* COMMENT */
         }
 #endif /* DYNAMIC */
 
@@ -5082,10 +4912,6 @@ fxdinit(int xdispla )
         if (x < 1 && !quiet && !backgrd
             ) {
             printf("Warning: terminal type unknown: \"%s\"\n",s);
-#ifdef COMMENT
-	    /* Confusing - nobody knows what this means */
-            printf("SCREEN command will use ANSI sequences.\n");
-#endif /* COMMENT */
             if (local)
               printf("Fullscreen file transfer display disabled.\n");
             fdispla = XYFD_S;
@@ -5275,12 +5101,8 @@ ck_curpos( int row, int col )
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cm[0]) {                   /* We don't have escape sequences */
-#ifdef COMMENT
-        return(-1);                     /* Do nothing */
-#else
         /* Both C-Kermit's SCREEN command and ANSI/VT100 are 1-based */
         printf("\033[%d;%dH", row, col); /* Or default to ANSI */
-#endif /* COMMENT */
     } else {
         fn = ck_outc;
         /* termcap/terminfo is 0-based */
@@ -5299,11 +5121,7 @@ ck_cls() {
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cls[0]) {                  /* If we don't have escape sequences */
-#ifdef COMMENT
-        return(-1);                     /* Do nothing */
-#else
         printf("\033[;H\033[2J");       /* Or default to ANSI */
-#endif /* COMMENT */
     } else {
         fn = ck_outc;
         debug(F111,"ck_cls 2",cur_cls,fxd_inited);
@@ -5318,11 +5136,7 @@ ck_cleol() {
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cleol[0]) {                /* If we don't have escape sequences */
-#ifdef COMMENT
-        return(-1);                     /* Do nothing */
-#else
         printf("\033[K");               /* Or use ANSI */
-#endif /* COMMENT */
     } else {
         fn = ck_outc;
         tputs(cur_cleol,1,fn);
@@ -5367,34 +5181,6 @@ static
 void
 updpct(long old, long new)
 /* updpct */ {
-#ifdef COMMENT
-    int m, n;
-    move(CW_PCD,22);
-    printw("%ld", new);
-#ifdef CK_PCT_BAR
-    if (thermometer) {
-        if (old > new) {
-            old = 0;
-            move(CW_PCD, 26);
-            clrtoeol();
-        }
-        m = old/2;
-        move(CW_PCD, 26 + m);
-        n = new / 2 - m;
-        while (n > 0) {
-            if ((m + 1) % 5 == 0)
-              printw("*");
-            else
-              printw("=");
-            m++;
-            n--;
-        }
-        if (new % 2 != 0) printw("-");
-        /* move(CW_PCD, 22+53); */
-    }
-#endif /* CK_PCT_BAR */
-    /* clrtoeol(); */
-#else  /* !COMMENT */
 #define CHAR1   '/'             /* Default */
 #define CHAR2   '-'
     debug(F101,"updpct old","",old);
@@ -5421,7 +5207,6 @@ updpct(long old, long new)
         }
     }
 #endif /* CK_PCT_BAR */
-#endif /* COMMENT */
 }
 
 static CK_OFF_T old_tr = (CK_OFF_T)-1;	/* Time remaining previously */
@@ -5523,65 +5308,18 @@ shocps(int pct, CK_OFF_T fsiz, CK_OFF_T howfar)
             cps = gtv ? (ffc - oldffc) / (gtv - oldgtv) : (ffc - oldffc) ;
 #endif /* GFTIMER */
         }
-#ifdef COMMENT
-#ifdef DEBUG
-        if (deblog) {
-            debug(F101,"SHOCPS: pct   ","",pct);
-            debug(F101,"SHOCPS: gtv   ","",gtv);
-            debug(F101,"SHOCPS: oldgtv","",oldgtv);
-            debug(F101,"SHOCPS: dgtv  ","",(long)(gtv-oldgtv));
-            debug(F101,"SHOCPS: ffc   ","",ffc);
-            debug(F101,"SHOCPS: oldffc","",oldffc);
-            debug(F101,"SHOCPS: dffc  ","",ffc-oldffc);
-            debug(F101,"SHOCPS: cps   ","",cps);
-        }
-#endif /* DEBUG */
-#endif /* COMMENT */
         move(CW_CP,22);
         printw("%ld", cps);
         clrtoeol();
         oldffc = ffc;
     }
 #else /* !CPS_WEIGHTED */
-#ifdef COMMENT
-#ifdef DEBUG
-    if (deblog) {
-	debug(F100,"SHOCPS: NOT WEIGHTED","",0);
-        debug(F101,"SHOCPS: pct    ","",pct);
-        debug(F101,"SHOCPS: gtv    ","",gtv);
-        debug(F101,"SHOCPS: oldgtv ","",oldgtv);
-        debug(F101,"SHOCPS: dgtv   ","",(long)gtv - (long)oldgtv);
-        debug(F101,"SHOCPS: ffc    ","",ffc);
-        debug(F101,"SHOCPS: oldffc ","",oldffc);
-        debug(F101,"SHOCPS: dffc   ","",ffc-oldffc);
-        debug(F101,"SHOCPS: cps    ","",cps);
-        debug(F101,"SHOCPS: filcnt ","",filcnt);
-#ifdef GFTIMER
-        debug(F101,"SHOCPS: fpfsecs","",fpfsecs);
-#endif /* GFTIMER */
-    }
-    debug(F101,"shocps gtv","",gtv);
-#endif /* DEBUG */
-#ifdef GFTIMER
-#endif /* COMMENT */
-    /* debug(F101,"shocps fpfsecs","",fpfsecs); */
-    secs = gtv - fpfsecs;
-    /* debug(F101,"shocps secs","",(long)secs); */
-    if (secs > 0.0) {
-        cps = (long)((CKFLOAT) ffc / secs);
-        /* debug(F101,"shocps cps","",cps); */
-        move(CW_CP,22);
-        printw("%ld", cps);
-        clrtoeol();
-    }
-#else  /* Not GFTIMER */
     if ((secs = gtv - fsecs) > 0) {
         cps = (secs < 1L) ? ffc : ffc / secs;
         move(CW_CP,22);
         printw("%ld", cps);
         clrtoeol();
     }
-#endif /* GFTIMER */
 #endif /* CPS_WEIGHTED */
 
     if (cps > peakcps &&                /* Peak transfer rate */
@@ -5773,23 +5511,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
 	    return;
 	}
         cendw = 1;                      /* New window needs repainting */
-#ifdef COMMENT
-        if (!initscr()) {               /* Oops, can't initialize window? */
-/*
-  In fact, this doesn't happen.  "man curses" says initscr() halts the
-  entire program if it fails, which is true on the systems where I've
-  tested it.  It will fail if your terminal type is not known to it.
-  That's why SET FILE DISPLAY FULLSCREEN calls tgetent() to make sure the
-  terminal type is known before allowing a curses display.
-*/
-            fprintf(stderr,"CURSES INITSCR ERROR\r\n");
-            fdispla = XYFD_S;           /* Fall back to CRT display */
-            return;
-        } else {
-            cinit++;                    /* Window initialized ok */
-            debug(F100,"CURSES INITSCR OK","",0);
-        }
-#else                                   /* Save some memory. */
 #ifdef CK_NEWTERM
         /* (From Andy Fyfe <andy@vlsi.cs.caltech.edu>)
            System V curses seems to reserve the right to alter the buffering
@@ -5825,7 +5546,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
         debug(F100,"screen initscr ok","",0);
 #endif /* CK_NEWTERM */
         cinit++;                        /* Remember curses was initialized. */
-#endif /* COMMENT */
     }
     ft_win = 1;                         /* Window is open */
     if (repaint) {
@@ -5985,14 +5705,7 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             move(CW_PC,  8); printw("Packet Count:");
             move(CW_PL,  7); printw("Packet Length:");
         }
-#ifndef COMMENT
         move(CW_PR,  9); printw("Error Count:");
-#else
-        move(CW_PR,  2); printw("Packet Retry Count:");
-#endif
-#ifdef COMMENT
-        move(CW_PB,  2); printw("Packet Block Check:");
-#endif /* COMMENT */
         move(CW_ERR,10); printw("Last Error:");
         move(CW_MSG, 8); printw("Last Message:");
 	if (xfrmsg) {
@@ -6055,18 +5768,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
         clrtoeol();
         move(CW_ERR,22);                /* And last error message */
         clrtoeol();
-#ifdef COMMENT
-#ifdef STREAMING
-        if (protocol == PROTO_K && streamok) {
-            move(CW_BAR, 1);
-#ifdef XYZ_INTERNAL
-            printw("   Kermit STREAMING:");
-#else
-            printw("          STREAMING:");
-#endif /* XYZ_INTERNAL */
-        }
-#endif /* STREAMING */
-#endif /* COMMENT */
 
         if (what & W_SEND) {		/* If we're sending... */
 #ifdef NEWFTP
@@ -6148,14 +5849,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
 	    printw("POSSIBLY EXCEEDS LOCAL FILE SIZE LIMIT");
 	}
         clrtoeol();
-#ifdef COMMENT
-        move(CW_PCD, 8);
-        if (fsiz > (CK_OFF_T)-1) {	/* Put up percent label */
-            pctlbl = 1;
-	    clrtoeol();
-            printw("Percent Done:");
-        }
-#else
 	move(CW_PCD, 8);
 	clrtoeol();
         if (fsiz > (CK_OFF_T)-1) {	/* Put up percent label */
@@ -6165,7 +5858,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             pctlbl = 0;
             printw("Bytes So Far:");
 	}
-#endif /* COMMENT */
         clrtoeol();
         scrft();                        /* File type */
         refresh();
@@ -6179,14 +5871,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             move(CW_PAR,22);
             printw("%s",parnam((char)parity));
             clrtoeol();
-#ifdef COMMENT
-            move(CW_PB, 22);            /* Block check on this packet */
-            if (bctu == 4)
-              printw("B");
-            else
-              printw("%d",bctu);
-            clrtoeol();
-#endif /* COMMENT */
             if (
 #ifdef NEWFTP
 		(ftp && (spackets == 1 || rpackets == 1)) ||
@@ -6365,13 +6049,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             break;
 
           case 'E':                     /* Error packet */
-#ifdef COMMENT
-            move(CW_ERR,22);            /* Print its data field */
-            if (*s) {
-                printw("%s",s);
-            }
-            clrtoeol();
-#endif /* COMMENT */
             fcnt = fbyt = 0L;           /* So no bytes for this file */
             break;
           case 'Q':                     /* Crunched packet */
@@ -6415,24 +6092,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
         debug(F101,"screenc SCR_ST c","",c);
         debug(F101,"screenc SCR_ST success","",success);
         debug(F101,"screenc SCR_ST cxseen","",cxseen);
-#ifdef COMMENT
-        move(CW_PCD,22);                /* Update percent done */
-        if (c == ST_OK) {               /* OK, print 100 % */
-            if (pctlbl)
-              updpct(oldpct,100);
-            else
-              printw("%s", ckfstoa(ffc));
-            pct = 100;
-            oldpct = 0;
-        } else if (fsiz > 0L)           /* Not OK, update final percent */
-/*
-  The else part writes all over the screen -- howfar and/or fsiz have
-  been reset as a consequence of the not-OKness of the transfer.
-*/
-          if (pctlbl)
-            updpct(oldpct, (howfar * 100L) / fsiz);
-        clrtoeol();
-#else
         if (c == ST_OK) {               /* OK, print 100 % */
             move(CW_PCD,22);            /* Update percent done */
             if (pctlbl) {
@@ -6441,19 +6100,9 @@ screenc(int f, char c,CK_OFF_T n,char *s)
 		updpct(oldpct,100);
 	    } else
               printw("%s", ckfstoa(ffc));
-#ifdef COMMENT
-            pct = 100;
-            oldpct = 0;
-#endif /* COMMENT */
             clrtoeol();
         }
-#endif /* COMMENT */
 
-#ifdef COMMENT
-/* No, leave it there so they can read it */
-        move(CW_MSG,22);                /* Remove any previous message */
-        clrtoeol(); refresh();
-#endif /* COMMENT */
 
         move(CW_TR, 22);
         clrtoeol(); refresh();
@@ -6477,18 +6126,12 @@ screenc(int f, char c,CK_OFF_T n,char *s)
           case ST_DISC:                 /* Discarded */
             move(CW_ERR,22);
             printw("File discarded");
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
           case ST_INT:                  /* Interrupted */
             move(CW_ERR,22);
             printw("Transfer interrupted");
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
@@ -6498,9 +6141,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
 	      printw("File skipped (%s)",skreason[n]);
 	    else
 	      printw("File skipped");
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
@@ -6508,9 +6148,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             move(CW_ERR,22);
             if (!s) s = (char *)epktmsg;
             printw("%s",s);
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
@@ -6523,18 +6160,12 @@ screenc(int f, char c,CK_OFF_T n,char *s)
             } else {
                 printw("Refused");
             }
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
           case ST_INC:
             move(CW_ERR,22);
             printw("Incomplete");
-#ifdef COMMENT
-            pct = oldpct = 0;
-#endif /* COMMENT */
             clrtoeol(); refresh();
             return;
 
@@ -6591,16 +6222,7 @@ screenc(int f, char c,CK_OFF_T n,char *s)
 
 	  debug(F100,"screenc endwin A","",0);
           endwin();
-#ifdef COMMENT
-/*
-  Why and when was this call to conres() added?  It makes no sense,
-  and it breaks echoing on Solaris 8.
-*/
-#endif /* COMMENT */
 
-#ifdef COMMENT
-          pct = 100; oldpct = 0;        /* Reset these for next time. */
-#endif /* COMMENT */
           oldtyp = 0; oldrtt = -1L; oldtry = -1; oldlen = -1;
           oldtim = -1;
           cendw = 1;
@@ -6615,9 +6237,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
         move (CW_ERR,22);
         printw("FAILURE: %s",s);
         if (xfrbel) bleep(BP_FAIL);
-#ifdef COMMENT
-        pct = oldpct = 0;
-#endif /* COMMENT */
         clrtoeol(); refresh(); return;
 
       case SCR_QE:                      /* Quantity equals */
@@ -6640,9 +6259,6 @@ screenc(int f, char c,CK_OFF_T n,char *s)
       case SCR_CW:                      /* Close Window */
         clrtoeol(); move(23,0); clrtoeol(); move(22,0); clrtoeol();
         refresh();
-#ifdef COMMENT
-        pct = 100; oldpct = 0;          /* Reset these for next time. */
-#endif /* COMMENT */
         oldtyp = 0; oldrtt = -1L; oldtry = -1; oldlen = -1;
         oldtim = -1;
 

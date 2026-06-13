@@ -378,10 +378,6 @@ extern struct mtab *mactab;             /* Macro table */
 extern char *mrval[];
 extern int macargc[], topargc;
 
-#ifdef COMMENT
-extern char *m_line[];
-extern char *topline;
-#endif /* COMMENT */
 
 extern char *m_arg[MACLEVEL][10]; /* You have to put in the dimensions */
 extern char *g_var[GVARS+1];      /* for external 2-dimensional arrays. */
@@ -904,9 +900,6 @@ struct keytab fnctab[] = {              /* Function names */
     { "mjdtodate",  FN_MJD2, 0},	/* MJD to Date */
     { "modulus",    FN_MOD,  0},        /* Return modulus of two arguments */
     { "monthname",  FN_MONNAME,0},      /* Name of month of year */
-#ifdef COMMENT
-    { "msleep",     FN_MSLEEP,0},       /* Sleep for n milliseconds */
-#endif /* COMMENT */
     { "n2hex",      FN_2HEX, CM_INV},   /* Number to hex */
     { "n2octal",    FN_2OCT, CM_INV},   /* Number to octal */
     { "n2time",     FN_N2TIM,0},        /* Number to hh:mm:ss */
@@ -960,9 +953,6 @@ struct keytab fnctab[] = {              /* Function names */
 #endif /* NOSEXP */
     { "shortpathname",FN_FFN,CM_INV},
     { "size",       FN_FS,   0},        /* File size */
-#ifdef COMMENT
-    { "sleep",      FN_SLEEP,0},        /* Sleep for n seconds */
-#endif /* COMMENT */
     { "span",       FN_SPN,  0},        /* Span - like Snobol */
     { "split",      FN_SPLIT,0},        /* Split string into words */
     { "squeeze",    FN_SQUEEZE,0},	/* Squeeze whitespace in string */
@@ -1013,23 +1003,6 @@ struct keytab disptb[] = {              /* Log file disposition */
 
 /* I N I T F L O A T  --  Deduce floating-point precision by inspection */
 
-#ifdef COMMENT
-/* For looking at internal floating-point representations */
-static char fp_xbuf[128];
-static char *
-tohex(s, n) CHAR * s; int n; {
-    int x;
-    char * p = fp_xbuf;
-    while (n-- > 0) {
-        x = (*s >> 4) & 0x0f;
-        *p++ = hexdigits[x];
-        x = *s++ & 0x0f;
-        *p++ = hexdigits[x];
-    }
-    *p = NUL;
-    return((char *)fp_xbuf);
-}
-#endif /* COMMENT */
 
 char math_pi[] = "3.1415926535897932384626433832795";
 char math_e[] =  "2.7182818284590452353602874713527";
@@ -1457,12 +1430,7 @@ prescan( int dummy )                    /* Arg is ignored. */
                     if (doxarg(yargv,1) < 0) {
                         fatal("Extended argument error");
                     }
-#ifndef COMMENT				/* Jeff 28 Apr 2003 */
                     yp = NULL;		/* (not "") */
-#else
-                    yargv++, yargc--;
-                    yp = *yargv;
-#endif /* COMMENT */
                     break;
 #endif /* NOICP */
 
@@ -1492,16 +1460,6 @@ prescan( int dummy )                    /* Arg is ignored. */
                     if ((int)strlen(*yargv) > UIDBUFLEN) {
                         fatal("username too long");
                     }
-#ifdef COMMENT
-/*
-  This can't work.  uidbuf is overwritten in sysinit() which has yet to be
-  called.  This cannot be set in prescan().
-*/
-#ifdef IKSD
-                    if (!inserver)
-#endif /* IKSD */
-                      ckstrncpy(uidbuf,*yargv,UIDBUFLEN);
-#endif /* COMMENT */
                     break;
 #endif /* NOSPL */
                   case 'R':             /* Remote-only advisory */
@@ -1563,10 +1521,6 @@ prescan( int dummy )                    /* Arg is ignored. */
                     {
                         int n ;
                         yargv++, yargc--;
-#ifdef COMMENT
-                        if (y)
-                          break;
-#endif /* COMMENT */
                         if (strlen(*yargv) != 1 || (*yargv)[0] == 'X') {
                             NetBiosAdapter = -1;
                         } else {
@@ -1924,42 +1878,6 @@ char *
 homepath() { return(zhome()); }
 
 #else
-#ifdef COMMENT
-/*
-  It seemed that this was needed for OS/2, in which \v(cmdfile) and other
-  file-oriented variables or functions can return filenames containing
-  backslashes, which are subsequently interpreted as quotes rather than
-  directory separators (e.g. see commented section for VN_CMDF below).
-  But the problem can't be cured at this level.  Example:
-
-    type \v(cmdfile)
-
-  Without doubling, the filename is parsed correctly, but then when passed
-  to UNIX 'cat' through the shell, the backslash is removed, and then cat
-  can't open the file.  With doubling, the filename is not parsed correctly
-  and the TYPE command fails immediately with a "file not found" error.
-*/
-/*
-  Utility routine to double all backslashes in a string.
-  s1 is pointer to source string, s2 is pointer to destination string,
-  n is length of destination string, both NUL-terminated.
-  Returns 0 if OK, -1 if not OK (destination string too short).
-*/
-int
-dblbs(s1,s2,n) char *s1, *s2; int n; {
-    int i = 0;
-    while (*s1) {
-        if (*s1 == '\\') {
-            if (++i > n) return(-1);
-            *s2++ = '\\';
-        }
-        if (++i > n) return(-1);
-        *s2++ = *s1++;
-    }
-    *s2 = NUL;
-    return(0);
-}
-#endif /* COMMENT */
 
 char *
 gmdmtyp() {                             /* Get modem type */
@@ -2214,17 +2132,6 @@ transmit(char * s, char t, int xlate, int binary, int xxecho)
             goto xmitfail;
         }
         c = zminchar();                 /* Get a file character */
-#ifdef COMMENT
-/* too much */
-#ifdef DEBUG
-        if (deblog) {
-            if (c < 0)
-              debug(F101,"XMIT zminchar","",c);
-            else
-              debug(F000,"XMIT zminchar","",c);
-        }
-#endif /* DEBUG */
-#endif /* COMMENT */
         if (c < -1) {                   /* Other error */
             printf("?TRANSMIT file read error: %s\n",ck_errstr());
             goto xmitfail;
@@ -2347,10 +2254,6 @@ transmit(char * s, char t, int xlate, int binary, int xxecho)
                 if (nbytes & 1)         /* Special eol test for UCS-2 */
                   if (uc.x_short == '\n')
                     eol = 1;
-#ifdef COMMENT
-                if (uc.x_short == 0x2028 || uc.x_short == 0x2029)
-                    eol = 1;
-#endif /* COMMENT */
             } else
 #endif /* UNICODE */
               if (c == '\n') {          /* Normal eol test otherwise */
@@ -2659,18 +2562,11 @@ xlate( char *fin, char *fout, int csin, int csout )
 #ifndef UNICODE
     int tcs;
 #else
-#ifdef COMMENT
-    int c2;
-#endif /* COMMENT */
 #endif /* UNICODE */
 
     ffc = 0L;
 
     if (zopeni(ZIFILE,fin) == 0) {      /* Open the file to be translated */
-#ifdef COMMENT
-        /* An error message was already printed by zopeni() */
-        printf("?Can't open input file %s\n",fin);
-#endif /* COMMENT */
         return(0);
     }
     filecode = ZOFILE;
@@ -2790,31 +2686,6 @@ xlate( char *fin, char *fout, int csin, int csout )
 
       /* General case: Get next byte translated from fcs to UCS-2 */
 
-#ifdef COMMENT
-      while ((c = xgnbyte(FC_UCS2,csin,NULL)) > -1 &&
-              (c2 = xgnbyte(FC_UCS2,csin,NULL)) > -1) {
-          extern int fileorder;
-
-          if (tr_int) {                 /* Interrupted? */
-              printf("^C...\n");        /* Print message */
-              z = 0;
-              break;
-          }
-          debug(F001,"XLATE c","",c);
-          debug(F001,"XLATE c2","",c2);
-
-          /* And then send UCS-2 byte to translate-and-output machine */
-
-          if ((x = xpnbyte(fileorder?c2:c,TC_UCS2,csout,fn)) < 0) {
-              z = -1;
-              break;
-          }
-          if ((x = xpnbyte(fileorder?c:c2,TC_UCS2,csout,fn)) < 0) {
-              z = -1;
-              break;
-          }
-      }
-#else
     while ((c = xgnbyte(FC_UCS2,csin,NULL)) > -1) {
           if (tr_int) {                 /* Interrupted? */
               printf("^C...\n");        /* Print message */
@@ -2826,7 +2697,6 @@ xlate( char *fin, char *fout, int csin, int csout )
               break;
           }
       }
-#endif /* COMMENT */
 
 #endif /* UNICODE */
 
@@ -3914,9 +3784,6 @@ shoparc() {
     printf("flow: %s", floname[flow]);
     printf(", handshake: ");
     if (turn) printf("%d\n",turnch); else printf("none\n");
-#ifdef COMMENT
-    if (local && !network) {            /* SET CARRIER-WATCH */
-#endif /* COMMENT */
         if (carrier == CAR_OFF) s = "off";
         else if (carrier == CAR_ON) s = "on";
         else if (carrier == CAR_AUT) s = "auto";
@@ -3926,9 +3793,6 @@ shoparc() {
             if (cdtimo) printf(", timeout: %d sec", cdtimo);
             else printf(", timeout: none");
         }
-#ifdef COMMENT
-    }
-#endif /* COMMENT */
     printf(", close-on-disconnect: %s\n",showoff(clsondisc));
 
 #ifdef UNIX                             /* UUCP lockfile, UNIX only */
@@ -4815,13 +4679,6 @@ shofil() {
     printf(" File download-directory: %s\n",
            dldir ? dldir : "(your current directory)");
     if (++n > cmd_rows - 3) { if (!askmore()) { return;} else {n = 0;}}
-#ifdef COMMENT
-    i = 256;
-    s = line;
-    zzstring("\\v(tmpdir)",&s,&i);
-    printf(" Temporary directory:     %s\n", line);
-    if (++n > cmd_rows - 3) { if (!askmore()) { return;} else {n = 0;}}
-#endif /* COMMENT */
 #endif /* CK_TMPDIR */
     printf(" Send move-to:            %s\n",
            snd_move ? snd_move : "(none)");
@@ -5059,13 +4916,6 @@ shoparp() {                             /* Protocol */
               printf("none\n");
             else
               printf("%d\n",wslotr);
-#ifdef COMMENT
-            printf(" Packet (frame) length: ");
-            if (ptab[protocol].spktlen < 0)
-              printf("none\n");
-            else
-              printf("%d\n",spmax);
-#endif /* COMMENT */
         } else {
             if (ptab[protocol].spktlen >= 1000)
               printf(" 1K packets\n");
@@ -5137,28 +4987,15 @@ extern struct keytab xfrmtab[];
 
 VOID
 shoparl() {
-#ifdef COMMENT
-    int i;
-/* Misleading... */
-    printf("\nAvailable Languages:\n");
-    for (i = 0; i < MAXLANG; i++) {
-        printf(" %s\n",langs[i].description);
-    }
-#else
     printf("\nLanguage-specific translation rules: %s\n",
            language == L_USASCII ? "none" : langs[language].description);
     shocharset();
     printf("\n\n");
-#endif /* COMMENT */
 }
 
 VOID
 shocharset() {
     int x;
-#ifdef COMMENT
-    char * s = "Unknown";
-    extern int xlatype;
-#endif /* COMMENT */
 
 #ifndef NOXFER
     extern int xfrxla;
@@ -5188,25 +5025,11 @@ shocharset() {
     printf("   Default 7bit-Character-Set: %s\n",fcsinfo[dcset7].keyword);
     printf("   Default 8bit-Character-Set: %s\n",fcsinfo[dcset8].keyword);
     printf(" Transfer Character-Set");
-#ifdef COMMENT
-    if (tslevel == TS_L2)
-      printf(": (international)");
-    else
-#endif /* COMMENT */
     if (tcharset == TC_TRANSP)
       printf(": Transparent");
     else
       printf(": %s (%s)",tcsinfo[tcharset].keyword, tcsinfo[tcharset].name);
     printf("\n");
-#ifdef COMMENT
-    switch (xlatype) {
-      case XLA_NONE: s = "None"; break;
-      case XLA_BYTE: s = "Byte"; break;
-      case XLA_JAPAN: s = "Japanese"; break;
-      case XLA_UNICODE: s = "Unicode"; break;
-    }
-    printf("\n Translation type: %s\n",s);
-#endif /* COMMENT */
     printf(" SEND character-set-selection: %s\n",xfrmtab[s_cset].kwd);
     printf(" RECEIVE character-set-selection: %s\n",xfrmtab[r_cset].kwd);
     if (s_cset == XMODE_A || r_cset == XMODE_A)
@@ -5398,15 +5221,9 @@ dostat( int brief )
   dotimes:
 
 #ifdef GFTIMER
-#ifdef COMMENT
-    printf(" elapsed time           : %0.3f sec, %s\n", fptsecs,hhmmss(tsecs));
-#endif /* COMMENT */
     printf(" elapsed time           : %s (%0.3f sec)\n",
            hhmmss((long)(fptsecs + 0.5)),fptsecs);
 #else
-#ifdef COMMENT
-    printf(" elapsed time           : %s (%d sec)\n",hhmmss(tsecs),tsecs);
-#endif /* COMMENT */
     printf(" elapsed time           : %d sec, %s\n",tsecs,hhmmss(tsecs));
 #endif /* GFTIMER */
     if (++n > cmd_rows - 3) { if (!askmore()) return(1); else n = 0; }
@@ -5930,12 +5747,6 @@ doinput(int timo, char *ms[], int mp[], int flags, int count )
 #endif /* CK_BURST */
             c = (CHAR) (imask & (CHAR) y); /* Mask off any parity */
             inchar[0] = c;              /* Remember character for \v(inchar) */
-#ifdef COMMENT
-#ifdef CK_BURST
-            /* Update "lastchar" time only once during input burst */
-            if (burst <= 0)
-#endif /* CK_BURST */
-#endif /* COMMENT */
               lastchar = gtimer();      /* Remember when it came */
 
             if (c == '\0') {            /* NUL, we can't use it */
@@ -6001,23 +5812,6 @@ doinput(int timo, char *ms[], int mp[], int flags, int count )
             y = -1;                     /* Loop thru search strings */
             while (!nomatch && (s = ms[++y])) {	/* ...as many as we have. */
                 if (mp[y]) {            /* Pattern match? */
-#ifdef COMMENT
-                    int j;
-                    /* This is gross but it works... */
-                    /* We could just as easily have prepended '*' to the  */
-                    /* pattern and skipped the loop, except then we would */
-                    /* not have any way to identify the matching string.  */
-                    for (j = 0; j < matchindex; j++) {
-                        if (ckmatch(s,&matchbuf[j],1,1)) {
-                            matchindex = j;
-			    instatus = INP_OK;
-                            x = 1;
-                            break;
-                        }
-                    }
-                    if (x > 0)
-                      break;
-#else
                     /* July 2001 - ckmatch() returns match position. */
                     /* It works and it's not gross. */
 		    /* (4 = floating pattern) */
@@ -6028,7 +5822,6 @@ doinput(int timo, char *ms[], int mp[], int flags, int count )
                         x = 1;
                         break;
                     }
-#endif /* COMMENT */
                     continue;
                 }                       /* Literal match. */
                 i = mi[y];              /* Match-position in search string. */
@@ -6156,15 +5949,6 @@ doinput(int timo, char *ms[], int mp[], int flags, int count )
     }
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
-#ifdef COMMENT
-#ifdef IKS_OPTION
-#ifdef CK_AUTODL
-    if (is_tn && TELOPT_ME(TELOPT_KERMIT) && inautodl) {
-        tn_siks(KERMIT_STOP);           /* Send Kermit-Server Stop */
-    }
-#endif /* CK_AUTODL */
-#endif /* IKS_OPTION */
-#endif /* COMMENT */
 
 #ifdef GFTIMER
     fpt = gftimer();                    /* Get elapsed time */
@@ -6819,11 +6603,6 @@ dokwval( char * s, char * sep )
     if (c) {
         vp = s;
 	if (*vp) rc = "2";		/* Have value, another promotion */
-#ifdef COMMENT
-        while (*s > ' ')                /* Skip to end */
-          s++;
-        *s = NUL;                       /* Terminate value */
-#endif	/* COMMENT */
     }
     debug(F110,"kwval c",ckctoa(c),0);
     debug(F110,"kwval keyword",kw,0);
@@ -7156,14 +6935,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
   their arguments, and are treated specially here.  After these come the
   functions whose arguments are evaluated in the normal way.
 */
-#ifdef COMMENT
-    /* (moved up) */
-    if (cx == FN_LIT) {                 /* literal(arg1) */
-        debug(F110,"flit",xp,0);
-        p = xp ? xp : "";               /* Return a pointer to arg itself */
-        goto fnend;
-    }
-#endif /* COMMENT */
     if (cx == FN_CON) {                 /* Contents of variable, unexpanded. */
         char c;
         int subscript = 0;        
@@ -7192,18 +6963,9 @@ fneval( char *fn, char *argp[], int argn, char * xp )
                 else                    /* otherwise */
                   p = m_arg[maclvl][c - '0']; /* they're on the stack */
             } else if (c == '*') {
-#ifdef COMMENT
-                p = (maclvl > -1) ? m_line[maclvl] : topline;
-                if (!p) p = "";
-#else
                 int nx = FNVALL;
                 char * sx = fnval;
                 p = fnval;
-#ifdef COMMENT
-                if (cmdsrc() == 0 && topline)
-                  p = topline;
-                else
-#endif /* COMMENT */
                   if (zzstring("\\fjoin(&_[],{ },1)",&sx,&nx) < 0) {
                     failed = 1;
                     p = fnval;
@@ -7211,7 +6973,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
                       sprintf(fnval,"<ERROR:OVERFLOW:\\fcontents()>");
 		    debug(F110,"zzstring fcontents(\\%*)",p,0);
                 }
-#endif /* COMMENT */
             } else {
                 if (isupper(c)) c -= ('a'-'A');
                 p = g_var[c];           /* Letter for global variable */
@@ -7401,11 +7162,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
           case FN_HSTNAM:
 #endif /* TCPSOCKET */
           case FN_DELSEC:
-#ifdef COMMENT
-          case FN_KWVAL:
-          case FN_SLEEP:
-          case FN_MSLEEP:
-#endif /* COMMENT */
 	  case FN_FILEINF:
 	  case FN_FILECMP:
             failed = 1;
@@ -7965,20 +7721,7 @@ fneval( char *fn, char *argp[], int argn, char * xp )
       case FN_MIN:                      /* \fmin(arg1,arg2) */
       case FN_MOD:                      /* \fmod(arg1,arg2) */
         val1 = *(bp[0]) ? evalx(bp[0]) : "";
-#ifdef COMMENT
-        /* No longer necessary because evalx() no longer overwrites its */
-        /* result every time it's called (2000/09/23). */
-        free(bp[0]);
-        bp[0] = NULL;
-#endif /* COMMENT */
         if (argn > 1) {
-#ifdef COMMENT
-            /* Ditto... */
-            bp[0] = malloc((int)strlen(val1)+1);
-            if (bp[0])
-              strcpy(bp[0],val1);       /* safe */
-            val1 = bp[0];
-#endif /* COMMENT */
             val2 = *(bp[1]) ? evalx(bp[1]) : "";
             if (chknum(val1) && chknum(val2)) {
                 i = atoi(val1);
@@ -8022,21 +7765,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         if (argn > 1)
           if (*(bp[1]))
             val1 =  evalx(bp[1]);
-#ifdef COMMENT
-        if (bp[1]) free(bp[1]);         /* Have to copy this */
-        bp[1] = malloc((int)strlen(val1)+1);
-        if (!bp[1]) {
-            failed = 1;
-            if (fndiags) {
-                p = fnval;
-                ckmakmsg(fnval,FNVALL,
-                         "<ERROR:MALLOC_FAILURE:\\f",fn,"()>",NULL);
-            }
-            goto fnend;
-        }
-        strcpy(bp[1],val1);             /* safe */
-        val1 = bp[1];
-#endif /* COMMENT */
         val2 = "";
         if (argn > 2)
           if (*(bp[2]))
@@ -8549,11 +8277,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         p = fnval;
         goto fnend;
 
-#ifdef COMMENT
-      case FN_TOD:                      /* Time of day to secs since midnite */
-        sprintf(fnval,"%ld",tod2sec(bp[0])); /* SAFE */
-        goto fnend;
-#endif /* COMMENT */
 
       case FN_FFN:                      /* Full pathname of file */
         zfnqfp(bp[0],FNVALL,p);
@@ -8824,10 +8547,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
             }
             x = atoi(bp[0]);
         }
-#ifdef COMMENT
-        sprintf(fnval,"%d", (x > 0 && k > 0) || (x < 0 && k < 0) ? k % x : 
-                (x == 0 ? 0 : (0 - (k % (-x)))));
-#else
         debug(F111,"rand",ckitoa(x),k);
         if ((x > 0 && k > 0) || (x < 0 && k < 0))
           x = k % x;
@@ -8837,7 +8556,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
           x = 0 - (k % (-x));
         debug(F101,"rand x","",x);
         sprintf(fnval,"%d", x);         /* SAFE */
-#endif /* COMMENT */
         p = fnval;
         goto fnend;
 #endif /* NORANDOM */
@@ -9839,9 +9557,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         /* int sign = 0; */
         int i, places = 0;
         int argcount = 1;
-#ifdef COMMENT
-        int j;
-#endif
 
         failed = 1;
         p = fnval;
@@ -9943,12 +9658,7 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         failed = 0;
         switch (y) {                    /* Now do the requested function */
           case FN_FPABS:                /* Floating-point absolute value */
-#ifndef COMMENT
             fpresult = fabs(farg[0]);
-#else
-            if (farg[0] < 0.0)
-              fpresult = 0.0 - farg[0];
-#endif /* COMMENT */
             break;
           case FN_FPADD:                /* FP add */
             fpresult = farg[0] + farg[1];
@@ -10034,89 +9744,8 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         }
         if (failed)                     /* and/or any other kind of error, */
           goto fnend;                   /* fail. */
-#ifndef COMMENT
         /* Call routine containing code that was formerly inline */
         ckstrncpy(fnval,fpformat(fpresult,places,cx == FN_FPROU),FNVALL);
-#else
-        {
-            char fbuf[16];              /* For creating printf format */
-            if (!fp_rounding &&         /* If printf doesn't round, */
-                (places > 0 ||          /* round result to decimal places. */
-                 (places == 0 && cx == FN_FPROU)))
-              fpresult += (0.5 / pow(10.0,(CKFLOAT)places));
-            if (places > 0) {                   /* If places specified */
-                /* use specified places to write given number of digits */
-                sprintf(fbuf,"%%0.%df",places); /* SAFE */
-                sprintf(fnval,fbuf,fpresult);   /* SAFE */
-            } else {                            /* Otherwise... */
-#ifdef COMMENT
-/*
-  Here we want to print exactly fp_digits significant digits, no matter which
-  side of the decimal point they are on.  That is, we want want the default
-  format to show the maximum number of non-garbage digits, AND we want the last
-  such digit to be rounded.  Of course there is no way to do that, since the
-  digit after the last non-garbage digit is, well, garbage.  So the following
-  clever ruse does no good.
-*/
-                int sign = 0, m = 0;
-                sprintf(fnval,"%f",fpresult);
-                if (fnval[0] == '-') sign = 1;
-                for (i = sign; i < FNVALL; i++) {
-                    if (isdigit(fnval[i]))
-                      m++;
-                    else
-                      break;
-                }
-                if (m > 1) {
-                    int d = fp_digits - m;
-                    if (d < 1) d = 1;
-                    sprintf(fbuf,"%%%d.%df",fp_digits+sign+1,d);
-                } else {
-                    sprintf(fbuf,"%%0.%df",fp_digits);
-                }
-                sprintf(fnval,fbuf,fpresult);
-#else
-                /* Go for max precision */
-                sprintf(fbuf,"%%0.%df",fp_digits); /* SAFE */
-                sprintf(fnval,fbuf,fpresult); /* SAFE */
-
-#endif /* COMMENT */
-            }
-            if (fnval[0] == '-') sign = 1;
-        }
-        debug(F111,"fpresult 1",fnval,errno); /* Check for over/underflow */
-        for (i = sign; fnval[i]; i++) { /* Give requested decimal places */
-            if (fnval[i] == '.')        /* First find the decimal point */
-              break;
-            else if (i > fp_digits + sign - 1) /* replacing garbage */
-              fnval[i] = '0';           /* digits with 0... */
-        }
-        if (fnval[i] == '.') {          /* Have decimal point */
-            int gotend = 0;
-            /* d < 0 so truncate fraction */
-            if (places < 0 || (places == 0 && cx == FN_FPROU)) {
-                fnval[i] = NUL;
-            } else if (places > 0) {    /* d > 0 so this many decimal places */
-                i++;                           /* First digit after decimal */
-                for (j = 0; j < places; j++) { /* Truncate after d decimal */
-                    if (!fnval[j+i])           /* places or extend to d  */
-                      gotend = 1;              /* decimal places. */
-                    if (gotend || j+i+sign > fp_digits)
-                      fnval[j+i] = '0';
-                }
-                fnval[j+i] = NUL;
-            } else {                    /* d == 0 so Do The Right Thing */
-                for (j = (int)strlen(fnval) - 1; j > i+1; j--) {
-                    if ((j - sign) > fp_digits)
-                      fnval[j] = '0';
-                    if (fnval[j] == '0')
-                      fnval[j] = NUL;   /* Strip useless trailing 0's. */
-                    else
-                      break;
-                }
-            }
-        }
-#endif /* COMMENT */
         debug(F111,"fpresult 2",fnval,errno);
         goto fnend;
 
@@ -10435,9 +10064,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         max = a_dim[x];                 /* Size of array */
         if (lo < 0) lo = 1;             /* Use given range if any */
         if (lo > max) lo = max;
-#ifdef COMMENT
-	hi = max;
-#else
 /*
   This is a workaround for the problem in which the dimension of the \&_[]
   array (but not its contents) grows upon entry to a SWITCH block.  But this
@@ -10453,7 +10079,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
 		  break;
 	      }
 	}
-#endif /* COMMENT */
         if (hi > max) hi = max;
         failed = 0;                     /* Unset failure flag */
         if (max < 1)
@@ -10716,16 +10341,8 @@ fneval( char *fn, char *argp[], int argn, char * xp )
           val1 = *(bp[0]) ? evalx(bp[0]) : ckitoa(cmdlvl);
         else
           val1 = ckitoa(cmdlvl);
-#ifdef COMMENT
-        free(bp[0]);                    /* (evalx() always uses same buffer) */
-        bp[0] = NULL;                   /* (not any more!) */
-#endif /* COMMENT */
         failed = 1;
         if (argn > 1) {
-#ifdef COMMENT
-            makestr(&(bp[0]),val1);
-            val1 = bp[0];
-#endif /* COMMENT */
             val2 = *(bp[1]) ? evalx(bp[1]) : "0";
             if (!(chknum(val1) && chknum(val2))) {
                 if (fndiags)
@@ -10893,27 +10510,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
         p = dokwval(bp[0],bp[1]?bp[1]:"=");
         goto fnend;
     }
-#ifdef COMMENT
-/* Cute idea but doesn't work */
-    if (cx == FN_SLEEP || cx == FN_MSLEEP) {
-        p = "";
-        if (chknum(bp[0])) {
-            x = atoi(bp[0]);
-        } else {
-            failed = 1;
-            if (fndiags) {
-                ckmakmsg(fnval,FNVALL,
-                         "<ERROR:ARG_NOT_NUMERIC:\\f",fn,"()>",NULL);
-                p = fnval;
-            }
-            goto fnend;
-        }
-        if (cx == FN_SLEEP)
-          x *= 1000;
-        msleep(x);
-        goto fnend;
-    }
-#endif /* COMMENT */
 
 
 /*
@@ -10927,10 +10523,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
     if (cx == FN_EMAIL) {
         char * s = bp[0], * s2, * s3, * ap = "";
 	int k;
-#ifdef COMMENT
-    char c;
-	int quote = 0, state = 0, infield = 0 , pc = 0;	/* For nested comments */
-#endif /* COMMENT */
         if (!s) s = "";
 	if (!*s) goto xemail;
 
@@ -10947,7 +10539,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
 	if (k == 0)
 	  goto xemail;
 
-#ifndef COMMENT			     /* Simple method if not 100% foolproof */
 	k = 0;
 	for (s2 = s; *s2; s2++) {	/* Find at-sign */
 	    if (*s2 == '@') {
@@ -10978,90 +10569,6 @@ fneval( char *fn, char *argp[], int argn, char * xp )
 	if (!ckstrcmp(ap,"mailto:",7,0)) /* Handle mailto: URLs */
 	  ap += 7;
 
-#else  /* Too complicated and error-prone */
-
-	k = 0;
-	for (s2 = s; *s2; s2++) {	/* Strip leading whitespace */
-	    if (*s2 == SP || *s2 == HT) {
-		k = 1;
-		break;
-	    }
-	}
-	if (!k) {			/* Simple address */
-	    ap = s;
-	    goto xemail;
-	}
-	do {				/* Not simple, have to extract it */
-	    if (quote) {
-		quote = 0;
-		continue;
-	    } else if (*s == '\\') {
-		quote = 1;
-		continue;
-	    }
-	    switch (state) {
-	      case 0:
-		if (!infield && *s == '"') { /* Quoted string */
-		    infield = 1;
-		    c = '"';
-		    state = 1;
-		} else if (!infield && *s == '(') { /* Comment in parens */
-		    pc++;
-		    infield = 1;
-		    c = ')';
-		    if (*ap) *s = NUL;
-		    state = 1;
-		} else if (!infield && *s == '<') { /* Address */
-		    infield = 1;
-		    c = '>';
-		    ap = s+1;
-		    state = 2;
-		} else if (infield && (*s == SP || *s == HT)) {
-		    infield = 0;
-		} else {		/* One or more bare words */
-		    infield = 1;	/* Could be an address */
-		    if (!*ap) ap = s;	/* Could be comments */
-		}
-		continue;
-	      case 1:			/* In Quoted string or Comment */
-		if (infield && *s == c) { /* Look for end */
-		    infield = 0;
-		    *s++ = NUL;
-		    while (*s == SP || *s == HT) s++;
-		    if (!*ap)
-		      ap = s;
-		    state = 0;
-		}
-		continue;
-	      case 2:			/* In address */
-		if (infield && *s == c) { /* Looking for end */
-		    infield = 0;
-		    *s = NUL;
-		    break;
-		}
-	    }
-	} while (*s++);
-
-      xemail:
-	if (*ap) {
-	    while (*ap == SP || *ap == HT) ap++;
-	}
-	k = strlen(ap) - 1;
-	while (k >= 0 && (ap[k] == SP || ap[k] == HT))
-	  ap[k--] = NUL;
-	if (*ap) {
-	    failed = 0;
-	    if (*ap == '<') {
-		k = strlen(ap);
-		if (*(ap+k-1) == '>') {
-		    ap[k-1] = NUL;
-		    ap++;
-		}
-	    }
-	} else
-	  failed = 1;
-	/* Here we might also want check against "*@*.*" */
-#endif	/* COMMENt */
       xemail:
 	ckstrncpy(fnval,ap,FNVALL);
 	goto fnend;
@@ -11979,19 +11486,12 @@ char *                                  /* Evaluate builtin variable */
 
       case VN_CMDF:                     /* Current command file name */
 /* printf("ENTERING VN_CMDF; tlevel=%d...\n",tlevel); */
-#ifdef COMMENT                          /* (see comments above) */
-        if (tfnam[tlevel]) {            /* (near dblbs declaration) */
-            dblbs(tfnam[tlevel],vvbuf,VVBUFL);
-            return(vvbuf);
-        } else return("");
-#else
         if (tlevel < 0) {
             return("");
         } else {
 /* printf("FN_CMDF tlevel:cmdfile:%d:[%s]\n",tlevel,tfnam[tlevel]); */
             return(tfnam[tlevel] ? tfnam[tlevel] : "");
         }
-#endif /* COMMENT */
 
       case VN_MAC:                      /* Current macro name */
         return((maclvl > -1) ? m_arg[maclvl][0] : "");
@@ -12801,16 +12301,6 @@ char *                                  /* Evaluate builtin variable */
 #endif /* CK_LOGIN */
 #endif /* IKSD */
 
-#ifdef COMMENT                          /* was HPUX */
-          if (!unm_mod[0] && !nopush)
-            zzstring("\\fcommand(model)",&s,&y);
-/*
-   Another possibility would be:
-     "\\fcommand(ksh -c 'whence model 1>&- && model || uname -m')"
-   But that would depend on having ksh.
-*/
-#else
-#endif /* COMMENT */
 
 #ifdef CK_UTSNAME
           if (unm_mod[0])
@@ -13385,9 +12875,6 @@ zzstring( char *s, char **s2, int *n )
     char vb,                            /* Variable id (char form) */
         *vp,                            /* Pointer to variable definition */
         *new,                           /* Local pointer to target string */
-#ifdef COMMENT
-        *old,                           /* Save original target pointer */
-#endif /* COMMENT */
         *p,                             /* Worker */
         *q,                             /* Worker */
         *s3;                            /* Worker */
@@ -13410,11 +12897,6 @@ zzstring( char *s, char **s2, int *n )
     n2 = *n;                            /* Make local copies of args */
     nx = n2;
 
-#ifdef COMMENT
-    /* This is always 32K in BIGBUFOK builds */
-    if (depth == 0)
-      debug(F101,"zzstring top-level n","",n2);
-#endif	/* COMMENT */
 
     new = *s2;                          /* for one less level of indirection */
 
@@ -13503,11 +12985,6 @@ zzstring( char *s, char **s2, int *n )
                 else                    /* otherwise */
                   vp = m_arg[maclvl][vb - '0']; /* they're on the stack */
             } else if (vb == '*') {     /* Macro args string */
-#ifdef COMMENT
-                /* This doesn't take changes into account */
-                vp = (maclvl >= 0) ? m_line[maclvl] : topline;
-                if (!vp) vp = "";
-#else
 		char * ss = new;
                 if (zzstring("\\fjoin(&_[],,1)",&new,&n2) < 0) {
 #ifdef DVNAMBUF
@@ -13517,15 +12994,11 @@ zzstring( char *s, char **s2, int *n )
 		}
 		debug(F110,"zzstring \\%*",ss,0);
                 break;
-#endif /* COMMENT */
             } else {
                 if (isupper(vb)) vb += ('a'-'A');
                 vp = g_var[vb];         /* Letter for global variable */
             }
             if (!vp) vp = "";
-#ifdef COMMENT
-            if (vp) {                   /* If definition not empty */
-#endif /* COMMENT */
 		if (vareval) {
 		    debug(F010,"zzstring %n vp",vp,0);
 		    /* call self to evaluate it */
@@ -13549,13 +13022,6 @@ zzstring( char *s, char **s2, int *n )
 		    new--;		/* Back up over terminating null */
 		    n2++;		/* to allow for further deposits. */
 		}
-#ifdef COMMENT
-            } else {
-                debug(F110,"zzstring %n vp","(NULL)",0);
-                n2 = nx;
-                *new = NUL;
-            }
-#endif /* COMMENT */
             break;
           case '&':                     /* An array reference */
             x = arraynam(s,&vbi,&d);    /* Get name and subscript */
@@ -13578,9 +13044,6 @@ zzstring( char *s, char **s2, int *n )
             xx = chkarray(vbi,d);        /* Array is declared? */
             debug(F101,"zzstring chkarray","",x);
             if (xx > -1) {
-#ifdef COMMENT
-                char * s1 = NULL;
-#endif /* COMMENT */
                 vbi -= ARRAYBASE;       /* Convert name to index */
 
                   if (a_dim[vbi] >= d) { /* If subscript in range */

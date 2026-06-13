@@ -1150,13 +1150,8 @@ _PROTOTYP( int chkint, (void) );
 _PROTOTYP( VOID sdebu, (int) );
 _PROTOTYP( VOID rdebu, (CHAR *, int) );
 _PROTOTYP( char * dbchr, ( int ) );
-#ifdef COMMENT
-_PROTOTYP( SIGTYP stptrap, (int, int) );
-_PROTOTYP( SIGTYP trap, (int, int) );
-#else
 _PROTOTYP( SIGTYP stptrap, (int) );
 _PROTOTYP( SIGTYP trap, (int) );
-#endif /* COMMENT */
 _PROTOTYP( char * ck_errstr, (void) );
 #ifndef NOXFER
 _PROTOTYP( int agnbyte, (void) );
@@ -1176,10 +1171,6 @@ _PROTOTYP( VOID cmdini, (void) );
 _PROTOTYP( int dotake, (char *) );
 _PROTOTYP( int cmdlin, (void) );
 _PROTOTYP( int conect, (void) );
-#ifdef COMMENT
-/* Only used in Unix CONNECT module where it is defined before use */
-_PROTOTYP( int ckcgetc, (int) );
-#endif /* COMMENT */
 _PROTOTYP( int ckcputc, (int) );
 _PROTOTYP (int mdmhup, (void) );
 _PROTOTYP( VOID herald, (void) );

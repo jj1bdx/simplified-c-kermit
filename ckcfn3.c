@@ -549,14 +549,6 @@ getsbuf( int n )			/* Allocate a send-buffer */
 int
 getrbuf() {				/* Allocate a receive buffer */
     int i;
-#ifdef COMMENT
-    /* This code is pretty stable by now... */
-    /* Looks like we might need this after all */
-    debug(F101,"getrbuf rbufnum","",rbufnum);
-    debug(F101,"getrbuf wslots","",wslots);
-    debug(F101,"getrbuf dum002","",dum002);
-    debug(F101,"getrbuf dum003","",dum003);
-#endif /* COMMENT */
     if (rbufnum == 0) return(-1);	/* No free buffers. */
     if (rbufnum < 0) return(-2);	/* Shouldn't happen. */
     for (i = 0; i < wslots; i++)	/* Find the first one not in use. */
@@ -901,17 +893,7 @@ sattr( int xp, int flag )		/* Send Attributes */
 	initattr(&x);			/* Blank out all the fields. */
 	for (j = 0; j < 95; j++)	/* Init array of completed fields */
 	  done[j] = 0;
-#ifdef COMMENT
-/*
-  28 October 2021: This is an administrative packet, it must not be
-  truncated because of user command SET SEND PACKET-LENGTH 10 or other
-  small number.  (Even though attributes can be sent in multiple packets,
-  any given attribute might be longer than spsiz, e.g. date-time.)
-*/
-	max = maxdata();		/* Get maximum data field length */
-#else
 	max = rpsiz;                    /* Get maximum data field length */
-#endif /* COMMENT */
 	if (notafile || xp == 1) {	/* Is it not a real file? */
 	    extern char * zzndate();
 	    char * p;
@@ -1061,11 +1043,7 @@ sattr( int xp, int flag )		/* Send Attributes */
     }
     /* File length in K */
     if (atleno && !done[xunchar(c = '!')] && x.lengthk > (CK_OFF_T)-1) {
-#ifdef COMMENT
-	sprintf((char *) &data[i+2],"%ld",x.lengthk); /* safe */
-#else
 	ckstrncpy((char *)&data[i+2],ckfstoa(x.lengthk),32);
-#endif	/* COMMENT */
 	aln = (int)strlen((char *)(data+i+2));
 	if (max - i >= aln + 2) {
 	    data[i] = c;
@@ -1080,11 +1058,7 @@ sattr( int xp, int flag )		/* Send Attributes */
     }
     /* File length in bytes */
     if (atleno && !done[xunchar(c = '1')] && x.length > (CK_OFF_T)-1) {
-#ifdef COMMENT
-	sprintf((char *) &data[i+2],"%ld",x.length); /* safe */
-#else
 	ckstrncpy((char *)&data[i+2],ckfstoa(x.length),32);
-#endif	/* COMMENT */
 	aln = (int)strlen((char *)(data+i+2));
 	if (max - i >= aln + 2) {
 	    data[i] = c;
@@ -1354,15 +1328,6 @@ gattr( CHAR *s, struct zattr *yy ) /* Read incoming attribute packet */
     while ((c = *s++)) {                /* Get attribute tag */
 	aln = xunchar(*s++);		/* Length of attribute string */
 	switch (c) {
-#ifdef COMMENT				/* This case combined with '1' below */
-	  case '!':			/* File length in K */
-	    for (i = 0; (i < aln) && (i < ABUFL); i++) /* Copy it */
-	      abuf[i] = *s++;
-	    abuf[i] = '\0';		/* Terminate with null */
-	    if (i < aln) s += (aln - i); /* If field was too long for buffer */
-	    yy->lengthk = ckatofs(abuf); /* Convert to number */
-	    break;
-#endif	/* COMMENT */
 
 	  case '/':			/* Record format */
 	    rfbuf[1] = NUL;
@@ -1585,10 +1550,6 @@ gattr( CHAR *s, struct zattr *yy ) /* Read incoming attribute packet */
 #ifdef CK_RESEND
 		    rs_len = zgetfs(ff); /* Get length of file */
 		    debug(F111,"gattr RESEND",ff,rs_len);
-#ifdef COMMENT
-		    if (rs_len < 0L)	/* Local file doesn't exist */
-		      rs_len = 0L;
-#endif /* COMMENT */
 /*
   Another possibility here (or later, really) would be to check if the two
   file lengths are the same, and if so, keep the prevailing collision action
@@ -1740,11 +1701,7 @@ gattr( CHAR *s, struct zattr *yy ) /* Read incoming attribute packet */
 
 #ifdef DEBUG
     if (deblog) {
-#ifdef COMMENT
-	sprintf(abuf,"%ld",fsize);	/* safe */
-#else
 	ckstrncpy(abuf,ckfstoa(fsize),ABUFL);
-#endif	/* COMMENT */
 debug(F110,"gattr fsize",abuf,0);
     }
 #endif /* DEBUG */
@@ -1763,11 +1720,7 @@ debug(F110,"gattr fsize",abuf,0);
 	} else {			/* Binary mode */
 	    retcode = 0;		/* Accept the file */
 	    discard = 0;		/* If SET FILE COLLISION DISCARD */
-#ifdef COMMENT
-	    sprintf(rpbuf+2,"%ld",rs_len); /* Reply with length of file */
-#else
 	    ckstrncpy(rpbuf+2,ckfstoa(rs_len),RPBUFL-2);
-#endif	/* COMMENT */
 	    rpbuf[0] = '1';		/* '1' means Length in Bytes */
 	    rpbuf[1] = tochar((int)strlen(rpbuf+2)); /* Length of length */
 	    debug(F111,"gattr RESEND OK",rpbuf,retcode);
@@ -1953,10 +1906,6 @@ opena( char *f, struct zattr *zz )
     } else if (dispos == 'R') {		/* Receiving a RESEND */
 	debug(F101,"opena remote len","",zz->length);
 	debug(F101,"opena local len","",rs_len);
-#ifdef COMMENT
-        if (fncact == XYFX_R)		/* and file collision = RENAME */
-	  if (ofn1x)
-#endif /* COMMENT */
 	if (ofn1[0])
 	  f = ofn1;			/* use original name. */
         if (fncact == XYFX_R)		/* if file collision is RENAME */
@@ -2000,9 +1949,6 @@ opena( char *f, struct zattr *zz )
 	}
 	debug(F101,"opena binary","",binary);
 
-#ifdef COMMENT
-	if (fsize >= 0)
-#endif /* COMMENT */
 	  xxscreen(SCR_FS,0,fsize,"");
 
 
@@ -2314,10 +2260,6 @@ clsif( void )
 		  doxlog(what,psfspec,fsize,binary,1,"Incomplete");
 #endif /* TLOG */
 	    } else {
-#ifdef COMMENT
-		/* Not yet -- we don't have confirmation from the receiver */
-		xxscreen(SCR_ST,ST_OK,0l,"");
-#endif /* COMMENT */
 #ifdef TLOG
 		if (tralog && !tlogfmt)
 		  doxlog(what,psfspec,fsize,binary,0,"");
@@ -2328,13 +2270,6 @@ clsif( void )
     i_isopen = 0;
     hcflg = 0;				/* Reset flags */
     sendstart = (CK_OFF_T)0;		/* Don't do this again! */
-#ifdef COMMENT
-/*
-  This prevents a subsequent call to clsof() from deleting the file
-  when given the discard flag.
-*/
-    *filnam = '\0';			/* and current file name */
-#endif /* COMMENT */
     return(x);
 }
 

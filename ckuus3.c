@@ -334,9 +334,6 @@ static int nchkt = (sizeof(chktab) / sizeof(struct keytab));
 
 struct keytab rpttab[] = {              /* SET REPEAT */
     "counts",    0, 0,                  /* On or Off */
-#ifdef COMMENT
-    "minimum",   1, 0,                  /* Threshhold */
-#endif /* COMMENT */
     "prefix",    2, 0                   /* Repeat-prefix character value */
 };
 
@@ -750,14 +747,6 @@ struct keytab mdmcap[] = {
 };
 int nmdmcap = (sizeof(mdmcap) / sizeof(struct keytab));
 
-#ifdef COMMENT                          /* SET ANSWER not implemented yet */
-static struct keytab answertab[] = {
-    { "caller-id",  XYA_CID,  0 };
-    { "rings",      XYA_RNG,  0 };
-    { "", 0, 0 }
-};
-static int nanswertab =  (sizeof(answertab) / sizeof(struct keytab)) - 1;
-#endif /* COMMENT */
 
 struct keytab dialtab[] = {             /* SET DIAL table */
     "area-code",        XYDLAC, 0,      /* Also still includes items     */
@@ -1109,14 +1098,6 @@ struct keytab taktab[] = {
 };
 
 #ifndef NOSPL
-#ifdef COMMENT
-/* not used */
-static
-struct keytab suftab[] = {              /* (what to do with) STARTUP-FILE */
-    "delete", 1, 0,
-    "keep",   0, 0
-};
-#endif /* COMMENT */
 
 /* SET MACRO parameters table */
 static
@@ -1160,14 +1141,6 @@ static struct keytab scmdtab[] = {
 #ifdef CK_AUTODL
     "autodownload",       SCMD_ADL, 0,
 #endif /* CK_AUTODL */
-#ifdef COMMENT
-/*
-  To implement this requires that we change CMDBL and ATMBL
-  from compile-time symbols to runtime variables.  Not a big deal,
-  but not trivial either.
- */
-    "buffer-size",        SCMD_BFL, 0,
-#endif /* COMMENT */
     "bytesize",           SCMD_BSZ, 0,
     "cbreak",             SCMD_CBR, CM_INV,
 #ifdef DOUBLEQUOTING
@@ -3087,11 +3060,7 @@ dosexp( char *s )                       /* s = S-Expression */
                     while (*s2 == '+') s2++;
                 } else if (*p1 == '(') { /* An S-Expression? */
 
-#ifdef COMMENT
-                    s2 = dosexp(s2);
-#else
                     s2 = dosexp(p1);
-#endif /* COMMENT */
                 }
                 goto xdosexp;
             } else if (x < 1) {         /* Is it a variable? */
@@ -3125,13 +3094,8 @@ dosexp( char *s )                       /* s = S-Expression */
                     }
                     if (*s2 == '\047') {
                         s2++;
-#ifdef COMMENT
-			/* Dumps core if petty optimization was taken */
-                        makestr(&(p[1]),s2);
-#else
 			if (!nosplit && p[1]) free(p[1]);
 			p[1] = (char *)malloc((int)strlen(s2) + 1);
-#endif /* COMMENT */
                         s2 = p[1];
 			if (!s2) s2 = "";
                         if (*s2 == '(') {
@@ -3499,31 +3463,6 @@ dosexp( char *s )                       /* s = S-Expression */
         s2 = p[i+1];                    /* Get operand */
         if (!s2) s2 = "";
 
-#ifdef COMMENT
-        if (*s2 == '\047') {            /* Is it quoted? */
-            debug(F110,sexpdebug("'B"),s2,0);
-            s2++;                       /* Space past the quote */
-            quote++;
-            if (*s2 == '(') {           /* Quoted S-Expression? */
-                char c4, * s4 = s2+1;   /* Strip outer parens */
-                while ((c4 = *s4++)) {
-                    if (c4 == ')' && !*s4) {
-                        s2++;
-                        *(s4-1) = NUL;
-                        break;
-                    }
-                }
-            }
-            debug(F110,sexpdebug("'C"),s2,0);
-
-        } else {                        /* Not quoted */
-            s2 = dosexp(p[i+1]);        /* evaluate it */
-            if (sexprc) goto xdosexp;
-            if (!s2) s2 = "";
-            if (!macro && x == SX_EVA)
-              continue;
-        }
-#else
         if (*s2 != '\047') {            /* Not quoted */
             if (x == SX_ECH && (k = mxlook(mactab,s2,nmac)) > -1) {
                 s2 = mactab[k].mval;
@@ -3562,7 +3501,6 @@ dosexp( char *s )                       /* s = S-Expression */
                 continue;
             }
         }
-#endif /* COMMENT */
         if (macro) {
             debug(F111,sexpdebug("macro arg"),s2,i);
             if (!*s2) quote++;
@@ -4633,24 +4571,6 @@ initmdm( int x )
 #endif /* MINIDIAL */
 }
 
-#ifdef COMMENT
-/* Not implemented yet */
-int
-setanswer() {
-    int x, y;
-    extern int ans_cid, ans_ring;
-    if ((x = cmkey(answertab,nanswertab,"","",xxstring)) < 0)
-      return(x);
-    switch (x) {
-      case XYA_CID:
-        return(seton(&ans_cid));
-      case XYA_RNG:
-        y = cmnum("How many rings before answering","1",10,&x,xxstring);
-        y = setnum(&ans_rings,x,y,254);
-        return(y);
-    }
-}
-#endif /* COMMENT */
 
 int
 setmodem() {                            /* SET MODEM */
@@ -4686,9 +4606,6 @@ setmodem() {                            /* SET MODEM */
         if ((x = cmcfm()) < 0)
           return(x);
         dialmhu = y;
-#ifdef COMMENT
-/* Nope, I fixed it (2001 11 08) */
-#endif /* COMMENT */
         return(success = 1);
 #endif /* MDMHUP */
 
@@ -4854,9 +4771,6 @@ setdial( int y )
       case XYDSPD:                      /* DIAL SPEED-MATCHING */
                                         /* used to be speed-changing */
         if ((y = seton(&mdmspd)) < 0) return(y);
-#ifdef COMMENT
-        mdmspd = 1 - mdmspd;            /* so here we reverse the meaning */
-#endif /* COMMENT */
         return(success = 1);
       case XYDMNP:                      /* DIAL MNP-ENABLE */
       case XYDEC:                       /* DIAL ERROR-CORRECTION */
@@ -5080,16 +4994,6 @@ setdial( int y )
                 }
                 if (!dialtfp)           /* Toll-free dialing prefix */
                   makestr(&dialtfp,"1");
-#ifdef COMMENT
-/* The time for this is past */
-            } else if (!strcmp(diallcc,"358") &&
-                       ((int) strcmp(zzndate(),"19961011") > 0)
-                       ) {              /* Finland */
-                if (!dialldp)           /* Long-distance prefix */
-                  makestr(&dialldp,"9");
-                if (!dialixp)           /* International dialing prefix */
-                  makestr(&dialixp,"990");
-#endif /* COMMENT */
             } else {                    /* Everywhere else ... */
                 if (!dialldp) {
                     if ((dialldp = malloc(4)))
@@ -5123,16 +5027,8 @@ setdial( int y )
       case XYDLCS:                      /* DIAL LC-SUFFIX */
         return(dialstr(&diallcs,"Local dialing suffix"));
 
-#ifdef COMMENT
-      case XYDPXX:                      /* DIAL PBX-EXCHANGE */
-        return(dialstr(&dialpxx,"Exchange of PBX you are calling from"));
-#endif /* COMMENT */
 
       case XYDPXI: {                    /* DIAL PBX-INTERNAL-PREFIX */
-#ifdef COMMENT
-          return(dialstr(&dialpxi,
-                       "Internal-call prefix of PBX you are calling from"));
-#else
           int x;
           if ((x = cmtxt("Internal-call prefix of PBX you are calling from",
                          "",&s,NULL)) < 0) /* Don't evaluate */
@@ -5157,7 +5053,6 @@ setdial( int y )
           makestr(&dialpxi,s);
           return(1);
       }
-#endif /* COMMENT */
 
       case XYDPXO:                      /* DIAL PBX-OUTSIDE-PREFIX */
         return(dialstr(&dialpxo,
@@ -5749,12 +5644,6 @@ setvareval() {
 int
 setalarm(long xx)
 /* setalarm */ {
-#ifdef COMMENT
-    int yyyy, mm, dd, x;
-    char *s;
-    long zz;
-    char buf[6];
-#endif /* COMMENT */
     long sec, jd;
     char xbuf[20], * p;
 
@@ -5769,81 +5658,6 @@ setalarm(long xx)
         alrm_time[0] = NUL;
         return(1);
     }
-#ifdef COMMENT
-    x = 8;                              /* Get current date */
-    s = alrm_date;
-    if (zzstring("\\v(ndate)",&s,&x) < 0) {
-        printf("Internal date error, sorry.\n");
-        alrm_date[0] = SP;
-        return(-9);
-    }
-    x = 5;                              /* Get current time */
-    s = alrm_time;
-    if (zzstring("\\v(ntime)",&s,&x) < 0) {
-        printf("Internal time error, sorry.\n");
-        alrm_time[0] = SP;
-        return(-9);
-    }
-    sprintf(buf,"%05ld",atol(alrm_time)); /* SAFE (20) */
-    ckstrncpy(alrm_time,buf,8);
-    debug(F110,"SET ALARM date (1)",alrm_date,0);
-    debug(F110,"SET ALARM time (1)",alrm_time,0);
-
-    if ((zz = atol(alrm_time) + xx) < 0L) {
-        printf("Internal time conversion error, sorry.\n");
-        return(-9);
-    }
-    if (zz >= 86400L) {                 /* Alarm crosses midnight */
-        char d[10];                     /* Local date buffer */
-        int lastday;                    /* Last day of this month */
-
-        ckstrncpy(d,alrm_date,8);       /* We'll have to change the date */
-
-        x = (zz / 86400L);              /* How many days after today */
-
-        dd = atoi((char *)(d+6));       /* Parse yyyymmdd */
-        d[6] = NUL;                     /* into yyyy, mm, dd ... */
-        mm = atoi((char *)(d+4));
-        d[4] = NUL;
-        yyyy = atoi((char *)d);
-
-        /* How many days in this month */
-
-        lastday = mdays[mm];
-        if (mm == 2 && yyyy % 4 == 0)   /* Works thru 2099 AD... */
-          lastday++;
-
-        if (dd + x > lastday) {         /* Dumb loop */
-            int y;
-
-            x -= (mdays[mm] - dd);      /* Deduct rest of this month's days */
-
-            /* There's a more elegant way to do this... */
-
-            while (1) {
-                mm++;                   /* Next month */
-                if (mm > 12) {          /* Wrap around */
-                    mm = 1;             /* Jan, next year */
-                    yyyy++;
-                }
-                y = mdays[mm];          /* Days in new month */
-                if (mm == 2 && yyyy % 4 == 0) /* Feb in leap year */
-                  y++;                  /* Works until 2100 AD */
-                if (x - y < 1)
-                  break;
-                x -= y;
-            }
-            dd = x;                     /* Day of alarm month */
-        } else dd += x;
-
-        sprintf(alrm_date,"%04d%02d%02d",yyyy,mm,dd); /* SAFE (24) */
-        zz = zz % 86400L;
-    }
-    sprintf(alrm_time,"%ld",zz);        /* SAFE (24) */
-    debug(F110,"SET ALARM date (2)",alrm_date,0);
-    debug(F110,"SET ALARM time (2)",alrm_time,0);
-    ck_alarm = xx;
-#else
     /* Jul 1998 */
     ckstrncpy(xbuf,ckcvtdate("",1),20); /* Get current date and time */
     p = xbuf;
@@ -5868,7 +5682,6 @@ setalarm(long xx)
     debug(F110,"SET ALARM time (2)",alrm_time,0);
     ck_alarm = 1;                       /* Alarm is set */
 
-#endif /* COMMENT */
     return(success = 1);
 }
 #endif /* NOSPL */
@@ -6317,9 +6130,6 @@ VOID
 shoextern() {				/* Invoked by SHOW PROTOCOL */
     printf("\n External-protocol handler:         %s\n",
 	   exp_handler ? (exp_handler == 1 ? "pty" : "system") : "automatic");
-#ifdef COMMENT
-    printf(" External-protocol redirect-stderr: %s\n", showooa(exp_stderr));
-#endif	/* COMMENT */
     printf(" External-protocol timeout:         %d (sec)\n", exp_timo);
 }
 
@@ -6343,15 +6153,6 @@ setextern() {				/* SET EXTERNAL-PROTOCOL */
 	exp_handler = x;
 	break;
 	
-#ifdef COMMENT
-      case EXP_STDERR:
-	if ((x = cmkey(ooatab,3,"","automatic",xxstring)) < 0)
-	  return(x);
-	if ((y = cmcfm()) < 0)
-	  return(y);
-	exp_stderr = x;
-	break;
-#endif	/* COMMENT */
 
       case EXP_TIMO:
 	y = cmnum("Inactivity timeout, seconds,",ckitoa(DEF_EXP_TIMO),
@@ -6987,9 +6788,6 @@ static struct keytab sshtab[] = {       /* SET SSH command table */
     { "gssapi",                  SSH_GSS,  0 },     /* SSH_FEAT_ADV_GSSAPI */
     { "heartbeat-interval",      SSH_HBT,  0 },
     { "identity-file",           SSH_IDF,  0 },
-#ifdef COMMENT
-    { "kbd-interactive-devices", SSH_KBD,  0 },
-#endif /* COMMENT */
     { "k4",                      SSH_K4, CM_INV },  /* SSH_FEAT_ADV_KERBEROS4 */
     { "k5",                      SSH_K5, CM_INV },  /* SSH_FEAT_ADV_KERBEROS5 */
     { "kerberos4",               SSH_K4,   0 },     /* SSH_FEAT_ADV_KERBEROS4 */
@@ -7518,13 +7316,6 @@ dosetssh() {
           return(x);
         return(success = 0);
 
-#ifdef COMMENT
-      case SSH_KBD:                     /* Kbd Interactive Devices */
-        if ((x = cmcfm()) < 0)
-          return(x);
-        /* TO BE FILLED IN */
-        return(-2);
-#endif /* COMMENT */
 
       case SSH_K4:                      /* Kerberos IV */
       case SSH_K5:                      /* Kerberos V */
@@ -8755,9 +8546,6 @@ case XYPAD:                             /* SET PAD ... */
       case XYBACK:                      /* BACKGROUND */
         if ((z = cmkey(onoff,2,"","",xxstring)) < 0) return(z);
         if ((y = cmcfm()) < 0) return(y);
-#ifdef COMMENT
-        bgset = z;                      /* 0 = off (foreground) */
-#else  /* COMMENT */
         if (z) {                        /* 1 = Background */
             bgset = 1;
             backgrd = 1;
@@ -8765,7 +8553,6 @@ case XYPAD:                             /* SET PAD ... */
             bgset = 0;
             backgrd = 0;
         }
-#endif /* COMMENT */
         success = 1;
         bgchk();
         return(success);
@@ -8828,10 +8615,6 @@ case XYPAD:                             /* SET PAD ... */
         if ((y = cmcfm()) < 0) return(y);
 	if (x == 5) {
 	    bctf = 1;
-#ifdef COMMENT
-	    printf("?5 - Not implemented yet\n");
-	    return(success = 0);
-#endif	/* COMMENT */
 	}
         bctr = x;                       /* Set local too even if REMOTE SET */
 
@@ -8979,10 +8762,6 @@ case XYCARR:                            /* CARRIER-WATCH */
                   printf("?Unexpected value - %d\n",z);
                   return(-9);
               }
-#ifdef COMMENT
-              if (cmresult.fdbaddr == &op)
-                break;
-#endif /* COMMENT */
           }
           switch (opt) {
             case TELOPT_ECHO:           /* Options only the Server WILL */
@@ -9551,12 +9330,8 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
         if ((y = cmkey(dbgtab,ndbg,"","",xxstring)) < 0)
           return(y);
         if (y == DEB_TIM)
-#ifdef COMMENT
-          return(seton(&debtim) < 0 ? x : (success = 1));
-#else
           /* why this change? */
           return(success = seton(&debtim));
-#endif /* COMMENT */
 
 #ifdef IKSD
         if (inserver && isguest) {
@@ -9633,11 +9408,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
         return(setdial(-1));
       case XYMODM:
         return(setmodem());
-#ifdef COMMENT
-      /* not implemented yet */
-      case XYANSWER:                    /* SET ANSWER */
-        return(setanswer());
-#endif /* COMMENT */
 #endif /* NODIAL */
 
 #ifndef NOLOCAL
@@ -9896,12 +9666,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
         y = cmnum("Maximum retries per packet","10",10,&x,xxstring);
         if (x < 0) x = 0;
         if ((x = setnum(&maxtry,x,y,999)) < 0) return(x);
-#ifdef COMMENT
-        if (maxtry <= wslotr) {
-            printf("?Retry limit must be greater than window size\n");
-            return(success = 0);
-        }
-#endif /* COMMENT */
         if (rmsflg) {
             sstate = setgen('S', "403", ckitoa(maxtry), "");
             return((int) sstate);
@@ -10421,13 +10185,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
         }
 #endif /* CK_XYZ */
 
-#ifdef COMMENT
-        /* This is taken care of automatically now in protocol negotiation */
-        if (maxtry < z) {
-            printf("?Window slots must be less than retry limit\n");
-            return(success = 0);
-        }
-#endif /* COMMENT */
         if (protocol == PROTO_K && rmsflg) { /* Set remote window size */
             wslotr = z;                 /* Set local window size too */
             ptab[protocol].winsize = wslotr;
@@ -10626,7 +10383,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
 
 #ifndef NOSPL
       case XYALRM: {
-#ifndef COMMENT
           int yy;
           long zz;
           zz = -1L;
@@ -10672,20 +10428,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
           }
           return(setalarm((long)x));
       }
-#else
-/*
-  This is to allow long values where int and long are not the same, e.g.
-  on 16-bit systems.  But something is wrong with it.
-*/
-        if ((y = cmtxt("seconds from now", "0", &s, xxstring)) < 0)
-          return(y);
-        if (rdigits(s)) {
-            return(setalarm(atol(s)));
-        } else {
-            printf("%s - not a number\n",s);
-            return(-9);
-        }
-#endif /* COMMENT */
 #endif /* NOSPL */
 
 #ifndef NOXFER
@@ -10707,22 +10449,12 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
 
 #ifdef CK_SPEED
       case XYPREFIX: {
-#ifdef COMMENT
-          extern int clearrq;
-#endif /* COMMENT */
           if ((z = cmkey(pfxtab, 4, "control-character prefixing option",
                          "", xxstring)) < 0)
             return(z);
           if ((x = cmcfm()) < 0) return(x);
           clearrq = 0;                  /* 199 */
           setprefix(z);
-#ifdef COMMENT
-          if (hints && (z == PX_ALL || z == PX_CAU) && clearrq) {
-        printf("Hint: Use SET CLEAR-CHANNEL OFF to disable negotiation of\n");
-        printf("      SET PREFIXING NONE during file transfers on reliable\n");
-        printf("      connections.\n");
-          }
-#endif /* COMMENT */
           return(success = 1);
       }
 #endif /* CK_SPEED */
@@ -11379,14 +11111,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
 	    printf("Warning: setlocale(%s) error: %s\n", s, ck_errstr());
 	}
 
-#ifdef COMMENT
-	if (!setlocale(LC_COLLATE, s))  {perror("COLLATE");return(success=0);}
-	if (!setlocale(LC_CTYPE, s))    {perror("CTYPE");return(success=0);}
-	if (!setlocale(LC_MESSAGES, s)) {perror("MESSAGES");return(success=0);}
-	if (!setlocale(LC_MONETARY, s)) {perror("MONETARY");return(success=0);}
-	if (!setlocale(LC_NUMERIC, s))  {perror("NUMERIC");return(success=0);}
-	if (!setlocale(LC_TIME, s))     {perror("TIME");return(success=0);}
-#endif /* COMMENT */
 	return(success=1); 
 #endif /* HAVE_LOCALE */
 
@@ -11478,12 +11202,6 @@ hupok( int x )                      /* Returns 1 if OK, 0 if not OK */
             if ( !needwarn )
                 ckstrncpy(warning, "No active connections", 256);
 
-#ifdef COMMENT
-	    printf("%s",warning);
-            z = getyesno(x ? "OK to close? " : "OK to exit? ",0);
-            debug(F101,"hupok getyesno","",z);
-            if (z < -3) z = 0;
-#else
 	    z = uq_ok(warning,
 		      x ? "OK to close? " : "OK to exit? ",
 		      3,
@@ -11492,7 +11210,6 @@ hupok( int x )                      /* Returns 1 if OK, 0 if not OK */
 		      );
             debug(F101,"hupok uq_ok","",z);
 	    if (z < 0) z = 0;
-#endif /* COMMENT */
         }
     }
     return(z);

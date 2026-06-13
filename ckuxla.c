@@ -1096,50 +1096,6 @@ y85l1[] = {  /* IBM Code Page 850 to Latin-1 */
 173, 177, 143, 190, 182, 167, 247, 184, 176, 168, 183, 185, 179, 178, 142, 160
 };
 
-#ifdef COMMENT
-CONST CHAR
-yl1r8[] = {  /* Latin-1 to Hewlett Packard Roman8 */
-/* This is HP's official translation, straight from iconv */
-/* It is NOT invertible. */
-  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
- 16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
- 32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
- 48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
- 64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,
- 80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,
- 96,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
-112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
-128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
-144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
-160, 184, 191, 187, 186, 188, 124, 189, 171,  99, 249, 251, 126,  45,  82, 176,
-179, 254,  50,  51, 168, 243, 244, 242,  44,  49, 250, 253, 247, 248, 245, 185,
-161, 224, 162, 225, 216, 208, 211, 180, 163, 220, 164, 165, 230, 229, 166, 167,
-227, 182, 232, 231, 223, 233, 218, 120, 210, 173, 237, 174, 219, 177, 240, 222,
-200, 196, 192, 226, 204, 212, 215, 181, 201, 197, 193, 205, 217, 213, 209, 221,
-228, 183, 202, 198, 194, 234, 206,  47, 214, 203, 199, 195, 207, 178, 241, 239
-};
-CONST CHAR
-yr8l1[] = {  /* Hewlett Packard Roman8 to Latin-1 */
-/* This is HP's official translation, straight from iconv */
-/* It is NOT invertible. */
-  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
- 16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
- 32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
- 48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
- 64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,
- 80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,
- 96,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
-112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
-128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
-144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
-160, 192, 194, 200, 202, 203, 206, 207, 180,  96,  94, 168, 126, 217, 219, 163,
-175, 221, 253, 176, 199, 231, 209, 241, 161, 191, 164, 163, 165, 167, 102, 162,
-226, 234, 244, 251, 225, 233, 243, 250, 224, 232, 242, 249, 228, 235, 246, 252,
-197, 238, 216, 198, 229, 237, 248, 230, 196, 236, 214, 220, 201, 239, 223, 212,
-193, 195, 227, 208, 240, 205, 204, 211, 210, 213, 245,  83, 115, 218,  89, 255,
-222, 254, 183, 181, 182, 190,  45, 188, 189, 170, 186, 171,  42, 187, 177, 160
-};
-#else /* !COMMENT */
 /* This is an invertible mapping, approved by HP in January 1994. */
 CONST CHAR
 yl1r8[] = {  /* ISO Latin-1 to HP Roman8, Invertible */
@@ -1180,7 +1136,6 @@ yr8l1[] = { /* HP Roman8 to ISO Latin-1, Invertible */
 193, 195, 227, 208, 240, 205, 204, 211, 210, 213, 245, 178, 179, 218, 184, 255,
 222, 254, 183, 181, 182, 190, 185, 188, 189, 170, 186, 171, 215, 187, 177, 247
 };
-#endif /* COMMENT */
 
 CONST CHAR
 yl143[] = {  /* Latin-1 to IBM Code Page 437 */
@@ -4571,12 +4526,6 @@ xeglg(CHAR c)
   Returns 0 on success, -1 on failure.
 */
 
-#ifdef COMMENT
-/* Replaced by new prototypes above */
-_PROTOTYP(static int jpnxas, (int, int[]) );
-_PROTOTYP(static int jpnxkt, (int, int[]) );
-_PROTOTYP(static int jpnxkn, (int[], int[]) );
-#endif  /* COMMENT */
 
 static int jpncnt;			/* Byte count for Japanese */
 static int jpnlst;			/* Last status (for JIS7) */
@@ -4807,12 +4756,7 @@ getj7() {				/* Reads JIS-7 returns next EUC byte */
 	if ((x > 0x20) && (x < 0x7f)) {	/* 7-bit graphic character */
 	    switch (jpnstz) {
 	      case 1:			 /* Katakana */
-#ifdef COMMENT
-		/* This can't be right... */
-		jpnpbf[jpnpnd++] = 0x80; /* Insert flag (NOT SS2???) */
-#else
 		jpnpbf[jpnpnd++] = 0x8e; /* Insert SS2 */
-#endif /* COMMENT */
 		jpnpbf[jpnpnd++] = (x | 0x80); /* Insert Kana + 8th bit */
 		break;
 	      case 2:			/* Kanji */
@@ -6566,11 +6510,6 @@ setxlatype( int tcs, int fcs )
 	xuf = xl_ufc[fcs];		/* UCS -> FCS */
 	xut = xl_utc[tcs];		/* UCS -> TCS */
         xlatype = XLA_UNICODE;		/* Translation type is Unicode */
-#ifdef COMMENT
-	/* These make trouble in 64-bit land */
-	debug(F001,"setxlatype Unicode xfu","",(unsigned)xfu);
-	debug(F001,"setxlatype Unicode xuf","",(unsigned)xuf);
-#endif /* COMMENT */
 #endif /* UNICODE */
     } else if (cseqtab[tcs] == fcs) {	/* Or if TCS == FCS */
 	debug(F101,"setxlatype transparent because TCS==FCS","",tcs);
@@ -6623,10 +6562,6 @@ initxlate( int csin, int csout )
     xfu = xl_fcu[csin];			/* FCS -> UCS */
     xuf = xl_ufc[csout];		/* UCS -> FCS */
     xpnbyte(-1,0,0,NULL);		/* Reset UCS-2 */
-#ifdef COMMENT
-    debug(F001,"initxlate Unicode xfu","",(unsigned)xfu);
-    debug(F001,"initxlate Unicode xuf","",(unsigned)xuf);
-#endif /* COMMENT */
     debug(F101,"initxlate xlatype","",xlatype);
 }
 #endif /* UNICODE */

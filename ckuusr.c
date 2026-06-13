@@ -415,14 +415,8 @@ static struct keytab xmitsw[] = {	/* TRANSMIT command options */
 #ifdef PIPESEND
     { "/pipe",            XMI_CMD, 0 },
 #endif /* PIPESEND */
-#ifdef COMMENT
-    { "/quiet",           XMI_QUI, 0 },
-#endif /* COMMENT */
     { "/text",            XMI_TXT, 0 },
     { "/transparent",     XMI_TRA, 0 },
-#ifdef COMMENT
-    { "/verbose",         XMI_VRB, 0 },
-#endif /* COMMENT */
     { "", 0, 0 }
 };
 #define NXMITSW sizeof(xmitsw)/sizeof(struct keytab) - 1
@@ -531,23 +525,6 @@ static int ninputsw = sizeof(inputsw)/sizeof(struct keytab);
 
 /* The following should be reconciled with the above */
 
-#ifdef COMMENT				/* INPUT switches not used yet... */
-static struct keytab inswtab[] = {
-#ifdef COMMENT
-    { "/assign",       IN_ASG, CM_ARG },
-#endif /* COMMENT */
-    { "/autodownload", IN_ADL, CM_ARG },
-    { "/case",         IN_CAS, CM_ARG },
-    { "/echo",         IN_ECH, CM_ARG },
-    { "/interrupts",   IN_NOI, CM_ARG },
-    { "/silence",      IN_SIL, CM_ARG },
-#ifdef COMMENT
-    { "/pattern",      IN_PAT, CM_ARG },
-#endif /* COMMENT */
-    { "", 0, 0 }
-};
-static int ninswtab = (sizeof(inswtab) / sizeof(struct keytab)) - 1;
-#endif /* COMMENT */
 
 
 #endif /* NOSPL */
@@ -765,10 +742,6 @@ struct keytab cmdtab[] = {
 #ifndef NOSPL
     { "date",        XXDATE,  0 },	/* DATE */
     { "dcl",         XXDCL,   CM_INV },	/* DECLARE an array (see ARRAY) */
-#ifdef COMMENT
-    /* this command never actually did anything */
-    { "debug",       XXDEBUG, 0 },	/* Print a debugging msg [9.0]  */
-#endif /* COMMENT */
     { "declare",     XXDCL,   CM_INV },	/* DECLARE an array (see ARRAY) */
     { "decrement",   XXDEC,   0 },	/* DECREMENT a numeric variable */
     { "define",      XXDEF,   0 },	/* DEFINE a macro or variable   */
@@ -1799,11 +1772,6 @@ int nsav = (sizeof(savtab) / sizeof(struct keytab)) - 1;
 
 struct keytab prmtab[] = {
     { "alarm",            XYALRM,  0 },
-#ifdef COMMENT				/* SET ANSWER not implemented yet */
-#ifndef NODIAL
-    { "answer",           XYANSWER,0 },
-#endif /* NODIAL */
-#endif /* COMMENT */
     { "ask-timer",        XYTIMER, 0 },
 #ifndef NOXFER
     { "attributes",       XYATTR,  0 },
@@ -1971,8 +1939,6 @@ struct keytab prmtab[] = {
     { "macro",            XYMACR,  0 },
 #endif /* NOSPL */
     { "match",            XYMATCH, 0 },
-#ifdef COMMENT
-#endif /* COMMENT */
 #ifndef NODIAL
     { "modem",		  XYMODM,  CM_LOC },
 #endif /* NODIAL */
@@ -2273,11 +2239,6 @@ static struct keytab sshkey[] = {	/* SET SSH KEY command table */
 };
 static int nsshkey = (sizeof(sshkey) / sizeof(struct keytab)) - 1;
 
-#ifdef COMMENT
-static struct keytab sshkv1[] = {	/* SET SSH KEY V1 command table */
-    { "set-comment",  1, 0 }
-};
-#endif /* COMMENT */
 
 static struct keytab sshkpsw[] = {	/* SET SSH KEY PASSPHRASE table */
     { "/new-passphrase",  2, CM_ARG },
@@ -2323,13 +2284,6 @@ static struct keytab sshdswi[] = {	/* SET SSH KEY DISPLAY /switches */
 };
 static int nsshdswi = (sizeof(sshdswi) / sizeof(struct keytab));
 
-#ifdef COMMENT
-static struct keytab sshdifmt[] = {	/* SSH KEY DISPLAY /IN-FORMAT: */
-    { "openssh", SKDF_OSSH, 0 },
-    { "ssh.com", SKDF_SSHC, 0 }
-};
-static int nsshdifmt = (sizeof(sshdifmt) / sizeof(struct keytab));
-#endif /* COMMENT */
 
 static struct keytab sshdofmt[] = {	/* SSH KEY DISPLAY /IN-FORMAT: */
     { "fingerprint", SKDF_FING, 0 },
@@ -3133,13 +3087,7 @@ static struct keytab stattab[] = {	/* STATISTICS command switches */
 #endif /* NOXFER */
 
 #ifndef NOSPL
-#ifdef COMMENT
-struct mtab mactab[MAC_MAX] = {		/* Preinitialized macro table */
-    { NULL, NULL, 0 }
-};
-#else
 struct mtab *mactab;			/* Dynamically allocated macro table */
-#endif /* COMMENT */
 int nmac = 0;
 
 struct keytab mackey[MAC_MAX];		/* Macro names as command keywords */
@@ -3148,15 +3096,6 @@ struct keytab mackey[MAC_MAX];		/* Macro names as command keywords */
 #ifndef NOSPL
 #endif /* NOSPL */
 
-#ifdef COMMENT
-/* Not used at present */
-static struct keytab pagetab[] = {
-    { "/more",   1, CM_INV },
-    { "/nopage", 0, 0 },
-    { "/page",   1, 0 }
-};
-int npagetab = sizeof(pagetab)/sizeof(struct keytab);
-#endif /* COMMENT */
 
 #define TYP_NOP  0			/* /NOPAGE */
 #define TYP_PAG  1			/* /PAGE */
@@ -4124,13 +4063,6 @@ doxsend( int cx )
     }
     debug(F101,"xsend cmresult fcode","",cmresult.fcode);
 
-#ifdef COMMENT
-    /* List switch parsing results in debug log */
-    for (i = 0; i <= SND_MAX; i++) {
-	ckmakmsg(line,LINBUFSIZ,"xsend switch ",ckitoa(i),NULL,NULL);
-	debug(F111,line, pv[i].sval, pv[i].ival);
-    }
-#endif /* COMMENT */
 
 /* Now we have all switches, plus maybe a filename or command, or nothing */
 
@@ -4486,11 +4418,7 @@ doxsend( int cx )
 		    strcat(fspec,p);	/* safe */
 		    strcat(fspec," ");	/* safe */
 		} else
-#ifdef COMMENT
-		  printf("WARNING - \\v(filespec) buffer overflow\n");
-#else
 		  debug(F101,"doxsend filespec buffer overflow","",0);
-#endif /* COMMENT */
 	    }
 #endif /* NOMSEND */
 	} else {			/* Regular SEND */
@@ -4808,16 +4736,6 @@ sendend:				/* Common successful exit */
 	sndxhi = range[1];
 	sndxnam[7] = (char)((sndxin == 1) ? 64 : sndxin + ARRAYBASE);
 
-#ifdef COMMENT
-	printf("SENDING FROM ARRAY: &%c[]...\n", /* debugging */
-	       (sndxin == 1) ? 64 : sndxin + ARRAYBASE);
-	printf("Lo=%d\nHi=%d\n", sndxlo, sndxhi);
-	printf("cmarg=[%s]\ncmarg2=[%s]\n", cmarg, cmarg2);
-	while ((x = agnbyte()) > -1) {
-	    putchar((char)x);
-	}
-	return(1);
-#endif /* COMMENT */
     }
 #endif /* NOSPL */
 
@@ -5488,9 +5406,6 @@ xdohttp(int action, char * lfile,
       printf(" Header:      %s\n",hdrlist[0] ? hdrlist[0] : "(null)");
 
     printf(" User:        %s\n",user ? user : "(null)");
-#ifdef COMMENT
-    printf(" Password:    %s\n",pass ? pass : "(null)");
-#endif /* COMMENT */
 
 #ifndef NOSPL
     if (array)
@@ -6029,20 +5944,11 @@ getdcset() {
 #endif /* PCFONTS */
 
     s = "";
-#ifdef COMMENT
-    /* Hack not needed as of C-Kermit 7.1 */
-    if (fcharset == FC_1LATIN) {
-	s = "latin1-iso";		/* Hack to avoid reporting "cp1252" */
-    } else {				/* Report current file character set */
-#endif /* COMMENT */
 	for (y = 0; y <= nfilc; y++)
 	  if (fcstab[y].kwval == fcharset) {
 	      s = fcstab[y].kwd;
 	      break;
 	  }
-#ifdef COMMENT
-    }
-#endif /* COMMENT */
     makestr(&dcsetname,s);		/* Return stable pointer */
     return((char *)dcsetname);
 }
@@ -7260,12 +7166,6 @@ isinternalmacro( int x )     /* Test if macro is internally defined */
 
     m = mactab[x].kwd;
 
-#ifdef COMMENT
-    /* Good idea but this flag is not set for _whi2, etc */
-    internal = ((cmdstk[cmdlvl].ccflgs & CF_IMAC) ? 1 : 0);
-    debug(F111,"isinternalmacro",m,internal);
-    return(internal);
-#endif  /* COMMENT */
 
     debug(F101,"isinternalmacro x","",x);
     if (*m != '_') {
@@ -7545,19 +7445,6 @@ docmd( int cx )
 
     if (cx == XXGOTO || cx == XXFWD || cx == XXXFWD) { /* GOTO or FORWARD */
 	/* Note, here we don't set SUCCESS/FAILURE flag */
-#ifdef COMMENT
-	if ((y = cmfld("label","",&s,xxstring)) < 0) {
-	    if (y == -3) {
-		if (cx != XXXFWD) {
-		    printf("?Label name required\n");
-		    return(-9);
-		}
-	    } else
-	      return(y);
-	}
-	ckstrncpy(tmpbuf,s,TMPBUFSIZ);
-	if ((x = cmcfm()) < 0) return(x);
-#else
 	if ((y = cmtxt("label","",&s,xxstring)) < 0) {
 	    if (y == -3) {
 		if (cx != XXXFWD) {
@@ -7570,7 +7457,6 @@ docmd( int cx )
 	      return(y);
 	}
 	ckstrncpy(tmpbuf,brstrip(s),TMPBUFSIZ);
-#endif /* COMMENT */
 	s = tmpbuf;
 	debug(F111,"GOTO target",s,cx);
 	return(dogoto(s,cx));
@@ -7717,12 +7603,7 @@ docmd( int cx )
     if (cx == XXLBL) {			/* LABEL */
 	if ((x = cmfld("label","",&s,xxstring)) < 0) {
 	    if (x == -3) {
-#ifdef COMMENT
-		printf("?LABEL: Label name required: \"%s\"\n", cmdbuf);
-		return(-9);
-#else
 		s = "";
-#endif /* COMMENT */
 	    } else return(x);
 
 	}
@@ -7833,23 +7714,11 @@ docmd( int cx )
 	     ) < 0)
 	  return(x);
 	if (!s) s = "";
-#ifdef COMMENT
-/* This is to preserve the pre-8.0 behavior but it's too confusing */
-	x = strlen(s);
-	x = (x > 1) ? ((s[0] == '"' && s[x-1] == '"') ? 1 : 0) : 0;
-#endif /* COMMENT */
 	s = brstrip(s);			/* Strip braces and doublequotes */
 	if (cx == XXECH) {		/* ECHO */
 #ifndef NOSPL
 	    if (!fndiags || fnsuccess) {
 #endif /* NOSPL */
-#ifdef COMMENT
-		/* The "if (x)" business preserves previous behavior */
-		/* by putting back the doublequotes if they were included. */
-		if (x)
-		  printf("\"%s\"\n",s);
-		else
-#endif /* COMMENT */
 		  printf("%s\n",s);
 #ifndef NOSPL
 	    }
@@ -9114,58 +8983,6 @@ docmd( int cx )
         return(doxsend(cx));
     }
 
-#ifdef COMMENT				/* (moved to doxsend) */
-    if (cx == XXMSE || cx == XXMMOVE) {	/* MSEND and MMOVE commands */
-	nfils = 0;			/* Like getting a list of */
-	lp = line;			/* files on the command line */
-	addlist = 0;			/* Do not use SEND-LIST */
-	filenext = NULL;		/* Ditto ! */
-
-	while (1) {
-	    char *p;
-	    if ((x = cmifi("Names of files to send, separated by spaces","",
-			   &s,&y,xxstring)) < 0) {
-		if (x == -3) {
-		    if (nfils <= 0) {
-			printf("?A file specification is required\n");
-			return(-9);
-		    } else break;
-		}
-		return(x);
-	    }
-	    msfiles[nfils++] = lp;	/* Got one, count it, point to it, */
-	    p = lp;			/* remember pointer, */
-	    while (*lp++ = *s++)	/* and copy it into buffer */
-	      if (lp > (line + LINBUFSIZ)) { /* Avoid memory leak */
-		  printf("?MSEND list too long\n");
-		  line[0] = NUL;
-		  return(-9);
-	      }
-	    debug(F111,"msfiles",msfiles[nfils-1],nfils-1);
-	    if (nfils == 1) *fspec = NUL; /* Take care of \v(filespec) */
-#ifdef ZFNQFP
-	    zfnqfp(p,TMPBUFSIZ,tmpbuf);
-	    p = tmpbuf;
-#endif /* ZFNQFP */
-	    if (((int)strlen(fspec) + (int)strlen(p) + 1) < fspeclen) {
-		strcat(fspec,p);	/* safe */
-		strcat(fspec," ");	/* safe */
-	    } else printf("WARNING - \\v(filespec) buffer overflow\n");
-	}
-	cmlist = msfiles;		/* Point cmlist to pointer array */
-	cmarg2 = "";			/* No internal expansion list (yet) */
-	sndsrc = nfils;			/* Filenames come from cmlist */
-	sendmode = SM_MSEND;		/* Remember this kind of SENDing */
-	sstate = 's';			/* Set start state for SEND */
-	if (cx == XXMMOVE)		/* If MMOVE'ing, */
-	  moving = 1;			/*  set this flag. */
-	if (local) {			/* If in local mode, */
-	    displa = 1;			/* turn on file transfer display */
-	    ttflui();			/* and flush tty input buffer. */
-	}
-	return(0);
-    }
-#endif /* COMMENT */
 #endif /* NOMSEND */
 #endif /* NOXFER */
 
@@ -9177,48 +8994,6 @@ docmd( int cx )
 	    return(-9);
 	}
 #endif /* CK_XYZ */
-#ifdef COMMENT
-/*
-  Parse for time limit, but since we don't use it yet,
-  the parsing is commented out.
-*/
-	x_ifnum = 1;			/* Turn off internal complaints */
-	y = cmnum("optional time limit, seconds, or time of day as hh:mm:ss",
-		  "0", 10, &x, xxstring
-		  );
-	x_ifnum = 0;
-	if (y < 0) {
-	    if (y == -2) {		/* Invalid number or expression */
-		zz = tod2sec(atmbuf);	/* Convert to secs since midnight */
-		if (zz < 0L) {
-		    printf("?Number, expression, or time of day required\n");
-		    return(-9);
-		} else {
-		    char now[32];	/* Current time */
-		    char *p;
-		    long tnow;
-		    p = now;
-		    ztime(&p);
-		    tnow = atol(p+11) * 3600L + atol(p+14) * 60L + atol(p+17);
-		    if (zz < tnow)	/* User's time before now */
-		      zz += 86400L;	/* So make it tomorrow */
-		    zz -= tnow;		/* Seconds from now. */
-		}
-	    } else
-	      return(y);
-	}
-	if (zz > -1L) {
-	    x = zz;
-	    if (zz != (long) x) {
-		printf(
-"Sorry, arithmetic overflow - hh:mm:ss not usable on this platform.\n"
-		       );
-		return(-9);
-	    }
-	}
-	if (x < 0)
-	  x = 0;
-#endif /* COMMENT */
 
 	if ((x = cmcfm()) < 0) return(x);
 	sstate = 'x';
@@ -9549,24 +9324,6 @@ docmd( int cx )
 		x = strlen(s);
 		debug(F101,"TAKE new len",s,x);
 
-#ifdef COMMENT
-/*
-  This was added in C-Kermit 7.0 to allow args to be passed from the TAKE
-  command to the command file.  But it overwrites the current argument vector,
-  which is at best surprising, and at worst unsafe.
-*/
-		addmac("%0",s);		/* Define %0 = name of file */
-		varnam[0] = '%';
-		varnam[2] = '\0';
-		debug(F110,"take arg 0",s,0);
-		debug(F110,"take args",p,0);
-		for (y = 1; y < 10; y++) { /* Clear current args %1..%9 */
-		    varnam[1] = (char) (y + '0');
-		    delmac(varnam,0);
-		}
-		xwords(p,MAXARGLIST,NULL,0); /* Assign new args */
-		debug(F110,"take args",p,0);
-#else
 /*
   This method is used in 8.0.  If the TAKE command includes arguments, we
   insert an intermediate temporary macro between the current level; we pass
@@ -9601,7 +9358,6 @@ docmd( int cx )
 		    }
 		}
 		return(success = 0);
-#endif /* COMMENT */
 	    }
 	}
 #else
@@ -10251,71 +10007,6 @@ docmd( int cx )
 		  return(-2);
 	      }
 	  }
-#ifdef COMMENT
-	  case XSSH_ADD: {		/* SSH ADD */
-	      /* ssh add { local, remote } port host port */
-	      int cx, i, j, k;
-	      char * h;
-
-          if (!ssh_feature_supported(SSH_FEAT_PORT_FWD)) {
-            printf("\r\nPort forwarding is not supported by the current SSH backend\r\n");
-            return(-9);
-          }
-
-	      if ((cx = cmkey(addfwd,naddfwd,"","", xxstring)) < 0) {
-		    return(cx);
-          }
-
-          if ((x = cmnum((cx == SSHF_LCL) ?
-			     "Local port number" : "Remote port number",
-			     "",10,&j,xxstring)) < 0) {
-		    return(x);
-          }
-
-	      if ((x = cmfld("Host","",&s,xxstring)) < 0) {
-		    return(x);
-          }
-
-	      makestr(&h,s);
-
-	      if ((x = cmnum("Port","",10,&k,xxstring)) < 0) {
-		    return(x);
-          }
-
-          if ((x = cmcfm()) < 0) {
-		    return(x);
-          }
-
-	      switch(cx) {
-            case SSHF_LCL:
-		        if (ssh_pf_lcl_n == 32) {
-		            printf("?Maximum number of local port forwardings already "
-                           "specified\n");
-		            free(h);
-		            return(success = 0);
-		        }
-		        ssh_pf_lcl[ssh_pf_lcl_n].p1 = j;
-		        makestr(&(ssh_pf_lcl[ssh_pf_lcl_n].host),h);
-		        makestr(&h,NULL);
-		        ssh_pf_lcl[ssh_pf_lcl_n].p2 = k;
-		        ssh_pf_lcl_n++;
-		        break;
-		    case SSHF_RMT:
-		        if (ssh_pf_rmt_n == 32) {
-		            printf("?Maximum number of remote port forwardings already "
-                           "specified\n");
-		            free(h);
-		            return(success = 0);
-		        }
-		        ssh_pf_rmt[ssh_pf_rmt_n].p1 = j;
-		        makestr(&(ssh_pf_rmt[ssh_pf_rmt_n].host),h);
-		        makestr(&h,NULL);
-		        ssh_pf_rmt[ssh_pf_rmt_n].p2 = k;
-		        ssh_pf_rmt_n++;
-	      }
-	      return(success = 1);
-	  }
-#endif /* COMMENT */
       case XSSH_ADD:        /* SSH ADD { LOCAL, REMOTE } */
 	  case XSSH_FLP:		/* SSH FORWARD-LOCAL-PORT */
 	  case XSSH_FRP: {		/* SSH FORWARD-REMOTE-PORT */
@@ -10643,14 +10334,6 @@ docmd( int cx )
 		      return(-9);
 		  }
 		  switch (cmresult.nresult) {
-#ifdef COMMENT
-		    case SSHKD_IN:	/* /IN-FORMAT: */
-		      if ((y = cmkey(sshdifmt,nsshdifmt,
-				     "","",xxstring)) < 0)
-			return(y);
-		      infmt = y;
-		      break;
-#endif /* COMMENT */
 		    case SSHKD_OUT:	/* /FORMAT: */
 		      if ((y = cmkey(sshdofmt,nsshdofmt,
 				     "","",xxstring)) < 0)
@@ -10664,12 +10347,6 @@ docmd( int cx )
 		  if (zfnqfp(line,TMPBUFSIZ,tmpbuf))
 		    ckstrncpy(line,tmpbuf,LINBUFSIZ);
 	      }
-#ifdef COMMENT
-	      if (!line[0]) {
-		  printf("?Key filename required\n");
-		  return(-9);
-	      }
-#endif /* COMMENT */
 	      if ((y = cmcfm()) < 0) /* Confirm */
 		return(y);
 #ifndef SSHTEST
@@ -10693,29 +10370,6 @@ docmd( int cx )
 #endif /* SSHTEST */
 	      return(success = (x == 0));
 	    }
-#ifdef COMMENT
-	    case SSHK_V1:		/* SSH KEY V1 SET-COMMENT */
-	      if ((x = cmkey(sshkv1,1,"","set-comment", xxstring)) < 0)
-		return(x);
-	      if (x != 1) return(-2);
-	      if ((x = cmifi("Key file name","",&s,&y,xxstring)) < 0) {
-		  if (x == -3) {
-		      printf("?Name of key file required\n");
-		      return(-9);
-		  }
-	      }
-	      ckstrncpy(line,s,LINBUFSIZ);
-	      if ((x = cmtxt("Comment text","",&s,xxstring)) < 0)
-		return(x);
-#ifndef SSHTEST
-	      x = sshkey_v1_change_comment(line,  /* filename */
-					   s,     /* new comment */
-					   NULL   /* passphrase */
-					   );
-#endif /* SSHTEST */
-	      success = (x == 0);
-	      return(success);
-#endif /* COMMENT - SSH KEY V1 SET-COMMENT */
 	  }
 	  default:
 	    return(-2);
@@ -10730,14 +10384,7 @@ docmd( int cx )
 	    if (errno)
 	      printf("?%s\n",ck_errstr());
             else
-#ifdef COMMENT
-	    /* This isn't right either because it catches command editing */
-	      printf("?Sorry, pseudoterminal open failed\n");
-            if (hints)
-	      printf("Hint: Try \"ssh -t %s\"\n",line);
-#else
             return(y);
-#endif /* COMMENT */
 	    nettype = x;		/* Failed, restore net type. */
 	    ttnproto = z;		/* and protocol */
 	    success = 0;
@@ -11397,11 +11044,7 @@ docmd( int cx )
 	int tcs_transp = 1;
 #endif /* NOCSETS */
 
-#ifdef COMMENT
-	xbinary = binary;		/* Default text/binary mode */
-#else
 	xbinary = 0;			/* Default is text */
-#endif /* COMMENT */
 	xxecho = xmitx;
 
 	cmfdbi(&sw,			/* First FDB - command switches */
@@ -11490,11 +11133,6 @@ docmd( int cx )
 		scan = 0;
 		break;
 
-#ifdef COMMENT
-	      case XMI_VRB:		/* /VERBOSE */
-	      case XMI_QUI:		/* /QUIET */
-		break;			/* (not implemented yet) */
-#endif /* COMMENT */
 
 	      case XMI_NOW:		/* /NOWAIT */
 		xxnowait = 1;
@@ -11645,13 +11283,6 @@ docmd( int cx )
 		    printf("?This switch does not take an argument\n");
 		    return(-9);
 		}
-#ifdef COMMENT
-		if (!getval && (cmgkwflgs() & CM_ARG)) {
-		    printf("?This switch requires an argument\n");
-		    /* Not if it has a default! */
-		    return(-9);
-		}
-#endif /* COMMENT */
 		switch (cmresult.nresult) {
 #ifdef CK_TTGWSIZ
 		  case TYP_PAG:
@@ -11844,9 +11475,6 @@ docmd( int cx )
     if (cx == XXVER) {			/* VERSION */
 	int n = 0;
 	extern char * ck_patch, * ck_s_test;
-#ifdef COMMENT
-	extern int hmtopline;
-#endif /* COMMENT */
 	if ((y = cmcfm()) < 0)
           return(y);
 
@@ -11877,11 +11505,6 @@ docmd( int cx )
 	    n++;
 	}
 	printf(" Type COPYRIGHT for copyright and license.\n\n");
-#ifdef COMMENT
-	hmtopline = n+1;
-	hmsga(copyright);
-	hmtopline = 0;
-#endif /* COMMENT */
 	return(success = 1);
     }
 
@@ -12025,10 +11648,6 @@ docmd( int cx )
 	s = brstrip(s);
 	bgchk();			/* Set msgflg */
 	x = ckmkdir(0,s,&p,msgflg,0);
-#ifdef COMMENT
-	if (msgflg && x == 0)
-	  printf("?Directory already exists\n");
-#endif /* COMMENT */
 	return(success = (x < 0) ? 0 : 1);
     }
     if (cx == XXRMDIR || cx == XXLRMD) { /* RMDIR */
@@ -12118,7 +11737,6 @@ docmd( int cx )
     if (cx == XXDATE) {			/* DATE command */
 	extern char cmdatebuf[], * cmdatemsg;
 
-#ifndef COMMENT
 	char * dp;
 	if ((y = cmtxt("date and/or time, or carriage return for current",
 		       "",&s,xxstring)) < 0)
@@ -12132,17 +11750,6 @@ docmd( int cx )
 	    printf("%s\n",dp);
 	    success = 1;
 	}
-#else
-	/* This works fine but messes up my "dates" torture-test script */
-
-	if ((x = cmdate("Date and/or time, or carriage return for current",
-			"",&s,0,xxstring)) < 0) {
-	    return(x);
-	} else {
-	    printf("%s\n",cmdatebuf);
-	    success = 1;
-	}
-#endif /* COMMENT */
 	return(success);
     }
 #ifndef NOPUSH
@@ -12445,17 +12052,6 @@ docmd( int cx )
     if (cx == XXGREP)
       return(dogrep());
 
-#ifdef COMMENT
-    if (cx == XXDEBUG) {		/* DEBUG */
-#ifndef DEBUG
-	int dummy = 0;
-	return(seton(&dummy));
-#else
-        /* This has been in C-Kermit since 9.0 but doesn't do anything */
-	return(seton(&deblog));
-#endif /* DEBUG */
-    }
-#endif /* COMMENT */ 
     if (cx == XXMSG || cx == XXXMSG) {	/* MESSAGE */
 	extern int debmsg;		/* Script debugging messages */
 	if ((x = cmtxt("Message to print if SET DEBUG MESSAGE is ON or STDERR",

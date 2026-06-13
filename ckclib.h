@@ -52,9 +52,6 @@ _PROTOTYP( int ckstrpre, (char *, char *) );
 _PROTOTYP( VOID sh_sort, (char **, char **, int, int, int, int) );
 _PROTOTYP( char * brstrip, (char *) );
 _PROTOTYP( char * fnstrip, (char *) );
-#ifdef COMMENT
-_PROTOTYP( char * brace, (char *) );
-#endif /* COMMENT */
 _PROTOTYP( int dquote, (char *, int, int) );
 _PROTOTYP( int untabify, (char *, char *, int) );
 _PROTOTYP( VOID makelist, (char *, char *[], int) );

@@ -360,17 +360,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #endif /* INTERLAN */
 
 
-#ifdef COMMENT /* no longer used but might come in handy again later... */
-/*
-  CK_READ0 can (and should) be defined if and only if:
-  (a) read(fd,&x,0) can be used harmlessly on a TCP/IP socket connection.
-  (b) read(fd,&x,0) returns 0 if the connection is up, -1 if it is down.
-*/
-#ifndef CK_READ0
-#ifdef TCPSOCKET
-#endif /* TCPSOCKET */
-#endif /* CK_READ0 */
-#endif /* COMMENT */
 
 /* Telnet protocol */
 
@@ -491,9 +480,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #include <interlan/in.h>
 #include <interlan/telnet.h>            /* Why twice ? ? ? */
 #else /* Not Interlan */
-#ifdef COMMENT
-#include <arpa/telnet.h>
-#endif /* COMMENT */
 #include <sys/socket.h>
 #ifdef WOLLONGONG
 #include <sys/in.h>

@@ -532,36 +532,6 @@ char *xif_def[] = {
 "do _if_\\v(cmdlevel),_assign _if\\v(cmdlevel)",
 ""};
 
-#ifdef COMMENT
-/* Internal macro definitions for C-Kermit 6.0 through 9.0.302 */
-
-char *for_def[] = { "_assign _for\\v(cmdlevel) { _getargs,",
-"def \\\\\\%1 \\feval(\\%2),:_..top,if \\%5 \\\\\\%1 \\%3 goto _..bot,",
-"\\%6,:_..inc,incr \\\\\\%1 \\%4,goto _..top,:_..bot,_putargs},",
-"def break goto _..bot, def continue goto _..inc,",
-"do _for\\v(cmdlevel) \\%1 \\%2 \\%3 \\%4 { \\%5 },_assign _for\\v(cmdlevel)",
-""};
-
-char *foz_def[] = { "_assign _for\\v(cmdlevel) { _getargs,",
-"def \\%1 \\feval(\\%2),:_..top,if \\%5 \\%1 \\%3 goto _..bot,",
-"\\%6,:_..inc,incr \\%1 \\%4,goto _..top,:_..bot,_putargs},",
-"def break goto _..bot, def continue goto _..inc,",
-"do _for\\v(cmdlevel) \\%1 \\%2 \\%3 \\%4 { \\%5 },_assign _for\\v(cmdlevel)",
-""};
-
-/* SWITCH macro */
-char *sw_def[] = { "_assign _sw_\\v(cmdlevel) {_getargs,",
-"_forward {\\%1},\\%2,:default,:_..bot,_putargs},_def break goto _..bot,",
-"do _sw_\\v(cmdlevel),_assign _sw_\\v(cmdlevel)",
-""};
-
-/* XIF macro */
-char *xif_def[] = {
-"_assign _if\\v(cmdlevel) {_getargs,\\%1,_putargs},",
-"do _if\\v(cmdlevel),_assign _if\\v(cmdlevel)",
-""};
-
-#endif  /* COMMENT */
 
 /*
   Variables declared here for use by other ckuus*.c modules.
@@ -585,10 +555,6 @@ int ifcmd[CMDSTKL], count[CMDSTKL], iftest[CMDSTKL], intime[CMDSTKL],
 
 /* Macro stack */
 
-#ifdef COMMENT
-char *topline = NULL;                   /* Program invocation arg line */
-char *m_line[MACLEVEL] = { NULL, NULL }; /* Stack of macro invocation lines */
-#endif /* COMMENT */
 
 char **m_xarg[MACLEVEL];                /* Pointers to arg vector arrays */
 int n_xarg[MACLEVEL];                   /* Sizes of arg vector arrays */
@@ -715,9 +681,6 @@ macini() {              /* Allocate mactab and preset the first element. */
 */
 int
 cmdsrc() {
-#ifdef COMMENT
-    return(xcmdsrc);
-#else
 #ifndef NOSPL
     if (cmdlvl == 0)
       return(0);
@@ -733,7 +696,6 @@ cmdsrc() {
     else
       return(1);
 #endif /* NOSPL */
-#endif /* COMMENT */
 }
 
 /*  C M D I N I  --  Initialize the interactive command parser  */
@@ -1054,11 +1016,6 @@ cmdini() {
         int n = sizeof spdtab + 2;
         int maxspeedlen = 20;
 
-#ifdef COMMENT
-/* This approach blew up on VMS even though it worked on Ubuntu and NetBSD */
-        char * speeds[nspd + 2];
-        struct keytab tmp[nspd + 2]; 
-#else
 /*
   Fix by SMS 2022-10-11: Use constant array dimensions;
   non-constant array dimensions are a C99 feature.
@@ -1068,7 +1025,6 @@ cmdini() {
 
         speeds = malloc( sizeof( char *)* (nspd + 2));
         tmp = malloc( sizeof( struct keytab)* (nspd + 2));        
-#endif /* COMMENT */
 
         for (i = 0; i < nspd; i++) {    /* Allocate string storage */
             speeds[i] = malloc(n+2);
@@ -1310,11 +1266,6 @@ cmdini() {
         if (yy > -1) {
             topargc = (j < 0) ? 1 : j + 1;
             topxarg = toparg;
-#ifdef COMMENT
-            /* This needs work */
-            if (!cfilef)
-              makestr(&topline,tmpbuf);
-#endif /* COMMENT */
         } else {
             topargc = 0;
             topxarg = NULL;
@@ -1554,7 +1505,6 @@ getncm( char *s, int n )
 
         *s = *macp[maclvl];             /* Get next char from macro def */
 
-#ifndef COMMENT
 /*
   This is to allow quoting of parentheses, commas, etc, in function
   arguments, but it breaks just about everything else.  DON'T REMOVE THIS
@@ -1588,7 +1538,6 @@ getncm( char *s, int n )
 	    if (notquote == 0)
 	      continue;
         }
-#endif /* COMMENT */
 
 /*
   Allow braces around macro definition to prevent commas from being turned to
@@ -1606,35 +1555,10 @@ getncm( char *s, int n )
         if (*s == '(') pp++;            /* Count parentheses. */
         if (*s == ')' && pp > 0) pp--;
 #ifndef NODQMACRO
-#ifndef COMMENT
 	/* Too many false positives */
 	/* No, not really -- this is indeed the best we can do */
 	/* Reverted to this method Sun May 11 18:43:45 2003 */
 	if (*s == '"') dq = 1 - dq;     /* Account for doublequotes */
-#else  /* Fri Apr  4 13:21:29 2003 */
-	/* The code below breaks the SWITCH statement */
-	/* There is no way to make this work -- it would require */
-	/* building in all the knowledge of command parser. */
-        if (dblquo && (*s == '"')) {    /* Have doublequote */
-            if (dq == 1) {		/* Close quote only if... */
-                if ((*(macp[maclvl]+1) == SP) || /* followed by space or... */
-		    (!*(macp[maclvl]+1)) ||      /* at end or ... */
-		    /* Next char is command separator... */
-		    /* Sun May 11 17:24:12 2003 */
-		    (kp < 1 && pp < 1 && (*(macp[maclvl]+1) == ','))
-		    )		     
-                  dq = 0;		/* Close the quote */
-            } else if (dq == 0) {
-                /* Open quote only if at beginning or preceded by space */
-                if (s > s2) {
-                    if (*(s-1) == SP)
-                      dq = 1;
-                } else if (s == s2) {
-                      dq = 1;
-                }
-            }
-        }
-#endif /* COMMENT */
 #endif /* NODQMACRO */
         if (*s == ',' && pp <= 0 && kp <= 0
 #ifndef NODQMACRO
@@ -1647,10 +1571,6 @@ getncm( char *s, int n )
             break;
         }
     }                                   /* Reached end. */
-#ifdef COMMENT
-    /* DON'T DO THIS - IT BREAKS EVERYTHING */
-    *s = NUL;
-#endif /* COMMENT */
     if (*s2 == NUL) {                   /* If nothing was copied, */
         /* debug(F100,"getncm eom","",0); */
         popclvl();                      /* pop command level. */
@@ -1881,11 +1801,6 @@ getnct( char *s, int n, FILE *f, int flag )
         ccl = (len > 0) ? lp2[len-1] : 0;     /* Last character in line */
         ccx = (len > 1) ? lp2[len-2] : 0;     /* Penultimate char in line */
 
-#ifdef COMMENT
-        /* Line containing only whitespace and ,- */
-        if ((len > 1) && (lp3 == lp2+len-2) && (ccl == '-') && (ccx == ','))
-          continue;
-#endif /* COMMENT */
 
 #ifdef KLUDGE
 /*
@@ -1921,21 +1836,12 @@ getnct( char *s, int n, FILE *f, int flag )
         if (flag)                       /* No line continuation when flag=1 */
           break;                        /* So break out of read-lines loop */
 
-#ifdef COMMENT
-        debug(F000,"getnct first char","",*lp3);
-        debug(F000,"getnct last char","",ccl);
-        debug(F000,"getnct next-to-last char","",ccx);
-#endif /* COMMENT */
 
         if (bc > 0 && *lp3 == '}') {    /* First char on line is '}' */
             bc--;			/* Decrement block counter */
         }
 
         if (bc == 0 &&                  /* Line is continued if bc > 0 */
-#ifdef COMMENT
-            /* Not supported as of C-Kermit 6.0 */
-            ccl != CMDQ &&              /* or line ends with CMDQ */
-#endif /* COMMENT */
             ccl != '-'  &&              /* or line ends with dash */
             ccl != '{') {               /* or line ends with opening brace */
             break;                      /* None of those, we're done. */
@@ -1984,10 +1890,6 @@ getnct( char *s, int n, FILE *f, int flag )
             *s++ = ',';                 /* and insert a comma */
             n--;
         }
-#ifdef COMMENT
-        debug(F101,"getnct bc","",bc);
-        debug(F100,"getnct continued","",0);
-#endif /* COMMENT */
 
         *s = NUL;
         prev = s;
@@ -2106,47 +2008,6 @@ cmddisplay( char * s, int cx )
     return(s);
 }
 
-#ifdef COMMENT
-static VOID
-cmderr() {
-    if (xcmdsrc > 0) {
-	switch (cmd_err) {		/* SET COMMAND ERROR-DISPLAY */
-	  case 0:
-	    break;
-	  case 1:
-	  case 2:
-	    if (tlevel > -1) {
-#ifndef NOSPL
-		if (xcmdsrc == 2)
-		  printf(
-"In macro or block defined in file: %s starting about line %d\n",
-			 tfnam[tlevel] ? tfnam[tlevel] : "", tfline[tlevel]
-			 );
-		else
-#endif /* NOSPL */
-		  printf("File: %s, Line: %d\n",
-			 tfnam[tlevel] ? tfnam[tlevel] : "", tfline[tlevel]
-			 );
-	    }
-#ifndef NOSPL
-	    if (cmd_err == 2) {
-		if (cmdstk[cmdlvl].src == CMD_MD) { /* Executing a macro? */
-		    int m;
-		    m = cmdstk[cmdlvl].lvl;
-		    if (mlook(mactab,m_arg[m][0],nmac) >= 0)
-		      printf("Macro name: %s\n", m_arg[m][0]);
-		}
-	    }
-#endif /* NOSPL */
-	    break;
-
-	  case 3:
-	    printf("Command stack:\n");
-	    shostack();			    
-	}
-    }
-}
-#endif /* COMMENT */
 
 /*  P A R S E R  --  Top-level interactive command parser.  */
 
@@ -2361,9 +2222,6 @@ parser( int m )
     debug(F101,"topcmd","",topcmd);
     if (getcmd && protocol == PROTO_K &&
 	!success && hints && !interrupted && !fatalio && !xcmdsrc) {
-#ifdef COMMENT
-        int x = 0;
-#endif /* COMMENT */
         extern int urpsiz, wslotr;
         printf("\n*************************\n");
         printf("RECEIVE- or GET-class command failed.\n");
@@ -2388,54 +2246,6 @@ parser( int m )
              (VOID) ckstrncpy(tmpbuf,ck_errstr(),TMPBUFSIZ);
              printf(" Most recent local error: \"%s\"\n",tmpbuf);
         }
-#ifdef COMMENT
-        printf(
-   "\nHINTS... If the preceding error message%s not explain the failure:\n",
-               epktrcvd ? "s do" : " does"
-               );
-#ifndef NOLOCAL
-        if (local) {
-            if (topcmd == XXGET)
-              printf(" . Did you start a Kermit SERVER on the far end?\n");
-            if (rpackets == 0) {
-                if (topcmd != XXGET)
-                  printf(" . Did you start a Kermit SENDer on the far end?\n");
-            } else {
-                printf(
-                " . Choose a different FLOW-CONTROL setting and try again.\n");
-            }
-        } else if (topcmd == XXGET)
-          printf(" . Is the other Kermit in (or does it have) SERVER mode?\n");
-        if (rpackets > 0 && urpsiz > 90)
-          printf(" . Try smaller packets (SET RECEIVE PACKET-LENGTH).\n");
-        if (rpackets > 0 && wslotr > 1 && !streamed)
-          printf(" . Try a smaller window size (SET WINDOW).\n");
-        if (!local && rpackets > 0) {
-            if (flow == FLO_NONE)
-             printf(" . Give me a SET FLOW XON/XOFF command and try again.\n");
-            else
-             printf(" . Give me a SET FLOW NONE command and try again.\n");
-        }
-        x++;
-#endif /* NOLOCAL */
-#ifdef STREAMING
-        if (streamed) {
-            printf(" . Try it again with: SET STREAMING OFF\n");
-            x++;
-        } else if (reliable && local) {
-            printf(" . Try it again with: SET RELIABLE OFF\n");
-            x++;
-        } else
-#endif /* STREAMING */
-        if (!parity) {
-            printf(" . Try it again with: SET PARITY SPACE\n");
-            x++;
-        }
-        printf((x > 0) ?
-               " . As a last resort, give a ROBUST command and try again.\n" :
-               " . Give a ROBUST command and try again.\n"
-               );
-#endif  /* COMMENT */
         printf("Also:\n");
         printf(" . Be sure the target directory has write permission.\n");
         printf(" . Be sure the target disk has sufficient space.\n");
@@ -2673,14 +2483,9 @@ parser( int m )
             if (xx == -5) {
                 yy = chktok(toktab);
                 debug(F101,"top-level cmkey token","",yy);
-#ifndef COMMENT
                 /* Either way makes absolutely no difference */
                 debug(F110,"NO UNGWORD",atmbuf,0);
                 /* ungword(); */
-#else
-                debug(F110,"TOKEN UNGWORD",atmbuf,0);
-                ungword();
-#endif /* COMMENT */
                 switch (yy) {
                   case '#': xx = XXCOM; break; /* Comment */
                   case ';': xx = XXCOM; break; /* Comment */
@@ -2806,25 +2611,11 @@ parser( int m )
               case -2:			/* Invalid command given w/args */
 		if (zz == -2 || zz == -6 || (zz == -9 && cmdlvl > 0)) {
 		    int x = 0;
-#ifdef COMMENT
-		    char * eol = "";
-#endif /* COMMENT */
 
 		    x = strlen(cmdbuf);	/* Avoid blank line */
 
-#ifdef COMMENT
-		    if (x > 0) {
-			if (cmdbuf[x-1] != LF)
-			  eol = "\n";
-			printf("?Invalid: %s%s",
-			       cmddisplay(cmdbuf,xx),eol
-			       );
-		    } else
-		      printf("?Invalid\n");
-#else
                     if (x > 0)
                       newerrmsg("Syntax error");
-#endif  /* COMMENT */
 		}
 		success = 0;
 		debug(F110,"top-level cmkey failed",cmdbuf,0);
@@ -2947,14 +2738,6 @@ xxout(char *obuf, int obsize)
     return(rc);                         /* return our return code */
 }
 
-#ifdef COMMENT
-/*
-  Macros for OUTPUT command execution, to make it go faster.
-*/
-#define obfls() ((xxout(obuf,obn)<0)?-1:0)
-#define oboc(c) ((*obp++=(char)(c)),*obp=0,(((++obn)>=OBSIZE)?obfls():0))
-
-#else /* The macros cause some compilers to generate bad code. */
 
 static int
 oboc(char c)
@@ -2965,7 +2748,6 @@ oboc(char c)
 
     return(((++obn) >= OBSIZE) ? xxout(obuf,obn) : 0);
 }
-#endif /* COMMENT */
 
 /*  Routines for handling local variables -- also see popclvl().  */
 
@@ -3339,11 +3121,6 @@ dooutput( char *s, int cx )
         debug(F111,"dooutput",obuf,obn);
         if (xx < 0)
           goto outerr;
-#ifdef COMMENT
-        if (seslog && duplex) {         /* Log the character if log is on */
-            logchar((char)x);
-        }
-#endif /* COMMENT */
         if (x == '\015') {              /* String contains carriage return */
             int stuff = -1, stuff2 = -1;
             if (tnlm) {                 /* TERMINAL NEWLINE ON */
@@ -3373,21 +3150,11 @@ dooutput( char *s, int cx )
                 xx = oboc(dopar((CHAR)stuff));
                 if (xx < 0)
                   goto outerr;
-#ifdef COMMENT
-                if (seslog && duplex) { /* Log stuffed char if appropriate */
-                    logchar((char)stuff);
-                }
-#endif /* COMMENT */
             }
             if (stuff2 > -1) {          /* Stuffing another character... */
                 xx = oboc(dopar((CHAR)stuff2));
                 if (xx < 0)
                   goto outerr;
-#ifdef COMMENT
-                if (seslog && duplex) { /* Log stuffed char if appropriate */
-                    logchar((char)stuff2);
-                }
-#endif /* COMMENT */
             }
             if (xxout(obuf,obn) < 0)    /* Flushing is required here! */
               goto outerr;
@@ -3412,11 +3179,6 @@ outerr:                                 /* OUTPUT command error handler */
 
 /* Remove "local" OUTPUT macro defininitions */
 
-#ifdef COMMENT
-/* No more macros ... */
-#undef oboc
-#undef obfls
-#endif /* COMMENT */
 }
 #endif /* NOSPL */
 
@@ -3649,17 +3411,12 @@ mxlook(struct mtab table[], char * cmd, int n)
             if (!*(s+1))
               return(i);                /* So is table entry */
         }
-#ifdef COMMENT
-        if (((int)strlen(s) == cmdlen) &&
-            (!ckstrcmp(s,cmd,cmdlen,0))) return(i);
-#else
         w = ckstrcmp(s,cmd,-1,0);
         if (!w) {
             debug(F111,"MXLOOK",mactab[i].mval,i);
             return(i);
         }
         if (w > 0) return(-1);
-#endif /* COMMENT */
     }
     return(-1);
 }
@@ -4284,10 +4041,6 @@ popclvl() {                             /* Pop command level, return cmdlvl */
         topcmd = lastcmd[maclvl];
         debug(F101,"popclvl maclvl","",maclvl);
         if (maclvl > -1) {              /* Yes, */
-#ifdef COMMENT
-            int i;
-            char **q;
-#endif /* COMMENT */
             macp[maclvl] = "";          /* set macro pointer to null string */
             *cmdbuf = '\0';             /* clear the command buffer */
 
@@ -5104,10 +4857,6 @@ shoinput() {
 #ifndef NOSPL
 int
 showarray() {
-#ifdef COMMENT
-    char * p, * q, ** ap;
-    int i;
-#endif /* COMMENT */
     char *s; int x = 0, y;
     int range[2];
 
@@ -5388,21 +5137,6 @@ doshow( int x )
     }
 #endif /* NOSPL */
 
-#ifdef COMMENT
-    /* This restriction is too general. */
-#ifdef IKSD
-    if (inserver &&
-#ifdef CK_LOGIN
-        isguest
-#else
-        0
-#endif /* CK_LOGIN */
-        ) {
-        printf("Sorry, command disabled.\r\n");
-        return(success = 0);
-    }
-#endif /* IKSD */
-#endif /* COMMENT */
 
     switch (x) {
 
@@ -5607,16 +5341,6 @@ doshow( int x )
 		    char * s2;
 		    for (flag = 0, j = 1; j <= q->a_size && !flag; j++) {
 			s2 = pp[j] ? pp[j] : "";
-#ifdef COMMENT
-/* This is not needed because it's what the 4 arg does in ckmatch() */
-			len = strlen(s2);
-			if (len > 0) {
-			    if (s2[len-1] != '$') {/* To allow anchors */
-				ckmakmsg(line,LINBUFSIZ,pp[j],"*",NULL,NULL);
-				s2 = line;
-			    }
-			}
-#endif /* COMMENT */
 			if (ckmatch(s2,vartab[y].kwd,0,4) > 0) {
 			    flag = 1;	/* Matches */
 			    break;
@@ -5692,14 +5416,7 @@ doshow( int x )
                   if (!s1) s1 = "(NULL)";
                   s2 = m_xarg[maclvl][y];
                   if (!s2) s2 = "(NULL)";
-#ifdef COMMENT
-                  if (y < 10)
-                    printf(" \\%%%d = %s\n",y,s1);
-                  else
-                    printf(" \\&_[%d] = %s\n",y,s2);
-#else
                   printf(" \\&_[%d] = %s\n",y,s2);
-#endif  /* COMMENT */
               }
           } else {
               printf("Top-level arguments (\\v(argc) = %d):\n", topargc);
@@ -6602,11 +6319,6 @@ doshow( int x )
 
 	printf("Locale %s:\n", nolocale ? "disabled" : "enabled");
 
-#ifdef COMMENT
-	s = setlocale(LC_ALL, NULL);
-        if (!s) s = "";
-	printf("LC_ALL=%s\n",s);
-#endif /* COMMENT */
 
 	s = setlocale(LC_COLLATE, NULL);
         if (!s) s = "";
@@ -6819,41 +6531,6 @@ gettok() {
       case '\n':
       case '\0': return(N_EOT);         /* End of line, return that */
     }
-#ifdef COMMENT
-/* This is the original code, which allows only integer numbers. */
-
-    if (isxdigit(*cp)) {                /* Digit, must be a number */
-        int radix = 10;                 /* Default radix */
-        for (tp = tbuf; isxdigit(*cp); cp++)
-          *tp++ = (char) (isupper(*cp) ? tolower(*cp) : *cp);
-        *tp = '\0';                     /* End number */
-        switch(isupper(*cp) ? tolower(*cp) : *cp) { /* Examine break char */
-          case 'h':
-          case 'x': radix = 16; cp++; break; /* if radix signifier... */
-          case 'o':
-          case 'q': radix = 8; cp++; break;
-          case 't': radix = 2; cp++; break;
-        }
-        for (tp = tbuf, tokval = 0; *tp != '\0'; tp++)  {
-            int dig;
-            dig = *tp - '0';            /* Convert number */
-            if (dig > 10) dig -= 'a'-'0'-10;
-            if (dig >= radix) {
-                if (cmdlvl == 0 && !x_ifnum && !xerror)
-                  printf("?Invalid digit '%c' in number\n",*tp);
-                xerror = 1;
-                return(NUMBER);
-            }
-            tokval = radix*tokval + dig;
-        }
-        return(NUMBER);
-    }
-    if (cmdlvl == 0 && !x_ifnum && !xerror)
-      printf("Invalid character '%c' in input\n",*cp);
-    xerror = 1;
-    cp++;
-    return(gettok());
-#else
 /* This code allows non-numbers to be treated as macro names */
     {
         int i, x;
@@ -6913,7 +6590,6 @@ gettok() {
         }
         return(NUMBER);
     }
-#endif /* COMMENT */
 }
 
 static CK_OFF_T
@@ -7068,18 +6744,6 @@ static CK_OFF_T
 xparse() {
     curtok = gettok();
     expr();
-#ifdef COMMENT
-    if (curtok == '$') {
-        curtok = gettok();
-        if (curtok != NUMBER) {
-            if (cmdlvl == 0 && !x_ifnum)
-              printf("?Illegal radix\n");
-            xerror = 1;
-            return(0);
-        }
-        curtok = gettok();
-    }
-#endif /* COMMENT */
     if (curtok != N_EOT) {
         if (cmdlvl == 0 && !x_ifnum && !xerror)
           printf("?Extra characters after expression\n");
@@ -7574,10 +7238,6 @@ chkarray( int a, int i )              /* Check if array is declared */
     int x;                              /* and if subscript is in range */
     if (a == 64) a = 96;                /* Convert atsign to grave accent */
     x = a - ARRAYBASE;                  /* Values must be in range 95-122 */
-#ifdef COMMENT
-    if (x == 0 && maclvl < 0)           /* Macro arg vector but no macro */
-      return(0);
-#endif /* COMMENT */
     if (x < 0 || x > 'z' - ARRAYBASE)   /* Not in range */
       return(-2);
     if (a_ptr[x] == NULL) return(-1);   /* Not declared */
@@ -7585,20 +7245,6 @@ chkarray( int a, int i )              /* Check if array is declared */
     return(a_dim[x]);                   /* All ok, return dimension */
 }
 
-#ifdef COMMENT                          /* This isn't used. */
-char *
-arrayval(a,i) int a, i; {               /* Return value of \&a[i] */
-    int x; char **p;                    /* (possibly NULL) */
-    if (a == 64) a = 96;                /* Convert atsign to grave accent */
-    x = a - ARRAYBASE;                  /* Values must be in range 95-122 */
-    if (x < 0 || x > 27) return(NULL);  /* Not in range */
-    if ((x > 0) && (p = a_ptr[x]) == NULL) /* Array not declared */
-      return(NULL);
-    if (i > a_dim[x])                   /* Subscript out of range. */
-      return(NULL);
-    return(p[i]);                       /* All ok, return pointer to value. */
-}
-#endif /* COMMENT */
 
 /*
   pusharray() is called when an array name is included in a LOCAL statement.
@@ -7814,9 +7460,6 @@ dodo( int x, char *s, int flags )
     macp[maclvl] = mactab[x].mval;      /* Point to the macro body */
     macx[maclvl] = mactab[x].mval;      /* Remember where the beginning is */
 
-#ifdef COMMENT
-    makestr(&(m_line[maclvl]),s);       /* Entire arg string for "\%*" */
-#endif /* COMMENT */
 
     cmdlvl++;                           /* Entering a new command level */
     if (cmdlvl >= CMDSTKL) {            /* Too many macros + TAKE files? */
@@ -7919,21 +7562,6 @@ litcmd( char **src, char **dest, int n )
             if (c == ')') {             /* Right parenthesis. */
                 pp--;                   /* Count it. */
                 if (pp < 0) {           /* An unbalanced right paren... */
-#ifdef COMMENT
-/*
-  The problem here is that "\{" appears to be a quoted brace and therefore
-  isn't counted; then the "}" matches an earlier opening brace, causing
-  (e.g.) truncation of macros by getncm().
-*/
-                    if (n < 5)          /* Out of space in dest buffer? */
-                      return(-1);       /* If so, give up. */
-                    *lp++ = CMDQ;       /* Must be quoted to prevent */
-                    *lp++ = '}';        /* premature termination of */
-                    *lp++ = '4';        /* \flit(...) */
-                    *lp++ = '1';
-                    *lp++ = '}';
-                    n -= 5;
-#else
 /* Here we rely on the fact the \nnn never takes more than 3 digits */
                     if (n < 4)          /* Out of space in dest buffer? */
                       return(-1);       /* If so, give up. */
@@ -7942,7 +7570,6 @@ litcmd( char **src, char **dest, int n )
                     *lp++ = '4';        /* \flit(...) */
                     *lp++ = '1';
                     n -= 4;
-#endif /* COMMENT */
                     pp++;               /* Uncount it. */
                     s++;
                     continue;
@@ -8238,19 +7865,11 @@ doshift( int n )                        /* n = shift count */
     }
     for (i = 1; i <= top-n; i++) {      /* Shift remaining args */
         if (level < 0) {
-#ifdef COMMENT
-            toparg[i] = toparg[i+n];    /* Full vector */
-#else
             makestr(&(toparg[i]),toparg[i+n]); /* Full vector */
-#endif /* COMMENT */
             if (i < 10)                 /* Scalars... */
               makestr(&(g_var[i+'0']),toparg[i+n]);
         } else {
-#ifdef COMMENT
-            m_xarg[level][i] = m_xarg[level][i+n];
-#else
             makestr(&(m_xarg[level][i]),m_xarg[level][i+n]);
-#endif /* COMMENT */
             if (i < 10) {
                 buf[2] = (char)(i+'0');
                 debug(F010,"SHIFT buf",buf,0);
@@ -8260,19 +7879,11 @@ doshift( int n )                        /* n = shift count */
     }
     for (i = top-n; i <= top; i++) {    /* Clear n args from the end */
         if (level < 0) {
-#ifdef COMMENT
-            toparg[i] = NULL;
-#else
             makestr(&(toparg[i]),NULL);
-#endif /* COMMENt */
             if (i < 10)
               makestr(&(g_var[i+'0']),NULL);
         } else {
-#ifdef COMMENT
-            m_xarg[level][i] = NULL;
-#else
             makestr(&(m_xarg[level][i]),NULL);
-#endif /* COMMENt */
             if (i < 10) {
                 buf[2] = (char)(i+'0');
                 delmac(buf,0);
@@ -8285,17 +7896,11 @@ doshift( int n )                        /* n = shift count */
         a_dim[0] = macargc[level] - 1;  /* Adjust array dimension */
 	debug(F111,"a_dim[0]","F",a_dim[0]);
         zzstring("\\fjoin(&_[],{ },1)",&sx,&nx); /* Handle \%* */
-#ifdef COMMENT
-        makestr(&(m_line[level]),tmpbuf);
-#endif /* COMMENT */
     } else {                            /* Ditto for top level */
         topargc -= n;
         a_dim[0] = topargc - 1;
 	debug(F111,"a_dim[0]","G",a_dim[0]);
         zzstring("\\fjoin(&_[],{ },1)",&sx,&nx);
-#ifdef COMMENT
-        makestr(&topline,tmpbuf);
-#endif /* COMMENT */
     }
     return(1);
 }
@@ -8791,68 +8396,6 @@ initoptlist() {
     makestr(&(optlist[noptlist++]),line);
 #endif /* LINEBUFSIZ */
 
-#ifdef COMMENT
-#ifdef CHAR_MAX
-    sprintf(line,"CHAR_MAX=%llx",CHAR_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* CHAR_MAX */
-#ifdef UCHAR_MAX
-    sprintf(line,"UCHAR_MAX=%llx",UCHAR_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* UCHAR_MAX */
-#ifdef SHRT_MAX
-    sprintf(line,"SHRT_MAX=%llx",SHRT_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* SHRT_MAX */
-#ifdef USHRT_MAX
-    sprintf(line,"USHRT_MAX=%llx",USHRT_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* USHRT_MAX */
-#ifdef INT_MAX
-    sprintf(line,"INT_MAX=%llx",INT_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* INT_MAX */
-#ifdef UINT_MAX
-    sprintf(line,"UINT_MAX=%llx",UINT_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* UINT_MAX */
-#ifdef MAX_LONG
-    sprintf(line,"MAX_LONG=%llx",MAX_LONG); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* MAX_LONG */
-#ifdef LONG_MAX
-    sprintf(line,"LONG_MAX=%llx",LONG_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* LONG_MAX */
-#ifdef ULONG_MAX
-    sprintf(line,"ULONG_MAX=%llx",ULONG_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* ULONG_MAX */
-#ifdef MAXINT
-    sprintf(line,"MAXINT=%llx",MAXINT); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* MAXINT */
-#ifdef MAXLONG
-    sprintf(line,"MAXLONG=%llx",MAXLONG); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* MAXLONG */
-#ifdef LLONG_MAX
-    sprintf(line,"LLONG_MAX=%llx",LLONG_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* LLONG_MAX */
-#ifdef ULLONG_MAX
-    sprintf(line,"ULLONG_MAX=%llx",ULLONG_MAX); /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* ULLONG_MAX */
-#ifdef MAXLONGLONG
-    sprintf(line,"MAXLONGLONG=%llx",MAXLONGLONG);  /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* MAXLONGLONG */
-#ifdef _INTEGRAL_MAX_BITS
-    sprintf(line,"_INTEGRAL_MAX_BITS=%d",_INTEGRAL_MAX_BITS);  /* SAFE */
-    makestr(&(optlist[noptlist++]),line);
-#endif /* _INTEGRAL_MAX_BITS */
-#endif	/* COMMENT */
 
 #ifdef MINPUTMAX
     sprintf(line,"MINPUTMAX=%d",MINPUTMAX); /* SAFE */
@@ -9368,12 +8911,6 @@ initoptlist() {
 #ifdef MACOSX103
     makestr(&(optlist[noptlist++]),"MACOSX10e");
 #endif
-#ifdef COMMENT
-/* not used */
-#ifdef MACOSX103
-    makestr(&(optlist[noptlist++]),"MACOSX103");
-#endif
-#endif	/* COMMENT */
 
 #ifdef M_SYS5
     makestr(&(optlist[noptlist++]),"M_SYS5");
@@ -9868,31 +9405,6 @@ shofea() {
     if (inserver)
       return(1);
 
-#ifdef COMMENT
-    if (0) {
-#ifdef UNIX
-    printf("UNIX defined\n");
-#else
-    printf("UNIX not defined\n");
-#endif
-#ifdef DOWTMP
-    printf("DOWTMP defined\n");
-#else
-    printf("DOWTMP not defined\n");
-#endif
-#ifdef NOWTMP
-    printf("NOWTMP defined\n");
-#else
-printf("NOWTMP not defined\n");
-#endif
-#ifdef CKWTMP
-    printf("Have CKWTMP defined\n");
-#else
-    printf("CKWTMP not defined\n");
-#endif
-    return(1);
-      }
-#endif /* COMMENT */
 
     debug(F101,"shofea NOPTLIST","",NOPTLIST);
     initoptlist();
