@@ -14,22 +14,7 @@
 /* Arranged more or less alphabetically by compiler symbol */
 /* Must be included AFTER ckcdeb.h. */
 
-
-
-
-
-
-
-
 #ifndef HERALD
-
-
-
-
-
-
-
-
 
 #ifdef BSD44
 #ifdef MACOSX
@@ -117,56 +102,6 @@
 #endif /* MACOSX */
 #endif /* BSD44 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #ifdef POSIX
 #ifdef HERALD
 #undef HERALD
@@ -201,12 +136,6 @@
 #endif /* __linux__ */
 #endif /* POSIX */
 
-
-
-
-
-
-
 /* Catch-alls for anything not defined explicitly above */
 
 #ifndef HERALD
@@ -238,8 +167,8 @@
 #endif /* SVR3 */
 #endif /* SVR4 */
 #endif /* HERALD */
-#endif /* HERALD */
 
+#endif /* HERALD */
 
 #ifndef HERALD
 #define HERALD " Unknown Platform"
@@ -264,15 +193,6 @@
 #define CKCPU "Alpha"
 #endif /* CKCPU */
 #endif /* __alpha */
-
-
-/* HP 9000 */
-
-
-
-
-
-
 
 #ifdef m88000				/* Motorola 88000 */
 #ifndef CKCPU
@@ -413,7 +333,5 @@
 #define CKCPU "n16"
 #endif /* CKCPU */
 #endif /* n16 */
-
-
 
 #endif /* CKUVER_H */
