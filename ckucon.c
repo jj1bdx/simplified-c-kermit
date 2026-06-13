@@ -234,21 +234,12 @@ static CHAR outxbuf[OUTXBUFSIZ+1];	/* Keyboard-to-host expansion buf */
 static int outxcount = 0;		/* and count */
 
 #ifndef NOCSETS
-#ifdef CK_ANSIC /* ANSI C prototypes... */
 extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* Character set */
 extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* translation functions */
 static CHAR (*sxo)(CHAR);	/* Local translation functions */
 static CHAR (*rxo)(CHAR);	/* for output (sending) terminal chars */
 static CHAR (*sxi)(CHAR);	/* and for input (receiving) terminal chars. */
 static CHAR (*rxi)(CHAR);
-#else /* Not ANSI C... */
-extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])();	/* Character set */
-extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])();	/* translation functions. */
-static CHAR (*sxo)();		/* Local translation functions */
-static CHAR (*rxo)();		/* for output (sending) terminal chars */
-static CHAR (*sxi)();		/* and for input (receiving) terminal chars. */
-static CHAR (*rxi)();
-#endif /* CK_ANSIC */
 extern int language;		/* Current language. */
 static int langsv;		/* For remembering language setting. */
 extern struct csinfo fcsinfo[]; /* File character set info. */
@@ -256,17 +247,10 @@ extern int tcsr, tcsl;		/* Terminal character sets, remote & local. */
 static int tcs;			/* Intermediate ("transfer") character set. */
 static int tcssize = 0;		/* Size of tcs */
 #ifdef UNICODE				/* UTF-8 support */
-#ifdef CK_ANSIC
 extern int (*xl_ufc[MAXFCSETS+1])(USHORT);  /* Unicode to FCS */
 extern USHORT (*xl_fcu[MAXFCSETS+1])(CHAR); /* FCS to Unicode */
 extern int (*xuf)(USHORT);		/* Translation function UCS to FCS */
 extern USHORT (*xfu)(CHAR);		/* Translation function FCS to UCS */
-#else
-extern int (*xl_ufc[MAXFCSETS+1])();
-extern USHORT (*xl_fcu[MAXFCSETS+1])();
-extern int (*xuf)();
-extern USHORT (*xfu)();
-#endif /* CK_ANSIC */
 #endif /* UNICODE */
 #endif /* NOCSETS */
 
@@ -384,11 +368,7 @@ extern USHORT (*xfu)();
   Returns 0 normally, 1 if an APC sequence is to be executed.
 */
 int
-#ifdef CK_ANSIC
 chkaes(char c, int src)
-#else
-chkaes(c) char c; int src;
-#endif /* CK_ANSIC */
 /* chkaes */ {
 
     oldesc = inesc;			/* Remember previous state */
@@ -2291,11 +2271,7 @@ hconne() {
 /*  D O E S C  --  Process an escape character argument  */
 
 VOID
-#ifdef CK_ANSIC
 doesc(char c)
-#else
-doesc(c) char c;
-#endif /* CK_ANSIC */
 /* doesc */ {
     CHAR d;
 

@@ -208,13 +208,8 @@ extern int ntxrtab;
 #define CHAR unsigned char
 #endif /* CHAR */
 
-#ifdef CK_ANSIC
 extern USHORT (*xl_u[MAXTXSETS+1])(CHAR); /* Blah-to-Unicode functions */
 extern int (*xl_tx[MAXTXSETS+1])(USHORT); /* Unicode-to-Blah functions */
-#else
-extern USHORT (*xl_u[MAXTXSETS+1])();
-extern int (*xl_tx[MAXTXSETS+1])();
-#endif /* CK_ANSIC */
 extern struct x_to_unicode * txrinfo[MAXTXSETS+1];
 
 _PROTOTYP(int ck_isunicode, (void));

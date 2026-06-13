@@ -232,21 +232,12 @@ static char *obp = obuf;		/* Output buffer pointer */
 static int unicode = 0;
 
 #ifndef NOCSETS
-#ifdef CK_ANSIC /* ANSI C prototypes... */
 extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* Character set */
 extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* translation functions */
 static CHAR (*sxo)(CHAR);	/* Local translation functions */
 static CHAR (*rxo)(CHAR);	/* for output (sending) terminal chars */
 static CHAR (*sxi)(CHAR);	/* and for input (receiving) terminal chars. */
 static CHAR (*rxi)(CHAR);
-#else /* Not ANSI C... */
-extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])();	/* Character set */
-extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])();	/* translation functions. */
-static CHAR (*sxo)();		/* Local translation functions */
-static CHAR (*rxo)();		/* for output (sending) terminal chars */
-static CHAR (*sxi)();		/* and for input (receiving) terminal chars. */
-static CHAR (*rxi)();
-#endif /* CK_ANSIC */
 extern int language;		/* Current language. */
 static int langsv;		/* For remembering language setting. */
 extern struct csinfo fcsinfo[]; /* File character set info. */
@@ -254,17 +245,10 @@ extern int tcsr, tcsl;		/* Terminal character sets, remote & local. */
 static int tcs;			/* Intermediate ("transfer") character set. */
 static int tcssize = 0;		/* Size of tcs */
 #ifdef UNICODE				/* UTF-8 support */
-#ifdef CK_ANSIC
 extern int (*xl_ufc[MAXFCSETS+1])(USHORT);  /* Unicode to FCS */
 extern USHORT (*xl_fcu[MAXFCSETS+1])(CHAR); /* FCS to Unicode */
 extern int (*xuf)(USHORT);		/* Translation function UCS to FCS */
 extern USHORT (*xfu)(CHAR);		/* Translation function FCS to UCS */
-#else
-extern int (*xl_ufc[MAXFCSETS+1])();
-extern USHORT (*xl_fcu[MAXFCSETS+1])();
-extern int (*xuf)();
-extern USHORT (*xfu)();
-#endif /* CK_ANSIC */
 #endif /* UNICODE */
 #endif /* NOCSETS */
 
@@ -464,11 +448,7 @@ printoff() {				/* Turn printing off */
   Handles transparent printing internally.
 */
 int
-#ifdef CK_ANSIC
 chkaes(char c, int src)
-#else
-chkaes(c,src) char c; int src;
-#endif /* CK_ANSIC */
 /* chkaes */ {
 
     debug(F111,"chkaes entry inesc",ckitoa(src),inesc[src]);
@@ -671,11 +651,7 @@ chkaes(c,src) char c; int src;
 #endif /* NOESCSEQ */
 
 VOID
-#ifdef CK_ANSIC
 LOGCHAR(char c)
-#else
-LOGCHAR(c) char c;
-#endif /* CK_ANSIC */
 /* LOGCHAR */ {                         /* Log character c to session log */
     /* but skip over escape sequences if session log is text */
     if (escseq) {
@@ -709,11 +685,7 @@ ckcputf() {				/* Dump the console output buffer */
   CJK sets along with UTF-8 and the rest.
 */
 int
-#ifdef CK_ANSIC
 ckcputc( int c )
-#else
-ckcputc(c) int c;
-#endif /* CK_ANSIC */
 {
     int x;
 
@@ -738,11 +710,7 @@ ckcputc(c) int c;
   so a pointer to this function can be passed to tn_doop().
 */
 int
-#ifdef CK_ANSIC
 ckcgetc( int dummy )
-#else
-ckcgetc(dummy) int dummy;
-#endif /* CK_ANSIC */
 {
     int c, n;
 
@@ -844,11 +812,7 @@ kbget() {
 
 #ifdef CKLEARN
 static VOID
-#ifdef CK_ANSIC
 learnchar( int c )			/* Learned script keyboard character */
-#else
-learnchar(c) int c;
-#endif /* CK_ANSIC */
 {
     int cc;
     char xbuf[8];
@@ -2252,11 +2216,7 @@ hconne() {
 /*  D O E S C  --  Process an escape character argument  */
 
 VOID
-#ifdef CK_ANSIC
 doesc(char c)
-#else
-doesc(c) char c;
-#endif /* CK_ANSIC */
 /* doesc */ {
     CHAR d;
 

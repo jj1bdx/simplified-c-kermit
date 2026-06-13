@@ -1754,11 +1754,7 @@ int ndests =  (sizeof(desttab) / sizeof(struct keytab));
   cx == 2 means a directory path list
 */
 static int
-#ifdef CK_ANSIC
 parsdir( int cx )
-#else
-parsdir(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i, x, y, dd;                    /* Workers */
     int nxdir;
@@ -2028,11 +2024,7 @@ static int nq3yesno = (sizeof(q3yesno) / sizeof(struct keytab));
 /* Ask question, get yes/no answer */
 
 int
-#ifdef CK_ANSIC
 getyesno( char * msg, int flags )
-#else
-getyesno(msg, flags) char * msg; int flags;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_RECALL
     extern int on_recall;               /* around Password prompting */
@@ -2104,13 +2096,7 @@ getyesno(msg, flags) char * msg; int flags;
     to highlight the default response button.
 */
 int
-#ifdef CK_ANSIC
 uq_ok(char * preface, char * prompt, int mask,char ** help, int dflt)
-#else /* CK_ANSIC */
-uq_ok(preface,prompt,mask,help,dflt)
-    char * preface, * prompt, ** help;
-    int mask, dflt;
-#endif /* CK_ANSIC */
 /* uq_ok */ {
 
     if (!prompt)
@@ -2154,14 +2140,8 @@ uq_ok(preface,prompt,mask,help,dflt)
     preface, prompt, and help as for uq_ok().
 */
 int
-#ifdef CK_ANSIC
 uq_txt(char * preface, char * prompt, int echo, char ** help, char * buf, 
        int buflen, char *dflt, int timer)
-#else /* CK_ANSIC */
-uq_txt(preface,prompt,echo,help,buf,buflen,dflt,timer)
-    char * preface, * prompt, ** help, * buf, * dflt; 
-    int buflen, echo, timer;
-#endif /* CK_ANSIC */
 {
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
@@ -2194,12 +2174,7 @@ uq_txt(preface,prompt,echo,help,buf,buflen,dflt,timer)
     preface and help as for uq_ok().
 */
 int
-#ifdef CK_ANSIC
 uq_mtxt(char * preface,char **help, int n, struct txtbox field[])
-#else /* CK_ANSIC */
-uq_mtxt(preface,help,n,field)
-    char * preface; char ** help; int n; struct txtbox field[]; 
-#endif /* CK_ANSIC */
 {
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
@@ -2263,14 +2238,8 @@ uq_mtxt(preface,help,n,field)
 */
 
 int
-#ifdef CK_ANSIC
 uq_file(char * preface, char * fprompt, int fc, char ** help,
 	char * dflt, char * result, int rlength)
-#else /* CK_ANSIC */
-uq_file(preface,fprompt,fc,help,dflt,result,rlength)
-    char * preface, * fprompt, ** help, * dflt, * result;
-    int fc, rlength;
-#endif /* CK_ANSIC */
 /* uq_file */ {
 
     int rc = -1, x, y, z;
@@ -2799,8 +2768,6 @@ static int sexptrunc = 0;		/* Flag to force all results to int */
 #include <math.h>                       /* Floating-point functions */
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifndef CK_ANSIC
-#endif /* CK_ANSIC */
 
 extern char math_pi[];                  /* Value of Pi */
 extern int sexpecho;                    /* SET SEXPRESSION ECHO value */
@@ -2832,11 +2799,7 @@ shosexp() {
 
 
 static char *
-#ifdef CK_ANSIC
 sexpdebug( char * s )
-#else
-sexpdebug(s) char * s;
-#endif /* CK_ANSIC */
 {
     /* For debugging -- includes recursion depth in each debug entry */
     static char buf[64];
@@ -2851,11 +2814,7 @@ sexpdebug(s) char * s;
 static char sxroundbuf[32];		/* For ROUND result */
 
 char *
-#ifdef CK_ANSIC
 dosexp( char *s )                       /* s = S-Expression */
-#else
-dosexp(s) char *s;
-#endif /* CK_ANSIC */
 {
     extern struct mtab *mactab;         /* Macro table */
     extern int maclvl, nmac;
@@ -4288,11 +4247,7 @@ dologend() {                            /* Write record to connection log */
 /* otherwise 0 */
 
 long
-#ifdef CK_ANSIC
 dologshow( int fc )                    /* SHOW (current) CONNECTION */
-#else
-dologshow(fc) int fc;
-#endif /* CK_ANSIC */
 {
     long d1, d2, t1, t2 = 0, prev;
     char c, buf1[32], buf2[32], * info[32], * p, * s;
@@ -4541,11 +4496,7 @@ dolognet() {
   Parse a DIAL-related string, stripping enclosing braces, if any.
 */
 static int
-#ifdef CK_ANSIC
 dialstr( char **p, char *msg )
-#else
-dialstr(p,msg) char **p; char *msg;
-#endif /* CK_ANSIC */
 {
     int x;
     char *s;
@@ -4559,11 +4510,7 @@ dialstr(p,msg) char **p; char *msg;
 }
 
 VOID
-#ifdef CK_ANSIC
 initmdm( int x )
-#else
-initmdm(x) int x;
-#endif /* CK_ANSIC */
 {
     MDMINF * p;
     int m;
@@ -4835,11 +4782,7 @@ setmodem() {                            /* SET MODEM */
 }
 
 static int                              /* Set DIAL command options */
-#ifdef CK_ANSIC
 setdial( int y )
-#else
-setdial(y) int y;
-#endif /* CK_ANSIC */
 {
     int x = 0, z = 0;
     char *s = NULL;
@@ -5803,13 +5746,8 @@ setvareval() {
     return(success = 1);
 }
 
-#ifdef CK_ANSIC                         /* SET ALARM */
 int
 setalarm(long xx)
-#else
-int
-setalarm(xx) long xx;
-#endif /* CK_ANSIC */
 /* setalarm */ {
 #ifdef COMMENT
     int yyyy, mm, dd, x;
@@ -6196,11 +6134,7 @@ _PROTOTYP(static int protofield, (char *, char *, char *));
 _PROTOTYP(static int setproto, (void));
 
 static int
-#ifdef CK_ANSIC
 protofield(char * current, char * help, char * px )
-#else
-protofield(current, help, px) char * current, * help, * px;
-#endif /* CK_ANSIC */
 {
     char *s, tmpbuf[XPCMDLEN+1];
     int x;
@@ -6237,10 +6171,8 @@ setproto() {                            /* Select a file transfer protocol */
       'initproto'", referring to an invocation of it in this routine.  This
       extern statement silences the warning.  - fdc 6 May 2023
     */
-#ifdef CK_ANSIC
     extern VOID
      initproto( int,char *,char *,char *,char *,char *,char *,char * );
-#endif  /* CK_ANSIC */
 
 #ifdef XYZ_INTERNAL
     extern int p_avail;
@@ -6480,11 +6412,7 @@ int nprnswi =  (sizeof(prntab) / sizeof(struct keytab)) - 1;
 #endif /* PRINTSWI */
 
 static int
-#ifdef CK_ANSIC
 setprinter( int xx )  
-#else
-setprinter(xx) int xx;
-#endif /* CK_ANSIC */
 {
     int x, y;
     char * s;
@@ -8175,22 +8103,14 @@ dosetsftp() {
 
 
 VOID
-#ifdef CK_ANSIC
 setexitwarn( int x )
-#else
-setexitwarn(x) int x; 
-#endif /* CK_ANSIC */
 {
     xitwarn = x;
 }
 
 #ifndef NOLOCAL
 VOID
-#ifdef CK_ANSIC
 setdebses( int x )
-#else
-setdebses(x) int x;
-#endif /* CK_ANSIC */
 {
     debses = x;
 }
@@ -8204,11 +8124,7 @@ setdebses(x) int x;
    0: success
 */
 int
-#ifdef CK_ANSIC
 doprm(int xx, int rmsflg)
-#else
-doprm(xx,rmsflg) int xx, rmsflg;
-#endif /* CK_ANSIC */
 {
     int i = 0, x = 0, y = 0, z = 0;
     long zz = 0L;
@@ -9586,11 +9502,7 @@ case XYCARR:                            /* CARRIER-WATCH */
             cmdsquo(y);                 /* Do it the right way */
             cmd_quoting = y;            /* Also keep a global copy */
             /* Set string-processing function */
-#ifdef CK_ANSIC
             xxstring = y ? zzstring : (xx_strp) NULL;
-#else
-            xxstring = y ? zzstring : (xx_strp) NULL;
-#endif /* CK_ANSIC */
             return(success = 1);
 
           case SCMD_WID:
@@ -11495,11 +11407,7 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
   Argument x is used to differentiate the EXIT command from SET LINE / HOST.
 */
 int
-#ifdef CK_ANSIC
 hupok( int x )                      /* Returns 1 if OK, 0 if not OK */
-#else
-hupok(x) int x;
-#endif /* CK_ANSIC */
 {
     int y, z = 1;
     extern int exithangup;

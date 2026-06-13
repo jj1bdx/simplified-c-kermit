@@ -168,9 +168,7 @@ int tn_env_flg = 0;
 #include "ckucmd.h"
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef CK_ANSIC
 static int tn_outst( int );             /* fdc - 30 November 2022 */
-#endif /* CK_ANSIC */
 
 CHAR sb[TSBUFSIZ];                      /* Buffer - incoming subnegotiations */
 CHAR sb_out[TSBUFSIZ];                  /* Buffer - outgoing subnegotiations */
@@ -188,11 +186,7 @@ extern char myipaddr[];             /* Global copy of my IP address */
 /* A copy of this function also appears in ck_crp.c for use by Kermit 95s
  * telnet cryptography DLL (k95crypt.dll) */
 char *
-#ifdef CK_ANSIC
 tel_unk(int opt)                        /* "UNKNOWN-%u" string. */
-#else
-tel_unk(opt) int opt;
-#endif /* CK_ANSIC */
 {
   /* 2024-03-27 SMS.  Added (decimal) value to "UNKNOWN" messages. */
   static char val_str[ 20];
@@ -203,11 +197,7 @@ tel_unk(opt) int opt;
 #ifndef TELOPT_MACRO
 
 int
-#ifdef CK_ANSIC
 telopt_index(int opt)
-#else
-telopt_index(opt) int opt;
-#endif /* CK_ANSIC */
 {
     if (opt >= 0 && opt <= TELOPT_STDERR)
       return(opt);
@@ -220,11 +210,7 @@ telopt_index(opt) int opt;
 }
 
 int
-#ifdef CK_ANSIC
 telopt_ok(int opt)
-#else
-telopt_ok(opt) int opt;
-#endif /* CK_ANSIC */
 {
     return((opt >= TELOPT_BINARY && opt <= TELOPT_STDERR) ||
            (opt >= TELOPT_PRAGMA_LOGON && opt <= TELOPT_PRAGMA_HEARTBEAT) ||
@@ -232,11 +218,7 @@ telopt_ok(opt) int opt;
 }
 
 char *
-#ifdef CK_ANSIC
 telopt(int opt)
-#else
-telopt(opt) int opt;
-#endif /* CK_ANSIC */
 {
     if (telopt_ok(opt))
       return(telopts[telopt_index(opt)]);
@@ -245,21 +227,13 @@ telopt(opt) int opt;
 }
 
 int
-#ifdef CK_ANSIC
 telopt_mode_ok(int mode)
-#else
-telopt_mode_ok(mode) int mode;
-#endif /* CK_ANSIC */
 {
     return (((unsigned int)mode) <= TN_NG_MU);
 }
 
 char *                          /* Type matches ckctel.h:telopt_modes[]. */
-#ifdef CK_ANSIC
 telopt_mode(int mode)
-#else
-telopt_mode(mode) int mode;
-#endif /* CK_ANSIC */
 {
     if (telopt_mode_ok(mode))
       return(telopt_modes[mode-TN_NG_RF]);
@@ -270,11 +244,7 @@ telopt_mode(mode) int mode;
 #endif /* TELOPT_MACRO */
 
 static int
-#ifdef CK_ANSIC
 tn_outst( int notquiet )
-#else
-tn_outst(notquiet) int notquiet;
-#endif /* CK_ANSIC */
 {
     int outstanding = 0;
     int x = 0;
@@ -425,11 +395,7 @@ prtwait(state) int state; {
 static int nflag = 0;
 
 int
-#ifdef CK_ANSIC
 tn_wait(char * where)
-#else
-tn_wait(where) char * where;
-#endif /* CK_ANSIC */
 /* tn_wait */ {
     extern int ckxech, local;
     int ch = 0, count = 0;
@@ -662,11 +628,7 @@ tn_push() {
    Returns 1 if command was sent, 0 if not, -1 on error.
 */
 int
-#ifdef CK_ANSIC
 tn_sopt( int cmd, int opt )             /* TELNET SEND OPTION */
-#else
-tn_sopt(cmd,opt) int cmd, opt;
-#endif /* CK_ANSIC */
 {
     CHAR buf[5];
     char msg[128];
@@ -738,11 +700,7 @@ tn_sopt(cmd,opt) int cmd, opt;
 /* Returns 1 if command was sent, 0 if not, -1 on error */
 
 int
-#ifdef CK_ANSIC
 tn_ssbopt( int opt, int sub, CHAR * data, int len )
-#else
-tn_ssbopt(opt,sub,data,len) int opt, sub; CHAR * data; int len;
-#endif /* CK_ANSIC */
 {
     CHAR buf[256];
     int rc;
@@ -939,13 +897,7 @@ tn_get_display()
  */
 
 static int
-#ifdef CK_ANSIC
 XmuGetHostname (char *buf, int maxlen)
-#else
-XmuGetHostname (buf, maxlen)
-    char *buf;
-    int maxlen;
-#endif /* CK_ANSIC */
 {
     int len;
 
@@ -970,13 +922,7 @@ XmuGetHostname (buf, maxlen)
 }
 
 static char *
-#ifdef CK_ANSIC
 copystring (char *src, int len)
-#else
-copystring (src, len)
-    char *src;
-    int len;
-#endif /* CK_ANSIC */
 {
     char *cp;
 
@@ -990,13 +936,7 @@ copystring (src, len)
 }
 
 static char *
-#ifdef CK_ANSIC
 get_local_hostname (char *buf, int maxlen)
-#else
-get_local_hostname (buf, maxlen)
-    char *buf;
-    int maxlen;
-#endif
 {
     buf[0] = '\0';
     (void) XmuGetHostname (buf, maxlen);
@@ -1020,17 +960,8 @@ copyhostname ()
  */
 
 int
-#ifdef CK_ANSIC
 fwdx_parse_displayname (char *displayname, int *familyp, char **hostp,
                         int *dpynump, int *scrnump, char **restp)
-#else
-fwdx_parse_displayname (displayname, familyp, hostp, dpynump, scrnump, restp)
-    char *displayname;
-    int *familyp;                       /* return */
-    char **hostp;                       /* return */
-    int *dpynump, *scrnump;             /* return */
-    char **restp;                       /* return */
-#endif /* CK_ANSIC */
 {
     char *ptr;                          /* work variables */
     int len;                            /* work variable */
@@ -1181,11 +1112,7 @@ fwdx_parse_displayname (displayname, familyp, hostp, dpynump, scrnump, restp)
    0 if the desired state is not achieved.
 */
 int
-#ifdef CK_ANSIC
 iks_wait(int sb, int flushok)
-#else /* CK_ANSIC */
-iks_wait(sb,flushok) int sb; int flushok;
-#endif /* CK_ANSIC */
 {
     int tn_wait_save = tn_wait_flg;
     int x;
@@ -1295,11 +1222,7 @@ iks_wait(sb,flushok) int sb; int flushok;
 }
 
 int
-#ifdef CK_ANSIC
 iks_tn_sb(CHAR * sb, int n)
-#else
-iks_tn_sb(sb, n) CHAR * sb; int n;
-#endif /* CK_ANSIC */
 {
     extern int server;
     extern CHAR sstate;
@@ -2067,15 +1990,7 @@ tn_ini() {
 }
 
 int
-#ifdef CK_ANSIC
 tn_hex(CHAR * buf, int buflen, CHAR * data, int datalen)
-#else /* CK_ANSIC */
-tn_hex(buf, buflen, data, datalen)
-    CHAR * buf;
-    int buflen;
-    CHAR * data;
-    int datalen;
-#endif /* CK_ANSIC */
 {
     int i = 0, j = 0, k = 0;
     CHAR tmp[16];		/* in case value is treated as negative */
@@ -2131,11 +2046,7 @@ tn_hex(buf, buflen, data, datalen)
 }
 
 VOID
-#ifdef CK_ANSIC
 tn_debug( char *s )
-#else
-tn_debug(s) char *s;
-#endif /* CK_ANSIC */
 {
 #ifdef NOLOCAL
     return;
@@ -2167,11 +2078,7 @@ tn_debug(s) char *s;
 */
 #ifdef IKS_OPTION
 int
-#ifdef CK_ANSIC
 tn_siks( int cmd )                      /* TELNET SEND IKS SUB */
-#else
-tn_siks(cmd) int cmd;
-#endif /* CK_ANSIC */
 {
     CHAR buf[8];
 #ifndef NOXFER
@@ -2258,11 +2165,7 @@ tn_siks(cmd) int cmd;
 /* the length returned includes the IAC SE bytes */
 
 int
-#ifdef CK_ANSIC                         /* TELNET SB */
 tn_sb( int opt, int * len, int (*fn)(int) )
-#else
-tn_sb( opt, len, fn ) int opt; int * len; int (*fn)();
-#endif /* CK_ANSIC */
 /* tn_sb */ {
     int y, n, flag;
     /* if (!IS_TELNET()) return(1); */
@@ -2972,11 +2875,7 @@ extern char * trmbuf;                   /* Real curses */
 */
 
 static int
-#ifdef CK_ANSIC                         /* TELNET DO OPTION */
 tn_xdoop(CHAR z, int echo, int (*fn)(int))
-#else
-tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
-#endif /* CK_ANSIC */
 /* tn_xdoop */ {
     int c, x, y, n;
 #ifdef IKS_OPTION
@@ -3647,11 +3546,7 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
 }
 
 int
-#ifdef CK_ANSIC                         /* TELNET DO OPTION */
 tn_doop(CHAR z, int echo, int (*fn)(int))
-#else
-tn_doop(z, echo, fn) CHAR z; int echo; int (*fn)();
-#endif /* CK_ANSIC */
 /* tn_doop */ {
     int x=0, y=0;
 
@@ -3687,11 +3582,7 @@ tn_doop(z, echo, fn) CHAR z; int echo; int (*fn)();
 /* We currently only support the USER environment variable */
 
 int
-#ifdef CK_ANSIC
 tn_rnenv(CHAR * sb, int len)
-#else
-tn_rnenv(sb, len) CHAR * sb; int len;
-#endif /* CK_ANSIC */
 /* tn_rnenv */ {                        /* Receive new environment */
     char varname[17];
     char value[65];
@@ -3778,11 +3669,7 @@ tn_rnenv(sb, len) CHAR * sb; int len;
 /* In order for this code to work, sb[len] == IAC          */
 
 int
-#ifdef CK_ANSIC
 tn_snenv(CHAR * sb, int len)
-#else
-tn_snenv(sb, len) CHAR * sb; int len;
-#endif /* CK_ANSIC */
 /* tn_snenv */ {                        /* Send new environment */
     char varname[16];
     char * reply = 0;
@@ -4382,11 +4269,7 @@ static int tnc_suspend_xmit = 0;
 static int tnc_bps_index = -1;
 
 int
-#ifdef CK_ANSIC
 tnc_init(void)
-#else /* CK_ANSIC */
-tnc_init()
-#endif /* CK_ANSIC */
 /* tnc_init */ {
     debug(F100,"tnc_init","",0);
 
@@ -4415,11 +4298,7 @@ tnc_init()
 }
 
 int
-#ifdef CK_ANSIC
 tn_sndcomport(void)
-#else /* CK_ANSIC */
-tn_sndcomport()
-#endif /* CK_ANSIC */
 /* tn_sndcomport */ {
     int baud, datasize, parity, stopsize, oflow, iflow;
     CONST char * signature;
@@ -4440,11 +4319,7 @@ tn_sndcomport()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_wait(CHAR * msg, int ms)
-#else /* CK_ANSIC */
-tnc_wait(msg, ms) CHAR * msg; int ms;
-#endif /* CK_ANSIC */
 /* tnc_wait */ {
     int rc, tn_wait_save = tn_wait_flg;
 
@@ -4467,11 +4342,7 @@ tnc_wait(msg, ms) CHAR * msg; int ms;
 /* In order for this code to work, sb[len] == IAC          */
 
 int
-#ifdef CK_ANSIC
 tnc_tn_sb(CHAR * sb, int len)
-#else
-tnc_tn_sb(sb, len) CHAR * sb; int len;
-#endif /* CK_ANSIC */
 /* tnc_tn_sb */ {
     if (ttnet != NET_TCPB) return(0);
     if (ttnproto != NP_TELNET) return(0);
@@ -4812,11 +4683,7 @@ tnc_tn_sb(sb, len) CHAR * sb; int len;
 }
 
 CONST char *
-#ifdef CK_ANSIC
 tnc_get_signature(void)
-#else /* CK_ANSIC */
-tnc_get_signature()
-#endif /* CK_ANSIC */
 /* tnc_get_signature */ {
     /* send IAC SB COM-PORT SIGNATURE IAC SE */
     /* wait for response */
@@ -4862,11 +4729,7 @@ tnc_get_signature()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_send_signature(char * signature)
-#else /* CK_ANSIC */
-tnc_send_signature(signature) char * signature;
-#endif /* CK_ANSIC */
 /* tnc_send_signature */ {
     /* send IAC SB COM-PORT SIGNATURE <text> IAC SE */
     int i = 0, j = 0, rc;
@@ -4910,11 +4773,7 @@ tnc_send_signature(signature) char * signature;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_baud( long baud )
-#else /* CK_ANSIC */
-tnc_set_baud(baud) long baud;
-#endif /* CK_ANSIC */
 /* tnc_set_baud */ {
     /* send IAC SB COM-PORT SET-BAUD <value(4)> IAC SE  */
     /* wait for response */
@@ -5035,11 +4894,7 @@ tnc_set_baud(baud) long baud;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_baud(void)
-#else /* CK_ANSIC */
-tnc_get_baud()
-#endif /* CK_ANSIC */
 /* tnc_get_baud */ {
     /* send IAC SB COM-PORT SET-BAUD <value(4)=0> IAC SE  */
     /* wait for response */
@@ -5096,11 +4951,7 @@ tnc_get_baud()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_datasize(int datasize)
-#else /* CK_ANSIC */
-tnc_set_datasize(datasize) int datasize;
-#endif /* CK_ANSIC */
 /* tnc_set_datasize */ {
     /* IAC SB COM-PORT SET_DATASIZE <value(1)> IAC SE */
     /* Valid <value>s are 5 through 8 */
@@ -5156,11 +5007,7 @@ tnc_set_datasize(datasize) int datasize;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_datasize(void)
-#else /* CK_ANSIC */
-tnc_get_datasize()
-#endif /* CK_ANSIC */
 /* tnc_get_datasize */ {
     /* IAC SB COM-PORT SET_DATASIZE <value(1)=0> IAC SE */
     /* Wait for response */
@@ -5207,11 +5054,7 @@ tnc_get_datasize()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_parity(int parity)
-#else /* CK_ANSIC */
-tnc_set_parity(parity) int parity;
-#endif /* CK_ANSIC */
 /* tnc_set_parity */ {
     /* IAC SB COM-PORT SET_PARITY <value(1)> IAC SE */
     /*        Value     Parity
@@ -5271,11 +5114,7 @@ tnc_set_parity(parity) int parity;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_parity(void)
-#else /* CK_ANSIC */
-tnc_get_parity()
-#endif /* CK_ANSIC */
 /* tnc_get_parity */ {
     /* IAC SB COM-PORT SET_PARITY <value(1)=0> IAC SE */
     /* wait for response */
@@ -5321,11 +5160,7 @@ tnc_get_parity()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_stopsize(int stopsize)
-#else /* CK_ANSIC */
-tnc_set_stopsize(stopsize) int stopsize;
-#endif /* CK_ANSIC */
 /* tnc_set_stopsize */ {
     /* IAC SB COM-PORT SET_STOPSIZE <value(1)> IAC SE */
     /*        Value     Stop Bit Size
@@ -5382,11 +5217,7 @@ tnc_set_stopsize(stopsize) int stopsize;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_stopsize(void)
-#else /* CK_ANSIC */
-tnc_get_stopsize()
-#endif /* CK_ANSIC */
 /* tnc_get_stopsize */ {
     /* IAC SB COM-PORT SET_STOPSIZE <value(1)=0> IAC SE */
     /* Wait for response */
@@ -5432,11 +5263,7 @@ tnc_get_stopsize()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_oflow(int control)
-#else /* CK_ANSIC */
-tnc_set_oflow(control) int control;
-#endif /* CK_ANSIC */
 /* tnc_set_oflow */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)> IAC SE */
     /*        Value     Flow Control
@@ -5496,11 +5323,7 @@ tnc_set_oflow(control) int control;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_oflow(void)
-#else /* CK_ANSIC */
-tnc_get_oflow()
-#endif /* CK_ANSIC */
 /* tnc_get_oflow */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)=0> IAC SE */
     /* wait for response */
@@ -5548,11 +5371,7 @@ tnc_get_oflow()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_iflow(int control)
-#else /* CK_ANSIC */
-tnc_set_iflow(control) int control;
-#endif /* CK_ANSIC */
 /* tnc_set_iflow */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)> IAC SE */
     /*        Value     Flow Control
@@ -5610,11 +5429,7 @@ tnc_set_iflow(control) int control;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_iflow(void)
-#else /* CK_ANSIC */
-tnc_get_iflow()
-#endif /* CK_ANSIC */
 /* tnc_get_iflow */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)=13> IAC SE */
     /* wait for response */
@@ -5662,11 +5477,7 @@ tnc_get_iflow()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_break_state(int onoff)
-#else /* CK_ANSIC */
-tnc_set_break_state(onoff) int onoff;
-#endif /* CK_ANSIC */
 /* tnc_set_break_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)> IAC SE */
     /*        Value     Break State
@@ -5722,11 +5533,7 @@ tnc_set_break_state(onoff) int onoff;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_break_state(void)
-#else /* CK_ANSIC */
-tnc_get_break_state()
-#endif /* CK_ANSIC */
 /* tnc_get_break_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)=4> IAC SE */
     /* wait for response */
@@ -5774,11 +5581,7 @@ tnc_get_break_state()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_dtr_state(int onoff)
-#else /* CK_ANSIC */
-tnc_set_dtr_state(onoff) int onoff;
-#endif /* CK_ANSIC */
 /* tnc_set_dtr_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)> IAC SE */
     /*        Value     Dtr State
@@ -5834,11 +5637,7 @@ tnc_set_dtr_state(onoff) int onoff;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_dtr_state(void)
-#else /* CK_ANSIC */
-tnc_get_dtr_state()
-#endif /* CK_ANSIC */
 /* tnc_get_dtr_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)=7> IAC SE */
     /* wait for response */
@@ -5886,11 +5685,7 @@ tnc_get_dtr_state()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_rts_state(int onoff)
-#else /* CK_ANSIC */
-tnc_set_rts_state(onoff) int onoff;
-#endif /* CK_ANSIC */
 /* tnc_set_rts_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)> IAC SE */
     /*        Value     Rts State
@@ -5946,11 +5741,7 @@ tnc_set_rts_state(onoff) int onoff;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_rts_state(void)
-#else /* CK_ANSIC */
-tnc_get_rts_state()
-#endif /* CK_ANSIC */
 /* tnc_get_rts_state */ {
     /* IAC SB COM_PORT SET_CONTROL <value(1)=10> IAC SE */
     /* wait for response */
@@ -5998,11 +5789,7 @@ tnc_get_rts_state()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_ls_mask(int mask)
-#else /* CK_ANSIC */
-tnc_set_ls_mask(mask) int mask;
-#endif /* CK_ANSIC */
 /* tnc_set_ls_mask */ {
     /* IAC SB COM_PORT SET_LINESTATE_MASK <value(1)> IAC SE */
     /*        Bit       Meaning
@@ -6061,22 +5848,14 @@ tnc_set_ls_mask(mask) int mask;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_ls_mask(void)
-#else /* CK_ANSIC */
-tnc_get_ls_mask()
-#endif /* CK_ANSIC */
 /* tnc_get_ls_mask */ {
     debug(F101,"tnc_get_ls_mask","",tnc_ls_mask);
     return(tnc_ls_mask);
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_ls(void)
-#else /* CK_ANSIC */
-tnc_get_ls()
-#endif /* CK_ANSIC */
 /* tnc_get_ls */ {
     int ls = tnc_ls;
     debug(F101,"tnc_get_ls","",tnc_ls);
@@ -6084,11 +5863,7 @@ tnc_get_ls()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_set_ms_mask(int mask)
-#else /* CK_ANSIC */
-tnc_set_ms_mask(mask) int mask;
-#endif /* CK_ANSIC */
 /* tnc_set_ms_mask */ {
     /* IAC SB COM_PORT SET_MODEMSTATE_MASK <value(1)> IAC SE */
     /*        Bit       Meaning
@@ -6148,22 +5923,14 @@ tnc_set_ms_mask(mask) int mask;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_ms_mask(void)
-#else /* CK_ANSIC */
-tnc_get_ms_mask()
-#endif /* CK_ANSIC */
 /* tnc_get_ms_mask */ {
     debug(F101,"tnc_get_gs_mask","",tnc_ms_mask);
     return(tnc_ms_mask);
 }
 
 int
-#ifdef CK_ANSIC
 tnc_get_ms(void)
-#else /* CK_ANSIC */
-tnc_get_ms()
-#endif /* CK_ANSIC */
 /* tnc_get_ms */ {
     int ms = tnc_ms;
     debug(F101,"tnc_get_ms","",tnc_ms);
@@ -6171,11 +5938,7 @@ tnc_get_ms()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_send_purge_data(int mode)
-#else /* CK_ANSIC */
-tnc_send_purge_data(mode) int mode;
-#endif /* CK_ANSIC */
 /* tnc_send_purge_data */ {
     /* IAC SB COM_PORT PURGE_DATA <value(1)> IAC SE */
     /*        Value     Meaning
@@ -6226,22 +5989,14 @@ tnc_send_purge_data(mode) int mode;
 }
 
 int
-#ifdef CK_ANSIC
 tnc_flow_suspended(void)
-#else /* CK_ANSIC */
-tnc_flow_suspended()
-#endif /* CK_ANSIC */
 /* tnc_flow_suspended */ {
     debug(F111,"tnc_flow_suspended","",tnc_suspend_xmit);
     return(tnc_suspend_xmit);
 }
 
 int
-#ifdef CK_ANSIC
 tnc_suspend_flow(void)
-#else /* CK_ANSIC */
-tnc_suspend_flow()
-#endif /* CK_ANSIC */
 /* tnc_suspend_flow */ {
     /* IAC SB COM_PORT FLOWCONTROL_SUSPEND IAC SE */
     int i = 0, rc;
@@ -6279,11 +6034,7 @@ tnc_suspend_flow()
 }
 
 int
-#ifdef CK_ANSIC
 tnc_resume_flow(void)
-#else /* CK_ANSIC */
-tnc_resume_flow()
-#endif /* CK_ANSIC */
 /* tnc_resume_flow */ {
     /* IAC SB COM_PORT FLOWCONTROL_RESUME IAC SE */
     int i = 0, rc;
@@ -6321,11 +6072,7 @@ tnc_resume_flow()
 }
 
 int
-#ifdef CK_ANSIC
 tnsetflow(int nflow)
-#else
-tnsetflow(nflow) int nflow;
-#endif /* CK_ANSIC */
 /* tnsetflow */ {
 
     int rc = -1;
@@ -6384,11 +6131,7 @@ tnsetflow(nflow) int nflow;
 }
 
 int
-#ifdef CK_ANSIC
 tnsettings(int par, int stop)
-#else
-tnsettings(par, stop) int par, stop;
-#endif /* CK_ANSIC */
 /* tnsettings */ {
     int rc = -1;
     int datasize = 0;
@@ -6464,11 +6207,7 @@ tnsettings(par, stop) int par, stop;
   >= 0 on success, with a bit mask containing the modem signals that are on.
 */
 int
-#ifdef CK_ANSIC
 tngmdm(void)
-#else
-tngmdm()
-#endif /* CK_ANSIC */
 /* tngmdm */ {
 
     debug(F110,"tngmdm","begin",0);
@@ -6495,11 +6234,7 @@ tngmdm()
 }
 
 int
-#ifdef CK_ANSIC
 tnsndb(long wait)
-#else
-tnsndb(wait) long wait;
-#endif /* CK_ANSIC */
 /* tnsndb */ {
     int rc = -1;
 

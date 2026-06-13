@@ -36,14 +36,7 @@ extern ckjmpbuf cmjbuf;
 
 #ifndef NOCCTRAP
 int
-#ifdef CK_ANSIC
 cc_execute( ckjptr(sj_buf), ck_sigfunc dofunc, ck_sigfunc failfunc )
-#else
-cc_execute( sj_buf, dofunc, failfunc)
-    ckjptr(sj_buf);
-    ck_sigfunc dofunc;
-    ck_sigfunc failfunc;
-#endif /* CK_ANSIC */
 /* cc_execute */ {
     int rc = 0 ;
     if (
@@ -59,7 +52,6 @@ cc_execute( sj_buf, dofunc, failfunc)
 #endif /* NOCCTRAP */
 
 int
-#ifdef CK_ANSIC				/* ANSIC C declaration... */
 alrm_execute(ckjptr(sj_buf),
 	     int timo,
 	     ck_sighand handler,
@@ -67,20 +59,6 @@ alrm_execute(ckjptr(sj_buf),
 	     ck_sigfunc failfunc
 	     )
 
-#else /* Not ANSIC C ... */
-
-alrm_execute(sj_buf,
-	     timo,
-	     handler,
-	     dofunc,
-	     failfunc
-	     )
-    ckjptr(sj_buf);
-    int timo;
-    ck_sighand handler;
-    ck_sigfunc dofunc;
-    ck_sigfunc failfunc;
-#endif /* CK_ANSIC */
 
 /* alrm_execute */ {
 
@@ -106,7 +84,6 @@ _PROTOTYP(SIGTYP (*savhandler), (int));
 }
 
 int
-#ifdef CK_ANSIC				/* ANSIC C declaration... */
 cc_alrm_execute(ckjptr(sj_buf),
 		int timo,
 		ck_sighand handler,
@@ -114,20 +91,6 @@ cc_alrm_execute(ckjptr(sj_buf),
 		ck_sigfunc failfunc
 		)
 
-#else /* Not ANSIC C ... */
-
-cc_alrm_execute(sj_buf,
-	     timo,
-	     handler,
-	     dofunc,
-	     failfunc
-	     )
-    ckjptr(sj_buf);
-    int timo;
-    ck_sighand handler;
-    ck_sigfunc dofunc;
-    ck_sigfunc failfunc;
-#endif /* CK_ANSIC */
 
 /* cc_alrm_execute */ {
 

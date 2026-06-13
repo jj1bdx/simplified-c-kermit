@@ -93,7 +93,6 @@ extern int stdinf, sndsrc, size, rpsiz, urpsiz, fncnv, fnrpath, displa,
 
 extern char *cmarg, *cmarg2;
 
-#ifdef CK_ANSIC
 /* prototypes for static functions - fdc 30 November 2022 */
 static char * xdial( char * );
 static int typegetline( int, int, char *, int );
@@ -104,7 +103,6 @@ static int renameone(char *,
   char *,int,int,int,int,int,int,int,int,int,int,int);
 static int typeline( char *, int, int, FILE * );
 static int xxundef( char *, int, int );
-#endif  /* CK_ANSIC */
 
 #ifndef NOMSEND                         /* Multiple SEND */
 extern char *msfiles[];
@@ -862,11 +860,7 @@ static struct keytab getctab[] = {
 static int ngetctab = sizeof(getctab)/sizeof(struct keytab)-1;
 
 int
-#ifdef CK_ANSIC
 doask( int cx )
-#else
-doask(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern int asktimer, timelimit;
 #ifdef CK_RECALL
@@ -1343,11 +1337,7 @@ reparse:
 
 #ifndef NOSPL
 int
-#ifdef CK_ANSIC
 doincr( int cx )                        /* INCREMENT, DECREMENT */
-#else
-doincr(cx) int cx; 
-#endif /* CK_ANSIC */
 {
     char vnambuf[VNAML+1];              /* Buffer for variable names */
     int eval = 0;
@@ -1377,11 +1367,7 @@ doincr(cx) int cx;
 
 /* Used by doundef() */
 static int
-#ifdef CK_ANSIC
 xxundef( char * s, int verbose, int simulate )
-#else
-xxundef(s,verbose,simulate) char * s; int verbose, simulate;
-#endif /* CK_ANSIC */
 {
     int rc = 0;
     if (!s) return(0);
@@ -1432,11 +1418,7 @@ static int nundefswi = sizeof(undefswi) / sizeof(struct keytab);
 #define UNDEFMAX 64
 static char ** undeflist = NULL;
 int
-#ifdef CK_ANSIC
 doundef( int cx )                       /* UNDEF, _UNDEF */
-#else
-doundef(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i, j, n, rc = 0, arraymsg = 0;
     int domatch = 0, verbose = 0, errors = 0, simulate = 0, flag = 0;
@@ -1605,11 +1587,7 @@ doundef(cx) int cx;
 }
 
 int
-#ifdef CK_ANSIC
 dodef( int cx )
-#else
-dodef(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern int xxdot;
     extern char ppvnambuf[];
@@ -1759,21 +1737,13 @@ static int dncount = 0;
 char * d_name = NULL;                   /* Dial name pointer */
 
 char *                                  /* Get dial directory entry name */
-#ifdef CK_ANSIC
 getdname( void )
-#else
-getdname()
-#endif /* CK_ANSIC */
 {
     return(d_name ? d_name : "");
 }
 
 char *
-#ifdef CK_ANSIC
 getdnum( int n )                /* Get dial number n from directory */
-#else
-getdnum(n) int n;
-#endif /* CK_ANSIC */
 {
     if (n < 0 || n > dncount || n > MAXDNUMS)
       return("");
@@ -1782,11 +1752,7 @@ getdnum(n) int n;
 }
 
 char *                  /* Check area code for spurious leading digit */
-#ifdef CK_ANSIC
 chk_ac( int i, char buf[] )
-#else
-chk_ac(i,buf) int i; char buf[];
-#endif /* CK_ANSIC */
 {
     char *p;
     if (!buf)
@@ -1826,11 +1792,7 @@ chk_ac(i,buf) int i; char buf[];
      2 if call is local but area code must be dialed anyway
 */
 static int
-#ifdef CK_ANSIC
 callisld( char * src, char * dest )
-#else
-callisld(src, dest) char * src, * dest;
-#endif /* CK_ANSIC */
 {
     int i;
     if (dialfld)                        /* Force long distance? */
@@ -1851,11 +1813,7 @@ char pdsfx[64] = { NUL, NUL };
 
 #ifndef NOSPL
 static char *
-#ifdef CK_ANSIC
 xdial( char *s )                      /* Run dial string thru macro */
-#else
-xdial(s) char *s;
-#endif /* CK_ANSIC */
 {
     int x, m;
     char * s2;
@@ -1878,11 +1836,7 @@ xdial(s) char *s;
 #endif /* NOSPL */
 
 static int
-#ifdef CK_ANSIC
 dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
-#else
-dncvt(k,cx, prefix, suffix) int k, cx, prefix, suffix;
-#endif /* CK_ANSIC */
 { 
     int i, j, n, what;                  /* cx is top-level command index */
     char *ss;                           /* prefix - add prefixes? */
@@ -2344,11 +2298,7 @@ dncvt(k,cx, prefix, suffix) int k, cx, prefix, suffix;
 }
 
 static int
-#ifdef CK_ANSIC
 ddcvt( char * s, FILE * f, int n )      /* Dial Directory Convert */
-#else
-ddcvt(s, f, n) char * s; FILE * f; int n;
-#endif /* CK_ANSIC */
 {
     char linebuf[1024], *s2;            /* Buffers and pointers */
     char *info[8];                      /* Pointers to words from entry */
@@ -2425,11 +2375,7 @@ ddcvt(s, f, n) char * s; FILE * f; int n;
 }
 
 int                                     /* s = name to look up   */
-#ifdef CK_ANSIC                         /* cx = index of command */
 ludial(char *s, int cx)                 /* (DIAL, LOOKUP, etc)   */
-#else
-ludial(s, cx) char *s; int cx;
-#endif /* CK_ANSIC */
 /* ludial */ {
 
     int dd, n1, n2, n3, j, t;        /* Workers */
@@ -2724,11 +2670,7 @@ if (zz) printf("MATCH OK: [%s] [%s], n1=%d\n",s,info[1],n1);
 }
 
 char *
-#ifdef CK_ANSIC
 pncvt( char *s )                        /* Phone number conversion */
-#else
-pncvt(s) char *s;
-#endif /* CK_ANSIC */
 {
     char *p = NULL;                     /* (just a wrapper for dncvt() */
     char *q = NULL;
@@ -2749,11 +2691,7 @@ pncvt(s) char *s;
 }
 
 int
-#ifdef CK_ANSIC
 dodial( int cx )                        /* DIAL or REDIAL */
-#else
-dodial(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i = 0, x = 0;                   /* Workers */
     int sparity = -1;                   /* For saving global parity value */
@@ -3446,11 +3384,7 @@ static char * mbuf = NULL;
 static long xn = 0L;
 
 static int
-#ifdef CK_ANSIC
 storechar(char c)
-#else
-storechar(c) char c;
-#endif /* CK_ANSIC */
 {
     if (!mp) return(-1);
     if (++xn > TYPXBUFL)
@@ -3464,11 +3398,7 @@ storechar(c) char c;
 static FILE * ofp = NULL;               /* For /OUTPUT: file */
 
 static int
-#ifdef CK_ANSIC
 typeline( char * buf, int len, int outcs, FILE * ofp )
-#else
-typeline(buf,len,outcs,ofp) char * buf; int len, outcs; FILE * ofp;
-#endif /* CK_ANSIC */
 {
     register int i;
 
@@ -3531,11 +3461,7 @@ typeline(buf,len,outcs,ofp) char * buf; int len, outcs; FILE * ofp;
 }
 
 static int                              /* Get translated line */
-#ifdef CK_ANSIC
 typegetline(int incs, int outcs, char * buf, int n )
-#else
-typegetline(incs, outcs, buf, n) int incs, outcs, n; char * buf;
-#endif /* CK_ANSIC */
 {
     int x = 0, c0, c1, len = 0, count = 0, eof = 0, xlate = 0;
 #ifdef UNICODE
@@ -3723,11 +3649,7 @@ typegetline(incs, outcs, buf, n) int incs, outcs, n; char * buf;
 }
 
 SIGTYP
-#ifdef CK_ANSIC
 tytrap(int foo)                         /* TYPE interrupt trap */
-#else
-tytrap(foo) int foo;
-#endif /* CK_ANSIC */
 /* tytrap */ {
 #ifdef __EMX__
     signal(SIGINT, SIG_ACK);
@@ -3740,14 +3662,8 @@ tytrap(foo) int foo;
 _PROTOTYP(char * cvtstring,(char*,int,int));
 
 int
-#ifdef CK_ANSIC
 dotype( char * file, int paging, int first, int head, char * pat,
         int width, char * prefix, int incs, int outcs, char * outfile, int z )
-#else
-dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
-    char * file, * pat, * prefix; int paging, first, head, width, incs, outcs;
-    char * outfile; int z;
-#endif /* CK_ANSIC */
 {
     extern CK_OFF_T ffc;
     char buf[TYPBUFL+2];
@@ -5095,11 +5011,7 @@ setdiropts() {                          /* Set DIRECTORY option defaults */
 }
 
 int
-#ifdef CK_ANSIC
 domydir( int cx )                     /* Internal DIRECTORY command */
-#else
-domydir(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern char *months[], *tempdir;
     struct zattr xxstruct;
@@ -6521,11 +6433,7 @@ preserving original modtime: %s %s\n",
 }
 
 int
-#ifdef CK_ANSIC
 dodir( int cx )                         /* Do the DIRECTORY command */
-#else
-dodir(cx) int cx;
-#endif /* CK_ANSIC */
 {
     char *dc , *msg;
 
@@ -6564,11 +6472,7 @@ dodir(cx) int cx;
 /* Do the ENABLE and DISABLE commands */
 
 int
-#ifdef CK_ANSIC
 doenable( int y, int x )
-#else
-doenable(y,x) int y, x;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
     if (isguest)                        /* IKSD: Don't let guests */
@@ -7712,11 +7616,7 @@ badfor:
   Returns a 0 to 86400 on success, or a negative number on failure.
 */
 long
-#ifdef CK_ANSIC
 tod2sec( char * t )
-#else
-tod2sec(t) char * t;
-#endif /* CK_ANSIC */
 {
     long t2;
     long hh = 0L, mm = 0L, ss = 0L;
@@ -7787,11 +7687,7 @@ int waitinterval = 1;
 int kbchar = NUL;
 
 int
-#ifdef CK_ANSIC
 dopaus( int cx )
-#else
-dopaus(cx) int cx;
-#endif /* CK_ANSIC */
 {
     long zz;
     extern int sleepcan;
@@ -8784,11 +8680,7 @@ static char * pcvtbufin = NULL;
 static char * pcvtbufout = NULL;
 
 static int				/* Input function xgnbyte() */
-#ifdef CK_ANSIC
 cvtfnin(void)
-#else
-cvtfnin()
-#endif	/* CK_ANSIC */
 {
     CHAR c;
     c = *pcvtbufin++;
@@ -8796,11 +8688,7 @@ cvtfnin()
 }
 
 static int
-#ifdef CK_ANSIC
 cvtfnout(char c)			/* Output function for xpnbyte() */
-#else
-cvtfnout(c) char c;
-#endif	/* CK_ANSIC */
 {
     if (pcvtbufout - cvtbufout >= CKMAXPATH)
       return(-1);
@@ -8812,11 +8700,7 @@ cvtfnout(c) char c;
 /* Convert a string from any charset to any other charset */
 
 char *
-#ifdef CK_ANSIC
 cvtstring(char* s,int csin,int csout)
-#else
-cvtstring(s,csin,csout) char * s; int csin, csout;
-#endif
 {
     int c;
     extern CK_OFF_T ffc;
@@ -8891,11 +8775,7 @@ setrename() {				/* Parse SET RENAME options */
 /* Reverse a string - Assumes a single-byte character set */
 
 int
-#ifdef CK_ANSIC
 gnirts( char * s1, char * s2, int len )
-#else
-gnirts(s1, s2, len) char * s1, * s2; int len;
-#endif /* CK_ANSIC */
 {
     int n, m = 0;
     if (!s1)				/* Null source pointer, fail */
@@ -8944,18 +8824,9 @@ gnirts(s1, s2, len) char * s1, * s2; int len;
 #define REN_OP_CHK 2			/* Check for collisions */
 
 static int
-#ifdef CK_ANSIC
 renameone(char * old, char * new,
 	  int replacing, int casing, int all, int converting, int cset1, 
           int cset2, int listing, int nolist, int op, int size, int collision )
-#else
-renameone(old,new,
-	  replacing,casing,all,converting,cset1,cset2,
-	  listing,nolist,op,size,collision)
-    char * old, * new;
-    int replacing,casing,all,converting,cset1,cset2,
-    listing,nolist,op,size,collision;
-#endif /* CK_ANSIC */
 {
     char buf[CKMAXPATH];		/* Temporary filename buffer */
     char out[CKMAXPATH];		/* Buffer for new name */
@@ -9651,11 +9522,7 @@ dorenam() {
 /* Do the RETURN command */
 
 int
-#ifdef CK_ANSIC
 doreturn( char *s )
-#else
-doreturn(s) char *s;
-#endif /* CK_ANSIC */
 {
     int x;
     extern int tra_asg;
@@ -9862,11 +9729,7 @@ extern int lf_opts;
 #endif /* CK_LABELED */
 
 int
-#ifdef CK_ANSIC
 doxget( int cx )
-#else
-doxget(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern int                          /* External variables we need */
 #ifdef RECURSIVE
@@ -10738,11 +10601,7 @@ doxget(cx) int cx;
   on them, so the new values won't be lost as we pop up the stack.
 */
 int
-#ifdef CK_ANSIC
 dogta( int cx )
-#else
-dogta(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i;
     char c, *p,  mbuf[4];
@@ -10842,11 +10701,7 @@ dogta(cx) int cx;
   s = Label to search for, cx = function code: XXGOTO, XXFWD, or XXXFWD.
 */
 int
-#ifdef CK_ANSIC
 dogoto( char *s, int cx )
-#else
-dogoto(s, cx) char *s; int cx;
-#endif /* CK_ANSIC */
 {
     int j, x, y, z, bc;
     int empty = 0, stopflg = 0;
@@ -11113,11 +10968,7 @@ dogoto(s, cx) char *s; int cx;
   variable.  Returns 1 if it has the syntax of a variable, 0 if not.
 */
 int
-#ifdef CK_ANSIC
 chkvar( char *s )
-#else
-chkvar(s) char *s;
-#endif /* CK_ANSIC */
 {
     int z = 0;                          /* Return code - assume failure. */
     if (!s) s = "";                     /* Watch our for null pointers. */
@@ -11179,11 +11030,7 @@ chkvar(s) char *s;
 static char boolval[BOOLLEN];
 
 int
-#ifdef CK_ANSIC
 boolexp( int cx )
-#else
-boolexp(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int x, y, z; char *s, *p;
     int parens = 0, pcount = 0, ecount = 0;
@@ -12152,11 +11999,7 @@ boolexp(cx) int cx;
 /*  D O I F  --  Do the IF command  */
 
 int
-#ifdef CK_ANSIC
 doif( int cx )
-#else
-doif(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int x, y, z; char *s, *p;
 
@@ -12347,11 +12190,7 @@ doif(cx) int cx;
 /* Set up a TAKE command file */
 
 int
-#ifdef CK_ANSIC
 dotake( char *s )
-#else
-dotake(s) char *s;
-#endif /* CK_ANSIC */
 {
     extern char lasttakeline[];         /* Last TAKE-file line */
 #ifndef NOSPL

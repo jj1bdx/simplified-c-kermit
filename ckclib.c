@@ -132,11 +132,7 @@ static char rxresult[RXRESULT+1];
    . Copy a piece of a string.
 */
 int
-#ifdef CK_ANSIC
 ckstrncpy(char * dest, const char * src, int len)
-#else
-ckstrncpy(dest,src,len) char * dest, * src; int len;
-#endif /* CK_ANSIC */
 {
     int i;
     if (len < 1 || !src || !dest) {	/* Nothing or nowhere to copy */
@@ -171,11 +167,7 @@ ckstrncpy(dest,src,len) char * dest, * src; int len;
     int, The number of bytes copied, 0 or more.
 */
 int
-#ifdef CK_ANSIC
 ckstrncat(char * dest, const char * src, int len)
-#else
-ckstrncat(dest,src,len) char * dest, * src; int len;
-#endif /* CK_ANSIC */
 {
     register int i, j;
 #ifdef NOCKSTRNCPY
@@ -237,11 +229,7 @@ ckstrncat(dest,src,len) char * dest, * src; int len;
      Use ckmak[x]msg() plus ck?to?() as a safe replacement for sprintf().
 */
 int
-#ifdef CK_ANSIC
 ckmakmsg(char * buf, int len, char *s1, char *s2, char *s3, char *s4)
-#else /* CK_ANSIC */
-ckmakmsg(buf,len,s1,s2,s3,s4) char *buf, *s1, *s2, *s3, *s4; int len;
-#endif /* CK_ANSIC */
 {
     int i, n = 0, m = 0;
     char *s;
@@ -272,15 +260,9 @@ ckmakmsg(buf,len,s1,s2,s3,s4) char *buf, *s1, *s2, *s3, *s4; int len;
 /*  Exactly like ckmakmsg(), but accepts 12 string arguments. */
 
 int
-#ifdef CK_ANSIC
 ckmakxmsg(char * buf, int len,
 	  char *s1, char *s2, char *s3, char  *s4, char  *s5, char *s6,
 	  char *s7, char *s8, char *s9, char *s10, char *s11, char *s12)
-#else /* CK_ANSIC */
-ckmakxmsg(buf,len,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12)
-  char *buf, *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8, *s9, *s10, *s11, *s12;
-  int len;
-#endif /* CK_ANSIC */
 {
     int i, n = 0, m = 0;
     char *s;
@@ -313,11 +295,7 @@ ckmakxmsg(buf,len,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12)
 /*  Converts a character to a string, interpreting controls.  */
 
 char *
-#ifdef CK_ANSIC
 chartostr( int x )                      /* Call with char x */
-#else
-chartostr( x ) int x;
-#endif /* CK_ANSIC */
 {
     static char buf[2];			/* Returns string pointer. */
     if (x < 32)
@@ -338,11 +316,7 @@ chartostr( x ) int x;
 /*  Returns the rightmost character of the given null-terminated string */
 
 int
-#ifdef CK_ANSIC
 ckrchar( char * s )
-#else
-ckrchar(s) char * s;
-#endif /* CK_ANSIC */
 {
     register CHAR c = '\0', *p;
     p = (CHAR *)s;
@@ -364,11 +338,7 @@ ckrchar(s) char * s;
      pointer to first occurrence of c in s, searching from left to right.
 */
 char *
-#ifdef CK_ANSIC
 ckstrchr(char * s, char c)
-#else
-ckstrchr(s,c) char *s, c;
-#endif /* CK_ANSIC */
 /* ckstrchr */ {
     if (!s)
       return(NULL);
@@ -388,11 +358,7 @@ ckstrchr(s,c) char *s, c;
      pointer to first occurrence of c in s, searching from right to left.
 */
 char *
-#ifdef CK_ANSIC
 ckstrrchr(char * s, char c)
-#else
-ckstrrchr(s,c) char *s, c;
-#endif /* CK_ANSIC */
 /* ckstrchr */ {
     char * s2 = NULL;
     if (!s)
@@ -411,11 +377,7 @@ ckstrrchr(s,c) char *s, c;
 /* Returns pointer to first char in s1 that is also in s2, or NULL */
 
 char *
-#ifdef CK_ANSIC
 ckstrpbrk(char * s1, char * s2)
-#else
-ckstrpbrk(s1, s2) char * s1, * s2;
-#endif /* CK_ANSIC */
 {
     char c1, c2, * s3;
     if (!s1 || !s2) return(NULL);
@@ -435,11 +397,7 @@ ckstrpbrk(s1, s2) char * s1, * s2;
 /* Returns the length of the string */
 
 int
-#ifdef CK_ANSIC
 cklower(char * s) 
-#else
-cklower(s) char *s; 
-#endif /* CK_ANSIC */
 {
     int n = 0;
     if (!s) return(0);
@@ -455,11 +413,7 @@ cklower(s) char *s;
 /* Returns the length of the string */
 
 int
-#ifdef CK_ANSIC
 ckupper(char * s) 
-#else
-ckupper(s) char *s; 
-#endif /* CK_ANSIC */
 {
     int n = 0;
     if (!s) return(0);
@@ -489,11 +443,7 @@ static int numbp = 0;
   functions.  For long-term use, the result must be copied to a safe place.
 */
 char *
-#ifdef CK_ANSIC
 ckltoa(long n)
-#else
-ckltoa(n) long n;
-#endif /* CK_ANSIC */
 /* ckltoa */ {
     char buf[32];			/* Internal working buffer */
     char * p, * s, * q;
@@ -526,11 +476,7 @@ ckltoa(n) long n;
 /*  C K U L T O A  --  Unsigned long to string  */
 
 char *
-#ifdef CK_ANSIC
 ckultoa(unsigned long n)
-#else
-ckultoa(n) unsigned long n;
-#endif /* CK_ANSIC */
 /* ckultoa */ {
     char buf[32];			/* Internal working buffer */
     char * p, * s, * q;
@@ -555,11 +501,7 @@ ckultoa(n) unsigned long n;
 }
 
 char *
-#ifdef CK_ANSIC
 ckltox(long n)				/* Long int to "0x.." hex string */
-#else
-ckltox(n) long n;
-#endif /* CK_ANSIC */
 /* ckltox */ {
     char buf[32];			/* Internal working buffer */
     char *p, *q, *s, *bp = buf + 2;
@@ -591,11 +533,7 @@ ckltox(n) long n;
 /* Works for 32 or 64 bits, according to CK_OFF_T definition. */
 
 char *
-#ifdef CK_ANSIC
 ckfstoa(CK_OFF_T n)
-#else
-ckfstoa(n) CK_OFF_T n;
-#endif /* CK_ANSIC */
 /* ckfstoa */ {
     char buf[32];			/* Internal working buffer */
     char * p, * s, * q;
@@ -640,11 +578,7 @@ ckfstoa(n) CK_OFF_T n;
 /* Like atol(), there is no error indication. */
 
 CK_OFF_T
-#ifdef CK_ANSIC
 ckatofs(char * s)
-#else
-ckatofs(s) char * s;
-#endif /* CK_ANSIC */
 /* ckatofs */ {
     CK_OFF_T result = (CK_OFF_T)0;
     int minus = 0;
@@ -664,11 +598,7 @@ ckatofs(s) char * s;
 /*  C K I T O A  --  Int to string  -- FOR DISCIPLINED USE ONLY  */
 
 char *
-#ifdef CK_ANSIC
 ckitoa( int n )
-#else
-ckitoa(n) int n; 
-#endif /* CK_ANSIC */
 {			/* See comments with ckltoa(). */
     long nn;
     nn = n;
@@ -676,11 +606,7 @@ ckitoa(n) int n;
 }
 
 char *					/* Unsigned int to string */
-#ifdef CK_ANSIC
 ckuitoa( unsigned int n )
-#else
-ckuitoa(n) unsigned int n;
-#endif /* CK_ANSIC */
 {
     unsigned long nn;
     nn = n;
@@ -688,11 +614,7 @@ ckuitoa(n) unsigned int n;
 }
 
 char *
-#ifdef CK_ANSIC
 ckitox( int n ) 			/* Int to hex */
-#else
-ckitox(n) int n;
-#endif /* CK_ANSIC */
 {
     long nn;
     nn = n;
@@ -700,11 +622,7 @@ ckitox(n) int n;
 }
 
 char *
-#ifdef CK_ANSIC
 ckctoa(char c)				/* Char to string */
-#else
-ckctoa(c) char c;
-#endif
 /* ckctoa */ {
     static char buf[32];
     static int current = 0;
@@ -716,11 +634,7 @@ ckctoa(c) char c;
 }
 
 char *
-#ifdef CK_ANSIC
 ckctox(CHAR c, int flag)		/* Unsigned char to hex */
-#else
-ckctox(c, flag) CHAR c; int flag;
-#endif /* CK_ANSIC */
 /* ckctox */ {
     static char buf[48];
     static int current = 0;
@@ -755,11 +669,7 @@ ckctox(c, flag) CHAR c; int flag;
   Also returns 0 on any kind of error, e.g. junk parameters.
 */
 int
-#ifdef CK_ANSIC
 ckindex(char * s1, char * s2, int t, int r, int icase ) 
-#else
-ckindex(s1,s2,t,r,icase) char *s1, *s2; int t, r, icase;
-#endif /* CK_ANSIC */
 {
     int len1 = 0, len2 = 0, i, j, x, ot = t; /* ot = original t */
     char * s;
@@ -801,11 +711,7 @@ ckindex(s1,s2,t,r,icase) char *s1, *s2; int t, r, icase;
 /*  Returns pointer to first occurrence of s1 in s2, or NULL */
 
 char *
-#ifdef CK_ANSIC
 ckstrstr(char * s1, char * s2 )
-#else
-ckstrstr(s1, s2) char * s1, * s2;
-#endif /* CK_ANSIC */
 {
     int k;
     k = ckindex(s2,s1,0,0,1);
@@ -849,11 +755,7 @@ brstrip(p) char *p; {
 /* WARNING: this function writes into its argument, it always has. */
 
 char *
-#ifdef CK_ANSIC
 brstrip( char * p )
-#else
-brstrip(p) char *p;
-#endif /* CK_ANSIC */
 {
     if (!p) return("");
     if (*p == '{' || (*p == '"' && dblquo)) {
@@ -878,11 +780,7 @@ brstrip(p) char *p;
 /* Even newer experimental version -- breaks many things */
 
 char *
-#ifdef CK_ANSIC
 fnstrip( char * )
-#else
-fnstrip(p) char *p;
-#endif /* CK_ANSIC */
 {
     int i, j, k, n, len;
     extern int cmd_quoting;		/* Bad - no externs allowed! */
@@ -998,11 +896,7 @@ brace(fn) char *fn; {
 */
 
 int
-#ifdef CK_ANSIC
 dquote( char * fn, int len, int flag )
-#else
-dquote( fn, len, flag) char *fn; int len; int flag;
-#endif /* CK_ANSIC */
 {
     int spaces = 0, k = 0;
     char * p, ch, ch2;
@@ -1043,11 +937,7 @@ dquote( fn, len, flag) char *fn; int len; int flag;
 /*  U N T A B I F Y  ---  Untabify s1 into s2, assuming tabs every 8 space */
 
 int
-#ifdef CK_ANSIC
 untabify(char * s1, char * s2, int max)
-#else
-untabify(s1,s2,max) char * s1, * s2; int max;
-#endif /* CK_ANSIC */
 {
     int i, j, k, x, z;
     x = strlen(s1);
@@ -1081,11 +971,7 @@ untabify(s1,s2,max) char * s1, * s2; int max;
   array, or with an array that has had any static elements assigned to it.
 */
 VOID
-#ifdef CK_ANSIC
 makelist( char * s, char * list[] , int len)
-#else
-makelist(s,list,len) char * s; char *list[]; int len;
-#endif /* CK_ANSIC */
 {
     int i, n, q, bc = 0;
     char *p = NULL, *s2 = NULL;
@@ -1199,19 +1085,11 @@ makelist(s,list,len) char * s; char *list[]; int len;
 int makestrlen = 0;
 
 VOID
-#ifdef CK_ANSIC
 makestr(char **p, const char *s)
-#else
-makestr(p,s) char **p, *s;
-#endif
 /* makestr */ {
     int x = 0;
     char *q = NULL;
-#ifdef CK_ANSIC
     register const char * s2;
-#else
-    register char * s2;
-#endif /* CK_ANSIC */
     register char * q2;
 
     if (*p == s)			/* The two pointers are the same. */
@@ -1286,11 +1164,7 @@ makestr(p,s) char **p, *s;
 /*  X M A K E S T R  --  Non-destructive makestr() if s is NULL.  */
 
 VOID
-#ifdef CK_ANSIC
 xmakestr(char **p, const char *s)
-#else
-xmakestr(p,s) char **p, *s;
-#endif
 /* xmakestr */ {
     if (s) makestr(p,s);
 }
@@ -1302,11 +1176,7 @@ xmakestr(p,s) char **p, *s;
 /* For use when real memcpy() not available. */
 
 VOID
-#ifdef CK_ANSIC
 ckmemcpy( char * p, char * s, int n)
-#else
-ckmemcpy(p,s,n) char *p, *s; int n;
-#endif /* CK_ANSIC */
 {
     char * q = NULL;
     register int i;
@@ -1347,11 +1217,7 @@ ckmemcpy(p,s,n) char *p, *s; int n;
 */
 
 int
-#ifdef CK_ANSIC
 ckstrcmp( char * s1, char * s2, register int n, register int c)
-#else
-ckstrcmp(s1,s2,n,c) char *s1, *s2; register int n, c;
-#endif /* CK_ANSIC */
 {
     register CHAR t1, t2;
 #ifdef HAVE_LOCALE
@@ -1407,11 +1273,7 @@ ckstrcmp(s1,s2,n,c) char *s1, *s2; register int n, c;
 /* Returns position of the first char in the 2 strings that doesn't match */
 
 int
-#ifdef CK_ANSIC
 ckstrpre(char *s1, char *s2)
-#else
-ckstrpre(s1,s2) char *s1, *s2;
-#endif /* CK_ANSIC */
 {
     CHAR t1, t2;
     int n = 0;
@@ -1487,11 +1349,7 @@ static char * lastpat = NULL;
 static int xxflag = 0;			/* Global bailout flag for ckmatch() */
 
 int
-#ifdef CK_ANSIC
 ispattern( char * s )
-#else
-ispattern(s) char * s;
-#endif /* CK_ANSIC */
 {
     int quote = 0, sbflag = 0, sb = 0, cbflag = 0, cb = 0;
     
@@ -1519,11 +1377,7 @@ ispattern(s) char * s;
 }
 
 int
-#ifdef CK_ANSIC
 ckmatch( char * pattern, char * string, int icase, int opts )
-#else
-ckmatch( pattern, string, icase, opts) char *pattern,*string; int icase, opts;
-#endif /* CK_ANSIC */
 {
     int q = 0, i = 0, k = -1, x, flag = 0;
     int rc = 0;				/* Return code */
@@ -2099,11 +1953,7 @@ ckmatch( pattern, string, icase, opts) char *pattern,*string; int icase, opts;
 CKFLOAT floatval = 0.0;			/* For returning value */
 
 int
-#ifdef CK_ANSIC
 isfloat( char *s, int flag )
-#else
-isfloat(s,flag) char *s; int flag;
-#endif /* CK_ANSIC */
 {
     int state = 0;
     int sign = 0;
@@ -2170,12 +2020,7 @@ isfloat(s,flag) char *s; int flag;
     And the exact result in the string output buffer, if one was specified.
 */
 CKFLOAT
-#ifdef CK_ANSIC
 ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
-#else
-ckround(fpnum,places,obuf,obuflen)
- CKFLOAT fpnum; int places, obuflen; char *obuf;
-#endif /* CK_ANSIC */
 /* ckround  */ {
     char *s, *s2, *d;
     int p, len, n;
@@ -2302,11 +2147,7 @@ ckround(fpnum,places,obuf,obuflen)
    against this, so no way to gracefully return an error code.
 */
 VOID 
-#ifdef CK_ANSIC
 sh_sort( char ** s, char ** p, int n, int k, int r, int c )
-#else
-sh_sort(s,p,n,k,r,c) char **s, **p; int n, k, r, c;
-#endif /* CK_ANSIC */
 {
     int m, i, j, x;
     char *t, *t1, *t2, *u = NULL;
@@ -2407,11 +2248,7 @@ sh_sort(s,p,n,k,r,c) char **s, **p; int n, k, r, c;
      Otherwise: Pointer to result.
 */
 char *
-#ifdef CK_ANSIC
 ckradix( char * s, int in, int out)
-#else
-ckradix(s,in,out) char * s; int in, out;
-#endif /* CK_ANSIC */
 {
 
     char c, *r = rxresult;
@@ -2526,11 +2363,7 @@ static int b64tbl[] = {			/* Decoding vector */
      is kept, so there is no reset function.
 */
 int
-#ifdef CK_ANSIC
 b8tob64( char * s, int n, char * out, int len )
-#else
-b8tob64(s,n,out,len) char * s,* out; int n, len;
-#endif /* CK_ANSIC */
 {
     int b3, b4, i, x = 0;
     unsigned int t;
@@ -2588,11 +2421,7 @@ b8tob64(s,n,out,len) char * s,* out; int n, len;
      the new stream.
 */
 int
-#ifdef CK_ANSIC
 b64tob8( char * s, int n, char * out, int len ) /* Decode */
-#else
-b64tob8( s, n, out, len ) char * s; int n; char * out; int len;
-#endif /* CK_ANSIC */
 {
     static int bits = 0;
     static unsigned int r = 0;
@@ -2643,11 +2472,7 @@ b64tob8( s, n, out, len ) char * s; int n; char * out; int len;
 /* Allows leading space, sign */
 
 int
-#ifdef CK_ANSIC
 chknum( char * s )			/* Check Numeric String */
-#else
-chknum( s ) char * s;
-#endif /* CK_ANSIC */
 {
     int x = 0;				/* Flag for past leading space */
     int y = 0;				/* Flag for digit seen */
@@ -2682,11 +2507,7 @@ chknum( s ) char * s;
 /*  Returns 1 if so, 0 if not or if string is empty */
 
 int
-#ifdef CK_ANSIC
 rdigits( char * s )
-#else
-rdigits(s) char *s;
-#endif /* CK_ANSIC */
 {
     if (!s) return(0);
     do {
@@ -2699,11 +2520,7 @@ rdigits(s) char *s;
 /*  P A R N A M  --  Return parity name */
 
 char *
-#ifdef CK_ANSIC
 parnam(char c)
-#else
-parnam(c) char c;
-#endif /* CK_ANSIC */
 /* parnam */ {
     switch (c) {
 	case 'e': return("even");
@@ -2716,11 +2533,7 @@ parnam(c) char c;
 }
 
 char *					/* Convert seconds to hh:mm:ss */
-#ifdef CK_ANSIC
 hhmmss(long x)
-#else
-hhmmss(x) long x;
-#endif /* CK_ANSIC */
 /* hhmmss(x) */ {
     static char buf[60];
     long s, h, m;
@@ -2744,11 +2557,7 @@ hhmmss(x) long x;
 */
 
 VOID
-#ifdef CK_ANSIC
 lset( char * p, char * s, int n, int c )
-#else
-lset(p,s,n,c) char *p; char *s; int n; int c;
-#endif /* CK_ANSIC */
 {
     int x;
 #ifndef USE_MEMCPY
@@ -2772,11 +2581,7 @@ lset(p,s,n,c) char *p; char *s; int n; int c;
 /* R S E T  --  Right-adjust s in p, left padding to length n with char c */
 
 VOID
-#ifdef CK_ANSIC
 rset( char * p, char * s, int n, int c )
-#else
-rset(p,s,n,c) char *p; char *s; int n; int c;
-#endif /* CK_ANSIC */
 {
     int x;
 #ifndef USE_MEMCPY
@@ -2804,11 +2609,7 @@ rset(p,s,n,c) char *p; char *s; int n; int c;
   up to 64 bits.  Returns pointer to result.
 */
 char *
-#ifdef CK_ANSIC
 ulongtohex( unsigned long z, int n )
-#else
-ulongtohex(z,n) unsigned long z; int n; 
-#endif	/* CK_ANSIC */
 /* ulongtohex */ {
     static char hexbuf[17];
     int i = 16, x, k = 0;
@@ -2836,11 +2637,7 @@ ulongtohex(z,n) unsigned long z; int n;
   -1L on error: non-hex arg or overflow.
 */
 long
-#ifdef CK_ANSIC
 hextoulong(char * s, int n)
-#else
-hextoulong(s,n) char *s; int n; 
-#endif /* CK_ANSIC */
 {
     char buf[64];
     unsigned long result = 0L;
@@ -2978,13 +2775,8 @@ static struct stringarray ck_sval =  {	/* Return value structure */
 static int * wordsize = NULL;
 
 static
-#ifdef CK_ANSIC
 void
 setword(int n, char * s, int len)
-#else
-VOID
-setword(n,s,len) int n; char * s; int len; 
-#endif /* CK_ANSIC */
 {
     register char * p;
     register int i, k;
@@ -3031,13 +2823,8 @@ static int nsplitbuf = 0;
 /* n4 = 1 to NOT collapse adjacent separators */
 
 struct stringarray *
-#ifdef CK_ANSIC
 cksplit(int fc,int n1,char * s1,char * s2,char * s3,
     int n2,int n3,int n4,int n5)
-#else
-cksplit(fc,n1,s1,s2,s3,n2,n3,n4,n5)
-    int fc,n1,n2,n3,n4,n5; char *s1, *s2, *s3; 
-#endif /* CK_ANSIC */
 {
     int splitting = 0;			/* What I was asked to do */
     int i, k, ko = 0, n, x, max = MAXWORDS; /* Workers */
@@ -3462,11 +3249,7 @@ cksplit(fc,n1,s1,s2,s3,n2,n3,n4,n5)
   returns the int equivalent or -1 on error.
 */
 int
-#ifdef CK_ANSIC
 ckhexbytetoint( char * s )
-#else
-ckhexbytetoint(s) char * s;
-#endif	/* CK_ANSIC */
 {
     int i, c[2];
     if (!s) return(-1);

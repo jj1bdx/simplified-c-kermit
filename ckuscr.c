@@ -99,11 +99,7 @@ static ckjmpbuf alrmrng;
 #endif /* COMMENT */
 
 static SIGTYP
-#ifdef CK_ANSIC
 scrtime(int foo)			/* modem read failure handler, */
-#else
-scrtime(foo) int foo;			/* Alarm handler */
-#endif /* CK_ANSIC */
 /* scrtime */ {
 
     cklongjmp(alrmrng,1);
@@ -216,11 +212,7 @@ static char *rseqe, * rseqgot, * rseqtrace ;
 static int rseql;
 
 static SIGTYP
-#ifdef CK_ANSIC
 dorseq(void * threadinfo)
-#else /* CK_ANSIC */
-dorseq(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* dorseq */ {
     int i, x;
     int burst = 0;			/* chars remaining in input burst */
@@ -276,11 +268,7 @@ dorseq(threadinfo) VOID * threadinfo;
 }
 
 static SIGTYP
-#ifdef CK_ANSIC
 failrseq(void * threadinfo)
-#else /* CK_ANSIC */
-failrseq(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failrseq */ {
      got_it = 0;			/* Timed out here */
      SIGRETURN;
@@ -334,11 +322,7 @@ static int oseqret = 0;			/* Return code for outseq */
 					/* by longjmp. */
 
 static SIGTYP
-#ifdef CK_ANSIC
 dooseq(void * threadinfo)
-#else /* CK_ANSIC */
-dooseq(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
     int l;
     char *sb;
@@ -398,11 +382,7 @@ dooseq(threadinfo) VOID * threadinfo;
 }
 
 SIGTYP
-#ifdef CK_ANSIC
 failoseq(void * threadinfo)
-#else /* CK_ANSIC */
-failoseq(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failoseq */ {
      oseqret = -1;		/* else -- alarm rang */
      SIGRETURN;
@@ -427,11 +407,7 @@ outseq() {
 /*  L O G I N  --  (historical misnomer) Execute the SCRIPT command */
 
 int
-#ifdef CK_ANSIC
 dologin( char *cmdstr )
-#else
-dologin(cmdstr) char *cmdstr;
-#endif /* CK_ANSIC */
 {
     SIGTYP (*savealm)();		/* Save incoming alarm function */
     char *e;

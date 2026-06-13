@@ -50,11 +50,7 @@ static char ckmkdbuf[CKMAXPATH+1];
 
 #ifdef CK_MKDIR
 int
-#ifdef CK_ANSIC
 ckmkdir( int fc, char * s, char ** r, int m, int cvt )
-#else
-ckmkdir(fc,s,r,m,cvt) int fc; char * s; char ** r; int m; int cvt;
-#endif /* CK_ANSIC */
 {
     int x, rc = -2;
     char tmpbuf[CKMAXPATH+1];
@@ -302,11 +298,7 @@ dofast() {
 CHAR *bigbufp = NULL;
 
 int
-#ifdef CK_ANSIC
 inibufs( int s, int r )
-#else
-inibufs(s,r) int s, r;
-#endif /* CK_ANSIC */
 {
 #ifdef DYNAMIC
     unsigned
@@ -411,11 +403,7 @@ inibufs(s,r) int s, r;
 /*   with pktinfo structure initialized for this set of buffers. */
 
 int
-#ifdef CK_ANSIC
 makebuf( int slots, int bufsiz, CHAR buf[], struct pktinfo *xx )
-#else
-makebuf(slots,bufsiz,buf,xx) int slots, bufsiz; CHAR buf[]; struct pktinfo *xx;
-#endif /* CK_ANSIC */
 {
 /* makebuf */ 
 
@@ -449,11 +437,7 @@ makebuf(slots,bufsiz,buf,xx) int slots, bufsiz; CHAR buf[]; struct pktinfo *xx;
 /*  M A K S B U F  --  Makes the send-packet buffer  */
 
 int
-#ifdef CK_ANSIC
 mksbuf( int slots )
-#else
-mksbuf(slots) int slots;
-#endif /* CK_ANSIC */
 {
     int i, x;
     sbufnum = 0;
@@ -476,11 +460,7 @@ mksbuf(slots) int slots;
 /*  M A K R B U F  --  Makes the receive-packet buffer  */
 
 int
-#ifdef CK_ANSIC
 mkrbuf( int slots )
-#else
-mkrbuf(slots) int slots;
-#endif /* CK_ANSIC */
 {
     int i, x;
     rbufnum = 0;
@@ -502,11 +482,7 @@ mkrbuf(slots) int slots;
 /*  W I N D O W  --  Resize the window to n  */
 
 int
-#ifdef CK_ANSIC
 window( int n )
-#else
-window(n) int n;
-#endif /* CK_ANSIC */
 {
     debug(F101,"window","",n);
     if (n < 1 || n > MAXWS) return(-1);
@@ -531,11 +507,7 @@ window(n) int n;
 /*   0 or positive, packet sequence number, with buffer allocated for it. */
 
 int
-#ifdef CK_ANSIC
 getsbuf( int n )			/* Allocate a send-buffer */
-#else
-getsbuf(n) int n;
-#endif /* CK_ANSIC */
 {
     int i;
     CHAR * p = NULL;
@@ -610,11 +582,7 @@ getrbuf() {				/* Allocate a receive buffer */
 /*  -1 if specified buffer does not exist */
 
 int
-#ifdef CK_ANSIC
 freesbuf( int n )              /* Release send-buffer for packet n. */
-#else
-freesbuf(n) int n;
-#endif /* CK_ANSIC */
 {
     int i;
 
@@ -646,11 +614,7 @@ freesbuf(n) int n;
 }
 
 int
-#ifdef CK_ANSIC
 freerbuf( int i )			/* Release receive-buffer slot "i". */
-#else
-freerbuf(i) int i;
-#endif /* CK_ANSIC */
 {
     int n;
 
@@ -691,11 +655,7 @@ freerbuf(i) int i;
 /* rather than a packet buffer index. */
 
 VOID
-#ifdef CK_ANSIC
 freerpkt( int seq )
-#else
-freerpkt(seq) int seq;
-#endif /* CK_ANSIC */
 {
     int k;
     debug(F101,"freerpkt seq","",seq);
@@ -720,11 +680,7 @@ freerpkt(seq) int seq;
 /* (bottom), and number of slots in window (slots).  */
 
 int
-#ifdef CK_ANSIC
 chkwin( int n, int bottom, int slots )
-#else
-chkwin(n,bottom,slots) int n, bottom, slots;
-#endif /* CK_ANSIC */
 {
     int top, prev;
 
@@ -913,11 +869,7 @@ dumprbuf() {				/* Dump receive-buffers */
 /* to try to track down a problem somebody reported... */
 
 int
-#ifdef CK_ANSIC
 sattr( int xp, int flag )		/* Send Attributes */
-#else
-sattr(xp, flag) int xp, flag;
-#endif /* CK_ANSIC */
 {
     static int max;			/* Maximum length for Attributes */
     static short done[95];		/* Field-complete array */
@@ -1274,11 +1226,7 @@ static int nreason = sizeof(reason) / sizeof(char *);
 int rejection = -1;
 
 char *
-#ifdef CK_ANSIC
 getreason( char *s )			/* Decode attribute refusal reason */
-#else
-getreason(s) char *s;
-#endif /* CK_ANSIC */
 {
     char c, *p;
     if (rejection == 1)			/* Kludge for SET FIL COLL DISCARD */
@@ -1296,11 +1244,7 @@ getreason(s) char *s;
 }
 
 int
-#ifdef CK_ANSIC
 rsattr( CHAR *s )              /* Read response to attribute packet */
-#else
-rsattr(s) CHAR *s;
-#endif /* CK_ANSIC */
 {
     debug(F111,"rsattr",s,*s);
     if (*s == 'N') {			/* If it's 'N' followed by anything, */
@@ -1340,11 +1284,7 @@ rsattr(s) CHAR *s;
   -1 on failure, file is to be refused
 */
 int
-#ifdef CK_ANSIC
 gattr( CHAR *s, struct zattr *yy ) /* Read incoming attribute packet */
-#else
-gattr(s, yy) CHAR *s; struct zattr *yy;
-#endif /* CK_ANSIC */
 {
     char c, d;
     char *ff;
@@ -1855,11 +1795,7 @@ debug(F110,"gattr fsize",abuf,0);
 /*  I N I T A T T R  --  Initialize file attribute structure  */
 
 int
-#ifdef CK_ANSIC
 initattr( struct zattr *yy )
-#else
-initattr(yy) struct zattr *yy;
-#endif /* CK_ANSIC */
 {
     yy->lengthk = yy->length = (CK_OFF_T)-1;
     yy->type.val = "";
@@ -1911,11 +1847,7 @@ initattr(yy) struct zattr *yy;
 /*  A D E B U -- Write attribute packet info to debug log  */
 
 int
-#ifdef CK_ANSIC
 adebu( char *f, struct zattr *zz )
-#else
-adebu(f,zz) char *f; struct zattr *zz;
-#endif /* CK_ANSIC */
 {
 #ifdef DEBUG
     if (deblog == 0) return(0);
@@ -1956,11 +1888,7 @@ adebu(f,zz) char *f; struct zattr *zz;
 extern char *rf_err;
 
 int
-#ifdef CK_ANSIC
 opena( char *f, struct zattr *zz )
-#else
-opena(f,zz) char *f; struct zattr *zz;
-#endif /* CK_ANSIC */
 {
     int x, dispos = 0;
     static struct filinfo fcb;		/* Must be static! */
@@ -2096,11 +2024,7 @@ opena(f,zz) char *f; struct zattr *zz;
 /*  O P E N C  --  Open a command (in place of a file) for output */
 
 int
-#ifdef CK_ANSIC
 openc( int n, char * s )
-#else
-openc(n,s) int n; char * s;
-#endif /* CK_ANSIC */
 {
     int x;
 #ifndef NOPUSH
@@ -2116,11 +2040,7 @@ openc(n,s) int n; char * s;
 /*  C A N N E D  --  Check if current file transfer cancelled */
 
 int
-#ifdef CK_ANSIC
 canned( CHAR *buf )
-#else
-canned(buf) CHAR *buf;
-#endif /* CK_ANSIC */
 {
     extern int interrupted;
     if (*buf == 'X') cxseen = 1;
@@ -2136,11 +2056,7 @@ canned(buf) CHAR *buf;
 /*  O P E N I  --  Open an existing file for input  */
 
 int
-#ifdef CK_ANSIC
 openi( char *name )
-#else
-openi(name) char *name;
-#endif /* CK_ANSIC */
 {
 #ifndef NOSERVER
     extern int fromgetpath;
@@ -2235,11 +2151,7 @@ openi(name) char *name;
 /*  O P E N O  --  Open a new file for output.  */
 
 int
-#ifdef CK_ANSIC
 openo( char *name, struct zattr *zz, struct filinfo *fcb )
-#else
-openo(name,zz,fcb) char *name; struct zattr *zz; struct filinfo *fcb;
-#endif /* CK_ANSIC */
 {
     char *name2;
 #ifdef DTILDE
@@ -2310,11 +2222,7 @@ openo(name,zz,fcb) char *name; struct zattr *zz; struct filinfo *fcb;
 /*  O P E N T  --  Open the terminal for output, in place of a file  */
 
 int
-#ifdef CK_ANSIC
 opent( struct zattr *zz )
-#else
-opent(zz) struct zattr *zz;
-#endif /* CK_ANSIC */
 {
     int x;
     ffc = tfc = (CK_OFF_T)0;
@@ -2331,11 +2239,7 @@ opent(zz) struct zattr *zz;
 /*  O P E N X  --  Open nothing (incoming file to be accepted but ignored)  */
 
 int
-#ifdef CK_ANSIC
 ckopenx( struct zattr *zz )
-#else
-ckopenx(zz) struct zattr *zz;
-#endif /* CK_ANSIC */
 {
     ffc = tfc = (CK_OFF_T)0;		/* Reset counters */
     o_isopen = 1;
@@ -2347,11 +2251,7 @@ ckopenx(zz) struct zattr *zz;
 /*  C L S I F  --  Close the current input file. */
 
 int
-#ifdef CK_ANSIC
 clsif( void )
-#else
-clsif()
-#endif /* CK_ANSIC */
 {
     extern int xferstat, success;
     int x = 0;
@@ -2445,11 +2345,7 @@ clsif()
 /*  Returns -1 upon failure to close, 0 or greater on success. */
 
 int
-#ifdef CK_ANSIC
 clsof( int disp )
-#else
-clsof(disp) int disp;
-#endif /* CK_ANSIC */
 {
     int x = 0;
     extern int success;

@@ -1,5 +1,4 @@
 /* Prototypes for static functions defined in ckcftp.c */
-#ifdef CK_ANSIC
 
 static VOID bytswap( int *, int * );
 static VOID cancel_remote( int );
@@ -43,4 +42,3 @@ static sigtype cancelrecv( int );
 static sigtype cancelsend( int );
 static sigtype cmdcancel( int );
 
-#endif  /* CK_ANSIC */

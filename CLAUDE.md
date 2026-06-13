@@ -12,10 +12,10 @@ Windows, OS/2, and VMS support was removed from this tree on 2026-06-12 (see `SI
 
 There is no autoconf/configure; the hand-maintained `makefile` (~7300 lines) contains per-platform targets that invoke `make` recursively, passing options through `KFLAGS`/`LIBS` environment variables. Do not use `make -e`.
 
-The standard build on this machine is in `makecmd.sh`:
+The standard build on this machine (Linux) is:
 
 ```sh
-make macos
+make linux
 ```
 
 Other useful invocations:
@@ -29,7 +29,7 @@ The resulting binary is always named `wermit`, regardless of target. There is no
 
 A build leaves `wermit`, `wart`, and the generated `ckcpro.c` in the tree; all three are gitignored (along with `*.o`) — do not commit them. `make clean` removes `wart` and `ckcpro.c` but not `wermit`. (`resume-claude.sh` in the tree is a local Claude Code session helper, also not part of the build.)
 
-Most platform targets (including `macos`) build via the `xermit` link target, which uses the select()-based CONNECT module `ckucns.c`. The older `wermit` link target uses the fork()-based `ckucon.c` instead.
+Most platform targets (including `linux`) build via the `xermit` link target, which uses the select()-based CONNECT module `ckucns.c`. The older `wermit` link target uses the fork()-based `ckucon.c` instead.
 
 ### Protocol changes: ckcpro.w and wart
 

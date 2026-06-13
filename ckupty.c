@@ -335,11 +335,7 @@ int pty_master_fd = -1;			/* pty master file descriptor */
   set_termbuf() writes the structure into the kernel.
 */
 VOID
-#ifdef CK_ANSIC
 init_termbuf( int fd )
-#else
-init_termbuf(fd) int fd;
-#endif /* CK_ANSIC */
 {
     int ttyfd;
     int rc = 0;
@@ -392,11 +388,7 @@ init_termbuf(fd) int fd;
 
 #ifdef TIOCPKT_IOCTL
 VOID
-#ifdef CK_ANSIC
 copy_termbuf( char *cp, int len )
-#else
-copy_termbuf(cp, len) char *cp; int len;
-#endif /* CK_ANSIC */
 {
     if (len > sizeof(termbuf))
       len = sizeof(termbuf);
@@ -406,11 +398,7 @@ copy_termbuf(cp, len) char *cp; int len;
 #endif /* TIOCPKT_IOCTL */
 
 VOID
-#ifdef CK_ANSIC
 set_termbuf( int fd )		/* Only make the necessary changes. */
-#else
-set_termbuf(fd) int fd;
-#endif /* CK_ANSIC */
 {
     int x;
     int ttyfd;
@@ -521,11 +509,7 @@ ptyint_void_association() {
 /* PID may be zero for unknown.*/
 
 long
-#ifdef CK_ANSIC
 pty_cleanup( char *slave, int pid, int update_utmp )
-#else
-pty_cleanup(slave, pid, update_utmp) char *slave; int pid; int update_utmp;
-#endif /* CK_ANSIC */
 {
 #ifdef VHANG_LAST
     int retval, fd;
@@ -620,11 +604,7 @@ pty_cleanup(slave, pid, update_utmp) char *slave; int pid; int update_utmp;
 }
 
 long
-#ifdef CK_ANSIC
 pty_getpty( int *fd, char *slave, int slavelength ) 
-#else
-pty_getpty(fd, slave, slavelength) int slavelength; int *fd; char *slave;
-#endif /* CK_ANSIC */
 {
     char *cp;
     char *p;
@@ -794,11 +774,7 @@ pty_getpty(fd, slave, slavelength) int slavelength; int *fd; char *slave;
 }
 
 long
-#ifdef CK_ANSIC
 pty_init( void )
-#else
-pty_init()
-#endif /* CK_ANSIC */
 {
 #ifdef HAVE_PTYM
     static char dummy;
@@ -834,11 +810,7 @@ static char *push_list[] = {
 #endif /* HAVE_STREAMS */
 
 long
-#ifdef CK_ANSIC
 pty_initialize_slave ( int fd )
-#else
-pty_initialize_slave (fd) int fd;
-#endif /* CK_ANSIC */
 {
 #ifdef POSIX_TERMIOS
     struct termios new_termio;
@@ -955,11 +927,7 @@ pty_logwtmp (tty, user, host) char *user, *tty, *host; {
   effect controlling terminals, so this condition is met.
 */
 long
-#ifdef CK_ANSIC
 pty_open_ctty( char * slave, int *fd, int fc )
-#else
-pty_open_ctty(slave, fd, fc) char * slave; int *fd; int fc;
-#endif /* CK_ANSIC */
 {
     int retval;
 
@@ -1014,11 +982,7 @@ pty_open_ctty(slave, fd, fc) char * slave; int *fd; int fc;
 }
 
 long
-#ifdef CK_ANSIC
 pty_open_slave( char *slave, int *fd, int fc )
-#else
-pty_open_slave(slave, fd, fc) char *slave; int *fd; int fc;
-#endif /* CK_ANSIC */
 {
     int vfd, testfd;
     long retval;
@@ -1439,11 +1403,7 @@ static char Xline[17] = { 0, 0 };
   fc = function code from do_pty() (q.v.)
 */
 int
-#ifdef CK_ANSIC
 getptyslave( int * fd, int fc )
-#else
-getptyslave(fd, fc) int * fd, fc;
-#endif /* CK_ANSIC */
 {
     int ttyfd;
     int t = -1;
@@ -1691,11 +1651,7 @@ pty_trap_handler(fd) int fd; {
 #endif /* HAVE_PTYTRAP */
 
 VOID
-#ifdef CK_ANSIC
 exec_cmd( char * s )
-#else
-exec_cmd(s) char * s;
-#endif /* CK_ANSIC */
 {
     struct stringarray * q;
     char ** args = NULL;
@@ -1739,11 +1695,7 @@ exec_cmd(s) char * s;
 static int pty_fc = -1;			/* Global copy of fc */
 
 int
-#ifdef CK_ANSIC
 do_pty( int * fd, char * cmd, int fc )
-#else
-do_pty(fd, cmd, fc) int * fd; char * cmd; int fc;
-#endif /* CK_ANSIC */
 {
     long retval;
     int syncpipe[2];

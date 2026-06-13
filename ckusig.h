@@ -12,13 +12,8 @@
     copyright text in the ckcmai.c module for disclaimer and permissions.
 */
 
-#ifdef CK_ANSIC
 typedef void (*ck_sigfunc)(void *);
 typedef void (*ck_sighand)(int);
-#else
-typedef VOID (*ck_sigfunc)();
-typedef VOID (*ck_sighand)();
-#endif /* CK_ANSIC */
 
 /* Macros for POSIX vs old-style signal handling. */
 

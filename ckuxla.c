@@ -9,12 +9,10 @@
 #include "ckcnet.h"                     /* struct sockaddr */
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef CK_ANSIC
 /* prototypes for static functions - fdc 30 November 2022 */
 static int jpnxas( int, int[] );
 static int jpnxkn( int[], int[] );
 static int jpnxkt( int, int[] );
-#endif /* C_ANSIC */
 
 #ifdef NOXFER
 #define zdstuff(a)
@@ -92,17 +90,10 @@ int axcset[MAXTCSETS+1];
 int xlatype = XLA_NONE;			/* Translation type */
 
 #ifdef UNICODE
-#ifdef CK_ANSIC
 extern int (*xl_utc[MAXTCSETS+1])(USHORT);  /* Unicode to TCS */
 extern int (*xl_ufc[MAXFCSETS+1])(USHORT);  /* Unicode to FCS */
 extern USHORT (*xl_tcu[MAXTCSETS+1])(CHAR); /* TCS to Unicode */
 extern USHORT (*xl_fcu[MAXFCSETS+1])(CHAR); /* FCS to Unicode */
-#else
-extern int (*xl_utc[MAXTCSETS+1])();
-extern int (*xl_ufc[MAXFCSETS+1])();
-extern USHORT (*xl_tcu[MAXTCSETS+1])();
-extern USHORT (*xl_fcu[MAXFCSETS+1])();
-#endif /* CK_ANSIC */
 #endif /* UNICODE */
 
 /* Bureaucracy section */
@@ -2473,43 +2464,27 @@ UNK,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
 /* Translation functions ... */
 
 CHAR					/* The identity function... */
-#ifdef CK_ANSIC
 ident(CHAR c)				/* (no longer used) */
-#else
-ident(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* ident */
     return(c);				/* Instead, enter NULL in the  */
 }					/* table of functions to avoid */
 					/* needless function calls.    */
 
 CHAR
-#ifdef CK_ANSIC
 xleft128(CHAR c)
-#else
-xleft128(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xleft128 */
     return((c < 128) ? c : '?');
 }
 
 CHAR
-#ifdef CK_ANSIC
 xleft160(CHAR c)
-#else
-xleft160(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xleft160 */
     return((c < 160) ? c : '?');
 }
 
 
 CHAR
-#ifdef CK_ANSIC
 xl1as(CHAR c)
-#else
-xl1as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1as */ 				/* Latin-1 to US ASCII... */
     switch(langs[language].id) {
 
@@ -2614,11 +2589,7 @@ xl1as(c) CHAR c;
 }
 
 CHAR					/* CP1252 to ASCII */
-#ifdef CK_ANSIC
 xw1as(CHAR c)
-#else
-xw1as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1as */
     switch(c) {				/* Microsoft name... */
       case 0x80: return('?');		/* Euro Sign */
@@ -2657,32 +2628,20 @@ xw1as(c) CHAR c;
 }
 
 CHAR					/* CP1252 to Latin-1 */
-#ifdef CK_ANSIC
 xw1l1(CHAR c)
-#else
-xw1l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1l1 */
     if (c == 0x95) return(0xb7);	/* Middle dot */
     return((c < 160) ? xw1as(c) : c);
 }
 
 CHAR					/* Latin-1 to German */
-#ifdef CK_ANSIC
 xl1ge(CHAR c)
-#else
-xl1ge(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1ge */
     return(yl1ge[c]);
 }
 
 CHAR					/* German to Latin-1 */
-#ifdef CK_ANSIC
 xgel1(CHAR c)
-#else
-xgel1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xgel1 */
     if (c & 0x80)
       return(UNK);
@@ -2690,11 +2649,7 @@ xgel1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xgeas(CHAR c)
-#else
-xgeas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xgeas */				/* German ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2725,11 +2680,7 @@ xgeas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1w1(CHAR c)
-#else
-xl1w1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1w1 */				/* Latin-1 to CP1252 (Windows L1) */
     if (c > 127 && c < 160)
       return(UNK);
@@ -2738,11 +2689,7 @@ xl1w1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xduas(CHAR c)
-#else
-xduas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xduas */				/* Dutch ISO 646 to US ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2762,11 +2709,7 @@ xduas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xfias(CHAR c)
-#else
-xfias(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfias */				/* Finnish ISO 646 to US ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2805,11 +2748,7 @@ xfias(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xfras(CHAR c)
-#else
-xfras(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfras */				/* French ISO 646 to US ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2827,11 +2766,7 @@ xfras(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xfcas(CHAR c)
-#else
-xfcas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfcas */				/* French Canadian ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2851,11 +2786,7 @@ xfcas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xitas(CHAR c)
-#else
-xitas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xitas */				/* Italian ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2873,11 +2804,7 @@ xitas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xneas(CHAR c)
-#else
-xneas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xneas */				/* NeXT to ASCII */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 234) {			/* handle OE digraph. */
@@ -2893,11 +2820,7 @@ xneas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xnoas(CHAR c)
-#else
-xnoas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xnoas */				/* Norge/Danish ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2921,11 +2844,7 @@ xnoas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xpoas(CHAR c)
-#else
-xpoas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xpoas */				/* Portuguese ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2941,11 +2860,7 @@ xpoas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xspas(CHAR c)
-#else
-xspas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xspas */				/* Spanish ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -2961,11 +2876,7 @@ xspas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xswas(CHAR c)
-#else
-xswas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xswas */				/* Swedish ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -3003,11 +2914,7 @@ xswas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xchas(CHAR c)
-#else
-xchas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xchas */				/* Swiss ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -3035,11 +2942,7 @@ xchas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xhuas(CHAR c)
-#else
-xhuas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xhuas */				/* Hungarian ISO 646 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -3058,11 +2961,7 @@ xhuas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdmas(CHAR c)
-#else
-xdmas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xdmas */				/* DEC MCS to ASCII */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 215) {			/* handle OE digraph. */
@@ -3077,11 +2976,7 @@ xdmas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdgas(CHAR c)
-#else
-xdgas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /*  xdgas */				/* Data General to ASCII */
     switch(c) {
       case 180: return('f');		/* Florin */
@@ -3108,11 +3003,7 @@ xdgas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xr8as(CHAR c)
-#else
-xr8as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /*  xr8as */				/* Hewlett Packard Roman8 to ASCII */
     switch(c) {
       case 175: return('L');		/* Lira */
@@ -3127,11 +3018,7 @@ xr8as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xukl1(CHAR c)
-#else
-xukl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xukl1 */				/* UK ASCII to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3141,11 +3028,7 @@ xukl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1uk(CHAR c)
-#else
-xl1uk(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1uk */				/* Latin-1 to UK ASCII */
     if (c == 163)
       return(35);
@@ -3153,22 +3036,14 @@ xl1uk(c) CHAR c;
 }
 
 CHAR					/* Latin-1 to French ISO 646 */
-#ifdef CK_ANSIC
 xl1fr(CHAR c)
-#else
-xl1fr(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1fr */
     return(yl1fr[c]);
 }
 
 
 CHAR					/* French ISO 646 to Latin-1 */
-#ifdef CK_ANSIC
 xfrl1(CHAR c)
-#else
-xfrl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfrl1 */
     if (c & 0x80)
       return(UNK);
@@ -3176,21 +3051,13 @@ xfrl1(c) CHAR c;
 }
 
 CHAR					/* Latin-1 to Dutch ASCII */
-#ifdef CK_ANSIC
 xl1du(CHAR c)
-#else
-xl1du(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1du */
     return(yl1du[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdul1(CHAR c)
-#else
-xdul1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xdul1 */				/* Dutch ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3198,11 +3065,7 @@ xdul1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xfil1(CHAR c)
-#else
-xfil1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfil1 */				/* Finnish ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3210,21 +3073,13 @@ xfil1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1fi(CHAR c)
-#else
-xl1fi(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1fi */				/* Latin-1 to Finnish ISO 646 */
     return(yl1fi[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xfcl1(CHAR c)
-#else
-xfcl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xfcl1 */				/* French Canadian ISO646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3232,21 +3087,13 @@ xfcl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1fc(CHAR c)
-#else
-xl1fc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1fc */				/* Latin-1 to French Canadian ISO646 */
     return(yl1fc[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xitl1(CHAR c)
-#else
-xitl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xitl1 */				/* Italian ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3254,21 +3101,13 @@ xitl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1it(CHAR c)
-#else
-xl1it(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1it */				/* Latin-1 to Italian ISO 646 */
     return(yl1it[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xnel1(CHAR c)
-#else
-xnel1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xnel1 */		 		/* NeXT to Latin-1 */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 234) {			/* handle OE digraph. */
@@ -3283,11 +3122,7 @@ xnel1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xnel9(CHAR c)
-#else
-xnel9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xnel9 */		 		/* NeXT to Latin-9 */
     switch (c) {
       case 234: return(188);		/* OE */
@@ -3300,21 +3135,13 @@ xnel9(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1ne(CHAR c)
-#else
-xl1ne(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1ne */		 		/* Latin-1 to NeXT */
     return(yl1ne[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl9ne(CHAR c)
-#else
-xl9ne(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl9ne */		 		/* Latin-9 to NeXT */
     switch (c) {
       case 188: return(234);		/* OE */
@@ -3327,11 +3154,7 @@ xl9ne(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xnol1(CHAR c)
-#else
-xnol1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xnol1 */		 		/* Norway/Denmark ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3339,21 +3162,13 @@ xnol1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1no(CHAR c)
-#else
-xl1no(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1no */		 		/* Latin-1 to Norway/Denmark ISO 646 */
     return(yl1no[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xpol1(CHAR c)
-#else
-xpol1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xpol1 */				/* Portuguese ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3361,21 +3176,13 @@ xpol1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1po(CHAR c)
-#else
-xl1po(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1po */				/* Latin-1 to Portuguese ISO 646 */
     return(yl1po[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xspl1(CHAR c)
-#else
-xspl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xspl1 */				/* Spanish ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3383,21 +3190,13 @@ xspl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1sp(CHAR c)
-#else
-xl1sp(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1sp */				/* Latin-1 to Spanish ISO 646 */
     return(yl1sp[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xswl1(CHAR c)
-#else
-xswl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xswl1 */				/* Swedish ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3405,21 +3204,13 @@ xswl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1sw(CHAR c)
-#else
-xl1sw(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1sw */				/* Latin-1 to Swedish ISO 646 */
     return(yl1sw[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xchl1(CHAR c)
-#else
-xchl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xchl1 */				/* Swiss ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3427,21 +3218,13 @@ xchl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1ch(CHAR c)
-#else
-xl1ch(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1ch */				/* Latin-1 to Swiss ISO 646 */
     return(yl1ch[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xhul1(CHAR c)
-#else
-xhul1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xhul1 */				/* Hungarian ISO 646 to Latin-1 */
     if (c & 0x80)
       return(UNK);
@@ -3449,31 +3232,19 @@ xhul1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1hu(CHAR c)
-#else
-xl1hu(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1hu */				/* Latin-1 to Hungarian ISO 646 */
     return(yl1hu[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1dm(CHAR c)
-#else
-xl1dm(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1dm */				/* Latin-1 to DEC MCS */
     return(yl1dm[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl9dm(CHAR c)
-#else
-xl9dm(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl9dm */				/* Latin-9 to DEC MCS */
     switch (c) {
       case 188: return(215);
@@ -3486,11 +3257,7 @@ xl9dm(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl9w1(CHAR c)
-#else
-xl9w1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl9w1 */				/* Latin-9 to CP1252 */
     if (c < 128)
       return(c);
@@ -3511,21 +3278,13 @@ xl9w1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1dg(CHAR c)
-#else
-xl1dg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1dg */				/* Latin-1 to DG ICS */
     return(yl1dg[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdml1(CHAR c)
-#else
-xdml1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xdml1 */				/* DEC MCS to Latin-1 */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 215) {			/* handle OE digraph. */
@@ -3540,11 +3299,7 @@ xdml1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdml9(CHAR c)
-#else
-xdml9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xdml9 */				/* DEC MCS to Latin-9 */
     switch (c) {
       case 215: return(188);		/* OE */
@@ -3557,11 +3312,7 @@ xdml9(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xdgl1(CHAR c)
-#else
-xdgl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xdgl1 */				/* DG International CS to Latin-1 */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 215) {			/* handle OE digraph. */
@@ -3576,21 +3327,13 @@ xdgl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xr8l1(CHAR c)
-#else
-xr8l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xr8l1 */				/* Hewlett Packard Roman8 to Latin-1 */
     return(yr8l1[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1r8(CHAR c)
-#else
-xl1r8(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1r8 */				/* Latin-1 to Hewlett Packard Roman8 */
     return(yl1r8[c]);
 }
@@ -3598,11 +3341,7 @@ xl1r8(c) CHAR c;
 /* Translation functions for receiving files and translating them into ASCII */
 
 CHAR
-#ifdef CK_ANSIC
 zl1as(CHAR c)
-#else
-zl1as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* zl1as */
     switch(langs[language].id) {
 
@@ -3678,73 +3417,45 @@ zl1as(c) CHAR c;
 }
 
 CHAR					/* IBM CP437 to Latin-1 */
-#ifdef CK_ANSIC
 x43l1(CHAR c)
-#else
-x43l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x43l1 */
     return(y43l1[c]);
 }
 
 CHAR					/* IBM CP850 to Latin-1 */
-#ifdef CK_ANSIC
 x85l1(CHAR c)
-#else
-x85l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x85l1 */
     return(y85l1[c]);
 }
 
 CHAR					/* Latin-1 to IBM CP437 */
-#ifdef CK_ANSIC
 xl143(CHAR c)
-#else
-xl143(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl143 */
     return(yl143[c]);
 }
 
 CHAR					/* Latin-1 to CP850 */
-#ifdef CK_ANSIC
 xl185(CHAR c)
-#else
-xl185(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl185 */
     return(yl185[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 x43as(CHAR c)
-#else
-x43as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x43as */				/* CP437 to ASCII */
     c = y43l1[c];			/* Translate to Latin-1 */
     return(xl143(c));			/* and from Latin-1 to ASCII. */
 }
 
 CHAR
-#ifdef CK_ANSIC
 x85as(CHAR c)
-#else
-x85as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x85as */				/* CP850 to ASCII */
     c = y85l1[c];			/* Translate to Latin-1 */
     return(xl1as(c));			/* and from Latin-1 to ASCII. */
 }
 
 CHAR					/* Macintosh Latin to Latin-1 */
-#ifdef CK_ANSIC
 xaql1(CHAR c)
-#else
-xaql1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xaql1 */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 206) {			/* handle OE digraph. */
@@ -3759,11 +3470,7 @@ xaql1(c) CHAR c;
 }
 
 CHAR					/* Macintosh Latin to ASCII */
-#ifdef CK_ANSIC
 xaqas(CHAR c)
-#else
-xaqas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xaqas */
     if (langs[language].id == L_FRENCH) { /* If SET LANGUAGE FRENCH */
 	if (c == 206) {			/* handle OE digraph. */
@@ -3779,11 +3486,7 @@ xaqas(c) CHAR c;
 }
 
 CHAR					/* Latin-1 to Macintosh Latin */
-#ifdef CK_ANSIC
 xl1aq(CHAR c)
-#else
-xl1aq(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1aq */
     return(yl1aq[c]);
 }
@@ -3793,21 +3496,13 @@ xl1aq(c) CHAR c;
 /* Translation functions for Latin Alphabet 2 */
 
 CHAR					/* Latin-2 to Latin-1 */
-#ifdef CK_ANSIC
 xl2l1(CHAR c)
-#else
-xl2l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2l1 */
     return(yl2l1[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl2w1(CHAR c)
-#else
-xl2w1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2w1 */				/* Latin-2 to CP1252 (Windows L1) */
     if (c > 127 && c < 160)
       return(UNK);
@@ -3816,21 +3511,13 @@ xl2w1(c) CHAR c;
 }
 
 CHAR					/* Latin-1 to Latin-2 */
-#ifdef CK_ANSIC
 xl1l2(CHAR c)
-#else
-xl1l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll1l2 */
     return(yl1l2[c]);
 }
 
 CHAR					/* CP1252 to Latin-1 */
-#ifdef CK_ANSIC
 xw1l2(CHAR c)
-#else
-xw1l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1l2 */
     switch (c) {
       case 0x8a: return(0xa9);		/* S caron */
@@ -3844,152 +3531,92 @@ xw1l2(c) CHAR c;
 
 
 CHAR					/* Latin-2 to ASCII */
-#ifdef CK_ANSIC
 xl2as(CHAR c)
-#else
-xl2as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2as */
     return(yl2as[c]);
 }
 
 CHAR					/* Latin-2 to CP852 */
-#ifdef CK_ANSIC
 xl252(CHAR c)
-#else
-xl252(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll252 */
     return(yl252[c]);
 }
 
 CHAR					/* Latin-2 to Mazovia */
-#ifdef CK_ANSIC
 xl2mz(CHAR c)
-#else
-xl2mz(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2mz */
     return(yl2mz[c]);
 }
 
 CHAR					/* Latin-1 to Mazovia */
-#ifdef CK_ANSIC
 xl1mz(CHAR c)
-#else
-xl1mz(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll1mz */
     return(yl2mz[yl1l2[c]]);
 }
 
 CHAR					/* Mazovia to Latin-1 */
-#ifdef CK_ANSIC
 xmzl1(CHAR c)
-#else
-xmzl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xmzl1 */
     return(yl2l1[ymzl2[c]]);
 }
 
 CHAR					/* Mazovia to Latin-9 */
-#ifdef CK_ANSIC
 xmzl9(CHAR c)
-#else
-xmzl9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xmzl9 */
     return(xl2l9(ymzl2[c]));
 }
 
 CHAR					/* CP852 to Latin-2 */
-#ifdef CK_ANSIC
 x52l2(CHAR c)
-#else
-x52l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x52l2 */
     return(y52l2[c]);
 }
 
 CHAR					/* Mazovia to Latin-2 */
-#ifdef CK_ANSIC
 xmzl2(CHAR c)
-#else
-xmzl2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xmzl2 */
     return(ymzl2[c]);
 }
 
 CHAR					/* Latin-2 to CP1250 */
-#ifdef CK_ANSIC
 xl21250(CHAR c)
-#else
-xl21250(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll21250 */
     return(yl21250[c]);
 }
 
 CHAR					/* CP1250 to Latin-2 */
-#ifdef CK_ANSIC
 x1250l2(CHAR c)
-#else
-x1250l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x1250l2 */
     return(y1250l2[c]);
 }
 
 CHAR					/* CP852 to ASCII */
-#ifdef CK_ANSIC
 x52as(CHAR c)
-#else
-x52as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl52as */
     return(yl2as[y52l2[c]]);		/* CP852 -> Latin-2 -> ASCII */
 }
 
 CHAR					/* CP1250 to ASCII */
-#ifdef CK_ANSIC
 x1250as(CHAR c)
-#else
-x1250as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1250as */
     return(yl2as[y1250l2[c]]);		/* CP81250 -> Latin-2 -> ASCII */
 }
 
 
 CHAR					/* CP852 to Latin-1 */
-#ifdef CK_ANSIC
 x52l1(CHAR c)
-#else
-x52l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl52l1 */
     return(yl2l1[y52l2[c]]);		/* CP852 -> Latin-2 -> Latin-1 */
 }
 
 CHAR					/* CP1250 to Latin-1 */
-#ifdef CK_ANSIC
 x1250l1(CHAR c)
-#else
-x1250l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1250l1 */
     return(yl2l1[y1250l2[c]]);		/* CP1250 -> Latin-2 -> Latin-1 */
 }
 
 CHAR					/* CP1250 to Latin-9 */
-#ifdef CK_ANSIC
 x1250l9(CHAR c)
-#else
-x1250l9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x1250l9 */
     if (c == (CHAR)128)			/* Euro */
       return((CHAR)164);
@@ -3998,31 +3625,19 @@ x1250l9(c) CHAR c;
 }
 
 CHAR					/* Latin-1 to CP852 */
-#ifdef CK_ANSIC
 xl152(CHAR c)
-#else
-xl152(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll152 */
     return(yl252[yl1l2[c]]);		/* Latin-1 -> Latin-2 -> CP852 */
 }
 
 CHAR					/* Latin-1 to CP1250 */
-#ifdef CK_ANSIC
 xl11250(CHAR c)
-#else
-xl11250(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll11250 */
     return(yl21250[yl1l2[c]]);		/* Latin-1 -> Latin-2 -> CP1250 */
 }
 
 CHAR					/* Latin-9 to CP1250 */
-#ifdef CK_ANSIC
 xl91250(CHAR c)
-#else
-xl91250(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll91250 */
     if (c == (CHAR)164)			/* Euro */
       return((CHAR)128);
@@ -4031,31 +3646,19 @@ xl91250(c) CHAR c;
 }
 
 CHAR					/* Latin-9 to Mazovia */
-#ifdef CK_ANSIC
 xl9mz(CHAR c)
-#else
-xl9mz(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll9mz */
     return(yl2mz[xl9l2(c)]);		/* Latin-9 -> Latin-2 -> Mazovia */
 }
 
 CHAR					/* Latin-9 to Mazovia */
-#ifdef CK_ANSIC
 xmzas(CHAR c)
-#else
-xmzas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xmzas */
     return(yl2as[xmzl2(c)]);		/* Mazovia -> Latin-2 -> ASCII */
 }
 
 CHAR					/* Latin-2 to NeXT */
-#ifdef CK_ANSIC
 xl2ne(CHAR c)
-#else
-xl2ne(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2ne */
     switch(c) {
       case 162: return(198);		/* Breve */
@@ -4072,61 +3675,37 @@ xl2ne(c) CHAR c;
 }
 
 CHAR					/* Latin-2 to CP437 */
-#ifdef CK_ANSIC
 xl243(CHAR c)
-#else
-xl243(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll243 */
     return(yl1l2[y43l1[c]]);
 }
 
 CHAR					/* Latin-2 to CP850 */
-#ifdef CK_ANSIC
 xl285(CHAR c)
-#else
-xl285(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll285 */
     return(yl1l2[y85l1[c]]);
 }
 
 CHAR					/* Latin-2 to Apple */
-#ifdef CK_ANSIC
 xl2aq(CHAR c)
-#else
-xl2aq(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2aq */
     return(yl1aq[yl2l1[c]]);		/* Could do more... */
 }
 
 CHAR					/* Latin-2 to DGI */
-#ifdef CK_ANSIC
 xl2dg(CHAR c)
-#else
-xl2dg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2dg */
     return(ydgl1[yl1l2[c]]);
 }
 
 CHAR					/* Latin-2 to Short KOI */
-#ifdef CK_ANSIC
 xl2sk(CHAR c)
-#else
-xl2sk(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2sk */
     return(islower(c) ? toupper(c) : c);
 }
 
 CHAR					/* NeXT to Latin-2 */
-#ifdef CK_ANSIC
 xnel2(CHAR c)
-#else
-xnel2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xnel2 */
     switch (c) {
       case 144: return(208);		/* D stroke = Eth */
@@ -4143,31 +3722,19 @@ xnel2(c) CHAR c;
 }
 
 CHAR					/* CP437 to Latin-2 */
-#ifdef CK_ANSIC
 x43l2(CHAR c)
-#else
-x43l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl43l2 */
     return(yl1l2[y43l1[c]]);
 }
 
 CHAR					/* CP850 to Latin-2 */
-#ifdef CK_ANSIC
 x85l2(CHAR c)
-#else
-x85l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl85l2 */
     return(yl1l2[y85l1[c]]);
 }
 
 CHAR					/* Apple to Latin-2 */
-#ifdef CK_ANSIC
 xaql2(CHAR c)
-#else
-xaql2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlaql2 */
     switch (c) {
       case 249: return(162);		/* Breve accent */
@@ -4178,31 +3745,19 @@ xaql2(c) CHAR c;
 }
 
 CHAR					/* DGI to Latin-2 */
-#ifdef CK_ANSIC
 xdgl2(CHAR c)
-#else
-xdgl2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xldgl2 */
     return(yl1l2[ydgl1[c]]);		/* (for now) */
 }
 
 CHAR					/* Short KOI to Latin-2 */
-#ifdef CK_ANSIC
 xskl2(CHAR c)
-#else
-xskl2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlskl2 */
     return(islower(c) ? toupper(c) : c);
 }
 
 CHAR					/* Latin-2 to German */
-#ifdef CK_ANSIC
 xl2ge(CHAR c)
-#else
-xl2ge(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2ge */
     switch(c) {
       case 167: return(64);		/* Paragraph sign */
@@ -4218,11 +3773,7 @@ xl2ge(c) CHAR c;
 }
 
 CHAR					/* German to Latin-2 */
-#ifdef CK_ANSIC
 xgel2(CHAR c)
-#else
-xgel2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlgel2 */
     if (c & 0x80)
       return(UNK);
@@ -4240,11 +3791,7 @@ xgel2(c) CHAR c;
 }
 
 CHAR					/* Latin-2 to Hungarian */
-#ifdef CK_ANSIC
 xl2hu(CHAR c)
-#else
-xl2hu(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xll2hu */
     switch(c) {
       case 164: return(36);		/* Currency symbol */
@@ -4262,11 +3809,7 @@ xl2hu(c) CHAR c;
 }
 
 CHAR					/* Hungarian to Latin-2 */
-#ifdef CK_ANSIC
 xhul2(CHAR c)
-#else
-xhul2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlhul2 */
     if (c & 0x80)
       return(UNK);
@@ -4286,11 +3829,7 @@ xhul2(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xr8l2(CHAR c)
-#else
-xr8l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xr8l2 */ /* Hewlett Packard Roman8 to Latin-2 */
     switch (c) {
       case 235: return(169);		/* S caron */
@@ -4300,11 +3839,7 @@ xr8l2(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl2r8(CHAR c)
-#else
-xl2r8(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2r8 */ /* Latin-2 to Hewlett Packard Roman8 Character Set */
     switch (c) {
       case 169: return(235);		/* S caron */
@@ -4365,11 +3900,7 @@ xl2r8(c) CHAR c;
 /* This one can also be used for ELOT 927, Hebrew 7, etc */
 
 CHAR
-#ifdef CK_ANSIC
 xassk(CHAR c)
-#else
-xassk(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xassk */				/* ASCII to Short KOI */
     if (c & 0x80)
       return(UNK);
@@ -4380,61 +3911,37 @@ xassk(c) CHAR c;
 /* Translation functions for Cyrillic character sets */
 
 CHAR					/* Latin/Cyrillic to CP866 */
-#ifdef CK_ANSIC
 xlcac(CHAR c)
-#else
-xlcac(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlcac */				/* PC Code Page 866 */
     return(ylcac[c]);
 }
 
 CHAR					/* Latin/Cyrillic to */
-#ifdef CK_ANSIC
 xlc55(CHAR c)
-#else
-xlc55(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlc55 */				/* PC Code Page 855 */
     return(ylc55[c]);
 }
 
 CHAR					/* Latin/Cyrillic to */
-#ifdef CK_ANSIC
 xlc1251(CHAR c)
-#else
-xlc1251(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlc1251 */				/* PC Code Page 1251 */
     return(ylc1251[c]);
 }
 
 CHAR					/* Latin/Cyrillic to... */
-#ifdef CK_ANSIC
 xlcbu(CHAR c)
-#else
-xlcbu(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlcbu */				/* Bulgarian PC Code Page */
     return(ylcbu[c]);
 }
 
 CHAR					/* Latin/Cyrillic to Old KOI-8 */
-#ifdef CK_ANSIC
 xlck8(CHAR c)
-#else
-xlck8(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlck8 */
     return(ylck8[c]);
 }
 
 CHAR					/* Latin/Cyrillic to KOI8-R */
-#ifdef CK_ANSIC
 xlckr(CHAR c)
-#else
-xlckr(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlckr */
     switch(c) {
       case 0xa1: return(0xb3);		/* Io */
@@ -4447,11 +3954,7 @@ xlckr(c) CHAR c;
 }
 
 CHAR					/* Latin/Cyrillic to  KOI8-U */
-#ifdef CK_ANSIC
 xlcku(CHAR c)
-#else
-xlcku(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlcku */
     switch(c) {
       case 0xa1: return(0xb3);		/* Io */
@@ -4472,21 +3975,13 @@ xlcku(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlcsk(CHAR c)
-#else
-xlcsk(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlcsk */				/* Latin/Cyrillic to Short KOI */
     return(ylcsk[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlcas(CHAR c)
-#else
-xlcas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlcas */				/* Latin/Cyrillic to ASCII */
     if (langs[language].id == L_RUSSIAN)
       return(ylcsk[c]);
@@ -4495,61 +3990,37 @@ xlcas(c) CHAR c;
 }
 
 CHAR					/* CP866 */
-#ifdef CK_ANSIC
 xaclc(CHAR c)
-#else
-xaclc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xaclc */				/* to Latin/Cyrillic */
     return(yaclc[c]);
 }
 
 CHAR					/* CP855 */
-#ifdef CK_ANSIC
 x55lc(CHAR c)
-#else
-x55lc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x55lc */				/* to Latin/Cyrillic */
     return(y55lc[c]);
 }
 
 CHAR					/* Bulgarian PC Code Page ... */
-#ifdef CK_ANSIC
 xbulc(CHAR c)
-#else
-xbulc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xbulc */				/* to Latin/Cyrillic */
     return(ybulc[c]);
 }
 
 CHAR					/* CP1251 */
-#ifdef CK_ANSIC
 x1251lc(CHAR c)
-#else
-x1251lc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x1251lc */				/* to Latin/Cyrillic */
     return(y1251lc[c]);
 }
 
 CHAR					/* Old KOI-8 to Latin/Cyrillic */
-#ifdef CK_ANSIC
 xk8lc(CHAR c)
-#else
-xk8lc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xk8lc */
     return(yk8lc[c]);
 }
 
 CHAR					/* KOI8-R to Latin/Cyrillic */
-#ifdef CK_ANSIC
 xkrlc(CHAR c)
-#else
-xkrlc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xkrlc */
     if (c == 0xb3) return(0xa1);
     else if (c == 0xa3) return(0xf1);
@@ -4559,11 +4030,7 @@ xkrlc(c) CHAR c;
 }
 
 CHAR					/* KOI8-U to Latin/Cyrillic */
-#ifdef CK_ANSIC
 xkulc(CHAR c)
-#else
-xkulc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xkulc */
     switch (c) {
       case 0xb3: return(0xa1);		/* Io */
@@ -4585,21 +4052,13 @@ xkulc(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xskcy(CHAR c)
-#else
-xskcy(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xskcy */			/* Short KOI to Latin/Cyrillic */
     return(yskcy[c & 0x7f]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xascy(CHAR c)
-#else
-xascy(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xascy */			/* ASCII to Latin/Cyrillic */
     if (langs[language].id == L_RUSSIAN) { /* If LANGUAGE == RUSSIAN  */
 	return(yskcy[c & 0x7f]);	/* treat ASCII as Short KOI */
@@ -4607,11 +4066,7 @@ xascy(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xacas(CHAR c)
-#else
-xacas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xacas */			/* CP866 to ASCII */
     if (langs[language].id == L_RUSSIAN) {
 	c = yaclc[c];			/* First to Latin/Cyrillic */
@@ -4620,11 +4075,7 @@ xacas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x55as(CHAR c)
-#else
-x55as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x55as */			/* CP855 to ASCII */
     if (langs[language].id == L_RUSSIAN) {
 	c = y55lc[c];			/* First to Latin/Cyrillic */
@@ -4633,11 +4084,7 @@ x55as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x1251as(CHAR c)
-#else
-x1251as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x1251as */			/* CP81251 to ASCII */
     if (langs[language].id == L_RUSSIAN) {
 	c = y1251lc[c];			/* First to Latin/Cyrillic */
@@ -4646,21 +4093,13 @@ x1251as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xskas(CHAR c)
-#else
-xskas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xskas */				/* Short KOI to ASCII */
     return((c > 95) ? '?' : c);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xk8as(CHAR c)
-#else
-xk8as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xk8as */				/* Old KOI-8 Cyrillic to ASCII */
     if (langs[language].id == L_RUSSIAN) {
 	c = yk8lc[c];			/* First to Latin/Cyrillic */
@@ -4669,32 +4108,20 @@ xk8as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1sk(CHAR c)
-#else
-xl1sk(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1sk */				/* Latin-1 to Short KOI */
     c = zl1as(c);			/* Convert to ASCII */
     return(c = xassk(c));		/* Convert ASCII to Short KOI */
 }
 
 CHAR
-#ifdef CK_ANSIC
 xw1lc(CHAR c)
-#else
-xw1lc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1lc */				/* CP1252 to Latin/Cyrillic */
     return((c < 160) ? xw1as(c) : zl1as(c));
 }
 
 CHAR
-#ifdef CK_ANSIC
 xaslc(CHAR c)
-#else
-xaslc(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xaslc */			/* ASCII to Latin/Cyrillic */
     if (langs[language].id == L_RUSSIAN)
       return(yskcy[c & 0x7f]);
@@ -4702,11 +4129,7 @@ xaslc(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xasac(CHAR c)
-#else
-xasac(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xasac */			/* ASCII to CP866 */
     if (c & 0x80)
       return(UNK);
@@ -4717,11 +4140,7 @@ xasac(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xas55(CHAR c)
-#else
-xas55(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xas55 */			/* ASCII to CP855 */
     if (c & 0x80)
       return(UNK);
@@ -4732,11 +4151,7 @@ xas55(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xas1251(CHAR c)
-#else
-xas1251(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xas1251 */			/* ASCII to CP81251 */
     if (c & 0x80)
       return(UNK);
@@ -4747,11 +4162,7 @@ xas1251(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xask8(CHAR c)
-#else
-xask8(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xask8 */			/* ASCII to KOI-8 */
     if (c & 0x80)
       return(UNK);
@@ -4800,11 +4211,7 @@ xask8(c) CHAR c;
 #ifdef HEBREW
 
 CHAR
-#ifdef CK_ANSIC
 xash7(CHAR c)
-#else
-xash7(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xash7 */			/* ASCII to Hebrew-7 */
     if (c & 0x80)
       return(UNK);
@@ -4814,21 +4221,13 @@ xash7(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1h7(CHAR c)
-#else
-xl1h7(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1h7 */			/* Latin-1 to Hebrew-7 */
     return(xash7(xl1as(c)));
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1lh(CHAR c)
-#else
-xl1lh(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1lh */				/* Latin-1 to Latin/Hebrew */
     switch(c) {
       case 170: return('a');		/* Feminine ordinal */
@@ -4840,11 +4239,7 @@ xl1lh(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xw1lh(CHAR c)
-#else
-xw1lh(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1lh */				/* CP1252 to Latin/Hebrew */
     switch(c) {
       case 170: return('a');		/* Feminine ordinal */
@@ -4861,11 +4256,7 @@ xw1lh(c) CHAR c;
 
 #ifdef LATIN2
 CHAR
-#ifdef CK_ANSIC
 xl2h7(CHAR c)
-#else
-xl2h7(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2h7 */				/* Latin-2 to Hebrew-7 */
     return(xash7(xl2as(c)));
 }
@@ -4875,32 +4266,20 @@ xl2h7(c) CHAR c;
 
 #ifndef NOCYRIL
 CHAR
-#ifdef CK_ANSIC
 xlch7(CHAR c)
-#else
-xlch7(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlch7 */				/* Latin/Cyrillic to Hebrew-7 */
     return(xash7(xlcas(c)));
 }
 #endif /* NOCYRIL */
 
 CHAR
-#ifdef CK_ANSIC
 xlhas(CHAR c)
-#else
-xlhas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlhas */			/* Latin/Hebrew to ASCII */
     return( (c > 127) ? '?' : c );
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlhl1(CHAR c)
-#else
-xlhl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlhl1 */			/* Latin/Hebrew to Latin-1 */
     switch (c) {
       case 170: return(215);
@@ -4910,11 +4289,7 @@ xlhl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlhw1(CHAR c)
-#else
-xlhw1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlhw1 */			/* Latin/Hebrew to CP1252 */
     if (c > 127 && c < 160)
       return('?');
@@ -4926,41 +4301,25 @@ xlhw1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlh62(CHAR c)
-#else
-xlh62(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlh62 */			/* Latin/Hebrew to CP862 */
     return(ylh62[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl162(CHAR c)
-#else
-xl162(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl162 */			/* Latin-1 to CP862 */
     return(xlh62(xl1lh(c)));	/* Via Latin/Hebrew */
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlhh7(CHAR c)
-#else
-xlhh7(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlhh7 */			/* Latin/Hebrew to Hebrew-7 */
     return(ylhh7[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xh7as(CHAR c)
-#else
-xh7as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xh7as */			/* Hebrew-7 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -4968,41 +4327,25 @@ xh7as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x62lh(CHAR c)
-#else
-x62lh(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x62lh */			/* CP862 to Latin/Hebrew */
     return(y62lh[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 x62as(CHAR c)
-#else
-x62as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x62as */			/* CP862 to ASCII */
     return( xlhas(x62lh(c)) );
 }
 
 CHAR
-#ifdef CK_ANSIC
 x62l1(CHAR c)
-#else
-x62l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x62l1 */			/* CP862 to Latin-1 */
     return( xlhl1(x62lh(c)) );
 }
 
 CHAR
-#ifdef CK_ANSIC
 xh7lh(CHAR c)
-#else
-xh7lh(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xh7lh */			/* Hebrew-7 to Latin/Hebrew */
     if (c & 0x80)
       return(UNK);
@@ -5036,11 +4379,7 @@ xh7lh(c) CHAR c;
 #ifdef GREEK
 
 CHAR
-#ifdef CK_ANSIC
 xaseg(CHAR c)
-#else
-xaseg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xaseg */			/* ASCII to ELOT 927 */
     if (c & 0x80)
       return(UNK);
@@ -5049,21 +4388,13 @@ xaseg(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1eg(CHAR c)
-#else
-xl1eg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1ge */			/* Latin-1 to ELOT 927 */
     return(xaseg(xl1as(c)));
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl2lg(CHAR c)
-#else
-xl2lg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2lg */			/* Latin-1 to Latin/Greek */
     if (c < 160) return(c);
     else if (c == 160 || c == 168 || c == 173 || c == 174)
@@ -5072,11 +4403,7 @@ xl2lg(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl1lg(CHAR c)
-#else
-xl1lg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl1lg */			/* Latin-1 to Latin/Greek */
     if (c < 160) return(c);
     switch(c) {
@@ -5105,11 +4432,7 @@ xl1lg(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xw1lg(CHAR c)
-#else
-xw1lg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1lg */				/* CP1252 to Latin/Greek */
     return((c < 160) ? xw1as(c) : xl1lg(c));
 }
@@ -5117,11 +4440,7 @@ xw1lg(c) CHAR c;
 
 #ifdef LATIN2
 CHAR
-#ifdef CK_ANSIC
 xl2eg(CHAR c)
-#else
-xl2eg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2eg */				/* Latin-2 to ELOT 927 */
     return(xaseg(xl2as(c)));
 }
@@ -5131,32 +4450,20 @@ xl2eg(c) CHAR c;
 
 #ifndef NOCYRIL
 CHAR
-#ifdef CK_ANSIC
 xlceg(CHAR c)
-#else
-xlceg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlceg */			/* Latin/Cyrillic to ELOT 927 */
     return(xaseg(xlcas(c)));
 }
 #endif /* NOCYRIL */
 
 CHAR
-#ifdef CK_ANSIC
 xlgas(CHAR c)
-#else
-xlgas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlgas */			/* Latin/Greek to ASCII */
     return( (c > 127) ? '?' : c );
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlgl1(CHAR c)
-#else
-xlgl1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlgl1 */			/* Latin/Greek to Latin-1 */
     if (c == 236)
       return(181);
@@ -5165,11 +4472,7 @@ xlgl1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlgw1(CHAR c)
-#else
-xlgw1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlgw1 */			/* Latin/Greek to Latin-1 */
     if (c > 127 && c < 160)
       return('?');
@@ -5177,41 +4480,25 @@ xlgw1(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlg69(CHAR c)
-#else
-xlg69(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlg69 */			/* Latin/Greek to CP869 */
     return(ylg69[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xl169(CHAR c)
-#else
-xl169(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl169 */			/* Latin-1 to CP869 */
     return(xlg69(xl1lg(c)));	/* Via Latin/Greek */
 }
 
 CHAR
-#ifdef CK_ANSIC
 xlgeg(CHAR c)
-#else
-xlgeg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xlgeg */			/* Latin/Greek to ELOT 927 */
     return(ylgeg[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 xegas(CHAR c)
-#else
-xegas(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xegas */			/* ELOT 927 to ASCII */
     if (c & 0x80)
       return(UNK);
@@ -5219,41 +4506,25 @@ xegas(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x69lg(CHAR c)
-#else
-x69lg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x69lg */			/* CP869 to Latin/Greek */
     return(y69lg[c]);
 }
 
 CHAR
-#ifdef CK_ANSIC
 x69as(CHAR c)
-#else
-x69as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x69as */			/* CP869 to ASCII */
     return( xlgas(x69lg(c)) );
 }
 
 CHAR
-#ifdef CK_ANSIC
 x69l1(CHAR c)
-#else
-x69l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x69l1 */			/* CP869 to Latin-1 */
     return( xlgl1(x69lg(c)) );
 }
 
 CHAR
-#ifdef CK_ANSIC
 xeglg(CHAR c)
-#else
-xeglg(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xeglg */			/* ELOT 927 to Latin/Greek */
     return(yeglg[c]);
 }
@@ -5311,11 +4582,7 @@ static int jpncnt;			/* Byte count for Japanese */
 static int jpnlst;			/* Last status (for JIS7) */
 
 static int
-#ifdef CK_ANSIC
 jpnxas( int a, int obuf[] )   /* Translate ASCII to local file code */
-#else
-    jpnxas(a, obuf) int a; int obuf[];
-#endif /* CK_ANSIC */
 {
     int r;
 
@@ -5347,11 +4614,7 @@ jpnxas( int a, int obuf[] )   /* Translate ASCII to local file code */
 }
 
 static int
-#ifdef CK_ANSIC
 jpnxkt( int a, int obuf[] )
-#else
-jpnxkt(a, obuf) int a; int obuf[];
-#endif /* CK_ANSIC */
 {
 /* Translate JIS X 201 Katakana to local code */
 
@@ -5379,11 +4642,7 @@ jpnxkt(a, obuf) int a; int obuf[];
 }
 
 static int
-#ifdef CK_ANSIC
 jpnxkn( int ibuf[], int obuf[] )
-#else
-jpnxkn(ibuf, obuf) int ibuf[], obuf[];
-#endif /* CK_ANSIC */
 {
     /* Translate JIS X 0208 Kanji to local code */
     int c1, c2;
@@ -5437,11 +4696,7 @@ xkanjf() {
 }
 
 int
-#ifdef CK_ANSIC
 xkanjz(int (*fn)(char))
-#else
-xkanjz(fn) int (*fn)();
-#endif /* CK_ANSIC */
 { /* xkanjz */
 /*
   Terminate xkanji
@@ -5464,11 +4719,7 @@ xkanjz(fn) int (*fn)();
 }
 
 int
-#ifdef CK_ANSIC
 xkanji(int a, int (*fn)(char))
-#else
-xkanji(a, fn) int a; int (*fn)();
-#endif /* CK_ANSIC */
 { /* xkanji */
     static int xbuf[2];
     static int obuf[8];
@@ -5614,11 +4865,7 @@ getj7() {				/* Reads JIS-7 returns next EUC byte */
 }
 
 USHORT
-#ifdef CK_ANSIC
 eu_to_sj(USHORT eu)			/* EUC-JP to Shift-JIS */
-#else
-eu_to_sj(eu) USHORT eu;
-#endif /* CK_ANSIC */
 {
     int c1, c2;
     union ck_short jcode,scode;
@@ -5644,11 +4891,7 @@ eu_to_sj(eu) USHORT eu;
 
 
 USHORT
-#ifdef CK_ANSIC
 sj_to_eu(USHORT sj)			/* Shift-JIS to EUC-JP */
-#else
-sj_to_eu(sj) USHORT sj;
-#endif /* CK_ANSIC */
 {
     union ck_short jcode, scode;
     int c0, c1;
@@ -5700,11 +4943,7 @@ zkanjz() {
 }
 
 int
-#ifdef CK_ANSIC
 zkanji(int (*fn)(void))
-#else
-zkanji(fn) int (*fn)();
-#endif /* CK_ANSIC */
 { /* zkanji */
     /* Read Japanese local code and translate to Japanese EUC */
     int a;
@@ -5830,11 +5069,7 @@ zkanji(fn) int (*fn)();
 
 #ifdef LATIN2
 CHAR
-#ifdef CK_ANSIC
 xl2l9(CHAR c)
-#else
-xl2l9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl2l9 */ 				/* Latin-2 to Latin-9... */
     switch (c) {
       case 169: return((CHAR)166);	/* S caron */
@@ -5849,11 +5084,7 @@ xl2l9(c) CHAR c;
 
 _PROTOTYP( CHAR xl258, ( CHAR ) );
 CHAR
-#ifdef CK_ANSIC
 xl258(CHAR c)
-#else
-xl258(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl258 */ 				/* Latin-2 to CP858... */
     return(c);
 }
@@ -5863,11 +5094,7 @@ xl258(c) CHAR c;
 #endif /* LATIN2 */
 
 CHAR
-#ifdef CK_ANSIC
 zl9as(CHAR c)
-#else
-zl9as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* zl9as */ 				/* Latin-9 to US ASCII... */
     if (c < (CHAR)0x80) return(c);	/* Save a function call */
     switch (c) {
@@ -5884,11 +5111,7 @@ zl9as(c) CHAR c;
 
 _PROTOTYP( CHAR xl9as, ( CHAR ) );
 CHAR
-#ifdef CK_ANSIC
 xl9as(CHAR c)
-#else
-xl9as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl9as */ 				/* Latin-9 to US ASCII... */
     if (c < (CHAR)0x80) return(c);	/* Save a function call */
     switch (c) {
@@ -5905,11 +5128,7 @@ xl9as(c) CHAR c;
 }
 
 CHAR					/* CP1252 to Latin-9 */
-#ifdef CK_ANSIC
 xw1l9(CHAR c)
-#else
-xw1l9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xw1l9 */
     switch (c) {
       case 0x80: return(0xa4);		/* Euro sign */
@@ -5934,11 +5153,7 @@ xw1l9(c) CHAR c;
 
 #ifdef LATIN2
 CHAR
-#ifdef CK_ANSIC
 xl9l2(CHAR c)
-#else
-xl9l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl9l2 */ 				/* Latin-9 to Latin-2... */
     if (c < (CHAR)0x80) return(c);	/* Save a function call */
     switch (c) {
@@ -5958,11 +5173,7 @@ xl9l2(c) CHAR c;
 #endif /* LATIN2 */
 
 CHAR
-#ifdef CK_ANSIC
 xl958(CHAR c)
-#else
-xl958(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* xl958 */ 				/* Latin-9 to CP858... */
     if (c == 0xa4)			/* Euro Symbol */
       return((CHAR)0xd5);
@@ -5973,11 +5184,7 @@ xl958(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x58as(CHAR c)
-#else
-x58as(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x58as */ 				/* CP858 to US ASCII... */
     if (c == 0xd5)			/* Euro rather than dotless i */
       return(UNK);
@@ -5986,11 +5193,7 @@ x58as(c) CHAR c;
 }
 
 CHAR
-#ifdef CK_ANSIC
 x58l1(CHAR c)
-#else
-x58l1(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x58l1 */ 				/* CP858 to Latin-1... */
     if (c == 0xd5)			/* Euro rather than dotless i */
       return((CHAR)0xa4);		/* Return currency symbol */
@@ -6002,11 +5205,7 @@ x58l1(c) CHAR c;
 
 #ifdef LATIN2
 CHAR
-#ifdef CK_ANSIC
 x58l2(CHAR c)
-#else
-x58l2(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x58l2 */ 				/* CP858 to Latin-2... */
     if (c == 0xd5)			/* Euro rather than dotless i */
       return((CHAR)0xa4);		/* Return currency symbol */
@@ -6020,11 +5219,7 @@ x58l2(c) CHAR c;
 #endif /* LATIN2 */
 
 CHAR
-#ifdef CK_ANSIC
 x58l9(CHAR c)
-#else
-x58l9(c) CHAR c;
-#endif /* CK_ANSIC */
 { /* x58l9 */ 				/* CP-858 to Latin-9... */
     if (c == 0xd5)			/* Euro rather than dotless i */
       return((CHAR)0xa4);		/* Return currency symbol */
@@ -6062,11 +5257,7 @@ _PROTOTYP( USHORT (*xtu), (CHAR) );	/* Translation function TCS to UCS */
 _PROTOTYP( USHORT (*xfu), (CHAR) );	/* Translation function FCS to UCS */
 #endif /* UNICODE */
 
-#ifdef CK_ANSIC
 CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])(CHAR) =
-#else
-CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])() =
-#endif /* CK_ANSIC */
 {
     NULL,			/* 0,0 transparent to us ascii */
     NULL,			/* 0,1 transparent to uk ascii */
@@ -6627,11 +5818,7 @@ int nxlr = (sizeof(xlr) / sizeof(CHAR *));
   character set to the transfer character set.  Indexed in the same
   way as the xlr array above, but with the indices reversed.
 */
-#ifdef CK_ANSIC
 CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])(CHAR) =
-#else
-CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])() =
-#endif /* CK_ANSIC */
 {
     NULL,			/* 0,0 us ascii to transparent */
     NULL,			/* 0,1 uk ascii to transparent */
@@ -7199,11 +6386,7 @@ int nxls = (sizeof(xls) / sizeof(CHAR *));
   zero otherwise.
 */
 int
-#ifdef CK_ANSIC
 cs_is_nrc( int x )
-#else
-cs_is_nrc(x) int x;
-#endif /* CK_ANSIC */
 {
 #ifdef UNICODE
     if (x == TX_J201R || x == TX_DECSPEC || x == TX_DECTECH
@@ -7227,11 +6410,7 @@ cs_is_nrc(x) int x;
   graphics; zero otherwise.
 */
 int
-#ifdef CK_ANSIC
 cs_is_std( int x )
-#else
-cs_is_std(x) int x;
-#endif /* CK_ANSIC */
 {
 #ifdef UNICODE
     if (!txrinfo[x])			/* Even more safety */
@@ -7259,11 +6438,7 @@ cs_is_std(x) int x;
 }
 
 int
-#ifdef CK_ANSIC
 cs_size( int x )
-#else
-cs_size(x) int x;
-#endif /* CK_ANSIC */
 {
 #ifdef UNICODE
     if (!txrinfo[x])
@@ -7355,11 +6530,7 @@ cs_size(x) int x;
     xut = UCS to TCS
 */
 VOID
-#ifdef CK_ANSIC
 setxlatype( int tcs, int fcs )
-#else
-setxlatype(tcs, fcs) int tcs, fcs;
-#endif /* CK_ANSIC */
 {
 #ifdef UNICODE
     xfu = NULL;				/* Unicode <-> TCS/FCS functions */
@@ -7426,11 +6597,7 @@ setxlatype(tcs, fcs) int tcs, fcs;
 
 #ifdef UNICODE
 VOID
-#ifdef CK_ANSIC
 initxlate( int csin, int csout )
-#else
-initxlate(csin, csout) int csin, csout;
-#endif /* CK_ANSIC */
 {
     xfu = NULL;
     xtu = NULL;

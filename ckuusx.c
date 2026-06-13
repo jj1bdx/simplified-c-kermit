@@ -316,11 +316,7 @@ static char * skreason[] = {
 static int nskreason = (sizeof(skreason) / sizeof(char *));
 
 char *
-#ifdef CK_ANSIC
 gskreason( int n )
-#else
-gskreason(n) int n;
-#endif /* CK_ANSIC */
 {
     return((n > 0 && n < nskreason) ? skreason[n] : "");
 }
@@ -433,11 +429,7 @@ extern ckjmpbuf cmjbuf;
 extern int xfiletype, nscanfile;
 
 int
-#ifdef CK_ANSIC
 shoesc( int escape )
-#else
-shoesc(escape) int escape;
-#endif /* CK_ANSIC */
 {
     extern char * ccntab[];		/* C0 control character name table */
     extern int tt_escape;
@@ -1075,11 +1067,7 @@ initpat() {
    -2 if name matches a binary pattern and a text pattern.
 */
 int
-#ifdef CK_ANSIC
 matchname( char * filename, int local, int os )
-#else
-matchname(filename, local, os) char * filename; int local; int os;
-#endif /* CK_ANSIC */
 {
     int rc = -1;			/* Return code */
     char * name, * p;
@@ -1214,11 +1202,7 @@ matchname(filename, local, os) char * filename; int local; int os;
    non-Unicode cases.
 */
 int
-#ifdef CK_ANSIC
 scanfile( char * name, int * flag, int nscanfile )
-#else
-scanfile(name,flag,nscanfile) char * name; int * flag, nscanfile;
-#endif /* CK_ANSIC */
 {
     FILE * fp;				/* File pointer */
     unsigned char buf[SCANFILEBUF];	/* File data buffer for analysis */
@@ -1740,11 +1724,7 @@ scanfile(name,flag,nscanfile) char * name; int * flag, nscanfile;
   This is just a quick butchery of scanfile without thinking too much.
 */
 int
-#ifdef CK_ANSIC
 scanstring( char * s )
-#else
-scanstring(s) char * s;
-#endif /* CK_ANSIC */
 {
     int x, val = -1, count = 0;		/* Workers */
     int rc = -1;			/* Return code */
@@ -1980,18 +1960,12 @@ scanstring(s) char * s;
 /*  F I L E S E L E C T  --  Select this file for sending  */
 
 int
-#ifdef CK_ANSIC
 fileselect(
     char *f, char *sa, char *sb, char *sna, char *snb,
     CK_OFF_T minsiz, CK_OFF_T maxsiz,
     int nbu, int nxlist,
     char ** xlist
 )
-#else
-fileselect(f,sa,sb,sna,snb,minsiz,maxsiz,nbu,nxlist,xlist)
- char *f,*sa,*sb,*sna,*snb; CK_OFF_T minsiz,maxsiz;
- int nbu,nxlist; char ** xlist;
-#endif /* CK_ANSIC */
 /* fileselect */ {
     char *fdate;
     int n;
@@ -2188,11 +2162,7 @@ setflow() {
 
 */
 int
-#ifdef CK_ANSIC
 autoexitchk(CHAR c)
-#else
-autoexitchk(c) CHAR c;
-#endif /* CK_ANSIC */
 /* autoexitchk */ {
     extern CHAR * tt_trmatch[];
     extern char * tt_trigger[];
@@ -2278,11 +2248,7 @@ shomdm() {
 /*  S D E B U  -- Record spar results in debugging log  */
 
 VOID
-#ifdef CK_ANSIC
 sdebu( int len )
-#else
-sdebu(len) int len;
-#endif /* CK_ANSIC */
 {
     debug(F111,"spar: data",(char *) rdatap,len);
     debug(F101," spsiz ","", spsiz);
@@ -2306,11 +2272,7 @@ sdebu(len) int len;
 /*  R D E B U -- Debugging display of rpar() values  */
 
 VOID
-#ifdef CK_ANSIC
 rdebu( CHAR *d, int len )
-#else
-rdebu(d,len) CHAR *d; int len;
-#endif /* CK_ANSIC */
 {
     debug(F111,"rpar: data",d,len);
     debug(F101," rpsiz ","", xunchar(d[0]));
@@ -2348,11 +2310,7 @@ chkerr() {
 /*  F A T A L  --  Fatal error message */
 
 VOID
-#ifdef CK_ANSIC
 fatal( char *msg )
-#else
-fatal(msg) char *msg;
-#endif /* CK_ANSIC */
 {
     extern int initflg;
     static int initing = 0;
@@ -2376,11 +2334,7 @@ fatal(msg) char *msg;
 /*  B L D L E N  --  Make length-encoded copy of string  */
 
 char *
-#ifdef CK_ANSIC
 bldlen( char * str, char * dest )
-#else
-bldlen(str,dest) char *str, *dest;
-#endif /* CK_ANSIC */
 {
     int len;
     len = (int)strlen(str);
@@ -2401,11 +2355,7 @@ bldlen(str,dest) char *str, *dest;
   string is allowed to be longer.
 */
 CHAR
-#ifdef CK_ANSIC
 setgen(char type, char * arg1, char * arg2, char * arg3)
-#else
-setgen(type,arg1,arg2,arg3) char type, *arg1, *arg2, *arg3;
-#endif /* CK_ANSIC */
 /* setgen */ {
     char *upstr, *cp;
 #ifdef DYNAMIC
@@ -2457,11 +2407,7 @@ static char *mgbufp = NULL;
   cannot assume that the string that is pointed to by the argument is safe.
 */
 int
-#ifdef CK_ANSIC
 fnparse( char * string )
-#else
-fnparse(string) char * string;
-#endif /* CK_ANSIC */
 {
     char *p, *s, *q;
     int r = 0, x;                       /* Return code */
@@ -2521,11 +2467,7 @@ fnparse(string) char * string;
 #endif /* NOMSEND */
 
 char *                                  /* dbchr() for DEBUG SESSION */
-#ifdef CK_ANSIC
 dbchr( int c )
-#else
-dbchr(c) int c;
-#endif /* CK_ANSIC */
 {
     static char s[8];
     char *cp = s;
@@ -2573,11 +2515,7 @@ extern char uidbuf[], * clienthost;
 #endif /* CKSYSLOG */
 
 VOID
-#ifdef CK_ANSIC
 ckhost( char * vvbuf, int vvlen )
-#else
-ckhost(vvbuf,vvlen) char * vvbuf; int vvlen;
-#endif /* CK_ANSIC */
 {
 #ifndef NOPUSH
     extern int nopush;
@@ -2760,11 +2698,7 @@ askmore() {
 /*  T R A P  --  Terminal interrupt handler */
 
 SIGTYP
-#ifdef CK_ANSIC
 trap(int sig)
-#else
-trap(sig) int sig;
-#endif /* CK_ANSIC */
 /* trap */ {
     extern int b_save, f_save;
 #ifndef NOICP
@@ -2955,11 +2889,7 @@ ck_time() {
 /*  S T P T R A P -- Handle SIGTSTP (suspend) signals */
 
 SIGTYP
-#ifdef CK_ANSIC
 stptrap(int sig)
-#else
-stptrap(sig) int sig;
-#endif /* CK_ANSIC */
 /* stptrap */ {
 
 #ifndef NOJC
@@ -3022,11 +2952,7 @@ stptrap(sig) int sig;
    n     - Long, argument 2.
 */
 VOID
-#ifdef CK_ANSIC
 dotlog(int f, char *s1, char *s2, CK_OFF_T n)
-#else
-dotlog(f,s1,s2,n) int f; CK_OFF_T n; char *s1, *s2;
-#endif /* CK_ANSIC */
 /* dotlog */ {
     static char s[TBUFL];
     extern int tlogfmt;
@@ -3115,12 +3041,7 @@ dotlog(f,s1,s2,n) int f; CK_OFF_T n; char *s1, *s2;
   If a field contains the separator, it is enclosed in doublequotes.
 */
 VOID
-#ifdef CK_ANSIC
 doxlog(int x, char * fn, CK_OFF_T fs, int fm, int status, char * msg)
-#else
-doxlog(x, fn, fs, fm, status, msg)
-    int x; char * fn; CK_OFF_T fs; int fm; int status; char * msg;
-#endif /* CK_ANSIC */
 /* doxlog */ {
     extern int tlogsep;
     char sep[2];
@@ -3428,11 +3349,7 @@ chkint() {
 /*  I N T M S G  --  Issue message about terminal interrupts  */
 
 VOID
-#ifdef CK_ANSIC
 intmsg(long n)
-#else
-intmsg(n) long n;
-#endif /* CK_ANSIC */
 /* intmsg */ {
 #ifdef CK_NEED_SIG
     char buf[80];
@@ -3589,11 +3506,7 @@ dpyinit() {
   Show the file transfer progress counter and perhaps verbose packet type.
 */
 VOID
-#ifdef CK_ANSIC
 showpkt(char c)
-#else
-showpkt(c) char c;
-#endif /* CK_ANSIC */
 /* showpkt */ {
 
 #ifndef GFTIMER
@@ -3743,11 +3656,7 @@ showpkt(c) char c;
     XYFD_G = GUI;        Windows GUI, same behavior as FULLSCREEN
 */
 VOID
-#ifdef CK_ANSIC
 ckscreen(int f, char c,CK_OFF_T n,char *s)
-#else
-ckscreen(f,c,n,s) int f; char c; CK_OFF_T n; char *s;
-#endif /* CK_ANSIC */
 /* screen */ {
     char buf[80];
     int len;                            /* Length of string */
@@ -4125,11 +4034,7 @@ _PROTOTYP( VOID conbgt, (int) );
 /* Should be used only for printing the message text from an Error packet. */
 
 VOID
-#ifdef CK_ANSIC
 ermsg( char * msg )                      /* Print error message */
-#else
-ermsg(msg) char * msg;
-#endif /* CK_ANSIC */
 {
     debug(F110,"ermsg",msg,0);
     if (local)
@@ -4139,21 +4044,13 @@ ermsg(msg) char * msg;
 #endif /* NOXFER */
 
 VOID
-#ifdef CK_ANSIC
 setseslog( int x )
-#else
-setseslog(x) int x;
-#endif /* CK_ANSIC */
 {
     seslog = x;
 }
 
 VOID
-#ifdef CK_ANSIC
 doclean( int fc )                       /* General cleanup */
-#else
-doclean(fc) int fc;
-#endif /* CK_ANSIC */
 {
     extern int ttyfd;
     extern int  keep;
@@ -4357,11 +4254,7 @@ doclean(fc) int fc;
   If second arg is not -1, work it into the exit code.
 */
 VOID
-#ifdef CK_ANSIC
 doexit( int exitstat, int code )
-#else
-doexit(exitstat,code) int exitstat, code;
-#endif /* CK_ANSIC */
 {
     extern int x_logged, quitting;
 
@@ -4535,11 +4428,7 @@ setint() {                              /* According to SET COMMAND INTERRUP */
 static char *dbptr = (char *)0;
 
 int
-#ifdef CK_ANSIC
 dodebug(int f, char *s1, char *s2, CK_OFF_T n)
-#else
-dodebug(f,s1,s2,n) int f; char *s1, *s2; CK_OFF_T n;
-#endif /* CK_ANSIC */
 /* dodebug */ {
     char *sp;
     int len1, len2;
@@ -4871,11 +4760,7 @@ dodebug(f,s1,s2,n) int f; char *s1, *s2; CK_OFF_T n;
 }
 
 int
-#ifdef CK_ANSIC
 dohexdump(CHAR *msg, CHAR *st, int cnt)
-#else
-dohexdump(msg,st,cnt) CHAR *msg; CHAR *st; int cnt;
-#endif /* CK_ANSIC */
 /* dohexdump */ {
     int i = 0, j = 0, k = 0;
     char tmp[8];
@@ -4968,11 +4853,7 @@ dohexdump(msg,st,cnt) CHAR *msg; CHAR *st; int cnt;
 int tsstate = 0;
 
 VOID
-#ifdef CK_ANSIC
 logchar(char c)
-#else
-logchar(c) char c;
-#endif /* CK_ANSIC */
 /* logchar */ {                         /* Log character c to session log */
     extern int slognul;
     int oktolog = 0;
@@ -5030,11 +4911,7 @@ logchar(c) char c;
 }
 
 VOID
-#ifdef CK_ANSIC
 logstr(char * s, int len )             /* Log string to session log */
-#else
-logstr(s, len) char * s; int len;
-#endif /* CK_ANSIC */
 {
 #ifndef NOLOCAL
     int n = 0;
@@ -5139,13 +5016,9 @@ ck_repaint() {
 #ifdef CK_CURSES
 #ifndef MYCURSES
 static
-#ifdef CK_ANSIC
 /* Can't use VOID because of curses.h */
 void
 ck_termset(int);
-#else
-ck_termset();
-#endif /* CK_ANSIC */
 #endif /* MYCURSES */
 #endif /* CK_CURSES */
 
@@ -5157,11 +5030,7 @@ static int notermcap = 0;
 
 #ifndef NODISPLAY
 CKVOID
-#ifdef CK_ANSIC
 fxdinit(int xdispla )
-#else
-fxdinit(xdispla) int xdispla;
-#endif /* CK_ANSIC */
 {
     char *s;
     int x, dummy;
@@ -5316,11 +5185,7 @@ ck_cleol() {
 }
 
 int
-#ifdef CK_ANSIC
 ck_curpos(int row, int col)
-#else
-ck_curpos(row, col) int row, int col;
-#endif  /* CK_ANSIC */
  {
     move(row, col);
     return(0);
@@ -5340,14 +5205,8 @@ static char cur_cm[64] = { NUL, NUL };
 static char tgsbuf[128] = { NUL, NUL };
 
 static
-#ifdef CK_ANSIC
 void
-#endif /* CK_ANSIC */
-#ifdef CK_ANSIC
 ck_termset( int x )
-#else
-ck_termset(x) int x;
-#endif /* CK_ANSIC */
 {
     cur_cls[0] = NUL;
     cur_cleol[0] = NUL;
@@ -5415,11 +5274,7 @@ ck_termset(x) int x;
 #endif /* TPUTSARGTYPE */
 
 static TPUTSFNTYPE
-#ifdef CK_ANSIC
 ck_outc(TPUTSARGTYPE x)
-#else
-ck_outc(x) TPUTSARGTYPE x;
-#endif /* CK_ANSIC */
 {                                       /* To satisfy tputs() arg3 prototype */
     int rc;
     char c;
@@ -5431,17 +5286,9 @@ ck_outc(x) TPUTSARGTYPE x;
 }
 
 int
-#ifdef CK_ANSIC
 ck_curpos( int row, int col )
-#else
-ck_curpos(row, col) int row, col;
-#endif /* CK_ANSIC */
 {
-#ifdef CK_ANSIC
     TPUTSFNTYPE (*fn)(TPUTSARGTYPE);
-#else
-    TPUTSFNTYPE (*fn)();
-#endif /* CK_ANSIC */
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cm[0]) {                   /* We don't have escape sequences */
@@ -5465,11 +5312,7 @@ ck_curpos(row, col) int row, col;
 
 int
 ck_cls() {
-#ifdef CK_ANSIC
     TPUTSFNTYPE (*fn)(TPUTSARGTYPE);
-#else
-    TPUTSFNTYPE (*fn)();
-#endif /* CK_ANSIC */
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cls[0]) {                  /* If we don't have escape sequences */
@@ -5488,11 +5331,7 @@ ck_cls() {
 
 int
 ck_cleol() {
-#ifdef CK_ANSIC
     TPUTSFNTYPE (*fn)(TPUTSARGTYPE);
-#else
-    TPUTSFNTYPE (*fn)();
-#endif /* CK_ANSIC */
     if (!fxd_inited)
       fxdinit(9999);
     if (!cur_cleol[0]) {                /* If we don't have escape sequences */
@@ -5542,20 +5381,8 @@ static int cinit = 0;                   /* Flag for curses init'd */
 static int cendw = 0;                   /* endwin() was called */
 
 static
-#ifdef CK_ANSIC                         /* Because VOID used by curses.h */
 void
-#else
-#ifdef MYCURSES
-VOID
-#else
-int
-#endif /* MYCURSES */
-#endif /* CK_ANSIC */
-#ifdef CK_ANSIC                         /* Update % transfered and % bar */
 updpct(long old, long new)
-#else /* CK_ANSIC */
-updpct(old, new) long old, new;
-#endif /* CK_ANSIC */
 /* updpct */ {
 #ifdef COMMENT
     int m, n;
@@ -5617,11 +5444,7 @@ updpct(old, new) long old, new;
 static CK_OFF_T old_tr = (CK_OFF_T)-1;	/* Time remaining previously */
 
 static CK_OFF_T
-#ifdef CK_ANSIC
 shoetl(CK_OFF_T old_tr, long cps, CK_OFF_T fsiz, CK_OFF_T howfar)
-#else
-    shoetl(old_tr, cps, fsiz, howfar) long cps; CK_OFF_T old_tr, fsiz, howfar;
-#endif /* CK_ANSIC */
 /* shoetl */ {                          /* Estimated time left in transfer */
     CK_OFF_T tr;			/* Time remaining, seconds */
 
@@ -5649,11 +5472,7 @@ shoetl(CK_OFF_T old_tr, long cps, CK_OFF_T fsiz, CK_OFF_T howfar)
 }
 
 static long
-#ifdef CK_ANSIC
 shocps(int pct, CK_OFF_T fsiz, CK_OFF_T howfar)
-#else
-shocps(pct, fsiz, howfar) int pct; CK_OFF_T fsiz, howfar;
-#endif /* CK_ANSIC */
 /* shocps */ {
 #ifdef CPS_WEIGHTED
     static CK_OFF_T oldffc = 0L;
@@ -5792,15 +5611,7 @@ shocps(pct, fsiz, howfar) int pct; CK_OFF_T fsiz, howfar;
 }
 
 static
-#ifdef CK_ANSIC                         /* Because VOID used by curses.h */
 void
-#else
-#ifdef MYCURSES
-VOID
-#else
-int
-#endif /* MYCURSES */
-#endif /* CK_ANSIC */
 scrft() {                               /* Display file type */
     char xferstr[256];
     xferstr[0] = NUL;
@@ -5919,17 +5730,8 @@ static int nnetname = (sizeof(netname) / sizeof(char *));
 
 #endif /* NETCONN */
 
-#ifdef CK_ANSIC
 void
 screenc(int f, char c,CK_OFF_T n,char *s)
-#else
-CKVOID
-screenc(f,c,n,s)
-int f;          /* argument descriptor */
-char c;         /* a character or small integer */
-CK_OFF_T n;     /* a long integer */
-char *s;        /* a string */
-#endif /* CK_ANSIC */
 /* screenc() */ {
 #ifdef RLOGCODE
     extern int ttnproto;
@@ -6887,13 +6689,7 @@ char *s;        /* a string */
 #ifndef CK_CURPOS
 /* Dummies for when cursor control is not supported */
 int
-#ifdef CK_ANSIC
 ck_curpos(int row, int col)
-#else
-ck_curpos(row, col)
-    int row;
-    int col;
-#endif  /* CK_ANSIC */
 {    
     return(-1);
 }
@@ -7013,11 +6809,7 @@ dbinit() {
   (0, 1, 2, ...), not the seek pointer.   Returns -1 on failure, 0 on success.
 */
 int
-#ifdef CK_ANSIC
 updslot( int n )                        /* Update our slot */
-#else
-updslot(n) int n;
-#endif /* CK_ANSIC */
 {
     int rc = 0;
     CK_OFF_T position;
@@ -7059,11 +6851,7 @@ updslot(n) int n;
 /*  I N I T S L O T --  Initialize slot n with my info  */
 
 int
-#ifdef CK_ANSIC
 initslot( int n )                       /* Initialize slot */
-#else
-initslot(n) int n;
-#endif /* CK_ANSIC */
 {
     int k;
 #ifdef TCPSOCKET
@@ -7128,11 +6916,7 @@ initslot(n) int n;
 }
 
 int
-#ifdef CK_ANSIC
 slotstate( int x, char *s1, char *s2, char *s3 )
-#else
-slotstate(x,s1,s2,s3) int x; char *s1, *s2, *s3;
-#endif /* CK_ANSIC */
 {
     int k, l1, l2, l3, z;
     mystate = x;
@@ -7181,11 +6965,7 @@ slotstate(x,s1,s2,s3) int x; char *s1, *s2, *s3;
 }
 
 int
-#ifdef CK_ANSIC
 slotdir( char * s1, char * s2 )         /* Update current directory */
-#else
-slotdir(s1,s2) char * s1, * s2;
-#endif /* CK_ANSIC */
 {
     int k, len1, len2;
     if (!ikdbopen)
@@ -7209,11 +6989,7 @@ slotdir(s1,s2) char * s1, * s2;
 /*  F R E E S L O T  --  Free slot n  */
 
 int
-#ifdef CK_ANSIC
 freeslot( int n )
-#else
-freeslot(n) int n;
-#endif /* CK_ANSIC */
 {
     int k;
     if (!ikdbopen)
@@ -7230,10 +7006,8 @@ freeslot(n) int n;
 
 /*  G E T S L O T  --  Find a free database slot; returns slot number  */
 
-#ifdef CK_ANSIC
 /* prototype for static function - fdc 30 November 2022 */
 static void ck_termset( int );
-#endif  /* CK_ANSIC */
 
 int
 getslot() {                             /* Find a free slot for us */

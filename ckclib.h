@@ -16,13 +16,8 @@ struct stringarray {
     int a_size;
 };
 
-#ifdef CK_ANSIC
 _PROTOTYP( int ckstrncpy, (char *, const char *, int) );
 _PROTOTYP( int ckstrncat, (char *, const char *, int) );
-#else
-_PROTOTYP( int ckstrncpy, (char *, char *, int) );
-_PROTOTYP( int ckstrncat, (char *, char *, int) );
-#endif /* CK_ANSIC */
 
 _PROTOTYP( int ckmakmsg,  (char *, int, char *, char *, char *, char *) );
 _PROTOTYP( int ckmakxmsg, (char *, int,
@@ -63,13 +58,8 @@ _PROTOTYP( char * brace, (char *) );
 _PROTOTYP( int dquote, (char *, int, int) );
 _PROTOTYP( int untabify, (char *, char *, int) );
 _PROTOTYP( VOID makelist, (char *, char *[], int) );
-#ifndef CK_ANSIC
-_PROTOTYP( VOID makestr, (char **, char *) );
-_PROTOTYP( VOID xmakestr, (char **, char *) );
-#else /* CK_ANSIC */
 _PROTOTYP( VOID makestr, (char **, const char *) );
 _PROTOTYP( VOID xmakestr, (char **, const char *) );
-#endif /* CK_ANSIC */
 _PROTOTYP( int chknum, (char *) );
 _PROTOTYP( int rdigits, (char *) );
 _PROTOTYP( char * ckradix, (char *,int,int) );

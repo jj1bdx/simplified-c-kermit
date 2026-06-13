@@ -214,7 +214,6 @@ extern int tcp_keepalive;
 #endif /* TCPSOCKET */
 #endif /* NETCONN */
 
-#ifdef CK_ANSIC
 /* static function prototypes - fdc 30 November 2022 */
 static VOID evalerr( char * );
 static char * fneval( char *, char*[], int, char * );
@@ -224,7 +223,6 @@ static char * getip( char * );
 static char * jpgdate( FILE * );
 static char * pathval( int );
 static int ckcindex( char, char * );
-#endif /* CK_ANSI */
 
 extern char * floname[];
 
@@ -448,13 +446,8 @@ extern int dcset7, dcset8;
 extern struct keytab lngtab[];
 extern struct csinfo fcsinfo[], tcsinfo[];
 extern struct langinfo langs[];
-#ifdef CK_ANSIC
 extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* Character set */
 extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])(CHAR); /* translation functions */
-#else
-extern CHAR (*xls[MAXTCSETS+1][MAXFCSETS+1])(); /* Character set */
-extern CHAR (*xlr[MAXTCSETS+1][MAXFCSETS+1])(); /* translation functions. */
-#endif /* CK_ANSIC */
 #ifdef UNICODE
     extern int ucsbom, ucsorder;
 #endif /* UNICODE */
@@ -1080,11 +1073,7 @@ initfloat() {
 */
 
 static char *
-#ifdef CK_ANSIC
 findinpath( char * arg )
-#else
-findinpath(arg) char * arg;
-#endif /* CK_ANSIC */
 {
 #ifdef DCMDBUF
     extern char * cmdbuf;
@@ -1129,11 +1118,7 @@ findinpath(arg) char * arg;
 static int tr_int;                      /* Flag if TRANSMIT interrupted */
 
 SIGTYP
-#ifdef CK_ANSIC
 trtrap(int foo)                         /* TRANSMIT interrupt trap */
-#else
-trtrap(foo) int foo;                    /* TRANSMIT interrupt trap */
-#endif /* CK_ANSIC */
 /* trtrap */ {
 #ifdef __EMX__
     signal(SIGINT, SIG_ACK);
@@ -1239,11 +1224,7 @@ static int x_prescan = 0;
   need to be revisited.)
 */
 VOID
-#ifdef CK_ANSIC
 prescan( int dummy )                    /* Arg is ignored. */
-#else
-prescan(dummy) int dummy;
-#endif /* CK_ANSIC */
 {
     extern int howcalled;
     int yargc; char **yargv;
@@ -1629,11 +1610,7 @@ prescan(dummy) int dummy;
   Translation between different Kanji character sets is not yet supported.
 */
 int
-#ifdef CK_ANSIC
 gettcs( int cs1, int cs2 )
-#else
-gettcs(cs1,cs2) int cs1, cs2;
-#endif /* CK_ANSIC */
 {
 #ifdef NOCSETS                          /* No character-set support */
     return(0);                          /* so no translation */
@@ -1696,11 +1673,7 @@ gettcs(cs1,cs2) int cs1, cs2;
 */
 
 int
-#ifdef CK_ANSIC
 doconect( int q, int async )
-#else
-doconect(q,async) int q, async;
-#endif /* CK_ANSIC */
 {
     int x;                              /* Return code */
 #ifdef CK_AUTODL
@@ -2061,11 +2034,7 @@ static int outxcount = 0;               /* and count */
 static CHAR xbbuf[XBBUFSIZ+4];
 
 int
-#ifdef CK_ANSIC
 transmit(char * s, char t, int xlate, int binary, int xxecho)
-#else
-transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
-#endif /* CK_ANSIC */
 /* transmit */ {
     int count = 0;
     SIGTYP (* oldsig)();
@@ -2091,31 +2060,17 @@ transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
     int unicode = 0;
     int tcssize = 0;
 
-#ifdef CK_ANSIC /* ANSI C prototypes... */
     CHAR (*sxo)(CHAR);
     CHAR (*rxo)(CHAR);
     CHAR (*sxi)(CHAR);
     CHAR (*rxi)(CHAR);
-#else /* Not ANSI C... */
-    CHAR (*sxo)();
-    CHAR (*rxo)();
-    CHAR (*sxi)();
-    CHAR (*rxi)();
-#endif /* CK_ANSIC */
 #ifdef UNICODE
     union ck_short uc;
     int bomorder = 0;
-#ifdef CK_ANSIC
     extern int (*xl_ufc[MAXFCSETS+1])(USHORT);  /* Unicode to FCS */
     extern USHORT (*xl_fcu[MAXFCSETS+1])(CHAR); /* FCS to Unicode */
     extern int (*xuf)(USHORT);
     extern USHORT (*xfu)(CHAR);
-#else
-    extern int (*xl_ufc[MAXFCSETS+1])();
-    extern USHORT (*xl_fcu[MAXFCSETS+1])();
-    extern int (*xuf)();
-    extern USHORT (*xfu)();
-#endif /* CK_ANSIC */
 #endif /* UNICODE */
 #endif /* NOCSETS */
 
@@ -2691,18 +2646,10 @@ _PROTOTYP( CHAR xl1as, (CHAR) );        /* ditto */
 */
 
 int
-#ifdef CK_ANSIC
 xlate( char *fin, char *fout, int csin, int csout )
-#else
-xlate(fin, fout, csin, csout) char *fin, *fout; int csin, csout;
-#endif /* CK_ANSIC */
 {
     SIGTYP (* oldsig)();
-#ifdef CK_ANSIC
     int (*fn)(char);                    /* Output function pointer */
-#else
-    int (*fn)();
-#endif /* CK_ANSIC */
     extern int xlatype;
     int filecode;                       /* Code for output file */
     int scrnflg = 0;
@@ -3028,11 +2975,7 @@ homepath() {
 /*  D O L O G  --  Do the log command  */
 
 int
-#ifdef CK_ANSIC
 dolog( int x )
-#else
-dolog(x) int x;
-#endif /* CK_ANSIC */
 {
     int y, disp; char *s = NULL, * p = NULL, * q = NULL;
     extern int isguest;
@@ -3159,11 +3102,7 @@ dolog(x) int x;
 
 #ifndef NOXFER
 int
-#ifdef CK_ANSIC
 pktopn( char *s, int disp )
-#else
-pktopn(s,disp) char *s; int disp;
-#endif /* CK_ANSIC */
 {
     static struct filinfo xx;
 
@@ -3207,11 +3146,7 @@ pktopn(s,disp) char *s; int disp;
 #endif /* NOXFER */
 
 int
-#ifdef CK_ANSIC
 traopn( char *s, int disp )
-#else
-traopn(s,disp) char *s; int disp;
-#endif /* CK_ANSIC */
 {
 #ifdef TLOG
     static struct filinfo xx;
@@ -3277,11 +3212,7 @@ traopn(s,disp) char *s; int disp;
 
 #ifndef NOLOCAL
 int
-#ifdef CK_ANSIC
 sesopn( char * s, int disp )
-#else
-sesopn(s,disp) char * s; int disp;
-#endif /* CK_ANSIC */
 {
     static struct filinfo xx;
     extern int tsstate;
@@ -3330,11 +3261,7 @@ sesopn(s,disp) char * s; int disp;
 #endif /* NOICP */
 
 int
-#ifdef CK_ANSIC
 debopn( char *s, int disp )
-#else
-debopn(s,disp) char *s; int disp;
-#endif /* CK_ANSIC */
 {
 #ifdef DEBUG
 #ifdef CK_UTSNAME
@@ -3483,11 +3410,7 @@ ckdate() {
   fc > 0 for subsequent opens, meaning open for use, leave open.
 */
 int
-#ifdef CK_ANSIC
 diaopn( char *s, int disp, int fc )
-#else
-diaopn(s,disp,fc) char *s; int disp, fc;
-#endif /* CK_ANSIC */
 {
     static struct filinfo xx;
 
@@ -3541,11 +3464,7 @@ diaopn(s,disp,fc) char *s; int disp, fc;
 /*  SHOW command routines */
 
 char *
-#ifdef CK_ANSIC
 shoxm( void )
-#else
-shoxm()
-#endif /* CK_ANSIC */
 {
     char * s;
     switch (binary) {
@@ -4046,11 +3965,7 @@ shoparc() {
 }
 
 int
-#ifdef CK_ANSIC
 shotcp( int n )
-#else
-shotcp(n) int n; 
-#endif /* CK_ANSIC */
 {
 #ifdef TCPSOCKET
     if (nettype == NET_TCPA || nettype == NET_TCPB) {
@@ -4121,11 +4036,7 @@ shotcp(n) int n;
 
 #ifdef TNCODE
 int
-#ifdef CK_ANSIC
 shotopt( int n )
-#else
-shotopt(n) int n;
-#endif /* CK_ANSIC */
 {
     int opt;
 
@@ -4190,11 +4101,7 @@ shotopt(n) int n;
 }
 
 int
-#ifdef CK_ANSIC
 shotel( int n )
-#else
-shotel(n) int n;
-#endif /* CK_ANSIC */
 {
     extern int tn_duplex;
 #ifdef CK_ENVIRONMENT
@@ -4583,11 +4490,7 @@ shodial() {
 }
 
 VOID
-#ifdef CK_ANSIC
 shods( char *s )                      /* Show a dial-related string */
-#else
-shods(s) char *s;
-#endif /* CK_ANSIC */
 {
     char c;
     if (s == NULL || !(*s)) {           /* Empty? */
@@ -4777,11 +4680,7 @@ doshodial() {
 /*  Show File Parameters */
 
 static char *
-#ifdef CK_ANSIC
 pathval( int x )
-#else
-pathval(x) int x;
-#endif /* CK_ANSIC */
 {
     switch (x) {
       case PATH_OFF:  return("off");
@@ -5362,11 +5261,7 @@ shopar() {
 /*  D O S T A T  --  Display file transfer statistics.  */
 
 int
-#ifdef CK_ANSIC
 dostat( int brief )
-#else
-dostat(brief) int brief;
-#endif /* CK_ANSIC */
 {
     extern long filrej, peakcps;
     extern int lastspmax, streamed, cleared, streamok;
@@ -5622,12 +5517,7 @@ static int burst = 0;                      /* Chars remaining in input burst */
 extern int inesc[], oldesc[];
 
 int
-#ifdef CK_ANSIC
 doinput(int timo, char *ms[], int mp[], int flags, int count )
-#else
-doinput(timo,ms,mp,flags,count)
-    int timo; char *ms[]; int mp[]; int flags; int count; 
-#endif /* CK_ANSIC */
 {
     extern int inintr;
 #ifdef CK_AUTODL
@@ -6302,11 +6192,7 @@ doinput(timo,ms,mp,flags,count)
   characters from the connection.
 */
 int
-#ifdef CK_ANSIC
 doreinp( int timo, char *s, int pat )
-#else
-doreinp(timo,s,pat) int timo; char *s; int pat;
-#endif /* CK_ANSIC */
 {
     int x, y, i;
     char *xx, *xp, *xq = (char *)0;
@@ -6425,11 +6311,7 @@ doreinp(timo,s,pat) int timo; char *s; int pat;
 
 #ifndef NOFRILLS
 int
-#ifdef CK_ANSIC
 yystring( char *s, char **s2 )
-#else
-yystring(s,s2) char *s; char **s2;
-#endif /* CK_ANSIC */
 {
     int x;
     static char *new;
@@ -6449,11 +6331,7 @@ yystring(s,s2) char *s; char **s2;
 static char ipabuf[16] = { NUL };       /* IP address buffer */
 
 static char *
-#ifdef CK_ANSIC
 getip( char *s )
-#else
-getip(s) char *s;
-#endif /* CK_ANSIC */
 {
     char c=NUL;                         /* Workers... */
     int i=0, p=0, d=0;
@@ -6521,11 +6399,7 @@ static char zjdbuf[12] = { NUL, NUL };
   conservetur.  - Gregorius XIII, Anno Domini MDLXXXII.
 */
 char *
-#ifdef CK_ANSIC
 zjdate( char * date )                   /* date = yyyymmdd */
-#else
-zjdate(date) char * date;
-#endif /* CK_ANSIC */
 {
     char year[5];
     char month[3];
@@ -6585,11 +6459,7 @@ static char jzdbuf[32];
 /* J Z D A T E  --  Convert Day of Year to yyyyddmm date */
 
 char *
-#ifdef CK_ANSIC
 jzdate( char * date )                   /* date = yyyyddd */
-#else
-jzdate(date) char * date;
-#endif /* CK_ANSIC */
 {
     char year[5];                       /* with optional time */
     char day[4];
@@ -6685,11 +6555,7 @@ jzdate(date) char * date;
   is MJD mod 7: 0=We, 1=Th, 2=Fr, 3=Sa, 4=Su, 5=Mo, 6=Tu.
 */
 long
-#ifdef CK_ANSIC
 mjd( char * date )
-#else
-mjd(date) char * date;
-#endif /* CK_ANSIC */
 {
     char year[5];
     char month[3];
@@ -6736,11 +6602,7 @@ static char mjd2dbuf[32];
 /*  M J D 2 D A T E  --  Converts MJD to yyyymmdd  */
 
 char *
-#ifdef CK_ANSIC
 mjd2date(long mjd)
-#else
-mjd2date(mjd) long mjd;
-#endif /* CK_ANSIC */
 /* mjd2date */ {
     long jd, l, n;
     int d, m, y;
@@ -6792,11 +6654,7 @@ static char fpfmtbuf[FPFMTSIZ] = { NUL, NUL };
 static int fpfbufpos = 0;               /* (why was this char before?) */
 
 char *
-#ifdef CK_ANSIC
 fpformat( CKFLOAT fpresult, int places, int round )
-#else
-fpformat(fpresult,places,round) CKFLOAT fpresult; int places, round;
-#endif /* CK_ANSIC */
 {
     char fbuf[16];                      /* For creating printf format */
     int nines = 0, sign = 0, x, y, i, j, size = 0;
@@ -6901,11 +6759,7 @@ fpformat(fpresult,places,round) CKFLOAT fpresult; int places, round;
 #endif /* CKFLOAT */
 
 static VOID
-#ifdef CK_ANSIC
 evalerr( char * fn )
-#else
-evalerr(fn) char * fn;
-#endif /* CK_ANSIC */
 {
     if (fndiags) {
         if (divbyzero)
@@ -6916,11 +6770,7 @@ evalerr(fn) char * fn;
 }
 
 static int
-#ifdef CK_ANSIC
 ckcindex(char c, char *s)
-#else
-ckcindex(c,s) char c, *s;
-#endif /* CK_ANSIC */
 {
     int rc;
     if (!c || !s) return(0);
@@ -6931,11 +6781,7 @@ ckcindex(c,s) char c, *s;
 }
 
 static char *
-#ifdef CK_ANSIC
 dokwval( char * s, char * sep )
-#else
-dokwval(s,sep) char * s, * sep;
-#endif /* CK_ANSIC */
 {
     char c = '\0', * p, * kw = NULL, * vp = NULL;
     char * rc = "0";			/* Return code */
@@ -6993,11 +6839,7 @@ dokwval(s,sep) char * s, * sep;
 }
 
 static int
-#ifdef CK_ANSIC
 isaarray( char * s )           /* Is s an associative array element */
-#else
-isaarray(s) char * s;
-#endif /* CK_ANSIC */
 {
     int state = 0;
     CHAR c;
@@ -7034,11 +6876,7 @@ isaarray(s) char * s;
 #define JPGDATEBUF 8192	   /* Should be more than enough bytes to find date */
 
 static char *
-#ifdef CK_ANSIC
 jpgdate( FILE * fp )
-#else
-jpgdate(fp) FILE * fp;
-#endif /* CK_ANSIC */
 {
     static char datebuf[20];
     char tmpbuf[20];
@@ -7164,11 +7002,7 @@ jpgdate(fp) FILE * fp;
     return((char *) datebuf);
 }
 int                                    /* Is character alphnumeric? */
-#ifdef CK_ANSIC
 cisalphanum(CHAR ch)                   /* i.e. a letter, digit, @, $, or _ */
-#else 
-cisalphanum(ch) CHAR ch;               /* i.e. a letter, digit, @, $, or _ */
-#endif /* CK_ANSIC */
 {
     /* All 8-bit characters are counted as alphanumeric */
     int c;
@@ -7183,11 +7017,7 @@ cisalphanum(ch) CHAR ch;               /* i.e. a letter, digit, @, $, or _ */
 }
 
 int                                     /* Is character non-alphanumeric */
-#ifdef CK_ANSIC
 cnonalphanum( CHAR ch )                 /* i.e. not letter, digit, [$@_] */
-#else
-cnonalphanum(ch) CHAR ch;
-#endif /* CK_ANSIC */
 {
     int c;
     c = (int)ch;                        /* Avoid C-language character syntax */
@@ -7202,11 +7032,7 @@ cnonalphanum(ch) CHAR ch;
 
 /* Tell if a string contains only alphanumeric characters */
 int
-#ifdef CK_ANSIC
 isalphanum( char *s )
-#else
-isalphanum(s) char *s;
-#endif /* CK_ANSIC */
 {
     CHAR c;
     while ((c = (int)(*s++))) {
@@ -7216,11 +7042,7 @@ isalphanum(s) char *s;
 }
 /* Tell if a string contains only non-alphanumeric characters */
 int
-#ifdef CK_ANSIC
 nonalphanum( char *s )
-#else
-nonalphanum(s) char *s;
-#endif /* CK_ANSIC */
 {
     CHAR c;
     while ((c = (int)(*s++))) {
@@ -7230,11 +7052,7 @@ nonalphanum(s) char *s;
 }
 
 static char *                           /* Evaluate builtin functions */
-#ifdef CK_ANSIC
 fneval( char *fn, char *argp[], int argn, char * xp )
-#else
-fneval(fn,argp,argn,xp) char *fn, *argp[]; int argn; char * xp;
-#endif /* CK_ANSIC */
 {
     int i=0, j=0, k=0, len1=0, len2=0, len3=0, n=0, t=0, x=0, y=0;
     int cx, failed = 0;                 /* Return code, 0 = ok */
@@ -11806,11 +11624,7 @@ ckgetpid() {                            /* Return pid as string */
 static char embuf[EMBUFLEN+1];
 
 char *                                  /* Evaluate builtin variable */
-#ifdef CK_ANSIC
     nvlook( char *s )
-#else
-    nvlook(s) char *s;
-#endif /* CK_ANSIC */
 {
     int x, y, cx;
     long z;
@@ -13510,11 +13324,7 @@ char *                                  /* Evaluate builtin variable */
 
 /* warning, this won't work for VMS */
 char *
-#ifdef CK_ANSIC
 getbasename( char *s )
-#else
-getbasename(s) char *s;
-#endif /* CK_ANSIC */
 {
     int n, i;
     if (!s) s = "";
@@ -13557,11 +13367,7 @@ getbasename(s) char *s;
 #endif /* NOSPL */
 
 int
-#ifdef CK_ANSIC
 zzstring( char *s, char **s2, int *n )
-#else
-zzstring(s,s2,n) char *s; char **s2; int *n;
-#endif /* CK_ANSIC */
 {
     int x,                              /* Current character */
         xx,                             /* Worker */

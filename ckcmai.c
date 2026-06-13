@@ -1453,11 +1453,7 @@ static int nxxsysids = (sizeof(sysidlist) / sizeof(struct sysdata));
 /* and some properties of the filenames... */
 
 char *
-#ifdef CK_ANSIC
 getsysid( char *s )                     /* Get system-type name */
-#else
-getsysid(s) char * s;
-#endif /* CK_ANSIC */
 {    int i;
     if (!s) return("");
     for (i = 0; i < nxxsysids; i++)
@@ -1467,11 +1463,7 @@ getsysid(s) char * s;
 }
 
 int
-#ifdef CK_ANSIC
 getsysix(char *s)
-#else
-getsysix(s) char *s;
-#endif /* CK_ANSIC */
 {                                       /* Get system-type index */
     int i;
     if (!s) return(-1);
@@ -1486,11 +1478,7 @@ getsysix(s) char *s;
 /* This should be parceled out to each of the ck*fio.c modules... */
 /* VMS isabsolute() is now in ckvfio.c. */
 int
-#ifdef CK_ANSIC
 isabsolute( char * path )
-#else
-isabsolute(path) char * path;
-#endif /* CK_ANSIC */
 {
     int rc = 0;
     int x;
@@ -1516,11 +1504,7 @@ isabsolute(path) char * path;
 /*  See if I have direct access to the keyboard  */
 
 int
-#ifdef CK_ANSIC
 is_a_tty( int n )
-#else
-is_a_tty(n) int n;
-#endif /* CK_ANSIC */
 {
 #ifdef UNIX
     extern int ttfdflg;
@@ -1536,13 +1520,8 @@ is_a_tty(n) int n;
 }
 
 #ifndef NOXFER
-#ifdef CK_ANSIC
 void
 initxlist( void )
-#else
-VOID
-initxlist()
-#endif /* CK_ANSIC */
 {
     extern char * sndexcept[], * rcvexcept[];
     int i;
@@ -1556,14 +1535,9 @@ initxlist()
 /* Initialize flow control table */
 
 
-#ifdef CK_ANSIC
 void
 initflow( void )
 
-#else
-VOID
-initflow()
-#endif /* CK_ANSIC */
 {                                       /* Default values for flow control */
     /* The temptation is to make this one FLO_KEEP but don't!!! */
     /* It totally wrecks binary-file transfer when coming in via Telnet. */
@@ -1595,14 +1569,7 @@ initflow()
 /* Initialize file transfer protocols */
 
 VOID
-#ifdef CK_ANSIC
 initproto( int y, char * upbstr, char * uptstr, char * srvstr, char * sndbstr, char * sndtstr, char * rcvbstr, char * rcvtstr )
-#else
-initproto(y, upbstr, uptstr, srvstr, sndbstr, sndtstr, rcvbstr, rcvtstr)
-    int y;
-    char * upbstr, * uptstr, * srvstr, * sndbstr, * sndtstr, * rcvbstr,
-    * rcvtstr;
-#endif /* CK_ANSIC */
 /* initproto */ {
 
     if (upbstr)                         /* Convert null strings */
@@ -1672,11 +1639,7 @@ initproto(y, upbstr, uptstr, srvstr, sndbstr, sndtstr, rcvbstr, rcvtstr)
 
 #ifndef NOCMDL
 VOID
-#ifdef CK_ANSIC
 docmdline(void * threadinfo)
-#else /* CK_ANSIC */
-docmdline(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -1695,11 +1658,7 @@ docmdline(threadinfo) VOID * threadinfo;
    return;
 }
 
-#ifdef CK_ANSIC
 void ikslogin ( void )
-#else
-VOID ikslogin (  )
-#endif /* CK_ANSIC */
 {
     if (sstelnet
 #ifdef IKSD
@@ -1860,11 +1819,7 @@ VOID ikslogin (  )
 }
 
 VOID
-#ifdef CK_ANSIC
 failcmdline(void * foo)
-#else /* CK_ANSIC */
-failcmdline(foo) VOID * foo;
-#endif /* CK_ANSIC */
 {
 #ifndef NOLOCAL
     if (cnflg) doconect(0,0);           /* connect again if requested. */
@@ -1876,11 +1831,7 @@ failcmdline(foo) VOID * foo;
 
 #ifndef NOICP
 VOID
-#ifdef CK_ANSIC
 dotakeini(void * threadinfo)            /* Execute init file. */
-#else  /* CK_ANSIC */
-dotakeini(threadinfo) VOID * threadinfo; /* Execute init file. */
-#endif /* CK_ANSIC */
 /* dotakeini */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -1910,11 +1861,7 @@ dotakeini(threadinfo) VOID * threadinfo; /* Execute init file. */
 }
 
 VOID
-#ifdef CK_ANSIC
 failtakeini(void * threadinfo)
-#else /* CK_ANSIC */
-failtakeini(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failtakeini */ {
     fixcmd();
     if (!cfilef) {
@@ -1926,11 +1873,7 @@ command-line processing.");
 }
 
 VOID
-#ifdef CK_ANSIC
 doicp(void * threadinfo)
-#else /* CK_ANSIC */
-doicp(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* doicp */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -1961,11 +1904,7 @@ doicp(threadinfo) VOID * threadinfo;
 }
 
 VOID
-#ifdef CK_ANSIC
 failicp(void * threadinfo)
-#else /* CK_ANSIC */
-failicp(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
     fixcmd();                           /* Pop command stacks, etc. */
     clcmds = NULL;
@@ -1975,11 +1914,7 @@ failicp(threadinfo) VOID * threadinfo;
 
 #ifndef NOICP
 VOID
-#ifdef CK_ANSIC
 docmdfile(void * threadinfo)            /* Execute application file */
-#else /* CK_ANSIC */
-docmdfile(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* docmdfile */ {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -2001,11 +1936,7 @@ docmdfile(threadinfo) VOID * threadinfo;
 }
 
 VOID
-#ifdef CK_ANSIC
 failcmdfile(void * threadinfo)
-#else /* CK_ANSIC */
-failcmdfile(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failcmdfile */ {
     fixcmd();
     if (!cfilef) {
@@ -2020,13 +1951,8 @@ command-line processing.");
 #ifndef NOXFER
 
 
-#ifdef CK_ANSIC                         /* Initial control-char prefixing */
 void
 setprefix ( int z )
-#else
-VOID
-setprefix(z) int z;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_SPEED
     int i, val;
@@ -2115,13 +2041,8 @@ setprefix(z) int z;
 char myherald[MAXHERALDLEN+2];          /* for \v(herald) */
 char myoptions[MAXHERALDLEN];           /* and extra bits like SSL etc */
 
-#ifdef CK_ANSIC                          /* Make version string from pieces */
 void
 makever ( void )
-#else
-VOID
-makever ( )
-#endif /* CK_ANSIC */
 {
     extern int noherald, backgrd;
     extern char * ckxsys;
@@ -2224,13 +2145,8 @@ int bigendian = 1;
 #ifndef NOTCPIP
 #ifndef NOCMDL
 #ifndef NOURL
-#ifdef CK_ANSIC
 VOID
 dourl( void )
-#else
-VOID
-dourl()
-#endif /* CK_ANSIC */
 {
     int rc = 0;
     char * port = NULL;
@@ -2397,11 +2313,7 @@ if not eq {\\v(authstate)} {valid} { remote login ",
   add -DMAINISVOID to the make command line.
 */
 MAINTYPE
-#ifdef CK_ANSIC
 MAINNAME( int argc, char ** argv )
-#else
-MAINNAME( argc, argv ) int argc; char **argv;
-#endif /* CK_ANSIC */
 {
     char *p;
 
@@ -3020,11 +2932,7 @@ MAINNAME( argc, argv ) int argc; char **argv;
 /* Allocate file i/o buffers */
 
 int
-#ifdef CK_ANSIC
 getiobs ( void )
-#else
-getiobs ( )
-#endif /* CK_ANSIC */
 {
     zinbuffer = (char *)malloc(INBUFSIZE);
     if (!zinbuffer) return(-1);

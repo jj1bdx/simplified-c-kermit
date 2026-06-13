@@ -23,9 +23,7 @@
 #ifndef CKCFNP_H
 #define CKCFNP_H
 
-#ifndef NOANSI
 #ifdef __STDC__
-#ifdef CK_ANSIC
 /*
   #include ckcker.h was added 27 April 2023 because certain builds (like
   "linux+ssl") were failing.  ckcker.h defines data types and other symbols
@@ -545,7 +543,5 @@ void zrtol( char *, char * );
 void zstrip( char *, char ** );
 void ztime( char ** );
 
-#endif /* CK_ANSIC */
 #endif /* __STDC__ */
-#endif /* NOANSI   */
 #endif /* CKCFNP_H */

@@ -5854,11 +5854,7 @@ struct x_to_unicode u_c1pics = {
 /* Blah-to-Unicode functions */
 
 USHORT
-#ifdef CK_ANSIC
 ascii_u(CHAR c)
-#else
-ascii_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5876,11 +5872,7 @@ ascii_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 british_u(CHAR c)
-#else
-british_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5893,11 +5885,7 @@ british_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 dutch_u(CHAR c)
-#else
-dutch_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5910,11 +5898,7 @@ dutch_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 finnish_u(CHAR c)
-#else
-finnish_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5927,11 +5911,7 @@ finnish_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 french_u(CHAR c)
-#else
-french_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5944,11 +5924,7 @@ french_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 fr_canadian_u(CHAR c)
-#else
-fr_canadian_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5961,11 +5937,7 @@ fr_canadian_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 german_u(CHAR c)
-#else
-german_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5978,11 +5950,7 @@ german_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hungarian_u(CHAR c)
-#else
-hungarian_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -5995,11 +5963,7 @@ hungarian_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 italian_u(CHAR c)
-#else
-italian_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6012,11 +5976,7 @@ italian_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 icelandic_u(CHAR c)
-#else
-icelandic_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6029,11 +5989,7 @@ icelandic_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 jis0201r_u(CHAR c)
-#else
-jis0201r_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6046,11 +6002,7 @@ jis0201r_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 jis0201k_u(CHAR c)
-#else
-jis0201k_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6063,11 +6015,7 @@ jis0201k_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 norwegian_u(CHAR c)
-#else
-norwegian_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6080,11 +6028,7 @@ norwegian_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 danish_u(CHAR c)
-#else
-danish_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6097,11 +6041,7 @@ danish_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 portuguese_u(CHAR c)
-#else
-portuguese_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6114,11 +6054,7 @@ portuguese_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 spanish_u(CHAR c)
-#else
-spanish_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6131,11 +6067,7 @@ spanish_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 swedish_u(CHAR c)
-#else
-swedish_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6148,11 +6080,7 @@ swedish_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 swiss_u(CHAR c)
-#else
-swiss_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6165,11 +6093,7 @@ swiss_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 apl1_u(CHAR c)
-#else
-apl1_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6182,21 +6106,13 @@ apl1_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 ident_u(CHAR c)
-#else /* CK_ANSIC */
-ident_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return((USHORT)c);
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_1_u(CHAR c)
-#else
-iso_8859_1_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6210,11 +6126,7 @@ iso_8859_1_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_2_u(CHAR c)
-#else
-iso_8859_2_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6228,11 +6140,7 @@ iso_8859_2_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_3_u(CHAR c)
-#else
-iso_8859_3_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6246,11 +6154,7 @@ iso_8859_3_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_4_u(CHAR c)
-#else
-iso_8859_4_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6264,11 +6168,7 @@ iso_8859_4_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_5_u(CHAR c)
-#else
-iso_8859_5_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6282,11 +6182,7 @@ iso_8859_5_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 koi8_u(CHAR c)
-#else
-koi8_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6300,11 +6196,7 @@ koi8_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 koi8r_u(CHAR c)                         /* KOI8-R to Unicode */
-#else
-koi8r_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_koi8r.offset)
@@ -6316,11 +6208,7 @@ koi8r_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 koi8u_u(CHAR c)
-#else
-koi8u_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_koi8u.offset)
@@ -6332,11 +6220,7 @@ koi8u_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_6_u(CHAR c)
-#else
-iso_8859_6_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6350,11 +6234,7 @@ iso_8859_6_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_7_u(CHAR c)
-#else
-iso_8859_7_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6368,11 +6248,7 @@ iso_8859_7_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_8_u(CHAR c)
-#else
-iso_8859_8_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6386,11 +6262,7 @@ iso_8859_8_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hebrew7_u(CHAR c)
-#else
-hebrew7_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_hebrew7.offset)
@@ -6402,11 +6274,7 @@ hebrew7_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 elot927_u(CHAR c)
-#else
-elot927_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_elot927.offset)
@@ -6418,11 +6286,7 @@ elot927_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_9_u(CHAR c)
-#else
-iso_8859_9_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6436,11 +6300,7 @@ iso_8859_9_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_10_u(CHAR c)
-#else
-iso_8859_10_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6454,11 +6314,7 @@ iso_8859_10_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 iso_8859_15_u(CHAR c)
-#else
-iso_8859_15_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6472,11 +6328,7 @@ iso_8859_15_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 apl2_u(CHAR c)
-#else
-apl2_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6490,11 +6342,7 @@ apl2_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 apl3_u(CHAR c)
-#else
-apl3_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_apl3.offset)
@@ -6506,11 +6354,7 @@ apl3_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 apl4_u(CHAR c)
-#else
-apl4_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_apl4.offset)
@@ -6522,11 +6366,7 @@ apl4_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 apl5_u(CHAR c)
-#else
-apl5_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_apl5.offset)
@@ -6538,11 +6378,7 @@ apl5_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 koi7_u(CHAR c)
-#else
-koi7_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c & 0x80)
       return(UNK);
@@ -6555,11 +6391,7 @@ koi7_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 decmcs_u(CHAR c)
-#else
-decmcs_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6573,21 +6405,13 @@ decmcs_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 nextstep_u(CHAR c)
-#else
-nextstep_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_nextstep.map[(c & 0x7f) - u_nextstep.offset]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 dgi_u(CHAR c)
-#else
-dgi_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6595,11 +6419,7 @@ dgi_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hproman8_u(CHAR c)
-#else
-hproman8_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x80 && c < 0xa0)
       return(c);
@@ -6607,251 +6427,151 @@ hproman8_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp37_u(CHAR c)
-#else
-cp37_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp37.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp437_u(CHAR c)
-#else
-cp437_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp437.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 mazovia_u(CHAR c) /* Mazovia = CP437 with substitutions */
-#else
-mazovia_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_mazovia.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp850_u(CHAR c)
-#else
-cp850_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp850.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp858_u(CHAR c)
-#else
-cp858_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp858.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1250_u(CHAR c)
-#else
-cp1250_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1250.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1251_u(CHAR c)
-#else
-cp1251_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1251.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1252_u(CHAR c)
-#else
-cp1252_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1252.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1253_u(CHAR c)
-#else
-cp1253_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1253.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1254_u(CHAR c)
-#else
-cp1254_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1254.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1255_u(CHAR c)
-#else
-cp1255_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1255.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1256_u(CHAR c)
-#else
-cp1256_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1256.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1257_u(CHAR c)
-#else
-cp1257_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1257.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp1258_u(CHAR c)
-#else
-cp1258_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp1258.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp852_u(CHAR c)
-#else
-cp852_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp852.map[c & 0x7f]);
 }
 
 USHORT                                  /* Cyrillic */
-#ifdef CK_ANSIC
 cp855_u(CHAR c)
-#else
-cp855_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp855.map[c & 0x7f]);
 }
 
 USHORT                                  /* Bulgaria */
-#ifdef CK_ANSIC
 cp856_u(CHAR c)
-#else
-cp856_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp856.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp857_u(CHAR c)
-#else
-cp857_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp857.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp862_u(CHAR c)
-#else
-cp862_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp862.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp864_u(CHAR c)
-#else
-cp864_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp864.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp866_u(CHAR c)
-#else
-cp866_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp866.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 cp869_u(CHAR c)
-#else
-cp869_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_cp869.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 maclatin_u(CHAR c)
-#else
-maclatin_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_maclatin.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 quickdraw_u(CHAR c)
-#else
-quickdraw_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     return(u_quickdraw.map[c & 0x7f]);
 }
 
 USHORT
-#ifdef CK_ANSIC
 decspec_u(CHAR c)
-#else
-decspec_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_decspec.offset)
@@ -6863,11 +6583,7 @@ decspec_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 dectech_u(CHAR c)
-#else
-dectech_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_dectech.offset)
@@ -6879,11 +6595,7 @@ dectech_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 dgspec_u(CHAR c)
-#else
-dgspec_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_dgspec.offset)
@@ -6895,11 +6607,7 @@ dgspec_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 dgline_u(CHAR c)
-#else
-dgline_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_dgline.offset)
@@ -6911,11 +6619,7 @@ dgline_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 dgword_u(CHAR c)
-#else
-dgword_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_dgword.offset)
@@ -6927,11 +6631,7 @@ dgword_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hpline_u(CHAR c)
-#else
-hpline_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_hpline.offset)
@@ -6943,11 +6643,7 @@ hpline_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hpmath_u(CHAR c)
-#else
-hpmath_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_hpmath.offset)
@@ -6959,11 +6655,7 @@ hpmath_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 qnxgrph_u(CHAR c)
-#else
-qnxgrph_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_qnxgrph.offset)
@@ -6975,11 +6667,7 @@ qnxgrph_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 hz1500_u(CHAR c)
-#else
-hz1500_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_hz1500.offset)
@@ -6991,11 +6679,7 @@ hz1500_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 sniblanks_u(CHAR c)
-#else
-sniblanks_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_sniblanks.offset)
@@ -7007,11 +6691,7 @@ sniblanks_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 snibrack_u(CHAR c)
-#else
-snibrack_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_snibrack.offset)
@@ -7023,11 +6703,7 @@ snibrack_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 snifacet_u(CHAR c)
-#else
-snifacet_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_snifacet.offset)
@@ -7039,11 +6715,7 @@ snifacet_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 sniibm_u(CHAR c)
-#else
-sniibm_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_sniibm.offset)
@@ -7055,11 +6727,7 @@ sniibm_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 snieuro_u(CHAR c)
-#else
-snieuro_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_snieuro.offset)
@@ -7071,11 +6739,7 @@ snieuro_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 heath19g_u(CHAR c)
-#else
-heath19g_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_heath19g.offset)
@@ -7087,11 +6751,7 @@ heath19g_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 tvig_u(CHAR c)
-#else
-tvig_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_tvig.offset)
@@ -7103,11 +6763,7 @@ tvig_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 wyse_gn_u(CHAR c)
-#else
-wyse_gn_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_wyse_gn.offset)
@@ -7119,11 +6775,7 @@ wyse_gn_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 wyse_g1_u(CHAR c)
-#else
-wyse_g1_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_wyse_g1.offset)
@@ -7135,11 +6787,7 @@ wyse_g1_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 wyse_g2_u(CHAR c)
-#else
-wyse_g2_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_wyse_g2.offset)
@@ -7151,11 +6799,7 @@ wyse_g2_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 wyse_g3_u(CHAR c)
-#else
-wyse_g3_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_wyse_g3.offset)
@@ -7167,11 +6811,7 @@ wyse_g3_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 smiley_u(CHAR c)
-#else
-smiley_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_smiley.offset)
@@ -7183,11 +6823,7 @@ smiley_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 c0pics_u(CHAR c)
-#else
-c0pics_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_c0pics.offset)
@@ -7199,11 +6835,7 @@ c0pics_u(c) CHAR c;
 }
 
 USHORT
-#ifdef CK_ANSIC
 c1pics_u(CHAR c)
-#else
-c1pics_u(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     c &= 0x7f;
     if (c < u_c1pics.offset)
@@ -7226,11 +6858,7 @@ static long                             /* Statistics counters */
   roman = 0;
 
 USHORT
-#ifdef CK_ANSIC
 sj_to_un(USHORT sj)                     /* Shift-JIS to Unicode */
-#else
-sj_to_un(sj) USHORT sj;
-#endif /* CK_ANSIC */
 {
 
 /* Kanji blocks */
@@ -7294,11 +6922,7 @@ sj_to_un(sj) USHORT sj;
 }
 
 USHORT
-#ifdef CK_ANSIC
 un_to_sj(USHORT un)                     /* Unicode to Shift-JIS */
-#else
-un_to_sj(un) USHORT un;
-#endif /* CK_ANSIC */
 {
 
     if (un < 0x00a0) {
@@ -7536,11 +7160,7 @@ un_to_sj(un) USHORT un;
 /* Unicode-to-blah functions, tx_blah(). */
 
 static int
-#ifdef CK_ANSIC
 tx_punc(USHORT c)
-#else
-tx_punc(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x2000 && c <= 0x200a)     /* Various-width spaces */
       return((CHAR)(0x20));
@@ -7566,11 +7186,7 @@ tx_punc(c) USHORT c;
 
 
 int                                     /* For Latin-1 */
-#ifdef CK_ANSIC
 tx_ident(USHORT c)
-#else
-tx_ident(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c == 0x203e)                    /* Overline -> Macron */
       return((CHAR)0xaf);
@@ -7581,11 +7197,7 @@ tx_ident(c) USHORT c;
 }
 
 int
-#ifdef CK_ANSIC
 tx_usascii(USHORT c)
-#else
-tx_usascii(c) USHORT c;                 /* US ASCII */
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)
       return((CHAR)(c & 0xff));
@@ -7615,11 +7227,7 @@ tx_usascii(c) USHORT c;                 /* US ASCII */
 }
 
 int
-#ifdef CK_ANSIC
 tx_british(USHORT c)
-#else
-tx_british(c) USHORT c;                 /* British */
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)
       return(-1);
@@ -7630,11 +7238,7 @@ tx_british(c) USHORT c;                 /* British */
 }
 
 int
-#ifdef CK_ANSIC
 tx_apl1(USHORT c)
-#else
-tx_apl1(c) USHORT c;                    /* Apl1 */
-#endif /* CK_ANSIC */
 {
     if (c >= 0x0041 && c <= 0x005a)     /* Letters */
       return(c + 0x20);
@@ -7712,11 +7316,7 @@ tx_apl1(c) USHORT c;                    /* Apl1 */
 }
 
 int                                     /* Canadian French */
-#ifdef CK_ANSIC
 tx_fr_canadian(USHORT c)
-#else
-tx_fr_canadian(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7736,11 +7336,7 @@ tx_fr_canadian(c) USHORT c;
 }
 
 int                                     /* Danish/Norwegian */
-#ifdef CK_ANSIC
 tx_danish(USHORT c)
-#else
-tx_danish(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7756,11 +7352,7 @@ tx_danish(c) USHORT c;
 }
 
 int                                     /* Dutch */
-#ifdef CK_ANSIC
 tx_dutch(USHORT c)
-#else
-tx_dutch(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xfe00)                     /* Out of range */
       return(-1);
@@ -7779,11 +7371,7 @@ tx_dutch(c) USHORT c;
 }
 
 int                                     /* Finnish */
-#ifdef CK_ANSIC
 tx_finnish(USHORT c)
-#else
-tx_finnish(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7802,11 +7390,7 @@ tx_finnish(c) USHORT c;
 }
 
 int                                     /* French */
-#ifdef CK_ANSIC
 tx_french(USHORT c)
-#else
-tx_french(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7826,11 +7410,7 @@ tx_french(c) USHORT c;
 }
 
 int                                     /* German */
-#ifdef CK_ANSIC
 tx_german(USHORT c)
-#else
-tx_german(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7848,11 +7428,7 @@ tx_german(c) USHORT c;
 }
 
 int                                     /* Hebrew-7 */
-#ifdef CK_ANSIC
 tx_hebrew7(USHORT c)
-#else
-tx_hebrew7(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x60)                       /* ASCII */
       return((CHAR)(c & 0x7f));
@@ -7864,11 +7440,7 @@ tx_hebrew7(c) USHORT c;
 }
 
 int                                     /* Greek ELOT 927 */
-#ifdef CK_ANSIC
 tx_elot927(USHORT c)
-#else
-tx_elot927(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c <= 0x80) {                    /* ASCII */
         if (islower(c)) c = toupper(c); /* Send all letters in uppercase */
@@ -7918,11 +7490,7 @@ tx_elot927(c) USHORT c;
 }
 
 int                                     /* Hungarian */
-#ifdef CK_ANSIC
 tx_hungarian(USHORT c)
-#else
-tx_hungarian(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c == 0x02dd || c == 0x2033)
       return(0x7e);                     /* double acute accent */
@@ -7942,11 +7510,7 @@ tx_hungarian(c) USHORT c;
 }
 
 int                                     /* Icelandic */
-#ifdef CK_ANSIC
 tx_icelandic(USHORT c)
-#else
-tx_icelandic(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7964,11 +7528,7 @@ tx_icelandic(c) USHORT c;
 }
 
 int                                     /* Italian */
-#ifdef CK_ANSIC
 tx_italian(USHORT c)
-#else
-tx_italian(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -7988,11 +7548,7 @@ tx_italian(c) USHORT c;
 }
 
 int                                     /* JIS 0201 Roman */
-#ifdef CK_ANSIC
 tx_jis0201r(USHORT c)
-#else
-tx_jis0201r(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff80)                     /* 7 bits */
       return(-1);
@@ -8005,11 +7561,7 @@ tx_jis0201r(c) USHORT c;
 }
 
 int                                     /* JIS 0201 Katakana */
-#ifdef CK_ANSIC
 tx_jis0201k(USHORT c)
-#else
-tx_jis0201k(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xff61 || c > 0xff9f)
       return(-1);                       /* Out of range */
@@ -8018,11 +7570,7 @@ tx_jis0201k(c) USHORT c;
 }
 
 int                                     /* Short KOI */
-#ifdef CK_ANSIC
 tx_koi7(USHORT c)
-#else
-tx_koi7(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x50)
       return((CHAR)(c & 0x7f));
@@ -8065,11 +7613,7 @@ tx_koi7(c) USHORT c;
 }
 
 int                                     /* Portuguese */
-#ifdef CK_ANSIC
 tx_portuguese(USHORT c)
-#else
-tx_portuguese(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -8087,11 +7631,7 @@ tx_portuguese(c) USHORT c;
 }
 
 int                                     /* Spanish */
-#ifdef CK_ANSIC
 tx_spanish(USHORT c)
-#else
-tx_spanish(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -8109,11 +7649,7 @@ tx_spanish(c) USHORT c;
 }
 
 int                                     /* Swedish */
-#ifdef CK_ANSIC
 tx_swedish(USHORT c)
-#else
-tx_swedish(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -8134,11 +7670,7 @@ tx_swedish(c) USHORT c;
 
 
 int                                     /* Swiss NRC */
-#ifdef CK_ANSIC
 tx_swiss(USHORT c)
-#else
-tx_swiss(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c & 0xff00)                     /* Out of range */
       return(-1);
@@ -8160,11 +7692,7 @@ tx_swiss(c) USHORT c;
 }
 
 int                                     /* Dyadic APL */
-#ifdef CK_ANSIC
 tx_apl2(USHORT c)
-#else
-tx_apl2(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x0041 && c <= 0x005a)     /* Letters */
       return(c - 0xa2);
@@ -8247,11 +7775,7 @@ tx_apl2(c) USHORT c;
 }
 
 int                                     /* APL-Plus */
-#ifdef CK_ANSIC
 tx_apl3(USHORT c)
-#else
-tx_apl3(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     switch (c) {
       case 0x00a0: return((CHAR)0xa0);
@@ -8388,11 +7912,7 @@ tx_apl3(c) USHORT c;
 }
 
 int                                     /* IBM APL2 */
-#ifdef CK_ANSIC
 tx_apl4(USHORT c)
-#else
-tx_apl4(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     switch (c) {
       case 0x00a0: return((CHAR)0xff);
@@ -8526,11 +8046,7 @@ tx_apl4(c) USHORT c;
 }
 
 int                                     /* APL-2741 */
-#ifdef CK_ANSIC
 tx_apl5(USHORT c)
-#else
-tx_apl5(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     switch (c) {
       case 0x00a0: return((CHAR)0xa0);
@@ -8667,11 +8183,7 @@ tx_apl5(c) USHORT c;
 /* For Latin-1, use tx_ident() */
 
 int                                     /* Latin-2 */
-#ifdef CK_ANSIC
 tx_8859_2(USHORT c)
-#else
-tx_8859_2(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -8777,11 +8289,7 @@ tx_8859_2(c) USHORT c;
 }
 
 int                                     /* Latin-3 */
-#ifdef CK_ANSIC
 tx_8859_3(USHORT c)
-#else
-tx_8859_3(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -8880,11 +8388,7 @@ tx_8859_3(c) USHORT c;
 }
 
 int                                     /* Latin-4 */
-#ifdef CK_ANSIC
 tx_8859_4(USHORT c)
-#else
-tx_8859_4(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -8990,11 +8494,7 @@ tx_8859_4(c) USHORT c;
 }
 
 int                                     /* ISO 8859-5 (Latin/Cyrillic) */
-#ifdef CK_ANSIC
 tx_8859_5(USHORT c)
-#else
-tx_8859_5(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)                       /* (8859-5 is not Latin-5!) */
       return((CHAR)(c & 0xff));
@@ -9100,11 +8600,7 @@ tx_8859_5(c) USHORT c;
 }
 
 int                                     /* ISO 8859-6 (Latin/Arabic) */
-#ifdef CK_ANSIC
 tx_8859_6(USHORT c)
-#else
-tx_8859_6(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)                       /* (8859-6 != Latin-6) */
       return((CHAR)(c & 0xff));
@@ -9165,11 +8661,7 @@ tx_8859_6(c) USHORT c;
 }
 
 int                                     /* ISO 8859-7 (Latin/Greek) */
-#ifdef CK_ANSIC
 tx_8859_7(USHORT c)
-#else
-tx_8859_7(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9271,11 +8763,7 @@ tx_8859_7(c) USHORT c;
 }
 
 int                                     /* ISO 8859-8 (Latin/Hebrew) */
-#ifdef CK_ANSIC
 tx_8859_8(USHORT c)
-#else
-tx_8859_8(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9343,11 +8831,7 @@ tx_8859_8(c) USHORT c;
 }
 
 int                                     /* ISO 8859-9 (Latin-4) */
-#ifdef CK_ANSIC
 tx_8859_9(USHORT c)
-#else
-tx_8859_9(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9363,11 +8847,7 @@ tx_8859_9(c) USHORT c;
 }
 
 int                                     /* Latin-6 */
-#ifdef CK_ANSIC
 tx_8859_10(USHORT c)
-#else
-tx_8859_10(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9474,11 +8954,7 @@ tx_8859_10(c) USHORT c;
 
 
 int                                     /* ISO 8859-15 Latin-9 */
-#ifdef CK_ANSIC
 tx_8859_15(USHORT c)
-#else
-tx_8859_15(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9496,11 +8972,7 @@ tx_8859_15(c) USHORT c;
 }
 
 int                                     /* Old KOI-8 (ECMA 113 First Ed.) */
-#ifdef CK_ANSIC
 tx_koi8(USHORT c)
-#else
-tx_koi8(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9573,11 +9045,7 @@ tx_koi8(c) USHORT c;
 }
 
 int                                     /* UCS-2 to KOI8-R (Russia) */
-#ifdef CK_ANSIC
 tx_koi8r(USHORT c)
-#else
-tx_koi8r(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x00A0)
       return((CHAR)(c & 0xff));
@@ -9715,11 +9183,7 @@ tx_koi8r(c) USHORT c;
 }
 
 int                                     /* KOI8-U (Ukraine) */
-#ifdef CK_ANSIC
 tx_koi8u(USHORT c)
-#else
-tx_koi8u(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9858,11 +9322,7 @@ tx_koi8u(c) USHORT c;
 
 
 int                                     /* DEC MCS */
-#ifdef CK_ANSIC
 tx_decmcs(USHORT c)
-#else
-tx_decmcs(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -9892,11 +9352,7 @@ tx_decmcs(c) USHORT c;
 }
 
 int                                     /* NeXTSTEP */
-#ifdef CK_ANSIC
 tx_nextstep(USHORT c)
-#else
-tx_nextstep(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10032,11 +9488,7 @@ tx_nextstep(c) USHORT c;
 }
 
 int                                     /* DG International */
-#ifdef CK_ANSIC
 tx_dgi(USHORT c)
-#else
-tx_dgi(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -10138,11 +9590,7 @@ tx_dgi(c) USHORT c;
 }
 
 int                                     /* Macintosh Latin */
-#ifdef CK_ANSIC
 tx_maclatin(USHORT c)
-#else
-tx_maclatin(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10280,11 +9728,7 @@ tx_maclatin(c) USHORT c;
 }
 
 int                                     /* Apple QuickDraw / CP10000 */
-#ifdef CK_ANSIC
 tx_quickdraw(USHORT c)
-#else
-tx_quickdraw(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10422,11 +9866,7 @@ tx_quickdraw(c) USHORT c;
 }
 
 int                                     /* HP Roman-8 */
-#ifdef CK_ANSIC
 tx_hproman8(USHORT c)
-#else
-tx_hproman8(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xa0)
       return((CHAR)(c & 0xff));
@@ -10528,11 +9968,7 @@ tx_hproman8(c) USHORT c;
 }
 
 int                                     /* PC Code Page 437 */
-#ifdef CK_ANSIC
 tx_cp437(USHORT c)
-#else
-tx_cp437(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10713,11 +10149,7 @@ tx_cp437(c) USHORT c;
 }
 
 int                                     /* Mazovia */
-#ifdef CK_ANSIC
 tx_mazovia(USHORT c)
-#else
-tx_mazovia(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10745,11 +10177,7 @@ tx_mazovia(c) USHORT c;
 }
 
 int                                     /* PC Code Page 850 */
-#ifdef CK_ANSIC
 tx_cp850(USHORT c)
-#else
-tx_cp850(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -10887,11 +10315,7 @@ tx_cp850(c) USHORT c;
 }
 
 int                                     /* PC Code Page 858 */
-#ifdef CK_ANSIC
 tx_cp858(USHORT c)
-#else
-tx_cp858(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11029,11 +10453,7 @@ tx_cp858(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1250 (Latin-2) */
-#ifdef CK_ANSIC
 tx_cp1250(USHORT c)
-#else
-tx_cp1250(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80 || (c > 0xbf && c <= 0xff)) /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11113,11 +10533,7 @@ tx_cp1250(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1251 (Cyrillic) */
-#ifdef CK_ANSIC
 tx_cp1251(USHORT c)
-#else
-tx_cp1251(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11257,11 +10673,7 @@ tx_cp1251(c) USHORT c;
 }
 
 int /* Unicode to Windows Code Page 1252 (Latin-1) */
-#ifdef CK_ANSIC
 tx_cp1252(USHORT c)
-#else
-tx_cp1252(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80 || (c > 0x9f && c <= 0xff)) /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11317,11 +10729,7 @@ tx_cp1252(c) USHORT c;
 }
 
 int                                     /* PC Code Page 852 */
-#ifdef CK_ANSIC
 tx_cp852(USHORT c)
-#else
-tx_cp852(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11459,11 +10867,7 @@ tx_cp852(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1253 (Greek) */
-#ifdef CK_ANSIC
 tx_cp1253(USHORT c)
-#else
-tx_cp1253(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -11584,11 +10988,7 @@ tx_cp1253(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1254 (Turkish) */
-#ifdef CK_ANSIC
 tx_cp1254(USHORT c)
-#else
-tx_cp1254(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)
       return((CHAR)(c & 0xff));
@@ -11604,11 +11004,7 @@ tx_cp1254(c) USHORT c;
 }
 
 int
-#ifdef CK_ANSIC
 tx_cp1255(USHORT c)
-#else
-tx_cp1255(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x080)
         return((CHAR)(c & 0xff));
@@ -11828,11 +11224,7 @@ tx_cp1255(c) USHORT c;
 }
 
 int                                     /* Windows Arabic */
-#ifdef CK_ANSIC
 tx_cp1256(USHORT c)
-#else
-tx_cp1256(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)
       return((CHAR)(c & 0xff));
@@ -12082,11 +11474,7 @@ tx_cp1256(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1257 (Latin-4) */
-#ifdef CK_ANSIC
 tx_cp1257(USHORT c)
-#else
-tx_cp1257(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)
       return((CHAR)(c & 0xff));
@@ -12205,11 +11593,7 @@ tx_cp1257(c) USHORT c;
 }
 
 int                                     /* Windows Code Page 1258 (Viet Nam) */
-#ifdef CK_ANSIC
 tx_cp1258(USHORT c)
-#else
-tx_cp1258(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -12456,11 +11840,7 @@ tx_cp1258(c) USHORT c;
 }
 
 int                                     /* Code Page 037 - EBCDIC (U.S.) */
-#ifdef CK_ANSIC
 tx_cp37(USHORT c)
-#else
-tx_cp37(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     switch (c) {
       case 0x0000:
@@ -12992,11 +12372,7 @@ tx_cp37(c) USHORT c;
 
 
 int                                     /* PC Code Page 855 */
-#ifdef CK_ANSIC
 tx_cp855(USHORT c)
-#else
-tx_cp855(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13132,11 +12508,7 @@ tx_cp855(c) USHORT c;
 }
 
 int                                     /* PC Code Page 856 */
-#ifdef CK_ANSIC
 tx_cp856(USHORT c)
-#else
-tx_cp856(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13274,11 +12646,7 @@ tx_cp856(c) USHORT c;
 }
 
 int                                     /* PC Code Page 857 */
-#ifdef CK_ANSIC
 tx_cp857(USHORT c)
-#else
-tx_cp857(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13414,11 +12782,7 @@ tx_cp857(c) USHORT c;
 }
 
 int                                     /* PC Code Page 862 */
-#ifdef CK_ANSIC
 tx_cp862(USHORT c)
-#else
-tx_cp862(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13556,11 +12920,7 @@ tx_cp862(c) USHORT c;
 }
 
 int                                     /* PC Code Page 864 */
-#ifdef CK_ANSIC
 tx_cp864(USHORT c)
-#else
-tx_cp864(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13692,11 +13052,7 @@ tx_cp864(c) USHORT c;
 }
 
 int                                     /* PC Code Page 866 */
-#ifdef CK_ANSIC
 tx_cp866(USHORT c)
-#else
-tx_cp866(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13834,11 +13190,7 @@ tx_cp866(c) USHORT c;
 }
 
 int                                     /* PC Code Page 869 */
-#ifdef CK_ANSIC
 tx_cp869(USHORT c)
-#else
-tx_cp869(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0x80)                       /* Has C1 graphics */
       return((CHAR)(c & 0xff));
@@ -13967,11 +13319,7 @@ tx_cp869(c) USHORT c;
 }
 
 int                                     /* PC Code Page C0 graphics */
-#ifdef CK_ANSIC
 tx_smiley(USHORT c)
-#else
-tx_smiley(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c > 0x1f)
       return(-1);
@@ -14013,11 +13361,7 @@ tx_smiley(c) USHORT c;
 }
 
 USHORT  /* Horizontal Scan Lines Unicode substitutions */
-#ifdef CK_ANSIC
 tx_hslsub(USHORT c)
-#else
-tx_hslsub(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c >= 0x23BA && c <= 0x23BD )
     switch (c) {
@@ -14030,11 +13374,7 @@ tx_hslsub(c) USHORT c;
 }
 
 USHORT  /* Kermit font 0xE??? Unicode substitutions */
-#ifdef CK_ANSIC
 tx_usub(USHORT c)
-#else
-tx_usub(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     if (c < 0xE000 || c > 0xEFFF)
       return(c);
@@ -14074,11 +13414,7 @@ tx_usub(c) USHORT c;
 }
 
 int                                     /* Unicode to CP437 substitutions */
-#ifdef CK_ANSIC
 tx_cpsub(USHORT c)
-#else
-tx_cpsub(c) USHORT c;
-#endif /* CK_ANSIC */
 {
     int x;
     if (c < 0x0080)                     /* ASCII */
@@ -14579,11 +13915,7 @@ txrinfo[MAXTXSETS+1] = {
   KEEP THIS IN SYNC WITH THE TX_blah DEFINITITIONS in ckcuni.h.
 */
 USHORT
-#ifdef CK_ANSIC
 (*xl_u[MAXTXSETS+1])(CHAR)
-#else
-(*xl_u[MAXTXSETS+1])()
-#endif /* CK_ANSIC */
 = {
     ascii_u,                            /*  0 US ISO 646 (ASCII) */
     british_u,                          /*  1 UK ISO 646 */
@@ -14703,11 +14035,7 @@ USHORT
   with the tables above.
 */
 int
-#ifdef CK_ANSIC
 (*xl_tx[MAXTXSETS+1])(USHORT)
-#else
-(*xl_tx[MAXTXSETS+1])()
-#endif /* CK_ANSIC */
  = {
     tx_usascii,                         /*  0 US ISO 646 (ASCII) */
     tx_british,                         /*  1 UK ISO 646 */
@@ -14827,11 +14155,7 @@ int
   KEEP THIS IN SYNC WITH THE FC_blah DEFINITITIONS in ckuxla.h.
 */
 USHORT
-#ifdef CK_ANSIC
 (*xl_fcu[MAXFCSETS+1])(CHAR)
-#else
-(*xl_fcu[MAXFCSETS+1])()
-#endif /* CK_ANSIC */
 = {
     ascii_u,                            /*  0 US ISO 646 (ASCII) */
     british_u,                          /*  1 UK ISO 646 */
@@ -14890,11 +14214,7 @@ USHORT
   KEEP THIS IN SYNC WITH THE FC_blah DEFINITITIONS in ckuxla.h.
 */
 int
-#ifdef CK_ANSIC
 (*xl_ufc[MAXFCSETS+1])(USHORT)
-#else
-(*xl_ufc[MAXFCSETS+1])()
-#endif /* CK_ANSIC */
 = {
     tx_usascii,                         /*  0 US ISO 646 (ASCII) */
     tx_british,                         /*  1 UK ISO 646 */
@@ -14953,11 +14273,7 @@ int
   KEEP THIS IN SYNC WITH THE TC_blah DEFINITIONS in ckuxla.h.
 */
 USHORT
-#ifdef CK_ANSIC
 (*xl_tcu[MAXTCSETS+1])(CHAR)
-#else
-(*xl_tcu[MAXTCSETS+1])()
-#endif /* CK_ANSIC */
 = {
     NULL,                               /*  0 = Transparent */
     ascii_u,                            /*  1 = ASCII */
@@ -14978,11 +14294,7 @@ USHORT
   KEEP THIS IN SYNC WITH THE TC_blah DEFINITIONS in ckuxla.h.
 */
 int
-#ifdef CK_ANSIC
 (*xl_utc[MAXTCSETS+1])(USHORT)
-#else
-(*xl_utc[MAXTCSETS+1])()
-#endif /* CK_ANSIC */
 = {
     NULL,                               /*  0 = Transparent */
     tx_usascii,                         /*  1 = ASCII */
@@ -15009,15 +14321,9 @@ int
 */
 ULONG
 offsetsFromUTF8[7] = {
-#ifdef CK_ANSIC
     0x00000000UL, /* Ignored */
     0x00000000UL, 0x00003080UL, 0x000E2080UL,
     0x03C82080UL, 0xFA082080UL, 0x82082080UL
-#else
-    0x00000000L, /* Ignored */
-    0x00000000L, 0x00003080L, 0x000E2080L,
-    0x03C82080L, (unsigned) 0xFA082080L, (unsigned) 0x82082080L
-#endif /* CK_ANSIC */
 };
 
 CHAR bytesInUTF8[256] = {
@@ -15051,11 +14357,7 @@ CHAR firstByteMark[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
 #define UTFBUFSIZ 16
 
 int
-#ifdef CK_ANSIC
 utf8_to_ucs2(CHAR ch, USHORT ** ucs2)
-#else
-utf8_to_ucs2(ch, ucs2) CHAR ch; USHORT ** ucs2;
-#endif /* CK_ANSIC */
 {
     static USHORT ucs2return = 0;
 
@@ -15183,11 +14485,7 @@ utf8_to_ucs2(ch, ucs2) CHAR ch; USHORT ** ucs2;
 */
 
 int
-#ifdef CK_ANSIC
 ucs2_to_utf8(USHORT ucs2, CHAR ** utf8)
-#else
-ucs2_to_utf8(ucs2, utf8) USHORT ucs2; CHAR ** utf8;
-#endif /* CK_ANSIC */
 {
     static CHAR utf8return[8]={0,0,0,0,0,0,0,0};
     register CONST ULONG byteMask = 0xBF;
@@ -15218,11 +14516,7 @@ ucs2_to_utf8(ucs2, utf8) USHORT ucs2; CHAR ** utf8;
     } else if (ucs2 < 0x4000000) {
         utf8len = 5;
     } else if (ucs2 <=
-#ifdef CK_ANSIC
                0x7FFFFFFFUL             /* (doesn't really need the "U") */
-#else
-               0x7FFFFFFFL
-#endif /* CK_ANSIC */
                ) {                      /* 31 bits = max for UCS4 */
         utf8len = 6;
     } else {
@@ -15248,13 +14542,8 @@ ucs2_to_utf8(ucs2, utf8) USHORT ucs2; CHAR ** utf8;
 
 /*  UTF-8 functions...  */
 
-#ifdef CK_ANSIC
 extern int (*xuf)(USHORT);              /* Translation function UCS to FCS */
 extern USHORT (*xfu)(CHAR);             /* Translation function FCS to UCS */
-#else
-extern int (*xuf)();
-extern USHORT (*xfu)();
-#endif /* CK_ANSIC */
 
 /*  u _ t o _ b  --  UTF-8 to Byte  */
 /*
@@ -15278,11 +14567,7 @@ u_to_b2() {
 }
 
 int                                     /* UTF-8 to byte */
-#ifdef CK_ANSIC
 u_to_b(CHAR c)
-#else
-u_to_b(c) CHAR c;
-#endif /* CK_ANSIC */
 {
     int x;
     USHORT * ucs2, uc;
@@ -15314,11 +14599,7 @@ u_to_b(c) CHAR c;
   (0xFFFD translated to UTF-8 == 0xFFBD).
 */
 int                                     /* Byte to UTF-8 */
-#ifdef CK_ANSIC
 b_to_u(CHAR c, CHAR * buf, int buflen, int setsize)
-#else
-b_to_u(c, buf, buflen, setsize) CHAR c, * buf; int buflen, setsize;
-#endif /* CK_ANSIC */
 {
     CHAR * tmp = NULL;
     int i, count = 0;
@@ -15352,9 +14633,7 @@ b_to_u(c, buf, buflen, setsize) CHAR c, * buf; int buflen, setsize;
 
 int
 ck_isunicode(                              /* Tells whether the host we are */
-#ifdef CK_ANSIC                         /* running on supports Unicode */
           void                          /* display */
-#endif /* CK_ANSIC */
           ) {
     return(0);
 }

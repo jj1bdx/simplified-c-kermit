@@ -119,7 +119,6 @@ _PROTOTYP(VOID doftpglobaltype,(int));
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef CK_ANSIC
 /* Prototypes for static functions - fdc 30 November 2022 */
 static VOID doend( int );
 static int dodcl( int );
@@ -129,7 +128,6 @@ static int doadd( int, int );
 static int doeval( int );
 static int xdohttp(int, char *, char *, char *, char *,
  char *, char *, char *, char *, char, int );
-#endif /* CK_ANSIC */
 
 
 extern int xcmdsrc, hints, cmflgs, whyclosed;
@@ -3248,11 +3246,7 @@ showtypopts() {
 /* isauto == 1 if locus is being switched automatically */
 
 VOID
-#ifdef CK_ANSIC
 setlocus(int x, int isauto)
-#else
-setlocus(x, isauto) int x, isauto;
-#endif /* CK_ANSIC */
 {
     extern int quitting;
     if (x) x = 1;
@@ -3268,11 +3262,7 @@ setlocus(x, isauto) int x, isauto;
 }
 
 VOID
-#ifdef CK_ANSIC
 setautolocus( int x )
-#else
-setautolocus(x) int x;
-#endif /* CK_ANSIC */
 {
     autolocus = x;
 }
@@ -3508,11 +3498,7 @@ doping() {				/* PING command */
 #endif /* TCPSOCKET */
 
 static VOID
-#ifdef CK_ANSIC
 doend( int x )
-#else
-doend(x) int x;
-#endif /* CK_ANSIC */
 {
 #ifndef NOSPL
     /* Pop from all FOR/WHILE/XIF/SWITCH's */
@@ -3599,11 +3585,7 @@ char sndxnam[] = { "_array_x_" };	/* (with replaceable x!) */
 /*  D O X S E N D  --  Parse SEND and related commands with switches  */
 
 int
-#ifdef CK_ANSIC
 doxsend( int cx )
-#else
-doxsend(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int c, i, n, wild, confirmed = 0;	/* Workers */
     int x, y;				/* of the world... */
@@ -4984,11 +4966,7 @@ resconn() {
 }
 
 int
-#ifdef CK_ANSIC
 doxconn( int cx )
-#else
-doxconn(cx) int cx; 
-#endif /* CK_ANSIC */
 {
     int c, i, n;			/* Workers */
     int x, y;
@@ -5187,11 +5165,7 @@ doxconn(cx) int cx;
 /* cx == XXADD or XXREMV */
 /* fc == ADD_BIN or ADD_TXT */
 static int
-#ifdef CK_ANSIC
 doadd( int cx, int fc )
-#else
-doadd(cx,fc) int cx, fc;
-#endif /* CK_ANSIC */
 {
 #ifdef PATTERNS
     char * tmp[FTPATTERNS];
@@ -5271,11 +5245,7 @@ doadd(cx,fc) int cx, fc;
 /* ADD SEND-LIST */
 
 static int
-#ifdef CK_ANSIC
 addsend( int cx )
-#else
-addsend(cx) int cx; 
-#endif /* CK_ANSIC */
 {
 #ifndef NOMSEND
     extern struct keytab fttab[];
@@ -5463,16 +5433,9 @@ static int nhttpptab = sizeof(httpptab)/sizeof(struct keytab) - 1;
 #define HTTP_MAXHDR 8
 
 static int
-#ifdef CK_ANSIC
 xdohttp(int action, char * lfile,
  char * rf, char * dfile, char * agent, char * hdr, char * user, char * pass,
   char * mime, char array, int type)
-#else
-xdohttp(action, lfile, rf, dfile, agent, hdr, user, pass, mime, array, type)
-    int action;
-    char *lfile, *rf, *dfile, *agent, *hdr, *user, *pass, *mime, array;
-    int type;
-#endif  /* CK_ANSIC */
 /* xdohttp */ {
     int i, rc = 0;
     char * hdrlist[HTTP_MAXHDR];
@@ -5608,11 +5571,7 @@ static struct keytab learnswi[] = {
 #endif /* CKLEARN */
 
 int
-#ifdef CK_ANSIC
 arrayitoa( int x )                   /* Array index to array letter */
-#else
-arrayitoa(x) int x;
-#endif /* CK_ANSIC */
 {
     if (x == 1)
       return(64);
@@ -5623,11 +5582,7 @@ arrayitoa(x) int x;
 }
 
 int
-#ifdef CK_ANSIC
 arrayatoi( int c )			/* Array letter to array index */
-#else
-arrayatoi(c) int c;
-#endif /* CK_ANSIC */
 {
     if (c == 64)
       c = 96;
@@ -5639,11 +5594,7 @@ arrayatoi(c) int c;
 }
 
 static int				/* Declare an array */
-#ifdef CK_ANSIC
 dodcl( int cx ) 
-#else
-dodcl(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i, n, v, lo, hi, rc = 0;
     int isdynamic = 0;
@@ -5945,11 +5896,7 @@ unarray() {
 }
 
 static int
-#ifdef CK_ANSIC
 clrarray( int cx ) 
-#else
-clrarray(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int i, x, lo, hi;
     char c, * s, * val = NULL;
@@ -6201,11 +6148,7 @@ doclear() {
 
 #ifndef NOSPL
 static int
-#ifdef CK_ANSIC
 doeval( int cx ) 
-#else
-doeval(cx) int cx;
-#endif /* CK_ANSIC */
 {
     char *p;
     char vnambuf[VNAML], * vnp = NULL;	/* These must be on the stack */
@@ -7201,11 +7144,7 @@ doprompt() {
 
 #ifdef CKLEARN
 VOID
-#ifdef CK_ANSIC
 learncmd( char *s )            /* Record commands in learned script */
-#else
-learncmd(s) char *s;
-#endif /* CK_ANSIC */
 {
     char buf[64];
     int i, k;
@@ -7266,11 +7205,7 @@ redossh() {
   have to be hardwired into lots of scattered text strings.
 */
 int                                     /* Print an array of lines, */
-#ifdef CK_ANSIC
 hmsgaa(char *s[], char *s2)		/* pausing at end of each screen. */
-#else
-hmsgaa(s,s2) char *s[]; char *s2;
-#endif	/* CK_ANSIC */
 {
     extern int hmtopline;
     extern int tt_rows, tt_cols;
@@ -7313,11 +7248,7 @@ hmsgaa(s,s2) char *s[]; char *s2;
 
 #ifndef NOSPL
 int
-#ifdef CK_ANSIC
 isinternalmacro( int x )     /* Test if macro is internally defined */
-#else
-isinternalmacro(x) int x;
-#endif /* CK_ANSIC */
 {
     char * m;
     /*
@@ -7384,11 +7315,7 @@ isinternalmacro(x) int x;
 static char errmsgbuf[ERRMSGBUFSIZ] = { '\0' };
 
 VOID
-#ifdef CK_ANSIC
 newerrmsg( char * s )
-#else
-newerrmsg(s) char *s; 
-#endif /* CK_ANSIC */
 {
     char * tmperrbuf[ERRMSGBUFSIZ];
 
@@ -7498,11 +7425,7 @@ int cmdstats[256] = { -1, -1 };
 #endif /* DEBUG */
 
 int
-#ifdef CK_ANSIC
 docmd( int cx )
-#else
-docmd(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern int nolocal, cmkwflgs;
 

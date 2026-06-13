@@ -744,9 +744,6 @@ extern int errno;                       /* fdc 1 November 2022 */
 
 
 #ifdef __DECC				/* For DEC Alpha VMS or OSF/1 */
-#ifndef CK_ANSIC
-#define CK_ANSIC			/* Even with /stand=vaxc, need ansi */
-#endif /* CKANSIC */
 #ifndef SIG_V
 #define SIG_V				/* and signal type is VOID */
 #endif /* SIG_V */
@@ -772,13 +769,8 @@ extern int errno;                       /* fdc 1 November 2022 */
 */
 
 
-#ifndef NOANSI
 #ifdef __STDC__				/* __STDC__ means ANSI C */
-#ifndef CK_ANSIC
-#define CK_ANSIC
-#endif /* CK_ANSIC */
 #endif /* __STDC__ */
-#endif /* NOANSI */
 /*
   _PROTOTYP() is used for forward declarations of functions so we can have
   parameter and return value type checking if the compiler offers it.
@@ -788,11 +780,7 @@ extern int errno;                       /* fdc 1 November 2022 */
   ANSI prototypes, include -DCK_ANSIC on the cc command line.  To disable the
   use of ANSI prototypes, include -DNOANSI.
 */
-#ifdef CK_ANSIC
 #define _PROTOTYP( func, parms ) func parms
-#else /* Not ANSI C */
-#define _PROTOTYP( func, parms ) func()
-#endif /* CK_ANSIC */
 
 #ifdef NOLOGIN				/* NOLOGIN implies NOIKSD */
 #ifndef NOIKSD
@@ -859,11 +847,9 @@ extern int errno;                       /* fdc 1 November 2022 */
 #ifdef CKXPRINTF
 #define printf ckxprintf
 #define fprintf ckxfprintf
-#ifdef CK_ANSIC
 _PROTOTYP(int ckxprintf,(const char *, ...));
 _PROTOTYP(int ckxperror,(const char *));
 _PROTOTYP(int ckxfprintf,(FILE *, const char *, ...));
-#endif /* CK_ANSIC */
 #ifdef putchar
 #undef putchar
 #endif /* putchar */
@@ -889,11 +875,7 @@ _PROTOTYP(int ckxfprintf,(FILE *, const char *, ...));
   Adjustments might be needed for earlier HP-UX versions.
 */
 #ifndef VOID				/* Used throughout all C-Kermit */
-#ifdef CK_ANSIC				/* modules... */
 #define VOID void
-#else
-#define VOID int
-#endif /* CK_ANSIC */
 #endif /* VOID */
 /*
   Exactly the same as VOID but for use in contexts where the VOID symbol
@@ -902,21 +884,13 @@ _PROTOTYP(int ckxfprintf,(FILE *, const char *, ...));
   second half of ckuusx.c.
 */
 #ifndef CKVOID
-#ifdef CK_ANSIC
 #define CKVOID void
-#else
-#define CKVOID int
-#endif /* CK_ANSIC */
 #endif /* CKVOID */
 
 /* Const type */
 
 #ifndef CONST
-#ifdef CK_ANSIC
 #define CONST const
-#else
-#define CONST
-#endif /* CK_ANSIC */
 #endif /* CONST */
 
 /* Signal type */
@@ -3002,15 +2976,10 @@ _PROTOTYP(int dohexdump,(CHAR *,CHAR *,int));
 #define debug(a,b,c,d) if (deblog) dodebug(a,b,(char *)(c),(CK_OFF_T)(d))
 #define ckhexdump(a,b,c) if (deblog) dohexdump((CHAR *)(a),(CHAR *)(b),c)
 #else
-#ifdef CK_ANSIC
 #define debug(a,b,c,d) \
 ((void)(deblog?dodebug(a,b,(char *)(c),(CK_OFF_T)(d)):0))
 #define ckhexdump(a,b,c) \
 ((void)(deblog?dohexdump((CHAR *)(a),(CHAR *)(b),c):0))
-#else
-#define debug(a,b,c,d) (deblog?dodebug(a,b,(char *)(c),(CK_OFF_T)(d)):0)
-#define ckhexdump(a,b,c) (deblog?dohexdump((CHAR *)(a),(CHAR *)(b),c):0)
-#endif /* CK_ANSIC */
 #endif /* COMMENT */
 #else /* IFDEBUG */
 /* Use this form to save space: */
@@ -4147,9 +4116,7 @@ _PROTOTYP( int readtext, (char *, char *, int));
   ckcfnp.h" in every single Kermit module AFTER what was the last #include.
   - fdc, 23 March 2023
 */
-#ifndef NOANSI
 #ifdef __STDC__
-#ifdef CK_ANSIC                     /* New C-Kermit 10.0 Beta.09 */
 #include "ckucmd.h"                 /* For typedefs */
 #include "ckcnet.h"                 /* For typedefs */
 #include "ckucmd.h"                 /* For typedefs */
@@ -4159,9 +4126,7 @@ _PROTOTYP( int readtext, (char *, char *, int));
 #include "ckcfnp.h"                 /* Prototypes for all functions */
 /* ckcsig.h */
 /* ckusig.h */
-#endif /* CK_ANSIC */
 #endif /* __STDC__ */
-#endif /* NOANSI */
 #endif /* COMMENT */
 
 /* End of ckcdeb.h */

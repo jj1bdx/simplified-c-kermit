@@ -3482,11 +3482,7 @@ _PROTOTYP( int pxyz, (int) );
     1: Extended GET processed OK - wait for another.
 */
 static int
-#ifdef CK_ANSIC
 sgetinit(int reget, int xget)
-#else
-sgetinit(reget,xget) int reget, xget; 
-#endif /* CK_ANSIC */
 {	/* Server end of GET command */
     char * fs = NULL;			/* Pointer to filespec */
     int i, n, done = 0;

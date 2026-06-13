@@ -391,11 +391,7 @@ netinc(timo) int timo; {
     return(-1);
 }
 int                                     /* Output character to network */
-#ifdef CK_ANSIC
 nettoc(CHAR c)
-#else
-nettoc(c) CHAR c;
-#endif /* CK_ANSIC */
 /* nettoc */ {
     return(-1);
 }
@@ -436,11 +432,7 @@ le_inbuf() {
 }
 
 int
-#ifdef CK_ANSIC
 le_putchar(CHAR ch)
-#else
-le_putchar(ch) CHAR ch;
-#endif /* CK_ANSIC */
 /* le_putchar */ {
     if ((le_start - le_end + LEBUFSIZ)%LEBUFSIZ == 1) {
         debug(F110,"le_putchar","buffer is full",0);
@@ -454,11 +446,7 @@ le_putchar(ch) CHAR ch;
 }
 
 int
-#ifdef CK_ANSIC
 le_puts(CHAR * s, int n)
-#else
-le_puts(s,n) CHAR * s; int n;
-#endif /* CK_ANSIC */
 /* le_puts */ {
     int rc = 0;
     int i = 0;
@@ -471,11 +459,7 @@ le_puts(s,n) CHAR * s; int n;
 }
 
 int
-#ifdef CK_ANSIC
 le_putstr(CHAR * s)
-#else
-le_putstr(s) CHAR * s;
-#endif /* CK_ANSIC */
 /* le_puts */ {
     CHAR * p;
     int rc = 0;
@@ -487,11 +471,7 @@ le_putstr(s) CHAR * s;
 }
 
 int
-#ifdef CK_ANSIC
 le_getchar(CHAR * pch)
-#else /* CK_ANSIC */
-le_getchar(pch) CHAR * pch;
-#endif /* CK_ANSIC */
 /* le_gatchar */ {
     int rc = 0;
     if (le_start != le_end) {
@@ -786,11 +766,7 @@ ttbufr() {                              /* TT Buffer Read */
 */
 #ifdef TCPSOCKET
 struct hostent *
-#ifdef CK_ANSIC
 ck_copyhostent(struct hostent * h)
-#else /* CK_ANSIC */
-ck_copyhostent(h) struct hostent * h;
-#endif /* CK_ANSIC */
 {
     /*
      *  The hostent structure is dynamic in nature.
@@ -890,11 +866,7 @@ gettcpport() {
 
 #ifndef NOTCPOPTS
 int
-#ifdef CK_ANSIC
 ck_linger( int sock, int onoff, int timo )
-#else
-ck_linger(sock, onoff, timo) int sock; int onoff; int timo;
-#endif /* CK_ANSIC */
 {
 /*
   The following, from William Bader, turns off the socket linger parameter,
@@ -972,11 +944,7 @@ ck_linger(sock, onoff, timo) int sock; int onoff; int timo;
 }
 
 int
-#ifdef CK_ANSIC
 sendbuf( int sock, int size )
-#else
-sendbuf(sock,size) int sock; int size;
-#endif /* CK_ANSIC */
 {
 /*
   The following, from William Bader, allows changing of socket buffer sizes,
@@ -1035,11 +1003,7 @@ sendbuf(sock,size) int sock; int size;
 }
 
 int
-#ifdef CK_ANSIC
 recvbuf( int sock, int size )
-#else
-recvbuf(sock,size) int sock; int size;
-#endif /* CK_ANSIC */
 {
 /*
   The following, from William Bader, allows changing of socket buffer sizes,
@@ -1098,11 +1062,7 @@ recvbuf(sock,size) int sock; int size;
 }
 
 int
-#ifdef CK_ANSIC
 keepalive( int sock, int onoff )
-#else
-keepalive(sock,onoff) int sock; int onoff;
-#endif /* CK_ANSIC */
 {
 #ifdef SOL_SOCKET
 #ifdef SO_KEEPALIVE
@@ -1180,11 +1140,7 @@ keepalive(sock,onoff) int sock; int onoff;
 }
 
 int
-#ifdef CK_ANSIC
 dontroute( int sock, int onoff )
-#else
-dontroute(sock,onoff) int sock; int onoff;
-#endif /* CK_ANSIC */
 {
 #ifdef SOL_SOCKET
 #ifdef SO_DONTROUTE
@@ -1258,11 +1214,7 @@ dontroute(sock,onoff) int sock; int onoff;
 }
 
 int
-#ifdef CK_ANSIC
 no_delay( int sock, int onoff )
-#else
-no_delay(sock,onoff)  int sock; int onoff;
-#endif /* CK_ANSIC */
 {
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
@@ -1528,11 +1480,7 @@ tcpsocket_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo {
   type rather than modem type.
 */
 int
-#ifdef CK_ANSIC
 tcpsrv_open( char * name, int * lcl, int nett, int timo )
-#else
-tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
-#endif /* CK_ANSIC */
 {
     char *p;
     int i, x;
@@ -1929,11 +1877,7 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
 
 #ifdef TCPSOCKET
 char *
-#ifdef CK_ANSIC
 ckname2addr( char * name )
-#else
-ckname2addr(name) char * name;
-#endif /* CK_ANSIC */
 {
     struct hostent *host;
 
@@ -1949,11 +1893,7 @@ ckname2addr(name) char * name;
 }
 
 char *
-#ifdef CK_ANSIC
 ckaddr2name( char * addr )
-#else
-ckaddr2name(addr) char * addr;
-#endif /* CK_ANSIC */
 {
     struct hostent *host;
     struct in_addr sin_addr;
@@ -2016,11 +1956,7 @@ ckgetpeer() {
 /* Get fully qualified IP hostname */
 
 char *
-#ifdef CK_ANSIC
 ckgetfqhostname(char * name)
-#else
-ckgetfqhostname(name) char * name;
-#endif /* CK_ANSIC */
 {
 #ifdef NOCKGETFQHOST
 
@@ -2092,11 +2028,7 @@ ckgetfqhostname(name) char * name;
 }
 
 VOID
-#ifdef CK_ANSIC
 setnproto(char * p)
-#else
-setnproto(p) char * p;
-#endif /* CK_ANSIC */
 {
     if (!isdigit(*p)) {
         if (!strcmp("kermit",p))
@@ -2137,18 +2069,11 @@ setnproto(p) char * p;
 
 static struct servent servrec;
 
-#ifdef CK_ANSIC
 /* prototype for static functions - fdc 01 December 2022 */
 static struct servent * ckgetservice( char *, char *, char *, int );
-#endif /* CK_ANSIC */
 
 static struct servent *
-#ifdef CK_ANSIC
 ckgetservice( char *hostname, char * servicename, char * ip, int iplen )
-#else
-ckgetservice(hostname, servicename, ip, iplen)
-    char *hostname; char * servicename; char * ip; int iplen;
-#endif /* CK_ANSIC */
 {
     struct servent * service = NULL;
 #ifdef CK_DNS_SRV
@@ -2237,11 +2162,7 @@ static char xxname[XXNAMELEN];
 #endif /* COMMENT */
 
 int
-#ifdef CK_ANSIC
 netopen( char *name, int *lcl, int nett )
-#else
-netopen(name, lcl, nett) char *name; int *lcl, nett;
-#endif /* CK_ANSIC */
 {
     char *p;
     int i, x, dns = 0;
@@ -3588,11 +3509,7 @@ nettchk() {                             /* for reading from network */
 }
 
 VOID
-#ifdef CK_ANSIC
 nettout( int i )                      /* Catch the alarm interrupts */
-#else
-nettout(i) int i;
-#endif /* CK_ANSIC */
 {
     debug(F100,"nettout caught timeout","",0);
     ttimoff();
@@ -3602,11 +3519,7 @@ nettout(i) int i;
 #ifdef TCPIPLIB
 
 VOID
-#ifdef CK_ANSIC
 donetinc(void * threadinfo)
-#else /* CK_ANSIC */
-donetinc(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* donetinc */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -3620,11 +3533,7 @@ donetinc(threadinfo) VOID * threadinfo;
 #endif /* TCPIPLIB */
 
 VOID
-#ifdef CK_ANSIC
 failnetinc(void * threadinfo)
-#else /* CK_ANSIC */
-failnetinc(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failnetinc */ {
     ; /* Nothing to do on an error */
 }
@@ -3632,11 +3541,7 @@ failnetinc(threadinfo) VOID * threadinfo;
 /* N E T X I N -- Input block of characters from network */
 
 int
-#ifdef CK_ANSIC
 netxin( int n, CHAR * buf )
-#else
-netxin(n,buf) int n; CHAR * buf;
-#endif /* CK_ANSIC */
 {
     int len;
 #ifdef TCPIPLIB
@@ -3698,11 +3603,7 @@ netxin(n,buf) int n; CHAR * buf;
 #endif /* LEBUF */
 
 int
-#ifdef CK_ANSIC
 netinc( int timo )
-#else
-netinc(timo) int timo;
-#endif /* CK_ANSIC */
 {
 #ifdef TCPIPLIB
     int x; unsigned char c;             /* The locals. */
@@ -3947,11 +3848,7 @@ netinc(timo) int timo;
 */
 
 int
-#ifdef CK_ANSIC
 nettol( CHAR *s, int n )
-#else
-nettol(s,n) CHAR *s; int n;
-#endif /* CK_ANSIC */
 {
 #ifdef TCPIPLIB
     int count = 0;
@@ -4065,11 +3962,7 @@ nettol(s,n) CHAR *s; int n;
   -1 upon i/o error, or -2 if called improperly.
 */
 int
-#ifdef CK_ANSIC
 nettoc(CHAR c)
-#else
-nettoc(c) CHAR c;
-#endif /* CK_ANSIC */
 /* nettoc */ {
 #ifdef UNIX
     return(ttoc(c));
@@ -4158,11 +4051,7 @@ nettoc(c) CHAR c;
 
 #ifdef TNCODE
 static int
-#ifdef CK_ANSIC
 netgetct(int timo)                      /* Input function to point to... */
-#else  /* CK_ANSIC */
-netgetct(timo) int timo;
-#endif /* CK_ANSIC */
 {                                       /* ...in the tn_doop() call */
 #ifdef TCPIPLIB
     return netinc(timo);
@@ -4281,11 +4170,7 @@ netflui() {
  */
 
 int
-#ifdef CK_ANSIC
 getlocalipaddr( void )
-#else
-getlocalipaddr()
-#endif /* CK_ANSIC */
 {
     struct sockaddr_in l_sa;
     struct sockaddr_in r_sa;
@@ -4336,11 +4221,7 @@ getlocalipaddr()
 }
 
 int
-#ifdef CK_ANSIC
 getlocalipaddrs( char * buf, int  bufsz, int index )
-#else
-getlocalipaddrs(buf,bufsz,index) char * buf; int bufsz; int index;
-#endif /* CK_ANSIC */
 {
     char localhost[256];
     struct hostent * host=NULL;
@@ -4423,11 +4304,7 @@ getlocalipaddrs(buf,bufsz,index) char * buf; int bufsz; int index;
 #ifdef RLOGCODE                 /* TCP/IP RLOGIN protocol support code */
 #ifdef CK_NAWS
 int
-#ifdef CK_ANSIC
 rlog_naws( void )
-#else
-rlog_naws()
-#endif /* CK_ANSIC */
 {
     struct rlog_naws {
         unsigned char id[4];
@@ -4461,16 +4338,8 @@ rlog_naws()
 #ifndef NORLOGIN
 #define RLOGOUTBUF
 static int
-#ifdef CK_ANSIC
 rlog_ini(CHAR * hostname, int port,
          struct sockaddr_in * l_addr, struct sockaddr_in * r_addr)
-#else /* CK_ANSIC */
-rlog_ini(hostname, port, l_addr, r_addr)
-    CHAR * hostname;
-    int port;
-    struct sockaddr_in * l_addr;
-    struct sockaddr_in * r_addr;
-#endif /* CK_ANSIC */
 /* rlog_ini */ {
 
 #ifdef RLOGOUTBUF
@@ -4646,11 +4515,7 @@ rlog_ini(hostname, port, l_addr, r_addr)
    client.  */
 
 int 
-#ifdef CK_ANSIC
 rlog_ctrl( unsigned char *cp, int n )
-#else
-rlog_ctrl(cp, n) unsigned char *cp; int n;
-#endif /* CK_ANSIC */
 {
     if ((n >= 5) && (cp[2] == 'o') && (cp[3] == 'o')) {
         if (rlog_oob(&cp[4],1))
@@ -4666,11 +4531,7 @@ rlog_ctrl(cp, n) unsigned char *cp; int n;
 }
 
 static int
-#ifdef CK_ANSIC
 rlog_oob( CHAR * oobdata, int count )
-#else
-rlog_oob(oobdata, count) CHAR * oobdata; int count;
-#endif /* CK_ANSIC */
 {
     int i;
     int flush = 0;
@@ -4721,11 +4582,7 @@ rlog_oob(oobdata, count) CHAR * oobdata; int count;
 }
 #ifndef TCPIPLIB
 static SIGTYP
-#ifdef CK_ANSIC
 rlogoobh( int sig )
-#else
-rlogoobh(sig) int sig;
-#endif /* CK_ANSIC */
 {
     CHAR
       oobdata;
@@ -6694,11 +6551,7 @@ x25dump_prim(primitive)    N_npi_ctl_t *primitive; {
 
 #ifdef CMDATE2TM
 time_t
-#ifdef CK_ANSIC
 http_date(char * date)
-#else
-http_date(date) char * date;
-#endif /* CK_ANSIC */
 /* http_date */ {
     /* HTTP dates are of the form:  "Sun, 06 Oct 1997 20:11:47 GMT" */
     /* There are two older formats which we are required to parse
@@ -6842,11 +6695,7 @@ _PROTOTYP( int dclarray, (char, int) );
     >= 1, size of array, on success.
 */
 static int
-#ifdef CK_ANSIC
 http_mkarray(char ** resp, int n, char array)
-#else
-http_mkarray(resp, n, array) char ** resp; int n; char array;
-#endif /* CK_ANSIC */
 {
 #ifndef NOSPL
     int i, x;
@@ -6948,18 +6797,8 @@ http_reopen()
 
 
 int
-#ifdef CK_ANSIC
 http_open(char * hostname, char * svcname, int use_ssl, char * rdns_name,
           int rdns_len, char * agent)
-#else /* CK_ANSIC */
-http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
-    char * hostname;
-    char * svcname;
-    int    use_ssl;
-    char * rdns_name;
-    int    rdns_len;
-    char * agent;
-#endif /* CK_ANSIC */
 {
     char namecopy[NAMECPYL];
     char *p;
@@ -7423,11 +7262,7 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
 }
 
 int
-#ifdef CK_ANSIC
 http_close(VOID)
-#else /* CK_ANSIC */
-http_close()
-#endif /* CK_ANSIC */
 {
     int x = 0;
     debug(F101,"http_close","",httpfd);
@@ -7462,11 +7297,7 @@ http_close()
  */
 
 int
-#ifdef CK_ANSIC
 http_tol( CHAR *s, int n )
-#else
-http_tol(s,n) CHAR *s; int n;
-#endif /* CK_ANSIC */
 {
     int count = 0;
     int len = n;
@@ -7575,11 +7406,7 @@ http_tol(s,n) CHAR *s; int n;
 }
 
 int
-#ifdef CK_ANSIC
 http_inc( int timo )
-#else
-http_inc(timo) int timo;
-#endif /* CK_ANSIC */
 {
     int x=-1; unsigned char c;             /* The locals. */
 
@@ -7750,12 +7577,7 @@ http_inc(timo) int timo;
 }
 
 void
-#ifdef CK_ANSIC
 http_set_code_reply(char * msg)
-#else
-http_set_code_reply(msg)
-    char * msg;
-#endif /* CK_ANSIC */
 {
     char * p = msg;
     char buf[16];
@@ -7776,16 +7598,9 @@ http_set_code_reply(msg)
 }
 
 int
-#ifdef CK_ANSIC
 http_get(char * agent, char ** hdrlist, char * user,
          char * pwd, char array, char * local, char * remote,
          int stdio)
-#else
-http_get(agent, hdrlist, user, pwd, array, local, remote, stdio)
-    char * agent; char ** hdrlist; char * user;
-    char * pwd; char array; char * local; char * remote;
-    int stdio;
-#endif /* CK_ANSIC */
 {
     char * request = NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -8071,16 +7886,9 @@ http_get(agent, hdrlist, user, pwd, array, local, remote, stdio)
 }
 
 int
-#ifdef CK_ANSIC
 http_head(char * agent, char ** hdrlist, char * user,
           char * pwd, char array, char * local, char * remote,
           int stdio)
-#else
-http_head(agent, hdrlist, user, pwd, array, local, remote, stdio)
-    char * agent; char ** hdrlist; char * user;
-    char * pwd; char array; char * local; char * remote;
-    int stdio;
-#endif /* CK_ANSIC */
 {
     char * request = NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -8261,14 +8069,8 @@ http_head(agent, hdrlist, user, pwd, array, local, remote, stdio)
 }
 
 int
-#ifdef CK_ANSIC
 http_index(char * agent, char ** hdrlist, char * user, char * pwd,
              char array, char * local, char * remote, int stdio)
-#else
-http_index(agent, hdrlist, user, pwd, array, local, remote, stdio)
-    char * agent; char ** hdrlist; char * user; char * pwd;
-    char array; char * local; char * remote; int stdio;
-#endif /* CK_ANSIC */
 {
     char * request = NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -8505,16 +8307,9 @@ http_index(agent, hdrlist, user, pwd, array, local, remote, stdio)
 }
 
 int
-#ifdef CK_ANSIC
 http_put(char * agent, char ** hdrlist, char * mime, char * user,
          char * pwd, char array, char * local, char * remote,
          char * dest, int stdio)
-#else
-http_put(agent, hdrlist, mime, user, pwd, array, local, remote, dest, stdio)
-    char * agent; char ** hdrlist; char * mime; char * user;
-    char * pwd; char array; char * local; char * remote; char * dest;
-    int stdio;
-#endif /* CK_ANSIC */
 {
     char * request=NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -8810,14 +8605,8 @@ http_put(agent, hdrlist, mime, user, pwd, array, local, remote, dest, stdio)
 }
 
 int
-#ifdef CK_ANSIC
 http_delete(char * agent, char ** hdrlist, char * user,
           char * pwd, char array, char * remote)
-#else
-http_delete(agent, hdrlist, user, pwd, array, remote)
-    char * agent; char ** hdrlist; char * user;
-    char * pwd; char array; char * remote;
-#endif /* CK_ANSIC */
 {
     char * request=NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -9045,17 +8834,9 @@ http_delete(agent, hdrlist, user, pwd, array, remote)
 }
 
 int
-#ifdef CK_ANSIC
 http_post(char * agent, char ** hdrlist, char * mime, char * user,
           char * pwd, char array, char * local, char * remote,
           char * dest, int stdio)
-#else
-http_post(agent, hdrlist, mime, user, pwd, array, local, remote, dest,
-          stdio)
-    char * agent; char ** hdrlist; char * mime; char * user;
-    char * pwd; char array; char * local; char * remote; char * dest;
-    int stdio;
-#endif /* CK_ANSIC */
 {
     char * request=NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -9334,15 +9115,8 @@ http_post(agent, hdrlist, mime, user, pwd, array, local, remote, dest,
 }
 
 int
-#ifdef CK_ANSIC
 http_connect(int socket, char * agent, char ** hdrlist, char * user,
              char * pwd, char array, char * host_port)
-#else
-http_connect(socket, agent, hdrlist, user, pwd, array, host_port)
-    int socket;
-    char * agent; char ** hdrlist; char * user;
-    char * pwd; char array; char * host_port;
-#endif /* CK_ANSIC */
 {
     char * request=NULL;
     int    i, j, len = 0, hdcnt = 0, rc = 0;
@@ -9535,17 +9309,8 @@ http_connect(socket, agent, hdrlist, user, pwd, array, host_port)
 
 /* 1 is success, 0 is failure */
 int
-#ifdef CK_ANSIC
 locate_srv_dns(char *host, char *service, char *protocol,
                struct sockaddr **addr_pp, int *naddrs )
-#else
-locate_srv_dns(host, service, protocol, addr_pp, naddrs)
-    char *host;
-    char *service;
-    char *protocol;
-    struct sockaddr **addr_pp;
-    int *naddrs;
-#endif /* CK_ANSIC */
 {
     int nout, j, count;
     union {
@@ -9554,20 +9319,14 @@ locate_srv_dns(host, service, protocol, addr_pp, naddrs)
     } answer;
     unsigned char *p=NULL;
     CKQUERYTYPE query[MAX_DNS_NAMELEN];
-#ifdef CK_ANSIC
     const char * h;
-#else
-    char * h;
-#endif /* CK_ANSIC */
     struct sockaddr *addr = NULL;
     struct sockaddr_in *sin = NULL;
     struct hostent *hp = NULL;
     int type, class;
     int priority, weight, size, len, numanswers, numqueries, rdlen;
     unsigned short port;
-#ifdef CK_ANSIC
     const
-#endif /* CK_ANSIC */
       int hdrsize = sizeof(HEADER);
     struct srv_dns_entry {
         struct srv_dns_entry *next;
@@ -9809,11 +9568,7 @@ locate_srv_dns(host, service, protocol, addr_pp, naddrs)
 #define NTOHSP(x, y) x[0] << 8 | x[1]; x += y
 
 int
-#ifdef CK_ANSIC
 locate_txt_rr( char *prefix, char *name, char **retstr )
-#else
-locate_txt_rr(prefix, name, retstr) char *prefix, *name; char **retstr;
-#endif /* CK_ANSIC */
 {
     union {
         unsigned char bytes[2048];

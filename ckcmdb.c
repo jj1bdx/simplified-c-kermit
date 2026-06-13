@@ -51,15 +51,9 @@ int inited = 0;
 #define M_SIZE_T int
 #endif /* M_SIZE_T */
 
-#ifdef CK_ANSIC
 _PROTOTYP( void free, (void *) );
 _PROTOTYP( void * malloc, (size_t) );
 _PROTOTYP( void * realloc, (void *, size_t) );
-#else
-_PROTOTYP( VOID free, (char *) );
-_PROTOTYP( char * malloc, (M_SIZE_T) );
-_PROTOTYP( char * realloc, (char *, M_SIZE_T) );
-#endif /* NEXT */
 
 _PROTOTYP( VOID m_insert, (char *) );
 _PROTOTYP( int m_delete, (char *) );
@@ -141,9 +135,6 @@ dfree(cp) char *cp; {
             break;
         }
     }
-#ifndef CK_ANSIC
-    return(free(cp));
-#endif /* CK_ANSIC */
 }
 
 char *

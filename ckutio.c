@@ -1088,13 +1088,8 @@ _PROTOTYP( int carrctl, (struct sgttyb *, int) );
 #define xunchar(ch) (((ch) - 32 ) & 0xFF )	/* Character to number */
 #endif /* xunchar */
 
-#ifdef CK_ANSIC
 static char *
 xxlast(char *s, char c)
-#else
-static char *
-xxlast(s,c) char *s; char c;
-#endif /* CK_ANSIC */
 /* xxlast */ {		/*  Last occurrence of character c in string s. */
     int i;
     for (i = (int)strlen(s); i > 0; i--)
@@ -1106,11 +1101,7 @@ xxlast(s,c) char *s; char c;
 
 /*ARGSUSED*/
 SIGTYP
-#ifdef CK_ANSIC
 timerh( int foo )
-#else
-timerh(foo) int foo;
-#endif /* CK_ANSIC */
 {
     ttimoff();
 #ifdef CK_POSIX_SIG
@@ -1122,11 +1113,7 @@ timerh(foo) int foo;
 
 /*ARGSUSED*/
 SIGTYP
-#ifdef CK_ANSIC
 xtimerh( int foo )
-#else
-xtimerh(foo) int foo;
-#endif /* CK_ANSIC */
 {
 /* Like timerh() but does not reset the timer itself */
 #ifdef CK_POSIX_SIG
@@ -1144,11 +1131,7 @@ SIGTYP (* occt)();			/* For saving old SIGINT handler */
 
 /*ARGSUSED*/
 SIGTYP
-#ifdef CK_ANSIC
 cctrap( int foo )			/* Needs arg for ANSI C */
-#else
-cctrap(foo) int foo;
-#endif /* CK_ANSIC */
 {
   cc_int = 1;				/* signal() prototype. */
   return;
@@ -1220,11 +1203,7 @@ le_inbuf() {
 }
 
 int
-#ifdef CK_ANSIC
 le_putchar(CHAR ch)
-#else
-le_putchar(ch) CHAR ch;
-#endif /* CK_ANSIC */
 /* le_putchar */ {
 #ifdef COMMENT
     /* In UNIX we do not have another thread taking chars out of the buffer */
@@ -1250,11 +1229,7 @@ le_putchar(ch) CHAR ch;
 }
 
 int
-#ifdef CK_ANSIC
 le_puts(CHAR * s, int n)
-#else
-le_puts(s,n) CHAR * s; int n;
-#endif /* CK_ANSIC */
 /* le_puts */ {
     int rc = 0;
     int i = 0;
@@ -1267,11 +1242,7 @@ le_puts(s,n) CHAR * s; int n;
 }
 
 int
-#ifdef CK_ANSIC
 le_putstr(CHAR * s)
-#else
-le_putstr(s) CHAR * s;
-#endif /* CK_ANSIC */
 /* le_puts */ {
     CHAR * p;
     int rc = 0;
@@ -1283,11 +1254,7 @@ le_putstr(s) CHAR * s;
 }
 
 int
-#ifdef CK_ANSIC
 le_getchar(CHAR * pch)
-#else /* CK_ANSIC */
-le_getchar(pch) CHAR * pch;
-#endif /* CK_ANSIC */
 /* le_gatchar */ {
     int rc = 0;
     if (le_start != le_end) {
@@ -1373,11 +1340,7 @@ _PROTOTYP( int rlog_naws, (void) );
 #ifndef NOSIGWINCH
 #ifdef SIGWINCH
 SIGTYP
-#ifdef CK_ANSIC
 winchh( int foo )			/* SIGWINCH handler */
-#else
-winchh(foo) int foo;
-#endif /* CK_ANSIC */
 {
     int x = 0;
 #ifdef CK_TTYFD
@@ -1454,11 +1417,7 @@ winchh(foo) int foo;
 #endif /* NOSIGWINCH */
 
 SIGTYP
-#ifdef CK_ANSIC
 sighup( int foo )			/* SIGHUP handler */
-#else
-sighup(foo) int foo;
-#endif /* CK_ANSIC */
 {
     backgrd = 1;
     debug(F100,"***************","",0);
@@ -1771,11 +1730,7 @@ static int ttotmo = 0;			/* Timeout flag */
 /* Flag kept here to avoid being clobbered by longjmp.  */
 
 int
-#ifdef CK_ANSIC
 ttopen( char *ttname, int *lcl, int modem, int timo )
-#else
-ttopen(ttname,lcl,modem,timo) char *ttname; int *lcl, modem, timo;
-#endif /* CK_ANSIC */
 {
 #ifdef BSD44
 #define ctermid(x) strcpy(x,"")
@@ -2667,11 +2622,7 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
 /*  D O _ O P E N  --  Do the right kind of open() call for the tty. */
 
 int
-#ifdef CK_ANSIC
 do_open( char *ttname )
-#else
-do_open(ttname) char *ttname;
-#endif /* CK_ANSIC */
 {
     int flags;
 
@@ -2698,11 +2649,7 @@ static int ttc_state = 0;		/* ttclose() state */
 static char * ttc_nam[] = { "setup", "hangup", "reset", "close" };
 
 int
-#ifdef CK_ANSIC
 ttclos( int foo )			/* Arg req'd for signal() prototype */
-#else
-ttclos(foo) int foo;
-#endif /* CK_ANSIC */
 {
     int xx, x = 0;
     extern int exithangup;
@@ -3641,11 +3588,7 @@ ttres() {                               /* Restore the tty to normal. */
   Otherwise, try to delete lockfile f and return 0 if successful, else 1.
 */
 static int
-#ifdef CK_ANSIC
 ttchkpid( char *f )
-#else
-ttchkpid(f) char *f;
-#endif /* CK_ANSIC */
 {
     int pid, mypid, x;
     pid = ttrpid(f);			/* Read pid from file. */
@@ -3684,11 +3627,7 @@ ttchkpid(f) char *f;
 /*  T T R P I D  --  Read pid from lockfile "name" */
 
 static int
-#ifdef CK_ANSIC
 ttrpid( char *name )
-#else
-ttrpid(name) char *name;
-#endif /* CK_ANSIC */
 {
     long len;
     int x, fd, pid;
@@ -3892,11 +3831,7 @@ ttglckdir() {				/* Get Lockfile directory name */
 }
 
 static int
-#ifdef CK_ANSIC
 ttlock( char * ttdev )
-#else
-ttlock(ttdev) char *ttdev;
-#endif /* CK_ANSIC */
 {
     int x, n;
     int islink = 0;
@@ -4362,7 +4297,6 @@ acucntrl(flag,ttname) char *flag, *ttname; {
 #endif /* FIXCRTSCTS */
 
 static int
-#ifdef CK_ANSIC
 tthflow(int flow, int status,
 #ifdef BSD44ORPOSIX			/* POSIX or BSD44 */
     struct termios *attrs
@@ -4374,21 +4308,6 @@ tthflow(int flow, int status,
 #endif /* ATTSV */
 #endif /* BSD44ORPOSIX */
         )
-#else
-tthflow(flow, status, attrs)
-    int flow,				/* Type of flow control (ckcdeb.h) */
-    status;				/* Nonzero = turn it on */
-					/* Zero = turn it off */
-#ifdef BSD44ORPOSIX			/* POSIX or BSD44 */
-    struct termios *attrs;
-#else					/* System V */
-#ifdef ATTSV
-    struct termio *attrs;
-#else					/* BSD, V7, etc */
-    struct sgttyb *attrs;		/* sgtty info... */
-#endif /* ATTSV */
-#endif /* BSD44ORPOSIX */
-#endif /* CK_ANSIC */
 {
     int x = 0;				/* tthflow() return code */
 
@@ -4597,11 +4516,7 @@ tthflow(flow, status, attrs)
   than trusting our "xflow" argument.
 */
 int
-#ifdef CK_ANSIC
 ttpkt(long speed, int xflow, int parity)
-#else
-ttpkt(speed,xflow,parity) long speed; int xflow, parity;
-#endif /* CK_ANSIC */
 /* ttpkt */ {
 #ifndef NOLOCAL
     int s2;
@@ -5132,11 +5047,7 @@ ttpkt(speed,xflow,parity) long speed; int xflow, parity;
 
 
 int
-#ifdef CK_ANSIC
 ttsetflow( int flow )
-#else
-ttsetflow(flow) int flow;
-#endif /* CK_ANSIC */
 {
     if (ttyfd < 0)			/* A channel must be open */
       return(-1);
@@ -5211,11 +5122,7 @@ ttsetflow(flow) int flow;
 /*  T T V T -- Condition communication device for use as virtual terminal. */
 
 int
-#ifdef CK_ANSIC
 ttvt(long speed, int flow)
-#else
-ttvt(speed,flow) long speed; int flow;
-#endif /* CK_ANSIC */
 /* ttvt */ {
     int s, s2, x;
 
@@ -5569,11 +5476,7 @@ ttvt(speed,flow) long speed; int flow;
 #endif /* USETCSETSPEED */
 
 int
-#ifdef CK_ANSIC
 ttsspd( int cps )
-#else
-ttsspd(cps) int cps;
-#endif /* CK_ANSIC */
 {
     int x;
 #ifdef POSIX
@@ -5911,11 +5814,7 @@ static long spdlist[NSPDLIST];
   where it is running.  Suggestions for improvement are always welcome.
 */
 long *
-#ifdef CK_ANSIC
 ttspdlist( void )
-#else
-ttspdlist()
-#endif /* CK_ANSIC */
 {
     int i;
     for (i = 0; i < NSPDLIST; i++)	/* Initialize the list */
@@ -6520,11 +6419,7 @@ ttpeek() {
  * As of 02/2007 myunrd() is used by ttinl().
  */
 VOID
-#ifdef CK_ANSIC
 myunrd(CHAR ch)
-#else
-myunrd(ch) CHAR ch;
-#endif	/* CK_ANSIC */
 {
     if (my_item >= 0) {
 	mybuf[my_item--] = ch;
@@ -6538,11 +6433,7 @@ static CHAR * pushbuf = NULL;
 /* static int pushed = 0; */
 
 int
-#ifdef CK_ANSIC
 ttpushback( CHAR * s, int n )
-#else
-ttpushback(s,n) CHAR * s; int n;
-#endif /* CK_ANSIC */
 {
     debug(F101,"ttpushback n","",n);
     if (pushbuf || n > MYBUFLEN || n < 1)
@@ -6823,11 +6714,7 @@ myfillbuf() {
 */
 #ifdef TCPSOCKET
 static int
-#ifdef CK_ANSIC
 tt_tnopt( int n )			/* Handle Telnet options */
-#else
-tt_tnopt(n) int n;
-#endif /* CK_ANSIC */
 {
     /* In case caller did not already check these conditions...  */
     if (n == IAC &&
@@ -7106,11 +6993,7 @@ static int jc = 0;			/* 0 = no job control */
   misbehavior.
 */
 VOID
-#ifdef CK_ANSIC
 conbgt( int flag )
-#else
-conbgt(flag) int flag;
-#endif /* CK_ANSIC */
 {
     int x = -1,				/* process group or SIGINT test */
         y = 0;				/* isatty() test */
@@ -7297,11 +7180,7 @@ conbgt(flag) int flag;
 */
 
 VOID					/* Set terminal interrupt traps. */
-#ifdef CK_ANSIC
 conint(SIGTYP (*f)(int), SIGTYP (*s)(int))
-#else
-conint(f,s) SIGTYP (*f)(), (*s)();
-#endif /* CK_ANSIC */
 /* conint */ {
 
     debug(F101,"conint conistate","",conistate);
@@ -7558,11 +7437,7 @@ genbrk(fn,msec) int fn, msec; {
   such as IBM X.25 for AIX...)
 */
 static int
-#ifdef CK_ANSIC
 in_chk( int channel, int fd )
-#else
-in_chk(channel, fd) int channel, fd;
-#endif /* CK_ANSIC */
 {
     int x, n = 0;			/* Workers, n = return value */
     extern int clsondisc;		/* Close on disconnect */
@@ -7847,11 +7722,7 @@ ttchk() {
 /*  Available in the input buffer.  */
 
 int
-#ifdef CK_ANSIC
 ttxin( int n, CHAR *buf )
-#else
-ttxin(n,buf) int n; CHAR *buf;
-#endif /* CK_ANSIC */
 {
     register int x = 0, c = -2;
 #ifdef TTLEBUF
@@ -7937,11 +7808,7 @@ ttxin(n,buf) int n; CHAR *buf;
 
 #define TTOLMAXT 5
 int
-#ifdef CK_ANSIC
 ttol( CHAR *s, int n )
-#else
-ttol(s,n) int n; CHAR *s;
-#endif /* CK_ANSIC */
 {
     int x, len, tries, fd;
 #ifdef CKXXCHAR
@@ -8060,11 +7927,7 @@ ttol(s,n) int n; CHAR *s;
  of the signals and alarms does not create a bottleneck.
 */
 int
-#ifdef CK_ANSIC
 ttoc(char c)
-#else
-ttoc(c) char c;
-#endif /* CK_ANSIC */
 /* ttoc */ {
 #define TTOC_TMO 15			/* Timeout in case we get stuck */
     int xx, fd;
@@ -8194,17 +8057,9 @@ static int pushedback = 0;
 
 int
 #ifdef PARSENSE
-#ifdef CK_ANSIC
 ttinl(CHAR *dest, int max,int timo, CHAR eol, CHAR start, int turn)
-#else
-ttinl(dest,max,timo,eol,start,turn) int max,timo,turn; CHAR *dest, eol, start;
-#endif /* CK_ANSIC */
 #else /* not PARSENSE */
-#ifdef CK_ANSIC
 ttinl(CHAR *dest, int max,int timo, CHAR eol)
-#else
-ttinl(dest,max,timo,eol) int max,timo; CHAR *dest, eol;
-#endif /* CK_ANSIC */
 #endif /* PARSENSE */
 /* ttinl */ {
 
@@ -8598,11 +8453,7 @@ ttinl(dest,max,timo,eol) int max,timo; CHAR *dest, eol;
 static int ttinctimo = 0;		/* Yuk */
 
 int
-#ifdef CK_ANSIC
 ttinc( int timo )
-#else
-ttinc(timo) int timo;
-#endif /* CK_ANSIC */
 {
     int n = 0, fd;
     int is_tn = 0;
@@ -8751,11 +8602,7 @@ debug(F110,"XXX netclos in ifdef NETCONN...","C",0);
 /*  S N D B R K  --  Send a BREAK signal of the given duration  */
 
 static int
-#ifdef CK_ANSIC
 sndbrk(int msec) {			/* Argument is milliseconds */
-#else
-sndbrk(msec) int msec; {
-#endif /* CK_ANSIC */
 #ifndef POSIX
     int x, n;
 #endif /* POSIX */
@@ -8921,11 +8768,7 @@ getmsec() {				/* Milliseconds since base time */
 
 #ifdef SELECT
 int
-#ifdef CK_ANSIC
 ttwait( int fd, int secs )
-#else
-ttwait(fd, secs) int fd, secs;
-#endif /* CK_ANSIC */
 {
     int x;
     fd_set rfds;
@@ -8949,11 +8792,7 @@ ttwait(fd, secs) int fd, secs;
 #endif /* SELECT */
 
 int
-#ifdef CK_ANSIC
 msleep( int m )
-#else
-msleep(m) int m;
-#endif /* CK_ANSIC */
 {
 /*
   Other possibilities here are:
@@ -9206,11 +9045,7 @@ gftimer() {
 static char asctmbuf[64];
 
 VOID
-#ifdef CK_ANSIC
 ztime( char **s )
-#else
-ztime(s) char **s;
-#endif /* CK_ANSIC */
 {
 #ifdef GFTIMER
 /*
@@ -9368,11 +9203,7 @@ congm() {
 
 
 static VOID
-#ifdef CK_ANSIC
     congetbuf( int x )
-#else
-congetbuf(x) int x;
-#endif /* CK_ANSIC */
 {
     int n;
     n = CONBUFSIZ - (conbufp - conbuf);	/* How much room left in buffer? */
@@ -9391,11 +9222,7 @@ congetbuf(x) int x;
 /*  Returns 0 if ok, -1 if not  */
 
 int
-#ifdef CK_ANSIC
 concb(char esc)
-#else
-concb(esc) char esc;
-#endif /* CK_ANSIC */
 /* concb */ {
     int x, y = 0;
     debug(F101,"concb constate","",constate);
@@ -9526,11 +9353,7 @@ concb(esc) char esc;
 /*  Returns 0 if ok, -1 if not  */
 
 int
-#ifdef CK_ANSIC
 conbin(char esc)
-#else
-conbin(esc) char esc;
-#endif /* CK_ANSIC */
 /* conbin */  {
 
     int x;
@@ -9690,11 +9513,7 @@ conres() {
 /*  C O N O C  --  Output a character to the console terminal  */
 
 int
-#ifdef CK_ANSIC
 conoc(char c)
-#else
-conoc(c) char c;
-#endif /* CK_ANSIC */
 /* conoc */ {
 
 #ifdef IKSD
@@ -9709,11 +9528,7 @@ conoc(c) char c;
 /*  C O N X O  --  Write x characters to the console terminal  */
 
 int
-#ifdef CK_ANSIC
 conxo( int x, char *s )
-#else
-conxo(x,s) int x; char *s;
-#endif /* CK_ANSIC */
 {
 #ifdef IKSD
     if (inserver && !local)
@@ -9727,11 +9542,7 @@ conxo(x,s) int x; char *s;
 /*  C O N O L  --  Write a line to the console terminal  */
 
 int
-#ifdef CK_ANSIC
 conol( char *s )
-#else
-conol(s) char *s;
-#endif /* CK_ANSIC */
 {
     int len;
     if (!s) s = "";			/* Always do this! */
@@ -9751,11 +9562,7 @@ conol(s) char *s;
 /*  C O N O L A  --  Write an array of lines to the console terminal */
 
 int
-#ifdef CK_ANSIC
 conola( char *s[] )
-#else
-conola(s) char *s[];
-#endif /* CK_ANSIC */
 {
     char * p;
     int i, x;
@@ -9781,11 +9588,7 @@ conola(s) char *s[];
 /*  C O N O L L  --  Output a string followed by CRLF  */
 
 int
-#ifdef CK_ANSIC
 conoll( char *s )
-#else
-conoll(s) char *s;
-#endif /* CK_ANSIC */
 {
     CHAR buf[3];
     buf[0] = '\r';
@@ -9837,11 +9640,7 @@ conchk() {
   A timed read that does not complete within the timeout period returns -2.
 */
 int
-#ifdef CK_ANSIC
 coninc( int timo )
-#else
-coninc(timo) int timo;
-#endif /* CK_ANSIC */
 {
     int n = 0; CHAR ch;
     int xx;
@@ -10036,11 +9835,7 @@ congks(timo) int timo; {
  * modes.
  */
 int
-#ifdef CK_ANSIC
 ttscarr( int carrier )
-#else
-ttscarr(carrier) int carrier;
-#endif /* CK_ANSIC */
 {
     ttcarr = carrier;
     debug(F101, "ttscarr","",ttcarr);
@@ -10066,19 +9861,11 @@ ttscarr(carrier) int carrier;
  */
 #ifdef SVORPOSIX
 int
-#ifdef CK_ANSIC
 #ifdef BSD44ORPOSIX
 carrctl( struct termios *ttpar, int carrier )
 #else
 carrctl( struct termio *ttpar, int carrier )
 #endif /* BSD44ORPOSIX */
-#else /* CK_ANSIC */
-#ifdef BSD44ORPOSIX
-carrctl(ttpar, carrier)	struct termios *ttpar; int carrier;
-#else
-carrctl(ttpar, carrier)	struct termio *ttpar; int carrier;
-#endif /* BSD44ORPOSIX */
-#endif /* CK_ANSIC */
 {
     debug(F101, "carrctl","",carrier);
     if (carrier)
@@ -10278,11 +10065,7 @@ ttgmdm() {
   kill() returned an error code.
 */
 int
-#ifdef CK_ANSIC
 psuspend( int flag )
-#else
-psuspend(flag) int flag;
-#endif /* CK_ANSIC */
 {
 #ifdef RTU
     extern int rtu_bug;
@@ -10424,11 +10207,7 @@ static GID_T realgid = (GID_T) -1, privgid = (GID_T) -1;
  * you're on your own.
  */
 int
-#ifdef CK_ANSIC
 priv_ini( void )
-#else
-priv_ini()
-#endif /* CK_ANSIC */
 {
     int err = 0;
 
@@ -10685,11 +10464,7 @@ priv_can() {
 /* P R I V _ O P N  --  For opening protected files or devices. */
 
 int
-#ifdef CK_ANSIC
 priv_opn( char *name, int modes )
-#else
-priv_opn(name, modes) char *name; int modes;
-#endif /* CK_ANSIC */
 {
     int x;
     priv_on();				/* Turn privileges on */
@@ -10796,11 +10571,7 @@ extern int exp_handler, exp_stderr, exp_timo;
 #endif /* HAVE_OPENPTY */
 
 VOID
-#ifdef CK_ANSIC
 pty_make_raw( int fd )
-#else
-pty_make_raw(fd) int fd;
-#endif /* CK_ANSIC */
 {
     int x = -23, i;
 
@@ -10808,11 +10579,7 @@ pty_make_raw(fd) int fd;
     struct termios tp;
 #else
 #ifdef ATTSV				/* AT&T UNIX */
-#ifdef CK_ANSIC
     struct termio tp = {0};
-#else
-    struct termio tp;
-#endif	/* CK_ANSIC */
 #else
     struct sgttyb tp;			/* Traditional */
 #endif /* ATTSV */
@@ -11082,11 +10849,7 @@ pty_make_raw(fd) int fd;
 }
 
 static int
-#ifdef CK_ANSIC
 pty_chk( int fd )
-#else
-pty_chk(fd) int fd;
-#endif /* CK_ANSIC */
 {
     int x, n = 0;
     errno = 0;
@@ -11110,11 +10873,7 @@ pty_chk(fd) int fd;
 }
 
 static int
-#ifdef CK_ANSIC
 pty_get_status( int fd, PID_T pid )
-#else
-pty_get_status(fd,pid) int fd; PID_T pid;
-#endif /* CK_ANSIC */
 {
     int x, status = -1;
     PID_T w;
@@ -11219,11 +10978,7 @@ static int have_pty = 0;		/* Do we have a pty? */
 static SIGTYP (*save_sigchld)() = NULL;	/* For catching SIGCHLD */
 
 static VOID
-#ifdef CK_ANSIC
 sigchld_handler( int sig )
-#else
-sigchld_handler(sig) int sig;
-#endif /* CK_ANSIC */
 {
     have_pty = 0;			/* We don't have a pty */
 #ifdef DEBUG
@@ -11242,11 +10997,7 @@ sigchld_handler(sig) int sig;
 #define HAVE_CR  2
 
 int
-#ifdef CK_ANSIC
 ttptycmd( char *s )
-#else
-ttptycmd(s) char *s;
-#endif /* CK_ANSIC */
 {
     CHAR tbuf[PTY_TBUF_SIZE];		/* Read from net, write to pty */
     int tbuf_avail = 0;			/* Pointers for tbuf */
@@ -12043,11 +11794,7 @@ ttptycmd(s) char *s;
 */
 
 int
-#ifdef CK_ANSIC
 ttruncmd( char *s )
-#else
-ttruncmd(s) char *s;
-#endif /* CK_ANSIC */
 {
     PID_T pid;				/* pid of lower fork */
     int wstat;				/* for wait() */
@@ -12132,11 +11879,7 @@ external protocols over secure connections not supported in this OS.\n"
 #endif	/* CK_REDIR */
 
 struct tm *
-#ifdef CK_ANSIC
 cmdate2tm(char * date, int gmt)         /* date as "yyyymmdd hh:mm:ss" */
-#else
-cmdate2tm(date,gmt) char * date; int gmt;
-#endif
 {
     /* date as "yyyymmdd hh:mm:ss" */
     static struct tm _tm;
@@ -12181,11 +11924,7 @@ static char daynameresult[DAYNAMERESULT];
   platform to platform (e.g. NetBSD and Solaris are totally different).
 */
 char *
-#ifdef CK_ANSIC
 locale_dayname( int day, int fc )
-#else
-locale_dayname(day,fc) int day, fc;
-#endif /* CK_ANSIC */
 {
     /* date as "yyyymmdd hh:mm:ss" */
     int n = 0;
@@ -12208,11 +11947,7 @@ static char monthnameresult[MONTHNAMERESULT];
   Returns: Month name according to current locale on success; NULL on failure.
 */
 char *
-#ifdef CK_ANSIC
 locale_monthname( int month, int fc )
-#else
-locale_monthname(month,fc) int month, fc;
-#endif /* CK_ANSIC */
 {
     int n = 0;
     int x = MON_1;
@@ -12237,39 +11972,19 @@ locale_monthname(month,fc) int month, fc;
 /* f p r i n t f */
 
 #ifdef UNIX
-#ifdef CK_ANSIC
 #include <stdarg.h>
-#else /* CK_ANSIC */
-#ifdef __GNUC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif	/* __GNUC__ */
-#endif /* CK_ANSIC */
 #ifdef fprintf
 #undef fprintf
 static char str1[4096];
 static char str2[4096];
 int
-#ifdef CK_ANSIC
 ckxfprintf(FILE * file, const char * format, ...)
-#else /* CK_ANSIC */
-ckxfprintf(va_alist) va_dcl
-#endif /* CK_ANSIC */
 /* ckxfprintf */ {
     int i, j, len, got_cr;
     va_list args;
     int rc = 0;
 
-#ifdef CK_ANSIC
     va_start(args, format);
-#else /* CK_ANSIC */
-    char * format;
-    FILE * file;
-    va_start(args);
-    file = va_arg(args,FILE *);
-    format = va_arg(args,char *);
-#endif /* CK_ANSIC */
 
 
 
@@ -12343,23 +12058,13 @@ ckxfprintf(va_alist) va_dcl
 #ifdef printf
 #undef printf
 int
-#ifdef CK_ANSIC
 ckxprintf(const char * format, ...)
-#else /* CK_ANSIC */
-ckxprintf(va_alist) va_dcl
-#endif /* CK_ANSIC */
 /* ckxprintf */ {
     int i, j, len, got_cr;
     va_list args;
     int rc = 0;
 
-#ifdef CK_ANSIC
     va_start(args, format);
-#else /* CK_ANSIC */
-    char * format;
-    va_start(args);
-    format = va_arg(args,char *);
-#endif /* CK_ANSIC */
 
     if (!inserver) {
 	rc = vprintf(format, args);
@@ -12432,11 +12137,7 @@ ckxprintf(va_alist) va_dcl
 #undef perror
 _PROTOTYP(char * ck_errstr,(VOID));
 int
-#ifdef CK_ANSIC
 ckxperror(const char * str)
-#else /* CK_ANSIC */
-ckxperror(str) char * str;
-#endif /* CK_ANSIC */
 /* ckxperror */ {
     char * errstr = ck_errstr();
     return

@@ -188,11 +188,7 @@ char *txt3 = "\n	    }\n    }\n}\n\n";
  * turn on the bit associated with the given state
  */
 VOID
-#ifdef CK_ANSIC
 setwstate(int state, trans t)
-#else
-setwstate(state,t) int state; trans t;
-#endif /* CK_ANSIC */
 /* setwstate */ {
     int idx,msk;
     idx = state/8;			/* byte associated with state */
@@ -204,11 +200,7 @@ setwstate(state,t) int state; trans t;
  * see if the state is involved in the transition
  */
 int
-#ifdef CK_ANSIC
 teststate(int state, trans t)
-#else
-teststate(state,t) int state; trans t;
-#endif /* CK_ANSIC */
 /* teststate */ {
     int idx,msk;
     idx = state/8;
@@ -221,11 +213,7 @@ teststate(state,t) int state; trans t;
  * read input from here...
  */
 trans
-#ifdef CK_ANSIC
 rdinput(FILE *infp, FILE *outfp)
-#else
-rdinput(infp,outfp) FILE *infp,*outfp;
-#endif  /* CK_ANSIC */
 /* rdinput */ {
     trans x;
     lines = 1;				/* line counter */
@@ -252,11 +240,7 @@ rdinput(infp,outfp) FILE *infp,*outfp;
  * on EOF or %%.
  */
 VOID
-#ifdef CK_ANSIC
 initial(FILE *infp, FILE *outfp)
-#else 
-initial(infp,outfp) FILE *infp, *outfp;
-#endif  /* CK_ANSIC */
 /* initial */ {
     int c;
     char wordbuf[MAXWORD];
@@ -277,22 +261,14 @@ initial(infp,outfp) FILE *infp, *outfp;
  * boolean function to tell if the given character can be part of a word.
  */
 int
-#ifdef CK_ANSIC
 isin(char *s, int c)
-#else
-isin(s,c) char *s; int c;
-#endif /* CK_ANSIC */
 /* isin */ {
     for (; *s != '\0'; s++)
       if (*s == (char) c) return(1);
     return(0);
 }
 int
-#ifdef CK_ANSIC
 isword(int c)
-#else
-isword(c) int c;
-#endif /* CK_ANSIC */
 /* isword */ {
     static char special[] = ".%_-$@";	/* these are allowable */
     return(isalnum(c) || isin(special,c));
@@ -302,11 +278,7 @@ isword(c) int c;
  * read the next word into the given buffer.
  */
 VOID
-#ifdef CK_ANSIC
 rdword(FILE *fp, char *buf)
-#else
-rdword(fp,buf) FILE *fp; char *buf;
-#endif /* CK_ANSIC */
 /* rdword */ {
     int len = 0,c;
     while (isword(c = getc(fp)) && ++len < MAXWORD) *buf++ = (char) c;
@@ -318,11 +290,7 @@ rdword(fp,buf) FILE *fp; char *buf;
  * read state names, up to a newline.
  */
 VOID
-#ifdef CK_ANSIC
 rdstates(FILE *fp, FILE *ofp)
-#else
-rdstates(fp,ofp) FILE *fp,*ofp;
-#endif /* CK_ANSIC */
 /* rdstates */ {
     int c;
     char wordbuf[MAXWORD];
@@ -340,11 +308,7 @@ rdstates(fp,ofp) FILE *fp,*ofp;
  * Allocate a new, empty transition node
  */
 trans
-#ifdef CK_ANSIC
 newtrans(void)
-#else
-newtrans()
-#endif /* CK_ANSIC */
 /* newtrans */  {
     trans new;
     int i;
@@ -359,11 +323,7 @@ newtrans()
  * read all the rules.
  */
 trans
-#ifdef CK_ANSIC
 rdrules(FILE *fp, FILE *out)
-#else
-rdrules(fp,out) FILE *fp,*out;
-#endif /* CK_ANSIC */
 /* rdrules */ {
     trans head,cur,prev;
     int curtok;
@@ -406,11 +366,7 @@ rdrules(fp,out) FILE *fp,*out;
  * given transition.
  */
 VOID
-#ifdef CK_ANSIC
 statelist(FILE *fp, trans t)
-#else
-statelist(fp,t) FILE *fp; trans t;
-#endif /* CK_ANSIC */
 /* statelist */ {
     int curtok,sval;
     curtok = COMMA;
@@ -431,11 +387,7 @@ statelist(fp,t) FILE *fp; trans t;
  *
  */
 VOID
-#ifdef CK_ANSIC
 copyact(FILE *inp, FILE *outp, int actno)
-#else
-copyact(inp,outp,actno) FILE *inp,*outp; int actno;
-#endif /* CK_ANSIC */
 /* copyact */ {
     int c,bcnt;
     fprintf(outp,"case %d:\n",actno);
@@ -467,11 +419,7 @@ copyact(inp,outp,actno) FILE *inp,*outp; int actno;
  *
  */
 int
-#ifdef CK_ANSIC
 faction(trans hd, int state, int chr)
-#else
-faction(hd,state,chr) trans hd; int state,chr;
-#endif /* CK_ANSIC */
 /* faction */ {
     while (hd != NULL) {
 	if (hd->anyst || teststate(state,hd))
@@ -487,11 +435,7 @@ faction(hd,state,chr) trans hd; int state,chr;
  *
  */
 VOID
-#ifdef CK_ANSIC
 emptytbl(void)
-#else
-emptytbl()
-#endif  /* CK_ANSIC */
 {
     int i;
     for (i=0; i<nstates*96; i++) tbl[i] = -1;
@@ -502,21 +446,13 @@ emptytbl()
  *
  */
 VOID
-#ifdef CK_ANSIC
 addaction(int act, int state, int chr)
-#else
-addaction(act,state,chr) int act,state,chr;
-#endif /* CK_ANSIC */
 /* addaction */ {
     tbl[state*96 + chr] = act;
 }
 
 VOID
-#ifdef CK_ANSIC
 writetbl(FILE *fp)
-#else
-writetbl(fp) FILE *fp;
-#endif /* CK_ANSIC */
 /* writetbl */ {
     warray(fp,"tbl",tbl,96*(nstates+1),TBL_TYPE);
 }
@@ -525,11 +461,7 @@ writetbl(fp) FILE *fp;
  * write an array to the output file, given its name and size.
  */
 VOID
-#ifdef CK_ANSIC
 warray(FILE *fp, char *nam, int cont[], int siz, char *typ)
-#else
-warray(fp,nam,cont,siz,typ) FILE *fp; char *nam; int cont[],siz; char *typ;
-#endif /* CK_ANSIC */
 /* warray */ {
     int i;
     fprintf(fp,"%s %s[] = {\n",typ,nam);
@@ -546,11 +478,7 @@ warray(fp,nam,cont,siz,typ) FILE *fp; char *nam; int cont[],siz; char *typ;
   -fdc, Fri Sep 18 19:42:48 2020
 */
 WMAINTYPE
-#ifdef CK_ANSIC
 main(int argc, char **argv)
-#else
-main(argc,argv) int argc; char **argv;
-#endif  /* CK_ANSIC */
 {
     trans head;
     int state,c;
@@ -586,22 +514,14 @@ main(argc,argv) int argc; char **argv;
  * fatal error handler
  */
 VOID
-#ifdef CK_ANSIC
 fatal(char *msg)
-#else
-fatal(msg) char *msg;
-#endif  /* CK_ANSIC */
 {
     fprintf(stderr,"error in line %d: %s\n",lines,msg);
     exit(BAD_EXIT);
 }
 
 VOID
-#ifdef CK_ANSIC
 prolog(FILE *outfp)
-#else
-prolog(outfp) FILE *outfp;
-#endif  /* CK_ANSIC */
 {   int c;
     while ((c = *txt1++)     != '\0') putc(c,outfp);
     while ((c = *fname++)    != '\0') putc(c,outfp);
@@ -612,22 +532,14 @@ prolog(outfp) FILE *outfp;
 }
 
 VOID
-#ifdef CK_ANSIC
 epilogue(FILE *outfp)
-#else
-epilogue(outfp) FILE *outfp;
-#endif  /* CK_ANSIC */
 {
     int c;
     while ((c = *txt3++) != '\0') putc(c,outfp);
 }
 
 VOID
-#ifdef CK_ANSIC
 copyrest(FILE *in, FILE *out)
-#else
-copyrest(in,out) FILE *in,*out;
-#endif  /* CK_ANSIC */
 {
     int c;
     while ((c = getc(in)) != EOF) putc(c,out);
@@ -638,11 +550,7 @@ copyrest(in,out) FILE *in,*out;
  * to the string value of the token if appropriate.
  */
 int
-#ifdef CK_ANSIC
 gettoken(FILE *fp)
-#else
-gettoken(fp) FILE *fp;
-#endif  /* CK_ANSIC */
 {
     int c;
     while (1) {				/* loop if reading comments... */
@@ -689,11 +597,7 @@ gettoken(fp) FILE *fp;
  */
 
 VOID
-#ifdef CK_ANSIC
 rdcmnt(FILE *fp)
-#else
-rdcmnt(fp) FILE *fp;
-#endif  /* CK_ANSIC */
  {
     int c,star,prcnt;
     prcnt = star = 0;			/* no star seen yet */
@@ -738,11 +642,7 @@ clrhash() {
  *
  */
 int
-#ifdef CK_ANSIC
 hash(char *name)
-#else
-hash(name) char *name;
-#endif  /* CK_ANSIC */
 {
     int sum;
     for (sum = 0; *name != '\0'; name++) sum += (sum + *name);
@@ -756,11 +656,7 @@ hash(name) char *name;
  *
  */
 static char*
-#ifdef CK_ANSIC
 copy(char *s)
-#else
-copy(s) char *s;
-#endif  /* CK_ANSIC */
 {
     char *new;
     new = (char *) malloc((int)strlen(s) + 1);
@@ -773,11 +669,7 @@ copy(s) char *s;
  *
  */
 VOID
-#ifdef CK_ANSIC
 enter(char *name, int svalue)
-#else
-enter(name,svalue) char *name; int svalue;
-#endif  /* CK_ANSIC */
 {
     int h;
     struct sym *cur;
@@ -798,11 +690,7 @@ enter(name,svalue) char *name; int svalue;
  * if not found.
  */
 int
-#ifdef CK_ANSIC
 lkup(char *name)
-#else
-lkup(name) char *name;
-#endif  /* CK_ANSIC */
 {
     struct sym *cur;
     for (cur = htab[hash(name)]; cur != NULL; cur = cur->hnxt)

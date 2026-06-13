@@ -155,11 +155,7 @@ struct keytab {				/* Keyword table */
 
 /* String preprocessing function */
 
-#ifdef CK_ANSIC				/* ANSI C */
 typedef int (*xx_strp)(char *, char **, int *); 
-#else					/* Not ANSI C */
-typedef int (*xx_strp)();
-#endif /* CK_ANSIC */
 
 /* FLDDB struct */
 

@@ -117,14 +117,12 @@ The remaining steps are in this module:
 
 #include "ckcsig.h"        /* C-Kermit signal processing */
 
-#ifdef CK_ANSIC
 /* static function prototypes - fdc 30 November 2022 */
 static VOID dologdial( char * );
 static VOID ttslow( char *, int );
 static VOID waitfor( char * );
 static int ddinc( int );
 static int dialfail( int );
-#endif /* CK_ANSIC */
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
@@ -3976,21 +3974,12 @@ char fbuf[FULLNUML];
 
 static ckjmpbuf sjbuf;
 
-#ifdef CK_ANSIC
 static SIGTYP (*savalrm)(int);	/* For saving alarm handler */
 static SIGTYP (*savint)(int);	/* For saving interrupt handler */
-#else
-static SIGTYP (*savalrm)();	/* For saving alarm handler */
-static SIGTYP (*savint)();	/* For saving interrupt handler */
-#endif /* CK_ANSIC */
 
 #ifdef CKLOGDIAL
 static VOID
-#ifdef CK_ANSIC
 dologdial( char *s )
-#else
-dologdial(s) char *s;
-#endif /* CK_ANSIC */
 {
     char buf2[16];
     char * r = NULL;
@@ -4054,11 +4043,7 @@ xcpy(to,from,len)		/* Copy the given number of bytes */
 #endif /* MINIDIAL */
 
 static SIGTYP
-#ifdef CK_ANSIC
 dialtime(int foo)			/* Timer interrupt handler */
-#else
-dialtime(foo) int foo;			/* Timer interrupt handler */
-#endif /* CK_ANSIC */
 /* dialtime */ {
 
     fail_code = F_TIME;			/* Failure reason = timeout */
@@ -4074,11 +4059,7 @@ dialtime(foo) int foo;			/* Timer interrupt handler */
 }
 
 static SIGTYP
-#ifdef CK_ANSIC
 dialint(int foo)			/* Keyboard interrupt handler */
-#else
-dialint(foo) int foo;
-#endif /* CK_ANSIC */
 /* dialint */ {
     fail_code = F_INT;
     debug(F100,"dialint caught SIGINT","",0);
@@ -4095,11 +4076,7 @@ dialint(foo) int foo;
   TCP/IP TELNET modem server.
 */
 static int
-#ifdef CK_ANSIC
 ddinc( int n )
-#else
-ddinc(n) int n;
-#endif /* CK_ANSIC */
 {
 #ifdef TNCODE
     int c = 0;
@@ -4124,11 +4101,7 @@ ddinc(n) int n;
 }
 
 static VOID
-#ifdef CK_ANSIC
 ttslow( char *s, int millisec )         /* Output s-l-o-w-l-y */
-#else
-ttslow(s,millisec) char *s; int millisec;
-#endif /* CK_ANSIC */
 {
 #ifdef TCPSOCKET
     extern int tn_nlm, tn_b_nlm;
@@ -4161,11 +4134,7 @@ ttslow(s,millisec) char *s; int millisec;
  * ARE received, and in the order specified.
  */
 static VOID
-#ifdef CK_ANSIC
 waitfor( char *s )
-#else
-waitfor(s) char *s;
-#endif /* CK_ANSIC */
 {
     CHAR c, x;
     while ((c = *s++)) {		/* while more characters remain... */
@@ -4181,11 +4150,7 @@ waitfor(s) char *s;
 }
 
 static int
-#ifdef CK_ANSIC
 didweget( char *s, char *r )	/* Looks in string s for response r */
-#else
-didweget(s,r) char *s, *r;
-#endif /* CK_ANSIC */
 {
     int lr = (int)strlen(r);	/*  0 means not found, 1 means found it */
     int i;
@@ -4216,11 +4181,7 @@ dreset() {
   device speed to the one given.
 */
 static VOID
-#ifdef CK_ANSIC
 spdchg(long s)
-#else
-spdchg(s) long s;
-#endif /* CK_ANSIC */
 /* spdchg */ {
     int s2;
     if (!mdmspd)			/* If modem interface speed locked, */
@@ -4241,11 +4202,7 @@ spdchg(s) long s;
   for consistent handling of carriage returns and linefeeds.
 */
 static VOID
-#ifdef CK_ANSIC
 dialoc(char c)
-#else
-dialoc(c) char c;
-#endif /* CK_ANSIC */
 { /* dialoc */				/* Dial Output Character */
     if (dialdpy) {
 	if (c != LF) conoc(c);		/* Don't echo LF */
@@ -4255,11 +4212,7 @@ dialoc(c) char c;
 
 #ifndef NOSPL
 char *
-#ifdef CK_ANSIC
 getdm( int x )                          /* Return dial modifier */
-#else
-getdm(x) int x;
-#endif /* CK_ANSIC */
 {
     MDMINF * mp;
     int m;
@@ -4461,11 +4414,7 @@ getdialenv() {
 }
 
 static int
-#ifdef CK_ANSIC
 dialfail( int x )
-#else
-dialfail(x) int x;
-#endif /* CK_ANSIC */
 {
     char * s;
 
@@ -4568,11 +4517,7 @@ static char * xnum = NULL;
 static int inited = 0;
 
 static SIGTYP
-#ifdef CK_ANSIC
 _dodial(void * threadinfo)
-#else /* CK_ANSIC */
-_dodial(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* _dodial */ {
     char c2;
     char *dcmd, *s, *flocmd = NULL;
@@ -5830,11 +5775,7 @@ _dodial(threadinfo) VOID * threadinfo;
 }
 
 static SIGTYP
-#ifdef CK_ANSIC
 faildial(void * threadinfo)
-#else /* Not CK_ANSIC */
-faildial(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* faildial */ {
     debug(F100,"longjmp returns to dial routine","",0);
     dialfail(fail_code);
@@ -5854,17 +5795,9 @@ faildial(threadinfo) VOID * threadinfo;
 
 int
 #ifdef OLD_DIAL
-#ifdef CK_ANSIC
 ckdial( char *nbr )
 #else
-ckdial(nbr) char *nbr;
-#endif /* CK_ANSIC */
-#else
-#ifdef CK_ANSIC
 ckdial( char *nbr, int x1, int x2, int fc, int redial )
-#else
-ckdial(nbr, x1, x2, fc, redial) char *nbr; int x1, x2, fc, redial;
-#endif /* CK_ANSIC */
 #endif /* OLD_DIAL */
 /* ckdial */ {
 #define ERMSGL 100                      /* fdc 13 November 2022 (was 50) */
@@ -6307,11 +6240,7 @@ ckdial(nbr, x1, x2, fc, redial) char *nbr; int x1, x2, fc, redial;
 static ckjmpbuf okbuf;
 
 static SIGTYP
-#ifdef CK_ANSIC
 oktimo(int foo)				/* Alarm handler for getok(). */
-#else
-oktimo(foo) int foo;			/* Alarm handler for getok(). */
-#endif /* CK_ANSIC */
 /* oktimo */ {
 
 
@@ -6323,11 +6252,7 @@ oktimo(foo) int foo;			/* Alarm handler for getok(). */
 static int okstatus, okn, okstrict;
 
 static SIGTYP
-#ifdef CK_ANSIC
 dook(void * threadinfo)
-#else /* CK_ANSIC */
-dook(threadinfo) VOID * threadinfo ;
-#endif /* CK_ANSIC */
 /* dook */ {
     CHAR c;
 
@@ -6452,11 +6377,7 @@ dook(threadinfo) VOID * threadinfo ;
 }
 
 static SIGTYP
-#ifdef CK_ANSIC
 failok(void * threadinfo)
-#else /* CK_ANSIC */
-failok(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 /* failok */ {
     debug(F100,"longjmp returned to getok()","",0);
     debug(F100,"getok timeout","",0);
@@ -6464,11 +6385,7 @@ failok(threadinfo) VOID * threadinfo;
 }
 
 int
-#ifdef CK_ANSIC
 getok( int n, int strict )
-#else
-getok(n, strict) int n, strict;
-#endif /* CK_ANSIC */
 {
     debug(F101,"getok entry n","",n);
     okstatus = 0;

@@ -170,11 +170,7 @@ static CHAR p_tbl[] = {			/* Even parity table for dopar(). */
 /*  D O P A R  --  Add an appropriate parity bit to a character  */
 
 CHAR
-#ifdef CK_ANSIC
 dopar(register CHAR ch)
-#else
-dopar(ch) register CHAR ch;
-#endif /* CK_ANSIC */
     {
     register unsigned int a;
     if (!parity
@@ -326,11 +322,7 @@ rttinit() {				/* Initialize round-trip timing */
      1 <= rcvtimo <= timint * 3.
 */
 int
-#ifdef CK_ANSIC
 getrtt( int nakstate, int n )
-#else
-getrtt(nakstate, n) int nakstate, n;
-#endif /* CK_ANSIC */
 {
     extern int mintime, maxtime;
     static int prevz = 0, prevr = 0;
@@ -1146,11 +1138,7 @@ input() {
   Returns -2 if parity has already been checked during this protocol operation.
 */
 int
-#ifdef CK_ANSIC
 parchk(CHAR *s, CHAR start, int n)
-#else
-parchk(s,start,n) CHAR *s, start; int n;
-#endif /* CK_ANSIC */
 /* parchk */ {
     CHAR s0, s1, s2, s3;
 
@@ -1214,11 +1202,7 @@ parchk(s,start,n) CHAR *s, start; int n;
   Call with a timout interval.  Returns it, adjusted if necessary.
 */
 int
-#ifdef CK_ANSIC
 chktimo( int timo, int flag )
-#else
-chktimo(timo,flag) int timo, flag;
-#endif /* CK_ANSIC */
 {
     long cps, z; int x, y;
 #ifdef STREAMING
@@ -1279,11 +1263,7 @@ chktimo(timo,flag) int timo, flag;
   the packet's data field has been built "in place" and need not be copied.
 */
 int
-#ifdef CK_ANSIC
 spack(char pkttyp, int n, int len, CHAR *d)
-#else
-spack(pkttyp,n,len,d) char pkttyp; int n, len; CHAR *d;
-#endif /* CK_ANSIC */
 /* spack */ {
     register int i;
     extern int lpcapu;                  /* Long packet capability negotiated */
@@ -1595,11 +1575,7 @@ spack(pkttyp,n,len,d) char pkttyp; int n, len; CHAR *d;
 /*  C H K 1  --  Compute a type-1 Kermit 6-bit checksum.  */
 
 int
-#ifdef CK_ANSIC
 chk1( register CHAR *pkt, register int len )
-#else
-chk1(pkt,len) register CHAR *pkt; register int len;
-#endif /* CK_ANSIC */
 {
     register unsigned int chk;
 #ifdef CKTUNING
@@ -1623,11 +1599,7 @@ chk1(pkt,len) register CHAR *pkt; register int len;
 /*  C H K 2  --  Compute the numeric sum of all the bytes in the packet.  */
 
 unsigned int
-#ifdef CK_ANSIC
 chk2( register CHAR *pkt, register int len )
-#else
-chk2(pkt,len) register CHAR *pkt; register int len;
-#endif /* CK_ANSIC */
 {
     register long chk;
 #ifdef COMMENT
@@ -1651,11 +1623,7 @@ chk2(pkt,len) register CHAR *pkt; register int len;
 */
 #ifdef COMMENT
 unsigned int
-#ifdef CK_ANSIC
 chk3( register CHAR *pkt, int parity, register int len )
-#else
-chk3(pkt,parity,len) register CHAR *pkt; int parity; register int len;
-#endif /* CK_ANSIC */
 {
     register long c, crc;
     register unsigned int m;
@@ -1668,11 +1636,7 @@ chk3(pkt,parity,len) register CHAR *pkt; int parity; register int len;
 }
 #else
 unsigned int
-#ifdef CK_ANSIC
 chk3( register CHAR *pkt, register int len )
-#else
-chk3(pkt,len) register CHAR *pkt; register int len;
-#endif /* CK_ANSIC */
 {
     register long c, crc;
     for (crc = 0; len-- > 0; pkt++) {
@@ -1757,11 +1721,7 @@ fastack() {				/* Acknowledge packet n */
 #endif /* STREAMING */
 
 int
-#ifdef CK_ANSIC
 ackns( int n, CHAR *s )                 /* Acknowledge packet n */
-#else
-ackns(n,s) int n; CHAR *s;
-#endif /* CK_ANSIC */
 {
     int j, k, x;
     debug(F111,"ackns",s,n);
@@ -1789,21 +1749,13 @@ ackns(n,s) int n; CHAR *s;
 }
 
 int
-#ifdef CK_ANSIC
 ackn( int n )                       /* Send ACK for packet number n */
-#else
-ackn(n) int n;
-#endif /* CK_ANSIC */
 {
     return(ackns(n,(CHAR *)""));
 }
 
 int
-#ifdef CK_ANSIC
 ack1( CHAR *s )
-#else
-ack1(s) CHAR *s;
-#endif /* CK_ANSIC */
 {
     if (!s) s = (CHAR *)"";
     debug(F110,"ack1",(char *)s,0);
@@ -1819,11 +1771,7 @@ ack1(s) CHAR *s;
  More work is needed here.
 */
 int
-#ifdef CK_ANSIC
 nack( int n )
-#else
-nack(n) int n;
-#endif /* CK_ANSIC */
 {
     int i, x;
 
@@ -1884,11 +1832,7 @@ nack(n) int n;
  more.
 */
 VOID
-#ifdef CK_ANSIC
 rcalcpsz( void ) {
-#else
-rcalcpsz()
-#endif /* CK_ANSIC */
 {
 #ifdef COMMENT
 /* Old way */
@@ -1947,11 +1891,7 @@ rcalcpsz()
   in recpkt.
 */
 int
-#ifdef CK_ANSIC
     resend( int n )			/* Send packet n again. */
-#else
-    resend(n) int n;
-#endif /* CK_ANSIC */
 {
     int j, k, x;
 #ifdef GFTIMER
@@ -2087,11 +2027,7 @@ int
 /*  E R R P K T  --  Send an Error Packet  */
 
 int
-#ifdef CK_ANSIC
     errpkt( CHAR *reason )        /* ...containing the reason given */
-#else
-    errpkt(reason) CHAR *reason;
-#endif /* CK_ANSIC */
 {	
     extern int rtimo, state, justone;
     int x, y;
@@ -2178,11 +2114,7 @@ int
 /* scmd()  --  Send a packet of the given type */
 
 int
-#ifdef CK_ANSIC
 scmd(char t, CHAR *dat)
-#else
-scmd(t,dat) char t; CHAR *dat;
-#endif /* CK_ANSIC */
 /* scmd */ {
     int x;
     extern char * srimsg;
@@ -2328,11 +2260,7 @@ sopkt() {
    1 if an O-packet was sent OK but more O packets still need to be sent.
 */
 int
-#ifdef CK_ANSIC
     srinit( int reget, int retrieve, int opkt )
-#else
-    srinit(reget, retrieve, opkt) int reget, retrieve, opkt;
-#endif /* CK_ANSIC */
 {
     int x = 0, left = 0;
     extern int oopts, omode;
@@ -2490,11 +2418,7 @@ int
 
 #ifdef CK_AUTODL
 int
-#ifdef CK_ANSIC
 kstart(CHAR ch)
-#else
-kstart(ch) CHAR ch;
-#endif /* CK_ANSIC */
 /* kstart */ {
     static CHAR * p = NULL;
 
@@ -2558,11 +2482,7 @@ kstart(ch) CHAR ch;
 /*  Z S T A R T  --  Checks for a ZMODEM packet while in terminal mode.  */
 
 int
-#ifdef CK_ANSIC
 zstart(CHAR ch)
-#else
-zstart(ch) CHAR ch;
-#endif /* CK_ANSIC */
 /* zstart */ {
     static CHAR * matchstr = (CHAR *) "\030B00";
     /* "rz\r**\030B00000000000000\r\033J\021"; */
@@ -2595,13 +2515,8 @@ zstart(ch) CHAR ch;
 #ifdef CK_APC
 /*  A U T O D O W N  */
 
-#ifdef CK_ANSIC
 VOID
 autodown(int ch)
-#else
-VOID
-autodown(ch) int ch;
-#endif /* CK_ANSIC */
 /* autodown */ {
 
 /* The Kermit and Zmodem Auto-download calls go here */
@@ -2698,11 +2613,7 @@ autodown(ch) int ch;
 /*  C H K S P K T  --  Check if buf contains a valid S or I packet  */
 
 int
-#ifdef CK_ANSIC
     chkspkt( char *packet )
-#else
-    chkspkt(packet) char *packet;
-#endif /* CK_ANSIC */
 {
     int buflen;
     int len = -1;
@@ -3201,11 +3112,7 @@ rpack() {
   s-00-01-^A9 S~/ @-#Y3~^>J)0___J"U1@C
 */
 VOID
-#ifdef CK_ANSIC
 logpkt(char c,int n, CHAR *s, int len)
-#else
-logpkt(c,n,s,len) char c; int n; CHAR *s; int len;
-#endif /* CK_ANSIC */
 /* logpkt */ {
     char plog[20];
     if (!s) s = (CHAR *)"";

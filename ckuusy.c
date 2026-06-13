@@ -36,10 +36,8 @@ extern int debtim;
 #include "ckcxla.h"
 #include <signal.h>
 
-#ifdef CK_ANSIC
 /* prototype for static funtion - fdc 30 November 2022 */
 static int xx_ftp( char *, char * );
-#endif /* CK_ANSIC */
 
 
 /*
@@ -51,7 +49,6 @@ static int xx_ftp( char *, char * );
 
 
 /* Prototypes for static functions used only in this module */
-#ifdef CK_ANSIC
 #ifdef USE_CL_INT
 /*
   Clang 16 wrongly says cl_int() has no prototype.
@@ -73,7 +70,6 @@ static int dorlgarg( char );
 #ifdef SSHBUILTIN
 static int dossharg(char );
 #endif /* SSHBUILTIN */
-#endif /* CK_ANSIC */
 
 extern int inserver, fncnv, f_save, xfermode;
 #ifdef PATTERNS
@@ -177,21 +173,13 @@ extern int usermdm, dialudt;
 #endif /* NODIAL */
 
 static int
-#ifdef CK_ANSIC
 pmsg( char *s )
-#else
-pmsg(s) char *s;
-#endif /* CK_ANSIC */
 {
     printf("%s\n", s); return(0);
 }
 
 static int
-#ifdef CK_ANSIC
 fmsg( char *s )
-#else
-fmsg(s) char *s;
-#endif /* CK_ANSIC */
 {
     fatal(s); return(0);
 }
@@ -263,11 +251,7 @@ struct urldata g_url = {NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 */
 
 int
-#ifdef CK_ANSIC
 urlparse( char *s, struct urldata * url )
-#else
-urlparse(s,url) char *s; struct urldata * url;
-#endif /* CK_ANSIC */
 {
     char * p = NULL, * urlbuf = NULL;
 #ifdef COMMENT
@@ -506,11 +490,7 @@ char * arghlp[128];                     /* Argument for option */
 int optact[128];                        /* Action-option flag */
 
 VOID
-#ifdef CK_ANSIC
 fatal2( char *msg1, char *msg2 )
-#else
-fatal2(msg1,msg2) char *msg1, *msg2;
-#endif /* CK_ANSIC */
 {
     char buf[256];
     if (!msg1) msg1 = "";
@@ -550,11 +530,7 @@ cl_int( dummy ) int dummy;
 extern int ftp_action, ftp_cmdlin;
 
 static int
-#ifdef CK_ANSIC
 xx_ftp( char * host, char * port ) 
-#else
-xx_ftp(host, port) char * host, * port;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_URL
     extern int haveurl;
@@ -2118,11 +2094,7 @@ iniopthlp() {
 
 #ifndef NOICP
 int
-#ifdef CK_ANSIC
 doxarg( char ** s, int pre )
-#else
-doxarg(s,pre) char ** s; int pre;
-#endif /* CK_ANSIC */
 {
 #ifdef IKSD
 #ifdef CK_LOGIN
@@ -2938,11 +2910,7 @@ setiks() {				/* SET IKS */
 /*  D O A R G  --  Do a command-line argument.  */
 
 int
-#ifdef CK_ANSIC
 doarg(char x)
-#else
-doarg(x) char x;
-#endif /* CK_ANSIC */
 /* doarg */ {
     int i, n, y, z, xx; long zz; char *xp;
 
@@ -3842,11 +3810,7 @@ extern char *line, *tmpbuf;             /* Character buffers for anything */
 /*  D O T N A R G  --  Do a telnet command-line argument.  */
 
 static int
-#ifdef CK_ANSIC
 dotnarg(char x)
-#else
-dotnarg(x) char x;
-#endif /* CK_ANSIC */
 /* dotnarg */ {
     char *xp;
 
@@ -4014,11 +3978,7 @@ dotnarg(x) char x;
 /*  D O R L G A R G  --  Do a rlogin command-line argument.  */
 
 static int
-#ifdef CK_ANSIC
 dorlgarg(char x)
-#else
-dorlgarg(x) char x;
-#endif /* CK_ANSIC */
 /* dorlgarg */ {
     char *xp;
 
@@ -4100,11 +4060,7 @@ dorlgarg(x) char x;
 /*  D O S S H A R G  --  Do a ssh command-line argument.  */
 
 static int
-#ifdef CK_ANSIC
 dossharg(char x)
-#else
-dossharg(x) char x;
-#endif /* CK_ANSIC */
 /* dossharg */ {
     char *xp;
 

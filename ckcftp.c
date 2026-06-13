@@ -151,11 +151,7 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 /* Note: much of the following duplicates what was done in ckcdeb.h */
 /* but let's not mess with it unless it causes trouble. */
 
-#ifdef CK_ANSIC
 #include <stdarg.h>
-#else /* CK_ANSIC */
-#include <varargs.h>
-#endif /* CK_ANSIC */
 #include <signal.h>
 #ifndef ZILOG
 #include <setjmp.h>
@@ -626,18 +622,13 @@ char * ftp_apw = NULL;			/* Anonymous password */
 */
 #define sigtype SIGTYP
 
-#ifdef CK_ANSIC
 typedef sigtype (*sig_t)(int);
-#else
-typedef sigtype (*sig_t)();
-#endif /* CK_ANSIC */
 
 /* Made this global static -fdc 21 June 2023 */
 /* It's used in many ckcftp.c routines but wasn't declared in all of them */
 static sig_t oldintr;
 
 /* Prototypes for static functions defined in ckcftp.c */
-#ifdef CK_ANSIC
 
 #ifdef COMMENT
 static VOID bytswap( int *, int * );
@@ -681,7 +672,6 @@ static sigtype cancelrecv( int );
 static sigtype cancelsend( int );
 static sigtype cmdcancel( int );
 
-#endif  /* CK_ANSIC */
 
 
 /* Static global variables */
@@ -1473,11 +1463,7 @@ _PROTOTYP(static sigtype cmdcancel, (int));
 
 
 static char *
-#ifdef CK_ANSIC
 strval( char * s1, char * s2 )
-#else
-strval(s1,s2) char * s1, * s2;
-#endif /* CK_ANSIC */
 {
     if (!s1) s1 = "";
     if (!s2) s2 = "";
@@ -1491,11 +1477,7 @@ static char rfnbuf[RFNBUFSIZ];          /* Remote filename translate buffer */
 static char * xgnbp = NULL;
 
 static int                              /* Helper function for xgnbyte() */
-#ifdef CK_ANSIC
 strgetc(void)
-#else
-strgetc()
-#endif /* CK_ANSIC */
 {
     int c;
     if (!xgnbp)
@@ -1507,11 +1489,7 @@ strgetc()
 }
 
 static int                              /* Helper function for xpnbyte() */
-#ifdef CK_ANSIC
 strputc(char c)
-#else
-strputc(c) char c;
-#endif /* CK_ANSIC */
 {
     rfnlen = rfnptr - rfnbuf;
     if (rfnlen >= (RFNBUFSIZ - 1))
@@ -1523,11 +1501,7 @@ strputc(c) char c;
 
 #ifdef COMMENT
 static int
-#ifdef CK_ANSIC
 xprintc(char c)
-#else
-xprintc(c) char c;
-#endif /* CK_ANSIC */
 {
     printf("%c",c);
     return(0);
@@ -1537,11 +1511,7 @@ xprintc(c) char c;
 #ifdef COMMENT
 /* K95: Check whether we need this */
 static VOID
-#ifdef CK_ANSIC
 bytswap( int * c0, int * c1 )
-#else
-bytswap(c0,c1) int * c0, * c1;
-#endif /* CK_ANSIC */
 {
     int t;
     t = *c0;
@@ -1629,11 +1599,7 @@ static struct keytab modetab[] = {
 
 #ifndef NOCMDL
 int                                     /* Called from ckuusy.c */
-#ifdef CK_ANSIC
 doftparg(char c)
-#else
-doftparg(c) char c;
-#endif /* CK_ANSIC */
 /* doftparg */ {
     char *xp;
     extern char **xargv, *xarg0;
@@ -1889,11 +1855,7 @@ ftpissecure() {
 }
 
 static VOID
-#ifdef CK_ANSIC
 ftscreen(int n, char c, CK_OFF_T z, char *s)
-#else
-ftscreen(n, c, z, s) int n; char c; CK_OFF_T z; char * s;
-#endif  /* CK_ANSIC */
 {
     if (displa && fdispla && !backgrd && !quiet && !out2screen) {
         if (!dpyactive) {
@@ -2087,11 +2049,7 @@ ftpbye() {
 /*  o p e n f t p  --  Parse FTP hostname & port and open */
 
 static int
-#ifdef CK_ANSIC
 openftp( char * s, int opn_tls )
-#else
-openftp(s,opn_tls) char * s; int opn_tls;
-#endif /* CK_ANSIC */
 {
     char c, * p, * hostname = NULL, *hostsave = NULL, * service = NULL;
     int i, n, havehost = 0, getval = 0, rc = -9, opn_psv = -1, nologin = 0;
@@ -2343,11 +2301,7 @@ openftp(s,opn_tls) char * s; int opn_tls;
 }
 
 VOID					/* 12 Aug 2007 */
-#ifdef CK_ANSIC
 doftpglobaltype( int x )
-#else
-doftpglobaltype(x) int x;
-#endif /* CK_ANSIC */
 {
     ftp_xfermode = XMODE_M;		/* Set manual FTP transfer mode */
     ftp_typ = x;			/* Used by top-level BINARY and */
@@ -2417,11 +2371,7 @@ doftpusr() {                            /* Log in as USER */
 /* DO (various FTP commands)... */
 
 int
-#ifdef CK_ANSIC
 doftptyp( int type )                    /* TYPE */
-#else
-doftptyp(type) int type;
-#endif /* CK_ANSIC */
 {
     CHECKCONN();
     ftp_typ = type;
@@ -2431,11 +2381,7 @@ doftptyp(type) int type;
 }
 
 static int
-#ifdef CK_ANSIC
 doftpxmkd( char * s, int vbm )          /* MKDIR action */
-#else
-doftpxmkd(s,vbm) char * s; int vbm;
-#endif /* CK_ANSIC */
 {
     int lcs = -1, rcs = -1;
 #ifndef NOCSETS
@@ -2459,11 +2405,7 @@ doftpxmkd(s,vbm) char * s; int vbm;
 }
 
 static int
-#ifdef CK_ANSIC
 doftpmkd( void )                        /* MKDIR parse */
-#else
-doftpmkd()
-#endif /* CK_ANSIC */
 {
     int x;
     char * s;
@@ -2550,11 +2492,7 @@ doftpxhlp() {                           /* HELP */
 }
 
 static int
-#ifdef CK_ANSIC
 doftpdir( int cx )                      /* [V]DIRECTORY */
-#else
-doftpdir(cx) int cx;
-#endif /* CK_ANSIC */
 {
     int x, lcs = 0, rcs = 0, xlate = 0;
     char * p, * s, * m = "";
@@ -2654,11 +2592,7 @@ doftppwd() {                            /* PWD */
 }
 
 static int
-#ifdef CK_ANSIC
 doftpcwd( char * s, int vbm )           /* CD (CWD) */
-#else
-doftpcwd(s,vbm) char * s; int vbm;
-#endif /* CK_ANSIC */
 {
     int lcs = -1, rcs = -1;
 #ifndef NOCSETS
@@ -2713,11 +2647,7 @@ doftpcdup() {                           /* CDUP */
 static int cdlevel = 0, cdsimlvl = 0;	/* Tree-level trackers */
 
 static int
-#ifdef CK_ANSIC
 syncdir( char * local, int sim )
-#else
-syncdir(local,sim) char * local; int sim;
-#endif /* CK_ANSIC */
 {
     char buf[CKMAXPATH+1];
     char tmp[CKMAXPATH+1];
@@ -2901,11 +2831,7 @@ syncdir(local,sim) char * local; int sim;
 #ifdef DOUPDATE
 #ifdef DEBUG
 static VOID
-#ifdef CK_ANSIC
 dbtime( char * s, struct tm * xx )  /* Write struct tm to debug log */
-#else
-dbtime(s,xx) char * s; struct tm * xx;
-#endif /* CK_ANSIC */
 {
     if (deblog) {
         debug(F111,"ftp year ",s,xx->tm_year);
@@ -2924,11 +2850,7 @@ dbtime(s,xx) char * s; struct tm * xx;
 /*  Returns -1 if xx < yy, 0 if they are equal, 1 if xx > yy */
 
 static int
-#ifdef CK_ANSIC
 tmcompare( struct tm * xx, struct tm * yy )
-#else
-tmcompare(xx,yy) struct tm * xx, * yy;
-#endif /* CK_ANSIC */
 {
     if (xx->tm_year < yy->tm_year)      /* First year less than second */
       return(-1);
@@ -2979,11 +2901,7 @@ static CONST int MONTHDAYS[] = { /* Number of days in each month. */
 /*  m k u t i m e  --  Like mktime() but argument is already UTC */
 
 static time_t
-#ifdef CK_ANSIC
 mkutime(struct tm * tm)
-#else
-mkutime(tm) struct tm * tm;
-#endif /* CK_ANSIC */
 /* mkutime */ {
 #ifdef HAVE_TIMEGM
     return(timegm(tm));                 /* Have system service, use it. */
@@ -3042,11 +2960,7 @@ mkutime(tm) struct tm * tm;
 
 */
 static int
-#ifdef CK_ANSIC
 setmodtime(char * f, time_t t)
-#else
-setmodtime(f,t) char * f; time_t t;
-#endif /* CK_ANSIC */
 /* setmodtime */ {
     struct stat sb;
     int x, rc = 0;
@@ -3126,11 +3040,7 @@ setmodtime(f,t) char * f; time_t t;
        0 on success.
 */
 static int
-#ifdef CK_ANSIC
 chkmodtime( char * local, char * remote, int fc ) 
-#else
-chkmodtime(local,remote,fc) char * local, * remote; int fc;
-#endif /* CK_ANSIC */
 {
     struct stat statbuf;
     struct tm * tmlocal = NULL;
@@ -3277,13 +3187,8 @@ chkmodtime(local,remote,fc) char * local, * remote; int fc;
 /* getfile() returns: -1 on error, 0 if file received, 1 if file skipped */
 
 static int
-#ifdef CK_ANSIC
 getfile( char * remote, char * local, int recover, int append,
  char * pipename, int xlate, int fcs, int rcs )
-#else
-getfile(remote,local,recover,append,pipename,xlate,fcs,rcs)
-  char * local, * remote, * pipename; int recover, append, xlate, fcs, rcs;
-#endif /* CK_ANSIC */
 {
     int rc = -1;
     ULONG t0, t1;
@@ -3456,7 +3361,6 @@ getfile(remote,local,recover,append,pipename,xlate,fcs,rcs)
 /* Positive return value is Skip Reason, SKP_xxx, from ckcker.h. */
 
 static int
-#ifdef CK_ANSIC
 putfile(int cx,
         char * local,
         char * remote,
@@ -3472,12 +3376,6 @@ putfile(int cx,
         int fcs,
         int rcs,
         int flg )
-#else
-putfile(cx,
- local,remote,force,moving,mvto,rnto,srvrn,x_cnv,x_usn,xft,prm,fcs,rcs,flg)
- char * local, * remote, * mvto, *rnto, *srvrn; int cx, force, moving, x_cnv,
- x_usn, xft, fcs, rcs, flg, prm;
-#endif /* CK_ANSIC */
 {
     char asname[CKMAXPATH+1];
     char fullname[CKMAXPATH+1];
@@ -3853,11 +3751,7 @@ putfile(cx,
 
 /* xxout must only be used for ASCII transfers */
 static int
-#ifdef CK_ANSIC
 xxout(char c)
-#else
-xxout(c) char c;
-#endif /* CK_ANSIC */
 {
     /* For Unix, DG, Stratus, Amiga, Gemdos, other */
     if (c == '\012') {
@@ -3872,31 +3766,19 @@ xxout(c) char c;
 }
 
 static int
-#ifdef CK_ANSIC
 scrnout(char c)
-#else
-scrnout(c) char c;
-#endif /* CK_ANSIC */
 {
     return(putchar(c));
 }
 
 static int
-#ifdef CK_ANSIC
 pipeout(char c)
-#else
-pipeout(c) char c;
-#endif /* CK_ANSIC */
 {
     return(zmchout(c));
 }
 
 static int
-#ifdef CK_ANSIC
 ispathsep( int c )
-#else
-ispathsep(c) int c;
-#endif /* CK_ANSIC */
 {
     switch (servertype) {
       case SYS_VMS:
@@ -3950,11 +3832,7 @@ iscanceled() {
 #ifdef FTP_TIMEOUT
 /* fc = 0 for read; 1 for write */
 static int
-#ifdef CK_ANSIC
 check_data_connection( int fd, int fc )
-#else
-check_data_connection(fd,fc) int fd, fc;
-#endif /* CK_ANSIC */
 {
     int x;
 #ifdef BSDSELECT
@@ -4008,11 +3886,7 @@ check_data_connection(fd,fc) int fd, fc;
 /* zzsend - used by buffered output macros. */
 
 static int
-#ifdef CK_ANSIC
 zzsend(int fd, CHAR c)
-#else
-zzsend(fd,c) int fd; CHAR c;
-#endif /* CK_ANSIC */
 {
     int rc;
 
@@ -4049,11 +3923,7 @@ zzsend(fd,c) int fd; CHAR c;
 /* c m d l i n p u t  --  Command-line PUT */
 
 int
-#ifdef CK_ANSIC
 cmdlinput( int stay )
-#else
-cmdlinput(stay) int stay;
-#endif /* CK_ANSIC */
 {
     int x, rc = 0, done = 0, good = 0, status = 0;
     ULONG t0, t1;                       /* Times for stats */
@@ -4183,11 +4053,7 @@ cmdlinput(stay) int stay;
 /*  d o f t p p u t  --  Parse and execute PUT, MPUT, and APPEND  */
 
 int
-#ifdef CK_ANSIC
 doftpput(int cx, int who)               /* who == 1 for ftp, 0 for kermit */
-#else
-doftpput(cx,who) int cx, who;
-#endif /* CK_ANSIC */
 {
     struct FDB sf, fl, sw, cm;
     int n, rc, confirmed = 0, wild = 0, getval = 0, mput = 0, done = 0;
@@ -5410,11 +5276,7 @@ static char xtmpbuf[4096];
   File list is set up in cmlist[] by ckuusy.c; nfils is length of list.
 */
 int
-#ifdef CK_ANSIC
 cmdlinget( int stay )
-#else
-cmdlinget(stay) int stay;
-#endif /* CK_ANSIC */
 {
     int x, rc = 0, done = 0, good = 0, status = 0, append = 0;
     int lcs = -1, rcs = -1, xlate = 0;
@@ -5793,11 +5655,7 @@ cmdlinget(stay) int stay;
   no way to reconcile our local times with the server's.
 */
 int
-#ifdef CK_ANSIC
 doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
-#else
-doftpget(cx,who) int cx, who;
-#endif /* CK_ANSIC */
 {
     struct FDB fl, sw, cm;
     int i, n, rc, getval = 0, mget = 0, done = 0, pipesave = 0;
@@ -7374,11 +7232,7 @@ dosetftppsv() {				/* Passive mode */
 /*  d o f t p r m t  --  Parse and execute REMOTE commands  */
 
 int
-#ifdef CK_ANSIC
 doftprmt( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
-#else
-doftprmt(cx,who) int cx, who;
-#endif /* CK_ANSIC */
 {
     /* cx == 0 means REMOTE */
     /* cx != 0 is a XZxxx value */
@@ -7879,11 +7733,7 @@ doxftp() {                              /* Command parser for built-in FTP */
 #ifndef NOSHOW
 
 int
-#ifdef CK_ANSIC
 shoftp( int brief )
-#else
-shoftp(brief) int brief;
-#endif /* CK_ANSIC */
 {
     char * s = "?";
     int n, x;
@@ -8911,11 +8761,7 @@ static int cpend = 0;                   /* No pending replies */
 static char xcmdbuf[RFNBUFSIZ];
 
 static int
-#ifdef CK_ANSIC
 ftpcmd( char * cmd, char * arg, int lcs, int rcs, int vbm )
-#else
-ftpcmd(cmd,arg,lcs,rcs,vbm) char * cmd, * arg; int lcs, rcs, vbm;
-#endif /* CK_ANSIC */
 {
     char * s = NULL;
     int r = 0, x = 0, fc = 0, len = 0, cmdlen = 0, q = -1;
@@ -9164,11 +9010,7 @@ ftpclose() {
 }
 
 int
-#ifdef CK_ANSIC
 ftpopen( char * remote, char * service, int use_tls )
-#else
-ftpopen(remote, service, use_tls) char * remote, * service; int use_tls;
-#endif /* CK_ANSIC */
 {
     char * host;
 
@@ -9257,11 +9099,7 @@ ftpopen(remote, service, use_tls) char * remote, * service; int use_tls;
 
 
 static sigtype
-#ifdef CK_ANSIC
 cmdcancel( int sig )
-#else
-cmdcancel(sig) int sig;
-#endif /* CK_ANSIC */
 {
     debug(F100,"ftp cmdcancel caught SIGINT ","",0);
     fflush(stdout);
@@ -9280,11 +9118,7 @@ cmdcancel(sig) int sig;
 }
 
 static int
-#ifdef CK_ANSIC
 scommand(char * s)                      /* Was secure_command() */
-#else
-scommand(s) char * s;
-#endif /* CK_ANSIC */
 {
     int length = 0, len2;
     char in[FTP_BUFSIZ], out[FTP_BUFSIZ];
@@ -9347,11 +9181,7 @@ mygetc() {
      -1: Error
 */
 static int
-#ifdef CK_ANSIC
 xlatec( int fc, int c, int incs, int outcs )
-#else
-xlatec(fc,c,incs,outcs) int fc, c, incs, outcs;
-#endif /* CK_ANSIC */
 {
 #ifdef NOCSETS
     return(c);
@@ -9440,11 +9270,7 @@ static struct keytab ftyptab[] = {
 static int nftyptab = (sizeof(ftyptab) / sizeof(struct keytab));
 
 static VOID
-#ifdef CK_ANSIC
 parsefeat( char * s )                   /* Parse a FEATURE response */
-#else
-parsefeat(s) char * s;
-#endif /* CK_ANSIC */
 {
     char kwbuf[8];
     int i, x;
@@ -9490,11 +9316,7 @@ parsefeat(s) char * s;
 }
 
 static char *
-#ifdef CK_ANSIC
 parsefacts( char * s )                  /* Parse MLS[DT] File Facts */
-#else
-parsefacts(s) char * s;
-#endif /* CK_ANSIC */
 {
     char * p;
     int i, j, x;
@@ -9556,11 +9378,7 @@ parsefacts(s) char * s;
 /* vbm = 1 (verbose); 0 (quiet except for error messages); 9 (super quiet) */
 
 static int
-#ifdef CK_ANSIC
 getreply( int expecteof, int lcs, int rcs, int vbm, int fc )
-#else
-getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
-#endif /* CK_ANSIC */
 {
     /* lcs, rcs, vbm parameters as in ftpcmd() */
     register int i, c, n;
@@ -9879,11 +9697,7 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
 
 #ifdef BSDSELECT
 static int
-#ifdef CK_ANSIC
 empty(fd_set * mask, int sec)
-#else
-empty(mask, sec) fd_set * mask; int sec;
-#endif /* CK_ANSIC */
 {
     struct timeval t;
     t.tv_sec = (long) sec;
@@ -9909,11 +9723,7 @@ empty(mask, cnt, sec) int * mask, sec;
 #endif /* BSDSELECT */
 
 static sigtype
-#ifdef CK_ANSIC
 cancelsend( int sig )
-#else
-cancelsend(sig) int sig;
-#endif /* CK_ANSIC */
 {
     havesigint++;
     cancelgroup++;
@@ -9926,23 +9736,13 @@ cancelsend(sig) int sig;
 }
 
 static VOID
-#ifdef CK_ANSIC
 secure_error(char *fmt, ...)
-#else
-/* VARARGS1 */
-secure_error(fmt, p1, p2, p3, p4, p5)
-   char *fmt; int p1, p2, p3, p4, p5;
-#endif /* CK_ANSIC */
 {
-#ifdef CK_ANSIC
     va_list ap;
 
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
-#else
-    fprintf(stderr, fmt, p1, p2, p3, p4, p5);
-#endif
     fprintf(stderr, "\n");
 }
 
@@ -9952,11 +9752,7 @@ secure_error(fmt, p1, p2, p3, p4, p5)
  * Used to change to and from ascii for listings.
  */
 static VOID
-#ifdef CK_ANSIC
 changetype( int newtype, int show )
-#else
-changetype(newtype, show) int newtype, show;
-#endif /* CK_ANSIC */
 {
     int rc;
     char * s;
@@ -9985,11 +9781,7 @@ changetype(newtype, show) int newtype, show;
 /* PUT a file.  Returns -1 on error, 0 on success, 1 if file skipped */
 
 static VOID
-#ifdef CK_ANSIC
 doftpsend(void * threadinfo)
-#else
-doftpsend(threadinfo) VOID * threadinfo;
-#endif
 {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -10071,11 +9863,7 @@ doftpsend(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 failftpsend(void * threadinfo)
-#else
-failftpsend(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -10117,11 +9905,7 @@ failftpsend(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 failftpsend2(void * threadinfo)
-#else
-failftpsend2(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -10186,11 +9970,7 @@ failftpsend2(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 doftpsend2(void * threadinfo)
-#else
-doftpsend2(threadinfo) VOID * threadinfo;
-#endif
 {
     register int c, d = 0;
     int n, x, notafile, unique = 0;
@@ -10433,13 +10213,8 @@ doftpsend2(threadinfo) VOID * threadinfo;
 }
 
 static int
-#ifdef CK_ANSIC
 sendrequest( char *cmd, char *local, char *remote,
              int xlate, int incs, int outcs, int restart )
-#else
-sendrequest( cmd, local, remote, xlate, incs, outcs, restart )
-             char *cmd, *local, *remote; int xlate, incs, outcs, restart;
-#endif /* CK_ANSIC */
 {
     if (!remote) remote = "";           /* Check args */
     if (!*remote) remote = local;
@@ -10521,11 +10296,7 @@ sendrequest( cmd, local, remote, xlate, incs, outcs, restart )
 }
 
 static sigtype
-#ifdef CK_ANSIC
 cancelrecv( int sig )
-#else
-cancelrecv(sig) int sig;
-#endif /* CK_ANSIC */
 {
     havesigint++;
     cancelfile = 0;
@@ -10545,11 +10316,7 @@ cancelrecv(sig) int sig;
 /* Argumentless front-end for secure_getc() */
 
 static int
-#ifdef CK_ANSIC
 netgetc(void)				/* Input function to point to... */
-#else  /* CK_ANSIC */
-netgetc()
-#endif /* CK_ANSIC */
 {
     return(secure_getc(globaldin,0));
 }
@@ -10586,11 +10353,7 @@ static struct xx_ftprecv ftprecv;
 static int ftprecvret = 0;
 
 static VOID
-#ifdef CK_ANSIC
 failftprecv(VOID * threadinfo)
-#else
-failftprecv(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 
 #ifdef CK_LOGIN
@@ -10631,11 +10394,7 @@ failftprecv(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 doftprecv(VOID * threadinfo)
-#else
-doftprecv(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -10672,11 +10431,7 @@ doftprecv(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 failftprecv2(VOID * threadinfo)
-#else
-failftprecv2(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -10765,11 +10520,7 @@ failftprecv2(threadinfo) VOID * threadinfo;
 }
 
 static VOID
-#ifdef CK_ANSIC
 doftprecv2(VOID * threadinfo)
-#else
-doftprecv2(threadinfo) VOID * threadinfo;
-#endif /* CK_ANSIC */
 {
     register int c, d;
     CK_OFF_T bytes = (CK_OFF_T)0;
@@ -10972,11 +10723,7 @@ Please confirm output file specification or supply an alternative:";
 	debug(F101,"ftp recvrequest TYPE A xlate","",ftprecv.xlate);
 #ifndef NOCSETS
         if (ftprecv.xlate) {
-#ifdef CK_ANSIC
             int (*fn)(char);
-#else
-            int (*fn)();
-#endif /* CK_ANSIC */
             debug(F110,"ftp recvrequest (data)","initxlate",0);
             initxlate(ftprecv.rcs,ftprecv.fcs);         /* (From,To) */
             if (ftprecv.pipename) {
@@ -11130,7 +10877,6 @@ Please confirm output file specification or supply an alternative:";
 }
 
 static int
-#ifdef CK_ANSIC
 recvrequest(
     char * cmd, 
     char * local, 
@@ -11142,11 +10888,6 @@ recvrequest(
     int xlate, 
     int fcs, 
     int rcs)
-#else
-recvrequest(cmd,local,remote,lmode,printnames,recover,pipename,xlate,fcs,rcs)
- char *cmd, *local, *remote, *lmode, *pipename; int printnames, recover,
- xlate, fcs, rcs;
-#endif /* CK_ANSIC */
 {
     struct stat stbuf;
 
@@ -11581,11 +11322,7 @@ initconn() {
 
 
 static int
-#ifdef CK_ANSIC
 dataconn( char *lmode )
-#else
-dataconn(lmode) char *lmode;
-#endif /* CK_ANSIC */
 {
     int s;
 #ifdef IP_TOS
@@ -11750,11 +11487,7 @@ pswitch(flag) int flag; {
 }
 
 static sigtype
-#ifdef CK_ANSIC
 cancelpt( int sig )
-#else
-cancelpt(sig) int sig;
-#endif /* CK_ANSIC */
 {
     printf("\n");
     fflush(stdout);
@@ -11901,11 +11634,7 @@ proxtrans(cmd, local, remote, unique) char *cmd, *local, *remote; int unique; {
 
 
 static VOID
-#ifdef CK_ANSIC
 cancel_remote( int din )
-#else
-cancel_remote(din) int din;
-#endif /* CK_ANSIC */
 {
     CHAR buf[FTP_BUFSIZ];
     int x, nfnd;
@@ -12023,18 +11752,10 @@ cancel_remote(din) int din;
 static struct in_addr inaddrx;
 #endif /* INADDRX */
 
-#ifdef CK_ANSIC
 
-#else
-
-#endif /* CK_ANSIC */
 
 static char *
-#ifdef CK_ANSIC
 ftp_hookup( char * host, int port, int tls )
-#else
-ftp_hookup(host, port, tls) char * host; int port; int tls;
-#endif /* CK_ANSIC */
 {
     register struct hostent *hp = 0;
 #ifdef IP_TOS
@@ -12422,11 +12143,7 @@ ftp_init() {
 }
 
 static int
-#ifdef CK_ANSIC
 ftp_login( char * host )             /* (also called from ckuusy.c) */
-#else
-ftp_login(host) char * host;
-#endif /* CK_ANSIC */
 {
     static char ftppass[PASSBUFSIZ]="";
     char tmp[PASSBUFSIZ];
@@ -12605,11 +12322,7 @@ ftp_reset() {
 }
 
 static int
-#ifdef CK_ANSIC
 ftp_rename( char * from, char * to )
-#else
-ftp_rename(from, to) char * from, * to;
-#endif /* CK_ANSIC */
 {
     int lcs = -1, rcs = -1;
 #ifndef NOCSETS
@@ -12627,11 +12340,7 @@ ftp_rename(from, to) char * from, * to;
 }
 
 static int
-#ifdef CK_ANSIC
 ftp_umask( char * mask )
-#else
-ftp_umask(mask) char * mask;
-#endif /* CK_ANSIC */
 {
     int rc;
     rc = (ftpcmd("SITE UMASK",mask,-1,-1,1) == REPLY_COMPLETE);
@@ -12639,11 +12348,7 @@ ftp_umask(mask) char * mask;
 }
 
 static int
-#ifdef CK_ANSIC
 ftp_user( char * user, char * pass, char * acct )
-#else
-ftp_user(user,pass,acct) char * user, * pass, * acct;
-#endif /* CK_ANSIC */
 {
     int n = 0, aflag = 0;
     char pwd[PWDSIZ];
@@ -12770,15 +12475,7 @@ mlsreset() {				/* Reset MGET temp-file stack */
 }
 
 static CHAR *
-#ifdef CK_ANSIC
 remote_files(int new_query, CHAR * arg, CHAR * pattern, int proxy_switch)
-#else /* CK_ANSIC */
-remote_files(new_query, arg, pattern, proxy_switch)
-    int new_query;
-    CHAR * arg;				/* That we send to the server */
-    CHAR * pattern;			/* That we use locally */
-    int proxy_switch;
-#endif /* CK_ANSIC */
 /* remote_files */ {
     static CHAR buf[FTPNAMBUFLEN];
     CHAR *cp, *whicharg;
@@ -13139,11 +12836,7 @@ typedef long ftp_int32;
 #define ftp_int32 int
 #define ftp_uint32 unsigned int
 static int
-#ifdef CK_ANSIC
 looping_write( int fd, register CONST char *buf,  int len )
-#else
-looping_write(fd, buf, len) int fd; register CONST char *buf;  int len;
-#endif /* CK_ANSIC */
 {
     int cc;
     register int wrlen = len;
@@ -13163,11 +12856,7 @@ looping_write(fd, buf, len) int fd; register CONST char *buf;  int len;
 #endif
 #ifndef looping_read
 static int
-#ifdef CK_ANSIC
 looping_read( int fd, register char *buf, register int len )
-#else
-looping_read(fd, buf, len) int fd; register char *buf; register int len;
-#endif /* CK_ANSIC */
 {
     int cc, len2 = 0;
 
@@ -13193,11 +12882,7 @@ looping_read(fd, buf, len) int fd; register char *buf; register int len;
 
 #ifdef COMMENT
 static
-#ifdef CK_ANSIC
 secure_putbyte( int fd, CHAR c )
-#else
-secure_putbyte(fd, c) int fd; CHAR c;
-#endif /* CK_ANSIC */
 {
     int ret;
 
@@ -13224,11 +12909,7 @@ secure_putbyte(fd, c) int fd; CHAR c;
  *      -2  on security error
  */
 static int
-#ifdef CK_ANSIC
 secure_flush( int fd )
-#else
-secure_flush(fd) int fd;
-#endif /* CK_ANSIC */
 {
     int rc = 0;
     int len = 0;
@@ -13263,11 +12944,7 @@ secure_flush(fd) int fd;
  *      -2    on security error
  */
 static int
-#ifdef CK_ANSIC
 secure_putc(char c, int fd)
-#else
-secure_putc(c, fd) char c; int fd;
-#endif /* CK_ANSIC */
 /* secure_putc */ {
     return(secure_putbyte(fd, (CHAR) c));
 }
@@ -13279,14 +12956,7 @@ secure_putc(c, fd) char c; int fd;
  *      -2  on security error
  */
 static int
-#ifdef CK_ANSIC
 secure_write(int fd, CHAR * buf, unsigned int nbyte)
-#else
-secure_write(fd, buf, nbyte)
-    int fd;
-    CHAR * buf;
-    unsigned int nbyte;
-#endif /* CK_ANSIC */
 {
     int ret;
 
@@ -13341,11 +13011,7 @@ secure_write(fd, buf, nbyte)
  *      -2  on security error
  */
 static int
-#ifdef CK_ANSIC
 secure_putbuf(int fd, CHAR * buf, unsigned int nbyte)
-#else
-secure_putbuf(fd, buf, nbyte) int fd; CHAR * buf; unsigned int nbyte;
-#endif /* CK_ANSIC */
 {
     static char *outbuf = NULL;         /* output ciphertext */
     ftp_int32 length   = 0;
@@ -13365,11 +13031,7 @@ secure_putbuf(fd, buf, nbyte) int fd; CHAR * buf; unsigned int nbyte;
 /* fc = 0 means to get a byte; nonzero means to initialize buffer pointers */
 
 static int
-#ifdef CK_ANSIC
 secure_getbyte( int fd, int fc )
-#else
-secure_getbyte(fd,fc) int fd,fc;
-#endif /* CK_ANSIC */
 {
     /* number of chars in ucbuf, pointer into ucbuf */
     static unsigned int nin = 0, bufp = 0;
@@ -13448,11 +13110,7 @@ secure_getbyte(fd,fc) int fd,fc;
  *   -3   on timeout (if built with FTP_TIMEOUT defined)
  */
 static int
-#ifdef CK_ANSIC
 secure_getc( int fd, int fc )		/* file descriptor, function code */
-#else
-secure_getc(fd,fc) int fd,fc;
-#endif /* CK_ANSIC */
 {
     if (!ftpissecure()) {
         static unsigned int nin = 0, bufp = 0;
@@ -13502,11 +13160,7 @@ secure_getc(fd,fc) int fd,fc;
  *      -2  on security error
  */
 static int
-#ifdef CK_ANSIC
 secure_read( int fd, char *buf, int nbyte )
-#else
-secure_read(fd, buf, nbyte) int fd; char *buf; int nbyte;
-#endif /* CK_ANSIC */
 {
     static int c = 0;
     int i;
@@ -13766,18 +13420,9 @@ static char *radixN =
 static char pad = '=';
 
 static int
-#ifdef CK_ANSIC
 
-#else
 
-#endif /* CK_ANSIC */
-
-#ifdef CK_ANSIC
 radix_encode( CHAR inbuf[],CHAR outbuf[], int inlen, int *outlen, int decode )
-#else
-radix_encode(inbuf, outbuf, inlen, outlen, decode)
- CHAR inbuf[], outbuf[]; int inlen, *outlen, decode;
-#endif /* CK_ANSIC */
 {
     int i, j, D = 0;
     char *p;
@@ -13845,11 +13490,7 @@ radix_encode(inbuf, outbuf, inlen, outlen, decode)
 }
 
 static char *
-#ifdef CK_ANSIC
 radix_error( int e )
-#else
-radix_error(e) int e;
-#endif /* CK_ANSIC */
 {
     switch (e) {
       case 0:  return("Success");

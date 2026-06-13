@@ -37,10 +37,8 @@
 #include "ckuusr.h"
 #include "ckcxla.h"
 
-#ifdef CK_ANSIC
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 static int dohfile( int );              /* Prototype for static func */
-#endif /* CK_ANSIC */
 
 extern char * ck_cryear;		/* For copyright notice */
 extern xx_strp xxstring;
@@ -5228,11 +5226,7 @@ static char * hxxf_wr[] = {
 };
 
 static int
-#ifdef CK_ANSIC
 dohfile( int cx )
-#else
-dohfile(cx) int cx;
-#endif /* CK_ANSIC */
 {
     extern struct keytab fctab[];
     extern int nfctab;
@@ -5281,11 +5275,7 @@ dohfile(cx) int cx;
 #endif /* CKCHANNELIO */
 
 int
-#ifdef CK_ANSIC
 dohlp( int xx )
-#else
-dohlp(xx) int xx;
-#endif /* CK_ANSIC */
 {
     int x,y;
 
@@ -6388,11 +6378,7 @@ default: {
 /*  H M S G  --  Get confirmation, then print the given message  */
 
 int
-#ifdef CK_ANSIC
 hmsg( char *s )
-#else
-hmsg(s) char *s;
-#endif /* CK_ANSIC */
 {
     int x;
     if ((x = cmcfm()) < 0) return(x);
@@ -6403,11 +6389,7 @@ hmsg(s) char *s;
 #ifdef NOHELP
 
 int                                     /* Print an array of lines, */
-#ifdef CK_ANSIC
 hmsga( char *s[] )                      /* cheap version. */
-#else
-hmsga(s) char *s[];
-#endif /* CK_ANSIC */
 {
     int i;
     if ((i = cmcfm()) < 0) return(i);
@@ -6422,11 +6404,7 @@ hmsga(s) char *s[];
 #else /* NOHELP not defined... */
 
 int                                     /* Print an array of lines, */
-#ifdef CK_ANSIC
 hmsga( char *s[] )                      /* cheap version. */
-#else
-hmsga(s) char *s[];
-#endif /* CK_ANSIC */
 {
     extern int hmtopline;               /* (This should be a parameter...) */
     int x, y, i, j, k, n;
@@ -7813,11 +7791,7 @@ static char * hsetiks[] = {
 /*  D O H S E T  --  Give help for SET command  */
 
 int
-#ifdef CK_ANSIC
 dohset( int xx ) 
-#else
-dohset(xx) int xx;
-#endif /* CK_ANSIC */
 {
     int x;
 
@@ -8397,11 +8371,7 @@ static char * hfsplit[] = {
 /*  D O H F U N C  --  Give help for a function  */
 
 int
-#ifdef CK_ANSIC
 dohfunc( int xx )
-#else
-dohfunc(xx) int xx;
-#endif /* CK_ANSIC */
 {
     /* int x; */
     if (xx == -3) {
@@ -9601,11 +9571,7 @@ static char *hrset[] = {
 "  Kermit if it were in interactive mode.", "" };
 
 int
-#ifdef CK_ANSIC
 dohrmt( int xx )
-#else
-dohrmt(xx) int xx;
-#endif /* CK_ANSIC */
 {
     int x;
     if (xx == -3) return(hmsga(hmhrmt));
