@@ -6527,7 +6527,6 @@ rtu:
 	"CFLAGS= -UFIONREAD -DATTSV $(KFLAGS) -O" "LNKFLAGS =" "LIBS= -ljobs"
 
 #Masscomp/Concurrent RTU 4.0 or later, System V R2, using <dirent.h>.
-#In case of problems, add back the -DRTU switch.
 #In case -DTCPSOCKET gives trouble, remove it.
 rtus5:
 	@echo 'Making C-Kermit $(CKVER) for Masscomp RTU 4.x...'
@@ -6536,7 +6535,6 @@ rtus5:
 
 #Masscomp/Concurrent RTU 4.x, System V R3, using <dirent.h>.
 #Use this one if rtus5 gives warnings about pointer type mismatches.
-#In case of problems, add back the -DRTU switch.
 rtus5r3:
 	@echo 'Making C-Kermit $(CKVER) for Masscomp RTU Sys V R3...'
 	$(MAKE) wermit "CFLAGS= -DSVR3 -DHDBUUCP -DDIRENT $(KFLAGS)"
