@@ -15,16 +15,19 @@ compiled `wermit` binary is unchanged on every supported target.
 | `3201982` | Remove compilation macro `COMMENT` from C code | 37 `.c`/`.h`/`.w` files, ~6,300 dead lines removed |
 | `1eb9e0b` | Remove obsolete/not-buildable makefile targets (Linux/macOS/BSD only) | `makefile` 6,302 → 1,202 lines (−5,100), 514 target names removed |
 | `f5456b8` | Merge `origin/remove-comment` | merge of `3201982` into `main` (no new content) |
+| `54bbdfe`→`0e8be87` | `ckuver.h` herald simplification (4 commits) | obsolete herald strings trimmed; nested ladder → flat `clang-format`-friendly guards (§3) |
+| `848693b` | Merge `remove-comment` (herald series) | brings the four `ckuver.h` commits into `HEAD` (no new content) |
 
 `git diff --stat` for the range: **41 files changed, 363 insertions(+), 11,596
 deletions(-)** (the makefile work also added the two report/plan markdown files
 and updated `CLAUDE.md`).
 
-> **Scope note.** At merge time `origin/remove-comment` pointed at `3201982`. The
-> four later `ckuver.h` herald-string commits on that remote branch
-> (`54bbdfe`, `5560705`, `9b418f8`, `0e8be87`) are **not** part of this range / not
-> in `HEAD`. The only `ckuver.h` change here is the 5-line `#ifdef COMMENT` block
-> removed by `3201982`.
+> **Scope note (updated).** At the time `f5456b8` was written, `origin/remove-comment`
+> pointed at `3201982` and the four later `ckuver.h` herald-string commits on that
+> branch (`54bbdfe`, `5560705`, `9b418f8`, `0e8be87`) were **not** yet in `HEAD`. They
+> have since been merged via `848693b` ("Merge branch 'remove-comment'") and are now
+> in `HEAD`; `0e8be87` is analyzed in §3 below. The `#ifdef COMMENT` removal of §1
+> (`3201982`) touched only a 5-line block in `ckuver.h`; the herald rewrite is separate.
 
 ---
 
@@ -131,10 +134,83 @@ by this pass.
 
 ---
 
+## 3. `ckuver.h` herald-detection simplification (`0e8be87`)
+
+`HERALD` is the platform-name string appended to the C-Kermit version banner.
+`0e8be87` ("ckuver.h: simplify herald detection", +22/−11, `ckuver.h` only) is the
+last of a four-commit series merged via `848693b`
+(`54bbdfe` newline trim → `5560705` / `9b418f8` obsolete-string removal → `0e8be87`
+the structural rewrite).
+
+### Structural change
+
+The `#ifdef BSD44` herald selector was converted from a **deeply nested
+if-else-if ladder** —
+
+```c
+#ifndef HERALD
+#ifdef MACOSX
+#define HERALD " macOS"
+#else
+#ifdef __OpenBSD__  ... #else #ifdef __NetBSD__ ... #else #ifdef __FreeBSD__ ...
+#else #define HERALD " 4.4BSD"  ... (nested #endif chain)
+#endif /* HERALD */
+```
+
+— into a **flat sequence of five independent guard blocks**, each of the form
+`#ifndef HERALD / #ifdef <PLATFORM> / #define HERALD … / #endif / #endif`, with the
+fifth block the unconditional `#ifndef HERALD → #define HERALD " 4.4BSD"` fallback.
+Priority is no longer encoded by `#else` nesting depth but by **physical order plus
+the per-block `#ifndef HERALD` outer guard**: once any block defines `HERALD`, every
+later block's `#ifndef HERALD` is false and is skipped. The `POSIX`/`__linux__` block
+and the `" Unknown Platform"` catch-all are unchanged apart from cosmetic blank lines.
+
+### Semantic equivalence (verified per configuration)
+
+First-match-wins priority — **macOS > OpenBSD > NetBSD > FreeBSD > " 4.4BSD"** — is
+preserved exactly; the load-bearing element is the per-block `#ifndef HERALD` guard,
+which reproduces the old `#else`-chain semantics.
+
+| Build config | `BSD44`? | HERALD before | HERALD after |
+|---|---|---|---|
+| macOS (`MACOSX`, → `BSD44`) | yes | `" macOS"` | `" macOS"` |
+| OpenBSD (`__OpenBSD__`) | yes | `" OpenBSD"` | `" OpenBSD"` |
+| NetBSD (`__NetBSD__`) | yes | `" NetBSD"` | `" NetBSD"` |
+| FreeBSD (`__FreeBSD__`) | yes | `" FreeBSD"` | `" FreeBSD"` |
+| generic `BSD44`, none above | yes | `" 4.4BSD"` | `" 4.4BSD"` |
+| Linux (`POSIX`+`__linux__`) | no | `" Linux"` | `" Linux"` |
+| none matched | no | `" Unknown Platform"` | `" Unknown Platform"` |
+
+Co-definition is real for `MACOSX`+`BSD44` (the `MACOSX → BSD44` implication chain in
+`ckcdeb.h`), and the order correctly resolves to `" macOS"` with `" 4.4BSD"` never
+reached. `MACOSX` and `__FreeBSD__` never co-occur in practice (macOS defines
+`__APPLE__`, not `__FreeBSD__`; `ckcdeb.h` already treats them as exclusive branches),
+so the macOS-over-FreeBSD ordering is defensive, not relied upon. Each native BSD
+defines exactly one `__*BSD__` macro.
+
+### Rationale
+
+The file comment (lines 17–21) states the motivation is **tooling, not behavior**: the
+deeply nested `#ifdef/#else` ladder rendered `clang-format` "simply unusable due to
+parsing workload"; the flat independent-guard form is `clang-format`-friendly
+(consistent with the untracked `clang-format-config` in the tree).
+
+### Safety
+
+A pure cosmetic/`clang-format` refactor, semantically equivalent for every build
+configuration. The `make linux` build is **byte-identical** across the commit: on
+Linux `BSD44` is undefined, so the entire rewritten block is preprocessed away and the
+unchanged `POSIX`/`__linux__` → `" Linux"` path is what compiles. The change is only
+exercised by a macOS or BSD build (`-DBSD44 [-DMACOSX|-D__OpenBSD__|…]`), verifiable
+with `gcc -E -DBSD44 … ckuver.h` against the pre-commit file.
+
+---
+
 ## Net result
 
-Two orthogonal dead-weight removals: ~6,300 lines of never-compiled C
-(`#ifdef COMMENT`) and ~5,100 lines of unbuildable makefile targets. The tree
-still builds cleanly with `make linux` and produces a working `wermit`
+Three orthogonal cleanups: ~6,300 lines of never-compiled C (`#ifdef COMMENT`),
+~5,100 lines of unbuildable makefile targets, and a behavior-preserving
+`clang-format`-friendly rewrite of the `ckuver.h` herald selector. The tree still
+builds cleanly with `make linux` and produces a working `wermit`
 (`C-Kermit 10.0.416 Beta.12, 2025/03/22, for Linux (64-bit)`); the compiled
 output is unchanged.
