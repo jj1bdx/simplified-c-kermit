@@ -185,16 +185,12 @@ CKVER= "10.0 Beta.12"
 # Complete list (alphabetical):
 # ? for 386BSD (Jolix) 0.0, 0.1, "make bsd44" or "make bsd44c".
 # ? for Acorn RISCiX, "make riscix" or "make riscix-gcc"
-# ? for Alliant FX/8 with Concentrix 4.1 or later, "make bsdlck"
-# ? for Altos 486, 586, 986 with Xenix 3.0, "make altos"
 # ? for Altos ACS68000, 8Mhz 68000, UNIX System 3 Rel 2, 512K, "make altos3"
 # ? for Amdahl UTSV IBM 370 series & compatible mainframes, "make utsv"
 # ? for Amdahl UTSV IBM 370 series mainframes with TCP/IP, "make utsvtcp"
 # ? for Amdahl mainframes with UNIX System V R 5.2.6b 580, "make sys3"
 # ? for Apollo Aegis 9.x, DOMAIN/IX 9.x, "make aegis"
 #    (Last tested in C-Kermit 5A(189))
-# ? for Apollo DOMAIN/IX, if the above fails, try "make apollobsd"
-# ? for Apollo with SR10.0 or later, BSD environment, "make sr10-bsd"
 # ? for Apollo with SR10.0 or later, System V environment, "make sr10-s5r3"
 # ? for Apple Macintosh II with A/UX pre-3.0, "make aux", "auxgcc" or "auxufs"
 # ? for Apple Macintosh with A/UX 3.0 and gcc, "make aux3gcc" or aux3gccc
@@ -245,24 +241,14 @@ CKVER= "10.0 Beta.12"
 #    (last built successfully in C-Kermit 6.0)
 # ? for Bell Labs / Lucent Plan 9, use separate makefile ckpker.mk:
 #    can be built for Intel, MIPS, 680x0, and PowerPC (last built C-Kermit 7.0)
-# ? for BSDI BSD/386 1.x, "make bsdi"
-# ? for BSDI BSD/OS 2.x, "make bsdi2"
-# ? for BSDI BSD/OS 3.0 or 3.1, "make bsdi3"
-# ? for BSDI BSD/OS 4.x, "make bsdi4"
-# ? for BSDI BSD/OS 4.x, to build a binary that also works on FreeBSD,
-#     "make bsdix".
 # ? for Berkeley Unix 2.4, "make v7" (but read v7 material below)
-# ? for Berkeley Unix 2.9 (DEC PDP-11 or Pro-3xx), "make bsd29"
 # - for Berkeley Unix 2.10, use ckubs2.mak (a separate makefile)
 # - for Berkeley Unix 2.11, use ckubs2.mak (a separate makefile)
 #     This makefile is too big.  Read the instructions in ckubs2.mak.
 #     "make -f ckubs2.mak bsd210" or "make -f ckubs2.mak bsd211".
 #     (last built successfully in C-Kermit 6.0 - later versions too big)
 # ? for Berkeley Unix 2.11 "make -f ckubs2.mak bsd210noicp" (no command parser)
-# ? for Berkeley Unix 4.1, "make bsd41"
 # ? for Berkeley Unix 4.2 on VAX, "make bsd42" or "make bsd42c"
-# ? for Berkeley Unix 4.2 or 4.3 with HoneyDanBer UUCP, "make bsdhdb"
-# ? for Berkeley Unix 4.3 on VAX, "make bsd43", "make bsd43nc".
 # ? for Berkeley Unix 4.3 on VAX, no networking "make bsd43nonet.
 # ? for Berkeley Unix 4.3 without acucntrl program, "make bsd42" or "bsd42c"
 #     NOTE: all the C-Kermit 7.0 full builds for old BSDs fail with
@@ -270,7 +256,7 @@ CKVER= "10.0 Beta.12"
 #     can be worked around with a clever ruse.  See comments at target.
 # ? for Berkeley Unix 4.3, command-line only, "make bsdm".
 # ? for Berkeley Unix 4.3-Tahoe, same as 4.3 BSD
-# ? for Berkeley Unix 4.3-Reno, "make bsd43" or "make bsd44" or "make bsd44c"
+# ? for Berkeley Unix 4.3-Reno, "make bsd44" or "make bsd44c"
 # ? for Berkeley Unix 4.3-Carson City, "make bsd44" or "make bsd44c"
 # ? for Berkeley Unix 4.4-Networking/2 or -Alpha, "make bsd44" or "make bsd44c"
 # ? for Berkeley Unix 4.4, "make bsd44" or "make bsd44c"
@@ -339,8 +325,6 @@ CKVER= "10.0 Beta.12"
 # + for DEC Alpha with any version of DU or OSF/1, "make dec-osf1"
 # - for DEC Pro-350 with Pro/Venix V1.x, "make provx1" (version 5A is too big)
 # ? for DEC Pro-380 with Pro/Venix V2.0 (Sys V), "make sys3" or "make sys3nid"
-# ? for DEC Pro-380 with 2.9, 2.10, or 2.11 BSD, "make bsd29" or "make bsd210"
-#   for DEC PDP-11 with 2.xBSD (use separate makefile ckubs2.mak)
 # ? for Dell UNIX Issue 2.x (= USL Sys V/386 R4.x + fixes), "make dellsys5r4"
 #     or "make dellsys5r4c" (last tested in C-Kermit 5A).
 # ? for DIAB DS90 with DNIX (any version) create an empty <sys/file.h> if
@@ -463,12 +447,11 @@ CKVER= "10.0 Beta.12"
 # ? for IBM RT PC with AIX 2.1, "make sys3"
 # ? for IBM RT PC with AIX 2.2.1, "make rtaix" or "make rtaixc"
 # ? for IBM RT PC with ACIS 4.2, "make bsd"
-# ? for IBM RT PC with ACIS 4.3, "make rtacis" or "make bsd KFLAGS=-DNOANSI"
+# ? for IBM RT PC with ACIS 4.3, "make bsd KFLAGS=-DNOANSI"
 # ? for IBM RT PC with 4.3BSD/Reno, "make bsd44" or "make bsd44c"
 # ? for ICL DRS400 or 400E, "make iclsys5r3"
 # ? for Integrated Solutions Inc V8S VME 68020, "make isi"
 # ? for Intel 302 with Bell Tech Sys V/386 R3.2, "make sys5r3"
-# ? for Intel Xenix/286, "make sco286"
 # ? for Interactive System III (PC/IX), "make is3"
 # ? for Interactive System III (PC/IX) with gcc, "make is3gcc"
 # ? for Interactive 386/ix 1.0.6 with TCP/IP networking, "make is5r3net2"
@@ -499,13 +482,12 @@ CKVER= "10.0 Beta.12"
 # ? for Linux with lcc compiler, no TCP/IP, "make linuxnotcp-lcc"
 # ? for Linux 1.0 or earlier, "make linux10".
 # (End old linux targets)
-# ? for Mach 2.6 on (anything, e.g. DECstation), "make bsd42" or "make bsd43".
+# ? for Mach 2.6 on (anything, e.g. DECstation), "make bsd42".
 # ? for MachTen (Tenon) 2.1.1.D on (e.g.) Apple Powerbook, "make machten".
 # ? for Masscomp RTU AT&T System III, "make rtu"
 #   for other Masscomp, see Concurrent.
 # ? for Microport SV/AT (System V R2), "make mpsysv" (last edit tested: 144)
 # ? for Microport SVR4 2.2, 3.1, or 4.1 "make sys5r4sx"
-# ? for Microsoft,IBM Xenix (/286, PC/AT, etc), "make xenix" or "make sco286"
 # ? for MIPS System with RISC/os (UMIPS) 4.52 = AT&T SVR3, "make mips"
 #     or "make mipstcpc"
 # ? for MkLinux on Power Macintosh, "make mklinux"
@@ -518,7 +500,6 @@ CKVER= "10.0 Beta.12"
 # ? for Motorola Delta System V/68 R3V6 with NSE TCP/IP, "make sv68r3v6"
 # ? for Motorola Delta System V/88 R32, "make sv88r32"
 # ? for Motorola Delta System V/88 R40, "make sv88r40"
-# ? for Mt Xinu Mach386 on 386/486-based PCs, "make bsd43"
 # ? for NCR Tower 1632, OS 1.02, "make tower1"
 # ? for NCR Tower 1632 or Minitower with System V R2, "make sys3"
 #     or "make sys3nv"
@@ -577,24 +558,6 @@ CKVER= "10.0 Beta.12"
 # + for QNX 8.0 ARM64 , "make qnx8a"
 # ? for Ridge 32 (ROS3.2), "make ridge32"
 # ? for Samsung MagicStation, "make sys5r4"
-# ? for SCO Xenix 2.2.1 with development system 2.2 on 8086/8 "make sco86"
-# ? for SCO Xenix/286 2.2.1 with development system 2.2 on 80286, "make sco286"
-#     NOTE: reportedly this makefile is too long for SCO Xenix/286 make, but it
-#     works with "makeL", or if some of the other make entries are edited out.
-# ? for SCO Xenix/386 2.2.2, "make sco386"
-# ? for SCO Xenix/386 2.3.x, "make sco3r2"
-# ? for SCO Xenix/386 SCO 2.3.3 or 2.3.4 with gcc 1.37 or later,
-#     "make sco386gcc" or (to add curses) "make sco386gccc".
-# ? for SCO Xenix/386 or UNIX/386 with Excelan TCP/IP, "make sco3r2net"
-#     or (to add curses support) "make sco3r2netc" or "sco386netc"
-# + for SCO XENIX 2.3.4, "make sco234" or "make sco234c" to add curses.
-# ? for SCO XENIX 2.3.4 with SCO TCP/IP & curses, "make sco234netc".
-# ? for SCO Xenix 2.3.x with Racal-InterLan TCP/IP, "make sco3r2netri"
-#   for other UNIX varieties with Racal Interlan TCP/IP, read sco3r2netri entry
-# ? for SCO Xenix 2.3.x with SCO (Lachman) TCP/IP, "make sco3r2lai"
-#     or (to add curses) "make sco3r2laic"
-#   for SCO UNIX...  ALSO READ COMMENTS in the SCO UNIX entries for more info!
-# ? for SCO UNIX/386 3.2.0 or 3.2.1, "make sco3r2" or "make sco3r2x"
 # ? for SCO UNIX/386 3.2.2, "make sco3r22" or "make sco3r22gcc"
 #     or "make sco3r22c"
 # ? for SCO UNIX/386 3.2.2 with SCO TCP/IP, "make sco3r22net"
@@ -684,8 +647,6 @@ CKVER= "10.0 Beta.12"
 # + for Solaris 10 on SPARC 64-bit, SunPro CC, "make solaris10_64".
 # + for Solaris 10 on SPARC (or Intel?), 32-bit, GNU CC, "make solaris10g".
 # ? for Solaris 10 on SPARC (or Intel?), 64-bit, GNU CC, "make solaris10g64".
-# ? for Solbourne 4/500 with OS/MP 4 "make sunos4"
-# ? for Solbourne 4/500 with OS/MP 4.1 "make sunos41" or "make sunos41c"
 # ? for SONY NEWS with NEWS-OS 4.0.1C, "make sonynews"
 # ? for SONY NEWS with NEWS-OS 4.1.2C, "make sonynews"
 # ? for Sperry/UNISYS 5000/20, UTS V 5.2 3R1, "make sys5"
@@ -696,25 +657,7 @@ CKVER= "10.0 Beta.12"
 # ? for Stardent 1520, "make sys5r3"
 # ? for Stratus FTX 2.x, try "make ftx" or else "make sys5r4" or "sys5r4sx"
 # ? for Stratus FTX 3.x, PA-RISC 1.0 or 2.0, "make ftx" or "make ftxtcp"
-# ? for Sun with Sun UNIX 3.5 and gcc, "make sunos3gcc"
 # ? for Sun with pre-4.0 SunOS versions, "make bsd" (or appropriate variant)
-# ? for Sun with SunOS 4.0, BSD environment, "make sunos4"
-# ? for Sun with SunOS 4.0, BSD, with SunLink X.25, make sunos4x25
-# ? for Sun with SunOS 4.1 or 4.1.1, BSD environment, "make sunos41"
-#     or "make sunos41c" (curses) or "make sunos41gcc" (compile with gcc)
-# ? for Sun with SunOS 4.1.x, BSD, with SunLink X.25 7.00 or earlier,
-#     "make sunos41x25" or "make sunos41x25c" (curses)
-# ? for Sun with SunOS 4.1, 4.1.1, AT&T Sys V R3 environment, "make sunos41s5"
-# ? for Sun with SunOS 4.1.2, "make sunos41" or any of its variations.
-#     NOTE:  All SunOS 4.x systems -- Shared libraries are used by default.
-#       If this causes problems, add -Bstatic to CFLAGS.
-#     NOTE2: When building C-Kermit under SunOS for the BSD universe,
-#       but /usr/5bin/cc is ahead of /usr/ucb/cc in your PATH, add
-#       "CC=/usr/ucb/cc CC2=/usr/ucb/cc" to the make entry.
-#     NOTE3: If an executable built on one type of Sun hardware does not work
-#       on another type, rebuild the program from source on the target machine.
-#   for Sun with Solaris 1.x use SunOS 4.1 entries.
-#   for Sun with Solaris 2.0 and higher use Solaris entries.
 # + for Sun SPARC with Linux, "make linux"
 # ? for Sun SPARC with OPENSTEP/Mach 4.1, "make nextquadfat"
 # ? for Sun SPARC with OPENSTEP/Mach 4.2, "make openstep42"
@@ -1313,12 +1256,6 @@ bellv10:
 # on a VAX in C-Kermit 7.0 (later, cpp on that machine was rebuilt to allow
 # more symbols, so the C-Kermit 8.0 build proceeds normally).
 
-#Berkeley Unix 4.1
-bsd41:
-	@echo Making C-Kermit $(CKVER) for 4.1BSD...
-	$(MAKE) wermit KTARGET=$${KTARGET-$(@)} \
-	"CFLAGS= -DBSD41" "LIBS = -ljobs"
-
 #Berkeley 4.2, 4.3, also Ultrix-32 1.x, 2.x, 3.x, many others
 # Add -O, -s, etc, if they work.
 # If you have a version of BSD but signal() is void rather than int,
@@ -1332,43 +1269,6 @@ bsd42:
 
 bsd:
 	$(MAKE) CC=$(CC) CC2=$(CC2) bsd42 KTARGET=$${KTARGET-$(@)}
-
-#Berkeley Unix 4.2 or 4.3 with HoneyDanBer UUCP
-bsdhdb:
-	@echo Making C-Kermit $(CKVER) for 4.2BSD with HDB UUCP...
-	$(MAKE) CC=$(CC) CC2=$(CC2) bsd KTARGET=$${KTARGET-$(@)} \
-	"KFLAGS= -DHDBUUCP $(KFLAGS)"
-
-#Berkeley Unix 4.3 with acucntrl program, curses, TCP/IP included.
-bsd43:
-	@echo Making C-Kermit $(CKVER) for 4.3BSD...
-	$(MAKE) xermit KTARGET=$${KTARGET-$(@)} \
-	"CFLAGS= -DBSD4 -DBSD43 -DTCPSOCKET -DNOREALPATH -DNOTIMEH -DNOIKSD \
-	-DCK_CURSES -DACUCNTRL -DSYSTIMEBH -DNOPUTENV -DNOANSI -DBIGBUFOK \
-	-DBSD42HACK $(KFLAGS)" "LIBS=-lcurses -ltermcap $(LIBS)"
-
-#4.3BSD, curses excluded
-bsd43nc:
-	@echo Making C-Kermit $(CKVER) for 4.3BSD...
-	$(MAKE) xermit KTARGET=$${KTARGET-$(@)} \
-	"CFLAGS= -DBSD4 -DBSD43 -DTCPSOCKET -DNOREALPATH -DNOTIMEH \
-	-DACUCNTRL -DSYSTIMEBH -DNOIKSD -DNOPUTENV -DNOANSI -DBIGBUFOK \
-	-DBSD42HACK $(KFLAGS)" "LIBS=$(LIBS)"
-
-#4.3BSD, TCP/IP excluded.
-bsd43nonet:
-	@echo Making C-Kermit $(CKVER) for 4.3BSD + curses...
-	$(MAKE) xermit KTARGET=$${KTARGET-$(@)} \
-	"CFLAGS= -DBSD4 -DBSD43 -DTCPSOCKET -DNOREALPATH -DNOTIMEH -DNOIKSD \
-	-DCK_CURSES -DACUCNTRL -DSYSTIMEBH -DNOPUTENV -DNOANSI -DBIGBUFOK \
-	-DBSD42HACK -DNONET $(KFLAGS)" "LIBS=-lcurses -ltermcap $(LIBS)"
-
-#Berkeley Unix 4.2 or 4.3 with lock directory /usr/spool/uucp/LCK/LCK..ttyxx,
-#but without acucntrl program
-bsdlck:
-	@echo Making C-Kermit $(CKVER) for 4.2BSD, /usr/spool/uucp/LCK/...
-	$(MAKE) CC=$(CC) CC2=$(CC2) bsd KTARGET=$${KTARGET-$(@)} \
-	"KFLAGS= -DLCKDIR $(KFLAGS)"
 
 #Berkeley UNIX 4.4-Lite, 4.4-Encumbered, Net/2, etc (Post-Reno),
 #with TCP/IP networking.  This was the basis for FreeBSD, NetBSD, OpenBSD,
@@ -2386,42 +2286,6 @@ posix:
 	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
 	"CFLAGS= -DPOSIX -DNOUUCP -DNOLEARN $(KFLAGS) -O"
 
-#Berkeley Software Design Inc. BSDI
-# Substitute "LIBS= -lnewcurses -ltermcap" if desired.
-bsdi:
-	@echo 'Making C-Kermit $(CKVER) for BSDI ...'
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DBSD44 -DSETREUID -DSW_ACC_ID -DBIGBUFOK -DFIXCRTSCTS \
-	-DTCPSOCKET -DCK_CURSES -DFNFLOAT $(KFLAGS) -O" \
-	"LIBS= -lcurses -ltermcap -lm"
-
-#Berkeley Software Design Inc. BSDI - has higher serial speeds than 1.x.
-bsdi2:
-	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS=-DBSDI2 $(KFLAGS)"
-
-bsdi3:
-	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi \
-	KTARGET=$${KTARGET:-$(@)} "KFLAGS=-DBSDI2 -DBSDI3 $(KFLAGS)"
-
-bsdi4:
-	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DBSDI2 -DBSDI3 -DBSDI4 -DTPUTSFNTYPE=void -DTPUTSISVOID \
-	-DCKHTTP -m486 $(KFLAGS)"
-
-# (old name for the above)
-bsdiposix:
-	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi
-
-#Build a BSDI 4.x binary that also runs under FreeBSD (Terry Kennedy).
-#But watch out for details like serial-port locking.
-bsdix:
-	$(MAKE) "MAKE=$(MAKE)" CC=$(CC) CC2=$(CC2) bsdi \
-	KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DBSDI2 -DBSDI3 -DBSDI4 -DTPUTSFNTYPE=void -DTPUTSISVOID \
-	-m486 $(KFLAGS)" "LNKFLAGS=-static -Wl,-m,i386bsdi -Wl,-e,_start"
-
 #Pyramid 9XXX (e.g. 9845) or MIServer T series, OSx 4.4b thru 5.1
 pyramid:
 	@echo Making C-Kermit $(CKVER) for Pyramid Dual Port OSx
@@ -2503,14 +2367,6 @@ rtaix:
 #IBM RT PC with AIX 2.2.1 + curses
 rtaixc:
 	$(MAKE) rtaix CC=$(CC) CC2=$(CC2) "KFLAGS=-DCK_CURSES" "LIBS=-lcurses"
-
-#IBM RT PC with AIX (ACIS) 2.2.1 (BSD 4.3)
-# Add -O, -DDYNAMIC, -s, etc, if they work.
-rtacis:
-	@echo Making C-Kermit $(CKVER) for RT PC with ACIS 2.2.1 = BSD 4.3...
-	$(MAKE) xermit KTARGET=$${KTARGET-$(@)} \
-	"CFLAGS= -DBSD4 -DTCPSOCKET -DNOREALPATH -DNOIKSD -DNOPUTENV \
-	$(KFLAGS) -U__STDC__" "LNKFLAGS = -s"
 
 #### IBM AIX.  The first two targets should work for any version of AIX
 #### from 4.2 onwards.  The ones after that are for older versions or
@@ -2746,107 +2602,6 @@ bulldpx2:
 	"CFLAGS= -DSVR3 -DDIRENT -DCK_ANSIC -DCKTYP_H=<sys/types.h> \
 	-DCK_POLL -DNOGETUSERSHELL -DCLSOPN -DNOLEARN -O $(KFLAGS)" \
 	"LNKFLAGS = -s"
-
-#Sun UNIX 3.5 with gcc 2.3.3.
-sunos3gcc:
-	@echo Making C-Kermit $(CKVER) for Sun UNIX 3.5 and gcc...
-	$(MAKE) xermit CC=gcc CC2=gcc KTARGET=$${KTARGET:-$(@)} \
-	CFLAGS="-g -O -DBSD4 -DTCPSOCKET $(KFLAGS)"
-
-#SunOS version 4.0, BSD environment, has saved original euid feature.
-# Add "CC=/usr/ucb/cc CC2=/usr/ucb/cc" if necessary.
-# Note: Including Unicode crashes the assembler in ckcuni.c.
-sunos4:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.0, BSD environment...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS4 -DFNFLOAT -DNOUNICODE $(KFLAGS)" \
-	"LIBS=-lm"
-
-#As above, but with SunLink X.25 support
-sunos4x25:
-	@echo SunLink X.25 support
-	$(MAKE) "MAKE=$(MAKE)" sunos4 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=$(KFLAGS) -DFNFLOAT -DSUNX25" \
-	"LIBS=-lm"
-
-#SUN OS version 4.1 - 4.1.3, BSD environment, has saved original euid feature.
-#Uses Honey DanBer UUCP.  Requires presence of /usr/spool/locks directory.
-# /var/spool/ should be a symbolic link to  /usr/spool/.
-# ... or 'make xermit "CC= /usr/ucb/cc " \'
-# Uses bundled Sun C compiler, pre-ANSI, no version number.
-# Note: "xermit" means use the select() version of the CONNECT module.
-# Note2: ckutio.c includes both <termios.h> and <sys/ioctl.h> and these
-# two header files each define the same symbols: ECHO, NL0, NL1, TAB0, etc,
-# because the #define's aren't enclosed in #indef ECHO..#endif, etc.
-# The warnings are unavoidable but harmless.  Last built: 27 October 2022.
-sunos41:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 / BSD...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNOUNICODE $(KFLAGS)" \
-	"LIBS= $(LIBS) -lresolv -lm"
-
-#As above, but compiled with gcc.  Gives 24-32K size reduction
-#with gcc 2.1 or 2.2.2.  CAUTION: make sure "fixincludes" has been run on
-#the include files, so gcc's are in sync with the regular Sun ones.
-#This includes the curses library for fullscreen file transfer display.
-#NDGPWNAM needed for GCC 2.5.6, not needed for 2.4.0, but it's uncertain
-#whether it will do any harm for 2.4.0 compilation -- if so, remove it.
-sunos41gcc:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 with gcc and curses...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-funsigned-char $(KFLAGS)" "LIBS= -lcurses -ltermcap -lresolv -lm"
-
-# As above, but without -funsigned-char so I can see the warnings that
-# everybody else will get when they use ANSI compilers that don't have this
-# option (gsc = gcc signed char).
-sunos41gsc:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 with gcc and curses...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	$(KFLAGS)" "LIBS= -lcurses -ltermcap -lresolv -lm"
-
-#As above but with ckucon.c rather than ckucns.c (for testing only)
-sunos41gccfork:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 with gcc and curses...
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNDGPWNAM -DCK_CURSES -DFNFLOAT \
-	-DNOLEARN -funsigned-char $(KFLAGS)" \
-	"LIBS= -lcurses -ltermcap -lresolv -lm"
-
-#SUNOS 4.1 as sunos41 above, but also with curses support
-sunos41c:
-	@echo Curses support
-	$(MAKE) "MAKE=$(MAKE)" sunos41 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=$(KFLAGS) -DCK_CURSES -DFNFLOAT " \
-	"LIBS= -lcurses -ltermcap"
-
-#As SunOS 4.1.x, gcc, configured as Internet Kermit Server.
-# . NOLOCAL removes capability to make connections
-# . TNCODE allows server-side Telnet negotiation.
-# . used to include -lpwent, why?
-# . used to include -L/usr/local/lib -lm, why?
-sunos41giks:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 with gcc for IKS...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc" "CC2= gcc" \
-	"CFLAGS= -O -DSUNOS41 -DNDGPWNAM -DFNFLOAT \
-	-DNOLOCAL -DTCPSOCKET -DTNCODE -DNOPUSH $(KFLAGS)" \
-	"LIBS= -lm -lresolv"
-
-#SUNOS 4.1 with SunLink X.25 support
-sunos41x25:
-	@echo SunLink X.25 support
-	$(MAKE) "MAKE=$(MAKE)" wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNOUNICODE -DFNFLOAT -DSUNX25 \
-	-DNOLEARN $(KFLAGS)" "LIBS= $(LIBS) -lresolv -lm"
-
-#SUNOS 4.1 with SunLink X.25 support and curses
-sunos41x25c:
-	@echo SunLink X.25 support + curses
-	$(MAKE) "MAKE=$(MAKE)" wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DNOUNICODE -DFNFLOAT -DSUNX25 \
-	-DCK_CURSES -DNOLEARN $(KFLAGS)" \
-	"LIBS= $(LIBS) -lcurses -ltermcap -lresolv -lm"
 
 #SUN with Solaris 2.0 = SunOS 5.0.
 #Mostly the same as System V R4.  Don't use this with later Solaris versions.
@@ -3165,139 +2920,7 @@ solaris9 solaris10 solaris11:
 
 #The following (old, old) sunosxxx entries are for debugging and testing only.
 
-sunos41x:
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS41 -DDIRENT -DNOTLOG -DNOMSEND \
-	-DNOUUCP -DNOSIGWINCH -DNOREDIRECT -DNOPUSH -DNOCCTRAP \
-	-DNOICP -DNOLOCAL $(KFLAGS)"
-
-#SunOS 4.1.x, debugging with Pure Software, Inc., Purify 2 (commercial runtime
-#error-detection software for catching wild array references, etc).
-#Before running the resulting wermit, you'll also need to define and export
-#the following environment variables (as in this example):
-#PURIFYHOME=/usr/local/purify ; export PURIFYHOME
-#PURIFYCACHEDIR=/tmp ; export PURIFYCACHEDIR
-sunos41cp:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 / BSD / Curses / Purify...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} \
-	"CC2= purify -cache_dir=/usr/tmp cc" \
-	"CFLAGS= -g -DSUNOS41 -DHDBUUCP -DDIRENT -DTCPSOCKET \
-	-DSAVEDUID -DCK_CURSES $(KFLAGS)" \
-	"LIBS= -lcurses -ltermcap"
-
-#SunOS 4.1 with malloc debugger
-sunos41md:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 malloc debug...
-	$(MAKE) mermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DSUNOS41 -DHDBUUCP -DDIRENT -DTCPSOCKET \
-	-DSAVEDUID $(KFLAGS) -Dmalloc=dmalloc -Dfree=dfree -DMDEBUG"
-
-sunos41gmd:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 with gcc and curses...
-	$(MAKE) mermit KTARGET=$${KTARGET:-$(@)} "CC= gcc " "CC2= gcc" \
-	"CFLAGS= -g -DSUNOS41 -DHDBUUCP -DDIRENT -DTCPSOCKET \
-	-DNDGPWNAM -DSAVEDUID -DCK_CURSES -DRLOGCODE \
-	$(KFLAGS) -Dmalloc=dmalloc -Dfree=dfree -DMDEBUG" \
-	"LIBS= -lcurses -ltermcap"
-
-#SunOS version 4.1, gcc, profiling with gprof, no debugging.
-#To get profile, "make sunos41p" (on Sun), then "./wermit".  After running
-#wermit, "gprof ./wermit | lpr" (or whatever) to get execution profile.
-sunos41p:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.x with profiling...
-	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC= gcc " "CC2= gcc" \
-	"CFLAGS= -DSUNOS41 -DNODEBUG -DSAVEDUID -DDIRENT -DTCPSOCKET \
-	-DNDGPWNAM $(KFLAGS) -pg" "LNKFLAGS = -pg"
-
-#SunOS version 4.1 or later, BSD environment, minimum features.
-sunos41min:
-	@echo Minimum interactive
-	$(MAKE) "MAKE=$(MAKE)" sunos41 KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DNOSPL -DNOXMIT -DNOMSEND -DNOFRILLS -DNORETRY \
-	-DNODIAL -DNOHELP -DNODEBUG -DNOTLOG -DNOSCRIPT -DNOCSETS \
-	-DNOSHOW -DNOSETKEY -DNOUUCP -DNORECALL -DNOREDIRECT \
-	-DNOPUSH -DNOMDMHUP -DNOJC -DNOFDZERO -DNOESCSEQ \
-	-DNONET -DCK_SMALL -DNOCKSPEED -DNOCKTIMERS -DNOLOGIN \
-	-DNOCKXYZ -DNOMKDIR -DNOPATTERNS -DNOPERMS -DNOPIPESEND \
-	-DNORECURSIVE -DNORENAME -DNORESEND -DNOSETKEY \
-	-DNOTRIGGER -DNOTUNING $(KFLAGS)" "LNKFLAGS = -s"
-
-#SunOS version 4.1, BSD environment, min size, command-line only...
-sunos41m:
-	@echo Minimum size
-	$(MAKE) "MAKE=$(MAKE)" sunos41min KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DNOICP $(KFLAGS)"
-
-#SunOS version 4.1, BSD environment, min size, cmd-line only, remote only...
-#
-sunos41mr:
-	@echo Minimum size
-	$(MAKE) "MAKE=$(MAKE)" sunos41min KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DNOICP -DNOLOCAL $(KFLAGS)"
-
-#SunOS version 4.1, BSD environment, min size, interactive...
-sunos41mi:
-	@echo Minimum size
-	$(MAKE) "MAKE=$(MAKE)" sunos41min KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DNOCMDL $(KFLAGS)"
-
-#SunOS version 4.1, BSD environment, min size, interactive, remote only...
-sunos41mir:
-	@echo Minimum size
-	$(MAKE) "MAKE=$(MAKE)" sunos41min KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=-DNOCMDL -DNOLOCAL $(KFLAGS)"
-
-#SunOS 4.1, System V R3 environment (-i option omitted).
-sunos41s5:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 System V R3...
-	@echo For testing purposes only - NOT for production use.
-	@echo For a useable version, make sunos41 instead.
-	$(MAKE) wermit "CC= /usr/5bin/cc " "CC2=/usr/5bin/cc " \
-	KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -DSUN4S5 -DDIRENT -DHDBUUCP -DNOLEARN -DCK_POLL $(KFLAGS) -O"
-
-#As above, but with curses support
-sunos41s5c:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 System V R3...
-	@echo Curses included.
-	@echo For testing purposes only - NOT for production use.
-	@echo For a useable version, make sunos41 instead.
-	$(MAKE) wermit "CC= /usr/5bin/cc " "CC2=/usr/5bin/cc " \
-	KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -DSUN4S5 -DDIRENT -DHDBUUCP -DNOLEARN \
-	-DCK_POLL -DCK_CURSES -DCK_NEWTERM $(KFLAGS) -O" "LIBS= -lcurses"
-
-#As above, but with curses support AND net support
-sunos41s5tcpc:
-	@echo Making C-Kermit $(CKVER) for SunOS 4.1 System V R3...
-	@echo TCP/IP and curses included.  No debug log.
-	@echo For testing purposes only - NOT for production use.
-	@echo For a useable version, make sunos41 instead.
-	$(MAKE) xermit "CC= /usr/5bin/cc " "CC2=/usr/5bin/cc " \
-	KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS = -DSUN4S5 -DDIRENT -DHDBUUCP -DCK_POLL \
-	-DNODEBUG -DCK_CURSES -DCK_NEWTERM -DTCPSOCKET $(KFLAGS) -O" \
-	"LIBS= -lcurses -lresolv"
-
 # (End of SunOS test entries...)
-
-#Apollo with Domain SR10.0 or later, BSD environment
-#Reportedly, it might also help to add '-A,systype=bsd4.3' to CFLAGS.
-#Reportedly, there is also a problem with getc & putc macros that can
-#be handled by using '#ifdef apollo' somewhere to redefine them???
-#On the other hand, other reports indicate that it works fine as-is.
-#NOTE: This entry was previously like this:
-#	$(MAKE) wermit "CFLAGS= -DNOFILEH -DBSD4 $(KFLAGS) -Uaegis \
-#	-DTCPSOCKET -U__STDC__"
-#Reports (Dec 91) indicate SR10 has an ANSI-compliant C compiler,
-#in addition to an older one that claimed to be ANSI-compliant but wasn't.
-#The following make entry (plus checks that are made in ckcdeb.h) detect
-#which compiler is used and define the CK_ANSIC or NOANSI flags accordingly.
-sr10-bsd:
-	@echo Making C-Kermit $(CKVER) for Apollo SR10.0 / BSD ...
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -O -DAPOLLOSR10 -DBSD43 -DTCPSOCKET -DCK_CURSES -DNOLEARN \
-	-Uaegis $(KFLAGS)" "LIBS= -lcurses -ltermcap"
 
 #Apollo with Domain SR10.0 or later, System V R3 environment.
 #Don't use the optimizer (-O), it causes problems at runtime.
@@ -3306,14 +2929,6 @@ sr10-s5r3:
 	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
 	"CFLAGS= -DNOFILEH -DSVR3 -DAPOLLOSR10 -DNOLEARN $(KFLAGS) \
 	-Uaegis -U__STDC__"
-
-#Apollo Domain/IX (untested, try this if sr10-bsd doesn't work)
-# -DTCPSOCKET can probably be added here.
-apollobsd:
-	@echo Making C-Kermit $(CKVER) for Apollo Domain/IX...
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CC= /bin/cc " "CC2= /bin/cc " \
-	"CFLAGS= -DNOFILEH -DBSD4 -DAPOLLOBSD -DNOLEARN $(KFLAGS) -Uaegis"
 
 #Version 7 Unix (see comments near top of makefile)
 #-DNOSYSLOG -DNOHELP added in October 2022, the latter because it was 
@@ -5323,88 +4938,6 @@ linuxold:
 
 # ::END_OLD_LINUX_TARGETS::
 
-#SCO Xenix 2.2.1 for IBM PC, XT, PS2/30, or other 8088 or 8086 machine
-#Should this not work, try some of the tricks from sco286.
-#NOTE: -DRENAME is omitted for early SCO Xenix releases because it didn't
-#exist, or its semantics were different from the later POSIX-compliant
-#version of rename().
-sco86:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/86...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DXENIX -DNOFILEH -DNOIKSD -DNOUNICODE -DNOLEARN \
-	$(KFLAGS) -Dunix -F 3000 -i -M0me" \
-	"LNKFLAGS = -F 3000 -i -s -M0me" "LIBS = -lx"
-
-#SCO Xenix/286 2.2.1, e.g. for IBM PC/AT, PS/2 Model 50, etc.
-#Reportedly, this "make" can fail simply because of the size of this
-#makefile.  If that happens, use "makeL", or edit out some of the
-#other entries.  No debugging or character-set translation.
-sco286:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/286...'
-	@echo 'If make fails, try using makeL.'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -xenix -s -O -LARGE -DXENIX -DNOFILEH -Dunix -DRDCHK -DNAP \
-	-DNOIKSD -DNODEBUG -DNOTLOG -DNOCSETS -DNOLEARN \
-	$(KFLAGS) -F 3000 -i -M2let16" \
-	"LIBS = -lx" "LNKFLAGS = -xenix -s -O -LARGE -F 3000 -i -M2let16"
-
-#SCO Xenix/286 2.2.1, e.g. for IBM PC/AT, PS/2 Model 50, etc.
-#As above, but with HDBUUCP (This one might need fixing -- see sco286).
-sco286hdb:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/286 with HDB UUCP...'
-	@echo 'If make fails, try using makeL.'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -s -O -LARGE -DXENIX -DNOFILEH -Dunix -DRDCHK -DNAP \
-	-DHDBUUCP -DNOIKSD -DNOUNICODE -DNOLEARN \
-	$(KFLAGS) -F 3000 -i -M2let32" \
-	"LIBS = -lx" "LNKFLAGS = -s -O -LARGE -F 3000 -i -M2let32"
-
-#SCO Xenix/386 2.2.2 and 2.2.3
-sco386:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/386 2.2.2...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DXENIX -DNOFILEH -DNOIKSD -DNOREDIRECT -DNOLEARN \
-	-Dunix -DRDCHK -DNAP -DNOUNICODE $(KFLAGS) -Otcl -M3e" \
-	"LNKFLAGS = -s" "LIBS = -lx"
-
-#SCO XENIX/386 2.2.3 with Excelan TCP/IP + curses.
-# NOTE: This one might need some work in C-Kermit 6.0.
-# You might need to include /usr/include/sys/types.h
-# containing "typedef char *caddr_t;".  Then at least it compiles.
-sco386netc:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/386 2.2.3 + Excelan TCP'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -I/usr/include/exos -DXENIX -DCK_CURSES -DNOUNICODE \
-	-Dunix -DRDCHK -DNAP -DTCPSOCKET -DEXCELAN -DNOJC -DNOMKDIR -DNOFILEH \
-	-DNOLEARN -DNOREDIRECT -DNOIKSD -DNO_DNS_SRV $(KFLAGS) -Otcl -M3e" \
-	"LNKFLAGS = -s" "LIBS = -lc -lx -lsocket -lcurses -ltermcap"
-
-#SCO XENIX/386 2.3.3 with gcc 1.37 or later...
-sco386gcc:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/386 2.3.3, gcc...'
-	@echo 'Add -D_NO_PROTOTYPE if you have trouble with Xenix header files'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS= -O -DXENIX -DSVR3 -DNOFILEH -DHDBUUCP -DRDCHK -DNAP \
-	-DNOJC -DNODEBUG -DNOUNICODE -DNOLEARN $(KFLAGS) \
-	-traditional -fpcc-struct-return -fstrength-reduce \
-	-DM_BITFIELDS -DM_COFF -DM_I386 -DM_I86 -DM_I86SM \
-	-DM_INTERNAT -DM_SDATA -DM_STEXT -DM_SYS3 -DM_SYS5 \
-	-DM_SYSIII -DM_SYSV -DM_WORDSWAP -DM_XENIX -DNOIKSD -DNOREDIRECT \
-	-DPWID_T=int " "LNKFLAGS = -s" "LIBS = -lx"
-
-#As above, but with curses...
-sco386gccc:
-	@echo 'Making C-Kermit $(CKVER) for SCO Xenix/386 2.3.3, gcc...'
-	@echo 'Add -D_NO_PROTOTYPE if you have trouble with Xenix header files'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} "CC = gcc" "CC2 = gcc" \
-	"CFLAGS= -O -DXENIX -DSVR3 -DNOFILEH -DHDBUUCP -DRDCHK -DNAP \
-	-DNOJC -DNODEBUG -DCK_CURSES -DNOUNICODE -DNOLEARN $(KFLAGS) \
-	-traditional -fpcc-struct-return -fstrength-reduce \
-	-DM_BITFIELDS -DM_COFF -DM_I386 -DM_I86 -DM_I86SM -DNOREDIRECT \
-	-DM_INTERNAT -DM_SDATA -DM_STEXT -DM_SYS3 -DM_SYS5 \
-	-DM_SYSIII -DM_SYSV -DM_WORDSWAP -DM_XENIX -DNOIKSD \
-	-DPWID_T=int " "LNKFLAGS = -s" "LIBS = -lx -lcurses -ltermlib"
-
 #SCO UNIX (and ODT) entries...
 #
 #NOTE: All SCO UNIX entry LIBS should have "-lc_s -lc -lx" IN THAT ORDER (if
@@ -5422,76 +4955,6 @@ sco386gccc:
 #libraries, etc.  Also, don't add the -link -z switch (which is supposed to
 #root out references to null pointers) because it makes UNIX binaries core
 #dump when they are run under Xenix.
-
-#NOTE: -Otcl removed and replaced by -O, since -Otcl produced incorrect code.
-#SCO UNIX/386 3.2.0, 3.2.1, and SCO Xenix 2.3.x
-sco3r2:
-	@echo 'Making C-Kermit $(CKVER) for SCO UNIX/386 3.2.0 or 3.2.1 ...'
-	@echo 'Warning: If make blows up, edit the makefile to join'
-	@echo 'the following three continued lines into one line.'
-	@echo 'Also, remove -DRENAME if _rename unresolved at link time.'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DXENIX -DSVR3 -DNOFILEH -DHDBUUCP -DRDCHK -DNAP -DNOLEARN \
-	-DRENAME -DNOIKSD -DNOJC $(KFLAGS) -O" \
-	"LNKFLAGS = -s" "LIBS = -lc -lx"
-
-#SCO UNIX/386 3.2.0 and SCO Xenix 2.3.x with Excelan TCP/IP support.
-#In case of compilation or runtime problems, try adding
-#"-DUID_T=int -DGID_T=int" to the CFLAGS.  If that doesn't work, try
-#"-DUID_T=uid_t -DGID_T=gid_t".
-sco3r2net:
-	@echo 'Making C-Kermit $(CKVER) for SCO UNIX/386 / Excelan...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -I/usr/include/exos -DXENIX -DSVR3 -DNOFILEH -DNOLEARN \
-	-DHDBUUCP -DRDCHK -DNAP -DRENAME -DTCPSOCKET -DEXCELAN -DNOJC \
-	-DNOIKSD -DNOREDIRECT $(KFLAGS) -O" \
-	"LNKFLAGS = -s" "LIBS = -lc -lx -lsocket"
-
-#SCO UNIX/386 3.2.0 and SCO Xenix 2.3.x with Excelan TCP/IP support.
-#As above, with curses added.
-sco3r2netc:
-	@echo 'Making C-Kermit $(CKVER) for SCO UNIX/386 / Excelan / curses...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -I/usr/include/exos -DXENIX -DSVR3 -DNOFILEH -DNOLEARN \
-	-DHDBUUCP -DRDCHK -DNAP -DTCPSOCKET -DEXCELAN -DNOJC $(KFLAGS) \
-	-DRENAME -DCK_CURSES -DNOREDIRECT -DNOIKSD -O" "LNKFLAGS = -s" \
-	"LIBS = -lc -lx -lsocket -lcurses -ltermcap"
-
-#SCO UNIX 3.2.x or SCO Xenix 2.3.x with Racal InterLan TCP/IP support
-# Extra compile flags for other version of Racal InterLan TCP/IP:
-# Xenix286/NP621-286, use -Ml -DPARAMH -DINTERLAN -Di286 -DSYSV
-# Xenix386/NP621-386, use -DPARAMH -DINTERLAN -Di386 -DSYSV
-# ISC386ix/NP622I, use -DSYSV -Di386
-# SCO Unix3.2/NP622S, use -DSYSV -Di386 -DSCO_UNIX
-# AT&T SVR3.2/NP622A, use -DSYSV -Di386 -DATT
-sco3r2netri:
-	@echo 'Making C-Kermit $(CKVER) for SCO UNIX/386 / Racal InterLan...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -I/usr/include/interlan -DXENIX -DNOFILEH -DHDBUUCP \
-	-DSVR3 -DRDCHK -DNAP -DTCPSOCKET -DPARAMH -DINTERLAN -Di386 -DSYSV \
-	-DRENAME -DNOREDIRECT -DNOIKSD -DNOJC -DNOLEARN $(KFLAGS) -Otcl -M3e" \
-	"LNKFLAGS = -s" "LIBS = -lc -lx -ltcp"
-
-# SCO XENIX/386 2.3.3 SysV with SCO TCP/IP
-# System V STREAMS TCP developed by Lachman Associates Inc and
-# Convergent Technologies.
-# -DRENAME removed since some reports indicate it is not supported
-# (whereas others say it is.)
-sco3r2lai:
-	@echo 'Making C-Kermit $(CKVER) for SCO XENIX/386 2.3.3 + TCP/IP...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DLAI_TCP -Di386 -DXENIX -DSVR3 -DNOFILEH -DHDBUUCP -DRDCHK \
-	-DNAP -DTCPSOCKET -DPWID_T=int -DNOREDIRECT -DNOIKSD -DNOLEARN \
-	$(KFLAGS) -Otcl -i -M3e" \
-	"LNKFLAGS = -i -s" "LIBS = -lc -lx -lsocket"
-
-sco3r2laic:
-	@echo 'Making C-Kermit $(CKVER) for SCO XENIX/386 2.3.3 + TCP/IP...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DLAI_TCP -Di386 -DXENIX -DSVR3 -DNOFILEH -DHDBUUCP -DRDCHK \
-	-DNAP -DTCPSOCKET -DCK_ANSIC -DCK_CURSES -DM_TERMINFO -DNOLEARN \
-	-DPWID_T=int -DNOREDIRECT -DNOIKSD $(KFLAGS) -Otcl -i -M3e" \
-	"LNKFLAGS = -i -s" "LIBS = -ltinfo -lc -lx -lsocket"
 
 #SCO UNIX/386 3.2v2 (POSIX job control), shared libraries.
 sco3r22:
@@ -5550,48 +5013,6 @@ sco3r22netc:
 	-DCK_CURSES -DDIRENT -DNOIKSD -DNOREDIRECT \
 	-DPID_T=pid_t -DPWID_T=int -O $(KFLAGS)" \
 	"LNKFLAGS = -s" "LIBS = -lcurses -lsocket -lc_s -lc -lx"
-
-#SCO XENIX 2.3.4, no curses, no TCP/IP, no IKSD.
-#This one built and tested in C-Kermit 7.0.
-#lcfp is C library floating-point support.
-#Use -M3 to generate 32-bit i386 code instead of 16-bit segmented i286 code.
-#Use -Me to enable MS nonstandard keywords in system headers.
-#Use -W2 or W3 to increase the warning level.
-#OK: 2011/06/15
-sco234:
-	@echo 'Making C-Kermit $(CKVER) for SCO XENIX 2.3.4...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DSCO32 -DXENIX -DNOFILEH -DHDBUUCP -DRDCHK -DNOLEARN \
-	-DNAP -DNOJC -DNOCOTFMC -DNOIKSD -DNOREDIRECT -DNOTNCODE -DNOGFTIMER \
-	-DNOTIMEVAL -DNOTIMEZONE -DNOSYMLINK -DSCO234 -DDCLGETCWD $(KFLAGS) \
-	-Otcl" "LNKFLAGS = -s" "LIBS = -lcfp -lc -lx"
-
-#SCO XENIX 2.3.4, no TCP/IP, no IKSD, but with curses.
-# Built and tested in C-Kermit 7.0.
-# Note: XENIX 2.3.4 does not have newterm() so no point in adding -DCK_NEWTERM.
-sco234c:
-	@echo 'Making C-Kermit $(CKVER) for SCO XENIX 2.3.4 + curses...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DSCO32 -DXENIX -DNOFILEH -DHDBUUCP -DRDCHK -DNOLEARN \
-	-DNAP -DNOJC -DNOCOTFMC -DNOIKSD -DNOREDIRECT -DNOTNCODE -DNOGFTIMER \
-	-DNOTIMEVAL -DNOTIMEZONE -DNOSYMLINK -DCK_CURSES -DSCO234 \
-	-DDCLGETCWD $(KFLAGS) -Otcl" \
-	"LNKFLAGS = -s" "LIBS = -lcfp -lc -ltinfo -lx"
-
-#SCO XENIX 2.3.4 with SCO TCP/IP and curses, no IKSD.
-# Built and tested in C-Kermit 7.0.  TCP/IP works and curses works.
-# Previous versions of this target included -lmalloc, but this caused "error:
-# " _calloc : symbol defined more than once" at link time so I removed it.
-# Results are likely to vary depending on exactly which version of the SDK
-# and TCP/IP SDK you have.
-sco234netc:
-	@echo 'Making C-Kermit $(CKVER) for SCO XENIX 2.3.4 + TCP + curses...'
-	$(MAKE) wermit KTARGET=$${KTARGET:-$(@)} \
-	"CFLAGS= -DSCO32 -DXENIX -DNOFILEH -DHDBUUCP -DRDCHK -DNOLEARN \
-	-DNAP -DNOJC -DNOCOTFMC -DNOIKSD -DNOREDIRECT -DNOTNCODE -DNOGFTIMER \
-	-DNOTIMEVAL -DNOTIMEZONE -DNOSYMLINK -DCK_CURSES -DSCO234 \
-	-DDCLGETCWD -DTCPSOCKET -DNO_DNS_SRV $(KFLAGS) -Otcl" \
-	"LNKFLAGS = -s" "LIBS = -ltinfo -lsocket -lcfp -lc -lx"
 
 # SCO 3.2v4.x targets...
 
@@ -5695,17 +5116,6 @@ sco32v4netnd:
 	$(MAKE) "MAKE=$(MAKE)" sco32v4net KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=$(KFLAGS) -DNODEBUG -DNOTLOG" "LIBS=$(LIBS)"
 
-sco3r2netnd:
-	@echo sco32v4netnd built for SCO XENIX 2.3 under SCO UNIX...
-	@echo   requires copying /lib/386/Slibc.a to /lib/386/Slibc_s.a and
-	@echo   getting /lib/386/Slibsocket.a from a XENIX devkit.
-	@echo   WARNING: poll/CK_POLL supported only on XENIX 2.3.4
-	echo    For earlier XENIX systems, replace CK_POLL with RDCHK.
-	$(MAKE) "MAKE=$(MAKE)" sco32v4netnd KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=$(KFLAGS) -x2.3 -DNORENAME -DNOSYMLINK" \
-	"LNKFLAGS = $(LNKFLAGS) -x2.3" \
-	"LIBS=-ldir -lcfp $(LIBS)"
-
 #SCO UNIX/386 3.2v4 (POSIX job control), TCP/IP, curses, ANSI C compilation,
 #<dirent.h> (EAFS) file system.  With DIRENT, -lc must come before -lx.
 #Reportedly it's OK to add -DCK_REDIR and -DCK_WREFRESH, and to remove -lc_s.
@@ -5727,17 +5137,6 @@ sco32v4netndx:
 	@echo sco32v4netx with no debug
 	$(MAKE) "MAKE=$(MAKE)" sco32v4netx KTARGET=$${KTARGET:-$(@)} \
 	"KFLAGS=$(KFLAGS) -DNODEBUG -DNOTLOG" "LIBS=$(LIBS)"
-
-sco3r2netndx:
-	@echo sco32v4netndx built for SCO XENIX 2.3 under SCO UNIX...
-	@echo   requires copying /lib/386/Slibc.a to /lib/386/Slibc_s.a and
-	@echo   getting /lib/386/Slibsocket.a from a XENIX devkit.
-	@echo   WARNING: poll/CK_POLL supported only on XENIX 2.3.4
-	echo    For earlier XENIX systems, replace CK_POLL with RDCHK.
-	$(MAKE) "MAKE=$(MAKE)" sco32v4netndx KTARGET=$${KTARGET:-$(@)} \
-	"KFLAGS=$(KFLAGS) -x2.3 -DNORENAME -DNOSYMLINK" \
-	"LNKFLAGS = $(LNKFLAGS) -x2.3" \
-	"LIBS=-ldir -lcfp $(LIBS)"
 
 sco-odt30:
 	@echo SCO ODT 3.0
@@ -6360,26 +5759,6 @@ ckuuid:
 #
 ############################################################################
 
-#Berkeley Unix 2.8, 2.9 for PDP-11s with I&D space, maybe also Ultrix-11???
-#C-Kermit(5A) is simply too large (even turning off almost every feature
-#available) to run without both I&D space plus overlays.  The old comment
-#suggested running 'pcc' but that won't help.  Changing 'cc' to 'ckustr.sed'
-#will cause a string extraction to be done, saving D space by moving strings
-#to a file.
-bsd29:
-	@echo Making C-Kermit $(CKVER) for 2.8 or 2.9BSD.
-	@echo Read the makefile if you have trouble with this...
-	$(MAKE) ovwermit \
-	"CFLAGS= -DBSD29 -DNODEBUG -DNOTLOG -DNOCSETS -DNOHELP \
-	-DNOSCRIPT -DNOSPL -DNOXMIT -DNODIAL $(KFLAGS)" \
-	"LNKFLAGS= -i -lndir" "CC= cc " "CC2= cc"
-
-bsd210:
-	@echo Please use ckubs2.mak to build C-Kermit $(CKVER) for 2.10BSD.
-
-bsd211:
-	@echo Please use ckubs2.mak to build C-Kermit $(CKVER) for 2.11BSD.
-
 #Charles River Data Systems Universe with UNOS Version 9.2
 crds:
 	@echo 'Making C-Kermit $(CKVER) for Charles River Data Systems...'
@@ -6397,13 +5776,6 @@ mpsysv:
 	@echo 'Making C-Kermit $(CKVER) for Microport SV/AT 286...'
 	$(MAKE) wermit \
 	"CFLAGS= -DATTSV -DNOLEARN $(KFLAGS) -O -Ml" "LNKFLAGS = -Ml"
-
-#Microsoft "Xenix/286" e.g. for IBM PC/AT
-xenix:
-	@echo 'Making C-Kermit $(CKVER) for Xenix/286'
-	$(MAKE) wermit \
-	"CFLAGS= -DXENIX -DNOFILEH -DNOLEARN $(KFLAGS) -Dunix -F 3000 -i" \
-	"LNKFLAGS = -F 3000 -i"
 
 #Integrated Solutions Inc V8S VME 68020
 isi:
@@ -6730,33 +6102,6 @@ ridge32:
 	$(MAKE) wermit \
 	"CFLAGS = -DATTSV -DNOFILEH -DNODEBUG -DNOTLOG $(KFLAGS) -i -O" \
 	"LNKFLAGS = -i"
-
-#Altos 486, 586, or 986 with Xenix 3.0
-altos:
-	@echo 'Making C-Kermit $(CKVER) for Altos x86 with Xenix 3.0...'
-	$(MAKE) wermit \
-	"CFLAGS= -DATTSV -DA986 -DNODEBUG -DNOTLOG $(KFLAGS) -i -O" \
-	"LNKFLAGS= -i"
-
-#Altos 986 with Xenix 3.0, as above, but command-line only, minimal size.
-#For systems with small memories.  It might also be necessary to chop certain
-#modules up into smaller pieces, e.g. ckuus3-6, because of symbol table
-#overflow.   If this makefile is too big or complex for the Altos, compile
-#and link by hand or write shell scripts.
-altosc:
-	@echo 'Making C-Kermit $(CKVER) for Altos x86 Xenix 3.0, remote...'
-	$(MAKE) wermit \
-	"CFLAGS= -DATTSV -DA986 -DNODEBUG -DNOTLOG -DNOSCRIPT -DNODIAL \
-	-DNOCSETS -DNOANSI -DNOMSEND -DNOSPL -DNOICP $(KFLAGS) -Mm -O" \
-	"LNKFLAGS= -Mm -s"
-
-#Altos 986 with Xenix 3.0, as above, but interactive only, minimal size.
-altosi:
-	@echo 'Making C-Kermit $(CKVER) for Altos x86 Xenix 3.0, local...'
-	$(MAKE) wermit \
-	"CFLAGS= -DATTSV -DA986 -DNODEBUG -DNOTLOG -DNOSCRIPT -DNODIAL \
-	-DNOCSETS -DNOANSI -DNOMSEND -DNOSPL -DNOCMDL -DNOFRILLS -DNOHELP \
-	-DNOSETKEY $(KFLAGS) -Mm -O" "LNKFLAGS= -Mm -s"
 
 # Altos ACS68000 68000 System, UNIX System 3 Release 2, 512k memory.
 # also needs getcwd() external function; see ckuins.txt file.
