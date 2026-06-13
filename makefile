@@ -859,6 +859,11 @@ mirbsd:
 # If you are, and want the server to make Wtmp log entries, do
 # 'make macos "KFLAGS=-UNOWTMP".
 #
+# -Xlinker flags added to LIBS to supress the following warning:
+# ld: warning: reducing alignment of section __DATA,__common
+#     from 0x8000 to 0x4000 because it exceeds segment maximum alignment
+# (Tested on macOS 26.5.1)
+#
 macos:
 	@MACOSNAME=`/usr/bin/sw_vers -productName`; \
 	MACOSV=`/usr/bin/sw_vers -productVersion`; \
@@ -874,7 +879,8 @@ macos:
 	-funsigned-char -DNODCLINITGROUPS \
 	-DNOUUCP -O -DHERALD=\"\\\" $${MACOSNAME} $${MACOSV}\\\"\" \
 	-DCKCPU=\"\\\"$${MACCPU}\\\"\" \
-	$(KFLAGS)" "LIBS= -lncurses -lresolv $(LIBS)"
+	$(KFLAGS)" \
+	"LIBS= -lncurses -lresolv -Xlinker -max_default_common_align -Xlinker 0x4000 $(LIBS)"
 
 # End of Mac OS X Section
 
