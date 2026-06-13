@@ -154,11 +154,6 @@ static char *tophlpi[] = {              /* Top-level help for IKSD */
 char *newstxt[] = {
 "Welcome to C-Kermit 10.0.",
 "New features since version 9.0 of 2011 include:",
-#ifdef COMMENT
-" . Full 64-bit memory model on platforms that support it",
-" . Large file support (64-bit file size) on most platforms",
-" . Long integer variables and constants in commands and scripts",
-#endif  /* COMMENT */
 /* For 10.0 */
 " . Updated for longevity... Adapted to 2020s compilers and OS's without",
 "    sacrificing compatability with older platforms going back to the 1970s",
@@ -174,20 +169,6 @@ char *newstxt[] = {
 " . DIRECTORY command fixed to once again allow multiple filespecs.",
 " . TOUCH command fixed after being broken in C-Kermit 9.0.",
 " . Lots more; see https://kermitproject.org/updates.html",
-#ifdef COMMENT
-/* These were for 9.0 */
-" . Bigger maximum command and macro lengths",
-" . Bigger filename expansion space",
-" . New super-flexible RENAME command (HELP RENAME)",
-" . New CHANGE command for changing text files (HELP CHANGE)",
-" . New COPY and DIRECTORY command options (HELP COPY, HELP DIRECTORY)",
-" . New TOUCH command (HELP TOUCH)",
-#ifdef UNIX
-" . Limited Unix Locale support (HELP SET LOCALE)",
-#endif /* UNIX */
-" . At the prompt, Ctrl-K recalls most recent filename",
-" . Scripting and performance improvements",
-#endif /* COMMENT */
 " ",
 "Documentation:",
 " . https://www.kermitproject.org/ckbindex.html",
@@ -4797,13 +4778,6 @@ An option that does not require an argument can be bundled with other options:"
 "extended options, type \"help extended-options\".  To get help about a",
 "particular extended option, type \"help extended-option xxx\", where \"xxx\"",
 "is the option keyword.",
-#ifdef COMMENT
-#ifndef NOIKSD
-" ",
-"At present, most of the extended options apply only to the Internet Kermit",
-"Service Daemon (IKSD).  Type \"help iksd\" for details.",
-#endif /* NOIKSD */
-#endif /* COMMENT */
 ""
 };
 
@@ -7090,13 +7064,6 @@ static char *hxytel[] = {
 " ",
 "For TCP/IP TELNET connections, which are in NVT (ASCII) mode by default:",
 " ",
-#ifdef COMMENT
-"SET TELNET BINARY-MODE { ACCEPTED, REFUSED, REQUESTED, REQUIRED }",
-"  ACCEPT or REFUSE binary-mode bids, or actively REQUEST binary mode.",
-"  REQUIRED refuses the connection if binary mode is not successfully",
-"  negotiated in both directions.  ACCEPTED by default.",
-" ",
-#endif /* COMMENT */
 "SET TELNET BINARY-TRANSFER-MODE { ON, OFF }",
 "  When ON (OFF by default) and BINARY negotiations are not REFUSED Kermit",
 "  will attempt to negotiate BINARY mode in each direction before the start",
@@ -7145,18 +7112,6 @@ static char *hxytel[] = {
 "  After the connection is made, TELNET negotiations determine the echoing.",
 " ",
 #ifdef CK_ENVIRONMENT
-#ifdef COMMENT
-"SET TELNET ENVIRONMENT { ON, OFF, variable-name [ value ] }",
-"  This feature lets Kermit send the values of certain environment variables",
-"  to the other computer if it asks for them.  The variable-name can be any",
-"  of the \"well-known\" variables \"USER\", \"JOB\", \"ACCT\", \"PRINTER\",",
-"  \"SYSTEMTYPE\", or \"DISPLAY\".  Some Telnet servers, if given a USER",
-"  value in this way, will accept it and therefore not prompt you for user",
-"  name when you log in.  The default values are taken from your environment;",
-"  use this command to change or remove them.  See RFC1572 for details.  You",
-"  may also specify OFF to disable this feature, and ON to re-enable it.",
-" ",
-#else
 "SET TELNET ENVIRONMENT { variable-name [ value ] }",
 "  This feature lets Kermit send the values of certain environment variables",
 "  to the other computer if it asks for them.  The variable-name can be any",
@@ -7166,7 +7121,6 @@ static char *hxytel[] = {
 "  name when you log in.  The default values are taken from your environment;",
 "  use this command to change or remove them.  See RFC1572 for details.",
 " ",
-#endif /* COMMENT */
 #endif /* CK_ENVIRONMENT */
 #ifdef CK_SNDLOC
 "SET TELNET LOCATION [ text ]",
@@ -7267,20 +7221,6 @@ static char *hxywild[] = {
 "  used (for example) in creating backup files.",
 "" };
 #else
-#ifdef COMMENT
-/* Set wildcard-expansion is only available on UNIX */
-static char *hxywild[] = {
-"Syntax: SET WILDCARD-EXPANSION { ON, OFF }",
-"  ON (the default) means that filenames given to Kermit commands such as",
-"  SEND and DIRECTORY are automatically expanded into lists of filenames if",
-"  they contain special 'wildcard characters' such as '*'.  You can reference",
-"  files whose names contains such characters literally by preceding each",
-"  such character with a backslash '\\'.  When dealing programmatically with",
-"  a file list, however, you should SET WILDCARD-EXPANSION OFF to force",
-"  treat each name in the list as a literal name.  See HELP WILDCARDS for",
-"  details about wildcard syntax.",
-"" };
-#endif /* COMMENT */
 #endif /* UNIX */
 
 #ifndef NOXFER
@@ -8821,22 +8761,7 @@ dohfunc( int xx )
 #endif /* NORANDOM */
 
       case FN_SPLIT:                    /* Split */
-#ifdef COMMENT
-        printf("\\fsplit(s1,&a,s2,s3,n2,n3) - \
-Assign string words to an array.\n\
-  s1 = source string\n  &a = array designator\n  s2 = optional break set.\n");
-        printf("  s3 = optional include set.\n");
-        printf("  n2 = optional grouping mask.\n");
-        printf("  n3 = optional separator flag.\n");
-        printf("  s2, s3, n2, n3 are as in \\fword().\n");
-        printf(
-"  All arguments are optional; if \\&a[] already exists, it is recycled;\n\
-  if array not specified, the count is returned but no array is created.\n");
-        printf("Returns integer:\n\
-  Number of words in source string.\n");
-#else
         hmsga(hfsplit);
-#endif	/* COMMENT */
         break;
 
       case FN_DTIM:                     /* CVTDATE */
@@ -9418,21 +9343,6 @@ Returns number:\n");
         printf("Synonym: \\kwvalue(s1[,s2])\n");
         break;
 
-#ifdef COMMENT
-      case FN_SLEEP:
-        printf("\\fsleep(n)\n\
-  n = number of seconds\n");
-        printf("    Pauses for the given number of seconds.\n");
-        printf("Returns: the empty string.\n");
-        break;
-
-      case FN_MSLEEP:
-        printf("\\fmsleep(n)\n\
-  n = number of milliseconds\n");
-        printf("    Pauses for the given number of milliseconds.\n");
-        printf("Returns: the empty string.\n");
-        break;
-#endif /* COMMENT */
 
       case FN_SNAME:
         printf("\\fshortpathname(s)\n\

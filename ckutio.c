@@ -316,16 +316,6 @@ char unm_ver[CK_SYSNMLN+1] = { '\0', '\0' };
 #endif /* !LOCK_DIR (outside ifndef) */
 
 
-#ifdef COMMENT
-/* Sorry no more lockf() -- we lock first and THEN open the device. */
-#ifdef SVR4
-#ifndef BSD44
-#ifndef LOCKF
-#define LOCKF				/* Use lockf() on tty device in SVR4 */
-#endif /* LOCKF */
-#endif /* BSD44 */
-#endif /* SVR4 */
-#endif /* COMMENT */
 
 #ifdef NOLOCKF				/* But NOLOCKF cancels LOCKF */
 #ifdef LOCKF
@@ -974,9 +964,6 @@ static char escchr;                     /* Escape or attn character */
 #endif /* ATTSV */
 #endif /* BSD44ORPOSIX */
 
-#ifdef COMMENT
-/* It picks up the speeds but they don't work */
-#endif /* COMMENT */
 
 
 
@@ -1162,22 +1149,10 @@ le_inbuf() {
 int
 le_putchar(CHAR ch)
 /* le_putchar */ {
-#ifdef COMMENT
-    /* In UNIX we do not have another thread taking chars out of the buffer */
-    while ((le_start - le_end == 1) ||
-            (le_start == 0 && le_end == LEBUFSIZ - 1)) {
-	/* Buffer is full */
-        debug(F111,"le_putchar","Buffer is Full",ch);
-        ReleaseLocalEchoMutex() ;
-        msleep(250);
-        RequestLocalEchoMutex( SEM_INDEFINITE_WAIT ) ;
-    }
-#else
     if ((le_start - le_end + LEBUFSIZ)%LEBUFSIZ == 1) {
         debug(F110,"le_putchar","buffer is full",0);
         return(-1);
     }
-#endif /* COMMENT */
     le_buf[le_end++] = ch;
     if (le_end == LEBUFSIZ)
       le_end = 0;
@@ -1233,18 +1208,6 @@ le_getchar(CHAR * pch)
 }
 #endif /* TTLEBUF */
 
-#ifdef COMMENT
-/*
-  Some systems like OSF/1 use TIOCGSIZE instead of TIOCGWINSZ.
-  But as far as I know, whenever TIOCGSIZE is defined, it is
-  equated to TIOCGWINSZ.  For cases where this is not done, try this:
-*/
-#ifndef TIOCGWINSZ
-#ifdef TIOCGSIZE
-#define TIOCGWINSZ TIOCGSIZE
-#endif /* TIOCGSIZE */
-#endif /* TIOCGWINSZ */
-#endif /* COMMENT */
 
 static int tt_xpixel = 0, tt_ypixel = 0;
 
@@ -1913,11 +1876,6 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
 
 	xlocal = *lcl = 1;		/* Network connections are local. */
 	debug(F101,"ttopen net x","",x);
-#ifdef COMMENT
-/* Let netopen() do this */
-	if (x > -1 && !x25fd)
-	  x = tn_ini();			/* Initialize TELNET protocol */
-#endif /* COMMENT */
 	gotsigs = 0;
 	return(x);
     } else {				/* Terminal device */
@@ -2458,17 +2416,10 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
 	debug(F101,"ttopen xlocal","",xlocal);
 #ifdef ATTSV
 #ifdef BSD44ORPOSIX
-#ifdef COMMENT				/* 12 Aug 1997 */
-#ifdef __FreeBSD__
-	if (xlocal)
-	  ttraw.c_cflag |= CLOCAL;
-#endif /* __FreeBSD__ */
-#else /* Not COMMENT */
 #ifdef CLOCAL
 	if (xlocal)			/* Unset this if it's defined. */
 	  ttraw.c_cflag |= CLOCAL;
 #endif /* CLOCAL */
-#endif /* COMMENT */
 	debug(F101,"ttopen BSD44ORPOSIX calling tcsetattr","",TCSADRAIN);
 	if (tcsetattr(ttyfd, TCSADRAIN, &ttraw) < 0) {
 	    debug(F100,"ttopen POSIX tcseattr fails","",0);
@@ -2601,11 +2552,6 @@ ttclos( int foo )			/* Arg req'd for signal() prototype */
     debug(F100,"ttclos NOFDZERO","",0);
 #endif /* NOFDZERO */
 
-#ifdef COMMENT
-#ifdef TTLEBUF
-    le_init();				/* No need for any of this */
-#endif /* TTLEBUF */
-#endif /* COMMENT */
 
     if (ttyfd < 0)			/* Wasn't open. */
       return(0);
@@ -2837,9 +2783,6 @@ ttclos( int foo )			/* Arg req'd for signal() prototype */
 
 #define HUPTIME 500			/* Milliseconds for hangup */
 
-#ifdef COMMENT
-/* The following didn't work but TIOCSDTR does work */
-#endif /* COMMENT */
 
 #ifndef USE_TIOCSDTR
 #ifdef __NetBSD__
@@ -3118,19 +3061,10 @@ tthang() {
 	debug(F101,"tthang TIOCSDTR errno","",errno); /* Log the error */
 	x = 1;				/* Pretend we succeeded */
     } else if (x == 0) x = 1;		/* Success */
-#ifdef COMMENT
-#endif /* COMMENT */
 #endif /* TIOCCDTR */
     close(do_open(ttnmsv));		/* Clear i/o error condition */
     errno = 0;
-#ifdef COMMENT
-/* This is definitely dangerous.  Why was it here? */
-    z = ttvt(ttspeed,ttflow);		/* Restore modes. */
-    debug(F101,"tthang ttvt returns","",z);
-    return(z < 0 ? -1 : 1);
-#else
     return(x);
-#endif /* COMMENT */
 #endif /* ANYBSD */
 
 #ifdef ATTSV
@@ -3160,16 +3094,6 @@ tthang() {
 /* If any of the ioctl's return failure, go on to the next section. */
 
     z = TIOCM_DTR;			/* Code for DTR. */
-#ifdef COMMENT
-/*
-  This was the cause of the troubles with the Solaris Port Monitor.
-  The problem is: RTS never comes back on.  Moral: Don't do it!
-  (But why doesn't it come back on?  See the TIOCMBIS call...)
-*/
-#ifdef TIOCM_RTS			/* Lower RTS too if symbol is known. */
-    z |= TIOCM_RTS;
-#endif /* TIOCM_RTS */
-#endif /* COMMENT */
 
     debug(F101,"tthang TIOCM signal mask","",z);
     if (ioctl(ttyfd,TIOCMBIC,&z) > -1) {   /* Try to lower DTR. */
@@ -3226,15 +3150,6 @@ tthang() {
 */
     ttcur.c_cflag = CLOCAL|HUPCL;
 
-#ifdef COMMENT
-    /* and if none of those work, try one of these... */
-    ttcur.c_cflag = 0;
-    ttcur.c_cflag = CLOCAL;
-    ttcur.c_cflag &= ~(CBAUD|HUPCL);
-    ttcur.c_cflag &= ~(CBAUD|CREAD);
-    ttcur.c_cflag &= ~(CBAUD|CREAD|HUPCL);
-    /* or other combinations */
-#endif /* COMMENT */
 
 #ifdef TCXONC
     debug(F100,"tthang TCXONC","",0);
@@ -3888,16 +3803,6 @@ ttlock( char * ttdev )
 #ifdef CKSYMLINK
     islink = 1;				/* Assume it's a symlink */
     linkto[0] = '\0';			/* But we don't know to what */
-#ifdef COMMENT
-/*
-  This is undependable.  If it worked it would save the readlink call if
-  we knew the device name was not a link.
-*/
-#ifdef S_ISLNK
-    islink = S_ISLNK(devbuf.st_mode);
-    debug(F101,"ttlock stat S_ISLNK","",islink);
-#endif /* S_ISLNK */
-#endif /* COMMENT */
     if (islink) {
 	n = readlink(ttdev,linkto,DEVNAMLEN); /* See if it's a link */
 	debug(F111,"ttlock readlink",ttdev,n);
@@ -4025,33 +3930,6 @@ ttlock( char * ttdev )
 #endif /* LFDEVNO */
 #endif /* CKSYMLINK */
 
-#ifdef COMMENT
-/* Can't do this any more because device is not open yet so no ttyfd. */
-#ifdef LOCKF
-/*
-  Advisory file locking works on SVR4, so we use it.  In fact, it is
-  necessary in some cases, e.g. when SLIP is involved.  But it still doesn't
-  seem to prevent multiple users accessing the same device by different names.
-*/
-            while (lockf(ttyfd, F_TLOCK, 0L) != 0) {
-                debug(F111, "ttlock lockf returns errno", "", errno);
-                if ((++tries >= 3) || (errno != EAGAIN)) {
-                    x = unlink(flfnam); /* remove the lockfile */
-#ifdef CKSYMLINK
-#ifndef LFDEVNO
-		    if (islink && lock2[0])
-		      unlink(lock2);	/* ditto... */
-#endif /* LFDEVNO */
-#endif /* CKSYMLINK */
-                    debug(F111,"ttlock unlink",flfnam,x);
-                    haslock = 0;
-		    break;
-		}
-                sleep(2);
-	    }
-	    if (haslock)		/* If we got an advisory lock */
-#endif /* LOCKF */
-#endif /* COMMENT */
 	      break;			/* We're done. */
 
 	} else {			/* We didn't create a new lockfile. */
@@ -4140,11 +4018,6 @@ ttunlck() {                             /* Remove UUCP lockfile(s). */
 	    lock2[0] = '\0';		/* Forget its name. */
 	}
 
-#ifdef COMMENT
-#ifdef LOCKF
-        (VOID) lockf(ttyfd, F_ULOCK, 0L); /* Remove advisory lock */
-#endif /* LOCKF */
-#endif /* COMMENT */
 
 	priv_off();			/* Turn privileges off. */
     }
@@ -4278,13 +4151,7 @@ tthflow(int flow, int status,
     } else {
 	if (!status) {			/* Turn hard flow off */
 	    if (
-#ifdef COMMENT
-		/* This can fail because of sign extension */
-		/* e.g. in Linux where it's Bit 31 */
-		(temp.c_cflag & CRTSCTS) == CRTSCTS
-#else
 		(temp.c_cflag & CRTSCTS) != 0
-#endif /* COMMENT */
 		) {
 		temp.c_cflag &= ~CRTSCTS; /* It's there, remove it */
 		attrs->c_cflag &= ~CRTSCTS;
@@ -4306,12 +4173,7 @@ tthflow(int flow, int status,
 		}
 	} else {			/* Turn hard flow on */
 	    if (
-#ifdef COMMENT
-		/* This can fail because of sign extension */
-		(temp.c_cflag & CRTSCTS) != CRTSCTS
-#else
 		(temp.c_cflag & CRTSCTS) == 0
-#endif /* COMMENT */
 		) {
 		temp.c_cflag |= CRTSCTS; /* Not there, add it */
 		temp.c_iflag &= ~(IXON|IXOFF|IXANY); /* Bye to IXON/IXOFF */
@@ -4650,19 +4512,6 @@ ttpkt(long speed, int xflow, int parity)
 		tcharf = 1;
 		debug(F100,"ttpkt TIOCSETC ok","",0);
 	    }
-#ifdef COMMENT
-/* only for paranoid debugging */
-	    if (tcharf) {
-		struct tchars foo;
-		char tchbuf[100];
-		ioctl(0,TIOCGETC,&foo);
-		sprintf(tchbuf,
-		    "intr=%d,quit=%d, start=%d, stop=%d, eof=%d, brk=%d",
-		    foo.t_intrc, foo.t_quitc, foo.t_startc,
-		    foo.t_stopc, foo.t_eofc,  foo.t_brkc);
-		debug(F110,"ttpkt chars",tchbuf,0);
-	    }
-#endif /* COMMENT */
 	}
 	ttraw.sg_flags |= CBREAK;	/* Needed for unknown reason */
 #endif /* TIOCGETC */
@@ -4690,10 +4539,6 @@ ttpkt(long speed, int xflow, int parity)
 
 	if (parity) {			/* If parity, */
 	    ttraw.sg_flags &= ~RAW;	/* use cooked mode */
-#ifdef COMMENT
-/* WHY??? */
-	    if (xlocal)
-#endif /* COMMENT */
 	      ttraw.sg_flags |= CBREAK;
 	    debug(F101,"ttpkt cooked, cbreak, parity","",parity);
 #ifdef TIOCGETC				/* Not rawmode, */
@@ -4820,11 +4665,6 @@ ttpkt(long speed, int xflow, int parity)
 #ifdef HWPARITY
     if (hwparity && xlocal) {		/* Hardware parity */
 	ttraw.c_cflag |= PARENB;	/* Enable parity */
-#ifdef COMMENT
-/* Uncomment this only if needed -- I don't think it is */
-	ttraw.c_cflag &= ~(CSIZE);	/* Clear out character-size mask */
-	ttraw.c_cflag |= CS8;		/* And set it to 8 */
-#endif /* COMMENT */
 #ifdef IGNPAR
 	ttraw.c_iflag |= IGNPAR;	/* Don't discard incoming bytes */
 	debug(F100,"ttpkt IGNPAR","",0); /* that have parity errors */
@@ -4996,11 +4836,6 @@ ttsetflow( int flow )
     if (ttpty) return(0);
 #endif /* NETPTY */
 
-#ifdef COMMENT
-    /* This seems to hurt... */
-    if (flow == FLO_KEEP)
-      return(0);
-#endif /* COMMENT */
 
     if (flow == FLO_RTSC ||		/* Hardware flow control... */
 	flow == FLO_DTRC ||
@@ -5254,11 +5089,6 @@ ttvt(long speed, int flow)
 
 #ifdef HWPARITY
     if (hwparity && xlocal) {		/* Hardware parity */
-#ifdef COMMENT
-/* Uncomment this only if needed -- I don't think it is */
-	ttraw.c_cflag &= ~(CSIZE);	/* Clear out character-size mask */
-	ttraw.c_cflag |= CS8;		/* And set it to 8 */
-#endif /* COMMENT */
 #ifdef IGNPAR
 	debug(F101,"ttvt hwparity IGNPAR","",IGNPAR);
 	tttvt.c_iflag |= IGNPAR;	/* Don't discard incoming bytes */
@@ -5471,11 +5301,6 @@ ttsspd( int cps )
     }
 #endif /* DEBUG */
 
-#ifdef COMMENT
-    tcsetspeed(TCS_ALL, &ttraw, s);
-    tcsetspeed(TCS_ALL, &tttvt, s);
-    tcsetspeed(TCS_ALL, &ttold, s);
-#else
     if (s == 8880L) {			/* 75/1200 split speed requested */
 	tcsetspeed(TCS_IN, &ttraw, 1200L);
 	tcsetspeed(TCS_OUT, &ttraw, 75L);
@@ -5488,7 +5313,6 @@ ttsspd( int cps )
 	tcsetspeed(TCS_ALL, &tttvt, s);
 	tcsetspeed(TCS_ALL, &ttold, s);
     }
-#endif /* COMMENT */
 
     x = tcsetattr(ttyfd,TCSADRAIN,&ttcur); /* Set the speed */
     debug(F101,"ttsspd tcsetattr","",x);
@@ -6416,11 +6240,7 @@ mygetbuf() {
       my_count = myfillbuf();
 
 #ifdef DEBUG
-#ifdef COMMENT
-    if (deblog) debug(F101, "mygetbuf read", "", my_count);
-#else /* COMMENT */
     ckhexdump("mygetbuf read", mybuf, my_count);
-#endif /* COMMENT */
 #endif /* DEBUG */
     x = my_count;
     if (my_count <= 0) {
@@ -6726,8 +6546,6 @@ ttflux() {				/* But first... */
         }
     } else
 #endif /* TCPSOCKET */
-#ifdef COMMENT
-#endif /* COMMENT */
     my_count = 0;			/* Reset count to zero */
     my_item = -1;			/* And buffer index to -1 */
 #endif /* MYREAD */
@@ -6771,12 +6589,6 @@ ttflui() {
 /* Network flush is done specially, in the network support module. */
     if ((netconn || sstelnet) && !ttpipe && !ttpty) {
 	debug(F100,"ttflui netflui","",0);
-#ifdef COMMENT
-#ifdef TN_COMPORT
-	if (istncomport())
-            tnc_send_purge_data(TNC_PURGE_RECEIVE);
-#endif /* TN_COMPORT */
-#endif /* COMMENT */
 #ifndef NOTCPIP
 	return(netflui());
 #else
@@ -7381,17 +7193,6 @@ in_chk( int channel, int fd )
 		    || istncomport()    /* Telnet Com Port */
 #endif /* TN_COMPORT */
 		   ) && ttcarr != CAR_OFF /* with CARRIER WATCH ON (or AUTO) */
-#ifdef COMMENT
-#ifdef MYREAD
-/*
-  Seems like this would be a good idea but it prevents C-Kermit from
-  popping back to the prompt automatically when carrier drops.  However,
-  commenting this out prevents us from seeing the NO CARRIER message.
-  Needs more work...
-*/
-		   && my_count < 1	/* Nothing in our internal buffer */
-#endif /* MYREAD */
-#endif /* COMMENT */
 		   ) {
 	    int x;
 	    x = ttgmdm();		/* So get modem signals */
@@ -8002,10 +7803,6 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
 #endif /* NETCMD */
       fd = ttyfd;
 
-#ifdef COMMENT
-    if (xlocal && conchk() > 0)		/* Allow for console interruptions */
-      return(-1);
-#endif /* COMMENT */
 
     *dest = '\0';                       /* Clear destination buffer */
     if (timo < 0) timo = 0;		/* Safety */
@@ -8631,34 +8428,6 @@ ttsndlb() {
 
 
 
-#ifdef COMMENT
-#ifdef GETMSEC
-
-/* Millisecond timer */
-
-static long msecbase = 0L;		/* Unsigned long not portable */
-
-long
-getmsec() {				/* Milliseconds since base time */
-    struct timeval xv;
-    struct timezone xz;
-    long secs, msecs;
-    if (
-#ifdef GTODONEARG
-	gettimeofday(&tv)
-#else
-	gettimeofday(&tv, &tz)
-#endif /* GTODONEARG */
-	< 0)
-      return(-1);
-    if (msecbase == 0L) {		/* First call, set base time. */
-	msecbase = tv.tv_sec;
-	debug(F101,"getmsec base","",msecbase);
-    }
-    return(((tv.tv_sec - msecbase) * 1000L) + (tv.tv_usec / 1000L));
-}
-#endif /* GETMSEC */
-#endif /* COMMENT */
 
 #ifdef SELECT
 int
@@ -9060,13 +8829,7 @@ congm() {
     debug(F100,"congm getting modes","",0); /* Need to do it. */
 
     if ((fd = open(CTTNAM,2)) < 0) {	/* Open controlling terminal */
-#ifdef COMMENT
-	fprintf(stderr,"Error opening %s\n", CTTNAM);
-	perror("congm");
-	return(-1);
-#else
 	fd = 0;
-#endif /* COMMENT */
     }
 #ifdef BSD44ORPOSIX
     if (tcgetattr(fd,&ccold) < 0) return(-1);
@@ -9127,12 +8890,6 @@ concb(char esc)
       return(0);			/* Give up. */
     debug(F101,"concb ttyfd","",ttyfd);
     debug(F101,"concb ttfdflg","",ttfdflg);
-#ifdef COMMENT
-    /* This breaks returning to prompt after protocol with "-l 0" */
-    /* Commented out July 1998 */
-    if (ttfdflg && ttyfd >= 0 && ttyfd < 3)
-      return(0);
-#endif /* COMMENT */
     x = isatty(0);
     debug(F101,"concb isatty","",x);
     if (!x) return(0);			/* Only when running on real ttys */
@@ -9167,15 +8924,6 @@ concb(char esc)
     cccbrk.c_iflag |= IGNBRK;		/* But ignore BREAK signal */
     cccbrk.c_iflag &= ~BRKINT;
 
-#ifdef COMMENT
-/*
-  Believe it or not, in SCO UNIX, VSUSP is greater than NCC, and so this
-  array reference is out of bounds.  It's only a debug() call so who needs it.
-*/
-#ifdef VSUSP
-    debug(F101,"concb c_cc[VSUSP]","",cccbrk.c_cc[VSUSP]);
-#endif /* VSUSP */
-#endif /* COMMENT */
 #ifndef VINTR
     debug(F101,"concb c_cc[0]","",cccbrk.c_cc[0]);
     cccbrk.c_cc[0] = 003;               /* Interrupt char is Control-C */
@@ -9275,17 +9023,6 @@ conbin(char esc)
     ccraw.c_iflag &= ~(IGNBRK|INLCR|IGNCR|ICRNL|IXON|IXOFF|INPCK|ISTRIP);
 #endif /* ATTSV */
     ccraw.c_oflag &= ~OPOST;
-#ifdef COMMENT
-/*
-  WHAT THE HECK WAS THIS FOR?
-  The B9600 setting (obviously) prevents CONNECT from working at any
-  speed other than 9600 when you are logged in to the 7300 on a serial
-  line.  Maybe some of the other flags are necessary -- if so, put back
-  the ones that are needed.  This code is supposed to work the same, no
-  matter whether you are logged in to the 7300 on the real console device,
-  or through a serial port.
-*/
-#endif /* COMMENT */
 
 /*** Kermit used to put the console in 8-bit raw mode, but some users have
  *** pointed out that this should not be done, since some sites actually
@@ -10477,63 +10214,6 @@ pty_make_raw( int fd )
     debug(F101,"pty_make_raw cfmakeraw errno","",errno);
 #else  /* USE_CFMAKERAW */
 
-#ifdef COMMENT
-
-/* This very simple version recommended by Serg Iakolev doesn't work */
-
-    tp.c_lflag &= ~(ECHO|ICANON|IEXTEN|ISIG);
-    tp.c_iflag &= ~(BRKINT|ICRNL|INPCK|ISTRIP|IXON);
-    tp.c_cflag &= ~(CSIZE|PARENB);
-    tp.c_cflag |= CS8;
-    tp.c_oflag &= ~(OPOST);
-    tp.c_cc[VMIN] = 1;
-    tp.c_cc[VTIME] = 0;
-
-    debug(F101,"pty_make_raw 1 c_cc[] NCCS","",NCCS);
-    debug(F101,"pty_make_raw 1 iflags","",tp.c_iflag);
-    debug(F101,"pty_make_raw 1 oflags","",tp.c_oflag);
-    debug(F101,"pty_make_raw 1 lflags","",tp.c_lflag);
-    debug(F101,"pty_make_raw 1 cflags","",tp.c_cflag);
-
-#else
-#ifdef COMMENT
-/*
-  In this version we unset everything and then set only the
-  bits we know we need.
-*/
-    /* iflags */
-    tp.c_iflag = 0L;
-    tp.c_iflag |= IGNBRK;
-#ifdef IMAXBEL
-    tp.c_iflag |= IMAXBEL;
-#endif /* IMAXBEL */
-
-    /* oflags */
-    tp.c_oflag = 0L;
-
-    /* lflags */
-    tp.c_lflag = 0L;
-#ifdef NOKERNINFO
-    tp.c_lflag |= NOKERNINFO;
-#endif	/* NOKERNINFO */
-
-    /* cflags */
-    tp.c_cflag = 0L;
-    tp.c_cflag |= CS8|CREAD;
-
-    for (i = 0; i < NCCS; i++) {	/* No special characters */
-	tp.c_cc[i] = 0;
-    }
-#ifdef VMIN
-    tp.c_cc[VMIN] = 1;			/* But always wait for input */
-#endif	/* VMIN */
-    debug(F101,"pty_make_raw 2 c_cc[] NCCS","",NCCS);
-    debug(F101,"pty_make_raw 2 iflags","",tp.c_iflag);
-    debug(F101,"pty_make_raw 2 oflags","",tp.c_oflag);
-    debug(F101,"pty_make_raw 2 lflags","",tp.c_lflag);
-    debug(F101,"pty_make_raw 2 cflags","",tp.c_cflag);
-
-#else  /* COMMENT */
 /*
   In this version we set or unset every single flag explicitly.  It works a
   bit better than the simple version just above, but it's still far from
@@ -10544,11 +10224,7 @@ pty_make_raw( int fd )
     tp.c_iflag &= ~(INPCK|IGNPAR|IXANY|IXON|IXOFF);
     tp.c_iflag |= IGNBRK;
 #ifdef IMAXBEL
-#ifdef COMMENT
-    tp.c_iflag |= IMAXBEL;
-#else
     tp.c_iflag &= ~IMAXBEL;
-#endif /* COMMENT */
 #endif /* IMAXBEL */
 #ifdef IUCLC
     tp.c_iflag &= ~IUCLC;
@@ -10589,12 +10265,6 @@ pty_make_raw( int fd )
 #ifdef OXTABS
     tp.c_oflag &= ~OXTABS;
 #endif /* OXTABS */
-#ifdef COMMENT
-#ifdef ONOCR
-    tp.c_oflag &= ~ONOCR;		/* Maybe should be |=? */
-    tp.c_oflag |= ONOCR;		/* makes no difference either way */
-#endif /* ONOCR */
-#endif /* COMMENT */
 #ifdef ONOEOT
     tp.c_oflag &= ~ONOEOT;
 #endif /* ONOEOT */
@@ -10639,11 +10309,7 @@ pty_make_raw( int fd )
 #ifdef NOKERNINFO
     tp.c_lflag |= NOKERNINFO;
 #endif	/* NOKERNINFO */
-#ifndef COMMENT
     tp.c_lflag &= ~NOFLSH;		/* TRY IT THE OTHER WAY? */
-#else
-    tp.c_lflag |= NOFLSH;		/* No, this way is worse */
-#endif /* COMMENT */
 
     /* cflags */
     tp.c_cflag &= ~(CSIZE|PARENB|PARODD);
@@ -10696,8 +10362,6 @@ pty_make_raw( int fd )
     debug(F101,"pty_make_raw 3 oflags","",tp.c_oflag);
     debug(F101,"pty_make_raw 3 lflags","",tp.c_lflag);
     debug(F101,"pty_make_raw 3 cflags","",tp.c_cflag);
-#endif /* COMMENT */
-#endif /* COMMENT */
 
     errno = 0;
 #ifdef BSD44ORPOSIX			/* POSIX */
@@ -10753,16 +10417,6 @@ pty_get_status( int fd, PID_T pid )
     if (pexitstat > -1)
       return(pexitstat);
 
-#ifdef COMMENT
-    /* Not only unnecessary but harmful */
-    errno = 0;
-    x = kill(pty_fork_pid,0);
-    debug(F101,"pty_get_status kill value","",x);
-    debug(F101,"pty_get_status kill errno","",errno);
-    if (x > -1 && errno != ESRCH)
-      return(-1);			/* Fork still there */
-    /* Fork seems to be gone */
-#endif	/* COMMENT */
 
     errno = 0;
     x = waitpid(pty_fork_pid,&status,WNOHANG);
@@ -10781,9 +10435,6 @@ pty_get_status( int fd, PID_T pid )
 	    debug(F100,"pty_get_status WIFEXITED","",0);
 	    status = WEXITSTATUS(status);
 	    debug(F101,"pty_get_status fork exit status","",status);
-#ifdef COMMENT
-	    end_pty();
-#endif	/* COMMENT */
 	    close(fd);
 	    pexitstat = status;
 	} else {
@@ -10950,9 +10601,6 @@ ttptycmd( char *s )
     }
     masterfd = ptyfd;
     pty_master_fd = ptyfd;
-#ifdef COMMENT
-    slavefd = pty_slave_fd;		/* This is not visible to us */
-#endif /* COMMENT */
     debug(F111,"ttptycmd ptyfd","USE_CKUPTY_C",ptyfd);
     debug(F111,"ttptycmd masterfd","USE_CKUPTY_C",masterfd);
     debug(F111,"ttptycmd fork pid","USE_CKUPTY_C",pty_fork_pid);
@@ -10984,18 +10632,6 @@ ttptycmd( char *s )
     /* Put pty master in raw mode but let forked app control the slave */
     pty_make_raw(masterfd);
 
-#ifdef COMMENT
-#ifdef TIOCREMOTE
-    /* TIOCREMOTE,0 = disable all termio processing */
-    x = ioctl(masterfd, TIOCREMOTE, 1);
-    debug(F111,"ttptycmd ioctl TIOCREMOTE",ckitoa(x),errno);
-#endif	/* TIOCREMOTE */
-#ifdef TIOCTTY
-    /* TIOCTTY,0 = disable all termio processing */
-    x = ioctl(masterfd, TIOCTTY, 0);
-    debug(F111,"ttptycmd ioctl TIOCTTY",ckitoa(x),errno);
-#endif	/* TIOCTTY */
-#endif /* COMMENT */
 
     have_pty = 1;			/* We have an open pty */
     save_sigchld = signal(SIGCHLD, sigchld_handler); /* Catch fork quit */
@@ -11017,14 +10653,6 @@ ttptycmd( char *s )
 	}
 	signal(SIGINT,SIG_IGN);		/* Let upper fork catch this */
 	
-#ifdef COMMENT
-#ifdef TIOCSCTTY
-	/* Make pty the controlling terminal for the process */
-	/* THIS CAUSES AN INFINITE SIGWINCH INTERRUPT LOOP */
-	x = ioctl(slavefd, TIOCSCTTY, NULL);
-	debug(F101,"ttptycmd TIOCSCTTY","",x);
-#endif	/* TIOCSCTTY */
-#endif	/* COMMENT */
 
 	/* Initialize slave pty modes and size to those of our terminal */
 	if (tcsetattr(slavefd, TCSANOW, &term) == -1) {
@@ -11035,29 +10663,7 @@ ttptycmd( char *s )
 	    perror("ttptycmd ioctl");
 	    exit(1);
 	}
-#ifdef COMMENT
-#ifdef TIOCNOTTY
-	/* Disassociate this process from its terminal */
-	/* THIS HAS NO EFFECT */
-	x = ioctl(slavefd, TIOCNOTTY, NULL);
-	debug(F101,"ttptycmd TIOCNOTTY","",x);
-#endif	/* TIOCNOTTY */
-#endif	/* COMMENT */
 
-#ifdef COMMENT
-#ifdef SIGTTOU	
-	/* Ignore terminal output interrupts */
-	/* THIS HAS NO EFFECT */
-	debug(F100,"ttptycmd ignoring SIGTTOU","",0);
-	signal(SIGTTOU, SIG_IGN);
-#endif	/* SIGTTOU */
-#ifdef SIGTSTP	
-	/* Ignore terminal output interrupts */
-	/* THIS HAS NO EFFECT */
-	debug(F100,"ttptycmd ignoring SIGTSTP","",0);
-	signal(SIGTSTP, SIG_IGN);
-#endif	/* SIGTSTP */
-#endif	/* COMMENT */
 
 	pty_make_raw(slavefd);		/* Put it in rawmode */
 
@@ -11092,16 +10698,6 @@ ttptycmd( char *s )
 		}
 	    }	    
 	}
-#ifdef COMMENT
-/*
-  Putting the slave pty in rawmode should not be necessary because the
-  external protocol program is supposed to do that itself.  Yet doing this
-  here cuts down on Zmodem binary-file transmission errors by 30-50% but
-  still doesn't eliminate them.
-*/
-	pty_make_raw(STDIN_FILENO);
-	pty_make_raw(STDOUT_FILENO);
-#endif /* COMMENT */
 
 	debug(F100,"ttptycmd execvp'ing external protocol","",0);
 	execvp(args[0],args);
@@ -11142,24 +10738,6 @@ ttptycmd( char *s )
     debug(F100,msgbuf,"",0);
 #endif /* PTY_USE_NDELAY */
 
-#ifdef COMMENT
-/* Not necessary, the protocol module already did this */
-
-#ifdef USE_CFMAKERAW
-    if (tcgetattr(ttyfd, &term) > -1) {
-	cfmakeraw(&term);
-	debug(F101,"ttptycmd net cfmakeraw errno","",errno);
-	x tcsetattr(ttyfd, TCSANOW, &term);
-	debug(F101,"ttptycmd net tcsetattr","",x);
-	debug(F101,"ttptycmd net tcsetattr","",errno);
-    }
-#else
-    if (local)				/* Put network connection in */
-      ttpkt(ttspeed,ttflow,ttprty);	/* "packet mode". */
-    else
-      conbin((char)escchr);		/* OR... pty_make_raw(0) */
-#endif /* USE_CFMAKERAW */
-#endif /* COMMENT */
 
 #ifdef TNCODE
     if (is_tn) {
@@ -11291,9 +10869,6 @@ ttptycmd( char *s )
 		x = 0;
 	    }
 	    write_net_bytes += x;
-#ifdef COMMENT
-	    pbuf_written += x;
-#else
 /*
   13 October 2021: Bug fix by Ao Huang (Oscar).  pbuf_written is the position
   in the source string.  But x is the number of bytes written to the
@@ -11301,26 +10876,11 @@ ttptycmd( char *s )
   e.g. doubling of IACs.  The error caused the next source byte to be skipped.
 */
 	    pbuf_written += pbuf_avail - pbuf_written;
-#endif  /* COMMENT */
 	}
 	if (FD_ISSET(ptyfd, &out)) {	/* Can write to pty? */
 	    debug(F100,"ttptycmd FD_ISSET ptyfd out","",0);
 	    errno = 0;
-#ifndef COMMENT
 	    x = write(ptyfd,tbuf + tbuf_written,tbuf_avail - tbuf_written);
-#else
-	    /* Byte loop to rule out data overruns in the pty */
-	    /* (it makes no difference) */
-	    {
-		char *p = tbuf+tbuf_written;
-		int n = tbuf_avail - tbuf_written;
-		for (x = 0; x < n; x++) {
-		    msleep(10);
-		    if (write(ptyfd,&(p[x]),1) < 0)
-		      break;
-		}
-	    }
-#endif /* COMMENT */
 	    debug(F111,"ttptycmd ptyfd write",ckitoa(errno),x);
 	    if (x > 0) {
 		tbuf_written += x;
@@ -11382,14 +10942,6 @@ ttptycmd( char *s )
 				*p++ = c;
 				debug(F000,"<<< Keep","",c);
 				break;
-#ifdef COMMENT
-			      case 0x0f: /* Ctrl-O */
-			      case 0x16: /* Ctrl-V */
-				*p++ = 0x16;
-				*p++ = c;
-				debug(F000,"<<< QUOT","",c);
-				break;
-#endif /* COMMENT */
 			      case 0xff: /* IAC */
 				if (in_state == HAVE_IAC) {
 				    debug(F000,"<<< KEEP","",c);
@@ -11402,22 +10954,7 @@ ttptycmd( char *s )
 				break;
 			      default:	/* All others */
 				if (in_state == HAVE_IAC) {
-#ifdef COMMENT
-/*
-  tn_doop() will consume an unknown number of bytes and we'll overshoot
-  the for-loop.  The only Telnet command I've ever seen arrive here is
-  a Data Mark, which comes when the remote protocol exits and the remote
-  job returns to its shell prompt.  On the assumption it's a 1-byte command,
-  we don't write out the IAC or the command, and we clear the state.  If
-  we called tn_doop() we'd have no way of knowing how many bytes it took
-  from the input stream.
-*/
-				    int xx;
-				    xx = tn_doop((CHAR)c,duplex,ttinc);
-				    debug(F111,"<<< DOOP",ckctoa(c),xx);
-#else
 				    debug(F101,"<<< DOOP","",c);
-#endif	/* COMMENT */
 				    in_state = 0;
 				} else {
 				    *p++ = c;
@@ -11489,10 +11026,6 @@ ttptycmd( char *s )
 		if (x < 0) {		/* This works on Solaris and Linux */
 		    pty_err++;		/* but not NetBSD */
 		    debug(F100,"TERMINATION TEST A","",0);
-#ifdef COMMENT
-		    if (errno == EIO)
-		      rc = 1;
-#endif	/* COMMENT */
 		    if (pexitstat < 0) {
 			status = pty_get_status(ptyfd,pty_fork_pid);
 			debug(F101,"ttptycmd pty_get_status C","",status);
@@ -11532,15 +11065,6 @@ ttptycmd( char *s )
 		    if (x < 0)
 		      x = 0;
 		}
-#ifdef COMMENT
-#ifdef DEBUG
-		if (deblog) {
-		    pbuf[pbuf_avail + x] = '\0';
-		    debug(F111,"ttptycmd added to pty buffer",
-			  pbuf+pbuf_avail,x);
-		}
-#endif	/* DEBUG */
-#endif	/* COMMENT */
 		pbuf_avail += x;
 		read_pty_bytes += x;
 	    } else {			/* n == 0 with blocking reads */
@@ -11725,16 +11249,12 @@ external protocols over secure connections not supported in this OS.\n"
 	istat = signal(SIGINT,SIG_IGN); /* Let the fork handle keyboard */
 	qstat = signal(SIGQUIT,SIG_IGN); /* interrupts itself... */
 
-#ifdef COMMENT
-    	while (((wstat = wait(&statusp)) != pid) && (wstat != -1)) ;
-#else  /* Not COMMENT */
     	while (1) {
 	    wstat = wait(&statusp);
 	    debug(F101,"ttruncmd wait","",wstat);
 	    if (wstat == pid || wstat == -1)
 	      break;
 	}
-#endif /* COMMENT */
 
 	pexitstat = (statusp & 0xff) ? statusp : statusp >> 8;
 	debug(F101,"ttruncmd wait statusp","",statusp);

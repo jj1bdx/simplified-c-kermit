@@ -254,9 +254,6 @@ int
 urlparse( char *s, struct urldata * url )
 {
     char * p = NULL, * urlbuf = NULL;
-#ifdef COMMENT
-    int x;
-#endif /* COMMENT */
 
     if (!s || !url)
         return(0);
@@ -316,12 +313,6 @@ urlparse( char *s, struct urldata * url )
         if (*p == ':')			/* a second colon */
           *p++ = NUL;			/* get rid of that one too */
         while (*p == '/') *p++ = NUL;	/* and slashes */
-#ifdef COMMENT
-        /* Trailing slash is part of path - leave it - jaltman */
-        x = strlen(p);                  /* Length of remainder */
-        if (p[x-1] == '/')              /* If there is a trailing slash */
-          p[x-1] = NUL;			/* remove it. */
-#endif /* COMMENT */
         if (urlbuf[0]) {		/* Anything left? */
             char *q = p, *r = p, *w = p;
 	    makestr(&url->svc,urlbuf);
@@ -343,11 +334,6 @@ urlparse( char *s, struct urldata * url )
                 p = q;
 		url->hos = p;
             }
-#ifdef COMMENT
-	    debug(F111,"urlparse url->usr",url->usr,url->usr);
-	    debug(F111,"urlparse url->psw",url->usr,url->psw);
-	    debug(F111,"urlparse url->hos",url->usr,url->hos);
-#endif	/* COMMENT */
 
             while (*p != NUL && *p != ':' && *p != '/')	/* Port? */
               p++;
@@ -1306,22 +1292,6 @@ cmdlin() {
                           ssh_set_sparam(SSH_SPARAM_PRT,*xargv);
                           debug(F110,"cmdlin telnet host2",ttname,0);
                       }
-#ifdef COMMENT
-                      /* Do not substitute net dir service for ssh port */
-#ifndef NOICP
-#ifndef NODIAL
-		      /* No - how about in net directory? */
-                      else if (nhcount) {
-                          if (nh_px[0][0]) {
-                              ckstrncat(ttname,":",TTNAMLEN+1);
-                              ckstrncat(ttname,nh_px[0][0],TTNAMLEN+1);
-                              ssh_set_sparam(SSH_SPARAM_PRT,nh_px[0][0]);
-                          }
-                      }
-
-#endif /* NODIAL */
-#endif /* NOICP */
-#endif /* COMMENT */
                       break;
                   }
               }
@@ -1549,11 +1519,6 @@ struct keytab xargtab[] = {
     { "database",    XA_DBAS, CM_ARG|CM_PRE },
     { "dbfile",      XA_DBFI, CM_ARG|CM_PRE },
 #endif /* IKSDB */
-#ifdef COMMENT
-#ifdef NEWFTP
-    { "ftp",         XA_FTP,  CM_ARG },
-#endif /* NEWFTP */
-#endif /* COMMENT */
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
     { "help",        XA_HELP, 0 },
@@ -1569,9 +1534,6 @@ struct keytab xargtab[] = {
 #ifndef NOPUSH
     { "nopush",      XA_NOPUSH, CM_PRE },
 #endif /* NOPUSH */
-#ifdef COMMENT
-    { "password",    XA_PASS, CM_ARG|CM_INV },
-#endif /* COMMENT */
 #ifdef CK_LOGIN
 #ifndef NOXFER
 #ifdef CK_PERM
@@ -1594,20 +1556,10 @@ struct keytab xargtab[] = {
     { "root",        XA_ROOT, CM_ARG|CM_PRE },
 #endif /* CKROOT */
 #endif /* UNIX */
-#ifdef COMMENT
-#ifdef SSHBUILTIN
-    { "ssh",         XA_SSH,  CM_ARG },
-#endif /* SSHBUILTIN */
-#endif /* COMMENT */
 #ifdef CKSYSLOG
     { "syslog",      XA_SYSL, CM_ARG|CM_PRE },
 #endif /* CKSYSLOG */
 #ifndef NOLOCAL
-#ifdef COMMENT
-#ifdef TNCODE
-    { "telnet",      XA_TEL,  CM_ARG },
-#endif /* TNCODE */
-#endif /* COMMENT */
     { "termtype",    XA_TERM, CM_ARG|CM_PRE },
 #endif /* NOLOCAL */
     { "timeout",     XA_TIMO, CM_ARG|CM_PRE },
@@ -1945,8 +1897,6 @@ iniopthlp() {
             opthlp[i] = "Disable automatic per-file text/binary switching";
             arghlp[i] = NULL;
             break;
-#ifdef COMMENT
-#endif /* COMMENT */
 #ifdef ANYX25
           case 'X':                     /* SET HOST to X.25 address */
             opthlp[i] = "Make an X.25 connection";
@@ -2272,11 +2222,6 @@ doxarg( char ** s, int pre )
 #endif /* CK_LOGIN */
 
       case XA_CDFI:                     /* CD filename */
-#ifdef COMMENT
-        /* Do NOT expand this one! */
-        if (zfnqfp(p,CKMAXPATH,tmpbuf))
-          p = tmpbuf;
-#endif /* COMMENT */
         makelist(p,cdmsgfile,16);
         makestr(&cdmsgstr,p);
         /* printf("cdmsgstr=%s\n",cdmsgstr); */
@@ -2462,11 +2407,6 @@ doxarg( char ** s, int pre )
 	  break;
       }
 
-#ifdef COMMENT				/* TO BE FILLED IN ... */
-      case XA_TEL:			/* Make a Telnet connection */
-      case XA_FTP:			/* Make an FTP connection */
-      case XA_SSH:			/* Make an SSH connection */
-#endif /* COMMENT */
 
 #ifndef NOSPL
       case XA_USER:			/* Username for login */
@@ -3767,13 +3707,10 @@ extern char *line, *tmpbuf;             /* Character buffers for anything */
 	    break;
 #endif /* NETCONN */
 
-#ifdef COMMENT
-#else
 	  case 'P':			/* Filenames literal */
 	    fncnv  = XYFN_L;
 	    f_save = XYFN_L;
 	    break;
-#endif /* COMMENT */
 
 #ifndef NOICP
 	  case 'H':

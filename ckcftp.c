@@ -200,13 +200,6 @@ struct timeval {
     long tv_sec;
     long tv_usec;
 };
-#ifdef COMMENT
-/* Currently we don't use this... */
-struct timezone {
-    int tz_minuteswest;
-    int tz_dsttime;
-};
-#endif /* COMMENT */
 #else  /* !DCLTIMEVAL */
 #ifndef NOSYSTIMEH
 #ifdef SYSTIMEH
@@ -229,13 +222,6 @@ struct timezone {
 #endif /* HAVE_STDLIB_H */
 
 #ifndef NOSETTIME
-#ifdef COMMENT
-/* This section moved to ckcdeb.h */
-#ifdef POSIX
-#define UTIMEH
-#else
-#endif /* POSIX */
-#endif /* COMMENT */
 
 #ifdef SYSUTIMEH
 #include <sys/utime.h>
@@ -407,11 +393,7 @@ int ssl_ftp_proxy = 0;                  /* FTP over SSL/TLS Proxy Server */
 /* Fascist compiler toadying */
 
 #ifndef SENDARG2TYPE
-#ifdef COMMENT                          /* Might be needed here and there */
-#define SENDARG2TYPE const char *
-#else
 #define SENDARG2TYPE char *
-#endif /* COMMENT */
 #endif /* SENDARG2TYPE */
 
 /* Common text messages */
@@ -626,9 +608,6 @@ static sig_t oldintr;
 
 /* Prototypes for static functions defined in ckcftp.c */
 
-#ifdef COMMENT
-static VOID bytswap( int *, int * );
-#endif /* COMMENT */
 static VOID cancel_remote( int );
 static VOID changetype( int, int );
 static VOID dbtime( char *, struct tm * );
@@ -1072,9 +1051,6 @@ static int nftpbug = (sizeof(ftpbugtab) / sizeof(struct keytab));
 
 static struct keytab ftpcolxtab[] = { /* SET FTP COLLISION options */
     { "append",    XYFX_A, 0 },         /* append to old file */
-#ifdef COMMENT
-    { "ask",       XYFX_Q, 0 },         /* ask what to do (not implemented) */
-#endif
     { "backup",    XYFX_B, 0 },         /* rename old file */
     { "dates-differ", XYFX_M, 0 },	/* accept if dates differ */
     { "discard",   XYFX_D, 0 },         /* don't accept new file */
@@ -1146,12 +1122,6 @@ static struct keytab putswi[] = {       /* FTP PUT switch table */
 #ifdef PUTPIPE
     { "/command",              SND_CMD, CM_PSH },
 #endif /* PUTPIPE */
-#ifdef COMMENT
-/* This works but it's dangerous */
-#ifdef DOUPDATE
-    { "/dates-differ",         SND_DIF, CM_INV },
-#endif /* DOUPDATE */
-#endif /* COMMENT */
     { "/delete",               SND_DEL, 0 },
     { "/dotfiles",             SND_DOT, 0 },
     { "/error-action",         SND_ERR, CM_ARG },
@@ -1205,9 +1175,6 @@ static struct keytab putswi[] = {       /* FTP PUT switch table */
     { "/simulate",             SND_SIM, 0 },
     { "/since",                SND_AFT, CM_INV|CM_ARG },
     { "/smaller-than",         SND_SMA, CM_ARG },
-#ifdef COMMENT
-    { "/starting-at",          SND_STA, CM_ARG },
-#endif /* COMMENT */
 #ifdef RECURSIVE
     { "/subdirectories",       SND_REC, CM_INV },
 #endif /* RECURSIVE */
@@ -1373,28 +1340,6 @@ static int nftptyp = (sizeof(ftptyp) / sizeof(struct keytab)) - 1;
 #define PROT_P 3                        /* Private */
 #define PROT_E 4                        /* Confidential */
 
-#ifdef COMMENT                          /* Not used */
-#ifdef FTP_NAMES
-char *strunames[]  =  {"0", "File",     "Record", "Page" };
-char *formnames[]  =  {"0", "Nonprint", "Telnet", "Carriage-control" };
-char *modenames[]  =  {"0", "Stream",   "Block",  "Compressed" };
-char *levelnames[] =  {"0", "Clear",    "Safe",   "Private",  "Confidential" };
-#endif /* FTP_NAMES */
-
-/* Record Tokens */
-
-#define REC_ESC '\377'                  /* Record-mode Escape */
-#define REC_EOR '\001'                  /* Record-mode End-of-Record */
-#define REC_EOF '\002'                  /* Record-mode End-of-File */
-
-/* Block Header */
-
-#define BLK_EOR           0x80          /* Block is End-of-Record */
-#define BLK_EOF           0x40          /* Block is End-of-File */
-#define BLK_REPLY_ERRORS  0x20          /* Block might have errors */
-#define BLK_RESTART       0x10          /* Block is Restart Marker */
-#define BLK_BYTECOUNT 2                 /* Bytes in this block */
-#endif /* COMMENT */
 
 #define RADIX_ENCODE 0                  /* radix_encode() function codes */
 #define RADIX_DECODE 1
@@ -1427,9 +1372,6 @@ _PROTOTYP(static int ftp_reset, (void));
 _PROTOTYP(static int ftp_rename, (char *, char *));
 _PROTOTYP(static int ftp_umask, (char *));
 _PROTOTYP(static int secure_flush, (int));
-#ifdef COMMENT
-_PROTOTYP(static int secure_putc, (char, int));
-#endif /* COMMENT */
 _PROTOTYP(static int secure_write, (int, CHAR *, unsigned int));
 _PROTOTYP(static int scommand, (char *));
 _PROTOTYP(static int secure_putbuf, (int, CHAR *, unsigned int));
@@ -1495,26 +1437,7 @@ strputc(char c)
     return(0);
 }
 
-#ifdef COMMENT
-static int
-xprintc(char c)
-{
-    printf("%c",c);
-    return(0);
-}
-#endif /* COMMENT */
 
-#ifdef COMMENT
-/* K95: Check whether we need this */
-static VOID
-bytswap( int * c0, int * c1 )
-{
-    int t;
-    t = *c0;
-    *c0 = *c1;
-    *c1 = t;
-}
-#endif /* COMMENT */
 #endif /* NOCSETS */
 
 #ifdef CKLOGDIAL
@@ -2209,13 +2132,6 @@ openftp( char * s, int opn_tls )
                    );
         }
     }
-#ifdef COMMENT
-    debug(F100,"ftp openftp while exit","",0);
-    rc = cmcfm();
-    debug(F101,"ftp openftp cmcfm rc","",rc);
-    if (rc < 0)
-      goto xopenftp;
-#endif /* COMMENT */
 
     if (opn_psv > -1) {                 /* /PASSIVE or /ACTIVE switch given */
         sav_psv = ftp_psv;
@@ -2751,12 +2667,6 @@ syncdir( char * local, int sim )
         if (!*p)                        /* If we don't have to go down */
           goto xcwd;                    /* we're done. */
     }
-#ifdef COMMENT
-    while (p > buf && *p && *p != '/')  /* If in middle of segment */
-      p--;                              /* back up to beginning */
-    if (*p == '/')                      /* and terminate there */
-      p++;
-#endif	/* COMMENT */
 
     debug(F110,"ftp syncdir NEW PATH",p,0);
 
@@ -3152,14 +3062,6 @@ chkmodtime( char * local, char * remote, int fc )
               confusion, etc.
             */
 	    int xx;
-#ifdef COMMENT
-#ifdef DEBUG	    
-	    if (deblog) {
-		dbtime("LOCAL",tmlocal);
-		dbtime("REMOT",&tmremote);
-	    }
-#endif /* DEBUG */
-#endif /* COMMENT */
 	    xx = tmcompare(tmlocal,&tmremote);
 	    debug(F101,"chkmodtime tmcompare","",xx);
             return(xx + 1);
@@ -4168,11 +4070,7 @@ doftpput(int cx, int who)               /* who == 1 for ftp, 0 for kermit */
            0,                           /* dirflg 0 means "not dirs only" */
            xxstring,
            NULL,
-#ifdef COMMENT
-           mput ? &cm : &fl
-#else
 	   &fl
-#endif /* COMMENT */
            );
 
     while (1) {                         /* Parse zero or more switches */
@@ -4803,11 +4701,7 @@ doftpput(int cx, int who)               /* who == 1 for ftp, 0 for kermit */
 			strcat(fspec,p);    /* safe */
 			strcat(fspec," ");  /* safe */
 		    } else {
-#ifdef COMMENT
-			printf("WARNING - \\v(filespec) buffer overflow\n");
-#else
 			debug(F101,"doxput filespec buffer overflow","",0);
-#endif /* COMMENT */
 		    }
 		}
 	    }
@@ -5011,18 +4905,6 @@ like \\v(filename)" :
             putflags |= PUT_UPD;
 	    ftp_dates |= 2;
         }
-#ifdef COMMENT
-	/* This works but it's useless, maybe dangerous */
-        if (pv[SND_DIF].ival > 0) {
-            if (x_usn) {
-                printf("?Conflicting switches: /DATES-DIFFER /UNIQUE\n");
-                x = -9;
-                goto xputx;
-            }
-            putflags |= PUT_DIF;
-	    ftp_dates |= 2;
-        }
-#endif /* COMMENT */
 #endif /* DOUPDATE */
 
         if (pv[SND_SIM].ival > 0)
@@ -5197,11 +5079,6 @@ like \\v(filename)" :
             }
             printf("?Warning access denied - \"%s\"\n", filnam);
             continue;
-#ifdef COMMENT
-          case -4:                      /* Canceled */
-            done++;
-            break;
-#endif /* COMMENT */
           case -5:
             printf("?Too many files match\n");
             done++;
@@ -6164,15 +6041,6 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
 
 /* Set up /MOVE and /RENAME */
 
-#ifdef COMMENT
-    /* Conflict exists only for PUT - removed 13 Mar 2006 - fdc */
-    if (pv[SND_DEL].ival > 0 &&
-        (pv[SND_MOV].ival > 0 || pv[SND_REN].ival > 0)) {
-        printf("?Sorry, /DELETE conflicts with /MOVE or /RENAME\n");
-        x = -9;
-        goto xgetx;
-    }
-#endif	/* COMMENT */
 #ifdef CK_TMPDIR
     if (pv[SND_MOV].ival > 0 && pv[SND_MOV].sval) {
         int len;
@@ -6307,12 +6175,6 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
             printf("?Sorry, GET /RECOVER requires binary mode\n");
             x = -9;
             goto xgetx;
-#ifdef COMMENT
-        /* Not true - the fact that the initial REST fails does not mean */
-        /* it will fail here.  */
-        } else if (!okrestart) {
-            printf("WARNING: Server might not support restart...\n");
-#endif /* COMMENT */
         }
         restart = 1;
     }
@@ -6605,10 +6467,6 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
 		!strncmp(src,s,usrpath)) {
                 s2 = s + usrpath;       /* Local name skips past remote path */
             }
-#ifdef COMMENT
-	    /* This doesn't work if the path prefix contains wildcards! */
-	    haspath = (srvpath > usrpath);
-#else
 	    {				/* Count path segments instead */
 		int x1 = 0, x2 = 0;
 		char *p;
@@ -6622,7 +6480,6 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
 		debug(F111,"ftp get user   path segments",src,x2);
 	    }
 
-#endif /* COMMENT */
             debug(F111,"ftp get haspath",s+usrpath,haspath);
 
             if (haspath) {              /* Server file has path segments? */
@@ -6797,15 +6654,6 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
                     tlog(F100," refused: size","",0);
                     msg = "Refused: Size";
                 }
-#ifdef COMMENT
-            } else if (getone) {
-                /* SIZE can fail for many reasons.  Does the file exist? */
-                x = ftpcmd("NLST",s,x_csl,x_csr,ftp_vbm);
-                if (x != REPLY_COMPLETE) {
-                    printf(">>> FILE NOT FOUND: %s\n",s);
-                    break;
-                }
-#endif /* COMMENT */
             }
         }
         if (skipthis) {                 /* Skipping this file? */
@@ -7123,11 +6971,7 @@ doftpget( int cx, int who )       /* who == 1 for ftp, 0 for kermit */
         fp_nml = NULL;
     }
     if (
-#ifdef COMMENT
-	x > -1
-#else
 	success
-#endif	/* COMMENT */
 	) {				/* Download successful */
 #ifdef GFTIMER
         t1 = gmstimer();                /* End time */
@@ -7300,14 +7144,6 @@ doxftp() {                              /* Command parser for built-in FTP */
         ftp_typ = g_ftp_typ;
         /* g_ftp_typ = -1; */
     }
-#ifdef COMMENT
-/*
-  We'll set the collision action locally in doftpget() based on whether
-  ftp_fnc was ever set to a value.  if not, we'll use the fncact value.
-*/
-    if (ftp_fnc < 0)                    /* Inherit global collision action */
-      ftp_fnc = fncact;                 /* if none specified for FTP */
-#endif /* COMMENT */
 
     /* Restore global verbose mode */
     if (ftp_deb)
@@ -7494,16 +7330,6 @@ doxftp() {                              /* Command parser for built-in FTP */
         return(success);
 
       case FTP_OPN:                     /* OPEN connection */
-#ifdef COMMENT
-        x = cmfld("IP hostname or address","",&s,xxstring);
-        if (x < 0) {
-            success = 0;
-            return(x);
-        }
-        ckstrncpy(line,s,LINBUFSIZ);
-        s = line;
-        return(openftp(s,0));
-#else
         {                               /* OPEN connection */
             char name[TTNAMLEN+1], *p;
             extern int network;
@@ -7567,7 +7393,6 @@ doxftp() {                              /* Command parser for built-in FTP */
             s = line;
             return(openftp(s,usetls));
         }
-#endif /* COMMENT */
 
       case FTP_PUT:                     /* PUT */
       case FTP_MPU:                     /* MPUT */
@@ -7787,11 +7612,6 @@ shoftp( int brief )
     printf(" ftp verbose-mode:              %s\n",showoff(ftp_vbx));
     printf(" ftp send-port-commands:        %s\n",showoff(ftp_psv));
     printf(" ftp unique-server-names:       %s\n",showoff(ftp_usn));
-#ifdef COMMENT
-    /* See note in doxftp() */
-    if (ftp_fnc < 0)
-      ftp_fnc = fncact;
-#endif /* COMMENT */
     printf(" ftp collision:                 %s\n",
 	   fncnam[ftp_fnc > -1 ? ftp_fnc : fncact]);
     printf(" ftp server-time-offset:        %s\n",
@@ -8146,13 +7966,6 @@ static char * fhs_mpu[] = {             /* MPUT */
     "    to be sent.",
 #endif /* PUTPIPE */
 
-#ifdef COMMENT
-#ifdef DOUPDATE
-    "  /DATES-DIFFER",
-    "    Upload only those files whose modification date-times differ from",
-    "    those on the server, or that don't exist on the server at all.",
-#endif /* DOUPDATE */
-#endif /* COMMENT */
 
     "  /DELETE",
     "    Specifies that each source file is to be deleted after, and only if,",
@@ -8727,9 +8540,6 @@ static int      ptflag = 0;
 #endif /* FTP_PROXY */
 static struct   sockaddr_in myctladdr;
 
-#ifdef COMMENT
-UID_T getuid();
-#endif /* COMMENT */
 
 
 static int cpend = 0;                   /* No pending replies */
@@ -8878,10 +8688,6 @@ ftpcmd( char * cmd, char * arg, int lcs, int rcs, int vbm )
     if (q > -1)
       quiet = q;
 
-#ifdef COMMENT
-    if (cancelfile && oldintr != SIG_IGN)
-      (*oldintr)(SIGINT);
-#endif /* COMMENT */
     signal(SIGINT, oldintr);
     return(r);
 }
@@ -9541,25 +9347,9 @@ getreply( int expecteof, int lcs, int rcs, int vbm, int fc )
             }
         }
         if (deblog ||
-#ifdef COMMENT
-/*
-  Sometimes we need to print the server reply.  printlines is nonzero for any
-  command where the results are sent back on the control connection rather
-  than the data connection, e.g. STAT.  In the TOPS-20 case, each file line
-  has ftpcode 213.  But if you do this with a UNIX server, it sends "213-Start
-  STAT", <line with ftpcode == 0>, "213-End" or somesuch.  So when printlines
-  is nonzero, we want the 213 lines from TOPS-20 and we DON'T want the 213
-  lines from UNIX.  Further experimentation needed with other servers.  Of
-  course RFC959 is mute as to the format of the server reply.
-
-  'printlines' is also true for PWD and BYE.
-*/
-	    (printlines && ((ftpcode == 0) || (servertype == SYS_TOPS20)))
-#else
 /* No, we can't be that clever -- it breaks other things like RPWD... */
             (printlines &&
              (ftpcode != 631 && ftpcode != 632 && ftpcode != 633))
-#endif /* COMMENT */
             ) {
             char * q = cp;
             char *r = ftp_reply_str;
@@ -10029,21 +9819,8 @@ doftpsend2(void * threadinfo)
                 ftpsndret = -1;
                 return;
             }
-#ifdef COMMENT
-            debug(F111,"doftpsend2 zfseek ok",ftpsnd.local,sendstart);
-            x = ftpcmd("REST",ckltoa(sendstart),-1,-1,ftp_vbm);
-            if (x != REPLY_CONTINUE) {
-                sendstart = 0;
-                zclose(ZIFILE);
-                ftpsndret = -1;
-                return;
-            } else {
-                ftpsnd.cmd = "STOR";
-            }
-#else
             sendmode = SM_RESEND;
             ftpsnd.cmd = "APPE";
-#endif /* COMMENT */
             /* sendstart = (CK_OFF_T)0; */
         }
     }
@@ -10397,7 +10174,6 @@ doftprecv(VOID * threadinfo)
 #endif /* IKSD */
 #endif /* CK_LOGIN */
 
-#ifndef COMMENT
     if (!out2screen && !ftprecv.pipename) {
 	int x;
 	char * local;
@@ -10413,7 +10189,6 @@ doftprecv(VOID * threadinfo)
             return;
         }
     }
-#endif /* COMMENT */
     changetype((!ftprecv.is_retr) ? FTT_ASC : ftp_typ, 0);
     if (initconn()) {                   /* Initialize the data connection */
         signal(SIGINT, ftprecv.oldintr);
@@ -10747,11 +10522,6 @@ Please confirm output file specification or supply an alternative:";
                 }
                 if (c1 < 0)
                   break;
-#ifdef COMMENT
-		/* K95: Check whether we need this */
-		if (fileorder > 0)	/* Little Endian */
-		  bytswap(&c0,&c1);	/* swap bytes*/
-#endif /* COMMENT */
 
                 {
                     if ((x = xpnbyte(c0,TC_UCS2,ftprecv.fcs,fn)) < 0) break;
@@ -10935,13 +10705,6 @@ recvrequest(
     if (!ftprecv.is_retr)               /* No recovery except for RETRieve */
       recover = 0;
 
-#ifdef COMMENT
-    if (!out2screen && !pipename && ftprecv.is_retr) { /* To real file */
-        if (recursive && ckstrchr(local,'/')) {
-	    
-        }
-    }
-#endif /* COMMENT */
 
     ftprecv.localsize = (CK_OFF_T)0;	/* Local file size */
     rs_len = (CK_OFF_T)0;		/* Recovery point */
@@ -10962,22 +10725,6 @@ recvrequest(
 		      remote,ftprecv.localsize);
                 return(1);
             }
-#ifdef COMMENT
-/*
-  The problem here is that the original partial file never got its date
-  set, either because FTP DATES was OFF, or because the partial file was
-  downloaded by some other program that doesn't set local file dates, or
-  because Kermit only sets the file's date when the download was complete
-  and successful.  In all these cases, the local file has a later time
-  than the remote.
-*/
-            if (recover) {              /* Remote is bigger */
-                x = chkmodtime(local,remote,0); /* Check file dates */
-                debug(F111,"ftp recvrequest chkmodtime",remote,x);
-                if (x != 1)		/* Dates must be equal! */
-                  recover = 0;          /* If not, get whole file */
-            }
-#endif /* COMMENT */
         }
         debug(F111,"ftp recvrequest recover",remote,recover);
     }
@@ -11850,12 +11597,6 @@ ftp_hookup( char * host, int port, int tls )
     hisctladdr.sin_port = htons(cport);
     errno = 0;
 
-#ifdef COMMENT
-  printf("hisctladdr=%d\n",sizeof(hisctladdr));
-  printf("hisctladdr.sin_addr=%d\n",sizeof(hisctladdr.sin_addr));
-  printf("sockaddr_in=%d\n",sizeof(struct sockaddr_in));
-  printf("hisctladdr.sin_addr.s_addr=%d\n",sizeof(hisctladdr.sin_addr.s_addr));
-#endif	/* COMMENT */
 
 #ifdef HADDRLIST
     debug(F100,"ftp hookup HADDRLIST","",0);
@@ -12055,10 +11796,6 @@ ftp_init() {
         n = ftpcmd("REST 0",NULL,0,0,0);
         if (n == REPLY_COMPLETE)
           okrestart = 1;
-#ifdef COMMENT
-        else if (ftp_deb)
-          printf("WARNING: Unable to restore file pointer.\n");
-#endif /* COMMENT */
     }
     n = ftpcmd("SYST",NULL,0,0,0);      /* Get server system type */
     if (n == REPLY_COMPLETE) {
@@ -12107,15 +11844,7 @@ ftp_init() {
       sfttab[i] = 0;
     if (!noinit) {
         n = ftpcmd("MODE S",NULL,0,0,0); /* We always send in Stream mode */
-#ifdef COMMENT
-        if (n != REPLY_COMPLETE)
-          printf("WARNING: Server does not accept MODE S(TREAM)\n");
-#endif /* COMMENT */
         n = ftpcmd("STRU F",NULL,0,0,0); /* STRU File (not Record or Page) */
-#ifdef COMMENT
-        if (n != REPLY_COMPLETE)
-          printf("WARNING: Server does not accept STRU F(ILE)\n");
-#endif /* COMMENT */
 	if (featok) {
 	    n = ftpcmd("FEAT",NULL,0,0,0); /* Ask server about features */
 	    if (n == REPLY_COMPLETE) {
@@ -12876,28 +12605,6 @@ looping_read( int fd, register char *buf, register int len )
 
 #define ERR -2
 
-#ifdef COMMENT
-static
-secure_putbyte( int fd, CHAR c )
-{
-    int ret;
-
-    ucbuf[nout++] = c;
-    if (nout == (maxbuf ? maxbuf : actualbuf) - FUDGE_FACTOR) {
-        nout = 0;
-        if (!ftpissecure())
-          ret = send(fd, (SENDARG2TYPE)ucbuf,
-                     (maxbuf ? maxbuf : actualbuf) - FUDGE_FACTOR, 0);
-        else
-          ret = secure_putbuf(fd,
-                              ucbuf,
-                              (maxbuf ? maxbuf : actualbuf) - FUDGE_FACTOR
-                              );
-        return(ret?ret:c);
-    }
-    return(c);
-}
-#endif /* COMMENT */
 
 /* returns:
  *       0  on success
@@ -12933,18 +12640,6 @@ secure_flush( int fd )
     return(rc);
 }
 
-#ifdef COMMENT                          /* (not used) */
-/* returns:
- *      c>=0  on success
- *      -1    on error
- *      -2    on security error
- */
-static int
-secure_putc(char c, int fd)
-/* secure_putc */ {
-    return(secure_putbyte(fd, (CHAR) c));
-}
-#endif /* COMMENT */
 
 /* returns:
  *      nbyte on success

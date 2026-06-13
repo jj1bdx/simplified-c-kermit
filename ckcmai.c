@@ -1,10 +1,6 @@
 /* ckcmai.c - Main program for C-Kermit plus some miscellaneous functions */
 
-#ifdef COMMENT
-#define EDITDATE  "22 Mar 2025"       /* Last edit date dd mmm yyyy */
-#else
 #define EDITDATE  "2025/03/22"       /* Last edit date ISO format */
-#endif  /* COMMENT */
 
 #define EDITNDATE "20250322"          /* Keep them in sync */
 /* Thu Aug  8 12:25:04 2024 */
@@ -1840,14 +1836,6 @@ dotakeini(void * threadinfo)            /* Execute init file. */
     debug(F111,"dotakeini","inserver",inserver);
     debug(F111,"dotakeini","sstelnet",sstelnet);
 
-#ifdef COMMENT
-/* Wrong place for this... */
-#ifndef NOXFER
-#ifdef CK_FAST
-    dofast();                           /* By now FAST defaults should be OK */
-#endif /* CK_FAST */
-#endif /* NOXFER */
-#endif /* COMMENT */
 
     doinit();                           /* Now do the initialization file */
     debug(F101,"main executing init file","",tlevel);
@@ -1962,10 +1950,6 @@ setprefix ( int z )
     debug(F101,"setprefix","",prefixing);
     switch (z) {
       case PX_ALL:                      /* All */
-#ifdef COMMENT
-        /* Don't let Clear-Channel be dependent on prefixing */
-        clearrq = 0;                    /* Turn off clearchannel, fall thru */
-#endif /* COMMENT */
       case PX_NON:                      /* None */
         val = (z == PX_ALL) ? 1 : 0;
         for (i =
@@ -1993,10 +1977,6 @@ setprefix ( int z )
         break;
 
       case PX_CAU:                      /* Cautious or Minimal */
-#ifdef COMMENT
-        /* Don't let CLEAR-CHANNEL be dependent on Prefixing */
-        clearrq = 0;                    /* Turn off clearchannel */
-#endif /* COMMENT */
       case PX_WIL:                      /* Minimal ("wild") */
         ctlp[0] = 1;                    /* Does not include 0 */
         for (i = 1; i < 32; i++)
@@ -2093,13 +2073,6 @@ makever ( void )
     xvernum = ck_l_xver;
     debug(F110,"makever Kermit version",versio,0);
 
-#ifdef COMMENT
-    /* The following generates bad code in SCO compilers. */
-    /* Observed in both OSR5 and Unixware 2 -- after executing this */
-    /* statement when all conditions are false, x has a value of -32. */
-    if (noherald || quiet || bgset > 0 || (bgset != 0 && backgrd != 0))
-      x = 1;
-#else
     x = 0;
     if (noherald || quiet)
       x = 1;
@@ -2107,7 +2080,6 @@ makever ( void )
       x = 1;
     else if (bgset < 0 && backgrd > 0)
       x = 1;
-#endif /* COMMENT */
 
     ssl = "";
     krb4 = "";
@@ -2153,16 +2125,6 @@ dourl( void )
     extern int ttnproto;
     extern struct urldata g_url;
 
-#ifdef COMMENT
-    /* NOTE: debug() doesn't work here - must use printf's */
-    printf("URL:  %s\n",g_url.sav ? g_url.sav : "(none)");
-    printf("Type: %s\n",g_url.svc ? g_url.svc : "(none)");
-    printf("User: %s\n",g_url.usr ? g_url.usr : "(none)");
-    printf("Pass: %s\n",g_url.psw ? g_url.psw : "(none)");
-    printf("Host: %s\n",g_url.hos ? g_url.hos : "(none)");
-/*  printf("Port: %s\n",g_url.por ? g_url.por : "(none)"); */
-    printf("Path: %s\n",g_url.pth ? g_url.pth : "(none)");
-#endif /* COMMENT */
 
     if (!ckstrcmp(g_url.svc,"iksd",-1,0) ||
         !ckstrcmp(g_url.svc,"kermit",-1,0)) {
@@ -2490,14 +2452,8 @@ MAINNAME( int argc, char ** argv )
 
 #ifdef XYZ_INTERNAL /* XYZMODEM are internal ... */
 
-#ifdef COMMENT
-    /* Can't do this for XMODEM because if filename contains a "C" etc... */
-    initproto(PROTO_X, "rx %s","rx %s", NULL, NULL, NULL, NULL, NULL);
-    initproto(PROTO_XC,"rc %s","rc %s", NULL, NULL, NULL, NULL, NULL);
-#else /* COMMENT */
     initproto(PROTO_X, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     initproto(PROTO_XC,NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-#endif /* COMMENT */
     initproto(PROTO_Y, "rb","rb", NULL, NULL, NULL, NULL, NULL);
     initproto(PROTO_G, "rb","rb", NULL, NULL, NULL, NULL, NULL);
     initproto(PROTO_Z, "rz","rz", NULL, NULL, NULL, NULL, NULL);
@@ -2798,9 +2754,6 @@ MAINNAME( int argc, char ** argv )
     iniopthlp();                        /* Initialize cmdline arg help */
 #endif /* NOHELP */
     if (
-#ifdef COMMENT
-        !cfilef &&
-#endif /* COMMENT */
         argc > 1) {                     /* Command line arguments? */
         sstate = (CHAR) cmdlin();       /* Yes, parse. */
 

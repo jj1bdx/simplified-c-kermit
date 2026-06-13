@@ -24,77 +24,6 @@
   Definitions for the TELNET protocol.
   can't rely on library header files for any of them.
 */
-#ifdef COMMENT
-/* In some compilers these are prone to sign extension */
-
-#ifndef IAC                             /* First the telnet commands */
-#define IAC 255
-#endif /* IAC */
-#ifndef DONT
-#define DONT 254
-#endif /* DONT */
-#ifndef DO
-#define DO 253
-#endif /* DO */
-#ifndef WONT
-#define WONT 252
-#endif /* WONT */
-#ifndef WILL
-#define WILL 251
-#endif /* WILL */
-#ifndef SB
-#define SB 250
-#endif /* SB */
-#ifndef TN_GA
-#define TN_GA 249
-#endif /* TN_GA */
-#ifndef TN_EL
-#define TN_EL 248
-#endif /* TN_EL */
-#ifndef TN_EC
-#define TN_EC 247
-#endif /* TN_EC */
-#ifndef TN_AYT
-#define TN_AYT 246
-#endif /* TN_AYT */
-#ifndef TN_AO
-#define TN_AO 245
-#endif /* TN_AO */
-#ifndef TN_IP
-#define TN_IP 244
-#endif /* TN_IP */
-#ifndef BREAK
-#define BREAK 243
-#endif /* BREAK */
-#ifndef TN_DM
-#define TN_DM 242
-#endif /* TN_DM */
-#ifndef TN_NOP
-#define TN_NOP 241
-#endif /* TN_NOP */
-#ifndef SE
-#define SE 240
-#endif /* SE */
-#ifndef TN_EOR
-#define TN_EOR 239
-#endif /* TN_EOR */
-#ifndef TN_ABORT
-#define TN_ABORT 238
-#endif /* TN_ABORT */
-#ifndef TN_SUSP
-#define TN_SUSP 237
-#endif /* TN_SUSP */
-#ifndef TN_EOF
-#define TN_EOF 236
-#endif /* TN_EOF */
-#ifndef LAST_TN_CMD
-#define LAST_TN_CMD 236
-
-#define TN_SAK 200              /* IBM Secure Attention Key */
-#endif /* LAST_TN_CMD */
-#define SYNCH   242             /* for telfunc calls */
-
-#else
 /* Hex notation seems to suppress the sugn extension effect */
 
 
@@ -165,7 +94,6 @@
 #endif /* LAST_TN_CMD */
 #define SYNCH 0xf2			/* 242 - for telfunc calls */
 
-#endif	/* COMMENT */
 
 _PROTOTYP(char * tel_unk, (int));       /* "UNKNOWN-%u" string. */
 

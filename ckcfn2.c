@@ -389,56 +389,6 @@ getrtt( int nakstate, int n )
 	  zz *= RTT_SCALE;
 
 	rttdelay = zz;			/* Round trip time of this packet */
-#ifdef COMMENT
-/*
-  This was used in C-Kermit 7.0 (and 6.0?) but not only is it overkill,
-  it also can produce ridiculously long timeouts under certain conditions.
-  Replaced in 8.0 by a far simpler and more aggressive strategy.
-*/
-	if (rttsamples++ == 0L) {	/* First sample */
-	    pktintvl = z;
-	} else {			/* Subsequent samples */
-	    long oldavg = pktintvl;
-	    long rttdiffsq;
-
-	    if (rttsamples > 30)	/* Use real average for first 30 */
-	      rttsamples = 30;		/*  then decaying average. */
-
-	    /* Average delay, difference squared, variance, std deviation */
-
-	    pktintvl += (z - pktintvl) / rttsamples;
-	    rttdiffsq = (z - oldavg) * (z - oldavg);
-	    rttvariance += (rttdiffsq - rttvariance) / rttsamples;
-	    debug(F101,"RTT stddev1","",rttstddev);
-	    if (rttstddev < 1L)		/* It can be zero, in which case */
-	      rttstddev = RTT_SCALE / 3; /* set it to something small... */
-	    rttstddev = (rttstddev + rttvariance / rttstddev) / 2;
-	}
-	debug(F101,"RTT stddev2","",rttstddev);
-	debug(F101,"RTT delay  ","",pktintvl);
-	rcvtimo = (pktintvl + (3L * rttstddev)) / RTT_SCALE + 1;
-	if (rpackets < 32)		/* Allow for slow start */
-	  rcvtimo += rcvtimo + 2;
-	else if (rpackets < 64)
-	  rcvtimo += rcvtimo / 2 + 1;
-        /* On a reliable link, don't try too hard to time out. */
-	/* Especially on fast local network connections. */
-        if (server && what == W_NOTHING) /* Server command wait */
-	  rcvtimo = rcvtimo;		/* == srvtim */
-        else if (reliable == SET_ON && rcvtimo > 0) /* Reliable */
-	  rcvtimo = rcvtimo +15;	/* and not server command wait */
-        else                            /* Not reliable or server cmd wait */
-	  rcvtimo = rcvtimo;
-	if (rcvtimo < mintime)		/* Lower bound */
-	  rcvtimo = mintime;
-	if (maxtime > 0) {		/* User specified an upper bound */
-	    if (rcvtimo > maxtime)
-	      rcvtimo = maxtime;
-	} else if (maxtime == 0) {	/* User didn't specify */
-	    if (rcvtimo > timint * 6)
-	      rcvtimo = timint * 6;
-	}
-#else  /* COMMENT */
 #ifdef CKFLOAT
 	{
 	    CKFLOAT x;
@@ -450,7 +400,6 @@ getrtt( int nakstate, int n )
 	rcvtimo = (prevz + z + z) / RTT_SCALE;
 	debug(F101,"RTT rcvtimo (int)","",rcvtimo);
 #endif /* CKFLOAT */
-#endif /* COMMENT */
 
 	zz = (rttdelay + 500) / 1000;
 	if (rcvtimo > (zz * 3))
@@ -572,20 +521,11 @@ input() {
 		/* the highest packet and NAK winlo.  But that */
 		/* shouldn't be necessary since the other Kermit */
 		/* should not have sent a packet outside the window. */
-#ifdef COMMENT
-                char foo[256];
-                ckmakxmsg(foo,256,"Receive window full (rpack): wslots=",
-                          ckitoa(wslots)," winlo=",ckitoa(winlo)," pktnum=",
-                          ckitoa(pktnum), NULL,NULL,NULL,NULL,NULL,NULL);
-		errpkt((CHAR *)foo);
-                debug(F100,foo,"",0);
-#else
 		errpkt((CHAR *)"Receive window full");
 		debug(F101,"rpack receive window full","",0);
                 debug(F101," wslots","",wslots);
                 debug(F101," winlo","",winlo);
 		debug(F101," pktnum","",pktnum);
-#endif
 		dumprbuf();
 		type = 'E';
 		break;
@@ -816,21 +756,10 @@ input() {
 		    return('q');	/* Ctrl-C or connection lost */
 		}
 		if (type == -1) {
-#ifdef COMMENT
-                    char foo[256];
-                    ckmakxmsg(foo,256,
-			      "Receive window full (error 18): wslots=",
-                              ckitoa(wslots),
-			      " winlo=",ckitoa(winlo)," pktnum=",
-                              ckitoa(pktnum), NULL,NULL,NULL,NULL,NULL,NULL);
-		    errpkt((CHAR *)foo);
-                    debug(F100,foo,"",0);
-#else
 		    errpkt((CHAR *)"Receive window full"); /* was "internal */
                     debug(F101," wslots","",wslots); /* error 18" */
                     debug(F101," winlo","",winlo);
 		    debug(F101," pktnum","",pktnum);
-#endif /* COMMENT */
 		    dumprbuf();
 		    type = 'E';
 		    break;
@@ -1032,11 +961,6 @@ input() {
 		if (x > -1) {		/* If it's a Data packet we've sent */
 		    if (s_pkt[x].pk_typ == 'D') {
 			spsiz = (s_pkt[x].pk_len + 8) >> 1; /* Halve length */
-#ifdef COMMENT
-			/* This might be a good idea -- haven't tried it ... */
-			if (bestlen > 0 && spsiz > bestlen)
-			  spsiz = bestlen;
-#endif /* COMMENT */
 			if (spsiz < 20) spsiz = 20;
 			debug(F101,"input N cut packet length","",spsiz);
 		    }
@@ -1281,12 +1205,6 @@ spack(char pkttyp, int n, int len, CHAR *d)
 #ifdef DEBUG
     if (deblog) {			/* Save lots of function calls! */
 	debug(F101,"SPACK n","",n);
-#ifdef COMMENT
-	if (pkttyp != 'D') {		/* Data packets would be too long */
-	    debug(F111,"SPACK data",data,data);
-	    debug(F111,"SPACK d",d,d);
-	}
-#endif	/* COMMENT */
 	debug(F101,"SPACK data len","",len);
 	debug(F101,"SPACK copy","",copy);
     }
@@ -1313,20 +1231,6 @@ spack(char pkttyp, int n, int len, CHAR *d)
 
     mydata = data - 7 + (longpkt ? 0 : 3); /* Starting position of header */
     k = sseqtbl[n];			/* Packet structure info for pkt n */
-#ifdef COMMENT
-#ifdef DEBUG
-    if (deblog) {			/* Save 2 more function calls... */
-	debug(F101,"SPACK mydata","",mydata);
-	debug(F101,"SPACK sseqtbl[n]","",k);
-	if (k < 0) {
-#ifdef STREAMING
-	    if (!streaming)
-#endif /* STREAMING */
-	      debug(F101,"spack sending packet out of window","",n);
-	}
-    }
-#endif /* DEBUG */
-#endif	/* COMMENT */
     if (k > -1) {
 	s_pkt[k].pk_adr = mydata;	/* Remember address of packet. */
 	s_pkt[k].pk_seq = n;		/* Record sequence number */
@@ -1579,15 +1483,8 @@ chk1( register CHAR *pkt, register int len )
 {
     register unsigned int chk;
 #ifdef CKTUNING
-#ifdef COMMENT
-    register unsigned int m;		/* Avoid function call */
-    m = (parity) ? 0177 : 0377;
-    for (chk = 0; len-- > 0; pkt++)
-      chk += *pkt & m;
-#else
     chk = 0;
     while (len-- > 0) chk += (unsigned) *pkt++;
-#endif /* COMMENT */
 #else
     chk = chk2(pkt,len);
 #endif /* CKTUNING */
@@ -1602,16 +1499,9 @@ unsigned int
 chk2( register CHAR *pkt, register int len )
 {
     register long chk;
-#ifdef COMMENT
-    register unsigned int m;
-    m = (parity) ? 0177 : 0377;
-    for (chk = 0; len-- > 0; pkt++)
-      chk += *pkt & m;
-#else
     /* Parity has already been stripped */
     chk = 0L;
     while (len-- > 0) chk += (unsigned) *pkt++;
-#endif /* COMMENT */
     debug(F101,"chk2","",(unsigned int) (chk & 07777));
     return((unsigned int) (chk & 07777));
 }
@@ -1621,20 +1511,6 @@ chk2( register CHAR *pkt, register int len )
  Calculate the 16-bit CRC-CCITT of a null-terminated string using a lookup
  table.  Assumes the argument string contains no embedded nulls.
 */
-#ifdef COMMENT
-unsigned int
-chk3( register CHAR *pkt, int parity, register int len )
-{
-    register long c, crc;
-    register unsigned int m;
-    m = (parity) ? 0177 : 0377;
-    for (crc = 0; len-- > 0; pkt++) {
-	c = crc ^ (long)(*pkt & m);
-	crc = (crc >> 8) ^ (crcta[(c & 0xF0) >> 4] ^ crctb[c & 0x0F]);
-    }
-    return((unsigned int) (crc & 0xFFFF));
-}
-#else
 unsigned int
 chk3( register CHAR *pkt, register int len )
 {
@@ -1646,7 +1522,6 @@ chk3( register CHAR *pkt, register int len )
     debug(F101,"chk3","",(unsigned int) (crc & 0xFFFF));
     return((unsigned int) (crc & 0xFFFF));
 }
-#endif /* COMMENT */
 
 /*  N X T P K T  --  Next Packet  */
 /*
@@ -1834,36 +1709,6 @@ nack( int n )
 VOID
 rcalcpsz( void ) {
 {
-#ifdef COMMENT
-/* Old way */
-    register long x, q;
-    if (numerrs == 0) return;		/* bounds check just in case */
-
-    /* overhead on a data packet is npad+5+bctr, plus 3 if extended packet */
-    /* an ACK is 5+bctr */
-
-    /* first set x = per packet overhead */
-    if (wslots > 1)			/* Sliding windows */
-      x = (long) (npad+5+bctr);		/* packet only, don't count ack */
-    else				/* Stop-n-wait */
-      x = (long) (npad+5+3+bctr+5+bctr); /* count packet and ack. */
-
-    /* then set x = packet length ** 2 */
-    x = x * ( ffc / (CK_OFF_T) numerrs); /* careful of overflow */
-
-    /* calculate the long integer sqrt(x) quickly */
-    q = 500;
-    q = (q + x/q) >> 1;
-    q = (q + x/q) >> 1;
-    q = (q + x/q) >> 1;
-    q = (q + x/q) >> 1;		/* should converge in about 4 steps */
-    if ((q > 94) && (q < 130))	/* break-even point for long packets */
-      q = 94;
-    if (q > spmax) q = spmax;	/* maximum bounds */
-    if (q < 10) q = 10;		/* minimum bounds */
-    spsiz = q;			/* set new send packet size */
-    debug(F101,"rcalcpsiz","",q);
-#else
 /* New way */
     debug(F101,"rcalcpsiz numerrs","",numerrs);
     debug(F101,"rcalcpsiz spsiz","",spsiz);
@@ -1879,7 +1724,6 @@ rcalcpsz( void ) {
     if (spsiz > spmax) spsiz = spmax;
     debug(F101,"rcalcpsiz new spsiz","",spsiz);
     numerrs = 0;
-#endif /* COMMENT */
 }
 #endif /* NEWDPL */
 
@@ -1980,19 +1824,8 @@ int
 	    xxscreen(SCR_PT,'%',(long)pktnum,"(resend)");
 	    return(s_pkt[j].pk_rtr);
 	} else {			/* No packet to resend! */
-#ifdef COMMENT
-/*
-  This happened (once) while sending a file with 2 window slots and typing
-  X to the sender to cancel the file.  But since we're cancelling anyway,
-  there's no need to give a scary message.
-*/
-	    sprintf((char *)epktmsg,
-		    "resend logic error: NPS, n=%d, j=%d.",n,j);
-	    return(-2);
-#else
 /* Just ignore it. */
 	    return(0);
-#endif /* COMMENT */
 	}
     }
 #ifdef DEBUG
@@ -2846,25 +2679,12 @@ rpack() {
 
 #ifdef CKTUNING
 	/* Save some function-call and loop overhead... */
-#ifdef COMMENT
-	/* ttinl() already removed parity */
-	if (parity)
-#endif /* COMMENT */
 	  chk = (unsigned) ((unsigned) recpkt[i-1] +
 			    (unsigned) recpkt[i]   +
 			    (unsigned) recpkt[i+1] +
 			    (unsigned) recpkt[i+2] +
 			    (unsigned) recpkt[i+3]
 			    );
-#ifdef COMMENT
-	else
-	  chk = (unsigned) ((unsigned) (recpkt[i-1] & 077) +
-			    (unsigned) (recpkt[i]   & 077) +
-			    (unsigned) (recpkt[i+1] & 077) +
-			    (unsigned) (recpkt[i+2] & 077) +
-			    (unsigned) (recpkt[i+3] & 077)
-			    );
-#endif /* COMMENT */
 	if (xunchar(recpkt[j]) != ((((chk & 0300) >> 6) + chk) & 077))
 #else
 	x = recpkt[j];			/* Header checksum. */

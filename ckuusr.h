@@ -1803,12 +1803,6 @@ struct stringint {			/* String and (wide) integer */
 #define VN_P_RPT  103			/* Repeat count prefix */
 #define VN_D_LCP  104			/* DIAL LOCAL-PREFIX */
 #define VN_URL    105			/* Last URL selected */
-#ifdef COMMENT
-/* Not used in Open Source version but should not be recycled */
-#define VN_REGN   106			/* Registration Name */
-#define VN_REGO   107			/* Registration Organization */
-#define VN_REGS   108			/* Registration Serial number */
-#endif /* COMMENT */
 #define VN_XPROG  109			/* xprogram (like xversion) */
 #define VN_EDITOR 110			/* Editor */
 #define VN_EDOPT  111			/* Editor options */
@@ -2212,9 +2206,6 @@ struct stringint {			/* String and (wide) integer */
 #define CW_PC  15			/* Packet count */
 #define CW_PL  16			/* Packet length */
 #define CW_PR  17			/* Packet retry */
-#ifdef COMMENT
-#define CW_PB  17			/* Packet block check */
-#endif /* COMMENT */
 #else /* CK_PCT_BAR */
 #define CW_BAR 11			/* Percent Bar Scale */
 #define CW_TR  12			/* Time remaining */
@@ -2224,9 +2215,6 @@ struct stringint {			/* String and (wide) integer */
 #define CW_PC  16			/* Packet count */
 #define CW_PL  17			/* Packet length */
 #define CW_PR  18			/* Packet retry */
-#ifdef COMMENT
-#define CW_PB  18			/* Packet block check */
-#endif /* COMMENT */
 #endif /* CK_PCT_BAR */
 
 #define CW_ERR 19			/* Error message */
@@ -2264,12 +2252,6 @@ struct stringint {			/* String and (wide) integer */
 #define XSSH_LOAD 9
 #define XSSH_REM 10
 
-#ifdef COMMENT
-#define SSHKT_1R   0			/* SSH KEY TYPE symbols */
-#define SSHKT_2R   1                    /* must match ssh/key.h values */
-#define SSHKT_2D   2
-#define SSHKT_SRP  3
-#endif
 #define SSHKT_DSS               0
 #define SSHKT_RSA               1
 #define SSHKT_RSA1              2
@@ -2611,13 +2593,6 @@ _PROTOTYP( int dosetftppsv, (void) );
 _PROTOTYP( int ftpbye,      (void) );
 #endif /* NEWFTP */
 
-#ifdef COMMENT
-/* These prototypes are no longer used */
-_PROTOTYP( char * getdws, (int) );
-_PROTOTYP( char * getdcs, (int) );
-_PROTOTYP( int doget, (int) );
-_PROTOTYP( char * arrayval, (int, int) );
-#endif /* COMMENT */
 
 
 _PROTOTYP(int cx_net, (int net, int protocol, char * xhost, char * svc, 

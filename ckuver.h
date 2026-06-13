@@ -415,10 +415,5 @@
 #endif /* n16 */
 
 
-#ifdef COMMENT
-#ifndef CKCPU				/* All others */
-#define CKCPU "unknown"
-#endif /* CKCPU */
-#endif /* COMMENT */
 
 #endif /* CKUVER_H */

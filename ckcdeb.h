@@ -1669,22 +1669,7 @@ extern long ztmsec, ztusec;		/* Fraction of sec of current time */
   then SSHBUILTIN is defined for K95 and SSHCMD is defined for UNIX.
   Then, if either SSHBUILTIN or SSHCMD is defined, ANYSSH is also defined.
 */
-#ifdef COMMENT
-#undef COMMENT /* The OS/2 headers define this for some insane reason */
-#endif /* COMMENT */
 
-#ifdef COMMENT
-/*
-  Built-in SSH no longer depends on SSL support. Built-in SSH is now provided 
-  by a library (libssh, ssh.dll) which is itself linked against OpenSSL.
-*/
-#ifndef NOSSH
-#ifndef NO_SSL
-#else /* NO_SSL */
-#define NOSSH
-#endif /* NO_SSL */
-#endif /* NOSSH */
-#endif /* COMMENT */
 
 #ifdef NOSSH				/* NOSSH */
 #ifdef SSHBUILTIN			/* undefines any SSH selctors */
@@ -2796,9 +2781,6 @@ extern int errno;
 
 /* And finally... */
 
-#ifdef COMMENT				/* Make sure this is NOT defined! */
-#undef COMMENT
-#endif /* COMMENT */
 
 /* zstr zattr filinfo were here (moved to top for DECC 5 Jun 2000) */
 
@@ -2951,15 +2933,10 @@ _PROTOTYP(int dodebug,(int,char *,char *,CK_OFF_T));
 _PROTOTYP(int dohexdump,(CHAR *,CHAR *,int));
 #ifdef IFDEBUG
 /* Use this form to avoid function calls: */
-#ifdef COMMENT
-#define debug(a,b,c,d) if (deblog) dodebug(a,b,(char *)(c),(CK_OFF_T)(d))
-#define ckhexdump(a,b,c) if (deblog) dohexdump((CHAR *)(a),(CHAR *)(b),c)
-#else
 #define debug(a,b,c,d) \
 ((void)(deblog?dodebug(a,b,(char *)(c),(CK_OFF_T)(d)):0))
 #define ckhexdump(a,b,c) \
 ((void)(deblog?dohexdump((CHAR *)(a),(CHAR *)(b),c):0))
-#endif /* COMMENT */
 #else /* IFDEBUG */
 /* Use this form to save space: */
 #define debug(a,b,c,d) dodebug(a,b,(char *)(c),(CK_OFF_T)(d))
@@ -3246,11 +3223,7 @@ _PROTOTYP( int ttinl, (CHAR *, int, int, CHAR) );
 /* Console functions */
 
 _PROTOTYP( int congm, (void) );
-#ifdef COMMENT
-_PROTOTYP( VOID conint, (SIGTYP (*)(int, int), SIGTYP (*)(int, int)) );
-#else
 _PROTOTYP( VOID conint, (SIGTYP (*)(int), SIGTYP (*)(int)) );
-#endif /* COMMENT */
 _PROTOTYP( VOID connoi, (void) );
 _PROTOTYP( int concb, (char) );
 #ifdef CONGSPD
@@ -3498,18 +3471,10 @@ typedef CHAR * MACRO;
 /* #include <commonC.h>  */
 #include <sys/wait.h>
 #define CK_WAIT_H
-#ifdef COMMENT
-extern void exit(int status);
-extern void _exit(int status);
-extern int uname(struct utsname *name);
-#endif /* COMMENT */
 extern int chmod(char *path, int mode);
 extern int ioctl(int fildes, int request, ...);
 extern int rdchk(int ttyfd);
 extern int nap(int m);
-#ifdef COMMENT
-extern int getppid(void);
-#endif /* COMMENT */
 extern int _filbuf(FILE *stream);
 extern int _flsbuf(char c,FILE *stream);
 #endif /* DIAB */
@@ -4068,32 +4033,6 @@ _PROTOTYP( int readtext, (char *, char *, int));
 
 #include "ckclib.h"
 
-#ifdef COMMENT
-/*
-  This was a first attempt to prototypes for over 400 functions that never had
-  them before, which are needed now since compilers like Clang complains about
-  every single function that does not have prototype, and claims this will be
-  a fatal error in a forthcoming release.  The new prototypes are in the new
-  header file ckcfnp.h: 436 of them to start.  But the prototypes need to know
-  about typedefs that haven't been made yet, since ckcdeb.h is #included
-  before the other headers where that happened.  I thought maybe I could
-  include them here, but it was a rabbit hole.  The only way to insure the
-  prototypes work without messing everything else up is to put "#include
-  ckcfnp.h" in every single Kermit module AFTER what was the last #include.
-  - fdc, 23 March 2023
-*/
-#ifdef __STDC__
-#include "ckucmd.h"                 /* For typedefs */
-#include "ckcnet.h"                 /* For typedefs */
-#include "ckucmd.h"                 /* For typedefs */
-#include "ckcker.h"                 /* For typedefs */
-#include "ckuusr.h"                 /* For typedefs */
-#include "ckctel.h"                 /* For typedefs */
-#include "ckcfnp.h"                 /* Prototypes for all functions */
-/* ckcsig.h */
-/* ckusig.h */
-#endif /* __STDC__ */
-#endif /* COMMENT */
 
 /* End of ckcdeb.h */
 #endif /* CKCDEB_H */

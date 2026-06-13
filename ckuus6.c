@@ -347,9 +347,6 @@ static struct keytab gettab[] = {       /* GET options */
 #endif /* CK_RESEND */
     { "/recursive",       SND_REC, 0 },
     { "/rename-to",       SND_REN, CM_ARG },
-#ifdef COMMENT
-    { "/smaller-than",    SND_SMA, CM_ARG },
-#endif /* COMMENT */
     { "/subdirectories",  SND_REC, CM_INV },
     { "/text",            SND_TXT, 0 },
     { "/transparent",     SND_XPA, 0 }
@@ -548,9 +545,6 @@ struct keytab iftab[] = {               /* IF commands */
     { "directory",  XXIFDI, 0 },
 #endif /* CK_TMPDIR */
     { "emulation",  XXIFEM, 0 },
-#ifdef COMMENT
-    { "eof",        XXIFEO, 0 },
-#endif /* COMMENT */
     { "equal",      XXIFEQ, 0 },
     { "error",      XXIFFA, CM_INV },
     { "exist",      XXIFEX, 0 },
@@ -678,9 +672,6 @@ int availtabn = sizeof(availtab)/sizeof(struct keytab)-1;
 
 #ifndef NODIAL
 _PROTOTYP(static int ddcvt, (char *, FILE *, int) );
-#ifdef COMMENT                          /* New prototype above */
-_PROTOTYP(static int dncvt, (int, int, int, int) );
-#endif  /* COMMENT */
 _PROTOTYP(char * getdname, (void) );
 
 static int partial  = 0;                /* For partial dial */
@@ -781,9 +772,6 @@ extern char *mrval[];                   /* Macro return value */
 extern char *macp[];                    /* Pointer to macro */
 extern int macargc[];                   /* ARGC from macro invocation */
 
-#ifdef COMMENT
-extern char *m_line[];
-#endif /* COMMENT */
 
 extern char *m_arg[MACLEVEL][NARGS];    /* Stack of macro arguments */
 extern char *g_var[];                   /* Global variables %a, %b, etc */
@@ -1406,9 +1394,6 @@ xxundef( char * s, int verbose, int simulate )
 
 static struct keytab undefswi[] = {
     { "/list",     UND_VRB, 0 },
-#ifdef COMMENT
-    { "/except",   UND_EXC, CM_ARG },
-#endif /* COMMENT */
     { "/matching", UND_MAT, 0 },
     { "/simulate", UND_SIM, 0 },
     { "/verbose",  UND_VRB, CM_INV }
@@ -1423,9 +1408,6 @@ doundef( int cx )                       /* UNDEF, _UNDEF */
     int i, j, n, rc = 0, arraymsg = 0;
     int domatch = 0, verbose = 0, errors = 0, simulate = 0, flag = 0;
     char *vnp, vnbuf[4];
-#ifdef COMMENT
-    char *except = NULL;
-#endif /* COMMENT */
     struct FDB sw, fl;
     int getval;
     char c;
@@ -1477,19 +1459,6 @@ doundef( int cx )                       /* UNDEF, _UNDEF */
           case UND_SIM: simulate = 1; /* fall thru on purpose */
           case UND_VRB: verbose  = 1; break;
 
-#ifdef COMMENT
-          case UND_EXC:
-            if (!getval) break;
-            if ((x = cmfld("Pattern","",&s,xxstring)) < 0) {
-                if (x == -3) {
-                    printf("?Pattern required\n");
-                    x = -9;
-                }
-                goto xgetx;
-            }
-            makestr(&except,cmresult.sresult);
-            break;
-#endif /* COMMENT */
 
           default:
             return(-2);
@@ -1635,13 +1604,6 @@ dodef( int cx )
     if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&')) vnp++;
     if (*vnp == '%' || *vnp == '&') {
         if ((y = parsevar(vnp,&x,&z)) < 0) return(y);
-#ifdef COMMENT
-        if (cx == XXUNDEF) {            /* Undefine */
-            if ((y = cmtxt("Text to be ignored","",&s,NULL)) < 0) return(y);
-            delmac(vnp,0);
-            return(success = 1);
-        }
-#endif /* COMMENT */
         debug(F101,"dodef parsevar x","",x);
         if (mydot) {
             if ((doeval = cmkey(asgtab,nasgtab,"operator","=",NULL)) < 0)
@@ -1668,13 +1630,6 @@ dodef( int cx )
             debug(F110,"xxdef array def",s,0);
         }
     } else {                            /* Macro */
-#ifdef COMMENT
-        if (cx == XXUNDEF) {            /* Undefine */
-            if ((y = cmtxt("Text to be ignored","",&s,NULL)) < 0) return(y);
-            delmac(vnp,0);
-            return(success = 1);
-        }
-#endif /* COMMENT */
         if (mydot) {
             if ((doeval = cmkey(asgtab,nasgtab,"operator","=",NULL)) < 0)
               return(doeval);
@@ -1990,17 +1945,9 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
             p2 = (suffix && dialixs) ? dialixs : ""; /* Intl-suffix */
 
             /* Form the final phone number */
-#ifdef COMMENT
-            sprintf(pdsfx,"%s%s",p2,sfx); /* UNSAFE */
-            sprintf(outbuf,
-                    "%s%s%s%s%s%s%s%s",
-                    pxo,npr,p,ccbuf,acptr,s,p2,sfx
-                    );
-#else
             ckmakmsg(pdsfx,64,p2,sfx,NULL,NULL);
             ckmakxmsg(outbuf,256,pxo,npr,p,ccbuf,acptr,s,p2,sfx,
                       NULL,NULL,NULL,NULL);
-#endif /* COMMENT */
 
         } else if ((x = callisld(lac,acptr)) >= 1) { /* In-country LD */
             if (!diallac && cx != XXLOOK) { /* Don't know my own area code */
@@ -2029,29 +1976,15 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                 }
             }
             /* Form the number to be dialed */
-#ifdef COMMENT
-            sprintf(outbuf,"%s%s%s%s%s%s%s",
-                    pxo,npr,p,acptr,s,p2,sfx
-                    );
-            sprintf(pdsfx,"%s%s",p2,sfx);
-#else
             ckmakxmsg(outbuf,256,
                       pxo,npr,p,acptr,s,p2,sfx,
                       NULL,NULL,NULL,NULL,NULL);
             ckmakmsg(pdsfx,64,p2,sfx,NULL,NULL);
-#endif /* COMMENT */
         } else {                        /* Same country, same area code */
             what = dn_x[k] = DN_LOCAL;  /* So it's a local call. */
             if (!prefix || !(dialpxo || ndialpxx)) { /* Not dialing from PBX */
                 p  = (prefix && diallcp) ? diallcp : ""; /* local-prefix */
                 p2 = (suffix && diallcs) ? diallcs : ""; /* local-suffix */
-#ifdef COMMENT
-                if (x == 2)
-                  sprintf(outbuf,"%s%s%s%s%s%s",npr,p,acptr,s,p2,sfx);
-                else
-                  sprintf(outbuf,"%s%s%s%s%s",npr,p,s,p2,sfx);
-                sprintf(pdsfx,"%s%s",p2,sfx);
-#else
                 if (x == 2)
                   ckmakxmsg(outbuf,256,
                             npr,p,acptr,s,p2,sfx,
@@ -2061,17 +1994,9 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                             npr,p,s,p2,sfx,
                             NULL,NULL,NULL,NULL,NULL,NULL,NULL);
                 ckmakmsg(pdsfx,64,p2,sfx,NULL,NULL);
-#endif /* COMMENT */
 
             } else {                    /* Dialing from a PBX and not TAPI */
                 if (ndialpxx) {         /* Is it internal? */
-#ifdef COMMENT
-                    i = (int) strlen(dialpxx);
-                    j = (int) strlen(s);
-                    x = -1;
-                    if (j > i)
-                      x = ckstrcmp(dialpxx,s,i,0);
-#else
                     int kx;
                     x = -1;
                     j = (int) strlen(s);
@@ -2081,7 +2006,6 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                           if (!(x = ckstrcmp(dialpxx[kx],s,i,0)))
                             break;
                     }
-#endif /* COMMENT */
                     if (!x) {
                         char * icp, buf[32];
                         makestr(&matchpxx,dialpxx[kx]);
@@ -2107,28 +2031,12 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                         }
 #endif /* NOSPL */
                         p = (prefix && icp) ? icp : "";
-#ifdef COMMENT
-                        sprintf(outbuf,"%s%s%s%s",npr,p,s,sfx);
-#else
                         ckmakmsg(outbuf,256,npr,p,s,sfx);
-#endif /* COMMENT */
                     } else {            /* External local call */
                         /* local-prefix */
                         p  = (prefix && diallcp) ? diallcp : "";
                         /* local-suffix */
                         p2 = (prefix && diallcs) ? diallcs : "";
-#ifdef COMMENT
-                        if (x == 2)
-                          sprintf(outbuf,"%s%s%s%s%s%s%s",
-                                  dialpxo ? dialpxo : "",
-                                  npr,p,acptr,s,p2,sfx);
-                        else
-                          sprintf(outbuf,
-                                  "%s%s%s%s%s%s",
-                                  dialpxo ? dialpxo : "",
-                                  npr,p,s,p2,sfx
-                                  );
-#else
                         if (x == 2)
                           ckmakxmsg(outbuf, 256,
                                    dialpxo ? dialpxo : "",
@@ -2139,7 +2047,6 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                                     dialpxo ? dialpxo : "",
                                     npr,p,s,p2,sfx,
                                     NULL,NULL,NULL,NULL,NULL,NULL);
-#endif /* COMMENT */
                     }
                 }
             }
@@ -2241,15 +2148,10 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                 s = xbuf + n;
                 while (*s == '-' || *s == '.')
                   s++;
-#ifdef COMMENT
-                sprintf(outbuf,"%s%s%s%s%s%s",pxo,npr,p,s,p2,sfx);
-                sprintf(pdsfx,"%s%s",p2,sfx);
-#else
                 ckmakxmsg(outbuf,256,
                           pxo,npr,p,s,p2,sfx,
                          NULL,NULL,NULL,NULL,NULL,NULL);
                 ckmakmsg(pdsfx,64,p2,sfx,NULL,NULL);
-#endif /* COMMENT */
             } else {
                 dn_x[k] = DN_INTL;      /* International */
                 if (!dialixp) {
@@ -2262,15 +2164,10 @@ dncvt(int k, int cx, int prefix, int suffix) /* Dial Number Convert */
                 }
                 p = (prefix && dialixp) ? dialixp : "";
                 p2 = (suffix && dialixs) ? dialixs : "";
-#ifdef COMMENT
-                sprintf(outbuf,"%s%s%s%s%s%s",pxo,npr,p,xbuf,p2,sfx);
-                sprintf(pdsfx,"%s%s",p2,sfx);
-#else
                 ckmakxmsg(outbuf,256,
                           pxo,npr,p,xbuf,p2,sfx,
                           NULL,NULL,NULL,NULL,NULL,NULL);
                 ckmakmsg(pdsfx,64,p2,sfx,NULL,NULL);
-#endif /* COMMENT */
             }
         }
     }
@@ -2710,10 +2607,6 @@ dodial( int cx )                        /* DIAL or REDIAL */
     int j = 0, t = 0, n = 0;
     int xretries, xlcc;
 
-#ifdef COMMENT
-    debug(F101,"dodial cx","",cx);
-    debug(F111,"dodial diallcc",diallcc,diallcc);
-#endif	/* COMMENT */
 
     xretries = dialrtr;                 /* If retries not set, */
     if (diallcc) {                      /* choose default based on */
@@ -2760,19 +2653,7 @@ dodial( int cx )                        /* DIAL or REDIAL */
         if (s) {
             len = (int) strlen(s);
             ckstrncpy(tmpbuf,s,TMPBUFSIZ); /* Save literal copy */
-#ifdef COMMENT
-            if (len > 1) {              /* Strip outer braces if given */
-                if (*s == '{') {
-                    if (s[len-1] == '}') {
-                        s[len-1] = NUL;
-                        s++;
-                        len -= 2;
-                    }
-                }
-            }
-#else
             s = brstrip(s);             /* Strip outer braces or quotes */
-#endif /* COMMENT */
         }
     }
 
@@ -3136,7 +3017,6 @@ Disabling flow control temporarily %s...\n",
 		x = uq_ok(msgbuf,"Is this number correct? ",3,NULL,0);
                 if (!x) {
 
-#ifndef COMMENT
 		    x = uq_txt(		/* Allow GUI dialog */
 " Please enter the correct number,\r\n or press Return to skip.",
                               "Corrected phone number: ",
@@ -3152,35 +3032,6 @@ Disabling flow control temporarily %s...\n",
 			makestr(&(dn_p2[j]), s);
 		    }			
 
-#else  /* COMMENT */
-
-#ifdef CK_RECALL
-                    extern int on_recall;
-#endif /* CK_RECALL */
-                    cmsavp(psave,PROMPTL);
-                    cmsetp(
-" Please enter the correct number,\r\n or press Return to skip: "
-                           );
-                    cmini(ckxech);
-                    x = -1;
-                    if (pflag) prompt(NULL);
-#ifdef CK_RECALL
-                    on_recall = 0;
-#endif /* CK_RECALL */
-                    y = cmdgquo();
-                    cmdsquo(0);
-                    while (x < 0) {
-                        x = cmtxt("Corrected phone number","",&s,NULL);
-                        cmres();
-                    }
-                    if ((int) strlen(s) < 1) {
-                        cmsetp(psave);
-                        continue;
-                    }
-                    makestr(&(dn_p2[j]), s);
-                    cmdsquo(y);
-                    cmsetp(psave);
-#endif /* COMMENT */
                 }
             }
             if (dialtest) {             /* Just testing */
@@ -3411,10 +3262,6 @@ typeline( char * buf, int len, int outcs, FILE * ofp )
 /* K95, we don't know the character set.  In either case we dump the line */
 /* byte by byte in case it contains NULs (printf() would truncate). */
 
-#ifdef COMMENT
-    for (i = 0; i < len; i++)
-      putchar(buf[i]);
-#else
     for (i = 0; i < len; i++) {
         if (ofp == stdout) {
             putchar(buf[i]);
@@ -3422,7 +3269,6 @@ typeline( char * buf, int len, int outcs, FILE * ofp )
             putc(buf[i],ofp);
         }
     }
-#endif /* COMMENT */
 
 #ifdef IKSD
     if (inserver) {
@@ -3529,17 +3375,6 @@ typegetline(int incs, int outcs, char * buf, int n )
             }
 #endif /* DEBUG */
 
-#ifdef COMMENT
-/* Now we have the two UCS-2 bytes.  Which order are they in? */
-
-            if (fileorder > 0) {        /* Little Endian */
-                int t;                  /* So swap them */
-                debug(F100,"typegetline swapping","",0);
-                t = c1;
-                c1 = c0;
-                c0 = t;
-            }
-#endif /* COMMENT */
             if (c0 == 0 && c1 == 0x0D)  /* Now see if we have EOL */
               yyn = xn;
 
@@ -3568,11 +3403,6 @@ typegetline(int incs, int outcs, char * buf, int n )
         return((eof && (xn == 0)) ? -1 : xn);
     }
 #endif /* UNICODE */
-#ifdef COMMENT
-    /* We can't use this because, stupidly, zsinl() doesn't return a length. */
-    /* It could be changed but then we'd have to change all ck?fio.c modules */
-    x = zsinl(ZIFILE,buf,n);
-#else
     /* So instead, we copy zsinl() to here... */
     /* But note: This does not necessarily handle UCS-2 alignment properly;  */
     /* that's what the code in the first section of this routine is for. */
@@ -3585,11 +3415,6 @@ typegetline(int incs, int outcs, char * buf, int n )
         a = -1;                         /* Current character, none yet. */
         debug(F101,"typegetline zsinl simulation","",n);
         while (n--) {                   /* Up to given length */
-#ifdef COMMENT
-            int old = 0;
-            if (feol)                   /* Previous character */
-              old = a;
-#endif /* COMMENT */
             if (zchin(ZIFILE,&a) < 0) { /* Read a character from the file */
                 debug(F101,"typegetline zchin fail","",count);
                 if (count == 0)
@@ -3601,22 +3426,6 @@ typegetline(int incs, int outcs, char * buf, int n )
                 if (a == feol)
                   break;
             } else {                    /* CRLF line terminator */
-#ifdef COMMENT
-/* Debug log shows that in Windows, <CR><LF> is returned as <LF>. */
-/* Apparently we're not reading the file in binary mode. */
-
-                if (a == '\015')        /* CR, get next character */
-                  continue;
-                if (old == '\015') {    /* Previous character was CR */
-                    if (a == '\012') {  /* This one is LF, so we have a line */
-                        break;
-                    } else {            /* Not LF, deposit CR */
-                        *s++ = '\015';
-                        n--;
-                        len++;
-                    }
-                }
-#else
                 if (a == LF) {
                     if (s[len] == CK_CR) { /* This probably won't happen */
                         s[len] = NUL;
@@ -3625,7 +3434,6 @@ typegetline(int incs, int outcs, char * buf, int n )
                     }
                     break;
                 }
-#endif /* COMMENT */
             }
             *s = a;                     /* Deposit character */
             s++;
@@ -3633,7 +3441,6 @@ typegetline(int incs, int outcs, char * buf, int n )
         }
         *s = '\0';                      /* Terminate the string */
     }
-#endif /* COMMENT */
 
 #ifdef TYPEINTERPRET
   dointerpret:
@@ -3914,12 +3721,7 @@ dotype( char * file, int paging, int first, int head, char * pat,
                 obuf[i] = NUL;
             }
             obuf[width] = NUL;          /* Now truncate at given width. */
-#ifdef COMMENT
-            /* This doesn't work for UCS-2 because it contains NULs */
-            ckstrncpy(buf,obuf,TYPBUFL); /* and copy it back (again?) */
-#else
             memcpy((char *)buf,(char *)obuf,i); /* Copy it back */
-#endif /* COMMENT */
             len = (i > width) ? width : i; /* Spare us another strlen()... */
         }
         if (tailing) {                  /* If /TAIL:n... */
@@ -4369,24 +4171,6 @@ dogrep() {
       xaskmore = gr_page;               /* Paging... */
 
     p = tmpbuf;                         /* Point to pattern */
-#ifdef COMMENT
-/* Now this is done in ckmatch */
-    if (*p == '^') {                    /* '^' anchors pattern to beginning */
-        p++;
-    } else if (*p != '*') {             /* Otherwise prepend implied '*' */
-        tmpbuf[0] = '*';
-        p = tmpbuf;
-    }
-    x = strlen(p);                      /* Get length of result */
-    if (x > 0 && x < TMPBUFSIZ) {       /* '$' at end anchors pattern to end */
-        if (p[x-1] == '$') {
-            p[x-1] = NUL;
-        } else if (p[x-1] != '*') {
-            p[x] = '*';
-            p[x+1] = NUL;
-        }
-    }
-#endif /* COMMENT */
     debug(F111,"GREP pat",p,x);
 
 #ifdef ZXREWIND
@@ -5075,9 +4859,6 @@ domydir( int cx )                     /* Internal DIRECTORY command */
     totalchanges = 0;
 
     g_matchdot = matchdot;              /* Save global matchdot setting */
-#ifdef COMMENT
-    nolinks = 2;                        /* (it should already be 2) */
-#endif	/* COMMENT */
     outfile[0] = NUL;                   /* No output file yet */
 
     modtime[0] = '\0';			/* Initialize TOUCH /MODTIME */
@@ -5261,17 +5042,10 @@ domydir( int cx )                     /* Internal DIRECTORY command */
 
 #ifdef CKSYMLINK
           case DIR_LNK:                 /* Follow links */
-#ifdef COMMENT
-	    /* A command switch shouldn't be setting a global value! */
-            nolinks = 0;
-#endif	/* COMMENT */
             cmifn1 &= ~(2);
 	    dontfollowlinks = 0;
             goto again;
           case DIR_NLK:                 /* Don't follow links */
-#ifdef COMMENT
-            nolinks = 2;
-#endif	/* COMMENT */
             cmifn1 &= ~(2);
 	    dontfollowlinks = 1;
             goto again;
@@ -5590,13 +5364,7 @@ domydir( int cx )                     /* Internal DIRECTORY command */
 	rc = -9;
 	goto xdomydir;
     }
-#ifdef COMMENT
-    /* This can't be right because it's based on _CMCFM */
-    wild = cmresult.nresult;            /* Wildcard was given? */
-    debug(F111,"domydir cmifi2",s,wild);
-#else
     wild = 0;
-#endif	/* COMMENT */
     debug(F111,"domydir cmifi2",s,wild);
     if (outfile[0]) {			/* If an output file was specified */
         ofp = fopen(outfile,"w");       /* open it */
@@ -6738,9 +6506,6 @@ dodel() {                               /* DELETE */
     int itsadir = 0;
     int argisdir = 0;
     int xmode = -1, scan = 0, skip = 0;
-#ifdef COMMENT
-    int pass = 0;
-#endif /* COMMENT */
     char c;
     char * deldef = "";
     char safebuf[CKMAXPATH+1];
@@ -7004,23 +6769,6 @@ dodel() {                               /* DELETE */
 #endif /* IKSD */
 
 
-#ifdef COMMENT
-    /* (not needed) */
-    if (!iswild(tmpbuf)) {
-        char *m;
-        errno = 0;
-        x = zchki(tmpbuf);
-        if (x < 0) {
-            switch (x) {
-              case -2: m = "Not a regular file"; break;
-              case -1: m = "File not found or not accessible"; break;
-              default: m = errno ? ck_errstr() : "Can't delete";
-            }
-            printf("?%s: \"%s\"\n",m,tmpbuf);
-            return(-9);
-        }
-    }
-#endif /* COMMENT */
 
     makelist(del_exc,dxlist,8);
 
@@ -7142,16 +6890,6 @@ dodel() {                               /* DELETE */
                   len = -2;
 
                 if (skip) {
-#ifdef COMMENT                          /* Too verbose */
-                    if (x_lis > 0) {
-                        lines++;
-                        printf(" %s (SKIPPED)\n",tmpbuf);
-#ifdef CK_TTGWSIZ
-                        if (++n > cmd_rows - 3)
-                          if (!askmore()) { goto xdelete; } else { n = 0; }
-#endif /* CK_TTGWSIZ */
-                    }
-#endif /* COMMENT */
                     continue;
                 }
 
@@ -7273,23 +7011,10 @@ doelse() {
         printf("?ELSE doesn't follow IF\n");
         return(-2);
     }
-#ifdef COMMENT
-/*
-  Wrong.  This prevents IF..ELSE IF...ELSE IF...ELSE IF...ELSE...
-  from working.
-*/
-    ifcmd[cmdlvl] = 0;
-#endif /* COMMENT */
     if (!iftest[cmdlvl]) {              /* If IF was false do ELSE part */
         if (maclvl > -1 || tlevel > -1) { /* In macro or command file */
             debug(F100,"doelse pushing","",0);
-#ifndef COMMENT
             pushcmd(NULL);              /* save rest of command. */
-#else
-            /* This fixes certain obscure problems */
-            /* but breaks many other constructions that must work. */
-            pushqcmd(NULL);
-#endif /* COMMENT */
         } else {                        /* If interactive, */
             cmini(ckxech);              /* just start a new command */
             printf("\n");               /* (like in MS-DOS Kermit) */
@@ -7357,9 +7082,6 @@ doswitch() {
     ap = lp;
     debug(F010,"SWITCH a",line,0);
 
-#ifdef COMMENT
-    x = ckmakmsg(lp,LINBUFSIZ-x,tmpbuf," ",NULL,NULL); /* variable name + SP */
-#else
     {                                   /* variable name + SP */
         char * p = tmpbuf;
 	if (len > 0) {
@@ -7370,7 +7092,6 @@ doswitch() {
         }
         x = ckmakmsg(lp,LINBUFSIZ-x,"{",brstrip(p),"}"," ");
     }
-#endif /* COMMENT */
     debug(F010,"SWITCH b",line,0);
     lp += x;
 
@@ -7422,13 +7143,8 @@ dofor() {                               /* The FOR command. */
           break;
         pp++;
     }
-#ifdef COMMENT
-    if ((y = parsevar(s,&x,&z)) < 0)    /* Check variable. */
-      return(y);
-#else
     if (*s == CMDQ)                     /* If loop variable starts with */
       mustquote++;                      /* backslash, mustquote is > 0. */
-#endif /* COMMENT */
     debug(F111," dofor loop variable mustquote",s,mustquote);
 
     lp = line;                          /* Build a copy of the command */
@@ -7559,13 +7275,6 @@ dofor() {                               /* The FOR command. */
     debug(F110," doif FOR body C",s,0);
 #endif /* DEBUG */
 
-#ifdef COMMENT
-/* Too strict */
-    if (fz == 0) {
-        printf("?Zero increment not allowed\n");
-        return(0);
-    }
-#endif /* COMMENT */
 /*
   In C-Kermit 8.0 we allow bare macro names anywhere a numeric-valed variable
   could appear.  But this caused trouble for the FOR loops because the quoting
@@ -7632,10 +7341,6 @@ tod2sec( char * t )
       return(-1L);
     if (isdigit(*t))
       hh = hh * 10 + *t++ - '0';
-#ifdef COMMENT
-    if (hh > 24L)
-      return(-1L);
-#endif /* COMMENT */
     if (*t == ':')
       t++;
     else if (!*t)
@@ -7775,9 +7480,6 @@ dopaus( int cx )
         int mdmsig;
         if (sleepcan) {                 /* Keyboard cancellation allowed? */
             if (y = conchk()) {         /* Did they type something? */
-#ifdef COMMENT
-                while (y--) coninc(0);  /* Yes, gobble it all up */
-#else
                 /* There is a debate over whether PAUSE should absorb    */
                 /* its cancelling character(s).  There are several       */
                 /* reasons why it should gobble at least one character:  */
@@ -7789,7 +7491,6 @@ dopaus( int cx )
                 /* (4) if not, then the character appears on the command */
                 /*     line after all enclosing macros are complete.     */
                 kbchar = coninc(0);     /* Gobble one up */
-#endif /* COMMENT */
                 break;                  /* And quit PAUSing or WAITing */
             }
         }
@@ -7985,10 +7686,6 @@ dopaus( int cx )
             if ((y = conchk()) > 0) {   /* Did they type something? */
                 kbchar = coninc(0);     /* Yes, get first char they typed */
                 debug(F000,"WAIT kbchar","",kbchar);
-#ifdef COMMENT
-                while (--y > 0)         /* Gobble the rest up */
-                  coninc(0);
-#endif /* COMMENT */
                 return(success = 0);    /* And quit PAUSing or WAITing */
             }
         }
@@ -8181,16 +7878,6 @@ docopy() {
         printf("?Sorry, /APPEND and /SWAP conflict\n");
         return(-9);
     }
-#ifdef COMMENT
-/*
-  This unreasonably prevented "COPY /APPEND *.* bigfile" from concatenating
-  a bunch of files into one big file.
-*/
-    if (appending && wild) {
-        printf("?Sorry, /APPEND can be used only with single files\n");
-        return(-9);
-    }
-#endif /* COMMENT */
 
     if (toscreen == 0) {
         targetisdir = isdir(p);
@@ -9092,12 +8779,6 @@ renameone(char * old, char * new,
 	}
     }
     skip = 0;				/* Can we skip this one? */
-#ifdef COMMENT
-    if (casing && !replaced) {
-	skip = (((all == 0) && (flag == 3)) || (flag == casing)) ? 1 : 0;
-	if (!skip && destdir) skip = 0;
-    }
-#endif	/* COMMENT */
     if (!skip) {
 	if (!ckstrcmp(old,new,-1,1))
 	  skip = 1;
@@ -9391,19 +9072,6 @@ dorenam() {
     p[0] = NUL;
     replacing = ren_sub[0] ? 1 : 0;
 
-#ifdef COMMENT
-    if (!(casing || replacing || converting)) {
-	if ((x = cmofi(wild ? "Target directory" : "New name",
-		       "",&s,xxstring)) < 0) { /* Get new name */
-	    if (x == -3) {
-		printf("?%s required\n",
-		       wild ? "Target directory" : "New name");
-		return(-9);
-	    } else return(x);
-	}
-	ckstrncpy(p,s,TMPBUFSIZ);	/* Make a safe copy of the new name */
-    }
-#else
     if ((x = cmofi(wild ? "Target directory" : "New name",
 		   "",&s,xxstring)) < 0) { /* Get new name */
 	if (x == -3) {
@@ -9417,26 +9085,9 @@ dorenam() {
 	} else return(x);
     }
     ckstrncpy(p,s,TMPBUFSIZ);		/* Make a safe copy of the new name */
-#endif	/* COMMENT */
 
     if ((y = cmcfm()) < 0) return(y);	/* Confirm the command */
 
-#ifdef COMMENT
-#ifndef NOUNICODE
-    if (converting) {
-	printf(" From: %s\n",fcsinfo[cset1].keyword);
-	printf(" To:   %s\n",fcsinfo[cset2].keyword);
-    }
-#endif	/* NOUNICODE */
-    if (casing) {
-	printf("CASING: %s\n", (casing == 1) ? "LOWER" : "UPPER");
-    }
-    if (replacing) {
-	printf("REPLACING: '%s' with '%s'\n",
-	       ren_sub[0],
-	       ren_sub[1] ? ren_sub[1] : "");
-    }
-#endif	/* COMMENT */
 
     s = line;
     if (!wild)				/* Just one */
@@ -9452,13 +9103,6 @@ dorenam() {
 	    return(-9);
 	}
     }
-#ifdef COMMENT
-    else {                              /* Show full path of target */
-        char buf[CKMAXPATH];            /* (too much) */
-        if (zfnqfp(p,CKMAXPATH,buf))
-          ckstrncpy(tmpbuf,buf,TMPBUFSIZ);
-    }
-#endif /* COMMENT */
 
     debug(F110,"dorename line",line,0);
 
@@ -9859,17 +9503,7 @@ doxget( int cx )
            "",                          /* addtl string data */
            0,                           /* addtl numeric data 1 */
            0,                           /* addtl numeric data 2 */
-#ifdef COMMENT
-#ifdef CK_XYZ
-           (protocol == PROTO_X || protocol == PROTO_XC) ?
-             xxstring :
-             (rcvcmd ? (xx_strp)0  : xxstring)
-#else
-           rcvcmd ? (xx_strp)0  : xxstring /* Processing function */
-#endif /* CK_XYZ */
-#else  /* COMMENT */
 	   xxstring			/* Always evaluate - fdc 2006/02/01 */
-#endif	/* COMMENT */
              ,
            NULL,
            &cm
@@ -10003,18 +9637,6 @@ doxget( int cx )
             }
             break;
 
-#ifdef COMMENT
-          /* Not implemented */
-          case SND_PRI:                 /* GET to printer */
-            pv[n].ival = 1;
-            if (!getval) break;
-            if ((x = cmfld("Print options","",&s,xxstring)) < 0)
-              goto xgetx;
-            pv[n].sval = malloc((int)strlen(s)+1);
-            if (pv[n].sval)
-              strcpy(pv[n].sval,s);     /* safe */
-            break;
-#endif /* COMMENT */
 
           case SND_MOV:                 /* MOVE after */
           case SND_REN:                 /* RENAME after */
@@ -10058,11 +9680,7 @@ doxget( int cx )
                 goto xgetx;
             }
             if (
-#ifdef COMMENT
-		(x = cmfld("Name to store it under","",&s,NULL))
-#else
 		(x = cmfld("Name to store it under","",&s,xxstring))
-#endif	/* COMMENT */
 		< 0)
               goto xgetx;
             s = brstrip(s);
@@ -10249,23 +9867,11 @@ doxget( int cx )
     if (pv[SND_RES].ival > 0) {         /* REGET or GET /RECOVER */
 #ifdef RECURSIVE
         if (pv[SND_REC].ival > 0) {     /* RECURSIVE */
-#ifdef COMMENT
-            printf("?Unsupported option combination: /RECOVER /RECURSIVE\n");
-            x = -9;
-            goto xgetx;
-#else
             opkt = 1;
-#endif /* COMMENT */
         }
 #endif /* RECURSIVE */
         if (pv[SND_DEL].ival > 0) {     /* /DELETE */
-#ifdef COMMENT
-            printf("?Unsupported option combination: /RECOVER /DELETE\n");
-            x = -9;
-            goto xgetx;
-#else
             opkt = 1;
-#endif /* COMMENT */
         }
     }
 #endif /* CK_RESEND */
@@ -10639,10 +10245,6 @@ dogta( int cx )
             debug(F111," dogta _GETARGS m_arg addmac var i",mbuf,i);
             debug(F111," dogta _GETARGS m_arg addmac def i",p,i);
             addmac(mbuf,p);
-#ifdef COMMENT
-            if (maclvl > 1)
-              makestr(&(m_line[maclvl]),m_line[maclvl-2]);
-#endif /* COMMENT */
         } else if (cx == XXPTA) {       /* Put args level+2 */
             maclvl -= 2;                /* This is gross, it's because we're */
             addmac(mbuf,m_arg[maclvl+2][i]); /* adding macros two levels up */
@@ -10848,11 +10450,6 @@ dogoto( char *s, int cx )
             debug(F111,"GOTO macro m",cmd,m);
             if (i >= m) {               /* Didn't find the label */
                 debug(F101,"GOTO failed cmdlvl","",cmdlvl);
-#ifdef COMMENT
-		/* MOVED TO AFTER POPCLVL ABOUT 20 LINES DOWN 5 AUG 2002 */
-		   if (stopflg)
-                  return(0);
-#endif /* COMMENT */
                 if ((maclvl > 0) &&
                        (m_arg[maclvl-1][0]) &&
                        (cmdstk[cmdlvl].src == CMD_MD) &&
@@ -10885,13 +10482,7 @@ dogoto( char *s, int cx )
                 tfline[tlevel] = 0;
             }
             while (! feof(tfile[tlevel])) {
-#ifdef COMMENT
-/* This is wrong - it lets us jump to labels inside inferior blocks */
-                tfline[tlevel]++;
-                if (fgets(line,LINBUFSIZ,tfile[tlevel]) == NULL) /* Get line */
-#else
                 if (getnct(line,LINBUFSIZ,tfile[tlevel],0) < 0)
-#endif /* COMMENT */
                   break;                /* If no more, done, label not found */
                 lp = line;              /* Got line */
                 while (*lp == SP || *lp == HT)
@@ -11134,9 +10725,6 @@ boolexp( int cx )
 	      if (i > -1)		/* in the macro table */
 		s = mactab[x].mval;	/* and get its value */
 	      else			/* Otherwise if no such macro */
-#ifdef COMMENT
-		s = "0";		/* evaluate as FALSE (bad idea) */
-#else
 	      {
 		  if (varnam[0])
 		    printf("?Variable %s does not have a numeric value\n",
@@ -11146,7 +10734,6 @@ boolexp( int cx )
 			   cmresult.sresult);
 		  return(-9);
 	      }
-#endif /* COMMENT */
 	  }
 #ifdef FNFLOAT
         if (isfloat(s,0)) {		/* A floating-point number? */
@@ -11436,12 +11023,7 @@ boolexp( int cx )
             printf("?IF: strings too long\n");
             return(-2);
         }
-#ifdef COMMENT
-        tp = lp + x + 2;                /* tp points to second string */
-        strncpy(tp,s,LINBUFSIZ-x-3);
-#else
 	tp = s;
-#endif /* COMMENT */
       /*lexical:*/
         x = ckstrcmp(lp,tp,-1,inpcas[cmdlvl]); /* Use longest length */
         switch (ifc) {
@@ -11614,20 +11196,6 @@ boolexp( int cx )
         lp = line;
         debug(F110,"xxifnu quantity",lp,0);
         z = chknum(lp);
-#ifdef COMMENT
-/*
-  This works, but it's not wise -- IF NUMERIC is mostly used to see if a
-  string really does contain only numeric characters.  If they want to force
-  evaluation, they can use \feval() on the argument string.
-*/
-        if (!z) {                       /* Not a number */
-            x_ifnum = 1;                /* Avoid "eval" error messages */
-            q = evala(lp);              /* Maybe it's an expression */
-            z = chknum(q);              /* that evaluates to a number */
-            x_ifnum = 0;                /* Put eval messages back to normal */
-            if (z) debug(F110,"xxifnu exp",lp,0);
-        }
-#endif /* COMMENT */
         debug(F101,"xxifnu chknum","",z);
         ifargs += 2;
         break;
@@ -11892,11 +11460,7 @@ boolexp( int cx )
 
       case XXIFKG: {                    /* KERBANG */
           extern int cfilef;
-#ifdef COMMENT
-          z = (xcmdsrc == 0) ? 0 : (cfilef && cmdlvl == 1);
-#else
           z = (xcmdsrc == 0) ? 0 : (cfilef && tlevel == 0);
-#endif	/* COMMENT */
           break;
       }
 
@@ -12118,15 +11682,6 @@ doif( int cx )
           while (*p != SP) p++;
           ifcp = ifcond;
           ifcp += ckstrncpy(ifcp,"{ \\flit(if ( not ",IFCONDLEN);
-#ifdef COMMENT
-/*
-  This doesn't work because it breaks on the first left brace, which does
-  not necessarily start the command list, e.g. "while equal \%a {\35}".
-*/
-          while (*p != '{' && *p != NUL) *ifcp++ = *p++;
-          p = " ) goto _..bot) } ";
-          while (*ifcp++ = *p++) ;
-#else
 /*
   The command parser sets cmbptr to the spot where it left off parsing in
   the command buffer.
@@ -12143,7 +11698,6 @@ doif( int cx )
                   return(-9);
               }
           }
-#endif /* COMMENT */
 
           debug(F110,"WHILE cmd",ifcond,0);
 

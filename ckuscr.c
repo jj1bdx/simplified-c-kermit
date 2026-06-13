@@ -88,15 +88,7 @@ static int got_it, no_cr;
 
 /*  Connect state parent/child communication signal handlers */
 
-#ifdef COMMENT
-#ifdef CK_POSIX_SIG
-static sigjmp_buf alrmrng;
-#else
-static jmp_buf alrmrng;
-#endif /* CK_POSIX_SIG */
-#else
 static ckjmpbuf alrmrng;
-#endif /* COMMENT */
 
 static SIGTYP
 scrtime(int foo)			/* modem read failure handler, */
@@ -132,11 +124,6 @@ sequenc() {
 		case 't':  seq_buf[i++] = '\t'; break;
 		case 'b':  seq_buf[i++] = '\b'; break;
 		case 'q':  seq_buf[i++] = '?';  break;
-#ifdef COMMENT
-/* The default case should catch these now... */
-		case '~':  seq_buf[i++] = '~';  break;
-		case '-':  seq_buf[i++] = '-';  break;
-#endif /* COMMENT */
 		case '\'': seq_buf[i++] = '\''; break;
 		case '\"': seq_buf[i++] = '\"'; break;
 		case 's':  seq_buf[i++] = ' ';  break;
@@ -448,10 +435,6 @@ dologin( char *cmdstr )
 
     *seq_buf = 0;
     for (e = s; *e; e++) ckstrncat(seq_buf,dbchr(*e),SBUFL);
-#ifdef COMMENT
-/* Skip this because it tends to contain a password... */
-    if (scr_echo) printf("SCRIPT string: %s\n",seq_buf);
-#endif /* COMMENT */
     tlog(F110,"SCRIPT string: ",seq_buf, 0L);
 
 /* Condition console terminal and communication line... */

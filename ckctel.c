@@ -153,16 +153,6 @@ int tn_env_flg = 1;
 int tn_env_flg = 0;
 #endif /* CK_ENVIRONMENT */
 
-#ifdef COMMENT
-/* SIGWINCH handler moved to ckuusx.c */
-#ifndef NOSIGWINCH
-#ifdef CK_NAWS                          /* Window size business */
-#ifdef UNIX
-#include <signal.h>
-#endif /* UNIX */
-#endif /* CK_NAWS */
-#endif /* NOSIGWINCH */
-#endif /* COMMENT */
 
 #include "ckuusr.h"
 #include "ckucmd.h"
@@ -1930,26 +1920,6 @@ tn_ini() {
         tn_init = 1;
         debug(F100,"tn_ini telnet negotiations ignored","tn_init",tn_init);
         return(0);
-#ifdef COMMENT
-      /* Jeff's code from 30 Dec 2005 - doesn't work with SSL POP server */
-      case NP_NONE:
-      case NP_SSL:
-      case NP_TLS:
-        ttnproto = NP_TELNET;           /* pretend it's telnet anyway, */
-        oldplex = duplex;               /* save old duplex value */
-        duplex = 1;                     /* and set to half duplex for telnet */
-        if (inserver)
-          debug(F100,"tn_ini skipping telnet negotiations","",0);
-	else
-	  tn_wait("tn_ini - waiting to see if telnet negotiations were sent");
-	tn_push();
-        return(0);
-      case NP_SSL_RAW:
-      case NP_TLS_RAW:
-      case NP_TCPRAW:                   /* Raw socket requested. */
-        debug(F100,"tn_ini telnet negotiations ignored","tn_init",tn_init);
-        return(0);
-#else
       /* My code from 4 Dec 2005 - works with SSL POP server */
       case NP_NONE:
       case NP_SSL:
@@ -1968,7 +1938,6 @@ tn_ini() {
       case NP_TCPRAW:                   /* Raw socket requested. */
         debug(F100,"tn_ini telnet negotiations ignored","tn_init",tn_init);
         return(0);
-#endif	/* COMMENT */
       case NP_KERMIT:                   /* switching to Telnet protocol */
       case NP_SSL_TELNET:
       case NP_TLS_TELNET:
@@ -1994,22 +1963,6 @@ tn_hex(CHAR * buf, int buflen, CHAR * data, int datalen)
 {
     int i = 0, j = 0, k = 0;
     CHAR tmp[16];		/* in case value is treated as negative */
-#ifdef COMMENT
-    int was_hex = 1;
-
-    for (k=0; k < datalen; k++) {
-        if (data[k] < 32 || data[k] >= 127) {
-            sprintf(tmp,"%s%02X ",was_hex?"":"\" ",data[k]);
-            was_hex = 1;
-        } else {
-            sprintf(tmp,"%s%c",was_hex?"\"":"",data[k]);
-            was_hex = 0;
-        }
-        ckstrncat((char *)buf,tmp,buflen);
-    }
-    if (!was_hex)
-        ckstrncat((char *)buf,"\" ",buflen);
-#else /* COMMENT */
     if (datalen <= 0 || data == NULL || buf == NULL || buflen <= 0)
         return(0);
 
@@ -2041,7 +1994,6 @@ tn_hex(CHAR * buf, int buflen, CHAR * data, int datalen)
         i += j - 1;
     } /* end for */
     ckstrncat((char *)buf,"\r\n  ",buflen);
-#endif /* COMMENT */
     return(strlen((char *)buf));
 }
 
@@ -3146,10 +3098,6 @@ tn_xdoop(CHAR z, int echo, int (*fn)(int))
             whyclosed = WC_TELOPT;
             return(-3);
         }
-#ifdef COMMENT
-        if (x == TELOPT_ECHO && !echo) /* Special handling for echo */
-          return(1);                   /* because we allow 'duplex' */
-#endif /* COMMENT */
         break;
 
       case DO:
@@ -4476,10 +4424,6 @@ tnc_tn_sb(CHAR * sb, int len)
             return(-1);
         }
 
-#ifdef COMMENT
-        /* This line should be removed when testing is complete. */
-        TELOPT_SB(TELOPT_COMPORT).comport.wait_for_sb = 0;
-#endif /* COMMENT */
 
         switch ( sb[1] ) {
           case TNC_CTL_OFLOW_REQUEST:
