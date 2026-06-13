@@ -9268,27 +9268,9 @@ initoptlist() {
 #ifdef LINUX_HI_SPD
     makestr(&(optlist[noptlist++]),"LINUX_HI_SPD");
 #endif /* LINUX_HI_SPD */
-#ifdef LYNXOS
-    makestr(&(optlist[noptlist++]),"LYNXOS");
-#endif /* LYNXOS */
 #ifdef V7
     makestr(&(optlist[noptlist++]),"V7");
 #endif /* V7 */
-#ifdef CIE
-    makestr(&(optlist[noptlist++]),"CIE");
-#endif /* CIE */
-#ifdef RTU
-    makestr(&(optlist[noptlist++]),"RTU");
-#endif /* RTU */
-#ifdef ZILOG
-    makestr(&(optlist[noptlist++]),"ZILOG");
-#endif /* ZILOG */
-#ifdef TRS16
-    makestr(&(optlist[noptlist++]),"TRS16");
-#endif /* TRS16 */
-#ifdef C70
-    makestr(&(optlist[noptlist++]),"C70");
-#endif /* C70 */
 #ifdef ATTSV
     makestr(&(optlist[noptlist++]),"ATTSV");
 #endif /* ATTSV */
@@ -9298,9 +9280,6 @@ initoptlist() {
 #ifdef SVR4
     makestr(&(optlist[noptlist++]),"SVR4");
 #endif /* SVR4 */
-#ifdef ICL_SVR4
-    makestr(&(optlist[noptlist++]),"ICL_SVR4");
-#endif /* ICL_SVR4 */
 #ifdef POSIX
     makestr(&(optlist[noptlist++]),"POSIX");
 #endif /* POSIX */
@@ -9328,9 +9307,6 @@ initoptlist() {
     makestr(&(optlist[noptlist++]),"_SVID3");
 #endif /* _SVID3 */
 
-#ifdef sxaE50
-    makestr(&(optlist[noptlist++]),"sxaE50");
-#endif
 #ifdef vax
     makestr(&(optlist[noptlist++]),"vax");
 #endif
@@ -9578,9 +9554,6 @@ initoptlist() {
 #endif
 
 
-#ifdef NEUTRINO
-    makestr(&(optlist[noptlist++]),"NEUTRINO");
-#endif /* NEUTRINO */
 
 #ifdef __STRICT_BSD__
     makestr(&(optlist[noptlist++]),"__STRICT_BSD__");
@@ -9657,9 +9630,6 @@ initoptlist() {
 #endif /* SIG_V */
 #ifdef CK_POSIX_SIG
     makestr(&(optlist[noptlist++]),"CK_POSIX_SIG");
-#endif
-#ifdef _386BSD
-    makestr(&(optlist[noptlist++]),"_386BSD");
 #endif
 #ifdef _BSD
     makestr(&(optlist[noptlist++]),"_BSD");

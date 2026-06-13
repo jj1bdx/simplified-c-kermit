@@ -5975,9 +5975,6 @@ gtword( int brk )
     int fnparens = 0;                   /* Parens counter */
 #endif /* FUNCTIONTEST */
 
-#ifdef RTU
-    extern int rtu_bug;
-#endif /* RTU */
 
 #ifdef IKSD
     extern int inserver;
@@ -7101,15 +7098,6 @@ cmdgetc( int timelimit )           /* Get a character from the tty. */
 #endif /* CMD_CONINC */
 	c = getchar();
     }
-#ifdef RTU
-    if (rtu_bug) {
-#ifdef CMD_CONINC
-#undef CMD_CONINC
-#endif /* CMD_CONINC */
-	c = getchar();			/* RTU doesn't discard the ^Z */
-	rtu_bug = 0;
-    }
-#endif /* RTU */
     return(c);				/* Return what we got */
 }
 

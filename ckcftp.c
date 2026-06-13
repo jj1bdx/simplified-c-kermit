@@ -153,11 +153,7 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 
 #include <stdarg.h>
 #include <signal.h>
-#ifndef ZILOG
 #include <setjmp.h>
-#else
-#include <setret.h>
-#endif /* ZILOG */
 #include "ckcsig.h"
 #include <sys/stat.h>
 #include <ctype.h>

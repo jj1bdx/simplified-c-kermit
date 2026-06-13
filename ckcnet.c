@@ -191,11 +191,7 @@ struct timezone {
 
 #include <signal.h>                     /* Everybody needs this */
 
-#ifdef ZILOG                            /* Zilog has different name for this */
-#include <setret.h>
-#else
 #include <setjmp.h>
-#endif /* ZILOG */
 
 
 

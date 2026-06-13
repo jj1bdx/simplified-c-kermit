@@ -73,9 +73,6 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 #ifdef NDIR
 #include <ndir.h>
 #else /* !NDIR, !XNDIR */
-#ifdef RTU
-#include "/usr/lib/ndir.h"
-#else /* !RTU, !NDIR, !XNDIR */
 #ifdef DIRENT
 #ifdef SDIRENT
 #include <sys/dirent.h>
@@ -85,7 +82,6 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 #else
 #include <sys/dir.h>
 #endif /* DIRENT */
-#endif /* RTU */
 #endif /* NDIR */
 #endif /* XNDIR */
 
@@ -143,9 +139,7 @@ extern int eofmethod;
 
 #ifndef NOTIMESTAMP
 #ifdef POSIX
-#ifndef AS400
 #define TIMESTAMP
-#endif /* AS400 */
 #endif /* POSIX */
 
 #ifdef BSD44                            /* BSD 4.4 */
@@ -190,11 +184,7 @@ extern long timezone;
 
 #endif /* NOTIMESTAMP */
 
-#ifdef CIE
-#include <stat.h>                       /* File status */
-#else
 #include <sys/stat.h>
-#endif /* CIE */
 
 
 
@@ -341,11 +331,7 @@ char *MAILCMD = "";
 #ifdef ANYBSD                           /* BSD uses lpr to spool */
 char * PRINTCMD = "lpr";
 #else                                   /* Sys V uses lp */
-#ifdef TRS16                            /* except for Tandy-16/6000... */
-char * PRINTCMD = "lpr";
-#else
 char * PRINTCMD = "lp";
-#endif /* TRS16 */
 #endif /* ANYBSD */
 #else  /* Not UNIX */
 #define PRINTCMD ""
@@ -3025,10 +3011,6 @@ zxcmd( int filnum, char *comand )
 
 /* Input from a command */
 
-#ifdef SNI541
-    /* SINIX-L 5.41 does not like fdopen() */
-    return(0);
-#else
     if (pipe(pipes) != 0) {
         debug(F100,"zxcmd pipe failure","",0);
         return(0);                      /* can't make pipe, fail */
@@ -3103,7 +3085,6 @@ zxcmd( int filnum, char *comand )
     }
 #endif /* SELECT */
 #endif /* DONDELAY */
-#endif /* SNI541 */
     fp[ZSYSFN] = fp[filnum];            /* Remember. */
     zincnt = 0;                         /* (PWP) reset input buffer */
     zinptr = zinbuffer;
@@ -5905,15 +5886,11 @@ traverse( struct path *pl, char *sofar, char *endcur )
 #ifdef unos
                          dirbuf->d_ino != -1
 #else
-#ifdef __386BSD__
-                         dirbuf->d_fileno != 0
-#else
 #ifdef __FreeBSD__
                          dirbuf->d_fileno != 0
 #else
                          dirbuf->d_ino != 0
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 #endif /* unos */
               )
             exists = 1;

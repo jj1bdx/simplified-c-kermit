@@ -144,14 +144,6 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 
 
 
-#ifdef SINIX
-#define HAVE_STREAMS
-#define HAVE_GRANTPT
-#define HAVE_PTSNAME
-#define PUSH_PTEM
-#define PUSH_LDTERM
-#define PUSH_TTCOMPAT
-#endif /* SINIX */
 
 
 

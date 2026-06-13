@@ -776,15 +776,11 @@ ttgtpn() {				/* Get typical port name */
 #ifdef BSD44
 "/dev/tty00"
 #else  /* BSD44 */
-#ifdef SINIX
-"/dev/ttyc1"
-#else
 #ifdef UNIX
 "/dev/cua, /dev/acu, /dev/tty0, etc"
 #else  /* UNIX */
 "(sorry no example available)"
 #endif /* UNIX */
-#endif /* SINIX */
 #endif /* BSD44 */
 #endif /* __linux__ */
 #endif /* __FreeBSD__ */
@@ -812,17 +808,10 @@ _PROTOTYP( char * strerror, (int) );
     return(strerror(errno));
 #else  /* !USE_STRERROR */
 #ifdef BSD44
-#ifdef __386BSD__
-#ifndef NDSYSERRLIST
-    extern int sys_nerr;
-    extern char *sys_errlist[];
-#endif /* NDSYSERRLIST */
-#else  /* !__386BSD__ */
 #ifndef NDSYSERRLIST
     extern int sys_nerr;
     extern const char *const sys_errlist[];
 #endif /* NDSYSERRLIST */
-#endif /* __386BSD__ */
 #ifdef CKROOT
     if (ckrooterr)
       return("Off limits");
@@ -2529,9 +2518,7 @@ ckhost( char * vvbuf, int vvlen )
 
 #ifdef SVORPOSIX
 #ifndef BSD44
-#ifndef _386BSD
     struct utsname hname;
-#endif /* _386BSD */
 #endif /* BSD44 */
 #endif /* SVORPOSIX */
 
@@ -2551,9 +2538,6 @@ ckhost( char * vvbuf, int vvlen )
     if (gethostname(vvbuf,vvlen) < 0)
       *vvbuf = NUL;
 #else
-#ifdef _386BSD
-    if (gethostname(vvbuf,vvlen) < 0) *vvbuf = NUL;
-#else
 #ifdef __ia64__
     if (uname(&hname) > -1) ckstrncpy(vvbuf,hname.nodename,vvlen);
 #else
@@ -2571,7 +2555,6 @@ ckhost( char * vvbuf, int vvlen )
 	ckstrncpy(vvbuf,p,vvlen);
     }
 #endif /* __ia64__ */
-#endif /* _386BSD */
 #endif /* BSD44 */
 #else /* !SVORPOSIX */
 #ifdef BSD4

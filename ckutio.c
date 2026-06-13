@@ -44,13 +44,9 @@ extern int duplex;
 
 #include <errno.h>			/* Error number symbols */
 
-#ifdef __386BSD__
-#define ENOTCONN 57
-#else
 #ifdef __FreeBSD__
 #define ENOTCONN 57
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 
 
 
@@ -75,9 +71,6 @@ extern int duplex;
 #ifdef NDIR
 #include <ndir.h>
 #else /* !NDIR, !XNDIR */
-#ifdef RTU
-#include "/usr/lib/ndir.h"
-#else /* !RTU, !NDIR, !XNDIR */
 #ifdef DIRENT
 #ifdef SDIRENT
 #include <sys/dirent.h>
@@ -87,7 +80,6 @@ extern int duplex;
 #else /* !RTU, !NDIR, !XNDIR, !DIRENT, i.e. all others */
 #include <sys/dir.h>
 #endif /* DIRENT */
-#endif /* RTU */
 #endif /* NDIR */
 #endif /* XNDIR */
 
@@ -97,9 +89,6 @@ extern int duplex;
 
 #ifdef ATTSV
 #ifndef NAP
-#ifdef TRS16
-#define HZ ( 1000 / CLOCK_TICK )
-#endif /* TRS16 */
 #ifdef NAPHACK
 #define nap(x) (void)syscall(3112, (x))
 #define NAP
@@ -120,11 +109,7 @@ extern int duplex;
 
 /* For setjmp and longjmp */
 
-#ifndef ZILOG
 #include <setjmp.h>
-#else
-#include <setret.h>
-#endif /* ZILOG */
 
 /*
   The following test differentiates between 4.1 BSD and 4.2 & later.
@@ -179,11 +164,6 @@ char *ckxsys = HERALD;
 #endif /* TRU64 */
 
 
-#ifdef UW7
-#ifndef SYS_NMLN
-#define SYS_NMLN 257
-#endif /* NMLN */
-#endif /* UW7 */
 #ifdef SYS_NMLN
 #define CK_SYSNMLN SYS_NMLN
 #else
@@ -204,11 +184,7 @@ char unm_rel[CK_SYSNMLN+1] = { '\0', '\0' };
 char unm_ver[CK_SYSNMLN+1] = { '\0', '\0' };
 #endif /* CK_UTSNAME */
 
-#ifdef CIE
-#include <stat.h>			/* For chasing symlinks, etc. */
-#else
 #include <sys/stat.h>
-#endif /* CIE */
 
 
 /* UUCP lockfile material... */
@@ -298,9 +274,6 @@ char unm_ver[CK_SYSNMLN+1] = { '\0', '\0' };
 
 #ifndef LOCK_DIR
 #ifdef BSD44
-#ifdef __386BSD__
-#define LOCK_DIR "/var/spool/lock"
-#else
 #ifdef __FreeBSD__
 #define LOCK_DIR "/var/spool/lock"
 #else
@@ -317,7 +290,6 @@ char unm_ver[CK_SYSNMLN+1] = { '\0', '\0' };
 #endif /* __OpenBSD__ */
 #endif /* __NetBSD__ */
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 #else
 #ifdef HDBUUCP
 #ifdef M_SYS5
@@ -467,13 +439,7 @@ Time functions
 
 /* Whether to include <sys/file.h> */
 
-#ifdef RTU				/* RTU doesn't */
-#define NOFILEH
-#endif /* RTU */
 
-#ifdef CIE				/* CIE does. */
-#undef NOFILEH
-#endif /* CIE */
 
 
 
@@ -619,9 +585,6 @@ struct timezone {
 #endif /* SELECT_H */
 
 
-#ifdef sxaE50				/* PFU Compact A SX/A TISP V10/L50 */
-#undef FIONREAD
-#endif /* sxaE50 */
 
 /* The following #defines are catch-alls for those systems */
 /* that didn't have or couldn't find <file.h>... */
@@ -785,9 +748,6 @@ char *initrawq(), *qaddr[2]={0,0};
 
     char cttnam[DEVNAMLEN+1] = { '\0', '\0' }; /* Determined at runtime */
 
-#ifdef RTU
-    int rtu_bug = 0;		    /* set to 1 when returning from SIGTSTP */
-#endif /* RTU */
 
     int dfprty = DEFPAR;                /* Default parity (0 = none) */
     int ttprty = 0;                     /* The parity that is in use. */
@@ -1039,9 +999,6 @@ static int conesc = 0;                  /* set to 1 if esc char (^\) typed */
 #ifdef V7
 static int conesc = 0;
 #else
-#ifdef C70
-static int conesc = 0;
-#endif /* C70 */
 #endif /* V7 */
 #endif /* SVORPOSIX */
 
@@ -1736,10 +1693,6 @@ ttopen( char *ttname, int *lcl, int modem, int timo )
 #define ctermid(x) strcpy(x,"")
 #else
 #ifdef SVORPOSIX
-#ifndef CIE
-#else					/* CIE Regulus */
-#define ctermid(x) strcpy(x,"")
-#endif /* CIE */
 #endif /* SVORPOSIX */
 #endif /* BSD44 */
 
@@ -2144,10 +2097,6 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
     if (xlocal == 0) {			/* Remote mode */
 	if (fdflag == 0) {		/* Standard i/o is not redirected */
 	    debug(F100,"ttopen setting ttyfd = 0","",0);
-#ifdef LYNXOS
-	    /* On Lynx OS, fd 0 is open for read only. */
-	    dup2(ttyfd,0);
-#endif /* LYNXOS */
 	    close(ttyfd);		/* Use file descriptor 0 */
 	    ttyfd = 0;
 	} else {			/* Standard i/o is redirected */
@@ -2382,10 +2331,6 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
     if (xlocal == 0) {			/* Remote mode */
 	if (fdflag == 0) {		/* Standard i/o is not redirected */
 	    debug(F100,"ttopen setting ttyfd = 0","",0);
-#ifdef LYNXOS
-	    /* On Lynx OS, fd 0 is open for read only. */
-	    dup2(ttyfd,0);
-#endif /* LYNXOS */
 	    close(ttyfd);		/* Use file descriptor 0 */
 	    ttyfd = 0;
 	} else {			/* Standard i/o is redirected */
@@ -2489,11 +2434,6 @@ debug(F110,"XXX netopen in ifdef NETCONN...","A",0);
 
 
 
-#ifdef VXVE
-    ttraw.c_line = 0;                   /* STTY line 0 for VX/VE */
-    tttvt.c_line = 0;                   /* STTY line 0 for VX/VE */
-    ioctl(ttyfd,TCSETA,&ttraw);
-#endif /* vxve */
 
 /* If O_NDELAY was used during open(), then remove it now. */
 
@@ -2913,10 +2853,6 @@ ttclos( int foo )			/* Arg req'd for signal() prototype */
 #endif /* USE_TIOCSDTR */
 
 #ifndef HUP_CLOSE_POSIX
-#ifdef OU8
-#define HUP_CLOSE_POSIX
-#else
-#endif /* OU8 */
 #endif /* HUP_CLOSE_POSIX */
 
 #ifdef NO_HUP_CLOSE_POSIX
@@ -3733,11 +3669,9 @@ ttrpid( char *name )
 #ifndef NOLFDEVNO
 #ifndef LFDEVNO				/* Define this for SVR4 */
 #ifndef BSD44				/* If anybody else needs it... */
-#ifndef __386BSD__
 #ifndef __FreeBSD__
 #define LFDEVNO
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 #endif /* BSD44 */
 #endif /* LFDEVNO */			/* ... define it here or on CC */
 #endif /* NOLFDEVNO */
@@ -4918,10 +4852,6 @@ ttpkt(long speed, int xflow, int parity)
     }
 #endif /* HWPARITY */
 
-#ifdef IX370
-    ttraw.c_cc[4] = 48;  /* So Series/1 doesn't interrupt on every char */
-    ttraw.c_cc[5] = 1;
-#else
 #ifndef VEOF				/* for DGUX this is VEOF, not VMIN */
     ttraw.c_cc[4] = 1;   /* [VMIN]  return max of this many characters or */
 #else
@@ -4936,7 +4866,6 @@ ttpkt(long speed, int xflow, int parity)
     ttraw.c_cc[VTIME] = 0;
 #endif /* VTIME */
 #endif /* VEOL */
-#endif /* IX370 */
 
 #ifdef VINTR				/* Turn off interrupt character */
     if (xlocal == 0)			/* so ^C^C can break us out of */
@@ -5826,13 +5755,9 @@ ttspdlist( void )
 #ifdef USETCSETSPEED			/* No way to find out what's legal */
     debug(F100,"ttspdlist USETCSETSPEED","",0);
     spdlist[i++] = 50L;
-#ifndef UW7
     spdlist[i++] = 75L;
-#endif /* UW7 */
     spdlist[i++] = 110L;
-#ifndef UW7
     spdlist[i++] = 134L;
-#endif /* UW7 */
     spdlist[i++] = 150L;
     spdlist[i++] = 200L;
     spdlist[i++] = 300L;
@@ -5846,20 +5771,16 @@ ttspdlist( void )
     spdlist[i++] = 14400L;
     spdlist[i++] = 19200L;
     spdlist[i++] = 28800L;
-#ifndef UW7
     spdlist[i++] = 33600L;
-#endif /* UW7 */
     spdlist[i++] = 38400L;
     spdlist[i++] = 57600L;
     spdlist[i++] = 76800L;
     spdlist[i++] = 115200L;
-#ifndef UW7
     spdlist[i++] = 153600L;
     spdlist[i++] = 230400L;
     spdlist[i++] = 307200L;
     spdlist[i++] = 460800L;
     spdlist[i++] = 921600L;
-#endif /* UW7 */
 
 #else  /* USETCSETSPEED */
 
@@ -6577,11 +6498,6 @@ myfillbuf() {
 #endif /* NETCMD */
       fd = ttyfd;
 
-#ifdef sxaE50
-    /* From S. Dezawa at Fujifilm in Japan.  I don't know why this is */
-    /* necessary for the sxa E50, but it is. */
-    return read(fd, mybuf, 255);
-#else
     errno = 0;
     /* debug(F101,"SVORPOSIX myfillbuf calling read() fd","",fd); */
 #ifdef IBMX25
@@ -6622,7 +6538,6 @@ myfillbuf() {
         return(-3);
     }
     return(n);
-#endif /* sxaE50 */
 }
 
 #else /* not AT&T or POSIX */
@@ -6884,10 +6799,8 @@ ttflui() {
     tcflush(fd,TCIFLUSH);
 #else
 #ifdef ATTSV				/* System V */
-#ifndef VXVE
     debug(F100,"ttflui ATTSV","",0);
     ioctl(fd,TCFLSH,0);
-#endif /* VXVE */
 #else					/* Not BSD44, POSIX, or Sys V */
 #ifdef TIOCFLUSH			/* Those with TIOCFLUSH defined */
 #ifdef ANYBSD				/* Berkeley */
@@ -6960,13 +6873,6 @@ esctrp(foo) int foo; {			/* trap console escapes (^\) */
 }
 #endif /* V7 */
 
-#ifdef C70
-SIGTYP
-esctrp(foo) int foo; {			/* trap console escapes (^\) */
-    conesc = 1;
-    signal(SIGQUIT,SIG_IGN);            /* ignore until trapped */
-}
-#endif /* C70 */
 
 #endif /* RDCHK */
 #endif /* CK_POLL */
@@ -7084,16 +6990,12 @@ conbgt( int flag )
 #ifdef SVR4ORPOSIX			/* POSIX actually tells us */
     debug(F100,"SVR4ORPOSIX jc test...","",0);
 #ifdef _SC_JOB_CONTROL
-#ifdef __386BSD__
-    jc = 1;
-#else
     jc = sysconf(_SC_JOB_CONTROL);	/* Whatever system says */
     if (jc < 0) {
 	debug(F101,"sysconf fails, jcshell","",jcshell);
 	jc = (jchdlr == SIG_DFL) ? 1 : 0;
     } else
       debug(F111,"sysconf(_SC_JOB_CONTROL)","jc",jc);
-#endif /* __386BSD__ */
 #else
 #ifdef _POSIX_JOB_CONTROL
     jc = 1;				/* By definition */
@@ -7162,13 +7064,9 @@ conbgt( int flag )
     y = (isatty(0) && isatty(1)) ? 1 : 0;
     debug(F101,"conbgt isatty test","",y);
 
-#ifdef sxaE50
-    backgrd = !y;
-#else
     if (x > -1)
       backgrd = (x || !y) ? 1 : 0;
     else backgrd = !y;
-#endif /* MINIX */
     debug(F101,"conbgt backgrd","",backgrd);
 }
 
@@ -7310,9 +7208,6 @@ connoi() {                              /* Console-no-interrupts */
 
 char *
 initrawq(tty) int tty; {
-#ifdef UTS24
-    return(0);
-#else
     long lseek();
     static struct nlist nl[] = {
         {PROCNAME},
@@ -7373,7 +7268,6 @@ iout:
     kill(pid, SIGKILL);
     wait((WAIT_T *)0);
     return (qaddr);
-#endif
 }
 
 /*  More V7-support functions...  */
@@ -9183,12 +9077,6 @@ congm() {
     if (ioctl(fd,TCGETA,&ccold)  < 0) return(-1);
     if (ioctl(fd,TCGETA,&cccbrk) < 0) return(-1);
     if (ioctl(fd,TCGETA,&ccraw)  < 0) return(-1);
-#ifdef VXVE
-    cccbrk.c_line = 0;			/* STTY line 0 for CDC VX/VE */
-    if (ioctl(fd,TCSETA,&cccbrk) < 0) return(-1);
-    ccraw.c_line = 0;			/* STTY line 0 for CDC VX/VE */
-    if (ioctl(fd,TCSETA,&ccraw) < 0) return(-1);
-#endif /* VXVE */
 #else
     if (gtty(fd,&ccold) < 0) return(-1);
     if (gtty(fd,&cccbrk) < 0) return(-1);
@@ -9307,9 +9195,6 @@ concb(char esc)
     cccbrk.c_cc[VMIN] = 1;
 #endif /* VMIN */
 #endif /* VEOF */
-#ifdef ZILOG
-    cccbrk.c_cc[5] = 0;
-#else
 #ifndef VEOL
     cccbrk.c_cc[5] = 1;
 #else
@@ -9317,7 +9202,6 @@ concb(char esc)
     cccbrk.c_cc[VTIME] = 1;
 #endif /* VTIME */
 #endif /* VEOL */
-#endif /* ZILOG */
     errno = 0;
 #ifdef BSD44ORPOSIX			/* Set new modes */
     x = tcsetattr(0,TCSADRAIN,&cccbrk);
@@ -9433,9 +9317,6 @@ conbin(char esc)
 #endif /* VMIN */
 #endif /* VEOF */
 
-#ifdef ZILOG
-    ccraw.c_cc[5] = 0;
-#else
 #ifndef VEOL
     ccraw.c_cc[5] = 1;
 #else
@@ -9443,7 +9324,6 @@ conbin(char esc)
     ccraw.c_cc[VTIME] = 1;
 #endif /* VTIME */
 #endif /* VEOL */
-#endif /* ZILOG */
 
 #ifdef BSD44ORPOSIX
     x = tcsetattr(0,TCSADRAIN,&ccraw);	/* Set new modes. */
@@ -9698,11 +9578,6 @@ coninc( int timo )
 
 	    debug(F101, "coninc(0) errno","",errno); /* Log the error. */
 #ifdef SVORPOSIX
-#ifdef CIE                             /* CIE Regulus has no EINTR symbol? */
-#ifndef EINTR
-#define EINTR 4
-#endif /* EINTR */
-#endif /* CIE */
 /*
   This routine is used for several different purposes.  In CONNECT mode, it is
   used to do an untimed, blocking read from the keyboard in the lower CONNECT
@@ -10067,9 +9942,6 @@ ttgmdm() {
 int
 psuspend( int flag )
 {
-#ifdef RTU
-    extern int rtu_bug;
-#endif /* RTU */
 
     if (flag == 0) return(-1);
 
@@ -10084,9 +9956,6 @@ psuspend( int flag )
   that the Unix kernel supports it doesn't guarantee that the user's
   shell (or other process that invoked Kermit) supports it.
 */
-#ifdef RTU
-    rtu_bug = 1;
-#endif /* RTU */
     if (kill(0,SIGSTOP) < 0
 	) {				/* If job control, suspend the job */
 	perror("suspend");

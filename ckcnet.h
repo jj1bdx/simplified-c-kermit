@@ -385,9 +385,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
    gethostbyname("").
 */
 #ifndef CKGHNLHOST
-#ifdef SINIX
-#define CKGHNLHOST
-#endif /* SINIX */
 #endif /* CKGHNLHOST */
 
 #ifndef RLOGCODE                        /* What about Rlogin? */

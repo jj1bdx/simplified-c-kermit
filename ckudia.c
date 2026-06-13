@@ -109,11 +109,7 @@ The remaining steps are in this module:
 
 
 
-#ifndef ZILOG
 #include <setjmp.h>
-#else
-#include <setret.h>
-#endif /* ZILOG */
 
 #include "ckcsig.h"        /* C-Kermit signal processing */
 

@@ -39,11 +39,7 @@ _PROTOTYP( static VOID concld, (void) );
 
 #include <errno.h>			/* Error number symbols */
 
-#ifdef ZILOG				/* Longjumps */
-#include <setret.h>
-#else
 #include <setjmp.h>
-#endif /* ZILOG */
 #include "ckcsig.h"
 
 /* Kermit-specific includes */

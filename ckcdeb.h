@@ -943,15 +943,10 @@ SIGTYP (*ckntsignal(int type, SIGTYP (*)(int)))(int);
 #ifdef V7
 typedef char CHAR;
 #else
-#ifdef C70
-typedef char CHAR;
-/* typedef long LONG; */
-#else
 #ifdef CHAR
 #undef CHAR
 #endif /* CHAR */
 typedef unsigned char CHAR;
-#endif /* C70 */
 #endif /* V7 */
 
 union ck_short {			/* Mainly for Unicode */
@@ -1304,22 +1299,14 @@ extern int tt_bell;
 /* Pty support, nonportable, available on a case-by-case basis */
 
 #ifndef NOPTY
-#ifdef SINIX                            /* Sinix (tested on 5.42) */
-#define NETPTY
-#else
 #ifdef BSD44				/* BSD44, {Net,Free,Open}BSD */
-#define NETPTY
-#else
-#ifdef UW7				/* Unixware 7 */
 #define NETPTY
 #else
 #ifdef LINUX				/* Linux */
 #define NETPTY
 #else
 #endif /* LINUX */
-#endif /* UW7 */
 #endif /* BSD44 */
-#endif /* SINIX */
 
 #else /* NOPTY */
 
@@ -2330,9 +2317,6 @@ _PROTOTYP( long * ttspdlist, (void) );
 #ifdef __linux__
 #define BPS_57K
 #else
-#ifdef __386BSD__
-#define BPS_57K
-#else
 #ifdef __FreeBSD__
 #define BPS_57K
 #else
@@ -2341,7 +2325,6 @@ _PROTOTYP( long * ttspdlist, (void) );
 #else
 #endif /* __NetBSD__ */
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 #endif /* __linux__ */
 #endif /* NOB_57K */
 
@@ -2353,9 +2336,6 @@ _PROTOTYP( long * ttspdlist, (void) );
 #define BPS_115K
 #define BPS_1500K
 #else
-#ifdef __386BSD__
-#define BPS_115K
-#else
 #ifdef __FreeBSD__
 #define BPS_115K
 #else
@@ -2364,7 +2344,6 @@ _PROTOTYP( long * ttspdlist, (void) );
 #else
 #endif /* __NetBSD__ */
 #endif /* __FreeBSD__ */
-#endif /* __386BSD__ */
 #endif /* __linux__ */
 #endif /* NOB_115K */
 
@@ -3565,9 +3544,6 @@ extern int _flsbuf(char c,FILE *stream);
 #ifndef UNIX				/* Non-Unixes don't have it */
 #define NO_PARAM_H
 #else
-#ifdef TRS16				/* Tandy Xenix doesn't have it */
-#define NO_PARAM_H
-#endif /* TRS16 */
 #endif /* UNIX */
 #endif /* NO_PARAM_H */
 
@@ -3755,12 +3731,6 @@ extern int filecase;
 
 /* Funny names for library functions department... */
 
-#ifdef ZILOG
-#define setjmp setret
-#define longjmp longret
-#define jmp_buf ret_buf
-#define getcwd curdir
-#endif /* ZILOG */
 
 
 #define isWin95() (0)
@@ -3871,10 +3841,6 @@ extern int filecase;
 
 #ifdef UNIX
 #ifndef NOGETUSERSHELL
-#ifdef SINIX
-#define NOGETUSERSHELL
-#else
-#endif /* SINIX */
 #endif /* NOGETUSERSHELL */
 #endif /* UNIX */
 

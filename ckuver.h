@@ -19,9 +19,6 @@
 
 
 
-#ifdef AS400
-#define HERALD " AS/400"
-#endif /* AS400 */
 
 
 #ifndef HERALD
@@ -113,11 +110,7 @@
 #endif /* FREEBSD50 */
 #endif /* FREEBSD51 */
 #else
-#ifdef __386BSD__
-#define HERALD " 386BSD"
-#else
 #define HERALD " 4.4BSD"
-#endif /* __386BSD__ */
 #endif /* __FreeBSD__ */
 #endif /* __NetBSD__ */
 #endif /* __OpenBSD__ */
@@ -127,63 +120,6 @@
 
 
 
-#ifdef C70
-#define HERALD " BBN C/70"
-#endif /* c70 */
-
-#ifdef CIE
-#define HERALD " CIE Systems 680/20 Regulus"
-#endif /* CIE */
-
-
-
-
-
-
-
-#ifdef SINIX
-#ifdef SNI544
-#define HERALD " Siemens Nixdorf Reliant UNIX V5.44"
-#else
-#ifdef SNI543
-#define HERALD " Siemens Nixdorf Reliant UNIX V5.43"
-#else
-#ifdef SNI541
-#define HERALD " Siemens Nixdorf SINIX V5.41"
-#else
-#define HERALD " Siemens Nixdorf SINIX V5.42"
-#endif /* SNI541 */
-#endif /* SNI543 */
-#endif /* SNI544 */
-#endif /* SINIX */
-
-#ifdef POWERMAX
-#define HERALD " Concurrent PowerMAX OS"
-#endif /* POWERMAX */
-
-
-
-
-#ifdef ICL_SVR4
-#define HERALD " ICL System V R4 DRS N/X"
-#endif /* ICL_SVR4 */
-
-
-
-#ifdef XF68R3V6
-#define HERALD " Motorola UNIX System V/68 R3V6"
-#endif /* XF68R3V6 */
-
-#ifdef XF88R32
-#define HERALD " Motorola UNIX System V/88 R32"
-#endif /* XF88R32 */
-
-
-
-
-#ifdef IX370
-#define HERALD " IBM IX/370"
-#endif /* IX370 */
 
 
 
@@ -193,20 +129,6 @@
 
 
 
-#ifdef PCIX
-#define HERALD " PC/IX"
-#endif /* PCIX */
-
-#ifdef sxaE50
-#define HERALD " PFU SX/A V10/L50"
-#endif /* sxaE50 */
-
-
-
-
-#ifdef RTU
-#define HERALD " Masscomp/Concurrent RTU"
-#endif /* RTU */
 
 
 
@@ -214,33 +136,41 @@
 
 
 
-#ifdef TRS16
-#define HERALD " Tandy 16/6000 Xenix 3.0"
-#ifndef CKCPU
-#define CKCPU "mc68000"
-#endif /* CKCPU */
-#endif /* TRS16 */
 
 
 
 
-#ifdef _386BSD
-#define HERALD " 386BSD"
-#endif /* _386BSD */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifdef POSIX
 #ifdef HERALD
 #undef HERALD
 #endif /* HERALD */
-#ifdef OU8
-#define HERALD " OpenUNIX 8"
-#else
-#ifdef UW7
-#define HERALD " Unixware 7"
-#else
-#ifdef NEUTRINO
-#define HERALD " QNX Neutrino 2"
-#else  /* NEUTRINO */
 #ifdef __linux__
 #ifdef ZSL5500
 #define HERALD " Sharp Zaurus SL-5500"
@@ -268,33 +198,13 @@
 #endif /* RH90 */
 #endif /* ZSL5500 */
 #else  /* __linux__ */
-#ifdef _386BSD				/* 386BSD Jolix */
-#define HERALD " 386BSD"
-#else
-#ifdef LYNXOS				/* Lynx OS 2.2 */
-#define HERALD " Lynx OS"
-#else
-#endif /* LYNXOS */
-#endif /* _386BSD */
 #endif /* __linux__ */
-#endif /* NEUTRINO */
-#endif /* UW7 */
-#endif /* OU8 */
 #endif /* POSIX */
 
-#ifdef UTS24
-#define HERALD " Amdahl UTS 2.4"
-#endif /* UTS24 */
 
 
-#ifdef VXVE
-#define HERALD " CDC VX/VE 5.2.1 System V"
-#endif /* VXVE */
 
 
-#ifdef ZILOG
-#define HERALD " Zilog S8000 Zeus 3.21+"
-#endif /* ZILOG */
 
 
 /* Catch-alls for anything not defined explicitly above */
@@ -304,11 +214,7 @@
 #ifdef i386
 #define HERALD " AT&T System V/386 R4"
 #else
-#ifdef AMIX
-#define HERALD " Commodore Amiga System V/m68k R4"
-#else
 #define HERALD " AT&T System V R4"
-#endif /* AMIX */
 #endif /* i386 */
 #else
 #ifdef SVR3
