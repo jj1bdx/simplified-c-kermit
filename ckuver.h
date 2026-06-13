@@ -20,37 +20,48 @@
   renders clang-format simply unusable due to parsing workload
 */
 
-#ifndef HERALD
-
 #ifdef BSD44
+
+#ifndef HERALD
 #ifdef MACOSX
 #define HERALD " macOS" /* Use a newer name */
-#else
+#endif /* MACOSX */
+#endif /* HERALD */
+
+#ifndef HERALD
 #ifdef __OpenBSD__
 #define HERALD " OpenBSD"
-#else
-#ifdef __NetBSD__
-#ifndef HERALD
-#define HERALD " NetBSD"
+#endif /* __OpenBSD__ */
 #endif /* HERALD */
-#else  /* __NetBSD__ */
+
+#ifndef HERALD
+#ifdef __NetBSD__
+#define HERALD " NetBSD"
+#endif /* __NetBSD__ */
+#endif /* HERALD */
+
+#ifndef HERALD
 #ifdef __FreeBSD__
 #define HERALD " FreeBSD"
-#else
-#define HERALD " 4.4BSD"
 #endif /* __FreeBSD__ */
-#endif /* __NetBSD__ */
-#endif /* __OpenBSD__ */
-#endif /* MACOSX */
+#endif /* HERALD */
+
+#ifndef HERALD
+#define HERALD " 4.4BSD"
+#endif /* HERALD */
+
 #endif /* BSD44 */
 
 #ifdef POSIX
+
 #ifdef HERALD
 #undef HERALD
 #endif /* HERALD */
+
 #ifdef __linux__
 #define HERALD " Linux"
 #endif /* __linux__ */
+
 #endif /* POSIX */
 
 /* Catch-alls for anything not defined explicitly above */
