@@ -46,9 +46,6 @@
 #ifdef CK_MKDIR
 static char ckmkdbuf[CKMAXPATH+1];
 #else
-#ifdef datageneral
-static char ckmkdbuf[CKMAXPATH+1];
-#endif /* datageneral */
 #endif /* CK_MKDIR */
 
 #ifdef CK_MKDIR
@@ -75,18 +72,6 @@ ckmkdir(fc,s,r,m,cvt) int fc; char * s; char ** r; int m; int cvt;
 	*r = ckmkdbuf;
 	return(-2);
     }
-#ifdef datageneral
-/* Come back and make this nicer later if anybody notices */
-    if (fc == 0) {			/* mkdir */
-	rc = createdir(s,0);
-    } else {				/* rmdir */
-	/* AOS/VS rmdir() is a no-op. */
-	ckmakmsg(tmpbuf,CKMAXPATH+1,"delete ",s,NULL,NULL);
-	debug(F110,"ckmkdir 2",tmpbuf,0);
-	rc = system(tmpbuf);
-    }
-    *r = NULL;
-#else /* not datageneral */
 
 /* First make sure the name has an acceptable directory-name format */
 
@@ -120,14 +105,9 @@ ckmkdir(fc,s,r,m,cvt) int fc; char * s; char ** r; int m; int cvt;
 #ifdef ZRMDIR
 	rc = zrmdir(s);
 #else
-#ifdef OSK
-	rc = -2;
-#else
 	rc = rmdir(s);
-#endif /* OSK */
 #endif /* ZRMDIR */
     }
-#endif /* datageneral */
     debug(F101,"ckmkdir rc","",rc);
     if (rc == -2) {
 	ckmakmsg(ckmkdbuf,
@@ -156,9 +136,6 @@ ckmkdir(fc,s,r,m,cvt) int fc; char * s; char ** r; int m; int cvt;
 #ifndef NOXFER				/* Rest of this file... */
 
 #ifndef NODISPO
-#ifdef pdp11
-#define NODISPO
-#endif /* pdpd11 */
 #endif /* NODISPO */
 
 extern int pipesend;
@@ -205,13 +182,7 @@ extern int
 extern int atlpri, atlpro, atgpri, atgpro;
 #endif /* CK_PERMS */
 
-#ifdef STRATUS
-extern int atfrmi, atfrmo, atcrei, atcreo, atacti, atacto;
-#endif /* STRATUS */
 
-#ifdef datageneral
-extern int quiet;
-#endif /* datageneral */
 
 extern long filcnt;
 extern CK_OFF_T fsize, ffc, tfc, sendstart, calibrate;
@@ -306,14 +277,6 @@ dofast() {
     ptab[PROTO_K].rpktlen = urpsiz;
     rpsiz = (urpsiz > 94) ? 94 : urpsiz; /* Max non-long packet length */
     debug(F111,"dofast","uprsiz",urpsiz);
-#ifdef IRIX
-#ifndef IRIX65
-    /* IRIX Telnet server chops off writes longer than 4K */
-    spsiz = spmax = spsizr = urpsiz;
-    debug(F101,"doarg Q IRIX spsiz","",spsiz);
-    spsizf = 1;
-#endif /* IRIX65 */
-#endif /* IRIX */
 #ifdef CK_SPEED
     setprefix(PX_CAU);			/* Cautious unprefixing */
 #endif /* CK_SPEED */
@@ -1045,41 +1008,6 @@ sattr(xp, flag) int xp, flag;
 	} else				/* No */
 	  left++;			/* so mark this one left to do */
     }
-#ifdef STRATUS
-    if (atcreo && !done[xunchar(c = '$')]) { /* Creator */
-	if (max - i >= x.creator.len + 2) { /* Enough space ? */
-	    data[i++] = c;
-	    data[i++] = tochar(x.creator.len);
-	    for (j = 0; j < x.creator.len; j++)
-	      data[i++] = x.creator.val[j];
-	    numset++;
-	    done[xunchar(c)] = 1;
-	} else
-	  left++;
-    }
-    if (atacto && !done[xunchar(c = '%')]) { /* File account */
-	if (max - i >= x.account.len + 2) {
-	    data[i++] = c;
-	    data[i++] = tochar(x.account.len);
-	    for (j = 0; j < x.account.len; j++)
-	      data[i++] = x.account.val[j];
-	    numset++;
-	    done[xunchar(c)] = 1;
-	} else
-	  left++;
-    }
-    if (atfrmo && !done[xunchar(c = '/')]) { /* Packet data format */
-	if (max - i >= x.recfm.len + 2) {
-	    data[i++] = c;
-	    data[i++] = tochar(x.recfm.len); /*  Copy from attr structure */
-	    for (j = 0; j < x.recfm.len; j++)
-	      data[i++] = x.recfm.val[j];
-	    numset++;
-	    done[xunchar(c)] = 1;
-	} else
-	  left++;
-    }
-#endif /* STRATUS */
 
     xbin =				/* Is the transfer in binary mode? */
       binary				/* User said SET FILE TYPE BINARY  */
@@ -1550,9 +1478,6 @@ gattr(s, yy) CHAR *s; struct zattr *yy;
 		    if (binary != XYFT_L
 			)
 #endif /* CK_LABELED */
-#ifdef MAC
-		    if (binary != XYFT_M) /* If not MacBinary... */
-#endif /* MAC */
 		      binary = XYFT_B;
 		    debug(F101,"gattr binary 3","",binary);
 		}
@@ -1683,15 +1608,7 @@ gattr(s, yy) CHAR *s; struct zattr *yy;
   Define NODISPO to disable receipt of mail or print files and of RESEND.
 */
 		if (
-#ifndef datageneral			/* MAIL supported only for */
-#ifndef MAC
-#ifndef GEMDOS
-#ifndef AMIGA
 		    d != 'M' &&		/* MAIL */
-#endif /* AMIGA */
-#endif /* GEMDOS */
-#endif /* MAC */
-#endif /* datageneral */
 #ifdef CK_RESEND
 		    d != 'R' &&		/* RESEND */
 #endif /* CK_RESEND */
@@ -2122,10 +2039,6 @@ opena(f,zz) char *f; struct zattr *zz;
     }
     debug(F111,"opena [file]=mode: ",f,fcb.dsp);
     if ((x = openo(f,zz,&fcb))) {       /* Try to open the file. */
-#ifdef pdp11
-	tlog(F110," local name:",f,0L);	/* OK, open, record local name. */
-	makestr(&prfspec,f);		/* New preliminary name */
-#else
 #ifndef ZFNQFP
 	tlog(F110," local name:",f,0L);
 	makestr(&prfspec,f);
@@ -2140,7 +2053,6 @@ opena(f,zz) char *f; struct zattr *zz;
 	    if (p) free(p);
 	}
 #endif /* ZFNQFP */
-#endif /* pdp11 */
 
 	if (binary) {			/* Log file mode in transaction log */
 	    tlog(F101," mode: binary","",(long) binary);
@@ -2165,14 +2077,6 @@ opena(f,zz) char *f; struct zattr *zz;
 #endif /* COMMENT */
 	  xxscreen(SCR_FS,0,fsize,"");
 
-#ifdef datageneral
-/*
-  Need to turn on multi-tasking console interrupt task here, since multiple
-  files may be received (huh?) ...
-*/
-        if ((local) && (!quiet))        /* Only do this if local & not quiet */
-	  consta_mt();			/* Start the async read task */
-#endif /* datageneral */
 
     } else {				/* Did not open file OK. */
 
@@ -2454,11 +2358,6 @@ clsif()
 
     fcps();			/* Calculate CPS quickly */
 
-#ifdef datageneral
-    if ((local) && (!quiet))    /* Only do this if local & not quiet */
-      if (nfils < 1)		/* More files to send ... leave it on! */
-	connoi_mt();
-#endif /* datageneral */
 
     debug(F101,"clsif i_isopen","",i_isopen);
     if (i_isopen) {			/* If input file is open... */
@@ -2504,14 +2403,10 @@ clsif()
 	    debug(F101,"clsif fstats","",zz);
 	    fstats();			/* Update statistics */
 	    if (			/* Was the whole file sent? */
-#ifdef STRATUS
-		0			/* Probably not for VOS either */
-#else
 		zz < fsize
 #ifdef CK_CTRLZ
 		&& ((eofmethod != XYEOF_Z && !binary) || binary)
 #endif /* CK_CTRLZ */
-#endif /* STRATUS */
 		) {
 		xxscreen(SCR_ST,ST_INT,0l,"");
 #ifdef TLOG
@@ -2570,10 +2465,6 @@ clsof(disp) int disp;
 	fncact = fncsav;		/* Restore it. */
 	fncsav = -1;			/* Unsave it. */
     }
-#ifdef datageneral
-    if ((local) && (!quiet))		/* Only do this if local & not quiet */
-      connoi_mt();
-#endif /* datageneral */
     if (o_isopen && !calibrate) {
 	if ((x = zclose(ZOFILE)) < 0) { /* Try to close the file */
 	    tlog(F100,"Failure to close",filnam,0L);
@@ -2639,8 +2530,4 @@ clsof(disp) int disp;
     return(x);				/* Send back zclose() return code. */
 }
 
-#ifdef SUNOS4S5
-tolower(c) char c; { return((c)-'A'+'a'); }
-toupper(c) char c; { return((c)-'a'+'A'); }
-#endif /* SUNOS4S5 */
 #endif /* NOXFER */

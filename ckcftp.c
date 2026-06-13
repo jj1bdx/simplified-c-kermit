@@ -166,13 +166,7 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 #include <sys/stat.h>
 #include <ctype.h>
 
-#ifndef HPUXPRE65
 #include <errno.h>			/* Error number symbols */
-#else
-#ifndef ERRNO_INCLUDED
-#include <errno.h>			/* Error number symbols */
-#endif	/* ERRNO_INCLUDED */
-#endif	/* HPUXPRE65 */
 
 
 #ifndef NOTIMEH
@@ -206,13 +200,6 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
   can work only if we didn't already encounter a definition.
 */
 #ifndef DCLTIMEVAL
-#ifdef SV68R3V6
-#define DCLTIMEVAL
-#else
-#ifdef SCO234
-#define DCLTIMEVAL
-#endif /* SCO234 */
-#endif /* SV68R3V6 */
 #endif /* DCLTIMEVAL */
 
 #ifdef DCLTIMEVAL
@@ -255,10 +242,6 @@ struct timezone {
 #ifdef POSIX
 #define UTIMEH
 #else
-#ifdef HPUX9
-#define UTIMEH
-#else
-#endif /* HPUX9 */
 #endif /* POSIX */
 #endif /* COMMENT */
 
@@ -272,11 +255,9 @@ struct timezone {
 #endif /* SYSUTIMEH */
 #endif /* NOSETTIME */
 
-#ifndef SCO_OSR504
 #ifdef SELECT_H
 #include <sys/select.h>
 #endif /* SELECT_H */
-#endif /* SCO_OSR504 */
 
 
 
@@ -291,18 +272,6 @@ struct timezone {
 #ifndef FD_SETSIZE
 #define FD_SETSIZE 128
 #endif	/* FD_SETSIZE */
-#ifdef HPUX6				/* For HP-UX 6.5 circa 1989 */
-typedef long fd_mask;
-#define NFDBITS (sizeof(fd_mask) * NBBY) /* bits per mask */
-#ifndef howmany
-#define howmany(x, y)   (((x)+((y)-1))/(y))
-#endif	/* howmany */
-#define FD_SET(n, p)    ((p)->fds_bits[(n)/NFDBITS] |= (1 << ((n) % NFDBITS)))
-#define FD_CLR(n, p)    ((p)->fds_bits[(n)/NFDBITS] &= ~(1 << ((n) % NFDBITS)))
-#define FD_ISSET(n, p)  ((p)->fds_bits[(n)/NFDBITS] & (1 << ((n) % NFDBITS)))
-#define FD_COPY(f, t)   bcopy(f, t, sizeof(*(f)))
-#define FD_ZERO(p)      bzero(p, sizeof(*(p)))
-#endif	/* HPUX6 */
 
 #else
 #endif /* UNIX */
@@ -310,16 +279,6 @@ typedef long fd_mask;
 
 /* Other select() peculiarities */
 
-#ifdef HPUX
-#ifndef HPUX10                          /* HP-UX 9.xx and earlier */
-#ifndef HPUX1100
-/* The three interior args to select() are (int *) rather than (fd_set *) */
-#ifndef INTSELECT
-#define INTSELECT
-#endif /* INTSELECT */
-#endif /* HPUX1100 */
-#endif /* HPUX10 */
-#endif /* HPUX */
 
 #ifdef CK_SOCKS                         /* SOCKS Internet relay package */
 #ifdef CK_SOCKS5                        /* SOCKS 5 */
@@ -1126,23 +1085,17 @@ static int nftpbug = (sizeof(ftpbugtab) / sizeof(struct keytab));
 #define PUT_DIF 8			/* Dates Differ */
 
 static struct keytab ftpcolxtab[] = { /* SET FTP COLLISION options */
-#ifndef MAC
     { "append",    XYFX_A, 0 },         /* append to old file */
-#endif /* MAC */
 #ifdef COMMENT
     { "ask",       XYFX_Q, 0 },         /* ask what to do (not implemented) */
 #endif
     { "backup",    XYFX_B, 0 },         /* rename old file */
-#ifndef MAC
     { "dates-differ", XYFX_M, 0 },	/* accept if dates differ */
     { "discard",   XYFX_D, 0 },         /* don't accept new file */
     { "no-supersede", XYFX_D, CM_INV }, /* ditto (MSK compatibility) */
-#endif /* MAC */
     { "overwrite", XYFX_X, 0 },         /* overwrite the old file */
     { "rename",    XYFX_R, 0 },         /* rename the incoming file */
-#ifndef MAC                             /* This crashes Mac Kermit. */
     { "update",    XYFX_U, 0 },         /* replace if newer */
-#endif /* MAC */
     { "", 0, 0 }
 };
 static int nftpcolx = (sizeof(ftpcolxtab) / sizeof(struct keytab)) - 1;
@@ -3148,21 +3101,8 @@ setmodtime(f,t) char * f; time_t t;
     x = utimes(f,tp);
     debug(F111,"setmodtime utimes()","BSD44",x);
 #else
-#ifdef IRIX65
-    {
-      /*
-        The following produces the nonsensical warning:
-        Argument  of type "const struct utimbuf *" is incompatible with
-        parameter of type "const struct utimbuf *".  If you can make it
-        go away, be my guest.
-      */
-        const struct utimbuf * t2 = &tp;
-        x = utime(f,t2);
-    }
-#else
     x = utime(f,&tp);
     debug(F111,"setmodtime utime()","other",x);
-#endif /* IRIX65 */
 #endif /* BSD44 */
     if (x)
       rc = -1;
@@ -3919,30 +3859,12 @@ xxout(char c)
 xxout(c) char c;
 #endif /* CK_ANSIC */
 {
-#ifndef MAC
-#ifndef OSK
     /* For Unix, DG, Stratus, Amiga, Gemdos, other */
     if (c == '\012') {
 	if (zzout(dout,(CHAR)'\015') < 0)
 	  return(-1);
 	ftpsnd.bytes++;
     }
-#else /* OSK */
-    if (c == '\015') {
-	c = '\012';
-	if (zzout(dout,(CHAR)'\015') < 0)
-	  return(-1);
-	ftpsnd.bytes++;
-    }
-#endif /* OSK */
-#else /* MAC */
-    if (c == '\015') {
-	c = '\012';
-	if (zzout(dout,(CHAR)'\015') < 0)
-	  return(-1);
-	ftpsnd.bytes++;
-    }
-#endif /* MAC */
     if (zzout(dout,(CHAR)c) < 0)
       return(-1);
     ftpsnd.bytes++;
@@ -4846,11 +4768,7 @@ doftpput(cx,who) int cx, who;
             s = (char *)malloc(len + 4);
             if (s) {
                 strcpy(s,p);            /* safe */
-#ifdef datageneral
-                if (s[len-1] != ':') { s[len++] = ':'; s[len] = NUL; }
-#else
                 if (s[len-1] != '/') { s[len++] = '/'; s[len] = NUL; }
-#endif /* datageneral */
                 s[len++] = 'X';
                 s[len] = NUL;
 #ifdef NOMKDIR
@@ -6412,11 +6330,7 @@ doftpget(cx,who) int cx, who;
             s = (char *)malloc(len + 4);
             if (s) {
                 strcpy(s,p);            /* safe */
-#ifdef datageneral
-                if (s[len-1] != ':') { s[len++] = ':'; s[len] = NUL; }
-#else
                 if (s[len-1] != '/') { s[len++] = '/'; s[len] = NUL; }
-#endif /* datageneral */
                 s[len++] = 'X';
                 s[len] = NUL;
 #ifdef NOMKDIR
@@ -9941,10 +9855,8 @@ getreply(expecteof,lcs,rcs,vbm,fc) int expecteof, lcs, rcs, vbm, fc;
 	      printf("%s\n",reply_buf);
         }
         if ((cancelfile != 0) &&
-#ifndef ULTRIX3
             /* Ultrix 3.0 cc objects violently to this clause */
             (oldintr != cmdcancel) &&
-#endif /* ULTRIX3 */
             (oldintr != SIG_IGN)) {
             if (oldintr)
               (*oldintr)(SIGINT);
@@ -12105,13 +12017,6 @@ cancel_remote(din) int din;
 
 
 #ifndef NOMHHOST
-#ifdef datageneral
-#define NOMHHOST
-#else
-#ifdef HPUX5WINTCP
-#define NOMHHOST
-#endif /* HPUX5WINTCP */
-#endif /* datageneral */
 #endif /* NOMHHOST */
 
 #ifdef INADDRX
@@ -12927,11 +12832,7 @@ remote_files(new_query, arg, pattern, proxy_switch)
 #ifdef UNIX                             /* Systems that have a standard */
                 p = "/tmp/";            /* temporary directory... */
 #else
-#ifdef datageneral
-            p = ":TMP:";
-#else
             p = "";
-#endif /* datageneral */
 #endif /* UNIX */
         }
         debug(F110,"ftp remote_files p",p,0);

@@ -71,36 +71,6 @@ int fileorder = -1;			/* Byte order of current file */
   Normally ASCII, but for some systems we know otherwise.
 */
 int fcs_save = -1;
-#ifdef datageneral			/* Data General AOS/VS */
-int fcharset = FC_DGMCS;		/* uses the DG International set */
-int dcset8   = FC_DGMCS;
-int dcset7   = FC_USASCII;
-int tcsl     = FC_DGMCS;
-#else
-#ifdef NEXT				/* The NeXT workstation */
-int fcharset = FC_NEXT;			/* uses its own 8-bit set */
-int dcset8   = FC_NEXT;
-int dcset7   = FC_USASCII;
-int tcsl     = FC_NEXT;
-#else
-#ifdef MAC				/* The Macintosh */
-int fcharset = FC_APPQD;		/* uses an extended version of */
-int dcset8   = FC_APPQD;
-int dcset7   = FC_USASCII;
-int tcsl     = FC_APPQD;		/* Apple Quickdraw */
-#else
-#ifdef AUX
-int fcharset = FC_APPQD;		/* Ditto for Apple A/UX */
-int dcset8   = FC_APPQD;
-int dcset7   = FC_USASCII;
-int tcsl     = FC_APPQD;
-#else
-#ifdef AMIGA				/* The Commodore Amiga */
-int fcharset = FC_1LATIN;		/* uses Latin-1 */
-int dcset8   = FC_1LATIN;
-int dcset7   = FC_USASCII;
-int tcsl     = FC_1LATIN;
-#else					/* All others */
 #ifdef CKOUNI 				/* OS/2 Unicode */
 int fcharset = FC_1LATIN;
 int dcset8   = FC_1LATIN;
@@ -114,11 +84,6 @@ int dcset7   = FC_USASCII;
 int tcsl     = FC_USASCII;
 int prncs    = FC_CP437;
 #endif /* CKOUNI */
-#endif /* AMIGA */
-#endif /* AUX */
-#endif /* MAC */
-#endif /* NEXT */
-#endif /* datageneral */
 
 int s_cset = XMODE_A;			/* SEND charset selection = AUTO */
 int r_cset = XMODE_A;			/* RECV charset selection = AUTO */
@@ -7532,20 +7497,8 @@ initcsets() {				/* Routine to reset or initialize */
     axcset[TC_TRANSP]  = FC_TRANSP;
     axcset[TC_USASCII] = FC_USASCII;
 
-#ifdef HPUX
-    axcset[TC_1LATIN]  = FC_HPR8;
-#else
-#ifdef NEXT
-    axcset[TC_1LATIN]  = FC_NEXT;
-#else
-#ifdef datageneral
-    axcset[TC_1LATIN]  = FC_DGMCS;
-#else
     /* Should we use code pages on some PC based UNIXes? */
     axcset[TC_1LATIN]  = FC_1LATIN;
-#endif /* datageneral */
-#endif /* NEXT */
-#endif /* HPUX */
 
     axcset[TC_2LATIN]  = FC_2LATIN;
     axcset[TC_CYRILL]  = FC_CYRILL;

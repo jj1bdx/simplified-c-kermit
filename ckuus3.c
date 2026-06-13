@@ -590,9 +590,7 @@ struct keytab flotab[] = {              /* SET FLOW-CONTROL keyword table */
 #ifdef CK_RTSCTS
     "rts/cts",   FLO_RTSC, 0,
 #endif /* CK_RTSCTS */
-#ifndef Plan9
     "xon/xoff",  FLO_XONX, 0,
-#endif /* Plan9 */
     "", 0, 0
 };
 int nflo = (sizeof(flotab) / sizeof(struct keytab)) - 1;
@@ -2802,14 +2800,6 @@ static int sexptrunc = 0;		/* Flag to force all results to int */
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
 #ifndef CK_ANSIC
-#ifdef HPUX
-/*
-  HP C 76.3 on HP-UX 10 is a curious mixture of K&R (pre-ANSI) and ANSI C.
-  Even though pre-ANSI C doesn't have prototypes, if this prototype is not
-  present a warning is issued in dosexp() below.
-*/
-_PROTOTYP( char * fpformat, (CKFLOAT, int, int) );
-#endif /* HPUX */
 #endif /* CK_ANSIC */
 
 extern char math_pi[];                  /* Value of Pi */
@@ -4451,11 +4441,7 @@ dologline() {
 #ifdef UNIX                             /* Who has whoami()... */
         ckstrncpy(uidbuf,(char *)whoami(),UIDBUFLEN);
 #else
-#ifdef STRATUS
-        ckstrncpy(uidbuf,(char *)whoami(),UIDBUFLEN);
-#else
         ckstrncpy(uidbuf,"UNKNOWN",UIDBUFLEN);
-#endif /* STRATUS */
 #endif /* UNIX */
     }
     m = strlen(uidbuf) + strlen(myhost) + strlen(ttname) + 32;
@@ -4755,19 +4741,6 @@ setmodem() {                            /* SET MODEM */
         dialmhu = y;
 #ifdef COMMENT
 /* Nope, I fixed it (2001 11 08) */
-#ifdef CK_SCOV5
-        if (dialmhu == 0 && !quiet) {
-            printf(
-"\n WARNING: RS-232 signal sampling and manipulation do not work\n"
-                    );
-            printf(
-" in the standard SCO OSR5 serial i/o drivers.  SET MODEM HANGUP-METHOD\n"
-                   );
-            printf(
-" MODEM-COMMAND is recommended for OSR5.\n\n"
-                    );
-        }
-#endif /* CK_SCOV5 */
 #endif /* COMMENT */
         return(success = 1);
 #endif /* MDMHUP */
@@ -8772,14 +8745,12 @@ case XYPAD:                             /* SET PAD ... */
 
 /* Note: The following is not 16-bit safe */
 
-#ifndef QNX16
             if (x > 52248) {
                 printf("?Warning: receive buffers larger than 52248 bytes\n");
                 printf(" may not be understood by all hosts.  Performance\n");
                 printf(" may suffer.\n");
                 return(-9);
             }
-#endif /* QNX16 */
 #ifdef SSHBUILTIN
             if (network && nettype == NET_SSH && ssh_get_socket() != -1)
               success = recvbuf(ssh_get_socket(),z);
@@ -8865,7 +8836,6 @@ case XYPAD:                             /* SET PAD ... */
         return(success = 1);
 #endif /* NOCSETS */
 
-#ifndef MAC
       case XYBACK:                      /* BACKGROUND */
         if ((z = cmkey(onoff,2,"","",xxstring)) < 0) return(z);
         if ((y = cmcfm()) < 0) return(y);
@@ -8883,7 +8853,6 @@ case XYPAD:                             /* SET PAD ... */
         success = 1;
         bgchk();
         return(success);
-#endif /* MAC */
 
       case XYQUIE: {                    /* QUIET */
 #ifdef DCMDBUF
@@ -8964,10 +8933,8 @@ case XYPAD:                             /* SET PAD ... */
 #endif /* NOXFER */
 
 #ifndef NOLOCAL
-#ifndef MAC                             /* The Mac has no RS-232 */
 case XYCARR:                            /* CARRIER-WATCH */
         return(setdcd());
-#endif /* MAC */
 #endif /* NOLOCAL */
     }
 
@@ -9619,15 +9586,11 @@ case XYCARR:                            /* CARRIER-WATCH */
             cmdsquo(y);                 /* Do it the right way */
             cmd_quoting = y;            /* Also keep a global copy */
             /* Set string-processing function */
-#ifdef datageneral
-            xxstring = y ? zzstring : (xx_strp) NULL;
-#else
 #ifdef CK_ANSIC
             xxstring = y ? zzstring : (xx_strp) NULL;
 #else
             xxstring = y ? zzstring : (xx_strp) NULL;
 #endif /* CK_ANSIC */
-#endif /* datageneral */
             return(success = 1);
 
           case SCMD_WID:
@@ -9838,17 +9801,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
           } else {
           /* All this is because chained FDB's don't give chained help yet */
               m =
-#ifdef Plan9
-#ifdef CK_RTSCTS
-           "Flow control type, one of the following:\n\
-   keep   none    rts/cts\n\
- or connection type",
-#else
-           "Flow control type, one of the following:\n\
-   keep   none\n\
- or connection type";
-#endif /* CK_RTSCTS */
-#else
 #ifdef CK_RTSCTS
 #ifdef CK_DTRCD
 #ifdef CK_DTRCTS
@@ -9876,7 +9828,6 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
    keep   none    xon/xoff\n\
  or connection type";
 #endif /* CK_RTSCTS */
-#endif /* Plan9 */
           }
           cmfdbi(&k1,_CMKEY,m,"","",ncxtypesw, 4, xxstring, cxtypesw, &k2);
           cmfdbi(&k2,
@@ -11352,11 +11303,7 @@ case XYDEBU:                            /* SET DEBUG { on, off, session } */
       case XYTIMER: {
           extern int asktimer;
           y = cmnum("Time limit for ASK command, seconds","0",10,&x,xxstring);
-#ifdef QNX16
-          return(setnum(&asktimer,x,y,32767));
-#else
           return(setnum(&asktimer,x,y,86400));
-#endif /* QNX16 */
       }
       case XYFACKB: {
           extern int fackbug;

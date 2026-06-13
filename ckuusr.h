@@ -165,9 +165,6 @@ struct stringint {			/* String and (wide) integer */
 #ifdef UNIX				/* For UNIX, system-wide */
 /* This allows one copy of the standard init file on the whole system, */
 /* rather than a separate copy in each user's home directory. */
-#ifdef HPUX10
-#define CK_SYSINI "/usr/share/lib/kermit/ckermit.ini"
-#else
 #ifdef CU_ACIS
 #define CK_SYSINI "/usr/share/lib/kermit/ckermit.ini"
 #else
@@ -177,7 +174,6 @@ struct stringint {			/* String and (wide) integer */
 #define CK_SYSINI "/usr/local/bin/ckermit.ini"
 #endif /* linux */
 #endif /* CU_ACIS */
-#endif /* HPUX10 */
 /* Fill in #else..#ifdef's here for VMS, OS/2, etc. */
 /* Fill in matching #endif's here. */
 #endif /* UNIX */
@@ -252,10 +248,6 @@ struct stringint {			/* String and (wide) integer */
 
 /* Includes */
 
-#ifdef MINIX
-/* why? */
-#include <sys/types.h>
-#endif /* MINIX */
 
 /* Symbols for command source */
 
@@ -272,21 +264,6 @@ struct stringint {			/* String and (wide) integer */
 #define XFRCAN
 #endif /* XFRCAN */
 #endif /* UNIX */
-#ifdef datageneral			/* DG AOS/VS has it */
-#ifndef XFRCAN
-#define XFRCAN
-#endif /* XFRCAN */
-#endif /* datageneral */
-#ifdef STRATUS				/* Stratus VOS has it */
-#ifndef XFRCAN
-#define XFRCAN
-#endif /* XFRCAN */
-#endif /* STRATUS */
-#ifdef OSK				/* OS-9 */
-#ifndef XFRCAN
-#define XFRCAN
-#endif /* XFRCAN */
-#endif /* OSK */
 
 #ifndef NOCMDL
 /* Extended Command-Line Option Codes (keep alphabetical by keyword) */

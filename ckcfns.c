@@ -314,11 +314,7 @@ int  maxsend = 0;
 
 int gnf_binary = 0;			/* Prevailing xfer mode for gnfile */
 
-#ifdef pdp11
-#define MYINITLEN 32
-#else
 #define MYINITLEN 100
-#endif /* pdp11 */
 CHAR myinit[MYINITLEN];			/* Copy of my Send-Init data */
 
 /* Variables local to this module */
@@ -347,17 +343,12 @@ static int (*funcptr)(void);		/* Pointer for function strings */
 static int (*funcptr)();
 #endif /* CK_ANSIC */
 
-#ifdef pdp11
-#define CMDSTRL 50
-static char cmdstr[50];			/* System command string. */
-#else
 #ifdef BIGBUFOK
 #define CMDSTRL 6144
 #else
 #define CMDSTRL 1024
 #endif /* BIGBUFOK */
 static char cmdstr[CMDSTRL+1];
-#endif /* pdp11 */
 
 static int drain;			/* For draining stacked-up ACKs. */
 
@@ -382,13 +373,7 @@ extern int quiet;
 
 #ifdef COMMENT
 #define ENCBUFL 200
-#ifndef pdp11
 CHAR encbuf[ENCBUFL];
-#else
-/* This is gross, but the pdp11 root segment is out of space */
-/* Will allocate it in ckuusr.c. */
-extern CHAR encbuf[];
-#endif /* pdp11 */
 #endif /* COMMENT */
 
 /*
@@ -3105,10 +3090,6 @@ rinit(d) CHAR *d;
     filcnt = filrej = 0;		/* Init file counters */
     spar(d);
     ack1(rpar());
-#ifdef datageneral
-    if ((local) && (!quiet))            /* Only do this if local & not quiet */
-        consta_mt();                    /* Start the asynch read task */
-#endif /* datageneral */
 }
 
 
@@ -3252,10 +3233,6 @@ sinit() {
     }
     if (!local && !server && ckdelay > 0) /* OS-9 sleep(0) == infinite */
       sleep(ckdelay);			/* Delay if requested */
-#ifdef datageneral
-    if ((local) && (!quiet))            /* Only do this if local & not quiet */
-      consta_mt();			/* Start the async read task */
-#endif /* datageneral */
     freerbuf(rseqtbl[0]);		/* Free the buffer the GET came in. */
     sipkt('S');				/* Send the Send-Init packet. */
     ztime(&tp);				/* Get current date/time */
@@ -3670,9 +3647,6 @@ Please confirm output file specification or supply an alternative:";
 #ifdef UNIX
 	strcmp(ofn1,"/dev/null") &&	/* It's not the null device? */
 #else
-#ifdef OSK
-	strcmp(ofn1,"/nil") &&
-#endif /* OSK */
 #endif /* UNIX */
 	!stdouf ) &&			/* Not copying to standard output? */
 	ofn1x ||			/* File of same name exists? */
@@ -3946,10 +3920,8 @@ reof(f,yy) char *f; struct zattr *yy;
 		if (rc < 0) success = 0; /* Remember status */
 		tlog(F110,"printed",filnam,0L);
 		tlog(F110," with options",p,0L);
-#ifndef STRATUS
 		/* spooler deletes file after print complete in VOS & VMS */
 		if (zdelet(filnam) && rc == 0) rc = 3; /* Delete the file */
-#endif /* STRATUS */
 	    }
 #endif /* UNIX */
 	}
@@ -4042,11 +4014,7 @@ sfile( int x )
 sfile(x) int x;
 #endif /* CK_ANSIC */
 {
-#ifdef pdp11
-#define PKTNL 64
-#else
 #define PKTNL 256
-#endif /* pdp11 */
     char pktnam[PKTNL+1];		/* Local copy of name */
     char *s;
     int rc;
@@ -4387,10 +4355,6 @@ sfile(x) int x;
 	    xxscreen(SCR_AN,0,0L,pktnam);
 	    xxscreen(SCR_FS,0,calibrate ? calibrate : fsize,"");
     	}
-#ifdef pdp11
-    	tlog(F110,"Sending",filnam,0L); /* Transaction log entry */
-	makestr(&psfspec,filnam);	/* New filename */
-#else
 #ifndef ZFNQFP
     	tlog(F110,"Sending",filnam,0L);
 	makestr(&psfspec,filnam);	/* New filename */
@@ -4423,7 +4387,6 @@ sfile(x) int x;
 #endif /* COMMENT */
 	}
 #endif /* ZFNQFP */
-#endif /* pdp11 */
     	tlog(F110," as",pktnam,0L);
 	if (binary) {			/* Log file mode in transaction log */
 	    tlog(F101," mode: binary","",(long) binary);
@@ -4594,25 +4557,12 @@ sdata() {
   to process them.  This is what makes our windows slide instead of lurch.
 */
 	if (
-#ifdef GEMDOS
-/*
-  In the Atari ST version, ttchk() can only return 0 or 1.  But note: x will
-  probably always be > 0, since the as-yet-unread packet terminator from the
-  last packet is probably still in the buffer, so sliding windows will
-  probably never happen when the Atari ST is the file sender.  The alternative
-  is to say "if (0)", in which case the ST will always send a window full of
-  packets before reading any ACKs or NAKs.
-*/
-	    x > 0
-
-#else /* !GEMDOS */
 /*
   In most other versions, ttchk() returns the actual count.
   It can't be a Kermit packet if it's less than five bytes long.
 */
 	    x > 4 + bctu
 
-#endif /* GEMDOS */
 	    )
 	  return(1);			/* Yes, stop sending data packets */
     }					/* and go try to read the ACKs. */
@@ -5715,30 +5665,14 @@ gotnam:
 #ifdef UNIX
 char * endline = "\12";
 #else
-#ifdef datageneral
-char * endline = "\12";
-#else
-#ifdef MAC
-char * endline = "\15";
-#else
-#ifdef OSK
-char * endline = "\15";
-#else
 char * endline = "\15\12";
-#endif /* OSK */
-#endif /* MAC */
-#endif /* datageneral */
 #endif /* UNIX */
 
-#ifdef MAC
-#define FNCBUFL 256
-#else
 #ifdef CKSYMLINK
 #define FNCBUFL (CKMAXPATH + CKMAXPATH + 64)
 #else
 #define FNCBUFL (CKMAXPATH + 64)
 #endif /* CKSYMLINK */
-#endif /* MAC */
 
 /* NB: The minimum FNCBUFL is 255 */
 
@@ -5899,11 +5833,7 @@ nxthlp(
       case 9:
 	sprintf((char *)funcbuf," REMOTE HOST        %-14s%s\n",
 		xnm(inserver ? 0 : en_hos),
-#ifdef datageneral
-		"Execute a CLI command on the server."
-#else
 		"Execute a shell command on the server."
-#endif /* datageneral */
 		);
 	break;
 
@@ -6252,12 +6182,6 @@ nxtdir(
     char name[CKMAXPATH+1], dbuf[24], *p = NULL;
     char *dstr = NULL, * lnk = "";
     CHAR c, * linebuf = funcbuf;
-#ifdef OSK
-    /* Work around bugs in OSK compiler */
-    char *dirtag = "directories";
-    char *filetag = "files";
-    char *bytetag = "bytes";
-#endif /* OSK */
     CK_OFF_T len = 0;
     int x, itsadir = 0, gotone = 0;
 
@@ -6389,25 +6313,6 @@ nxtdir(
 */
 	if (!ndirs || !nbytes || !nfiles)
 	  blankline = endline;
-#ifdef OSK
-/* Workaround bugs in OS-9 compiler... */
-        if (ndirs == 1)
-           dirtag = "directory";
-        if (nfiles == 1)
-           filetag = "file";
-        if (nbytes == (CK_OFF_T)1)
-           bytetag = "byte";
-        sprintf((char *)funcbuf,
-		"%sSummary: %ld %s, %ld %s, %s %s%s",
-		blankline,
-		ndirs,
-		dirtag,
-		nfiles,
-		filetag,
-		ckfstoa(nbytes),
-		bytetag,
-		endline);
-#else
         sprintf((char *)funcbuf,
 		"%sSummary: %ld director%s, %ld file%s, %s byte%s%s",
 		blankline,
@@ -6419,7 +6324,6 @@ nxtdir(
 		(nbytes == (CK_OFF_T)1) ? "" : "s",
 		endline
 		);
-#endif /* OSK */
         nxpnd--;
         funcnxt = 0;
         funclen = strlen((char *)funcbuf);
@@ -7032,24 +6936,6 @@ whoarewe() {
 	else if (!strcmp(p,"N3"))	/* UNIX like Aegis */
 	  wearealike = 1;
 #else
-#ifdef AMIGA
-/* Like UNIX, but case distinctions are ignored and can begin with device:. */
-	else if (!strcmp(p,"U1"))	/* Amiga is sort of like UNIX */
-	  wearealike = 1;
-	else if (!strcmp(p,"N3"))	/* Amiga is sort of like Aegis */
-	  wearealike = 1;
-#else
-#ifdef GEMDOS
-	else if (!strcmp(p,"U8"))
-	  wearealike = 1;
-	else if (!strcmp(p,"UO"))
-	  wearealike = 1;
-	else if (!strcmp(p,"UN"))
-	  wearealike = 1;
-	else if (!strcmp(p,"K2"))
-	  wearealike = 1;
-#endif /* GEMDOS */
-#endif /* AMIGA */
 #endif /* UNIX */
 
 	/* Get here with wearealike == 1 if system types match */

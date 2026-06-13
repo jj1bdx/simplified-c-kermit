@@ -24,13 +24,6 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 
 #ifndef NOLOCAL
 
-#ifdef OSF13
-#ifdef CK_ANSIC
-#ifdef _NO_PROTO
-#undef _NO_PROTO
-#endif /* _NO_PROTO */
-#endif /* CK_ANSIC */
-#endif /* OSF13 */
 
 #include <errno.h>			/* Error numbers */
 
@@ -41,11 +34,6 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 #endif /* SYSTIMEH */
 #endif /* NOTIMEH */
 
-#ifdef BSD42HACK			/* Why is this necessary? */
-#ifndef DCLTIMEVAL
-#define DCLTIMEVAL
-#endif /* DCLTIMEVAL */
-#endif /* BSD42HACK */
 
 /* Kermit-specific includes */
 
@@ -58,11 +46,6 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 #include "ckcxla.h"			/* Character set translation */
 #endif /* NOCSETS */
 
-#ifdef BEBOX
-#include <kernel/OS.h>
-#include <socket.h>
-#include <stdio.h>
-#endif /* BEBOX */
 
 #include <signal.h>			/* Signals */
 
@@ -71,11 +54,6 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 #ifdef CKTIDLE				/* Timeouts only for SET TERM IDLE */
 
 #ifndef DCLTIMEVAL
-#ifdef UNIXWARE
-#ifndef UW7
-#define DCLTIMEVAL
-#endif /* UW7 */
-#endif /* UNIXWARE */
 #endif /* DCLTIMEVAL */
 
 #ifdef DCLTIMEVAL			/* Declare timeval ourselves */
@@ -92,26 +70,14 @@ struct timeval {
 #endif /* DCLTIMEVAL */
 #endif /* CKTIDLE */
 
-#ifndef SCO_OSR504
 #ifdef SELECT_H
 #include <sys/select.h>
 #endif /* SELECT_H */
-#endif /* SCO_OSR504 */
 
 #ifndef FD_SETSIZE
 #define FD_SETSIZE 32
 #endif /* FD_SETSIZE */
 
-#ifdef HPUX
-#ifndef HPUX10
-#ifndef HPUX1100
-/* The three interior args to select() are (int *) rather than (fd_set *) */
-#ifndef INTSELECT
-#define INTSELECT
-#endif /* INTSELECT */
-#endif /* HPUX1100 */
-#endif /* HPUX10 */
-#endif /* HPUX */
 
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
@@ -230,11 +196,7 @@ static char ecbuf[10], *ecbp;		/* Escape char buffer & pointer */
 
 static int obc = 0;			/* Output buffer count */
 
-#ifndef OXOS
 #define OBUFL 1024			/* Output buffer length */
-#else
-#define OBUFL IBUFL
-#endif /* OXOS */
 
 #ifdef BIGBUFOK
 #define TMPLEN 4096			/* Temporary message buffer length */
@@ -879,110 +841,6 @@ kbget() {
     return((int)(*kbp++) & 0377);	/* and return first character. */
 }
 
-#ifdef BEBOX
-/*
- * CreateSocketPair --
- *
- *	This procedure creates a connected socket pair
- *
- * Results:
- *	0 if OK, the error if not OK.
- *
- * Side effects:
- *	None
- */
-int
-socketpair(int *pair) {
-    int servsock;
-    int val;
-    struct sockaddr_in serv_addr, cli_addr;
-    extern char myipaddr[];
-
-    debug(F110,"socketpair",myipaddr,0);
-
-    if (myipaddr[0] == 0)
-      getlocalipaddr();
-
-    servsock = socket(AF_INET, SOCK_STREAM, 0);
-    if (servsock == 0) {
-	return h_errno;
-    }
-    debug(F111,"socketpair","socket",servsock);
-
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(0);
-
-    val = sizeof(serv_addr);
-    if (bind(servsock, (struct sockaddr *) &serv_addr, val) < 0) {
-	closesocket(servsock);
-	return h_errno;
-    }
-    debug(F111,"socketpair","bind",0);
-
-    listen(servsock, 1);
-    debug(F111,"socketpair","listen",0);
-
-    if (getsockname(servsock, (struct sockaddr *) &serv_addr, &val) < 0) {
-	closesocket(servsock);
-	return h_errno;
-    }
-    debug(F111,"socketpair","getsockname",0);
-
-    pair[0] = socket(AF_INET, SOCK_STREAM, 0);
-    if (pair[0] == 0) {
-	closesocket(servsock);
-	return h_errno;
-    }
-    debug(F111,"socketpair","socket",pair[0]);
-
-    memset(&cli_addr, 0, sizeof(cli_addr));
-    cli_addr.sin_family = AF_INET;
-    cli_addr.sin_addr.s_addr = inet_addr(myipaddr[0]?myipaddr:"127.0.0.1");
-    cli_addr.sin_port = serv_addr.sin_port;
-
-    if (connect(pair[0],(struct sockaddr *) &cli_addr, sizeof(cli_addr)) < 0) {
-	closesocket(pair[0]);
-	closesocket(servsock);
-	return h_errno;
-    }
-    debug(F111,"socketpair","connect",0);
-
-    pair[1] = accept(servsock, (struct sockaddr *) &serv_addr, &val);
-    if (pair[1] == 0) {
-	closesocket(pair[0]);
-	closesocket(servsock);
-	return h_errno;
-    }
-    debug(F111,"socketpair","accept",pair[1]);
-
-    closesocket(servsock);
-    debug(F111,"socketpair","closesocket",0);
-    return 0;
-}
-
-long
-kbdread(void * param) {
-    int sock = (int) param;
-    char ch;
-    int rc = 0;
-
-    debug(F111,"kbdread","sock",sock);
-
-    while (rc >= 0) {
-	rc = read(fileno(stdin), &ch, 1); /* Read a character. */
-	if (rc > 0) {
-	    rc = send(sock,&ch,1,0);
-	    /* debug(F000,"kbdread","send()",ch); */
-	    printf("\r\ngot: %c rc = %d\r\n",ch,rc);
-	} else
-	  msleep(100);
-    }
-    debug(F110,"kbdread","terminating",0);
-    return(rc);
-}
-#endif /* BEBOX */
 
 #ifdef CKLEARN
 static VOID
@@ -1097,39 +955,11 @@ conect() {
     int msgflg = 0;
     char cbuf[2];			/* Ditto */
 
-#ifdef BEBOX
-    int tid = 0;			/* Thread ID */
-    int pair[2];			/* Socket Pair */
-    CHAR ch;
-    CHAR buf[64];
-#endif /* BEBOX */
 
     cx_status = CSX_INTERNAL;
     debok = 1;
 
-#ifdef BEBOX
-    {
-	/* Create a socket pair to be used for the keyboard input */
-	if (socketpair(pair)) {
-	    debug(F110,"conect","unable to create socket pair",0);
-	    return(-1);
-	}
-	debug(F111,"connect","socket pair[0]",pair[0]);
-	debug(F111,"connect","socket pair[1]",pair[1]);
-
-	/* Assign one end of the socket to kbin */
-	kbin = pair[0];
-        tid = spawn_thread(kbdread,
-			   "Kbd to Socket Pair",
-			    B_NORMAL_PRIORITY,
-			   (void *)pair[1]
-			   );
-        resume_thread(tid);
-	debug(F110,"connect","tid",tid);
-    }
-#else /* BEBOX */
     kbin = fileno(stdin);		/* stdin file descriptor */
-#endif /* BEBOX */
 
     scrnout = fileno(stdout);		/* stdout file descriptor */
 
@@ -1532,16 +1362,11 @@ conect() {
 	    } else {
 		FD_SET(kbin, &in);	/* Need to read stuff from keyboard */
 	    }
-#ifdef BEBOX
-	    if (!(ibc || gotnet > 0))
-		FD_SET(ttyfd, &in);	/* Need to read stuff from net */
-#else /* BEBOX */
 	    if (ibc || gotnet > 0) {
 		FD_SET(scrnout, &out);	/* Have stuff to put on screen */
 	    } else {
 		FD_SET(ttyfd, &in);	/* Need to read stuff from net */
 	    }
-#endif /* BEBOX */
             FD_SET(ttyfd, &err);
 
 	    /* Wait till the first one of the above is ready for i/o */
@@ -1639,13 +1464,11 @@ conect() {
 		sleep(1);
 		continue;
 	    }
-#ifndef BEBOX
 #ifdef DEBUG
 	    if (FD_ISSET(scrnout, &out)) {
 		debug(F100,"CONNECT SELECT scrnout","",0);
 	    }
 #endif /* DEBUG */
-#endif /* BEBOX */
 
 
 	    if (FD_ISSET(ttyfd, &in)) {	/* Read from net? */
@@ -1704,19 +1527,7 @@ conect() {
 		debug(F000,"CONNECT char from macro","",c);
 	    } else {			/* No macro... */
 #endif /* NOSETKEY */
-#ifdef BEBOX
-		{
-		    int rc = 0;
-		    if ((rc = recv(kbin,buf,1,0)) > 0)
-		      c = buf[0];
-		    else
-		      c = -1;
-		    debug(F111,"recv","rc",rc);
-		    printf("\r\nrecv: %c rc=%d\r\n",buf[0],rc);
-		}
-#else /* BEBOX */
 		c = CONGKS();		/* Yes, read from keyboard */
-#endif /* BEBOX */
 		gotkbd = 0;		/* Turn off select() result flag */
 #ifndef NOSETKEY
 	    }
@@ -1750,14 +1561,7 @@ conect() {
 #endif /* NOSETKEY */
 		(tt_escape && ((c & 0xff) == escape))) { /* Escape char? */
 		debug(F000,"CONNECT got escape","",c);
-#ifdef BEBOX
-		if (recv(kbin,buf,1,0)>=0)
-		  c = buf[0];
-		else
-		  c = -1;
-#else /* BEBOX */
 		c = CONGKS() & 0x7f;	/* Read argument */
-#endif /* BEBOX */
 		doesc((char) c);	/* Handle it */
 		continue;		/* Back to loop */
 	    }
@@ -1912,14 +1716,6 @@ conect() {
 		    printf("\r\nCommunications disconnect ");
 #ifdef COMMENT
 		    if (c == -3
-#ifdef ultrix
-/* This happens on Ultrix if there's no carrier */
-			&& errno != EIO
-#endif /* ultrix */
-#ifdef UTEK
-/* This happens on UTEK if there's no carrier */
-			&& errno != EWOULDBLOCK
-#endif /* UTEK */
 			)
 		      perror("\r\nCan't read character");
 #endif /* COMMENT */
@@ -2292,24 +2088,13 @@ conect() {
 		}
 	    }
 	}
-#ifndef BEBOX
 	if (FD_ISSET(scrnout, &out)) {
 	    FD_CLR(scrnout, &out);
 	}
-#endif /* BEBOX */
     } /* End of big loop */
   conret1:				/* Come here to succeed */
     rc = 1;
   conret0:				/* Common exit point */
-#ifdef BEBOX
-    {
-	long ret_val;
-	closesocket(pair[0]);
-	closesocket(pair[1]);
-	x = kill(tid,SIGKILLTHR);	/* Kill thread */
-	wait_for_thread (tid, &ret_val);
-    }
-#endif /* BEBOX */
 
 #ifdef CKLEARN
     if (learning && learnfp)

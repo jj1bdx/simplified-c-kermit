@@ -29,9 +29,6 @@
 #include "ckcdeb.h"
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef COHERENT
-_PROTOTYP ( FILE * fdopen, (int, char *) );
-#endif /* COHERENT */
 
 /*
   memdebug:
@@ -51,15 +48,7 @@ int inited = 0;
 #ifdef MDEBUG
 
 #ifndef M_SIZE_T
-#ifdef NEXT
-#define M_SIZE_T size_t
-#else
-#ifdef SUNOS41
-#define M_SIZE_T unsigned
-#else
 #define M_SIZE_T int
-#endif /* SUNOS41 */
-#endif /* NEXT */
 #endif /* M_SIZE_T */
 
 #ifdef CK_ANSIC
@@ -299,9 +288,6 @@ m_init() {
 
     inited = 1;
     disabled = 0;
-#ifdef NEXT
-    malloc_debug(2+4+8+16);
-#endif /* NEXT */
 
     for(i = 0; i < BUCKETS; i++)
       m_used[i] = 0;

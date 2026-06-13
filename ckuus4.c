@@ -59,11 +59,7 @@ extern int quiet, network, xitsta, escape, nopush, xferstat,
 extern int filepeek, nscanfile, makestrlen;
 extern char * k_info_dir;
 
-#ifndef MAC
-#ifndef AMIGA
 extern int ttyfd;
-#endif /* MAC */
-#endif /* AMIGA */
 
 #ifdef TNCODE
 extern int tn_nlm, tn_b_nlm, tn_b_xfer, tn_sb_bug;
@@ -141,38 +137,12 @@ extern int nettype;
 extern char diafil[];
 #endif /* CKLOGDIAL */
 
-#ifndef AMIGA
-#ifndef MAC
 #include <signal.h>
-#endif /* MAC */
-#endif /* AMIGA */
 
-#ifdef SV68				/* July 2006 believe it or not */
-#ifndef SEEK_CUR
-#include <unistd.h>
-#endif	/* SEEK_CUR */
-#endif	/* SV68 */
 
-#ifdef SCO32				/* June 2011 believe it or not... */
-#ifdef XENIX
-#ifndef SEEK_CUR
-#include <unistd.h>
-#endif	/* SEEK_CUR */
-#endif	/* XENIX */
-#endif	/* SCO32 */
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef STRATUS                          /* Stratus Computer, Inc.  VOS */
-#ifdef putchar
-#undef putchar
-#endif /* putchar */
-#define putchar(x) conoc(x)
-#ifdef getchar
-#undef getchar
-#endif /* getchar */
-#define getchar(x) coninc(0)
-#endif /* STRATUS */
 
 #ifdef ANYX25
 extern int revcall, closgr, cudata;
@@ -1158,7 +1128,6 @@ findinpath(arg) char * arg;
 
 static int tr_int;                      /* Flag if TRANSMIT interrupted */
 
-#ifndef MAC
 SIGTYP
 #ifdef CK_ANSIC
 trtrap(int foo)                         /* TRANSMIT interrupt trap */
@@ -1172,7 +1141,6 @@ trtrap(foo) int foo;                    /* TRANSMIT interrupt trap */
     tr_int = 1;                         /* (Need arg for ANSI C) */
     SIGRETURN;
 }
-#endif /* MAC */
 #endif /* NOICP */
 
 #ifdef UNIX
@@ -2099,13 +2067,8 @@ transmit(char * s, char t, int xlate, int binary, int xxecho)
 transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
 #endif /* CK_ANSIC */
 /* transmit */ {
-#ifdef MAC
-    extern char sstate;
-    int count = 100;
-#else
     int count = 0;
     SIGTYP (* oldsig)();
-#endif /* MAC */
     int eof = 0;                        /* End of File flag */
     int eol = 0;                        /* End of Line flag */
     int rc = 1;                         /* Return code. 0=fail, 1=succeed. */
@@ -2277,11 +2240,7 @@ transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
 #endif /* NOCSETS */
 
     i = 0;                              /* Beginning of buffer. */
-#ifndef MAC
-#ifndef AMIGA
     oldsig = signal(SIGINT, trtrap);    /* Save current interrupt trap. */
-#endif /* AMIGA */
-#endif /* MAC */
     tr_int = 0;                         /* Have not been interrupted (yet). */
     rc = 1;                             /* Return code presumed good. */
 
@@ -2295,25 +2254,10 @@ transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
     c = 0;                              /* Initial condition */
     while (c > -1 && !eof) {            /* Loop for all characters in file */
         eol = 0;
-#ifdef MAC
-        /*
-         * It is expensive to run the miniparser so don't do it for
-         * every character.
-         */
-        if (--count < 0) {
-            count = 100;
-            miniparser(1);
-            if (sstate == 'a') {
-                sstate = '\0';
-                goto xmitfail;
-            }
-        }
-#else /* Not MAC */
         if (tr_int) {                   /* Interrupted? */
             printf("^C...\n");          /* Print message */
             goto xmitfail;
         }
-#endif /* MAC */
         c = zminchar();                 /* Get a file character */
 #ifdef COMMENT
 /* too much */
@@ -2720,11 +2664,7 @@ transmit(s,t,xlate,binary,xxecho) char *s; char t; int xlate, binary, xxecho;
         }
     }
 
-#ifndef AMIGA
-#ifndef MAC
     signal(SIGINT,oldsig);              /* Put old signal action back. */
-#endif /* MAC */
-#endif /* AMIGA */
     zclose(ZIFILE);                     /* Close file, */
 #ifndef NOCSETS
     language = langsv;                  /* restore language, */
@@ -2757,9 +2697,7 @@ xlate( char *fin, char *fout, int csin, int csout )
 xlate(fin, fout, csin, csout) char *fin, *fout; int csin, csout;
 #endif /* CK_ANSIC */
 {
-#ifndef MAC
     SIGTYP (* oldsig)();
-#endif /* MAC */
 #ifdef CK_ANSIC
     int (*fn)(char);                    /* Output function pointer */
 #else
@@ -2788,25 +2726,12 @@ xlate(fin, fout, csin, csout) char *fin, *fout; int csin, csout;
 #endif /* COMMENT */
         return(0);
     }
-#ifdef MAC
-/*
-  If user specified no output file, it goes to the screen.  For the Mac,
-  this must be done a special way (result goes to a new window); the Mac
-  doesn't have a "controlling terminal" device name.
-*/
-    filecode = !strcmp(fout,CTTNAM) ? ZCTERM : ZOFILE;
-#else
     filecode = ZOFILE;
-#endif /* MAC */
     if (zopeno(filecode,fout,NULL,NULL) == 0) { /* And the output file */
         printf("?Can't open output file %s\n",fout);
         return(0);
     }
-#ifndef AMIGA
-#ifndef MAC
     oldsig = signal(SIGINT, trtrap);    /* Save current interrupt trap. */
-#endif /* MAC */
-#endif /* AMIGA */
 
     scrnflg = (filecode == ZCTERM);     /* Set output function */
     if (scrnflg)
@@ -2960,11 +2885,7 @@ xlate(fin, fout, csin, csout) char *fin, *fout; int csin, csout;
 
   xxlate:                               /* Common exit point */
 
-#ifndef AMIGA
-#ifndef MAC
     signal(SIGINT,oldsig);              /* Put old signal action back. */
-#endif /* MAC */
-#endif /* AMIGA */
     tr_int = 0;
     if (z < 0) {
         if (z == -1)
@@ -3191,9 +3112,6 @@ dolog(x) int x;
 
     ckstrncpy(line,s,LINBUFSIZ);
     s = line;
-#ifdef MAC
-    y = 0;
-#else
 
     p = "new";
 #ifdef TLOG
@@ -3203,7 +3121,6 @@ dolog(x) int x;
 
     if ((y = cmkey(disptb,2,"Disposition",p,xxstring)) < 0)
       return(y);
-#endif /* MAC */
     disp = y;
     if ((y = cmcfm()) < 0) return(y);
 
@@ -3347,9 +3264,7 @@ traopn(s,disp) char *s; int disp;
     if (tralog > 0 && tlogfmt > 0) {
         ckstrncpy(trafil,s,CKMAXPATH);
         tlog(F110,"Transaction Log:",versio,0L);
-#ifndef MAC
         tlog(F100,ckxsys,"",0L);
-#endif /* MAC */
         ztime(&s);
         tlog(F100,s,"",0L);
     } else
@@ -3461,9 +3376,7 @@ debopn(s,disp) char *s; int disp;
     if (deblog > 0) {
         ckstrncpy(debfil,s,CKMAXPATH+1);
         debug(F110,"Debug Log ",versio,0);
-#ifndef MAC
         debug(F100,ckxsys,"",0);
-#endif /* MAC */
 
 #ifdef CK_UTSNAME
         if (unm_mch[0]) {
@@ -3637,15 +3550,10 @@ shoxm()
     char * s;
     switch (binary) {
       case XYFT_T: s = "text";         break;
-#ifdef MAC
-      case XYFT_B: s = "binary";       break;
-      case XYFT_M: s = "macbinary";    break;
-#else
       case XYFT_B: s = "binary";       break;
 #ifdef CK_LABELED
       case XYFT_L: s = "labeled";      break;
 #endif /* CK_LABELED */
-#endif /* MAC */
       default: s = "unknown"; break;
     }
     return(s);
@@ -4114,18 +4022,6 @@ shoparc() {
           printf("\n Secondary lockfile: %s",lock2);
 #endif /* USETTYLOCK */
 #else
-#ifdef QNX
-        {
-            extern int qnxportlock, qnxopencount();
-            if (local)
-              printf(" Qnx-port-lock: %s, Open count: %d",
-                     showoff(qnxportlock),
-                     qnxopencount()
-                     );
-            else
-              printf(" Qnx-port-lock: %s", showoff(qnxportlock));
-        }
-#endif /* QNX */
 #endif /* NOUUCP */
         printf("\n");
     } else {
@@ -4501,15 +4397,7 @@ shonet() {
     if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
 
 
-#ifdef SUNX25
-    printf(" SunLink X.25\n");
-    if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-#endif /* SUNX25 */
 
-#ifdef STRATUSX25
-    printf(" Stratus VOS X.25\n");
-    if (++n > cmd_rows - 3) { if (!askmore()) return(0); else n = 0; }
-#endif /* STRATUSX25 */
 
 #ifdef IBMX25
     printf(" IBM AIX X.25\n");
@@ -5668,22 +5556,10 @@ dostat(brief) int brief;
 
 /* Output buffering for "doinput" */
 
-#ifdef pdp11
-#define MAXBURST 16             /* Maximum size of input burst */
-#else
 #define MAXBURST 1024
-#endif /* pdp11 */
-#ifdef OSK
-static CHAR *conbuf;            /* Buffer to hold output for console */
-#else
 static CHAR conbuf[MAXBURST];   /* Buffer to hold output for console */
-#endif /* OSK */
 static int concnt = 0;          /* Number of characters buffered */
-#ifdef OSK
-static CHAR *sesbuf;            /* Buffer to hold output for session log */
-#else
 static CHAR sesbuf[MAXBURST];   /* Buffer to hold output for session log */
-#endif /* OSK */
 static int sescnt = 0;          /* Number of characters buffered */
 
 extern int debses;                      /* TERMINAL DEBUG ON/OFF */
@@ -5837,14 +5713,6 @@ doinput(timo,ms,mp,flags,count)
     instatus = INP_IE;                  /* 3 = internal error */
     kbchar = 0;
 
-#ifdef OSK
-    if (conbuf == NULL) {
-        if ((conbuf = (CHAR *)malloc(MAXBURST*2)) == NULL) {
-            return(0);
-        }
-        sesbuf = conbuf + MAXBURST;
-    }
-#endif /* OSK */
 
 #ifndef NOLOCAL
     if (local) {                        /* In local mode... */
@@ -6205,20 +6073,9 @@ doinput(timo,ms,mp,flags,count)
                     matchbuf[matchindex] = NUL;
                 }
             }
-#ifdef MAC
-            {
-                extern char *ttermw;    /* fake pointer cast */
-                if (inecho) {
-                    outchar(ttermw, c); /* echo to terminal window */
-                    /* this might be too much overhead to do here ? */
-                    updatecommand(ttermw);
-                }
-            }
-#else /* Not MAC */
             if (inecho) {               /* Buffer console output */
                 conbuf[concnt++] = c;
             }
-#endif /* MAC */
             if (seslog) {
 		int dummy = 0, skip = 0;
 #ifndef NOLOCAL
@@ -6232,9 +6089,6 @@ doinput(timo,ms,mp,flags,count)
 #ifdef UNIX
 		    if (c == '\r')
 #else
-#ifdef OSK
-		    if (c == '\012')
-#endif /* OSK */
 #endif /* UNIX */
 		      skip = 1;
 		}
@@ -9157,13 +9011,6 @@ fneval(fn,argp,argn,xp) char *fn, *argp[]; int argn; char * xp;
                 (x == 0 ? 0 : (0 - (k % (-x)))));
 #else
         debug(F111,"rand",ckitoa(x),k);
-#ifdef SUNOS4
-/* This is really strange but on SunOS, if we are requesting random numbers */
-/* between 0 and 4 or less, they always come out in sequence: 0 1 2 3 0 1 2 */
-/* Shifting the result of rand() in this case gives a more random result.   */
-        if (x < 5)
-          k = k >> 5;
-#endif /* SUNOS4 */
         if ((x > 0 && k > 0) || (x < 0 && k < 0))
           x = k % x;
         else if (x == 0)
@@ -12063,31 +11910,7 @@ char *                                  /* Evaluate builtin variable */
 #ifdef UNIX
         ckstrncpy(vvbuf,"UNIX",VVBUFL);
 #else
-#ifdef OSK
-        ckstrncpy(vvbuf,"OS9/68K",VVBUFL);
-#else
-#ifdef AMIGA
-        ckstrncpy(vvbuf,"Amiga",VVBUFL);
-#else
-#ifdef MAC
-        ckstrncpy(vvbuf,"Macintosh",VVBUFL);
-#else
-#ifdef datageneral
-        ckstrncpy(vvbuf,"AOS/VS",VVBUFL);
-#else
-#ifdef GEMDOS
-        ckstrncpy(vvbuf,"Atari_ST",VVBUFL);
-#else
-#ifdef STRATUS
-        ckstrncpy(vvbuf,"Stratus_VOS",VVBUFL);
-#else
         ckstrncpy(vvbuf,"unknown",VVBUFL);
-#endif /* STRATUS */
-#endif /* GEMDOS */
-#endif /* datageneral */
-#endif /* MAC */
-#endif /* AMIGA */
-#endif /* OSK */
 #endif /* UNIX */
         return(vvbuf);
 
@@ -12428,31 +12251,7 @@ char *                                  /* Evaluate builtin variable */
 #ifdef UNIX
         ckstrncpy(vvbuf,"\n",VVBUFL);
 #else
-#ifdef datageneral
         ckstrncpy(vvbuf,"\n",VVBUFL);
-#else
-#ifdef OSK
-        ckstrncpy(vvbuf,"\15",VVBUFL);  /* Remember, these are octal... */
-#else
-#ifdef MAC
-        ckstrncpy(vvbuf,"\15",VVBUFL);
-#else
-#ifdef STRATUS
-        ckstrncpy(vvbuf,"\n",VVBUFL);
-#else
-#ifdef AMIGA
-        ckstrncpy(vvbuf,"\n",VVBUFL);
-#else
-#ifdef GEMDOS
-        ckstrncpy(vvbuf,"\n",VVBUFL);
-#else
-        ckstrncpy(vvbuf,"\n",VVBUFL);
-#endif /* GEMDOS */
-#endif /* AMIGA */
-#endif /* STRATUS */
-#endif /* MAC */
-#endif /* OSK */
-#endif /* datageneral */
 #endif /* UNIX */
         return(vvbuf);
 
@@ -12471,12 +12270,8 @@ char *                                  /* Evaluate builtin variable */
 #ifdef NOTERM
         ckstrncpy(vvbuf,"unknown",VVBUFL);
 #else
-#ifdef MAC
-        ckstrncpy(vvbuf,"vt320",VVBUFL);
-#else
         p = getenv("TERM");
         ckstrncpy(vvbuf,p ? p : "unknown",VVBUFL+1);
-#endif /* MAC */
 #endif /* NOTERM */
         return(vvbuf);
 
@@ -12758,11 +12553,7 @@ char *                                  /* Evaluate builtin variable */
 #ifdef UNIX                             /* Systems that have a standard */
                 p = "/tmp/";            /* temporary directory... */
 #else
-#ifdef datageneral
-                p = ":TMP:";
-#else
                 p = "";
-#endif /* datageneral */
 #endif /* UNIX */
                 ckstrncpy(vvbuf,p,VVBUFL);
                 p = vvbuf;
@@ -12783,19 +12574,7 @@ char *                                  /* Evaluate builtin variable */
             p = vvbuf;
 
             c =
-#ifdef MAC
-                    ':'
-#else
-#ifdef datageneral
-                    ':'
-#else
-#ifdef STRATUS
-                    '>'
-#else
                     '/'
-#endif /* STRATUS */
-#endif /* datageneral */
-#endif /* MAC */
             ;
 
             if (p > vvbuf) {          /* Directory termination character */
@@ -12871,13 +12650,11 @@ char *                                  /* Evaluate builtin variable */
 
       case VN_IPADDR:
 #ifdef TCPSOCKET
-#ifndef OSK
       /* This dumps core on OS-9 for some reason, but only if executed */
       /* before we have made a TCP connection.  This is obviously not */
       /* the ideal fix. */
         if (!myipaddr[0])
           getlocalipaddr();
-#endif /* OSK */
 #endif /* TCPSOCKET */
         ckstrncpy(vvbuf,
 #ifdef TCPSOCKET
@@ -13202,10 +12979,6 @@ char *                                  /* Evaluate builtin variable */
       case VN_MODL: {
 #ifdef CK_UTSNAME
           extern char unm_mod[], unm_mch[];
-#ifdef OSF32
-          int y = VVBUFL - 1;
-          char * s = unm_mod;
-#endif /* OSF32 */
 #endif /* CK_UTSNAME */
 #ifdef IKSD
 #ifdef CK_LOGIN
@@ -13223,31 +12996,6 @@ char *                                  /* Evaluate builtin variable */
    But that would depend on having ksh.
 */
 #else
-#ifdef OSF32                            /* Digital UNIX 3.2 and higher... */
-/* Note: Ultrix has /etc/sizer, but it is not publicly executable. */
-/* sizer -c outputs 'cpu:<tab><tab>"DECxxxx"' */
-          if (!unm_mod[0]) {
-              char * p;
-              int flag = 0;
-              zzstring("\\fcommand(/usr/sbin/sizer -c)",&s,&y);
-              debug(F110,"DU model",unm_mod,0);
-              s = unm_mod;
-              p = unm_mod;
-              while (*p) {              /* Extract the part in quotes */
-                  if (*p == '"') {
-                      if (flag)
-                        break;
-                      flag = 1;
-                      p++;
-                      continue;
-                  }
-                  if (flag)
-                    *s++ = *p;
-                  p++;
-              }
-              *s = NUL;
-          }
-#endif /* OSF32 */
 #endif /* COMMENT */
 
 #ifdef CK_UTSNAME
@@ -13426,15 +13174,9 @@ char *                                  /* Evaluate builtin variable */
                 case VN_MS_CD:  z = (x & BM_DCD) ? 1 : 0; break;
                 case VN_MS_DSR: z = (x & BM_DSR) ? 1 : 0; break;
                 case VN_MS_CTS: z = (x & BM_CTS) ? 1 : 0; break;
-#ifdef MAC
-                case VN_MS_DTR: z = (x & BM_DTR) ? 1 : 0; break;
-#else
-#ifndef STRATUS
                 case VN_MS_RI:  z = (x & BM_RNG) ? 1 : 0; break;
                 case VN_MS_DTR: z = (x & BM_DTR) ? 1 : 0; break;
                 case VN_MS_RTS: z = (x & BM_RTS) ? 1 : 0; break;
-#endif /* STRATUS */
-#endif /* MAC */
               }
           }
           sprintf(vvbuf,"%d",z);        /* SAFE */

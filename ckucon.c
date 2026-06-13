@@ -32,28 +32,12 @@ char *connv = "CONNECT Command for UNIX:fork(), 10.0.119, 13 May 2023";
 
 #ifndef NOLOCAL
 
-#ifdef BEOSORBEBOX
-static double time_started = 0.0;
-#include <kernel/OS.h>
-_PROTOTYP( static long concld, (void *) );
-#else
 _PROTOTYP( static VOID concld, (void) );
-#endif /* BEOSORBEBOX */
 
-#ifdef NEXT
-#undef NSIG
-#include <sys/wait.h>			/* For wait() */
-#endif /* NEXT */
 
 #include <signal.h>			/* Signals */
 
-#ifndef HPUXPRE65
 #include <errno.h>			/* Error number symbols */
-#else
-#ifndef ERRNO_INCLUDED
-#include <errno.h>			/* Error number symbols */
-#endif	/* ERRNO_INCLUDED */
-#endif	/* HPUXPRE65 */
 
 #ifdef ZILOG				/* Longjumps */
 #include <setret.h>
@@ -104,11 +88,7 @@ _PROTOTYP( static VOID ck_sndmsg, (void) );
 #define SIGUSR2 31
 #endif /* SIGUSR2 */
 
-#ifdef M_UNIX
-#define CK_FORK_SIG SIGUSR2		/* SCO - use SIGUSR2 */
-#else
 #define CK_FORK_SIG SIGUSR1		/* Others - use SIGUSR1 */
-#endif /* M_UNIX */
 
 #endif /* CK_FORK_SIG */
 
@@ -193,11 +173,7 @@ static char ecbuf[10], *ecbp;		/* Escape char buffer & pointer */
 
 static int obc = 0;			/* Output buffer count */
 
-#ifndef OXOS
 #define OBUFL 1024			/* Output buffer length */
-#else
-#define OBUFL IBUFL
-#endif /* OXOS */
 
 #ifdef BIGBUFOK
 #define TMPLEN 4096			/* Temporary message buffer length */
@@ -634,18 +610,7 @@ pipeint(arg) int arg; {			/* Dummy argument */
 	      ttclos(0);		/* Close our end of the connection */
 	    if (pid) {
 		debug(F101,"CONNECT trigger killing pid","",pid);
-#ifdef BEOSORBEBOX
-		{
-		    long ret_val;
-		    x = kill(pid,SIGKILLTHR);	/* Kill lower fork */
-		    wait_for_thread (pid, &ret_val);
-		}
-#else
-#ifdef Plan9
-		x = kill(pid, SIGKILL); /* (should always use this really) */
-#else
 		x = kill(pid,9);	/* Kill lower fork (history) */
-#endif /* Plan9 */
 		wait((WAIT_T *)0);	/* Wait till gone. */
 		if (x < 0) {
 		    printf("ERROR: Failure to kill pid %ld: %s, errno=%d\n",
@@ -654,7 +619,6 @@ pipeint(arg) int arg; {			/* Dummy argument */
 			  ck_errstr(),errno);
 		}
 		pid = (PID_T) 0;
-#endif /* BEOSORBEBOX */
 	    }
 	    conres();			/* Reset the console. */
 	    if (!quiet) {
@@ -729,18 +693,6 @@ pipeint(arg) int arg; {			/* Dummy argument */
 	/* NOTREACHED */
 #endif /* CK_APC */
 
-#ifdef SUNX25
-      case CEV_PAD:			/* X.25 PAD parameter change */
-	debug(F100,"CONNECT pipeint PAD change","",0);
-	read(xpipe[0],padparms,MAXPADPARMS);
-	sjval = CEV_PAD;		/* Set global variable. */
-#ifdef COMMENT				/* We might not need to do this... */
-	cklongjmp(con_env,sjval);
-	/* NOTREACHED */
-#else  /* COMMENT */
-	break;
-#endif /* COMMENT */
-#endif /* SUNX25 */
     }
     signal(CK_FORK_SIG, pipeint);	/* Set up signal handler */
     kill(pid, CK_FORK_SIG);		/* Signal the port fork ... */
@@ -905,15 +857,8 @@ kbget() {
 /*  C O N C L D --  Interactive terminal connection child function */
 
 static
-#ifdef BEOSORBEBOX
-long
-#else
 VOID
-#endif /* BEOSORBEBOX */
 concld (
-#ifdef BEOSORBEBOX
-       void *bevoid
-#endif /* BEOSORBEBOX */
        ) {
     int	n;			/* General purpose counter */
     int i;			/* For loops... */
@@ -1081,14 +1026,6 @@ concld (
 		    printf("\r\nCommunications disconnect ");
 #ifdef COMMENT
 		    if ( c == -3
-#ifdef ultrix
-/* This happens on Ultrix if there's no carrier */
-			&& errno != EIO
-#endif /* ultrix */
-#ifdef UTEK
-/* This happens on UTEK if there's no carrier */
-			&& errno != EWOULDBLOCK
-#endif /* UTEK */
 			)
 		      perror("\r\nCan't read character");
 #endif /* COMMENT */
@@ -1528,19 +1465,7 @@ conect() {
 	debug(F101,"CONNECT entry killing stale pid","",pid);
 	printf("WARNING: Old CONNECT fork seems to be active.\n");
 	printf("Attempting to remove it...");
-#ifdef BEOSORBEBOX
-	{
-	    long ret_val;
-	    x = kill(pid,SIGKILLTHR); /* Kill lower fork */
-	    wait_for_thread (pid, &ret_val);
-	}
-#else
-#ifdef Plan9
-	x = kill(pid,SIGKILL);		/* Kill lower fork */
-#else
 	x = kill(pid,9);
-#endif /* Plan9 */
-#endif /* BEOSORBEBOX */
 	wait((WAIT_T *)0);		/* Wait till gone. */
 	if (x < 0) {
 	    printf("ERROR: Failure to kill pid %d: %s, errno=%d\n",
@@ -1578,9 +1503,6 @@ conect() {
     }
 #ifdef TCPSOCKET
     if (network && (nettype != NET_TCPB)
-#ifdef SUNX25
-        && (nettype != NET_SX25)
-#endif /* SUNX25 */
 #ifdef IBMX25
 	&& (nettype != NET_IX25)
 #endif /* IBMX25 */
@@ -1896,18 +1818,11 @@ conect() {
 	debug(F101,"CONNECT pipe error","",errno);
 	goterr = 1;
     } else
-#ifdef BEOSORBEBOX
-    {
-        pid = spawn_thread(concld, "Lower Fork", B_NORMAL_PRIORITY, NULL);
-        resume_thread(pid);
-    }
-#else
     if ((pid = fork()) == (PID_T) -1) { /* Pipe OK, make port fork. */
 	perror("Can't make port fork");
 	debug(F101,"CONNECT fork error","",errno);
 	goterr = 1;
     }
-#endif /* BEOSORBEBOX */
     debug(F101,"CONNECT created fork, pid","",pid);
     if (goterr) {			/* Failed to make pipe or fork */
 	conres();			/* Reset the console. */
@@ -2045,17 +1960,6 @@ conect() {
 */
 		    pause();		/* Wait for transmitter to finish. */
 #else
-#ifdef A986
-/*
-  On Altos machines with Xenix 3.0, pressing DEL in connect mode brings us
-  here (reason unknown).  The console line discipline at this point has
-  intr = ^C.  The communications tty has intr = DEL but we get here after
-  pressing DEL on the keyboard, even when the remote system has been set not
-  to echo.  With A986 defined, we stay in the read loop and beep only if the
-  offending character is not DEL.
-*/
-		    if ((c & 127) != 127) conoc(BEL);
-#else
 #ifdef EINTR
 /*
    This can be caused by the other fork signalling this one about
@@ -2067,7 +1971,6 @@ conect() {
 		    conoc(BEL);		/* Otherwise, beep */
 		    active = 0;		/* and terminate the read loop */
 		    continue;
-#endif /* A986 */
 #endif /* COMMENT */
 		}
 		c &= cmdmsk;		/* Do any requested masking */
@@ -2156,68 +2059,6 @@ conect() {
 			    if (c == SI) outshift = 0;   /* User typed SI */
 			}
 			c &= cmask;	/* Apply Kermit-to-host mask now. */
-#ifdef SUNX25
-			if (network && nettype == NET_SX25) {
-			    if (padparms[PAD_ECHO]) {
-				if (debses)
-				  conol(dbchr(c)) ;
-				else
-				  if ((c != padparms[PAD_CHAR_DELETE_CHAR]) &&
-				    (c != padparms[PAD_BUFFER_DELETE_CHAR]) &&
-				    (c != padparms[PAD_BUFFER_DISPLAY_CHAR]))
-				    conoc(c) ;
-				if (seslog && !sessft)
-				  logchar(c);
-			    }
-			    if (c==  CK_CR && (padparms[PAD_LF_AFTER_CR] == 4
-                                  ||  padparms[PAD_LF_AFTER_CR] == 5)) {
-				if (debses)
-				  conol(dbchr(LF)) ;
-				else
-				  conoc(LF) ;
-				if (seslog && !sessft)
-				  logchar(LF);
-			    }
-			    if (c == padparms[PAD_BREAK_CHARACTER]) {
-				breakact();
-			    } else if (padparms[PAD_DATA_FORWARD_TIMEOUT]) {
-				tosend = 1;
-				x25obuf [obufl++] = c;
-			    } else if (((c == padparms[PAD_CHAR_DELETE_CHAR])||
-				     (c == padparms[PAD_BUFFER_DELETE_CHAR]) ||
-				     (c == padparms[PAD_BUFFER_DISPLAY_CHAR]))
-				       && (padparms[PAD_EDITING])) {
-				if (c == padparms[PAD_CHAR_DELETE_CHAR]) {
-				    if (obufl > 0) {
-					conol("\b \b"); obufl--;
-				    } else {}
-				} else if
-				  (c == padparms[PAD_BUFFER_DELETE_CHAR]) {
-				      conol ("\r\nPAD Buffer Deleted\r\n");
-				      obufl = 0;
-				} else if
-				  (c==padparms[PAD_BUFFER_DISPLAY_CHAR]) {
-				      conol("\r\n");
-				      conol(x25obuf);
-				      conol("\r\n");
-				} else {}
-			    } else {
-				x25obuf [obufl++] = c;
-				if (obufl == MAXOX25) tosend = 1;
-				else if (c == CK_CR) tosend = 1;
-			    }
-			    if (tosend) {
-				if (ttol((CHAR *)x25obuf,obufl) < 0) {
-				    perror ("\r\nCan't send characters");
-				    active = 0;
-				} else {
-				    bzero (x25obuf,sizeof(x25obuf));
-				    obufl = 0;
-				    tosend = 0;
-				}
-			    } else {};
-			} else {
-#endif /* SUNX25 */
 			    if (c == '\015') { /* Carriage Return */
 				int stuff = -1;
 				if (tnlm) { /* TERMINAL NEWLINE ON */
@@ -2274,9 +2115,6 @@ conect() {
 				perror("\r\nCan't send character");
 				active = 0;
 			    }
-#ifdef SUNX25
-			}
-#endif /* SUNX25 */
 		    } /* for... */
 		}
 	    }
@@ -2298,19 +2136,7 @@ conect() {
 	debug(F101,"CONNECT killing port fork","",pid);
 	if (pid) {
 	    int x = 0;
-#ifdef BEOSORBEBOX
-	    {
-		long ret_val;
-		x = kill(pid,SIGKILLTHR); /* Kill lower fork */
-		wait_for_thread(pid, &ret_val);
-	    }
-#else
-#ifdef Plan9
-	    x = kill(pid,SIGKILL);	/* Kill lower fork */
-#else
 	    x = kill(pid,9);
-#endif /* Plan9 */
-#endif /* BEOSORBEBOX */
 	    wait((WAIT_T *)0);		/* Wait till gone. */
 	    if (x < 0) {
 		printf("WARNING: Failure to kill fork, pid %d: %s, errno=%d\n",
@@ -2326,10 +2152,6 @@ conect() {
 	    if (network) {		/* and/or close network connection */
 		ttclos(0);
 		dologend();
-#ifdef SUNX25
-		if (nettype == NET_SX25) /* If X.25, restore the PAD params */
-		  initpad();
-#endif /* SUNX25 */
 	    }
 #endif /* NETCONN */
 	}
@@ -2383,11 +2205,9 @@ conect() {
 	goto conret1;
 
     }
-#ifndef BEOSORBEBOX
     else {	/* *** */		/* Inferior reads, prints port input */
         concld(/* (void *)&pid */);
     }
-#endif /* BEOSORBEBOX */
 
 conret1:
     conret = 1;
@@ -2510,12 +2330,6 @@ doesc(c) char c;
 		ttol((CHAR *)temp,2);
 	    } else
 #endif /* TCPSOCKET */
-#ifdef SUNX25
-	    if (network && (nettype == NET_SX25)) {
-		(VOID) x25intr(0);	            /* X.25 interrupt packet */
-		conol("\r\n");
-	    } else
-#endif /* SUNX25 */
 	      conoc(BEL);
 	    return;
 

@@ -116,10 +116,6 @@ _PROTOTYP(VOID doftpglobaltype,(int));
 #endif /* NEWFTP */
 
 
-#ifdef datageneral
-#include <packets:common.h>
-#define fgets(stringbuf,max,fd) dg_fgets(stringbuf,max,fd)
-#endif /* datageneral */
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
@@ -1535,13 +1531,11 @@ struct keytab cmdtab[] = {
     { "sort",        XXNOTAV, CM_INV },
 #endif /* NOSPL */
 
-#ifndef MAC
 #ifndef NOFRILLS
     { "sp",          XXSPA, CM_INV|CM_ABR },
     { "spa",         XXSPA, CM_INV|CM_ABR },
 #endif /* NOFRILLS */
     { "space",       XXSPA, 0 },	/* Show available disk SPACE */
-#endif /* MAC */
 
 #ifndef NOFRILLS
 #ifndef NOPUSH
@@ -1683,11 +1677,9 @@ struct keytab cmdtab[] = {
     { "while",       XXNOTAV, CM_INV },
 #endif /* NOSPL */
 
-#ifndef MAC
 #ifndef NOFRILLS
     { "who",         XXWHO, CM_PSH },	/* WHO's logged in? */
 #endif /* NOFRILLS */
-#endif /* MAC */
 
 #ifndef NOHELP
     { "wildcards",   XXWILD,CM_INV|CM_HLP }, /* Wildcard syntax */
@@ -1838,9 +1830,7 @@ struct keytab prmtab[] = {
 #endif /* DYNAMIC */
 #endif /* NOXFER */
 #ifndef NOLOCAL
-#ifndef MAC
     { "carrier-watch",    XYCARR,  CM_LOC },
-#endif /* MAC */
 #endif /* NOLOCAL */
 #ifndef NOSPL
     { "case",             XYCASE,  0 },
@@ -1874,9 +1864,7 @@ struct keytab prmtab[] = {
     { "de",		  XYDELA,  CM_INV|CM_ABR },
 #endif /* NOXFER */
     { "debug",            XYDEBU,  0 },
-#ifndef MAC
     { "default",          XYDFLT,  CM_INV },
-#endif /* MAC */
 #ifndef NOXFER
     { "delay",	    	  XYDELA,  0 },
     { "destination",	  XYDEST,  0 },
@@ -2026,11 +2014,7 @@ struct keytab prmtab[] = {
 #ifndef NOXFER
     { "q8flag",           XYQ8FLG, CM_INV },
 #endif /* NOXFER */
-#ifdef QNX
-    { "qnx-port-lock",    XYQNXPL, 0 },
-#else
     { "qnx-port-lock",    XYQNXPL, CM_INV },
-#endif /* QNX */
     { "quiet",		  XYQUIE,  0 },
 #ifndef NOXFER
     { "rec",              XYRECV,  CM_INV|CM_ABR },
@@ -2462,17 +2446,6 @@ struct keytab netcmd[] = {
     { "tes32",        NET_SLAT, 0 },	/* Emulux TES32 */
 #endif /* SUPERLAT */
 #ifdef ANYX25				/* X.25 */
-#ifdef SUNX25
-    { "x",            NET_SX25, CM_INV|CM_ABR },
-    { "x.25",         NET_SX25, 0 },
-    { "x25",          NET_SX25, CM_INV },
-#else
-#ifdef STRATUSX25
-    { "x",            NET_VX25, CM_INV|CM_ABR },
-    { "x.25",         NET_VX25, 0 },
-    { "x25",          NET_VX25, CM_INV },
-#endif /* STRATUSX25 */
-#endif /* SUNX25 */
 #ifdef IBMX25
     { "x",            NET_IX25, CM_INV|CM_ABR },
     { "x.25",         NET_IX25, CM_INV },
@@ -2954,9 +2927,7 @@ static struct keytab enatab[] = {	/* ENABLE commands */
     { "asg",        EN_ASG,  CM_INV },
     { "assign",     EN_ASG,  0 },
 #endif /* NOSPL */
-#ifndef datageneral
     { "bye",        EN_BYE,  0 },
-#endif /* datageneral */
     { "cd",         EN_CWD,  0 },
 #ifdef ZCOPY
     { "copy",       EN_CPY,  0 },
@@ -3050,11 +3021,7 @@ static struct keytab sndtab[] = {	/* SEND command options */
 /* Systems where we do recursion */
     { "/recursive",       SND_REC, 0 },
 #else
-#ifdef datageneral
-    { "/recursive",       SND_REC, 0 },
-#else
     { "/recursive",       SND_REC, CM_INV },
-#endif /* datageneral */
 #endif /* RECURSIVE */
     { "/rename-to",       SND_REN, CM_ARG },
     { "/since",           SND_AFT, CM_INV|CM_ARG },
@@ -4377,11 +4344,7 @@ doxsend(cx) int cx;
 	    s = (char *)malloc(len + 4);
 	    if (s) {
 		strcpy(s,p);		/* safe */
-#ifdef datageneral
-		if (s[len-1] != ':') { s[len++] = ':'; s[len] = NUL; }
-#else
 		if (s[len-1] != '/') { s[len++] = '/'; s[len] = NUL; }
-#endif /* datageneral */
 		s[len++] = 'X';
 		s[len] = NUL;
 		x = zmkdir(s);
@@ -4961,10 +4924,6 @@ sendend:				/* Common successful exit */
       sendmode = SM_MSEND;
     else
       sendmode = SM_SEND;
-#ifdef MAC
-    what = W_SEND;
-    scrcreate();
-#endif /* MAC */
     if (local && pv[SND_SHH].ival != 0) { /* If in local mode, */
 	displa = 1;			/* turn on file transfer display */
     }
@@ -7570,11 +7529,7 @@ docmd(cx) int cx;
 
     switch (cx) {
       case -4:				/* EOF */
-#ifdef OSK
-	if (msgflg)  printf("\n");
-#else
 	if (msgflg)  printf("\r\n");
-#endif /* OSK */
 	  doexit(GOOD_EXIT,xitsta);
       case -3:				/* Null command */
 	return(0);
@@ -8549,19 +8504,12 @@ docmd(cx) int cx;
         }
 #endif /* LOCUS */
 
-#ifndef MAC
 #ifdef UNIX
 	printf("%s\n",zgtdir());
 #else
 	xsystem(PWDCMD);
 #endif /* UNIX */
 	return(success = 1);		/* Blind faith */
-#else  /* MAC */
-	if (pwp = zgtdir()) {
-	    printf("%s\n",pwp);
-	    return(success = ((int)strlen(pwp) > 0));
-	} else return(success = 0);
-#endif /* MAC */
     }
     if (cx == XXQUI || cx == XXEXI) {	/* EXIT, QUIT */
 	extern int quitting;
@@ -8586,16 +8534,7 @@ docmd(cx) int cx;
 	}
 	quitting = 1;			/* Flag that we are quitting. */
 
-#ifdef OSK
-/* Returning any codes here makes the OS-9 shell print an error message. */
-	doexit(GOOD_EXIT,-1);
-#else
-#ifdef datageneral
-        doexit(GOOD_EXIT,x);
-#else
 	doexit(x,-1);
-#endif /* datageneral */
-#endif /* OSK */
     }
 
 #ifndef NOXFER
@@ -9226,10 +9165,6 @@ docmd(cx) int cx;
 	filenext = NULL;
 #endif /* NOMSEND */
 	sendmode = SM_PSEND;
-#ifdef MAC
-	what = W_SEND;
-	scrcreate();
-#endif /* MAC */
 	if (local) {			/* If in local mode, */
 	    displa = 1;			/* enable file transfer display */
 	}
@@ -9301,10 +9236,6 @@ docmd(cx) int cx;
 	sstate = 's';			/* Set start state for SEND */
 	if (cx == XXMMOVE)		/* If MMOVE'ing, */
 	  moving = 1;			/*  set this flag. */
-#ifdef MAC
-	what = W_SEND;
-	scrcreate();
-#endif /* MAC */
 	if (local) {			/* If in local mode, */
 	    displa = 1;			/* turn on file transfer display */
 	    ttflui();			/* and flush tty input buffer. */
@@ -9368,14 +9299,7 @@ docmd(cx) int cx;
 
 	if ((x = cmcfm()) < 0) return(x);
 	sstate = 'x';
-#ifdef MAC
-	what = W_RECV;
-	scrcreate();
-#endif /* MAC */
 	if (local) displa = 1;
-#ifdef AMIGA
-	reqoff();			/* No DOS requestors while server */
-#endif /* AMIGA */
 	return(0);
     }
 #endif /* NOSERVER */
@@ -9571,7 +9495,6 @@ docmd(cx) int cx;
     }
 #endif /* NOSHOW */
 
-#ifndef MAC
     if (cx == XXSPA) {			/* SPACE */
 #ifdef IKSD
 	if (inserver && !ENABLED(en_spa)) {
@@ -9579,20 +9502,6 @@ docmd(cx) int cx;
 	    return(-9);
 	}
 #endif /* IKSD */
-#ifdef datageneral
-	/* AOS/VS can take an argument after its "space" command. */
-	if ((x = cmtxt("Confirm, or local directory name","",&s,xxstring)) < 0)
-	  return(x);
-	if (nopush) {
-	    printf("?Sorry, SPACE command disabled\n");
-	    return(-9);
-	} else if (*s == NUL) {
-	    xsystem(SPACMD);
-	} else {
-	    ckmakmsg(line,LINBUFSIZ,"space ",s,NULL,NULL);
-	    xsystem(line);
-	}
-#else
 	x = cmdir("Confirm for current disk,\n\
  or specify a disk device or directory","",&s,xxstring);
 	if (x == -3)
@@ -9612,10 +9521,8 @@ docmd(cx) int cx;
 	    ckmakmsg(line,LINBUFSIZ,SPACM2," ",s,NULL);
 	    xsystem(line);
 	}
-#endif /* datageneral */
 	return(success = 1);		/* Pretend it worked */
     }
-#endif /* MAC */
 
 #ifndef NOXFER
     if (cx == XXSTA) {			/* STATISTICS */
@@ -12064,7 +11971,6 @@ docmd(cx) int cx;
 	return(success = 1);
     }
 
-#ifndef MAC				/* Only for multiuser systems */
 #ifndef NOFRILLS
     if (cx == XXWHO) {			/* WHO */
 	char *wc;
@@ -12074,14 +11980,6 @@ docmd(cx) int cx;
 	    return(-9);
 	}
 #endif /* IKSD */
-#ifdef datageneral
-	if ((z = cmcfm()) < 0) return(z);
-	if (nopush) {
-	    printf("?Sorry, who not allowed\n");
-	    return(success = 0);
-	}
-        xsystem(WHOCMD);
-#else
 	if ((y = cmtxt("user name","",&s,xxstring)) < 0) return(y);
         if (nopush) {
 	    printf("?Sorry, WHO command disabled\n");
@@ -12093,11 +11991,9 @@ docmd(cx) int cx;
 	      ckmakmsg(line,LINBUFSIZ,wc," ",s,NULL);
 	      xsystem(line);
 	  }
-#endif /* datageneral */
 	return(success = 1);
     }
 #endif /* NOFRILLS */
-#endif /* MAC */
 
 #ifndef NOFRILLS
     if (cx == XXWRI || cx == XXWRL || cx == XXWRBL) { /* WRITE */

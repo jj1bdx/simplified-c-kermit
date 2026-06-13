@@ -42,13 +42,7 @@
 #endif /* NOSTAT */
 
 
-#ifdef datageneral
-#define fgets(stringbuf,max,fd) dg_fgets(stringbuf,max,fd)
-#endif /* datageneral */
 
-#ifdef QNX6
-#define readblock kreadblock
-#endif /* QNX6 */
 
 /* External Kermit Variables, see ckmain.c for description. */
 
@@ -2887,9 +2881,6 @@ dodial(cx) int cx;
 #ifdef UNIX
             && (strcmp(ttname,"/dev/null"))
 #else
-#ifdef OSK
-            && (strcmp(ttname,"/nil"))
-#endif /* OSK */
 #endif /* UNIX */
             ) {
             printf("\nSorry, you must SET SPEED first\n");
@@ -3731,7 +3722,6 @@ typegetline(incs, outcs, buf, n) int incs, outcs, n; char * buf;
     return(x < 0 ? -1 : len);
 }
 
-#ifndef MAC
 SIGTYP
 #ifdef CK_ANSIC
 tytrap(int foo)                         /* TYPE interrupt trap */
@@ -3746,7 +3736,6 @@ tytrap(foo) int foo;
     typ_int = 1;                        /* (Need arg for ANSI C) */
     SIGRETURN;
 }
-#endif /* MAC */
 
 _PROTOTYP(char * cvtstring,(char*,int,int));
 
@@ -3774,9 +3763,7 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
     extern int ucsbom;
 #endif /* UNICODE */
 
-#ifndef MAC
     SIGTYP (* oldsig)();
-#endif /* MAC */
 
 
     if (!file) file = "";
@@ -3866,13 +3853,9 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
     }
 /*  printf("%s: %d\n","DOTYPE tlevel AFTER open:",tlevel); */
 
-#ifndef AMIGA
-#ifndef MAC
     errno = 0;
     oldsig = signal(SIGINT, tytrap);    /* Save current interrupt trap. */
     /* debug(F111,"type SIGINT trap set",ckitoa(errno),oldsig); */
-#endif /* MAC */
-#endif /* AMIGA */
 
     if (paging > -1)                    /* More-prompting */
       xaskmore = paging;
@@ -3929,7 +3912,6 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
 #ifdef TYPEINTERPRET                    /* 2022-08-31 fdc */
 #endif /* TYPEINTERPRET */
 
-#ifndef MAC                             /*  */
         if (typ_int) {                  /* Interrupted? */
             typ_int = 0;
             debug(F101,"type interrupted line","",lines);
@@ -3940,7 +3922,6 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
             }
             goto xxdotype;
         }
-#endif /* MAC */
         typ_lines++;                    /* For \v(ty_ln) */
         if (pat)                        /* Matching? */
           if (!ckmatch(pat,buf,1,1+4))  /* Line matches pattern? */
@@ -4088,12 +4069,10 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
         }
         n = first;                      /* Output line counter */
         for (i = k ;; i++) {            /* Loop thru circular buffer */
-#ifndef MAC
             if (typ_int) {              /* Interrupted? */
                 printf("^C...\n");      /* Print message */
                 goto xxdotype;
             }
-#endif /* MAC */
             j = i % head;               /* Index of this line */
             s = tail[j];                /* Point to line to display */
             if (!s)                     /* (shouldn't happen...) */
@@ -4131,11 +4110,7 @@ dotype(file, paging, first, head, pat, width, prefix, incs, outcs, outfile, z)
 /* Come here when finished or on SIGINT */
 
   xxdotype:
-#ifndef AMIGA
-#ifndef MAC
     signal(SIGINT,oldsig);              /* Put old signal action back. */
-#endif /* MAC */
-#endif /* AMIGA */
     if (tailing && tail) {
         for (i = 0; i < head; i++) {    /* Free each line. */
             if (tail[i])
@@ -4814,9 +4789,6 @@ static struct keytab dirswtab[] = {     /* DIRECTORY command switches */
 #ifdef RECURSIVE
     { "/norecursive", DIR_NOR, 0 },
 #else
-#ifdef datageneral
-    { "/norecursive", DIR_NOR, 0 },
-#endif /* datageneral */
 #endif /* RECURSIVE */
     { "/nosort",      DIR_NOS, 0 },
     { "/not-after",   DIR_NAF, CM_ARG },
@@ -4830,9 +4802,6 @@ static struct keytab dirswtab[] = {     /* DIRECTORY command switches */
 #ifdef RECURSIVE
     { "/recursive",   DIR_REC, 0 },
 #else
-#ifdef datageneral
-    { "/recursive",   DIR_REC, 0 },
-#endif /* datageneral */
 #endif /* RECURSIVE */
     { "/reverse",     DIR_DSC, 0 },
     { "/since",       DIR_AFT, CM_ARG|CM_INV },
@@ -4883,9 +4852,6 @@ static struct keytab touchswtab[] = {	/* TOUCH command switches */
 #ifdef RECURSIVE
     { "/norecursive", DIR_NOR, 0 },
 #else
-#ifdef datageneral
-    { "/norecursive", DIR_NOR, 0 },
-#endif /* datageneral */
 #endif /* RECURSIVE */
     { "/not-after",   DIR_NAF, CM_ARG },
     { "/not-before",  DIR_NBF, CM_ARG },
@@ -4893,9 +4859,6 @@ static struct keytab touchswtab[] = {	/* TOUCH command switches */
 #ifdef RECURSIVE
     { "/recursive",   DIR_REC, 0 },
 #else
-#ifdef datageneral
-    { "/recursive",   DIR_REC, 0 },
-#endif /* datageneral */
 #endif /* RECURSIVE */
     { "/simulate",    DIR_SIM, 0 },
     { "/since",       DIR_AFT, CM_ARG|CM_INV },
@@ -5288,11 +5251,7 @@ domydir(cx) int cx;
     cmfdbi(&fi,                         /* 2nd FDB - filespec to match */
            _CMIFI,                      /* fcode */
            "File specification",        /* hlpmsg */
-#ifdef datageneral
-           "+",                         /* Default filespec is wildcard */
-#else                                   /* that matches all files... */
            "*",
-#endif /* datageneral */
            "",                          /* addtl string data */
            cmifn1,
            cmifn2,                      /* 1 = only dirs; 0 files or dirs */
@@ -5740,19 +5699,6 @@ domydir(cx) int cx;
     if (!wild) if (isdir(s)) {          /* Is it a directory? */
         p = s + (int)strlen(s) - 1;     /* Yes */
         debug(F000,"domydir directory 1",s,*p);
-#ifdef datageneral
-        if (*p == ':')
-          strcat(s, "+");
-        else
-          strcat(s, ":+");
-#else
-#ifdef STRATUS
-        if (*p == '>')
-          strcat(s, "*");
-        else
-          strcat(s, ">*");
-#endif /* STRATUS */
-#endif /* datageneral */
         wild = 1;                       /* Now it's wild */
         debug(F000,"domydir directory 2",s,*p);
     }
@@ -6636,9 +6582,7 @@ doenable(y,x) int y, x;
           en_who = en_mai = en_pri = y;
         en_mkd = en_rmd = y;
         en_xit = y;
-#ifndef datageneral
         en_bye = y;
-#endif /* datageneral */
 #ifndef NOPUSH
         if (!nopush && !inserver)
           en_hos = y;
@@ -6649,12 +6593,10 @@ doenable(y,x) int y, x;
         break;
 
       case EN_BYE:
-#ifndef datageneral
 /*
   In Data General AOS/VS Kermit can't log out its superior process.
 */
         en_bye = y;
-#endif /* datageneral */
         break;
       case EN_CPY:
         en_cpy = y;
@@ -7012,11 +6954,7 @@ dodel() {                               /* DELETE */
             break;
           case DEL_ALL:
             fs = 0;
-#ifdef datageneral
-            deldef = "+";               /* AOS/VS */
-#else
             deldef = "*";               /* UNIX, Windows, OS/2, VMS... */
-#endif /* datageneral */
             deltree = 1;
             nolinks = 2;
             matchdot = 1;
@@ -7191,10 +7129,6 @@ dodel() {                               /* DELETE */
 
     debug(F110,"dodel line",line,0);
 
-#ifdef MAC
-    success = (zdelet(tmpbuf) == 0);
-
-#else  /* !MAC ... */
 
     {
         int filespace = 0;
@@ -7416,7 +7350,6 @@ dodel() {                               /* DELETE */
               printf("?Can't delete: %s\n",tmpbuf);
         }
     }
-#endif /* MAC */
   xdelete:
     if (g_matchdot > -1) {
         matchdot = g_matchdot;          /* Restore these... */
@@ -9820,7 +9753,6 @@ doopen()  {                             /* OPEN { append, read, write } */
         }
         return(success = zopeni(ZRFILE,line));
 
-#ifndef MAC
 #ifndef NOPUSH
       case OPN_PI_R:                    /* Pipe/Process (!READ) */
         if (nopush) {
@@ -9871,7 +9803,6 @@ doopen()  {                             /* OPEN { append, read, write } */
           printf("Can't open process for writing: %s\n",line);
         return(success);
 #endif /* NOPUSH */
-#endif /* MAC */
 
       case OPN_FI_W:                    /* New file (WRITE) */
       case OPN_FI_A:                    /* (APPEND) */
@@ -10626,11 +10557,7 @@ doxget(cx) int cx;
             s = (char *)malloc(len + 4);
             if (s) {
                 strcpy(s,p);            /* safe */
-#ifdef datageneral
-                if (s[len-1] != ':') { s[len++] = ':'; s[len] = NUL; }
-#else
                 if (s[len-1] != '/') { s[len++] = '/'; s[len] = NUL; }
-#endif /* datageneral */
                 s[len++] = 'X';
                 s[len] = NUL;
                 x = zmkdir(s);
@@ -10721,10 +10648,6 @@ doxget(cx) int cx;
       sstate = (CHAR) 'r';              /* Regular GET */
     getcmd = 1;
     debug(F000,"xget sstate","",sstate);
-#ifdef MAC
-    what = W_RECV;
-    scrcreate();
-#endif /* MAC */
     if (local) {
         if (pv[SND_SHH].ival != 0)
           displa = 1;

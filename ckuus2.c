@@ -120,23 +120,9 @@ static char *tophlp[] = {
 #endif /* NOHELP */
 #endif /* NOCMDL */
 " ",
-#ifdef MAC
-"Documentation for Command Window: \"Using C-Kermit\" by Frank da Cruz and",
-"Christine M. Gianone, Digital Press, 1997, ISBN: 1-55558-164-1",
-#else
 "DOCUMENTATION: \"Using C-Kermit\" by Frank da Cruz and Christine M. Gianone,",
 "2nd Edition, Digital Press / Butterworth-Heinemann 1997, ISBN 1-55558-164-1,",
 "plus supplements at http://www.kermitproject.org/ckermit.html#doc.",
-#endif /* MAC */
-#ifdef MAC
-" ",
-"Also see the Mac Kermit Doc and Bwr files on the Mac Kermit diskette.\n",
-#else
-#ifdef HPUX10
-" ",
-"See the files in /usr/share/lib/kermit/ for additional information.",
-#endif /* HPUX10 */
-#endif /* MAC */
 ""
 };
 
@@ -236,22 +222,14 @@ char *introtxt[] = {
 #ifdef VOS
 "Welcome to VOS C-Kermit communications software for:",
 #else
-#ifdef MAC
-"Welcome to Mac Kermit communications software for:",
-#else
 "Welcome to C-Kermit communications software for:",
-#endif /* MAC */
 #endif /* VOS */
 #endif /* UNIX */
 #ifndef NOXFER
 " . Error-free and efficient file transfer",
 #endif /* NOXFER */
 #ifndef NOLOCAL
-#ifdef MAC
-" . VT220 terminal emulation",
-#else
 " . Terminal connection",
-#endif /* MAC */
 #endif /* NOLOCAL */
 #ifndef NOSPL
 " . Script programming",
@@ -1075,17 +1053,10 @@ static char *hxypari[] = {
 
 #ifndef NOLOCAL
 static char *hxyesc[] = {
-#ifdef NEXT
-"Syntax: SET ESCAPE number",
-"  Decimal ASCII value for escape character during CONNECT, normally 29",
-"  (Control-]).  Type the escape character followed by C to get back to the",
-"  C-Kermit prompt or followed by ? to see other options.",
-#else
 "Syntax: SET ESCAPE number",
 "  Decimal ASCII value for escape character during CONNECT, normally 28",
 "  (Control-\\).  Type the escape character followed by C to get back to the",
 "  C-Kermit prompt or followed by ? to see other options.",
-#endif /* NEXT */
 " ",
 "You may also enter the escape character as ^X (circumflex followed by a",
 "letter or one of: @, ^, _, [, \\, or ], to indicate a control character;",
@@ -1613,15 +1584,11 @@ static char *hmxxcwd[] = {
 "Syntax: CD [ directory or device:directory ]",
 "  Change Working Directory.  Equivalent to VMS SET DEFAULT command.",
 #else
-#ifdef datageneral
-"Change Working Directory, equivalent to AOS/VS 'dir' command.",
-#else
 "Syntax: CD [ directory name ]",
 "  Change Directory.  Changes your current, working, default directory to the",
 "  one given, so that future non-absolute filename references are relative to",
 "  this directory.  If the directory name is omitted, your home (login)",
 "  directory is supplied.",
-#endif /* datageneral */
 #endif /* vms */
 "  C-Kermit's default prompt shows your current directory.",
 "  Synonyms: LCD, CWD.",
@@ -3314,15 +3281,7 @@ static char *hmxyf[] = {
 "Sets file-related parameters.  Use SHOW FILE to view them.  Also see SET",
 "(and SHOW) TRANSFER and PROTOCOL.",
 " ",
-#ifdef STRATUS
-"SET FILE TYPE { TEXT, BINARY, LABELED }",
-#else
-#ifdef MAC
-"SET FILE TYPE { TEXT, BINARY, MACBINARY }",
-#else
 "SET FILE TYPE { TEXT, BINARY }",
-#endif /* STRATUS */
-#endif /* MAC */
 "  How file contents are to be treated during file transfer in the absence",
 "  of any other indication.  TYPE can be TEXT for conversion of record format",
 "  and character set, which is usually needed when transferring text files",
@@ -5406,19 +5365,11 @@ case XXCLO:                             /* close */
     return(hmsga(hmxxclo));
 
 case XXCOM:                             /* comment */
-#ifndef STRATUS /* Can't use # for comments in Stratus VOS */
     return(hmsg("\
 Syntax: COMMENT text\n\
 Example: COMMENT - this is a comment.\n\
   Introduces a comment.  Beginning of command line only.  Commands may also\n\
   have trailing comments, introduced by ; or #."));
-#else
-    return(hmsg("\
-Syntax: COMMENT text\n\
-Example: COMMENT - this is a comment.\n\
-  Introduces a comment.  Beginning of command line only.  Commands may also\n\
-  have trailing comments, introduced by ; (semicolon)."));
-#endif /* STRATUS */
 
 #ifndef NOLOCAL
 case XXCON:                             /* CONNECT */
@@ -5913,14 +5864,8 @@ case XXSHO:
 #endif /* NOSHOW */
 
 case XXSPA:
-#ifdef datageneral
-    return(hmsg("\
-  Display disk usage in current device, directory,\n\
-  or return space for a specified device, directory."));
-#else
     return(hmsg("Syntax: SPACE\n\
   Display disk usage in current device and/or directory"));
-#endif
 
 case XXSTA:
     return(hmsg("Syntax: STATISTICS [/BRIEF]\n\
@@ -7318,17 +7263,9 @@ static char *hxymacr[] = {
 static char *hmxyprm[] = {
 "Syntax: SET PROMPT [ text ]",
 " ",
-#ifdef MAC
-"Prompt text for this program, normally 'Mac-Kermit>'.  May contain backslash",
-#else
 "Prompt text for this program, normally 'C-Kermit>'.  May contain backslash",
-#endif /* MAC */
 "codes for special effects.  Surround by { } to preserve leading or trailing",
-#ifdef MAC
-"spaces.  If text omitted, prompt reverts to Mac-Kermit>.  Prompt can include",
-#else
 "spaces.  If text omitted, prompt reverts to C-Kermit>.  Prompt can include",
-#endif /* OS2 */
 "variables like \\v(dir) or \\v(time) to show current directory or time.",
 "" };
 
@@ -8154,51 +8091,6 @@ case XYSESS:
   out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
   also includes Telnet negotiations on TCP/IP connections."));
 #else
-#ifdef datageneral
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
-  also includes Telnet negotiations on TCP/IP connections."));
-#else
-#ifdef STRATUS
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
-  also includes Telnet negotiations on TCP/IP connections."));
-#else
-#ifdef AMIGA
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
-  also includes Telnet negotiations on TCP/IP connections."));
-#else
-#ifdef GEMDOS
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
-  also includes Telnet negotiations on TCP/IP connections."));
-#else
-#ifdef OSK
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out LF, NUL and XON/XOFF characters."));
-#else
-#ifdef MAC
-    return(hmsg(
-"Syntax: SET SESSION-LOG { BINARY, DEBUG, TEXT, TIMESTAMPED-TEXT }\n\
-  If BINARY, record all CONNECT characters in session log.  If TEXT, strip\n\
-  out LF, NUL and XON/XOFF characters."));
-#endif /* MAC */
-#endif /* OSK */
-#endif /* GEMDOS */
-#endif /* AMIGA */
-#endif /* STRATUS */
-#endif /* datageneral */
 #endif /* OS2ORUNIX */
 
 case XYSPEE:

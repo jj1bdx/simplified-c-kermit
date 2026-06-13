@@ -471,22 +471,18 @@ a {
     if (!data) TINIT;			/* "ABEND" -- Tell other side. */
 
     if (!bctf) {		     /* Block check 3 forced on all packets */
-#ifndef pdp11
 	if (epktflg) {			/* If because of E-PACKET command */
 	    b1 = bctl; b2 = bctu;	/* Save block check type */
 	    bctl = bctu = 1;		/* set it to 1 */
 	}
-#endif /* pdp11 */
     }
     errpkt((CHAR *)"User cancelled");	/* Send the packet */
     if (!bctf) {		     /* Block check 3 forced on all packets */
-#ifndef pdp11
 	if (epktflg) {			/* Restore the block check */
 	    epktflg = 0;
 	    bctl = b1; bctu = b2;
 	}
     }
-#endif /* pdp11 */
     success = 0;
     return(0);				/* Return from protocol. */
 }
@@ -930,11 +926,7 @@ a {
     } else {
 	char * p = NULL;
 	char * s = NULL;        
-#ifdef datageneral
-        s = "^";
-#else
         s = "..";
-#endif /* datageneral */
 	x = cwd(s);                     /* Try to change directory */
 #ifdef IKSDB
 	if (ikdbopen) slotstate(what,"REMOTE CD", (char *)(srvcmd+2), "");
@@ -1748,7 +1740,6 @@ a {
 
 <rdpkt>Z {				/* End Of File (EOF) Packet */
 /*  wslots = 1;	*/			/* (don't set) Window size back to 1 */
-#ifndef COHERENT /* Coherent compiler blows up on this switch() statement. */
     x = reof(filnam, &iattr);		/* Handle the EOF packet */
     switch (x) {			/* reof() sets the success flag */
       case -5:				/* Handle problems */
@@ -1793,15 +1784,6 @@ a {
 	    BEGIN rfile;		/* and await another file */
 	}
     }
-#else
-    if (reof(filnam, &iattr) < 0) {	/* Close the file */
-	errpkt((CHAR *)"Error at end of file");
-	RESUME;
-    } else {				/* reof() sets success flag */
-	ack();
-	BEGIN rfile;
-    }
-#endif /* COHERENT */
 }
 
 <ssinit>Y {				/* ACK for Send-Init */

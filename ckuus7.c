@@ -41,16 +41,6 @@
 #ifdef SSHBUILTIN
 #include "ckossh.h"
 #endif /* SSHBUILTIN */
-#ifdef STRATUS                          /* Stratus Computer, Inc.  VOS */
-#ifdef putchar
-#undef putchar
-#endif /* putchar */
-#define putchar(x) conoc(x)
-#ifdef getchar
-#undef getchar
-#endif /* getchar */
-#define getchar(x) coninc(0)
-#endif /* STRATUS */
 
 char * slmsg = NULL;
 
@@ -115,9 +105,6 @@ extern int protocol, remfile, rempipe, remappd, reliable, xreliable, fmask,
 extern int stathack;
 
 extern int atfrmi, atfrmo;
-#ifdef STRATUS
-extern int atcrei, atcreo, atacti, atacto;
-#endif /* STRATUS */
 #ifdef CK_PERMS
 extern int atlpri, atlpro, atgpri, atgpro;
 #endif /* CK_PERMS */
@@ -426,9 +413,7 @@ static struct keytab filtab[] = {
 #ifndef NOXFER
     { "fastlookups",      9997,     CM_INV },
     { "incomplete",       XYFILI,   0 },
-#ifndef datageneral
     { "inspection",       XYF_INSP, CM_INV },
-#endif /* datageneral */
 #ifdef CK_LABELED
     { "label",            XYFILL, 0 },
 #endif /* CK_LABELED */
@@ -450,9 +435,7 @@ static struct keytab filtab[] = {
     { "permissions",      XYF_PRM, CM_INV },
     { "protection",       XYF_PRM, 0 },
 #endif /* COMMENt */
-#ifndef datageneral
     { "scan",             XYF_INSP, 0 },
-#endif /* datageneral */
 
 #ifdef UNIX
 #ifdef DYNAMIC
@@ -508,9 +491,6 @@ struct keytab fttab[] = {               /* File types for SET FILE TYPE */
 #ifdef CK_LABELED
     { "labeled",   XYFT_L, 0 },
 #endif /* CK_LABELED */
-#ifdef MAC
-    { "macbinary", XYFT_M, 0 },
-#endif /* MAC */
     { "text",      XYFT_T, 0 }
 };
 int nfttyp = (sizeof(fttab) / sizeof(struct keytab));
@@ -629,24 +609,18 @@ int nxmit = (sizeof(xmitab) / sizeof(struct keytab));
 /* should be ifdef'd out. */
 
 struct keytab colxtab[] = { /* SET FILE COLLISION options */
-#ifndef MAC
     { "append",    XYFX_A, 0 },         /* append to old file */
-#endif /* MAC */
 #ifdef COMMENT
     { "ask",       XYFX_Q, 0 },         /* ask what to do (not implemented) */
 #endif
     { "backup",    XYFX_B, 0 },         /* rename old file */
-#ifndef MAC
     /* This crashes Mac Kermit. */
     { "discard",   XYFX_D, CM_INV },	/* don't accept new file */
     { "no-supersede", XYFX_D, CM_INV }, /* ditto (MSK compatibility) */
-#endif /* MAC */
     { "overwrite", XYFX_X, 0 },         /* overwrite the old file */
     { "reject",    XYFX_D, 0 },		/* (better word than discard) */
     { "rename",    XYFX_R, 0 },         /* rename the incoming file */
-#ifndef MAC                             /* This crashes Mac Kermit. */
     { "update",    XYFX_U, 0 },         /* replace if newer */
-#endif /* MAC */
     { "", 0, 0 }
 };
 int ncolx = (sizeof(colxtab) / sizeof(struct keytab)) - 1;
@@ -813,13 +787,6 @@ extern int thermometer;
 #endif /* CK_CURSES */
 
 static struct keytab fdtab[] = {        /* SET FILE DISPLAY options */
-#ifdef MAC                              /* Macintosh */
-    { "fullscreen", XYFD_R,      0 },   /* Full-screen but not curses */
-    { "none",       XYFD_N,      0 },
-    { "off",        XYFD_N, CM_INV },
-    { "on",         XYFD_R, CM_INV },
-    { "quiet",      XYFD_N, CM_INV },
-#else                                   /* Not Mac */
     { "brief", XYFD_B, 0 },             /* Brief */
     { "crt", XYFD_S, 0 },               /* CRT display */
 #ifdef CK_CURSES
@@ -833,7 +800,6 @@ static struct keytab fdtab[] = {        /* SET FILE DISPLAY options */
     { "on",     XYFD_R, CM_INV },       /* On = Serial */
     { "quiet",  XYFD_N, CM_INV },       /* No display */
     { "serial", XYFD_R, 0      },       /* Serial */
-#endif /* MAC */
     { "", 0, 0 }
 };
 int nfdtab = (sizeof(fdtab) / sizeof(struct keytab)) - 1;
@@ -916,9 +882,6 @@ struct keytab rmstab[] = {
 int nrms = (sizeof(rmstab) / sizeof(struct keytab));
 
 struct keytab attrtab[] = {
-#ifdef STRATUS
-    { "account",       AT_ACCT, 0 },
-#endif /* STRATUS */
     { "all",           AT_XALL, 0 },
 #ifdef COMMENT
     { "blocksize",     AT_BLKS, 0 },    /* (not used) */
@@ -926,9 +889,6 @@ struct keytab attrtab[] = {
 #ifndef NOCSETS
     { "character-set", AT_ENCO, 0 },
 #endif /* NOCSETS */
-#ifdef STRATUS
-    { "creator",       AT_CREA, 0 },
-#endif /* STRATUS */
     { "date",          AT_DATE, 0 },
     { "disposition",   AT_DISP, 0 },
     { "encoding",      AT_ENCO, CM_INV },
@@ -2296,9 +2256,6 @@ setfil(rmsflg) int rmsflg;
         if ((y = cmcfm()) < 0) return(y);
         binary = x;
         b_save = x;
-#ifdef MAC
-        (void) mac_setfildflg(binary);
-#endif /* MAC */
 #ifndef NOXFER
         if (rmsflg) {
             /* Allow for LABELED in VMS & OS/2 */
@@ -2390,41 +2347,18 @@ setfil(rmsflg) int rmsflg;
 #ifdef ZFNQFP
           struct zfnfp * fnp;
 #endif /* ZFNQFP */
-#ifdef MAC
-          char temp[34];
-#endif /* MAC */
 
-#ifdef GEMDOS
-          if ((x = cmdir("Name of local directory, or carriage return",
-                         "",&s,
-                         NULL)) < 0 ) {
-              if (x != -3)
-                return(x);
-          }
-#else
-#ifdef MAC
-          x = ckstrncpy(temp,zhome(),32);
-          if (x > 0) if (temp[x-1] != ':') { temp[x] = ':'; temp[x+1] = NUL; }
-          if ((x = cmtxt("Name of Macintosh volume and/or folder,\n\
- or press the Return key for the desktop on the boot disk",
-                         temp,&s, xxstring)) < 0 )
-            return(x);
-#else
           if ((x = cmdir("Name of local directory, or carriage return",
                          "", &s, xxstring)) < 0 ) {
               if (x != -3)
                 return(x);
           }
-#endif /* MAC */
-#endif /* GEMDOS */
           debug(F110,"download dir",s,0);
 
-#ifndef MAC
           if (x == 2) {
               printf("?Wildcards not allowed in directory name\n");
               return(-9);
           }
-#endif /* MAC */
 
 #ifdef ZFNQFP
           if ((fnp = zfnqfp(s,TMPBUFSIZ - 1,tmpbuf))) {
@@ -2436,10 +2370,8 @@ setfil(rmsflg) int rmsflg;
 #endif /* ZFNQFP */
 
           ckstrncpy(line,s,LINBUFSIZ);  /* Make a safe copy */
-#ifndef MAC
           if ((x = cmcfm()) < 0)        /* Get confirmation */
             return(x);
-#endif /* MAC */
 
 #ifdef CK_LOGIN
         if (isguest) {
@@ -2451,16 +2383,11 @@ setfil(rmsflg) int rmsflg;
           x = strlen(s);
 
           if (x) {
-#ifdef datageneral			/* AOS/VS */
-              if (s[x-1] == ':')        /* homdir ends in colon, */
-                s[x-1] = NUL;           /* and "dir" doesn't like that... */
-#else
 	      if ((x < (LINBUFSIZ - 2)) && /* Add trailing dirsep */
 		  (s[x-1] != '/')) {	/* if none present.  */
 		  s[x] = '/';		/* Note that Windows path has */
 		  s[x+1] = NUL;		/* been canonicalized to forward */
 	      }                		/* slashes at this point. */
-#endif /* datageneral */
               makestr(&dldir,s);
           } else
             makestr(&dldir,NULL);       /* dldir is NULL when not assigned */
@@ -2603,7 +2530,6 @@ setfil(rmsflg) int rmsflg;
       }
 #endif /* UNICODE */
 
-#ifndef datageneral
       case XYF_INSP: {                  /* SCAN (INSPECTION) */
           extern int filepeek, nscanfile;
           if ((x = cmkey(onoff,2,"","on",xxstring)) < 0)
@@ -2619,7 +2545,6 @@ setfil(rmsflg) int rmsflg;
           nscanfile = z;
           return(success = 1);
       }
-#endif /* datageneral */
 
       case XYF_DFLT:
         y = 0;
@@ -2926,10 +2851,6 @@ int
 settrm() {
     int i = 0;
     if ((y = cmkey(trmtab,ntrm,"", "",xxstring)) < 0) return(y);
-#ifdef MAC
-    printf("\n?Sorry, not implemented yet.  Please use the Settings menu.\n");
-    return(-9);
-#else
 #ifdef IKSD
     if (inserver) {
         if ((y = cmcfm()) < 0) return(y);
@@ -3258,7 +3179,6 @@ settrm() {
       default:                          /* Shouldn't get here. */
         return(-2);
     }
-#endif /* MAC */
 #ifdef COMMENT
     /*
       This was supposed to shut up picky compilers but instead it makes
@@ -4363,11 +4283,7 @@ dormt(xx) int xx;
 
       case XZCDU:
         if ((x = cmcfm()) < 0) return(x);
-#ifdef datageneral
-        s = "^";
-#else
         s = "..";
-#endif /* datageneral */
 	rcdactive = 1;
         sstate = setgen('C',s,"","");
         retcode = 0;
@@ -5048,14 +4964,6 @@ setat(rmsflg) int rmsflg;
             atgpri = xx;                /* Generic in */
             atgpro = xx;                /* Generic out */
 #endif /* CK_PERMS */
-#ifdef STRATUS
-            atfrmi = xx;                /* Format in/out */
-            atfrmo = xx;
-            atcrei = xx;                /* Creator id in/out */
-            atcreo = xx;
-            atacti = xx;                /* Account in/out */
-            atacto = xx;
-#endif /* STRATUS */
         }
         return(z);
     } else if (y == AT_ALLY || y == AT_ALLN) { /* ATTRIBUTES ON or OFF */
@@ -5126,20 +5034,6 @@ setat(rmsflg) int rmsflg;
             return((int) sstate);
         }
         attypi = attypo = z; break;
-#ifdef STRATUS
-      case AT_CREA:
-        if (rmsflg) {
-            sstate = setgen('S', "136", z ? "1" : "0", "");
-            return((int) sstate);
-        }
-        atcrei = atcreo = z; break;
-      case AT_ACCT:
-        if (rmsflg) {
-            sstate = setgen('S', "137", z ? "1" : "0", "");
-            return((int) sstate);
-        }
-        atacti = atacto = z; break;
-#endif /* STRATUS */
       case AT_SYSI:
         if (rmsflg) {
             sstate = setgen('S', "145", z ? "1" : "0", "");
@@ -5507,9 +5401,7 @@ clsconnx(ask) int ask;
         oldplex = -1;
     }
 #endif /* NETCONN */
-#ifndef MAC
     ckstrncpy(ttname,dftty,TTNAMLEN);   /* Restore default communication */
-#endif /* MAC */
     local = dfloc;                      /* device and local/remote status */
     if (local) {
         cxtype = CXT_DIRECT;            /* Something reasonable */
@@ -6190,9 +6082,7 @@ cx_net(net, protocol, xhost, svc,
 
     if (!success) {
         local = dfloc;                  /* Go back to normal */
-#ifndef MAC
         ckstrncpy(ttname,dftty,TTNAMLEN); /* Restore default tty name */
-#endif /* MAC */
         speed = ttgspd();
         network = 0;                    /* No network connection active */
         haveline = 0;
@@ -6312,14 +6202,7 @@ cx_net(net, protocol, xhost, svc,
 #ifndef NOXFER
         } else if (sx) {                /* /SERVER */
             sstate = 'x';
-#ifdef MAC
-            what = W_RECV;
-            scrcreate();
-#endif /* MAC */
             if (local) displa = 1;
-#ifdef AMIGA
-            reqoff();                   /* No DOS requestors while server */
-#endif /* AMIGA */
 #endif /* NOXFER */
         }
     }
@@ -6491,9 +6374,7 @@ cx_serial(device, cx, sx, shr, flag, gui, special)
     speed = ttgspd();
     if (!success) {
         local = dfloc;                  /* Go back to normal */
-#ifndef MAC
         ckstrncpy(ttname,dftty,TTNAMLEN); /* Restore default tty name */
-#endif /* MAC */
         haveline = 0;
         if (mdmtyp < 0) {               /* Switching from net to async? */
             if (mdmsav > -1)            /* Restore modem type from last */
@@ -6568,14 +6449,7 @@ cx_serial(device, cx, sx, shr, flag, gui, special)
 #ifndef NOXFER
         } else if (sx) {                /* /SERVER */
             sstate = 'x';
-#ifdef MAC
-            what = W_RECV;
-            scrcreate();
-#endif /* MAC */
             if (local) displa = 1;
-#ifdef AMIGA
-            reqoff();                   /* No DOS requestors while server */
-#endif /* AMIGA */
 #endif /* NOXFER */
         }
     }
@@ -9580,13 +9454,9 @@ dosave(xx) int xx;
 
     ckstrncpy(line,s,LINBUFSIZ);        /* Make safe copy of pathname */
     s = line;
-#ifdef MAC
-    z = 0;
-#else
     /* Get NEW/APPEND disposition */
     if ((z = cmkey(disptb,2,"Disposition","new",xxstring)) < 0)
       return(z);
-#endif /* MAC */
     disp = z;
     if ((x = cmcfm()) < 0)              /* Get confirmation */
       return(x);

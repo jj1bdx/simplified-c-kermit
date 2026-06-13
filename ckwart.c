@@ -27,9 +27,6 @@ char *wartv = "Wart Version 2.17, 04 February 2024 ";
 #endif /* free */
 #endif /* MDEBUG */
 
-#ifdef MAC
-#define VOID void
-#endif /* MAC */
 
 /* W A R T */
 
@@ -57,25 +54,7 @@ char *wartv = "Wart Version 2.17, 04 February 2024 ";
 
 #include "ckcdeb.h"			/* Includes */
 
-#ifdef STRATUS
-/* Actually call printf, not our printf-catcher for Kermit */
-#ifdef printf
-#undef printf
-#endif /* printf */
-#ifdef fprintf
-#undef fprintf
-#endif /* fprintf */
-#endif /* STRATUS */
 
-#ifdef MAC
-/* Same deal for Macintosh */
-#ifdef printf
-#undef printf
-#endif /* printf */
-#ifdef fprintf
-#undef fprintf
-#endif /* fprintf */
-#endif /* MAC */
 
 #ifdef UNIX
 /* And UNIX */
@@ -93,15 +72,7 @@ char *wartv = "Wart Version 2.17, 04 February 2024 ";
   the program about 3K-4K smaller, which can be critical on 16-bit
   architectures.
 */
-#ifdef IRIX60
-/*
-  Also use short or int if your compiler complains inordinately about
-  "integer conversion resulted in a change of sign"...
-*/
-#define TBL_TYPE "short"		/* C data type of state table */
-#else
 #define TBL_TYPE "char"			/* C data type of state table */
-#endif /* IRIX60 */
 
 #define C_L 014				/* Formfeed */
 

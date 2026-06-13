@@ -2,15 +2,7 @@
 
 #define CK_NONBLOCK                     /* See zoutdump() */
 
-#ifdef aegis
-char *ckzv = "Aegis File support, 10.0.234, 05 May 2023";
-#else
-#ifdef Plan9
-char *ckzv = "Plan 9 File support, 10.0.234, 05 May 2023";
-#else
 char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
-#endif /* Plan9 */
-#endif /* aegis */
 /*
   Author: Frank da Cruz <fdc@columbia.edu>,
     Columbia University 1974-2011;
@@ -32,9 +24,6 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 */
 /* Include Files */
 
-#ifdef MINIX2
-#define _MINIX
-#endif /* MINIX2 */
 
 #include "ckcsym.h"
 #include "ckcdeb.h"
@@ -47,38 +36,13 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 #ifdef COMMENT
 /* This causes trouble in C-Kermit 8.0.  I don't remember the original */
 /* reason for this being here but it must have been needed at the time... */
-#ifdef OSF13
-#ifdef CK_ANSIC
-#ifdef _NO_PROTO
-#undef _NO_PROTO
-#endif /* _NO_PROTO */
-#endif /* CK_ANSIC */
-#endif /* OSF13 */
 #endif /* COMMENT */
 
-#ifndef HPUXPRE65
 #include <errno.h>			/* Error number symbols */
-#else
-#ifndef ERRNO_INCLUDED
-#include <errno.h>			/* Error number symbols */
-#endif	/* ERRNO_INCLUDED */
-#endif	/* HPUXPRE65 */
 
 #include <signal.h>
 
-#ifdef MINIX2
-#undef MINIX
-#undef CKSYSLOG
-#include <limits.h>
-#include <time.h>
-#define NOFILEH
-#endif /* MINIX2 */
 
-#ifdef MINIX
-#include <limits.h>
-#include <sys/types.h>
-#include <time.h>
-#else
 #ifdef POSIX
 #include <limits.h>
 #else
@@ -86,7 +50,6 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 #include <limits.h>
 #endif /* SVR3 */
 #endif /* POSIX */
-#endif /* MINIX */
 /*
   Directory Separator macros, to allow this module to work with both UNIX and
   OS/2: Because of ambiguity with the command line editor escape \ character,
@@ -145,19 +108,12 @@ extern int eofmethod;
 
 #include <pwd.h>                        /* Password file for shell name */
 
-#ifdef HPUX10_TRUSTED
-#include <hpsecurity.h>
-#include <prot.h>
-#endif /* HPUX10_TRUSTED */
 
 #ifdef COMMENT
 /* Moved to ckcdeb.h */
 #ifdef POSIX
 #define UTIMEH
 #else
-#ifdef HPUX9
-#define UTIMEH
-#endif /* HPUX9 */
 #endif /* POSIX */
 #endif /* COMMENT */
 
@@ -219,23 +175,12 @@ extern int eofmethod;
 #include <time.h>
 
 /* void tzset(); (the "void" type upsets some compilers) */
-#ifndef IRIX60
-#ifndef ultrix
-#ifndef CONVEX9
 /* ConvexOS 9.0, supposedly POSIX, has extern char *timezone(int,int) */
-#ifndef Plan9
 extern long timezone;
-#endif /* Plan9 */
-#endif /* CONVEX9 */
-#endif /* ultrix */
-#endif /* IRIX60 */
 #endif /* SVORPOSIX */
 #endif /* BSD4 */
 #endif /* BSD44 */
 
-#ifdef COHERENT
-#include <time.h>
-#endif /* COHERENT */
 
 /* Is `y' a leap year? */
 #define leap(y) (((y) % 4 == 0 && (y) % 100 != 0) || (y) % 400 == 0)
@@ -341,9 +286,6 @@ char *ckzsys = HERALD;
   But we can't test such a general scheme everywhere, so let's only do this
   when we know we have to...
 */
-#ifdef NEXT                             /* NeXTSTEP 1.0-3.0 */
-#define SW_ACC_ID
-#endif /* NEXT */
 
 /* Support for tilde-expansion in file and directory names */
 
@@ -376,13 +318,8 @@ char *RENCMD = "mv ";                   /* For file rename */
 char *PWDCMD = "pwd ";                  /* For saying where I am */
 
 #ifdef COMMENT
-#ifdef HPUX10
-char *DIRCMD = "/usr/bin/ls -l ";       /* For directory listing */
-char *DIRCM2 = "/usr/bin/ls -l ";       /* For directory listing, no args */
-#else
 char *DIRCMD = "/bin/ls -l ";           /* For directory listing */
 char *DIRCM2 = "/bin/ls -l ";           /* For directory listing, no args */
-#endif /* HPUX10 */
 #else
 char *DIRCMD = "ls -l ";                /* For directory listing */
 char *DIRCM2 = "ls -l ";                /* For directory listing, no args */
@@ -390,12 +327,6 @@ char *DIRCM2 = "ls -l ";                /* For directory listing, no args */
 
 char *TYPCMD = "cat ";                  /* For typing a file */
 
-#ifdef HPUX
-char *MAILCMD = "mailx";                /* For sending mail */
-#else
-#ifdef DGUX540
-char *MAILCMD = "mailx";
-#else
 #ifdef UNIX
 #ifdef CK_MAILCMD
 char *MAILCMD = CK_MAILCMD;		/* CFLAGS override */
@@ -405,16 +336,10 @@ char *MAILCMD = "Mail";			/* Default */
 #else
 char *MAILCMD = "";
 #endif /* UNIX */
-#endif /* HPUX */
-#endif /* DGUX40 */
 
 #ifdef UNIX
 #ifdef ANYBSD                           /* BSD uses lpr to spool */
-#ifdef DGUX540                          /* And DG/UX */
-char * PRINTCMD = "lp";
-#else
 char * PRINTCMD = "lpr";
-#endif /* DGUX540 */
 #else                                   /* Sys V uses lp */
 #ifdef TRS16                            /* except for Tandy-16/6000... */
 char * PRINTCMD = "lpr";
@@ -426,25 +351,15 @@ char * PRINTCMD = "lp";
 #define PRINTCMD ""
 #endif /* UNIX */
 
-#ifdef FT18                             /* Fortune For:Pro 1.8 */
-#undef BSD4
-#endif /* FT18 */
 
 #ifdef BSD4
 char *SPACMD = "pwd ; df .";            /* Space in current directory */
 #else
-#ifdef FT18
-char *SPACMD = "pwd ; du ; df .";
-#else
 char *SPACMD = "df ";
-#endif /* FT18 */
 #endif /* BSD4 */
 
 char *SPACM2 = "df ";                   /* For space in specified directory */
 
-#ifdef FT18
-#define BSD4
-#endif /* FT18 */
 
 #ifdef BSD4
 char *WHOCMD = "finger ";
@@ -455,17 +370,8 @@ char *WHOCMD = "who ";
 /* More system-dependent includes, which depend on symbols defined */
 /* in the Kermit-specific includes.  Oh what a tangled web we weave... */
 
-#ifdef COHERENT                         /* <sys/file.h> */
-#define NOFILEH
-#endif /* COHERENT */
 
-#ifdef MINIX
-#define NOFILEH
-#endif /* MINIX */
 
-#ifdef aegis
-#define NOFILEH
-#endif /* aegis */
 
 #ifdef unos
 #define NOFILEH
@@ -475,23 +381,8 @@ char *WHOCMD = "who ";
 #include <sys/file.h>
 #endif /* NOFILEH */
 
-#ifndef is68k                           /* Whether to include <fcntl.h> */
-#ifndef BSD41                           /* All but a couple UNIXes have it. */
-#ifndef FT18
-#ifndef COHERENT
 #include <fcntl.h>
-#endif /* COHERENT */
-#endif /* FT18  */
-#endif /* BSD41 */
-#endif /* is68k */
 
-#ifdef COHERENT
-#ifdef _I386
-#include <fcntl.h>
-#else
-#include <sys/fcntl.h>
-#endif /* _I386 */
-#endif /* COHERENT */
 
 extern int inserver;			/* I am IKSD */
 int guest = 0;                          /* Anonymous user */
@@ -530,46 +421,16 @@ _PROTOTYP( int ttwait, (int, int) );	/* ckutio.c */
 */
 #ifndef NDGPWNAM /* If not defined No Declare getpwnam... */
 #ifndef _POSIX_SOURCE
-#ifndef NEXT
 #ifndef SVR4
 /* POSIX <pwd.h> already gave prototypes for these. */
-#ifdef IRIX40
-_PROTOTYP( struct passwd * getpwnam, (const char *) );
-#else
-#ifdef IRIX51
-_PROTOTYP( struct passwd * getpwnam, (const char *) );
-#else
-#ifdef M_UNIX
-_PROTOTYP( struct passwd * getpwnam, (const char *) );
-#else
-#ifdef HPUX9
-_PROTOTYP( struct passwd * getpwnam, (const char *) );
-#else
-#ifdef HPUX10
-_PROTOTYP( struct passwd * getpwnam, (const char *) );
-#else
 #ifdef DCGPWNAM
 _PROTOTYP( struct passwd * getpwnam, (const char *) );
 #else
 _PROTOTYP( struct passwd * getpwnam, (char *) );
 #endif /* DCGPWNAM */
-#endif /* HPUX10 */
-#endif /* HPUX9 */
-#endif /* M_UNIX */
-#endif /* IRIX51 */
-#endif /* IRIX40 */
-#ifndef SUNOS4
-#ifndef HPUX9
-#ifndef HPUX10
-#ifndef _SCO_DS
 _PROTOTYP( struct passwd * getpwuid, (PWID_T) );
-#endif /* _SCO_DS */
-#endif /* HPUX10 */
-#endif /* HPUX9 */
-#endif /* SUNOS4 */
 _PROTOTYP( struct passwd * getpwent, (void) );
 #endif /* SVR4 */
-#endif /* NEXT */
 #endif /* _POSIX_SOURCE */
 #endif /* NDGPWNAM */
 
@@ -591,11 +452,7 @@ _PROTOTYP( struct passwd * getpwent, (void) );
 #include <sys/time.h>
 #endif /* __APPLE__ */
 
-#ifdef SOLARIS
-#define PAM_CONST 
-#else /* SOLARIS */
 #define PAM_CONST CONST
-#endif 
 
 static char * pam_pw = NULL;
 
@@ -684,19 +541,7 @@ pam_cb(num_msg, msg, resp, appdata_ptr)
 
 /* Define macros for getting file type */
 
-#ifdef OXOS
-/*
-  Olivetti X/OS 2.3 has S_ISREG and S_ISDIR defined
-  incorrectly, so we force their redefinition.
-*/
-#undef S_ISREG
-#undef S_ISDIR
-#endif /* OXOS */
 
-#ifdef UTSV                             /* Same deal for Amdahl UTSV */
-#undef S_ISREG
-#undef S_ISDIR
-#endif /* UTSV */
 
 #ifdef UNISYS52                         /* And for UNISYS UTS V 5.2 */
 #undef S_ISREG
@@ -774,17 +619,7 @@ pam_cb(num_msg, msg, resp, appdata_ptr)
   NOTE: This applies to a path segment (directory or file name),
   not the entire path string, which can be CKMAXPATH bytes long.
 */
-#ifdef QNX
-#ifdef _MAX_FNAME
-#define MAXNAMLEN _MAX_FNAME
-#else
-#define MAXNAMLEN 48
-#endif /* _MAX_FNAME */
-#else
 #ifndef MAXNAMLEN
-#ifdef sun
-#define MAXNAMLEN 255
-#else
 #ifdef FILENAME_MAX
 #define MAXNAMLEN FILENAME_MAX
 #else
@@ -806,9 +641,7 @@ pam_cb(num_msg, msg, resp, appdata_ptr)
 #endif /* _POSIX_NAME_MAX */
 #endif /* NAME_MAX */
 #endif /* FILENAME_MAX */
-#endif /* sun */
 #endif /* MAXNAMLEN */
-#endif /* QNX */
 
 #endif /* COMMENT  2024-03-23 SMS. */
 
@@ -835,9 +668,6 @@ pam_cb(num_msg, msg, resp, appdata_ptr)
 #ifdef BSD44
 #include <sys/param.h>                  /* For MAXPATHLEN */
 #endif /* BSD44 */
-#ifdef COHERENT
-#include <sys/param.h>  /* for MAXPATHLEN, needed for -DDIRENT */
-#endif /* COHERENT */
 #endif /* COMMENT */
 
 #ifdef MAXPATHLEN
@@ -852,15 +682,11 @@ pam_cb(num_msg, msg, resp, appdata_ptr)
 #ifdef _POSIX_PATH_MAX
 #define MAXPATH _POSIX_PATH_MAX
 #else
-#ifdef BSD42
-#define MAXPATH 1024
-#else
 #ifdef SVR4
 #define MAXPATH 1024
 #else
 #define MAXPATH 255
 #endif /* SVR4 */
-#endif /* BSD42 */
 #endif /* _POSIX_PATH_MAX */
 #endif /* PATH_MAX */
 #endif /* MAXPATHLEN */
@@ -886,27 +712,11 @@ static int maxnames = MAXWLD;
 /* Define the size of the string space for filename expansion. */
 
 #ifndef DYNAMIC
-#ifdef PROVX1
-#define SSPACE 500
-#else
-#ifdef BSD29
-#define SSPACE 500
-#else
-#ifdef pdp11
-#define SSPACE 500
-#else
-#ifdef aegis
-#define SSPACE 10000                    /* Size of string-generating buffer */
-#else                                   /* Default static buffer size */
 #ifdef BIGBUFOK
 #define SSPACE 65000                    /* Size of string-generating buffer */
 #else
 #define SSPACE 2000                     /* size of string-generating buffer */
 #endif /* BIGBUFOK */
-#endif /* aegis */
-#endif /* pdp11 */
-#endif /* BSD29 */
-#endif /* PROVX1 */
 static char sspace[SSPACE];             /* Buffer for generating filenames */
 #else /* is DYNAMIC */
 #ifdef CK_64BIT
@@ -992,11 +802,7 @@ extern int ckxlogging;
 #undef printf                           /* use of "printf" in syslog.h */
 #endif /* CKXPRINTF */
 #ifdef CKSYSLOG
-#ifdef RTAIX
-#include <sys/syslog.h>
-#else  /* RTAIX */
 #include <syslog.h>
-#endif /* RTAIX */
 #endif /* CKSYSLOG */
 #ifdef CKXPRINTF
 #define printf ckxprintf
@@ -1071,38 +877,12 @@ logwtmp __P ((__const char *__ut_line, __const char *__ut_name,
 #else  /* Not UTMPBUG */
 
 #ifndef HAVEUTMPX                       /* Who has <utmpx.h> */
-#ifdef SOLARIS
-#define HAVEUTMPX
-#else
-#ifdef IRIX60
-#define HAVEUTMPX
-#else
-#ifdef CK_SCOV5
-#define HAVEUTMPX
-#else
-#ifdef HPUX100
-#define HAVEUTMPX
-#else
-#ifdef UNIXWARE
-#define HAVEUTMPX
-#endif /* UNIXWARE */
-#endif /* HPUX100 */
-#endif /* CK_SCOV5 */
-#endif /* IRIX60 */
-#endif /* SOLARIS */
 #endif /* HAVEUTMPX */
 
 #ifdef HAVEUTMPX
 #include <utmpx.h>
 #else
-#ifdef OSF50
-/* Because the time_t in the utmp struct is 64 bits but time() wants 32 */
-#define __V40_OBJ_COMPAT 1
-#endif /* OSF50 */
 #include <utmp.h>
-#ifdef OSF50
-#undef __V40_OBJ_COMPAT
-#endif /* OSF50 */
 #endif /* HAVEUTMPX */
 #endif /* UTMPBUG */
 
@@ -1126,15 +906,11 @@ struct zfnfp * zfnqfp( char *, int, char * );
 #endif	/* HAVEUTMPX */
 
 #ifndef WTMPFILE
-#ifdef QNX
-#define WTMPFILE "/usr/adm/wtmp.1"
-#else
 #ifdef LINUX
 #define WTMPFILE "/var/log/wtmp"
 #else
 #define WTMPFILE "/usr/adm/wtmp"
 #endif /* QNX */
-#endif /* LINUX */
 #endif /* WTMPFILE */
 char * wtmpfile = NULL;
 
@@ -1148,13 +924,6 @@ static char cksysline[32] = { NUL, NUL };
 #ifdef LINUX                            /* Linux does */
 #define HAVEUTHOST
 #else
-#ifdef SUNOS4                           /* SunOS does */
-#define HAVEUTHOST
-#else
-#ifdef AIX41                            /* AIX 4.1 and later do */
-#define HAVEUTHOST
-#endif /* AIX41 */
-#endif /* SUNOS4 */
 #endif /* LINUX */
 #endif /* HAVEUTMPX */
 #endif /* HAVEUTHOST */
@@ -1236,12 +1005,8 @@ logwtmp(line, name, host) char *line, *name, *host;
         if (write(wtmpfd, (char *)&ut, sizeof(struct UTMPSTRUCT)) !=
             sizeof(struct UTMPSTRUCT)) {
 #ifndef NOFTRUNCATE
-#ifndef COHERENT
             dummy =
              ftruncate(wtmpfd, buf.st_size); /* Error, undo partial write */
-#else
-            chsize(wtmpfd, buf.st_size); /* Error, undo any partial write */
-#endif /* COHERENT */
 #endif /* NOFTRUNCATE */
             debug(F110,"WTMP write error",line,0);
         } else {
@@ -1337,40 +1102,19 @@ char **mtchptr = NULL;                  /* Pointer to current match */
 
 #ifndef SVR3
 #ifndef POSIX
-#ifndef OSFPC
 /* Already declared in unistd.h for SVR3 and POSIX */
 #ifdef CK_ANSIC
 extern PID_T getppid(void);
 #else
-#ifndef PS2AIX10
-#ifndef COHERENT
 extern PID_T getppid();
-#endif /* COHERENT */
-#endif /* PS2AIX10 */
 #endif /* CK_ANSIC */
-#endif /* OSFPC */
 #endif /* POSIX */
 #endif /* SVR3 */
 
 int
 zkself() {                              /* For "bye", but no guarantee! */
-#ifdef PROVX1
-    return(kill(0,9));
-#else
 #ifdef V7
     return(kill(0,9));
-#else
-#ifdef TOWER1
-    return(kill(0,9));
-#else
-#ifdef FT18
-    return(kill(0,9));
-#else
-#ifdef aegis
-    return(kill(0,9));
-#else
-#ifdef COHERENT
-    return(kill((PID_T)getpid(),1));
 #else
 #ifdef PID_T
     exit(kill((PID_T)getppid(),1));
@@ -1378,11 +1122,6 @@ zkself() {                              /* For "bye", but no guarantee! */
 #else
     exit(kill(getppid(),1));
     return(0);
-#endif
-#endif
-#endif
-#endif
-#endif
 #endif
 #endif
 }
@@ -1527,13 +1266,9 @@ zopeni(n,name) int n; char *name;
     }
 }
 
-#ifdef QNX
-#define DONDELAY
-#else
 #ifdef O_NDELAY
 #define DONDELAY
 #endif /* O_NDELAY */
-#endif /* QNX */
 
 /*  Z O P E N O  --  Open a new file for output.  */
 
@@ -1674,11 +1409,7 @@ zopeno(n,name,zz,fcb) int n; char *name; struct zattr *zz; struct filinfo *fcb;
             int flags;
             if ((flags = fcntl(fileno(fp[n]),F_GETFL,0)) > -1)
               fcntl(fileno(fp[n]),F_SETFL, flags |
-#ifdef QNX
-                    O_NONBLOCK
-#else
                     O_NDELAY
-#endif /* QNX */
                     );
             debug(F100,"zopeno ZOFILE nonblocking","",0);
 #endif /* DONDELAY */
@@ -3130,18 +2861,6 @@ nzltor(name,name2,fncnv,fnspath,max) char *name,*name2;int fncnv,fnspath,max;
     }
     name = fullname;                    /* Converting */
 
-#ifdef aegis
-    char *namechars;
-    int tilde = 0, bslash = 0;
-
-    if ((namechars = getenv("NAMECHARS")) != NULL) {
-        if (ckstrchr(namechars, '~' ) != NULL) tilde  = '~';
-        if (ckstrchr(namechars, '\\') != NULL) bslash = '\\';
-    } else {
-        tilde = '~';
-        bslash = '\\';
-    }
-#endif /* aegis */
 
     pp = work;                          /* Output buffer */
     for (cp = name, n = 0; *cp && n < max; cp++,n++) { /* Convert name chars */
@@ -3235,10 +2954,6 @@ zchdir(dirnam) char *dirnam;
     }
 #endif /* CKROOT */
 
-#ifdef pdp11
-    /* Just to save some space */
-    return((chdir(hd) == 0) ? 1 : 0);
-#else
     if (chdir(hd) == 0) {                       /* Try to cd */
 #ifdef IKSDB
 #ifdef CK_LOGIN
@@ -3265,7 +2980,6 @@ zchdir(dirnam) char *dirnam;
         return(1);
     }
     return(0);
-#endif /* pdp11 */
 }
 
 int
@@ -3292,11 +3006,7 @@ zhome() {
       return((char *)ckroot);
 #endif /* CKROOT */
 
-#ifdef Plan9
-    home = getenv("home");
-#else
     home = getenv("HOME");
-#endif /* Plan9 */
     makestr(&zhomdir,home);
     return(home ? zhomdir : ".");
 }
@@ -3314,20 +3024,9 @@ zhome() {
   and therefore no safeguard against memory leaks.
 */
 #ifndef USE_GETWD
-#ifdef BSD42
-#define USE_GETWD
-#else
-#ifdef SUNOS4
-#define USE_GETWD
-#endif /* SUNOS4 */
-#endif /* BSD42 */
 #endif /* USE_GETWD */
 
-#ifdef pdp11
-#define CWDBL 80                        /* Save every byte we can... */
-#else
 #define CWDBL CKMAXPATH
-#endif /* pdp11 */
 static char cwdbuf[CWDBL+2];
 /*
   NOTE: The getcwd() prototypes are commented out on purpose.  If you get
@@ -3357,15 +3056,6 @@ _PROTOTYP( char * getcwd, (char *, SIZE_T) );
     if (!s) s = "./";
     return(s);
 #else
-#ifdef MINIX2
-#ifdef DCLGETCWD
-    _PROTOTYP( char * getcwd, (char *, SIZE_T) );
-#endif /* DCLGETCWD */
-    debug(F101,"zgtdir MINIX2 CWDBL","",CWDBL);
-    s = getcwd(buf,CWDBL);
-    if (!s) s = "./";
-    return(s);
-#else
 #ifdef SVORPOSIX
 #ifdef COMMENT
 /* This non-ANSI prototype can be fatal at runtime! (e.g. in SCO3.2v5.0.5). */
@@ -3381,34 +3071,8 @@ _PROTOTYP( char * getcwd, (char *, SIZE_T) );
     if (!s) s = "./";
     return(s);
 #else
-#ifdef COHERENT
-#ifdef _I386
-#ifdef DCLGETCWD
-    extern char *getcwd();
-#endif /* DCLGETCWD */
-    debug(F101,"zgtdir COHERENT _I386 CWDBL","",CWDBL);
-    s = getcwd(buf,CWDBL);
-    if (!s) s = "./";
-    return(s);
-#else
-    extern char *getwd();
-    debug(F101,"zgtdir COHERENT CWDBL","",CWDBL);
-    s = getwd(buf);
-    if (!s) s = "./";
-    return(s);
-#endif /* _I386 */
-#else
-#ifdef SUNOS4
-    debug(F101,"zgtdir SUNOS CWDBL","",CWDBL);
-    s = getcwd(buf,CWDBL);
-    if (!s) s = "./";
-    return(s);
-#else
     return("./");
-#endif /* SUNOS4 */
-#endif /* COHERENT */
 #endif /* SYSVORPOSIX */
-#endif /* MINIX2 */
 #endif /* BSD44 */
 #endif /* USE_GETWD */
 }
@@ -3491,35 +3155,20 @@ zxcmd(filnum,comand) int filnum; char *comand;
 /* Create a fork in which to run the named process */
 
     if ((
-#ifdef aegis
-         pid = vfork()                  /* child */
-#else
          pid = fork()                   /* child */
-#endif /* aegis */
          ) == 0) {
 
 /* We're in the fork. */
 
         char *shpath, *shname, *shptr;  /* Find user's preferred shell */
-#ifndef aegis
         struct passwd *p;
         char *defshell;
-#ifdef HPUX10                           /* Default shell */
-        defshell = "/usr/bin/sh";
-#else
-#ifdef Plan9
-        defshell = "/bin/rc";
-#else
         defshell = "/bin/sh";
-#endif /* Plan9 */
-#endif /* HPUX10 */
-#endif /* aegis */
         if (priv_can()) exit(1);        /* Turn off any privileges! */
         debug(F101,"zxcmd pid","",pid);
         close(pipes[0]);                /* close input side of pipe */
         close(0);                       /* close stdin */
         if (open("/dev/null",0) < 0) return(0); /* replace input by null */
-#ifndef OXOS
 #ifndef SVORPOSIX
         dup2(pipes[1],1);               /* BSD: replace stdout & stderr */
         dup2(pipes[1],2);               /* by the pipe */
@@ -3531,16 +3180,8 @@ zxcmd(filnum,comand) int filnum; char *comand;
         if (dup(pipes[1]) != 2)
           return(0);
 #endif /* SVORPOSIX */
-#else /* OXOS */
-        dup2(pipes[1],1);
-        dup2(pipes[1],2);
-#endif /* OXOS */
         close(pipes[1]);                /* Don't need this any more. */
 
-#ifdef aegis
-        if ((shpath = getenv("SERVERSHELL")) == NULL)
-          shpath = "/bin/sh";
-#else
         shpath = getenv("SHELL");       /* What shell? */
         if (shpath == NULL) {
             p = getpwuid( real_uid() ); /* Get login data */
@@ -3549,7 +3190,6 @@ zxcmd(filnum,comand) int filnum; char *comand;
               shpath = defshell;
             else shpath = p->pw_shell;
         }
-#endif /* aegis */
         shptr = shname = shpath;
         while (*shptr != '\0')
           if (*shptr++ == '/')
@@ -3574,11 +3214,7 @@ zxcmd(filnum,comand) int filnum; char *comand;
         if ((flags = fcntl(fileno(fp[filnum]),F_GETFL,0)) > -1) {
             debug(F101,"zxcmd fcntl 1 pipe flags","",flags);
             x = fcntl(fileno(fp[filnum]),F_SETFL, flags |
-#ifdef QNX
-                  O_NONBLOCK
-#else
                   O_NDELAY
-#endif /* QNX */
                   );
             debug(F101,"zxcmd fcntl 2 result","",x);
         }
@@ -3631,11 +3267,7 @@ zclosf(filnum) int filnum;
 
     if (pid != (PID_T) 0) {
         debug(F101,"zclosf killing pid","",pid);
-#ifdef Plan9
-        kill(pid, SIGKILL);
-#else
         kill(pid,9);
-#endif /* Plan9 */
 
 #ifndef CK_CHILD
 /*
@@ -3782,9 +3414,7 @@ zsetfil(n, fc) int n, fc;
 
 
 #ifndef NONZXPAND
-#ifndef pdp11
 static
-#endif /* pdp11 */
 #endif /* NONZXPAND */
 int
 #ifdef CK_ANSIC
@@ -4129,13 +3759,8 @@ isbackup(fn) char * fn; {		/* Get backup suffix number */
   version number of "xxxx" is used.  Returns a pointer to the new name in
   argument s.
 */
-#ifdef pdp11
-#define ZNEWNBL 63                      /* Name buffer length */
-#define ZNEWNMD 3                       /* Max digits for version number */
-#else
 #define ZNEWNBL CKMAXPATH
 #define ZNEWNMD 4
-#endif /* pdp11 */
 
 #define MAXBUDIGITS 5
 
@@ -4603,11 +4228,7 @@ zsetperm(f,code) char * f; int code;
 #endif /* CK_ANSIC */
 {
     int x;
-#ifdef CK_SCO32V4
-    mode_t mask;
-#else
     int mask;
-#endif /* CK_SCO32V4 */
     mask = code;
     if (inserver && guest) {
 	debug(F110,"zsetperm guest",f,0);
@@ -4731,13 +4352,9 @@ ziperm(f) char * f;
         break;
 #endif /* S_IFSOCK */
 #ifdef S_IFIFO
-#ifndef Plan9
-#ifndef COHERENT
       case S_IFIFO:                     /* FIFO */
         *s++ = 'p';
         break;
-#endif /* COHERENT */
-#endif /* Plan9 */
 #endif /* S_IFIFO */
 #ifdef S_IFWHT
       case S_IFWHT:                     /* Whiteout */
@@ -4801,11 +4418,7 @@ ziperm(f) char * f;
     else
       *s++ = '-';
     switch (
-#ifdef Plan9
-            perms & (S_IXOTH)
-#else
             perms & (S_IXOTH | S_ISVTX)
-#endif
             ) {
       case 0:
         *s++ = '-';
@@ -4813,14 +4426,12 @@ ziperm(f) char * f;
       case S_IXOTH:
         *s++ = 'x';
         break;
-#ifndef Plan9
       case S_ISVTX:
         *s++ = 'T';
         break;
       case S_IXOTH | S_ISVTX:
         *s++ = 't';
         break;
-#endif /* Plan9 */
     }
     *s = '\0';
     debug(F110,"ziperm",xsperms,0);
@@ -4967,20 +4578,13 @@ zdtstr(timearg) time_t timearg;
     if (ss < 0 || ss  > 59)             /* Some systems give a BIG number */
       ss = 0;
     sprintf(datbuf,
-#ifdef pdp11
-/* For some reason, 2.1x BSD sprintf gets the last field wrong. */
-            "%04d%02d%02d %02d:%02d:00",
-#else
             "%04d%02d%02d %02d:%02d:%02d",
-#endif /* pdp11 */
             yy,
             time_stamp->tm_mon + 1,
             time_stamp->tm_mday,
             time_stamp->tm_hour,
             time_stamp->tm_min
-#ifndef pdp11
             , ss
-#endif /* pdp11 */
             );
     yy = (int)strlen(datbuf);
     debug(F111,"zdatstr",datbuf,yy);
@@ -5078,31 +4682,11 @@ zstrdt( char * date, int len )
 zstrdt(date,len) char * date; int len;
 #endif /* CK_ANSIC */
 {
-#ifdef M_UNIX
-/*
-  SCO UNIX 3.2v2.0 and ODT 2.0 lack prototypes for ftime().
-  ODT 3.0 (3.2v4.2 OS) has a prototype, which may vary in
-  dependence on the XPG4 supplement presence.  So always use
-  what the system header file supplies in ODT 3.0...
-*/
-#ifndef ODT30
-#ifndef _SCO_DS
-    extern void ftime();  /* extern void ftime(struct timeb *) */
-#endif /* _SCO_DS */
-#endif /* ODT30 */
-#else
-#ifndef M_XENIX
 #ifndef __APPLE__
     extern int ftime();
 #endif
-#endif /* M_XENIX */
-#endif /* M_UNIX */
 
     /* And this should have been declared always through a header file */
-#ifdef HPUX10
-    time_t tmx;
-    long days;
-#else
 #ifdef BSD44
     time_t tmx;
     long days;
@@ -5114,7 +4698,6 @@ zstrdt(date,len) char * date; int len;
     long tmx, days;
 #endif /* LINUX */
 #endif /* BSD44 */
-#endif /* HPUX10 */
     int i, n, isleapyear;
                    /*       J  F  M  A   M   J   J   A   S   O   N   D   */
                    /*      31 28 31 30  31  30  31  31  30  31  30  31   */
@@ -5150,9 +4733,6 @@ zstrdt(date,len) char * date; int len;
     static struct timeb tbp;
 #endif /* ANYBSD */
 
-#ifdef BEBOX
-    long timezone = 0L;
-#endif /* BEBOX */
 
     debug(F111,"zstrdt",date,len);
 
@@ -5289,24 +4869,11 @@ zstrdt(date,len) char * date; int len;
 #ifdef ANYBSD
             tmx += timezone;
 #else
-#ifndef CONVEX9 /* Don't yet know how to do this here */
-#ifdef ultrix
-            tmx += (long) timezone;
-#else
-#ifdef Plan9
-            {
-                extern time_t tzoffset;
-                tmx += tzoffset;
-            }
-#else
 #ifndef BSD44
 #ifndef NOTIMEZONE
             tmx += timezone;
 #endif	/* NOTIMEZONE */
 #endif /* BSD44 */
-#endif /* Plan9 */
-#endif /* ultrix */
-#endif /* CONVEX9 */
 #endif /* ANYBSD */
 #endif /* COMMENT (was BSD44) */
             tmx += n * 60L;
@@ -5373,31 +4940,11 @@ zlocaltime( char * gmtstring )
 zlocaltime(gmtstring) char * gmtstring;
 #endif /* CK_ANSIC */
 {
-#ifdef M_UNIX
-/*
-  SCO UNIX 3.2v2.0 and ODT 2.0 lack prototypes for ftime().
-  ODT 3.0 (3.2v4.2 OS) has a prototype, which may vary in
-  dependence on the XPG4 supplement presence.  So always use
-  what the system header file supplies in ODT 3.0...
-*/
-#ifndef ODT30
-#ifndef _SCO_DS
-    extern void ftime();  /* extern void ftime(struct timeb *) */
-#endif /* _SCO_DS */
-#endif /* ODT30 */
-#else
-#ifndef M_XENIX
 #ifndef __APPLE__    
     extern int ftime();
 #endif /* __APPLE__*/
-#endif /* M_XENIX */
-#endif /* M_UNIX */
 
     /* And this should have been declared always through a header file */
-#ifdef HPUX10
-    time_t tmx;
-    long days;
-#else
 #ifdef BSD44
     time_t tmx;
     long days;
@@ -5409,7 +4956,6 @@ zlocaltime(gmtstring) char * gmtstring;
     long tmx, days;
 #endif /* LINUX */
 #endif /* BSD44 */
-#endif /* HPUX10 */
     int i, n, x, isleapyear;
                    /*       J  F  M  A   M   J   J   A   S   O   N   D   */
                    /*      31 28 31 30  31  30  31  31  30  31  30  31   */
@@ -5755,11 +5301,7 @@ zstime(f,yy,x) char *f; struct zattr *yy; int x;
 #endif /* DEBUG */
         } else if (!flag && yy->gprotect.len > 0) {
             int g;
-#ifdef CK_SCO32V4
-            mode_t mask;
-#else
             int mask;
-#endif /* CK_SCO32V4 */
             mask = umask(0);            /* Get umask */
             debug(F101,"zstime mask 1","",mask);
             umask(mask);                /* Put it back */
@@ -5964,19 +5506,11 @@ zmail(p,f) char *p; char *f; {          /* Send file f as mail to address p */
     if (n > ZMBUFLEN)
       return(-2);
 
-#ifdef DGUX540
-    sprintf(zmbuf,"mailx -s %c%s%c %s < %s", '"', f, '"', p, f);
-#else
     sprintf(zmbuf,"Mail -s %c%s%c %s < %s", '"', f, '"', p, f);
-#endif /* DGUX540 */
     zsyscmd(zmbuf);
 #else
 #ifdef SVORPOSIX
-#ifndef OXOS
     sprintf(zmbuf,"mail %s < %s", p, f);
-#else /* OXOS */
-    sprintf(zmbuf,"mailx -s %c%s%c %s < %s", '"', f, '"', p, f);
-#endif /* OXOS */
     zsyscmd(zmbuf);
 #else
     *zmbuf = '\0';
@@ -6135,9 +5669,6 @@ static int xpatwild = 0;                /* Original pattern is wild */
 static int xleafwild = 0;               /* Last segment of pattern is wild */
 static int xpatabsolute = 0;
 
-#ifdef aegis
-static char bslash;
-#endif /* aegis */
 
 
 /*  S P L I T P A T H  */
@@ -6192,21 +5723,6 @@ splitpath(p) char *p;
           prv -> fwd = cur;
         prv = cur;                      /* Link from previous to this one */
 
-#ifdef aegis
-        /* treat backslash as "../" */
-        if (bslash && *p == bslash) {
-            strcpy(cur->npart, "..");	/* safe */
-            ++p;
-        } else {
-            for (i=0; i < CKMAXNAM && *p && *p != '/' && *p != bslash; i++)
-              cur -> npart[i] = *p++;
-            cur -> npart[i] = '\0';     /* end this segment */
-            if (i >= CKMAXNAM)
-              while (*p && *p != '/' && *p != bslash)
-                p++;
-        }
-        if (*p == '/') p++;
-#else
         /* General case (UNIX) */
         for (i = 0; i < CKMAXNAM && !ISDIRSEP(*p) && *p != '\0'; i++) {
             cur -> npart[i] = *p++;
@@ -6218,7 +5734,6 @@ splitpath(p) char *p;
         if (ISDIRSEP(*p))
           p++;
 
-#endif /* aegis */
     }
     if (prv) {
         makestr(&xpatlast,prv -> npart);
@@ -6267,34 +5782,6 @@ fgen(pat,resarry,len) char *pat,*resarry[]; int len;
     char *sptr, *s;
     int n;
 
-#ifdef aegis
-    char *namechars;
-    int tilde = 0, bquote = 0;
-
-    if ((namechars = getenv("NAMECHARS")) != NULL) {
-        if (ckstrchr(namechars, '~' ) != NULL) tilde  = '~';
-        if (ckstrchr(namechars, '\\') != NULL) bslash = '\\';
-        if (ckstrchr(namechars, '`' ) != NULL) bquote = '`';
-    } else {
-        tilde = '~'; bslash = '\\'; bquote = '`';
-    }
-    sptr = scratch;
-
-    /* copy "`node_data", etc. anchors */
-    if (bquote && *pat == bquote)
-      while (*pat && *pat != '/' && *pat != bslash)
-        *sptr++ = *pat++;
-    else if (tilde && *pat == tilde)
-      *sptr++ = *pat++;
-    while (*pat == '/')
-      *sptr++ = *pat++;
-    if (sptr == scratch) {
-        strcpy(scratch,"./");		/* safe */
-        sptr = scratch+2;
-    }
-    if (!(head = splitpath(pat))) return(-1);
-
-#else /* not aegis */
 
     debug(F111,"fgen pat",pat,len);
     debug(F110,"fgen current directory",zgtdir(),0);
@@ -6320,7 +5807,6 @@ fgen(pat,resarry,len) char *pat,*resarry[]; int len;
     }
 #endif /* COMMENT */
     *sptr = '\0';
-#endif /* aegis */
 
     makestr(&xpat,pat);                 /* Save copy of original pattern */
     debug(F110,"fgen scratch",scratch,0);
@@ -6357,17 +5843,7 @@ fgen(pat,resarry,len) char *pat,*resarry[]; int len;
 /* Define LONGFN (long file names) automatically for BSD 2.9 and 4.2 */
 /* LONGFN can also be defined on the cc command line. */
 
-#ifdef BSD29
-#ifndef LONGFN
-#define LONGFN
-#endif
-#endif
 
-#ifdef BSD42
-#ifndef LONGFN
-#define LONGFN
-#endif
-#endif
 
 /*
    T R A V E R S E  --  Traverse a directory tree.
@@ -6640,23 +6116,8 @@ traverse(pl,sofar,endcur) struct path *pl; char *sofar, *endcur;
           /* routine when the file doesn't exist... */
 
           if (          /* There  actually is an inode... */
-#ifdef BSD42
-                         dirbuf->d_ino != -1
-#else
 #ifdef unos
                          dirbuf->d_ino != -1
-#else
-#ifdef QNX
-                         dirbuf->d_stat.st_ino != 0
-#else
-#ifdef SOLARIS
-                         dirbuf->d_ino != 0
-#else
-#ifdef sun
-                         dirbuf->d_fileno != 0
-#else
-#ifdef bsdi
-                         dirbuf->d_fileno != 0
 #else
 #ifdef __386BSD__
                          dirbuf->d_fileno != 0
@@ -6664,23 +6125,10 @@ traverse(pl,sofar,endcur) struct path *pl; char *sofar, *endcur;
 #ifdef __FreeBSD__
                          dirbuf->d_fileno != 0
 #else
-#ifdef ultrix
-                         dirbuf->gd_ino != 0
-#else
-#ifdef Plan9
-                         1
-#else
                          dirbuf->d_ino != 0
-#endif /* Plan9 */
-#endif /* ultrix */
 #endif /* __FreeBSD__ */
 #endif /* __386BSD__ */
-#endif /* bsdi */
-#endif /* sun */
-#endif /* SOLARIS */
-#endif /* QNX */
 #endif /* unos */
-#endif /* BSD42 */
               )
             exists = 1;
           if (!exists)
@@ -7026,11 +6474,7 @@ match(pattern, string) char *pattern, *string; {
 char *
 whoami() {
 #ifdef DTILDE
-#ifdef pdp11
-#define WHOLEN 100
-#else
 #define WHOLEN 257
-#endif /* pdp11 */
     static char realname[UIDBUFLEN+1];  /* user's name */
     static int ruid = -1;               /* user's real uid */
     char loginname[UIDBUFLEN+1], envname[256]; /* temp storage */
@@ -7097,11 +6541,7 @@ tilde_expand(dirname) char *dirname;
 #endif /* CK_ANSIC */
 {
 #ifdef DTILDE
-#ifdef pdp11
-#define BUFLEN 100
-#else
 #define BUFLEN 257
-#endif /* pdp11 */
     struct passwd *user;
     static char olddir[BUFLEN+1];
     static char oldrealdir[BUFLEN+1];
@@ -7179,10 +6619,6 @@ zsyscmd( char *s )
 zsyscmd(s) char *s;
 #endif /* CK_ANSIC */
 {
-#ifdef aegis
-    if (nopush) return(-1);
-    if (!priv_chk()) return(system(s));
-#else
     PID_T shpid;
 #ifdef COMMENT
 /* This doesn't work... */
@@ -7203,34 +6639,16 @@ zsyscmd(s) char *s;
         _exit(255);
     }
     restorsigs();			/* Restore ignored signals */
-#ifdef HPUX10
-    execl("/usr/bin/sh","sh","-c",s,NULL);
-    perror("/usr/bin/sh");
-#else
-#ifdef Plan9
-    execl("/bin/rc", "rc", "-c", s, NULL);
-    perror("/bin/rc");
-#else
     execl("/bin/sh","sh","-c",s,NULL);
     perror("/bin/sh");
-#endif /* Plan9 */
-#endif /* HPUX10 */
     _exit(255);
     return(0);                          /* Shut up ANSI compilers. */
-#endif /* aegis */
 }
 
 
 /*  Z _ E X E C  --  Overlay ourselves with another program  */
 
 #ifndef NOZEXEC
-#ifdef HPUX5
-#define NOZEXEC
-#else
-#ifdef ATT7300
-#define NOZEXEC
-#endif /* ATT7300 */
-#endif /* HPUX5 */
 #endif /* NOZEXEC */
 
 VOID
@@ -7296,26 +6714,10 @@ zshcmd(s) char *s;
 
     debug(F110,"zshcmd command",s,0);
 
-#ifdef aegis
-    if ((pid = vfork()) == 0) {         /* Make child quickly */
-        char *shpath, *shname, *shptr;  /* For finding desired shell */
-
-        if (priv_can()) exit(1);        /* Turn off privs. */
-        if ((shpath = getenv("SHELL")) == NULL) shpath = "/com/sh";
-
-#else                                   /* All Unix systems */
     if ((pid = fork()) == 0) {          /* Make child */
         char *shpath, *shname, *shptr;  /* For finding desired shell */
         struct passwd *p;
-#ifdef HPUX10                           /* Default */
-        char *defshell = "/usr/bin/sh";
-#else
-#ifdef Plan9
-        char *defshell = "/bin/rc";
-#else
         char *defshell = "/bin/sh";
-#endif /* Plan9 */
-#endif /* HPUX10 */
         if (priv_can()) exit(1);        /* Turn off privs. */
 #ifdef COMMENT
 /* Old way always used /etc/passwd shell */
@@ -7348,7 +6750,6 @@ zshcmd(s) char *s;
 	    }
         }
 #endif /* COMMENT */
-#endif /* aegis */
         shptr = shname = shpath;
         while (*shptr != '\0')
           if (*shptr++ == DIRSEP)
@@ -8199,9 +7600,6 @@ sgetpwnam(name) char *name;
     register struct spwd *sp;
 #endif /* CK_SHADOW */
 
-#ifdef HPUX10_TRUSTED
-    struct pr_passwd *pr;
-#endif /* HPUX10_TRUSTED */
 
 #ifdef CK_SHADOW
     sp = getspnam(name);
@@ -8211,10 +7609,6 @@ sgetpwnam(name) char *name;
     }
 #endif /* CK_SHADOW */
 
-#ifdef HPUX10_TRUSTED
-    if ((pr = getprpwnam(name)) == NULL)
-      return(NULL);
-#endif /* HPUX10_TRUSTED */
 
     p = getpwnam(name);
     /* debug(F111,"sgetpwnam","getpwnam()",p); */
@@ -8232,14 +7626,7 @@ sgetpwnam(name) char *name;
 #ifdef CK_SHADOW
     save.pw_passwd = sgetsave(sp->sp_pwdp);
 #else /* CK_SHADOW */
-#ifdef HPUX10_TRUSTED
-    if (pr->uflg.fg_encrypt && pr->ufld.fd_encrypt && *pr->ufld.fd_encrypt)
-      save.pw_passwd = sgetsave(pr->ufld.fd_encrypt);
-    else
-      save.pw_passwd = sgetsave("");
-#else /* HPUX10_TRUSTED */
     save.pw_passwd = sgetsave(p->pw_passwd);
-#endif /* HPUX10_TRUSTED */
 #endif /* CK_SHADOW */
     save.pw_gecos = sgetsave(p->pw_gecos);
     save.pw_dir = sgetsave(p->pw_dir);
@@ -8746,16 +8133,12 @@ _PROTOTYP(int initgroups, (const char *, gid_t) );
         else
           salt = pw->pw_passwd;
 
-#ifdef HPUX10_TRUSTED
-        xpasswd = bigcrypt(p, salt);
-#else
 /*
   On 64-bit platforms this can give "cast to pointer from integer of
   different size" warning, but I'm not sure what the effect is at runtime,
   or what to do about it.
  */
         xpasswd = (char *)crypt(p, salt);
-#endif /* HPUX10_TRUSTED */
 
         if (
 #ifdef FTP_KERBEROS

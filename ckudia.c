@@ -99,9 +99,7 @@ The remaining steps are in this module:
 #define M_ALIAS 64
 #endif /* M_ALIAS */
 
-#ifndef MAC
 #include <signal.h>
-#endif /* MAC */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckucmd.h"
@@ -130,44 +128,8 @@ static int dialfail( int );
 
 #include "ckcfnp.h"                     /* Prototypes (must be last) */
 
-#ifdef MAC
-#define signal msignal
-#define SIGTYP long
-#define alarm malarm
-#define SIG_IGN 0
-#define SIGALRM 1
-#define SIGINT  2
-SIGTYP (*msignal(int type, SIGTYP (*func)(int)))(int);
-#endif /* MAC */
 
-#ifdef AMIGA
-#define signal asignal
-#define alarm aalarm
-#define SIGALRM (_NUMSIG+1)
-#define SIGTYP void
-SIGTYP (*asignal(int type, SIGTYP (*func)(int)))(int);
-unsigned aalarm(unsigned);
-#endif /* AMIGA */
 
-#ifdef STRATUS
-/*
-  VOS doesn't have alarm(), but it does have some things we can work with.
-  However, we have to catch all the signals in one place to do this, so
-  we intercept the signal() routine and call it from our own replacement.
-*/
-#define signal vsignal
-#define alarm valarm
-SIGTYP (*vsignal(int type, SIGTYP (*func)(int)))(int);
-int valarm(int interval);
-#ifdef putchar
-#undef putchar
-#endif /* putchar */
-#define putchar(x) conoc(x)
-#ifdef getchar
-#undef getchar
-#endif /* getchar */
-#define getchar(x) coninc(0)
-#endif /* STRATUS */
 
 
 #ifndef NOHINTS
@@ -1610,11 +1572,7 @@ MDMINF USR =				/* USR Courier and Sportster modems */
     35,					/* dial_time */
     ",",				/* pause_chars */
     2,					/* pause_time */
-#ifdef SUNOS4
-    "ATQ0X4&A3&S0&N0&Y3S14=0\015",	/* wake_str -- needs &S0 in SunOS */
-#else
     "ATQ0X4&A3&N0&Y3S14=0\015",		/* wake_str */
-#endif /* SUNOS4 */
     0,					/* wake_rate */
     "OK\015",				/* wake_prompt */
     "",					/* dmode_str */
@@ -4105,25 +4063,10 @@ dialtime(foo) int foo;			/* Timer interrupt handler */
 
     fail_code = F_TIME;			/* Failure reason = timeout */
     debug(F100,"dialtime caught SIGALRM","",0);
-#ifdef BEBOX
-#ifdef BE_DR_7
-    alarm_expired();
-#endif /* BE_DR_7 */
-#endif /* BEBOX */
 #ifdef __EMX__
     signal(SIGALRM, SIG_ACK);		/* Needed for OS/2 */
 #endif /* __EMX__ */
 
-#ifdef OSK				/* OS-9 */
-/*
-  We are in an intercept routine but do not perform a F$RTE (done implicitly
-  by RTS), so we have to decrement the sigmask as F$RTE does.  Warning:
-  longjump only restores the CPU registers, NOT the FPU registers.  So, don't
-  use FPU at all or at least don't use common FPU (double or float) register
-  variables.
-*/
-    sigmask(-1);
-#endif /* OSK */
 
     cklongjmp(sjbuf,1);
     /* NOTREACHED */
@@ -4142,9 +4085,6 @@ dialint(foo) int foo;
 #ifdef __EMX__
     signal(SIGINT, SIG_ACK);		/* Needed for OS/2 */
 #endif /* __EMX__ */
-#ifdef OSK				/* OS-9, see comment in dialtime() */
-    sigmask(-1);
-#endif /* OSK */
     cklongjmp(sjbuf,1);
     SIGRETURN;
 }
@@ -4736,57 +4676,6 @@ _dodial(threadinfo) VOID * threadinfo;
 	}
     }
 #ifndef MINIDIAL
-#ifdef ATT7300
-    if (mymdmtyp == n_ATTUPC) {
-/*
-  For ATT7300/Unix PC's with their special internal modem.  Whole dialing
-  process is handled right here, an exception to the normal structure.
-  Timeout and user interrupts are enabled during dialing.  attdial() is in
-  file ckutio.c.  - jrd
-*/
-        _PROTOTYP( int attdial, (char *, long, char *) );
-	fail_code = F_MODEM;		/* Default failure code */
-	dial_what = DW_DIAL;
-	if (dialdpy) {			/* If showing progress */
-	    p = ck_time();		/* get current time; */
-	    if (*p)
-	      printf(" Dialing: %s...\n",p);
-	}
-	alarm(waitct);			/* Set alarm */
-	if (attdial(ttname,speed,telnbr)) { /* dial internal modem */
-	    dreset();			/* reset alarms, etc. */
-	    printf(" Call failed.\r\n");
-	    dialhup();	        	/* Hangup the call */
-#ifdef DYNAMIC
-	    if (rbuf) free(rbuf); rbuf = NULL;
-	    if (fbuf) free(fbuf); fbuf = NULL;
-#endif /* DYNAMIC */
-	    dialsta = DIA_UERR;
-	    SIGRETURN;			/* return failure */
-	}
-	dreset();			/* reset alarms, etc. */
-	ttpkt(speed,FLO_DIAX,parity);	/* cancel dialing ioctl */
-	if (!quiet && !backgrd) {
-	    if (dialdpy) {
-		printf("\n");
-		printf(" Call complete.\r\n");
-	    } else if (modemmsg[0])
-		printf(" Call complete: \"%s\".\r\n",(char *)modemmsg);
-	    else
-	      printf(" Call complete.\r\n");
-	}
-#ifdef CKLOGDIAL
-	dologdial(telnbr);
-#endif /* CKLOGDIAL */
-
-	dialsta = DIA_OK;
-#ifdef DYNAMIC
-	if (rbuf) free(rbuf); rbuf = NULL;
-	if (fbuf) free(fbuf); fbuf = NULL;
-#endif /* DYNAMIC */
-	SIGRETURN;	/* No conversation with modem to complete dialing */
-    } else
-#endif /* ATT7300 */
 #ifdef CK_TAPI
       if (tttapi && !tapipass) {	/* TAPI Dialing */
 	  switch (func_code) {
@@ -5671,11 +5560,6 @@ _dodial(threadinfo) VOID * threadinfo;
 		    dialsta = DIA_NOAC;
 		}
 #ifdef DEBUG
-#ifdef ATT6300
-		/* Horrible hack lost in history. */
-		else if (deblog && didweget(lbuf,"~~"))
-		  mdmstat = CONNECTED;
-#endif /* ATT6300 */
 #endif /* DEBUG */
 		break;
 
@@ -6170,9 +6054,6 @@ ckdial(nbr, x1, x2, fc, redial) char *nbr; int x1, x2, fc, redial;
 #ifdef UNIX
 	&& (strcmp(ttname,"/dev/null"))
 #else
-#ifdef OSK
-	&& (strcmp(ttname,"/nil"))
-#endif /* OSK */
 #endif /* UNIX */
 #ifdef CK_TAPI
 	     && !tttapi
@@ -6379,15 +6260,11 @@ ckdial(nbr, x1, x2, fc, redial) char *nbr; int x1, x2, fc, redial;
 	    else
 	      printf(" (none)\n");
 	    printf(
-#ifdef MAC
-	       " Type Command-. to cancel.\n"
-#else
 #ifdef UNIX
 	       " To cancel: type your interrupt character (normally Ctrl-C).\n"
 #else
 	       " To cancel: type Ctrl-C (hold down Ctrl, press C).\n"
 #endif /* UNIX */
-#endif /* MAC */
 	       );
         }
     }
@@ -6438,9 +6315,6 @@ oktimo(foo) int foo;			/* Alarm handler for getok(). */
 /* oktimo */ {
 
 
-#ifdef OSK				/* OS-9, see comment in dialtime(). */
-    sigmask(-1);
-#endif /* OSK */
     cklongjmp(okbuf,1);
     /* NOTREACHED */
     SIGRETURN;

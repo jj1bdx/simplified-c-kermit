@@ -78,16 +78,11 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 
 /* These will no doubt need adjustment... */
 
-#ifndef NEXT
 #define HAVE_SETSID
-#endif /* NEXT */
 #define HAVE_KILLPG
 #define HAVE_TTYNAME
 #define HAVE_WAITPID
 
-#ifdef SUNOS41
-#define BSD44ORPOSIX
-#endif	/* SUNOS41 */
 
 #ifndef USE_TERMIO
 #ifdef LINUX
@@ -96,42 +91,19 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #ifdef ATTSV
 #define USE_TERMIO
 #else
-#ifdef HPUX
-#define USE_TERMIO
-#else
-#ifdef AIX
-#define USE_TERMIO
-#else
 #ifdef BSD44ORPOSIX
 #define USE_TERMIO
 #else
-#ifdef IRIX60
-#define USE_TERMIO
-#else
-#ifdef QNX
-#define USE_TERMIO
-#endif /* QNX */
-#endif /* IRIX60 */
 #endif /* BSD44ORPOSIX */
-#endif /* AIX */
-#endif /* HPUX */
 #endif /* ATTSV */
 #endif /* LINUX */
 #endif /* USE_TERMIO */
 
-#ifdef QNX
-#include <fcntl.h>
-#endif /* QNX */
 
 #ifdef USE_TERMIO
 #define POSIX_TERMIOS			/* Seems to be a misnomer */
 #endif /* USE_TERMIO */
 
-#ifdef NEXT
-#ifndef GETPGRP_ONEARG
-#define GETPGRP_ONEARG
-#endif /* GETPGRP_ONEARG */
-#endif /* NEXT */
 
 #ifdef WANT_UTMP			/* See ckupty.h */
 /*
@@ -140,29 +112,6 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
   in, we're just running a process, and don't need to write utmp/wtmp records.
 */
 #ifndef HAVE_SETUTXENT			/* Who has <utmpx.h> */
-#ifdef SOLARIS
-#define HAVE_SETUTXENT
-#else
-#ifdef IRIX60
-#define HAVE_SETUTXENT
-#else
-#ifdef CK_SCOV5
-#define HAVE_SETUTXENT
-#else
-#ifdef HPUX10
-#define HAVE_SETUTXENT
-#else
-#ifdef UNIXWARE
-#define HAVE_SETUTXENT
-#else
-#ifdef IRIX60
-#define HAVE_SETUTXENT
-#endif /* IRIX60 */
-#endif /* UNIXWARE */
-#endif /* HPUX10 */
-#endif /* CK_SCOV5 */
-#endif /* IRIX60 */
-#endif /* SOLARIS */
 #endif /* HAVE_SETUTXENT */
 
 #ifndef HAVE_UTHOST			/* Does utmp include ut_host[]? */
@@ -172,13 +121,6 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #ifdef LINUX				/* Linux does */
 #define HAVE_UTHOST
 #else
-#ifdef SUNOS4				/* SunOS does */
-#define HAVE_UTHOST
-#else
-#ifdef AIX41				/* AIX 4.1 and later do */
-#define HAVE_UTHOST
-#endif /* AIX41 */
-#endif /* SUNOS4 */
 #endif /* LINUX */
 #endif /* HAVE_SETUTXENT */
 #endif /* HAVE_UTHOST */
@@ -199,34 +141,8 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #define HAVE_UPDWTMP
 #endif /* LINUX */
 
-#ifdef HPUX10
-#define CK_VHANGUP
-#define VHANG_FIRST
-#define HAVE_PTSNAME
-#ifndef HAVE_PTYTRAP
-#define HAVE_PTYTRAP
-#endif /* HAVE_PTYTRAP */
-#else
-#ifdef HPUX9
-#define CK_VHANGUP
-#define VHANG_FIRST
-#define HAVE_PTSNAME
-#ifndef HAVE_PTYTRAP
-#define HAVE_PTYTRAP
-#endif /* HAVE_PTYTRAP */
-#endif /* HPUX9 */
-#endif /* HPUX10 */
 
-#ifdef SUNOS4
-#define CK_VHANGUP
-#define NO_UT_PID
-#define VHANG_FIRST
-#endif /* SUNOS4 */
 
-#ifdef IRIX60
-#define CK_VHANGUP
-#define HAVE__GETPTY
-#endif /* IRIX60 */
 
 #ifdef SINIX
 #define HAVE_STREAMS
@@ -237,15 +153,7 @@ char * ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #define PUSH_TTCOMPAT
 #endif /* SINIX */
 
-#ifdef ultrix
-#define MUST_SETPGRP
-#endif /* ultrix */
 
-#ifdef QNX
-#define MUST_SETPGRP
-#define NO_DEVTTY
-#define INIT_SPTY
-#endif /* QNX */
 
 #ifdef LINUX
 #ifdef HAVE_PTMX
@@ -356,9 +264,6 @@ struct termbuf {
 
 #else  /* USE_TERMIO */
 
-#ifdef SYSV_TERMIO
-#define termios termio
-#endif /* SYSV_TERMIO */
 
 #ifndef TCSANOW
 
@@ -936,19 +841,13 @@ pty_initialize_slave (fd) int fd;
 #endif /* CK_ANSIC */
 {
 #ifdef POSIX_TERMIOS
-#ifndef ultrix
     struct termios new_termio;
-#else
-    struct sgttyb b;
-#endif /* ultrix */
 #else
     struct sgttyb b;
 #endif /* POSIX_TERMIOS */
     int pid;
 #ifdef POSIX_TERMIOS
-#ifndef ultrix
     int rc;
-#endif /* ultrix */
 #endif /* POSIX_TERMIOS */
 
     debug(F111,"pty_initialize_slave()","fd",fd);
@@ -992,7 +891,6 @@ pty_initialize_slave (fd) int fd;
 #endif /* TIOCSPGRP */
 
 #ifdef POSIX_TERMIOS
-#ifndef ultrix
     tcsetpgrp(fd, pid);
     errno = 0;
     rc = tcgetattr(fd,&new_termio);
@@ -1003,7 +901,6 @@ pty_initialize_slave (fd) int fd;
 	rc = tcsetattr(fd,TCSANOW,&new_termio);
 	debug(F111,"pty_initialize_slave tcsetattr(fd)",ckitoa(rc),errno);
     }
-#endif /* ultrix */
 #endif /* POSIX_TERMIOS */
     return(0L);
 }
@@ -1094,23 +991,6 @@ pty_open_ctty(slave, fd, fc) char * slave; int *fd; int fc;
 	debug(F111,"pty_open_ctty() open failure", slave, errno);
 	return(PTY_OPEN_SLAVE_OPENFAIL);
     }
-#ifdef SOLARIS
-    /* This forces the job to have a controlling terminal. */
-    close(*fd);
-    *fd = open(slave, O_RDWR);
-    debug(F111,"pty_open_ctty close/open(slave) fd",slave,*fd);
-#ifdef DEBUG
-    /* This shows that /dev/tty exists */
-if (deblog) {
-	int x;
-	x = open("/dev/tty", O_RDWR);
-	debug(F111,"pty_open_ctty open(/dev/tty) fd",slave,x);
-	if (x < 0) debug(F111,"pty_open_ctty open(/dev/tty) errno","",errno);
-	debug(F110,"pty_open_ctty ttyname(/dev/tty)",ttyname(x),0);
-	if (x > -1) close(x);
-    }
-#endif	/* DEBUG */
-#endif /* SOLARIS */
 
 #ifdef MUST_SETPGRP
     setpgrp(0, getpid());
@@ -1312,15 +1192,7 @@ pty_update_utmp(process_type, pid, username, line, host, flags)
     if (!strcmp (line, "/dev/console")) {
 	char * s = NULL;
 
-#ifdef sun
-#ifdef __SVR4
-	s = "co";
-#else
 	s = "cons";
-#endif /* __SVR4 */
-#else
-	s = "cons";
-#endif /* sun */
 
 	strncpy(ent.ut_id, s, 4);
 
@@ -1328,11 +1200,7 @@ pty_update_utmp(process_type, pid, username, line, host, flags)
 
 	tmpx = line + strlen(line)-1;
 	if (*(tmpx-1) != '/') tmpx--;	/* last 2 chars unless it's a '/' */
-#ifdef __hpux
-	ckstrncpy(utmp_id, tmpx, 5);
-#else
 	ckmakmsg(utmp_id,5,"kl",tmpx,NULL,NULL);
-#endif /* __hpux */
 	strncpy(ent.ut_id, utmp_id, sizeof(ent.ut_id));
     }
     strncpy(ent.ut_user, username, sizeof(ent.ut_user));
@@ -1387,12 +1255,7 @@ pty_update_utmp(process_type, pid, username, line, host, flags)
     utx.ut_exit.ut_exit = ent.ut_exit.e_exit;
 #else /* UT_EXIT_STRUCTURE_DIFFER */
 /* KLUDGE for now; eventually this will be a feature test... See PR#[40] */
-#ifdef __hpux
-    utx.ut_exit.__e_termination = ent.ut_exit.e_termination;
-    utx.ut_exit.__e_exit = ent.ut_exit.e_exit;
-#else /* __hpux */
     /* XXX do nothing for now; we don't even know the struct member exists */
-#endif /* __hpux */
 #endif /* UT_EXIT_STRUCTURE_DIFFER */
     utx.ut_tv.tv_sec = ent.ut_time;
     utx.ut_tv.tv_usec = 0;
@@ -1514,9 +1377,6 @@ ptyint_update_wtmp(ent,host,user) struct utmp *ent; char *host; char *user; {
     if ((fd = open(WTMP_FILE, O_WRONLY|O_APPEND, 0)) >= 0) {
 	if (!fstat(fd, &statb)) {
 	    memset((char *)&ut, 0, sizeof(ut));
-#ifdef __hpux
-	    strncpy(ut.ut_id, ent->ut_id, sizeof (ut.ut_id));
-#endif /* __hpux */
 	    strncpy(ut.ut_line, ent->ut_line, sizeof(ut.ut_line));
 	    strncpy(ut.ut_name, ent->ut_name, sizeof(ut.ut_name));
 #ifndef NO_UT_HOST
@@ -1531,11 +1391,7 @@ ptyint_update_wtmp(ent,host,user) struct utmp *ent; char *host; char *user; {
 	    if (ent->ut_name) {
 		if (!ut.ut_pid)
 		  ut.ut_pid = getpid();
-#ifndef __hpux
 		ut.ut_type = USER_PROCESS;
-#else  /* __hpux */
-		ut.ut_type = ent->ut_type;
-#endif /* __hpux */
 
 	    } else {
 
@@ -1551,11 +1407,7 @@ ptyint_update_wtmp(ent,host,user) struct utmp *ent; char *host; char *user; {
 
 	    if (write(fd, (char *)&ut, sizeof(struct utmp)) !=
 		sizeof(struct utmp))
-#ifndef COHERENT
 	      ftruncate(fd, statb.st_size);
-#else
-	      chsize(fd, statb.st_size);
-#endif /* COHERENT */
 	}
 	close(fd);
     }
@@ -1625,9 +1477,7 @@ getptyslave(fd, fc) int * fd, fc;
 #ifdef STREAMSPTY
     if (ioctl(t,I_PUSH,"pckt") < 0) {
         debug(F111,"getptyslave()","ioctl(I_PUSH) failed",errno);
-#ifndef _AIX
         fatal("I_PUSH pckt");
-#endif /* _AIX */
     }
 #endif /* STREAMSPTY */
 
@@ -1727,41 +1577,17 @@ getptyslave(fd, fc) int * fd, fc;
 
 	/* Settings for UNICOS and HPUX */
 
-#ifdef CRAY
-	termbuf.c_oflag = OPOST|ONLCR|TAB3;
-	termbuf.c_iflag = IGNPAR|ISTRIP|ICRNL|IXON;
-	termbuf.c_lflag = ISIG|ICANON|ECHO|ECHOE|ECHOK;
-	termbuf.c_cflag = EXTB|HUPCL|CS8;
-#else /* CRAY */
-#ifdef HPUX
-	termbuf.c_oflag = OPOST|ONLCR|TAB3;
-	termbuf.c_iflag = IGNPAR|ISTRIP|ICRNL|IXON;
-	termbuf.c_lflag = ISIG|ICANON|ECHO|ECHOE|ECHOK;
-	termbuf.c_cflag = EXTB|HUPCL|CS8;
-#else /* HPUX */
 #ifdef USE_TERMIO
 	/*
 	  Settings for all other termios/termio based systems, other than 
 	  4.4BSD.  In 4.4BSD the kernel does the initial terminal setup.
 	*/
-#ifdef BSD42
-#ifndef BSD44
 	termbuf.c_lflag |= ECHO|ICANON|IEXTEN|ISIG;
 	termbuf.c_oflag |= ONLCR|OXTABS|OPOST;
 	termbuf.c_iflag |= ICRNL|IGNPAR;
 	termbuf.c_cflag |= HUPCL;
 	termbuf.c_iflag &= ~IXOFF;
-#endif /* BSD44 */
-#else /* BSD42 */
-	termbuf.c_lflag |= ECHO|ICANON|IEXTEN|ISIG;
-	termbuf.c_oflag |= ONLCR|OXTABS|OPOST;
-	termbuf.c_iflag |= ICRNL|IGNPAR;
-	termbuf.c_cflag |= HUPCL;
-	termbuf.c_iflag &= ~IXOFF;
-#endif /* BSD42 */
 #endif /* USE_TERMIO */
-#endif /* HPUX */
-#endif /* CRAY */
     }
 
     /* Set the tty modes, and make this our controlling tty. */

@@ -156,11 +156,6 @@ COPYRIGHT NOTICE:
 */
 char *copyright[] = {
 
-#ifdef pdp11
-"Copyright (C) 1985, %s, Trustees of Columbia University, NYC.",
-"All rights reserved.",
-" ",
-#else
 "Copyright (C) 1985, %s,",
 "  The Trustees of Columbia University in the City of New York.",
 "  All rights reserved.",
@@ -192,15 +187,12 @@ char *copyright[] = {
 "THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT",
 "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE",
 "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.",
-#endif /* pdp11 */
 
 
 
-#ifndef pdp11
 " ",
 "For further information, visit the Kermit Project website:",
 "http://www.kermitproject.org/ .",
-#endif /* pdp11 */
 ""};
 
 /* Windows IKSD copyright used to be separate */
@@ -557,10 +549,6 @@ ACKNOWLEDGMENTS:
 
 #ifndef NOSERVER
 /* Text message definitions.. each should be 256 chars long, or less. */
-#ifdef MINIX
-char *srvtxt = "\r\n\
-Entering server mode.\r\n\0";
-#else
 #ifdef OLDMSG
 /*
   It seems there was a large installation that was using C-Kermit 5A(165)
@@ -575,23 +563,13 @@ commands from there.  To shut down the C-Kermit server, issue the\r\n\
 FINISH or BYE command and then reconnect.\n\
 \r\n\0";
 #else
-#ifdef OSK
-char *srvtxt = "\r\012\
-Entering server mode.  If your local Kermit software is menu driven, use\r\012\
-the menus to send commands to the server.  Otherwise, enter the escape\r\012\
-sequence to return to your local Kermit prompt and issue commands from\r\012\
-there. Use SEND and GET for file transfer. Use REMOTE HELP for a list of\r\012\
-other available services.  Use BYE or FINISH to end server mode.\r\012\0";
-#else /* UNIX, VMS, AOS/VS, and all others */
 char *srvtxt = "\r\n\
 Entering server mode.  If your local Kermit software is menu driven, use\r\n\
 the menus to send commands to the server.  Otherwise, enter the escape\r\n\
 sequence to return to your local Kermit prompt and issue commands from\r\n\
 there.  Use SEND and GET for file transfer.  Use REMOTE HELP for a list of\r\n\
 other available services.  Use BYE or FINISH to end server mode.\r\n\0";
-#endif /* OSK */
 #endif /* OLDMSG */
-#endif /* MINIX */
 #else  /* server mode disabled */
 char *srvtxt = "";
 #endif /* NOSERVER */
@@ -800,12 +778,6 @@ int atlpri = 1,
 int atfrmi = 1,                         /* Record Format in/out */
     atfrmo = 1;
 
-#ifdef STRATUS
-int atcrei = 1,                         /* Creator ID in/out */
-    atcreo = 1,
-    atacti = 1,                         /* Account in/out */
-    atacto = 1;
-#endif /* STRATUS */
 
 int sprmlen = -1;                       /* Send/Receive protocol parameter */
 int rprmlen = -1;                       /* string length limits */
@@ -835,31 +807,7 @@ char * cksysid =                        /* My system ID */
 #ifdef UNIX
     "U1"
 #else
-#ifdef OSK
-    "UD"
-#else
-#ifdef AMIGA
-    "L3"
-#else
-#ifdef MAC
-    "A3"
-#else
-#ifdef datageneral
-    "F3"
-#else
-#ifdef GEMDOS
-    "K2"
-#else
-#ifdef STRATUS
-    "MV"
-#else
     ""
-#endif /* STRATUS */
-#endif /* GEMDOS */
-#endif /* datageneral */
-#endif /* MAC */
-#endif /* AMIGA */
-#endif /* OSK */
 #endif /* UNIX */
     ;
 
@@ -893,28 +841,19 @@ int pktnum = 0,                         /* Current packet number */
 CHAR pktmsgbuf[PKTMSGLEN+1];
 CHAR *epktmsg = pktmsgbuf;
 
-#ifdef pdp11
-int srvcmdlen = MAXRP;                  /* srvcmd buffer length */
-#else
 #ifdef DYNAMIC
 int srvcmdlen = MAXRP;
 #else
 int srvcmdlen = 0;
 #endif /* DYNAMIC */
-#endif /* pdp11 */
 
 CHAR
-#ifdef pdp11
-    srvcmdbuf[MAXRP+4],
-    *srvcmd = srvcmdbuf,
-#else
 #ifdef DYNAMIC
     *srvcmd = (CHAR *)0,                /* Where to decode server command */
 #else
     srvcmdbuf[MAXRP+4],
     *srvcmd = srvcmdbuf,
 #endif /* DYNAMIC */
-#endif /* pdp11 */
     padbuf[96],                         /* Buffer for send-padding */
     *recpkt,
     *rdatap,                            /* Pointer to received packet data */
@@ -987,9 +926,6 @@ int wildena = 1;			/* Wildcard expansion enabled */
 #ifdef UNIX
 int wildxpand = 0;                      /* Who expands wildcards, 0=Kermit.. */
 #else /* UNIX */
-#ifdef STRATUS
-int wildxpand = 1;			/* 1=Shell. */
-#endif /* STRATUS */
 #endif /* UNIX */
 int matchdot = 0;                       /* Whether to match dot files */
 int matchfifo = 0;			/* Whether to match FIFO "files" */
@@ -1003,10 +939,6 @@ long ztmsec = -1L;                      /* Ditto */
 
 char ttname[TTNAMLEN+1];                /* Name of communication device */
 
-#ifdef MAC
-int connected = 0;                      /* True if connected */
-int startconnected;                     /* initial state of connected */
-#endif /* MAC */
 
 long speed = -1L;                       /* Communication device speed */
 int wasclosed = 0;                      /* Connection was just closed */
@@ -1067,17 +999,11 @@ int tcp_incoming = 0;                   /* Incoming TCP connection? */
 #ifdef TCPSOCKET
 int nettype = NET_TCPB;                 /* Default network type */
 #else
-#ifdef SUNX25
-int nettype = NET_SX25;
-#else
 #ifdef IBMX25
 int nettype = NET_IX25;
 #else
 #ifdef HPX25
 int nettype = NET_HX25;
-#else
-#ifdef STRATUSX25
-int nettype = NET_VX25;
 #else
 #ifdef DECNET
 int nettype = NET_DEC;
@@ -1088,10 +1014,8 @@ int nettype = NET_SLAT;
 int nettype = NET_NONE;
 #endif /* SUPERLAT */
 #endif /* DECNET */
-#endif /* STRATUSX25 */
 #endif /* HPX25 */
 #endif /* IBMX25 */
-#endif /* SUNX25 */
 #endif /* TCPSOCKET */
 #else  /* NETCONN */
 int nettype = NET_NONE;
@@ -1425,12 +1349,7 @@ int en_set = 3;                         /* SET */
 int en_spa = 3;                         /* SPACE */
 int en_typ = 3;                         /* TYPE */
 int en_who = 3;                         /* WHO */
-#ifdef datageneral
-/* Data General AOS/VS can't do this */
-int en_bye = 0;                         /* BYE */
-#else
 int en_bye = 2;                         /* PCs in local mode... */
-#endif /* datageneral */
 int en_asg = 3;                         /* ASSIGN */
 int en_que = 3;                         /* QUERY */
 int en_ret = 2;                         /* RETRIEVE */
@@ -1492,9 +1411,6 @@ _PROTOTYP( int getiobs, (VOID) );
 #include <setjmp.h>
 #include "ckcsig.h"
 ckjmpbuf cmjbuf;
-#ifdef GEMDOS                           /* Special for Atari ST */
-cc_clean();                             /* This can't be right? */
-#endif /* GEMDOS */
 #endif /* NOCCTRAP */
 
 #ifdef TIMEH
@@ -1592,44 +1508,6 @@ isabsolute(path) char * path;
         )
       rc = 1;
 #else /* def UNIX */
-#ifdef AMIGA
-    if (*path == '/'
-#ifdef DTILDE
-        || *path == '~'
-#endif /* DTILDE */
-        )
-      rc = 1;
-#else /* def AMIGA */
-#ifdef OSK
-    if (*path == '/'
-#ifdef DTILDE
-        || *path == '~'
-#endif /* DTILDE */
-        )
-      rc = 1;
-#else /* def OSK */
-#ifdef datageneral
-    if (*path == ':')
-      rc = 1;
-#else /* def datageneral */
-#ifdef MAC
-    rc = 0;                             /* Fill in later... */
-#else /* def MAC */
-#ifdef STRATUS
-    rc = 0;                             /* Fill in later... */
-#else /* def STRATUS */
-#ifdef GEMDOS
-    if (*path == '/' || *path == '\\')
-      rc = 1;
-    else if (isalpha(*path) && x > 1)
-      if (*(path+1) == ':')
-        rc = 1;
-#endif /* GEMDOS */
-#endif /* STRATUS */
-#endif /* MAC */
-#endif /* datageneral */
-#endif /* OSK */
-#endif /* AMIGA */
 #endif /* UNIX */
     debug(F101,"isabsolute rc","",rc);
     return(rc);
@@ -1687,15 +1565,10 @@ VOID
 initflow()
 #endif /* CK_ANSIC */
 {                                       /* Default values for flow control */
-#ifdef HPUX
-    /* Ditto for HP-UX */
-    cxflow[CXT_REMOTE]  = FLO_XONX;     /* Remote mode... */
-#else
     /* The temptation is to make this one FLO_KEEP but don't!!! */
     /* It totally wrecks binary-file transfer when coming in via Telnet. */
     /* In UNIX at least... */
     cxflow[CXT_REMOTE]  = FLO_NONE;
-#endif /* HPUX */
 
     cxflow[CXT_DIRECT]  = FLO_NONE;
 
@@ -1993,9 +1866,6 @@ failcmdline(void * foo)
 failcmdline(foo) VOID * foo;
 #endif /* CK_ANSIC */
 {
-#ifdef GEMDOS
-    cc_clean();
-#endif /* GEMDOS */
 #ifndef NOLOCAL
     if (cnflg) doconect(0,0);           /* connect again if requested. */
     if (ttchk() < 0)
@@ -2046,9 +1916,6 @@ failtakeini(void * threadinfo)
 failtakeini(threadinfo) VOID * threadinfo;
 #endif /* CK_ANSIC */
 /* failtakeini */ {
-#ifdef GEMDOS
-    cc_clean();                         /* Atari: Clean up after ^C-trap. */
-#endif /* GEMDOS */
     fixcmd();
     if (!cfilef) {
         conoll("Interrupted during initialization or \
@@ -2067,36 +1934,6 @@ doicp(threadinfo) VOID * threadinfo;
 /* doicp */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
-#ifdef MAC
-    while (1) {
-        extern char *lfiles;            /* Fake pointer cast */
-
-        if (connected) {
-            debug(F100, "doicp: calling macparser", "", 0);
-            sstate = newparser(1, 1, 0L);
-
-            /* ignore null command state */
-            if (sstate == 'n')
-              sstate = '\0';
-
-            if (sstate)
-              proto();
-        } else {
-            /*
-             * process take files the finder gave us.
-             */
-            if ((tlevel == -1) && lfiles)
-              startlfile();
-
-            debug(F100, "doicp: calling parser", "", 0);
-            sstate = (CHAR) parser(0);
-            if (sstate == 'c')          /* if MAC connect */
-              sstate = 0;
-            if (sstate)
-              proto();
-        }
-    }
-#else /* Not MAC */
 
 #ifndef NOSPL
 /*
@@ -2121,7 +1958,6 @@ doicp(threadinfo) VOID * threadinfo;
         sstate = (CHAR) parser(0);
         if (sstate) proto();            /* Enter protocol if requested. */
     }
-#endif /* MAC */
 }
 
 VOID
@@ -2131,9 +1967,6 @@ failicp(void * threadinfo)
 failicp(threadinfo) VOID * threadinfo;
 #endif /* CK_ANSIC */
 {
-#ifdef GEMDOS
-    cc_clean();
-#endif /* GEMDOS */
     fixcmd();                           /* Pop command stacks, etc. */
     clcmds = NULL;
     debug(F100,"ckcmai got interrupt","",0);
@@ -2174,9 +2007,6 @@ failcmdfile(void * threadinfo)
 failcmdfile(threadinfo) VOID * threadinfo;
 #endif /* CK_ANSIC */
 /* failcmdfile */ {
-#ifdef GEMDOS
-    cc_clean();                         /* Atari: Clean up after ^C-trap. */
-#endif /* GEMDOS */
     fixcmd();
     if (!cfilef) {
 	conoll("Interrupted during initialization or \
@@ -2579,10 +2409,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
     int i;
 #endif /* NOSETKEY */
 
-#ifdef datageneral
-    short *pfha = 016000000036;         /* Get around LANG_RT problem */
-    *pfha = (short) 0;                  /* No user protection fault handler */
-#endif /* datageneral */
 
 #ifdef UNIX
     int unbuf = 0;			/* nonzero for unbuffered stdout */
@@ -2627,7 +2453,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
 /* Do some initialization */
 
 
-#ifndef MAC
     xargc = xargs = argc;               /* Make global copies of argc */
     xargv = argv;                       /* ...and argv. */
     xarg0 = argv[0];
@@ -2649,7 +2474,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
     debug(F100,"main cmdini() done","",0);
 #endif /* NOICP */
     prescan(0);                         /* Pre-Check for debugging, etc */
-#endif /* MAC */
     debug(F101,"MAIN feol","",feol);
     makever();                          /* Put together version strings */
 #ifndef NOSPL
@@ -2959,7 +2783,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
 #endif /* SO_OOBINLINE */
 
 #ifndef NOTCPOPTS
-#ifndef datageneral
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
         no_delay(0,tcp_nodelay);
@@ -2980,7 +2803,6 @@ MAINNAME( argc, argv ) int argc; char **argv;
         recvbuf(0,tcp_recvbuf);
 #endif /* SO_RCVBUF */
 #endif /* SOL_SOCKET */
-#endif /* datageneral */
 #endif /* NOTCPOPTS */
 
 

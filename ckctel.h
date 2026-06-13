@@ -191,15 +191,8 @@ extern char *telcmds[];
 /* NB: the following platforms have TELOPT_AUTHENTICATION defined as */
 /* 45 instead of 37.                                                 */
 #ifdef TELOPT_AUTHENTICATION
-#ifdef __osf__
 #undef TELOPT_AUTHENTICATION
-#endif /* __osf__ */
-#ifndef IRIX
 #undef TELOPT_AUTHENTICATION
-#endif /* IRIX */
-#ifndef ultrix
-#undef TELOPT_AUTHENTICATION
-#endif /* ultrix */
 #endif /* TELOPT_AUTHENTICATION */
 
 /* telnet options */

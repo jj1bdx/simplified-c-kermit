@@ -52,9 +52,6 @@ int noherald = 0;         /* Whether to print the program herald on startup */
 #ifndef NOCSETS
 #include "ckcxla.h"
 #endif /* NOCSETS */
-#ifdef MAC
-#include "ckmasm.h"
-#endif /* MAC */
 
 extern char * ck_cryear;       /* (ckcmai.c) Latest C-Kermit copyright year */
 
@@ -74,20 +71,7 @@ static int traceval( char *, char * );
 
 /* For formatted screens, "more?" prompting, etc. */
 
-#ifdef FT18
-#define isxdigit(c) isdigit(c)
-#endif /* FT18 */
 
-#ifdef STRATUS                          /* Stratus Computer, Inc.  VOS */
-#ifdef putchar
-#undef putchar
-#endif /* putchar */
-#define putchar(x) conoc(x)
-#ifdef getchar
-#undef getchar
-#endif /* getchar */
-#define getchar(x) coninc(0)
-#endif /* STRATUS */
 
 /* External variables */
 
@@ -208,10 +192,6 @@ _PROTOTYP( static CK_OFF_T xparse,   (void) );
 _PROTOTYP( int sho_iks, (void) );
 #endif /* NOSHOW */
 
-#ifdef MAC
-char * ckprompt = "Mac-Kermit>";        /* Default prompt for Macintosh */
-char * ikprompt = "IKSD>";
-#else  /* Not MAC */
 #ifdef NOSPL
 char * ckprompt = "C-Kermit>";
 char * ikprompt = "IKSD>";
@@ -227,7 +207,6 @@ char * ckprompt = "(\\v(dir)) C-Kermit>"; /* Default prompt for others */
 char * ikprompt = "(\\v(dir)) IKSD>";
 #endif /* UNIX */
 #endif /* NOSPL */
-#endif /* MAC */
 
 #ifndef CCHMAXPATH
 #define CCHMAXPATH 257
@@ -327,9 +306,7 @@ extern int tt_crd, tt_lfd, tt_escape;
 extern int language, nfilc, tcsr, tcsl, tcs_transp, fcharset;
 extern struct keytab fcstab[];
 extern struct csinfo fcsinfo[];
-#ifndef MAC
 extern struct keytab ttcstab[];
-#endif /* MAC */
 #endif /* NOCSETS */
 
 extern long speed;
@@ -413,9 +390,6 @@ extern int atcapr,
   atenci, atenco, atdati, atdato, atleni, atleno, atblki, atblko,
   attypi, attypo, atsidi, atsido, atsysi, atsyso, atdisi, atdiso;
 
-#ifdef STRATUS
-extern int atfrmi, atfrmo, atcrei, atcreo, atacti, atacto;
-#endif /* STRATUS */
 
 #ifdef CK_PERMS
 extern int atlpri, atlpro, atgpri, atgpro;
@@ -459,43 +433,17 @@ char *m_ibm = "set parity mark, set dupl half, set handsh xon, set flow none";
 char *m_fat = "if def \\%1 echo \\%1, if not = \\v(local) 0 hangup, stop 1";
 
 #ifdef CK_SPEED
-#ifdef IRIX65
-char *m_fast = "set win 30, set rec pack 4000, set prefix cautious";
-#else
-#ifdef IRIX
-/* Because of bug in telnet server */
-char *m_fast = "set window 30, set rec pack 4000, set send pack 4000,\
- set pref cautious";
-#else
-#ifdef pdp11
-char *m_fast = "set win 3, set rec pack 1024, set prefix cautious";
-#else
 #ifdef BIGBUFOK
 char *m_fast = "set win 30, set rec pack 4000, set prefix cautious";
 #else
 char *m_fast = "set win 4, set rec pack 2200, set prefix cautious";
 #endif /* BIGBUFOK */
-#endif /* IRIX */
-#endif /* IRIX65 */
-#endif /* pdp11 */
-#ifdef pdp11
-char *m_cautious = "set win 2, set rec pack 512, set prefixing cautious";
-#else
 char *m_cautious = "set win 4, set rec pack 1000, set prefixing cautious";
-#endif /* pdp11 */
 char *m_robust = "set win 1, set rec pack 90, set prefixing all, \
 set reliable off, set clearchannel off, set send timeout 20 fixed";
 #else
 #ifdef BIGBUFOK
-#ifdef IRIX65
 char *m_fast = "set win 30, set rec pack 4000";
-#else
-#ifdef IRIX
-char *m_fast = "set win 30, set rec pack 4000, set send pack 4000";
-#else
-char *m_fast = "set win 30, set rec pack 4000";
-#endif /* IRIX */
-#endif /* IRIX65 */
 #else /* Not BIGBUFOK */
 char *m_fast = "set win 4, set rec pack 2200";
 #endif /* BIGBUFOK */
@@ -1398,10 +1346,6 @@ extern int ckrooterr;
     if (!cmdinited)
       cmdini();
 
-#ifdef MAC
-    return;                             /* Mac Kermit has no init file */
-
-#else /* !MAC */
 
 /* If skipping init file ('-Y' on Kermit command line), return now. */
 
@@ -1421,9 +1365,6 @@ extern int ckrooterr;
     lp = line;
     lp[0] = '\0';
     debug(F101,"doinit rcflag","",rcflag);
-#ifdef GEMDOS
-    zkermini(line, rcflag, kermrc);
-#else
 #ifdef CK_LOGIN
     debug(F101,"doinit isguest","",isguest);
     if (isguest)
@@ -1453,11 +1394,7 @@ extern int ckrooterr;
                   homdir = zhome();
                   if (homdir) {         /* Home directory for init file. */
                       ckstrncpy(lp,homdir,KERMRCL);
-#ifdef STRATUS
-                      ckstrncat(lp,">",KERMRCL);/* VOS dirsep */
-#else
                       if (lp[0] == '/') ckstrncat(lp,"/",KERMRCL);
-#endif /* STRATUS */
                   }
                   ckstrncat(lp,kermrc,KERMRCL);/* Append default file name */
               }
@@ -1470,11 +1407,7 @@ extern int ckrooterr;
             ckstrncpy(lp,CK_SYSINI,KERMRCL); /* use system-wide one. */
 #endif /* CK_INI_B */
       }
-#endif /* GEMDOS */
 
-#ifdef AMIGA
-    reqoff();                           /* Disable requestors */
-#endif /* AMIGA */
 
 #ifdef USE_CUSTOM
     /* If no init file was found, execute the customization file */
@@ -1533,41 +1466,7 @@ extern int ckrooterr;
         printf("?%s - %s\n", ck_errstr(), line);
     }
 
-#ifdef datageneral
-/* If CKERMIT.INI not found in home directory, look in searchlist */
-    if (/* homdir && */ (tlevel < 0)) {
-        ckstrncpy(lp,kermrc,LINBUFSIZ);
-        if ((tfile[0] = fopen(line,"r")) != NULL) {
-            ok = 1;
-            tlevel = 0;
-            tfline[tlevel] = 0;
-            tfblockstart[tlevel] = 1;
-            if (tfnam[tlevel] = malloc(strlen(line)+1))
-              strcpy(tfnam[tlevel],line); /* safe */
-#ifndef NOSPL
-            cmdlvl++;
-            xcmdsrc = CMD_TF;
-            cmdstk[cmdlvl].src = CMD_TF;
-            cmdstk[cmdlvl].lvl = tlevel;
-            cmdstk[cmdlvl].ccflgs = 0;
-            ifcmd[cmdlvl] = 0;
-            iftest[cmdlvl] = 0;
-            count[cmdlvl] =  count[cmdlvl-1]; /* Inherit from previous level */
-            intime[cmdlvl] = intime[cmdlvl-1];
-            inpcas[cmdlvl] = inpcas[cmdlvl-1];
-            takerr[cmdlvl] = takerr[cmdlvl-1];
-            merror[cmdlvl] = merror[cmdlvl-1];
-            xquiet[cmdlvl] = quiet;
-	    xvarev[cmdlvl] = vareval;
-#endif /* NOSPL */
-        }
-    }
-#endif /* datageneral */
 
-#ifdef AMIGA                            /* Amiga... */
-    reqpop();                           /* Restore requestors */
-#endif /* AMIGA */
-#endif /* MAC */
 
     /* Assign value to inidir */
 
@@ -2298,17 +2197,11 @@ parser(m) int m;
     extern int askflag, echostars;
 #endif /* NOSPL */
     char *cbp;                          /* Command buffer pointer */
-#ifdef MAC
-    extern char *lfiles;                /* Fake extern cast */
-#endif /* MAC */
     extern int interrupted;
 #ifndef NOXFER
     extern int sndcmd, getcmd, fatalio, clearrq;
 #endif /* NOXFER */
 
-#ifdef AMIGA
-    reqres();                           /* Restore AmigaDOS requestors */
-#endif /* AMIGA */
 
 
 #ifdef IKSDB
@@ -2669,19 +2562,10 @@ parser(m) int m;
         }
 #endif /* NOSPL */
 
-#ifdef MAC
-        /* Check for TAKE initiated by menu. */
-        if ((tlevel == -1) && lfiles)
-            startlfile();
-#endif /* MAC */
 
         /* If in TAKE file, check for EOF */
 #ifndef NOSPL
-#ifdef MAC
-        if
-#else
         while
-#endif /* MAC */
           ((cmdstk[cmdlvl].src == CMD_TF)  /* If end of take file */
                && (tlevel > -1)
                && feof(tfile[tlevel])) {
@@ -2691,15 +2575,6 @@ parser(m) int m;
                 return(0);              /* End of init file or whatever. */
             }
         }
-#ifdef MAC
-        miniparser(1);
-        if (sstate == 'a') {            /* if cmd-. cancel */
-            debug(F100, "parser: cancel take due to sstate", "", sstate);
-            sstate = '\0';
-            dostop();
-            return(0);                  /* End of init file or whatever. */
-        }
-#endif /*  MAC */
 
 #else /* NOSPL */
         if ((tlevel > -1) && feof(tfile[tlevel])) { /* If end of take */
@@ -2931,16 +2806,6 @@ parser(m) int m;
             debug(F101,"docmd returns","",zz);
             /* debug(F011,"cmdbuf",cmdbuf,30); */
             /* debug(F011,"atmbuf",atmbuf,30); */
-#ifdef MAC
-            if (tlevel > -1) {
-                if (sstate == 'a') {    /* if cmd-. cancel */
-                    debug(F110, "parser: cancel take, sstate:", "a", 0);
-                    sstate = '\0';
-                    dostop();
-                    return(0);          /* End of init file or whatever. */
-                }
-            }
-#endif /* MAC */
 
             switch (zz) {
               case -4:                  /* EOF (e.g. on redirected stdin) */
@@ -3672,15 +3537,10 @@ gfmode(binary,upcase) int binary, upcase;
     char * s;
     switch (binary) {
       case XYFT_T: s = upcase ? "TEXT" : "text"; break;
-#ifdef MAC
-      case XYFT_B: s = upcase ? "BINARY" : "binary"; break;
-      case XYFT_M: s = upcase ? "MACBINARY" : "macbinary"; break;
-#else
       case XYFT_B: s = upcase ? "BINARY" : "binary"; break;
 #ifdef CK_LABELED
       case XYFT_L: s = upcase ? "LABELED" : "labeled"; break;
 #endif /* CK_LABELED */
-#endif /* MAC */
       case XYFT_X: s = upcase ? "TENEX" : "tenex"; break;
       default: s = "";
     }
@@ -4578,12 +4438,10 @@ popclvl() {                             /* Pop command level, return cmdlvl */
         cmsetp(prstring[cmdlvl]);
         makestr(&(prstring[cmdlvl]),NULL);
     }
-#ifndef MAC
     if (cmdlvl < 1 || xcmdsrc == CMD_KB) { /* If at prompt */
         setint();
         concb((char)escape);            /* Go into cbreak mode */
     }
-#endif /* MAC */
     xcmdsrc = cmdstk[cmdlvl].src;
     debug(F101,"popclvl xcmdsrc","",xcmdsrc);
     debug(F101,"popclvl tlevel","",tlevel);
@@ -4808,13 +4666,6 @@ showooa(x) int x;
     }
 }
 
-#ifdef GEMDOS
-isxdigit(c) int c; {
-    return(isdigit(c) ||
-           (c >= 'a' && c <= 'f') ||
-           (c >= 'A' && c <= 'F'));
-}
-#endif /* GEMDOS */
 
 #ifndef NOSETKEY
 
@@ -4871,13 +4722,7 @@ shokeycode(c) int c;
         printf("Character: ");
         ch = km;
         if (ch < 32 || ch == 127
-#ifndef NEXT
-#ifndef AUX
-#ifndef XENIX
             || (ch > 127 && ch < 160)
-#endif /* XENIX */
-#endif /* AUX */
-#endif /* NEXT */
             )
 /*
   These used to be %d, but gcc 1.93 & later complain about type mismatches.
@@ -4907,13 +4752,7 @@ shostrdef(s) CHAR * s;
 /*
   Systems whose native character sets have graphic characters in C1...
 */
-#ifndef NEXT                            /* NeXT */
-#ifndef AUX                             /* Macintosh */
-#ifndef XENIX                           /* IBM PC */
             || (ch > 127 && ch < 160)
-#endif /* XENIX */
-#endif /* AUX */
-#endif /* NEXT */
             )
           printf("\\{%d}",ch);          /* Display control characters */
         else putchar((char) ch);        /* in backslash notation */
@@ -4949,11 +4788,9 @@ shover() {
 #ifndef NOCSETS
     printf(" %s\n",xlav);
 #endif /* NOCSETS */
-#ifndef MAC
 #ifndef NOLOCAL
     printf(" %s\n",connv);
 #endif /* NOLOCAL */
-#endif /* MAC */
 #ifndef NODIAL
     printf(" %s\n",dialv);
 #endif /* NODIAL */
@@ -4998,7 +4835,6 @@ shotcs(csl,csr) int csl, csr;
 #endif /* CK_ANSIC */
 {
 #ifndef NOCSETS
-#ifndef MAC
     char *s;
 
     debug(F101,"TERM LOCAL CSET","",csl);
@@ -5026,7 +4862,6 @@ shotcs(csl,csr) int csl, csr;
               printf("                         (via %s)\n",s);
         }
     }
-#endif /* MAC */
 #endif /* NOCSETS */
 }
 
@@ -5502,10 +5337,6 @@ doshow(x) int x;
         }
 #endif /* IKSD */
 
-#ifdef MAC
-        printf("Not implemented\n");
-        return(0);
-#else /* Not MAC */
             printf(" Press key: ");
 #ifdef UNIX
 #ifdef NOSETBUF
@@ -5526,7 +5357,6 @@ doshow(x) int x;
             printf("\n");
             shokeycode(c);
         return(1);
-#endif /* MAC */
     }
 #ifndef NOKVERBS
     if (x == SHKVB) {                   /* SHOW KVERBS */
@@ -5835,17 +5665,7 @@ doshow(x) int x;
         return(0);                      /* Don't change it */
 
       case SHSTK: {                     /* Stack for MAC debugging */
-#ifdef MAC
-          long sp;
-          sp = -1;
-          loadA0 ((char *)&sp);         /* set destination address */
-          SPtoaA0();                    /* move SP to destination */
-          printf("Stack at 0x%x\n", sp);
-          show_queue();                 /* more debugging */
-          break;
-#else
           shostack();
-#endif /* MAC */
           break;
       }
 
@@ -6189,11 +6009,9 @@ doshow(x) int x;
         break;
 #endif /* NODIAL */
 
-#ifndef MAC
       case SHDFLT:
         printf("%s\n",zgtdir());
         break;
-#endif /* MAC */
 
 #ifndef NOLOCAL
       case SHESC:
@@ -6604,7 +6422,6 @@ doshow(x) int x;
 #endif /* NOSPL */
 
       case SHLOG: {
-#ifndef MAC
 #ifdef IKSD
           if (inserver &&
 #ifdef CK_LOGIN
@@ -6653,7 +6470,6 @@ doshow(x) int x;
             printf(" Connection log:  %s\n", dialog ? diafil : "(none)");
 #endif /* CKLOGDIAL */
           printf("\n");
-#endif /* MAC */
           break;
       }
 
@@ -6981,11 +6797,6 @@ shoatt() {
     printf(" Permissions In:  %s\n", showoff(atlpri));
     printf(" Permissions Out: %s\n", showoff(atlpro));
 #endif /* CK_PERMS */
-#ifdef STRATUS
-    printf(" Format: %s\n", showoff(atfrmi));
-    printf(" Creator: %s\n", showoff(atcrei));
-    printf(" Account: %s\n", showoff(atacti));
-#endif /* STRATUS */
     return(0);
 }
 #endif /* NOXFER */
@@ -8719,9 +8530,6 @@ docd(cx) int cx;
     extern int server, srvcdmsg, cdactive;
     extern char * cdmsgfile[], * ckcdpath;
     char *s, *p;
-#ifdef MAC
-    char temp[34];
-#endif /* MAC */
 #ifdef IKSDCONF
 extern int iksdcf;
 #endif /* IKSDCONF */
@@ -8744,11 +8552,7 @@ extern int iksdcf;
 #endif /* NOFRILLS */
 
     if (cx == XXCDUP) {
-#ifdef datageneral
-        s = "^";
-#else
         s = "..";
-#endif /* datageneral */
         ckstrncpy(line,s,LINBUFSIZ);
         goto gocd;
     }
@@ -8785,23 +8589,6 @@ extern int iksdcf;
 #endif /* NOSPL */
 
     cdactive = 1;
-#ifdef GEMDOS
-    if ((x = cmdir("Name of local directory, or carriage return",
-                   homepath(),
-                   &s,
-                   NULL
-                   )
-         ) < 0 )
-      return(x);
-#else
-#ifdef MAC
-    x = ckstrncpy(temp,homepath(),32);
-    if (x > 0) if (temp[x-1] != ':') { temp[x] = ':'; temp[x+1] = NUL; }
-    if ((x = cmtxt("Name of Macintosh volume and/or folder,\n\
- or press the Return key for the desktop on the boot disk",
-                   temp,&s, xxstring)) < 0 )
-      return(x);
-#else
     if ((x = cmdirp("Carriage return for home directory,\n\
 or name of directory on this computer",
                     homepath(),		/* In VMS this is "SYS$LOGIN:" */
@@ -8810,45 +8597,15 @@ or name of directory on this computer",
                     xxstring
                     )) < 0)
       return(x);
-#endif /* MAC */
-#endif /* GEMDOS */
     ckstrncpy(line,s,LINBUFSIZ);        /* Make a safe copy */
     s = line;
     debug(F110,"docd",s,0);
-#ifndef MAC
     if ((x = cmcfm()) < 0)              /* Get confirmation */
       return(x);
-#endif /* MAC */
 
   gocd:
 
-#ifdef datageneral
-    x = strlen(line);                   /* homdir ends in colon, */
-    if (x > 1 && line[x-1] == ':')      /* and "dir" doesn't like that... */
-      line[x-1] = NUL;
-#endif /* datageneral */
 
-#ifdef MAC
-    cwdf = 1;
-    if (!zchdir(s)) {
-        cwdf = 0;
-        if (*s != ':') {                /* If it failed, */
-            char *p;                    /* supply leading colon */
-            int len = (int)strlen(s) + 2;
-            p = malloc(len);            /* and try again... */
-            if (p) {
-                strcpy(p,":");          /* safe */
-                strcat(p,s);            /* safe */
-                if (zchdir(p))
-                  cwdf = 1;
-                free(p);
-                p = NULL;
-            }
-        }
-    }
-    if (!cwdf)
-      perror(s);
-#else
     p = zgtdir();
     if (!zchdir(s)) {
         cwdf = 0;
@@ -8859,7 +8616,6 @@ or name of directory on this computer",
 #endif /* CKROOT */
           perror(s);
     } else cwdf = 1;
-#endif /* MAC */
 
     x = 0;
     if (cwdf) {
@@ -8996,17 +8752,7 @@ initoptlist() {
     for (i = 0; i < NOPTLIST; i++)
       optlist[i] = NULL;
 
-#ifdef MAC
-#ifdef MPW
-    makestr(&(optlist[noptlist++]),"MPW");
-#endif /* MPW */
-#endif /* MAC */
 
-#ifdef MAC
-#ifdef THINK_C
-    makestr(&(optlist[noptlist++]),"THINK_C");
-#endif /* THINK_C */
-#endif /* MAC */
 
 #ifdef __386__
     makestr(&(optlist[noptlist++]),"__386__");
@@ -9375,38 +9121,8 @@ initoptlist() {
     makestr(&(optlist[noptlist++]),line);
 #endif /* DOARROWKEYS */
 
-#ifdef datageneral
-    makestr(&(optlist[noptlist++]),"datageneral");
-#endif /* datageneral */
-#ifdef apollo
-    makestr(&(optlist[noptlist++]),"apollo");
-#endif /* apollo */
-#ifdef aegis
-    makestr(&(optlist[noptlist++]),"aegis");
-#endif /* aegis */
-#ifdef A986
-    makestr(&(optlist[noptlist++]),"A986");
-#endif /* A986 */
-#ifdef AMIGA
-    makestr(&(optlist[noptlist++]),"AMIGA");
-#endif /* AMIGA */
-#ifdef CONVEX9
-    makestr(&(optlist[noptlist++]),"CONVEX9");
-#endif /* CONVEX9 */
-#ifdef CONVEX10
-    makestr(&(optlist[noptlist++]),"CONVEX10");
-#endif /* CONVEX9 */
-#ifdef MAC
-    makestr(&(optlist[noptlist++]),"MAC");
-#endif /* MAC */
-#ifdef AUX
-    makestr(&(optlist[noptlist++]),"AUX");
-#endif /* AUX */
 
 
-#ifdef OSK
-    makestr(&(optlist[noptlist++]),"OS9");
-#endif /* OSK */
 
 #ifdef MSDOS
     makestr(&(optlist[noptlist++]),"MSDOS");
@@ -9608,9 +9324,6 @@ initoptlist() {
 #ifdef CONGSPD
     makestr(&(optlist[noptlist++]),"CONGSPD");
 #endif /* CONGSPD */
-#ifdef SUNX25
-    makestr(&(optlist[noptlist++]),"SUNX25");
-#endif /* SUNX25 */
 #ifdef IBMX25
     makestr(&(optlist[noptlist++]),"IBMX25");
 #endif /* IBMX25 */
@@ -9629,12 +9342,6 @@ initoptlist() {
 #ifdef CK_NETBIOS
     makestr(&(optlist[noptlist++]),"CK_NETBIOS");
 #endif /* CK_NETBIOS */
-#ifdef ATT7300
-    makestr(&(optlist[noptlist++]),"ATT7300");
-#endif /* ATT7300 */
-#ifdef ATT6300
-    makestr(&(optlist[noptlist++]),"ATT6300");
-#endif /* ATT6300 */
 #ifdef HDBUUCP
     makestr(&(optlist[noptlist++]),"HDBUUCP");
 #endif /* HDBUUCP */
@@ -9683,9 +9390,6 @@ initoptlist() {
 #ifdef NOIEXTEN
     makestr(&(optlist[noptlist++]),"NOIEXTEN");
 #endif /* NOIEXTEN */
-#ifdef EXCELAN
-    makestr(&(optlist[noptlist++]),"EXCELAN");
-#endif /* EXCELAN */
 #ifdef INTERLAN
     makestr(&(optlist[noptlist++]),"INTERLAN");
 #endif /* INTERLAN */
@@ -9766,21 +9470,6 @@ initoptlist() {
 #ifdef BSD44
     makestr(&(optlist[noptlist++]),"BSD44");
 #endif /* BSD44 */
-#ifdef BSD41
-    makestr(&(optlist[noptlist++]),"BSD41");
-#endif /* BSD41 */
-#ifdef BSD43
-    makestr(&(optlist[noptlist++]),"BSD43");
-#endif /* BSD43 */
-#ifdef BSD29
-    makestr(&(optlist[noptlist++]),"BSD29");
-#endif /* BSD29 */
-#ifdef BSDI
-    makestr(&(optlist[noptlist++]),"BSDI");
-#endif /* BSDI */
-#ifdef __bsdi__
-    makestr(&(optlist[noptlist++]),"__bsdi__");
-#endif /* __bsdi__ */
 #ifdef __NetBSD__
     makestr(&(optlist[noptlist++]),"__NetBSD__");
 #endif /* __NetBSD__ */
@@ -9811,114 +9500,21 @@ initoptlist() {
 #ifdef V7
     makestr(&(optlist[noptlist++]),"V7");
 #endif /* V7 */
-#ifdef AIX370
-    makestr(&(optlist[noptlist++]),"AIX370");
-#endif /* AIX370 */
-#ifdef RTAIX
-    makestr(&(optlist[noptlist++]),"RTAIX");
-#endif /* RTAIX */
-#ifdef HPUX
-    makestr(&(optlist[noptlist++]),"HPUX");
-#endif /* HPUX */
-#ifdef HPUX9
-    makestr(&(optlist[noptlist++]),"HPUX9");
-#endif /* HPUX9 */
-#ifdef HPUX10
-    makestr(&(optlist[noptlist++]),"HPUX10");
-#endif /* HPUX10 */
-#ifdef HPUX1000
-    makestr(&(optlist[noptlist++]),"HPUX1000");
-#endif /* HPUX1000 */
-#ifdef HPUX1100
-    makestr(&(optlist[noptlist++]),"HPUX1100");
-#endif /* HPUX1100 */
-#ifdef HPUXPRE65
-    makestr(&(optlist[noptlist++]),"HPUXPRE65");
-#endif /* HPUXPRE65 */
-#ifdef DGUX
-    makestr(&(optlist[noptlist++]),"DGUX");
-#endif /* DGUX */
-#ifdef DGUX430
-    makestr(&(optlist[noptlist++]),"DGUX430");
-#endif /* DGUX430 */
-#ifdef DGUX540
-    makestr(&(optlist[noptlist++]),"DGUX540");
-#endif /* DGUX540 */
-#ifdef DGUX543
-    makestr(&(optlist[noptlist++]),"DGUX543");
-#endif /* DGUX543 */
-#ifdef DGUX54410
-    makestr(&(optlist[noptlist++]),"DGUX54410");
-#endif /* DGUX54410 */
-#ifdef DGUX54411
-    makestr(&(optlist[noptlist++]),"DGUX54411");
-#endif /* DGUX54411 */
-#ifdef sony_news
-    makestr(&(optlist[noptlist++]),"sony_news");
-#endif /* sony_news */
 #ifdef CIE
     makestr(&(optlist[noptlist++]),"CIE");
 #endif /* CIE */
-#ifdef XENIX
-    makestr(&(optlist[noptlist++]),"XENIX");
-#endif /* XENIX */
-#ifdef SCO_XENIX
-    makestr(&(optlist[noptlist++]),"SCO_XENIX");
-#endif /* SCO_XENIX */
-#ifdef ISIII
-    makestr(&(optlist[noptlist++]),"ISIII");
-#endif /* ISIII */
-#ifdef I386IX
-    makestr(&(optlist[noptlist++]),"I386IX");
-#endif /* I386IX */
 #ifdef RTU
     makestr(&(optlist[noptlist++]),"RTU");
 #endif /* RTU */
-#ifdef PROVX1
-    makestr(&(optlist[noptlist++]),"PROVX1");
-#endif /* PROVX1 */
-#ifdef PYRAMID
-    makestr(&(optlist[noptlist++]),"PYRAMID");
-#endif /* PYRAMID */
-#ifdef TOWER1
-    makestr(&(optlist[noptlist++]),"TOWER1");
-#endif /* TOWER1 */
-#ifdef UTEK
-    makestr(&(optlist[noptlist++]),"UTEK");
-#endif /* UTEK */
 #ifdef ZILOG
     makestr(&(optlist[noptlist++]),"ZILOG");
 #endif /* ZILOG */
 #ifdef TRS16
     makestr(&(optlist[noptlist++]),"TRS16");
 #endif /* TRS16 */
-#ifdef MINIX
-    makestr(&(optlist[noptlist++]),"MINIX");
-#endif /* MINIX */
-#ifdef MINIX2
-    makestr(&(optlist[noptlist++]),"MINIX2");
-#endif /* MINIX2 */
-#ifdef MINIX3
-    makestr(&(optlist[noptlist++]),"MINIX3");
-#endif /* MINIX3 */
-#ifdef MINIX315
-    makestr(&(optlist[noptlist++]),"MINIX315");
-#endif /* MINIX315 */
-#ifdef MINIX340
-     makestr(&(optlist[noptlist++]),"MINIX340"); /* 2020-02-01 TIH */
-#endif /* MINIX340 */
 #ifdef C70
     makestr(&(optlist[noptlist++]),"C70");
 #endif /* C70 */
-#ifdef AIXPS2
-    makestr(&(optlist[noptlist++]),"AIXPS2");
-#endif /* AIXPS2 */
-#ifdef AIXRS
-    makestr(&(optlist[noptlist++]),"AIXRS");
-#endif /* AIXRS */
-#ifdef UTSV
-    makestr(&(optlist[noptlist++]),"UTSV");
-#endif /* UTSV */
 #ifdef ATTSV
     makestr(&(optlist[noptlist++]),"ATTSV");
 #endif /* ATTSV */
@@ -9928,36 +9524,9 @@ initoptlist() {
 #ifdef SVR4
     makestr(&(optlist[noptlist++]),"SVR4");
 #endif /* SVR4 */
-#ifdef DELL_SVR4
-    makestr(&(optlist[noptlist++]),"DELL_SVR4");
-#endif /* DELL_SVR4 */
 #ifdef ICL_SVR4
     makestr(&(optlist[noptlist++]),"ICL_SVR4");
 #endif /* ICL_SVR4 */
-#ifdef OSF
-    makestr(&(optlist[noptlist++]),"OSF");
-#endif /* OSF */
-#ifdef OSF1
-    makestr(&(optlist[noptlist++]),"OSF1");
-#endif /* OSF1 */
-#ifdef __OSF
-    makestr(&(optlist[noptlist++]),"__OSF");
-#endif /* __OSF */
-#ifdef __OSF__
-    makestr(&(optlist[noptlist++]),"__OSF__");
-#endif /* __OSF__ */
-#ifdef __osf__
-    makestr(&(optlist[noptlist++]),"__osf__");
-#endif /* __osf__ */
-#ifdef __OSF1
-    makestr(&(optlist[noptlist++]),"__OSF1");
-#endif /* __OSF1 */
-#ifdef __OSF1__
-    makestr(&(optlist[noptlist++]),"__OSF1__");
-#endif /* __OSF1__ */
-#ifdef PTX
-    makestr(&(optlist[noptlist++]),"PTX");
-#endif /* PTX */
 #ifdef POSIX
     makestr(&(optlist[noptlist++]),"POSIX");
 #endif /* POSIX */
@@ -9984,57 +9553,9 @@ initoptlist() {
 #ifdef _SVID3
     makestr(&(optlist[noptlist++]),"_SVID3");
 #endif /* _SVID3 */
-#ifdef Plan9
-    makestr(&(optlist[noptlist++]),"Plan9");
-#endif /* Plan9 */
-#ifdef SOLARIS
-    makestr(&(optlist[noptlist++]),"SOLARIS");
-#ifdef SOLARIS24
-    makestr(&(optlist[noptlist++]),"SOLARIS24");
-#endif /* SOLARIS24 */
-#ifdef SOLARIS25
-    makestr(&(optlist[noptlist++]),"SOLARIS25");
-#endif /* SOLARIS25 */
-#ifdef SOLARIS26
-    makestr(&(optlist[noptlist++]),"SOLARIS26");
-#endif /* SOLARIS26 */
-#ifdef SOLARIS7
-    makestr(&(optlist[noptlist++]),"SOLARIS7");
-#endif /* SOLARIS7 */
-#ifdef SOLARIS8
-    makestr(&(optlist[noptlist++]),"SOLARIS8");
-#endif /* SOLARIS8 */
-#ifdef SOLARIS9
-    makestr(&(optlist[noptlist++]),"SOLARIS9");
-#endif /* SOLARIS9 */
-#ifdef SOLARIS10
-    makestr(&(optlist[noptlist++]),"SOLARIS10");
-#endif /* SOLARIS10 */
-#endif /* SOLARIS */
 
-#ifdef SUNOS4
-    makestr(&(optlist[noptlist++]),"SUNOS4");
-#endif /* SUNOS4 */
-#ifdef SUN4S5
-    makestr(&(optlist[noptlist++]),"SUN4S5");
-#endif /* SUN4S5 */
-#ifdef IRIX
-    makestr(&(optlist[noptlist++]),"IRIX");
-#endif /* IRIX */
-#ifdef ENCORE
-    makestr(&(optlist[noptlist++]),"ENCORE");
-#endif /* ENCORE */
-#ifdef ultrix
-    makestr(&(optlist[noptlist++]),"ultrix");
-#endif
 #ifdef sxaE50
     makestr(&(optlist[noptlist++]),"sxaE50");
-#endif
-#ifdef mips
-    makestr(&(optlist[noptlist++]),"mips");
-#endif
-#ifdef MIPS
-    makestr(&(optlist[noptlist++]),"MIPS");
 #endif
 #ifdef vax
     makestr(&(optlist[noptlist++]),"vax");
@@ -10069,9 +9590,6 @@ initoptlist() {
 #ifdef __alpha__
     makestr(&(optlist[noptlist++]),"__alpha__");
 #endif
-#ifdef sun
-    makestr(&(optlist[noptlist++]),"sun");
-#endif
 #ifdef sun3
     makestr(&(optlist[noptlist++]),"sun3");
 #endif
@@ -10086,18 +9604,6 @@ initoptlist() {
 #endif
 #ifdef sparc
     makestr(&(optlist[noptlist++]),"sparc");
-#endif
-#ifdef _CRAY
-    makestr(&(optlist[noptlist++]),"_CRAY");
-#endif /* _CRAY */
-#ifdef NEXT33
-    makestr(&(optlist[noptlist++]),"NEXT33");
-#endif
-#ifdef NEXT
-    makestr(&(optlist[noptlist++]),"NEXT");
-#endif
-#ifdef NeXT
-    makestr(&(optlist[noptlist++]),"NeXT");
 #endif
 #ifdef MACH
     makestr(&(optlist[noptlist++]),"MACH");
@@ -10119,32 +9625,11 @@ initoptlist() {
 #endif
 #endif	/* COMMENT */
 
-#ifdef sgi
-    makestr(&(optlist[noptlist++]),"sgi");
-#endif
 #ifdef M_SYS5
     makestr(&(optlist[noptlist++]),"M_SYS5");
 #endif
 #ifdef __SYSTEM_FIVE
     makestr(&(optlist[noptlist++]),"__SYSTEM_FIVE");
-#endif
-#ifdef sysV
-    makestr(&(optlist[noptlist++]),"sysV");
-#endif
-#ifdef M_XENIX                          /* SCO Xenix V and UNIX/386 */
-    makestr(&(optlist[noptlist++]),"M_XENIX");
-#endif
-#ifdef M_UNIX                           /* SCO UNIX */
-    makestr(&(optlist[noptlist++]),"M_UNIX");
-#endif
-#ifdef _M_UNIX                          /* SCO UNIX 3.2v4 = ODT 2.0 */
-    makestr(&(optlist[noptlist++]),"_M_UNIX");
-#endif
-#ifdef CK_SCOV5
-    makestr(&(optlist[noptlist++]),"CK_SCOV5");
-#endif
-#ifdef SCO_OSR504
-    makestr(&(optlist[noptlist++]),"SCO_OSR504");
 #endif
 #ifdef M_IA64
     makestr(&(optlist[noptlist++]),"M_IA64");
@@ -10296,47 +9781,8 @@ initoptlist() {
 #ifdef m88k
     makestr(&(optlist[noptlist++]),"m88k");
 #endif
-#ifdef pdp11
-    makestr(&(optlist[noptlist++]),"pdp11");
-#endif
 #ifdef iAPX
     makestr(&(optlist[noptlist++]),"iAPX");
-#endif
-#ifdef hpux
-    makestr(&(optlist[noptlist++]),"hpux");
-#endif
-#ifdef __hpux
-    makestr(&(optlist[noptlist++]),"__hpux");
-#endif
-#ifdef __hp9000s800
-    makestr(&(optlist[noptlist++]),"__hp9000s800");
-#endif
-#ifdef __hp9000s700
-    makestr(&(optlist[noptlist++]),"__hp9000s700");
-#endif
-#ifdef __hp9000s500
-    makestr(&(optlist[noptlist++]),"__hp9000s500");
-#endif
-#ifdef __hp9000s300
-    makestr(&(optlist[noptlist++]),"__hp9000s300");
-#endif
-#ifdef __hp9000s200
-    makestr(&(optlist[noptlist++]),"__hp9000s200");
-#endif
-#ifdef AIX
-    makestr(&(optlist[noptlist++]),"AIX");
-#endif
-#ifdef _AIXFS
-    makestr(&(optlist[noptlist++]),"_AIXFS");
-#endif
-#ifdef u370
-    makestr(&(optlist[noptlist++]),"u370");
-#endif
-#ifdef u3b
-    makestr(&(optlist[noptlist++]),"u3b");
-#endif
-#ifdef u3b2
-    makestr(&(optlist[noptlist++]),"u3b2");
 #endif
 #ifdef multimax
     makestr(&(optlist[noptlist++]),"multimax");
@@ -10353,37 +9799,10 @@ initoptlist() {
 #ifdef ibmrs6000
     makestr(&(optlist[noptlist++]),"ibmrs6000");
 #endif
-#ifdef _AIX
-    makestr(&(optlist[noptlist++]),"_AIX");
-#endif /* _AIX */
 #ifdef _IBMR2
     makestr(&(optlist[noptlist++]),"_IBMR2");
 #endif
-#ifdef UNIXWARE
-    makestr(&(optlist[noptlist++]),"UNIXWARE");
-#endif
-#ifdef QNX
-    makestr(&(optlist[noptlist++]),"QNX");
-#ifdef __QNX__
-    makestr(&(optlist[noptlist++]),"__QNX__");
-#ifdef __16BIT__
-    makestr(&(optlist[noptlist++]),"__16BIT__");
-#endif
-#ifdef CK_QNX16
-    makestr(&(optlist[noptlist++]),"CK_QNX16");
-#endif
-#ifdef __32BIT__
-    makestr(&(optlist[noptlist++]),"__32BIT__");
-#endif
-#ifdef CK_QNX32
-    makestr(&(optlist[noptlist++]),"CK_QNX32");
-#endif
-#endif /* __QNX__ */
-#endif /* QNX */
 
-#ifdef QNX6
-    makestr(&(optlist[noptlist++]),"QNX6");
-#endif /* QNX6 */
 
 #ifdef NEUTRINO
     makestr(&(optlist[noptlist++]),"NEUTRINO");
@@ -10466,9 +9885,6 @@ initoptlist() {
 #endif /* SIG_V */
 #ifdef CK_POSIX_SIG
     makestr(&(optlist[noptlist++]),"CK_POSIX_SIG");
-#endif
-#ifdef SVR3JC
-    makestr(&(optlist[noptlist++]),"SVR3JC");
 #endif
 #ifdef _386BSD
     makestr(&(optlist[noptlist++]),"_386BSD");
@@ -10569,15 +9985,9 @@ initoptlist() {
 #ifdef CLSOPN
     makestr(&(optlist[noptlist++]),"CLSOPN");
 #endif /* CLSOPN */
-#ifdef STRATUS
-    makestr(&(optlist[noptlist++]),"STRATUS");
-#endif /* STRATUS */
 #ifdef __VOS__
     makestr(&(optlist[noptlist++]),"__VOS__");
 #endif /* __VOS__ */
-#ifdef STRATUSX25
-    makestr(&(optlist[noptlist++]),"STRATUSX25");
-#endif /* STRATUSX25 */
 #ifdef CK_REXX
     makestr(&(optlist[noptlist++]),"CK_REXX");
 #endif /* CK_REXX */
@@ -10920,11 +10330,9 @@ printf("NOWTMP not defined\n");
     flag = 1;
 #else
 #ifndef CK_CURSES
-#ifndef MAC
     printf(" No fullscreen file transfer display\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
     flag = 1;
-#endif /* MAC */
 #endif /* CK_CURSES */
 
 #ifdef NOSERVER
@@ -11070,11 +10478,9 @@ printf("NOWTMP not defined\n");
 #endif /* NOLOCAL */
 
 #ifndef CK_RTSCTS
-#ifndef MAC
     printf(" No hardware flow control\n");
     if (++lines > cmd_rows - 3) { if (!askmore()) return(1); else lines = 0; }
     flag = 1;
-#endif /* MAC */
 #endif /* CK_RTSCTS */
 
 #ifdef NOXMIT

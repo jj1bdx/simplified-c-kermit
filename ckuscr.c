@@ -50,34 +50,8 @@ _PROTOTYP( static VOID recvseq, (void) );
 _PROTOTYP( static int outseq, (void) );
 
 
-#ifdef MAC
-#define signal msignal
-#define SIGTYP long
-#define alarm malarm
-#define SIG_IGN 0
-#define SIGALRM 1
-#define SIGINT  2
-SIGTYP (*msignal(int type, SIGTYP (*func)(int)))(int);
-#endif /* MAC */
 
-#ifdef AMIGA
-#define signal asignal
-#define alarm aalarm
-#define SIGALRM (_NUMSIG+1)
-#define SIGTYP void
-SIGTYP (*asignal(int type, SIGTYP (*func)(int)))(int);
-unsigned aalarm(unsigned);
-#endif /* AMIGA */
 
-#ifdef STRATUS
-/* VOS doesn't have alarm(), but it does have some things we can work with. */
-/* however, we have to catch all the signals in one place to do this, so    */
-/* we intercept the signal() routine and call it from our own replacement.  */
-#define signal vsignal
-#define alarm valarm
-SIGTYP (*vsignal(int type, SIGTYP (*func)(int)))(int);
-int valarm(int interval);
-#endif /* STRATUS */
 
 extern int sessft;
 extern int local, flow, seslog, mdmtyp, msgflg, duplex, backgrd, secho, quiet;
@@ -132,11 +106,6 @@ scrtime(foo) int foo;			/* Alarm handler */
 #endif /* CK_ANSIC */
 /* scrtime */ {
 
-#ifdef BEBOX
-#ifdef BE_DR_7
-    alarm_expired();
-#endif /* BE_DR_7 */
-#endif /* BEBOX */
     cklongjmp(alrmrng,1);
     SIGRETURN;
 }
@@ -287,9 +256,6 @@ dorseq(threadinfo) VOID * threadinfo;
 #ifdef UNIX
 	  if (sessft != 0 || rseqgot[rseql-1] != '\r')
 #else
-#ifdef OSK
-	    if (sessft != 0 || rseqgot[rseql-1] != '\012')
-#endif /* OSK */
 #endif /* UNIX */
 	      if (rseqgot[rseql-1])	/* Filter out NULs */
 		sesbuf[sescnt++] = rseqgot[rseql-1];
@@ -453,9 +419,7 @@ outseq() {
 
 	if (!delay)
 	  return(oseqret);
-#ifndef MAC
 	msleep(DEL_MSEC);		/* delay, loop to next send */
-#endif /* MAC */
     }
 }
 
@@ -607,9 +571,6 @@ flushi() {
 #ifdef UNIX
 	      if (sessft != 0 || x != '\r')
 #else
-#ifdef OSK
-	      if (sessft != 0 || x != '\012')
-#endif /* OSK */
 #endif /* UNIX */
 		sesbuf[sescnt++] = (CHAR) x; /* buffer for session log */
   	}

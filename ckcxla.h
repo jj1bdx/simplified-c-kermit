@@ -253,31 +253,13 @@ struct langinfo {
 #include "ckuxla.h"
 #endif /* UNIX */
 
-#ifdef OSK                              /* OS-9 */
-#include "ckuxla.h"
-#endif /* OS-9 */
 
 
-#ifdef GEMDOS                           /* Atari ST */
-#include "ckuxla.h"
-#endif /* GEMDOS */
-
-#ifdef MAC                              /* Macintosh */
-#include "ckmxla.h"
-#endif /* MAC */
 
 
-#ifdef AMIGA                            /* Commodore Amiga */
-#include "ckuxla.h"
-#endif /* AMIGA */
 
-#ifdef datageneral                      /* Data General MV AOS/VS */
-#include "ckuxla.h"
-#endif /* datageneral */
 
-#ifdef STRATUS                          /* Stratus Computer, Inc. VOS */
-#include "ckuxla.h"
-#endif /* STRATUS */
+
 
 #ifdef UNICODE
 #include "ckcuni.h"                     /* Unicode */
@@ -297,7 +279,6 @@ _PROTOTYP(VOID j7init, ( void ) );      /* Initialize JIS-7 parser */
 _PROTOTYP(int getj7, ( void ) );        /* Get next JIS-7 character */
 #endif /* KANJI */
 
-#ifndef MAC
 #ifndef NOLOCAL
 _PROTOTYP( int cs_size, (int) );
 _PROTOTYP( int cs_is_std, (int) );
@@ -305,7 +286,6 @@ _PROTOTYP( int cs_is_nrc, (int) );
 _PROTOTYP( VOID setremcharset, (int, int) );
 _PROTOTYP( VOID setlclcharset, (int) );
 #endif /* NOLOCAL */
-#endif /* MAC */
 
 _PROTOTYP(VOID setxlatype, (int, int));
 

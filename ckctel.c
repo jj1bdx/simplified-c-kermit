@@ -2910,24 +2910,6 @@ tn_sb( opt, len, fn ) int opt; int * len; int (*fn)();
                   break;
               }
         }
-#ifdef M_XENIX
-        {
-          int len, param, param_len;
-          ckmakmsg( tn_msg, TN_MSG_LEN,
-                    "TELNET RCVD SB ",
-                    TELOPT(opt)," ",NULL);
-          len = strlen(tn_msg);
-          for (param = 0; param <= 15; param++) {
-            param_len = strlen(s[param]);
-            if (param_len > 0) {
-              strcpy(&tn_msg[len], s[param]);
-              len += param_len;
-              tn_msg[len++] = ' ';
-            }
-          }
-          tn_msg[len] = '\0';
-        }
-#else /* M_XENIX */
         ckmakxmsg(tn_msg,TN_MSG_LEN,"TELNET RCVD SB ",TELOPT(opt)," ",
                   NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
         {
@@ -2939,7 +2921,6 @@ tn_sb( opt, len, fn ) int opt; int * len; int (*fn)();
                 }
             }
         }
-#endif /* M_XENIX */
         tn_hex((CHAR *)tn_msg,TN_MSG_LEN,&sb[i],n-2-i);
         if (flag == 2)
           ckstrncat(tn_msg," SE",TN_MSG_LEN);
@@ -2962,9 +2943,7 @@ static char cols_buf[16] = { 0, 0 }; /* COLUMNS Enviornment variable */
 static char term_buf[64] = { 0, 0 }; /* TERM Environment variable */
 
 #ifdef CK_CURSES
-#ifndef COHERENT
 _PROTOTYP(int tgetent,(char *, char *));
-#endif /* COHERENT */
 extern char * trmbuf;                   /* Real curses */
 #endif /* CK_CURSES */
 
@@ -3519,7 +3498,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
 #endif /* NOPUTENV */
 #ifdef CK_CURSES
 #ifndef MYCURSES
-#ifndef COHERENT
                   if (trmbuf) {
                       if (tgetent(trmbuf,(char *)&sb[1]) < 1) {
                           /* Unsupported terminal.  If new and old terminal */
@@ -3531,7 +3509,6 @@ tn_xdoop(z, echo, fn) CHAR z; int echo; int (*fn)();
                           }
                       }
                   }
-#endif /* COHERENT */
 #endif /* MYCURSES */
 #endif /* CK_CURSES */
               }
@@ -4193,11 +4170,9 @@ tn_sttyp() {                            /* Send telnet terminal type. */
         }
     } else debug(F100,"tn_sttyp no term override","",0);
 
-#ifndef datageneral
     if (!ttn) {                         /* If no override, */
         ttn = getenv("TERM");           /* get it from the environment. */
     }
-#endif /* datageneral */
     if ((ttn == ((char *)0)) || ((int)strlen(ttn) >= TSBUFSIZ))
       ttn = "UNKNOWN";
     sb_out[0] = (CHAR) IAC;                 /* I Am a Command */
@@ -4588,12 +4563,7 @@ tnc_tn_sb(sb, len) CHAR * sb; int len;
               br[1] = sb[2];
               br[2] = sb[3];
               br[3] = sb[4];
-#ifdef datageneral
-              /* AOS/VS doesn't have ntohl() but MV's are big-endian */
-              tnc_bps = baudrate;
-#else
               tnc_bps = ntohl(baudrate);
-#endif /* datageneral */
               debug(F111,"tnc_tn_sb","baudrate rfc",tnc_bps);
           } else {
               debug(F111,"tnc_tn_sb","baudrate invalid len",len);
@@ -4976,12 +4946,7 @@ tnc_set_baud(baud) long baud;
      */
 
     int i = 0, rc;
-#ifdef datageneral
-    /* AOS/VS doesn't have htonl() but MV's are big-endian */
-    long net_baud = baud;
-#else
     long net_baud = htonl(baud);
-#endif /* datageneral */
     CHAR b;
 
     debug(F111,"tnc_set_baud","begin",baud);

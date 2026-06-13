@@ -49,17 +49,6 @@
 #endif /* NOCSETS */			/* is with interactive commands */
 #endif /* NOICP */
 
-#ifdef pdp11				/* There is a maximum number of */
-#ifndef NOCKSPEED			/* of -D's allowed on the CC */
-#define NOCKSPEED			/* command line, so some of them */
-#endif /* NOCKSPEED */			/* have to go here... */
-#ifndef NOREDIRECT
-#define NOREDIRECT
-#endif /* NOREDIRECT */
-#ifdef WHATAMI
-#undef WHATAMI
-#endif /* WHATAMI */
-#endif /* pdp11 */
 
 #ifdef UIDBUFLEN
 #define LOGINLEN UIDBUFLEN
@@ -204,13 +193,6 @@ struct ssh_pf {				/* SSH port forwarding */
   an interactive command parser.
 */
 #define CK_IFRO
-#ifdef MAC
-#undef CK_IFRO
-#else
-#ifdef GEMDOS
-#undef CK_IFRO
-#endif /* GEMDOS */
-#endif /* MAC */
 #endif /* NOSPL */
 
 /* Systems whose CONNECT modules can execute Application Program Commands */
@@ -325,24 +307,11 @@ struct ssh_pf {				/* SSH port forwarding */
 
 #define MAXPACK 94			/* Maximum unextended packet size */
 					/* Can't be more than 94. */
-#ifdef pdp11				/* Maximum sliding window slots */
-#define MAXWS  8
-#else
 #define MAXWS 32			/* Can't be more than 32. */
-#endif /* pdp11 */
 
 /* Maximum long packet size for sending packets */
 /* Override these from cc command line via -DMAXSP=nnn */
 
-#ifdef IRIX				/* Irix 6.4 and earlier has */
-#ifndef MAXSP				/* Telnet server bug */
-#ifdef IRIX65
-#define MAXSP 9024
-#else
-#define MAXSP 4000
-#endif /* IRIX65 */
-#endif /* MAXSP */
-#endif /* IRIX */
 
 #ifdef DYNAMIC
 #ifndef MAXSP
@@ -350,11 +319,7 @@ struct ssh_pf {				/* SSH port forwarding */
 #endif /* MAXSP */
 #else  /* not DYNAMIC */
 #ifndef MAXSP
-#ifdef pdp11
-#define MAXSP 1024
-#else
 #define MAXSP 2048
-#endif /* pdp11 */
 #endif /* MAXSP */
 #endif /* DYNAMIC */
 
@@ -367,11 +332,7 @@ struct ssh_pf {				/* SSH port forwarding */
 #endif /* MAXRP */
 #else  /* not DYNAMIC */
 #ifndef MAXRP
-#ifdef pdp11
-#define MAXRP 1024
-#else
 #define MAXRP 2048
-#endif /* pdp11 */
 #endif /* MAXRP */
 #endif /* DYNAMIC */
 /*
@@ -400,11 +361,7 @@ struct ssh_pf {				/* SSH port forwarding */
 #ifdef BIGBUFOK				/* If big buffers are safe... */
 #define SBSIZ 290000			/* Allow for 10 x 9024 or 20 x 4096 */
 #else					/* Otherwise... */
-#ifdef pdp11
-#define SBSIZ 3020
-#else
 #define SBSIZ 9050			/* Allow for 3 x 3000, etc. */
-#endif /* pdp11 */
 #endif /* BIGBUFOK */
 #endif /* SBSIZ */
 
@@ -412,25 +369,16 @@ struct ssh_pf {				/* SSH port forwarding */
 #ifdef BIGBUFOK
 #define RBSIZ 290000			/* Allow for 10 x 9024 or 20 x 4096 */
 #else
-#ifdef pdp11
-#define RBSIZ 3020
-#else
 #define RBSIZ 9050
-#endif /* pdp11 */
 #endif /* BIGBUFOK */
 #endif /* RBSIZ */
 #else  /* not DYNAMIC */
-#ifdef pdp11
-#define SBSIZ 3020
-#define RBSIZ 3020
-#else
 #ifndef SBSIZ
 #define SBSIZ (MAXSP * (MAXWS + 1))
 #endif /* SBSIZ */
 #ifndef RBSIZ
 #define RBSIZ (MAXRP * (MAXWS + 1))
 #endif /* RBSIZ */
-#endif /* pdp11 */
 #endif /* DYNAMIC */
 
 #ifdef BIGBUFOK
@@ -469,33 +417,12 @@ struct ssh_pf {				/* SSH port forwarding */
 
 /* The HP-UX 5 and 6 Telnet servers can only swallow 513 bytes at once */
 
-#ifdef HPUX5
-#ifdef DRPSIZ
-#undef DRPSIZ
-#endif /* DRPSIZ */
-#define DRPSIZ 500
-#else
-#ifdef HPUX6
-#ifdef DRPSIZ
-#undef DRPSIZ
-#endif /* DRPSIZ */
-#define DRPSIZ 500
-#endif /* HPUX6 */
-#endif /* HPUX5 */
 
 #define DSPSIZ	    90			/* Default outbound packet size. */
 #define DDELAY      1			/* Default delay. */
 #define DSPEED	    9600		/* Default line speed. */
 
-#ifdef NEXT				/* Ctrl-] for PC and NeXT */
-#define DFESC 29
-#else
-#ifdef GEMDOS				/* And Atari ST */
-#define DFESC 29
-#else
 #define DFESC 28			/* Ctrl-backslash for others */
-#endif /* GEMDOS */
-#endif /* NEXT */
 
 #ifdef NOPUSH				/* NOPUSH implies NOJC */
 #ifndef NOJC				/* (no job control) */
@@ -593,20 +520,7 @@ _PROTOTYP( int scanfile, (char *, int *, int) );
 _PROTOTYP( int scanstring, (char *) );
 
 /*  Buffered file i/o ...  */
-#ifdef pdp11
-#define INBUFSIZE 512
-#define OBUFSIZE 512
-#else
 /* In VMS, allow for longest possible RMS record */
-#ifdef STRATUS
-#ifdef DYNAMIC
-#define INBUFSIZE 32767			/* File input buffer size */
-#define OBUFSIZE 32767			/* File output buffer size */
-#else /* STRATUS, not DYNAMIC */
-#define INBUFSIZE 4096			/* File input buffer size */
-#define OBUFSIZE 4096			/* File output buffer size */
-#endif /* DYNAMIC */
-#else /* not STRATUS */
 #ifdef BIGBUFOK				/* Systems with some memory */
 #define INBUFSIZE 32768			/* 32K for packet buffers */
 #define OBUFSIZE 32768
@@ -614,8 +528,6 @@ _PROTOTYP( int scanstring, (char *) );
 #define INBUFSIZE 1024
 #define OBUFSIZE 1024
 #endif /* BIGBUFOK */
-#endif /* STRATUS */
-#endif /* pdp11 */
 
 /* File-transfer character in/out macros for buffered i/o */
 

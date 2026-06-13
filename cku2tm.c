@@ -131,12 +131,7 @@ main()
 			case	OFFTIME:
 				getb(fileno(stdin), &l, sizeof l);
 				getb(fileno(stdin), &off, sizeof off);
-#ifdef	__bsdi__
-				l += off;
-				tp = localtime(&l);
-#else
 				tp = offtime(&l, off);
-#endif
 				write(fileno(stdout), tp, sizeof (*tp));
 				break;
 			case	GETPWENT:

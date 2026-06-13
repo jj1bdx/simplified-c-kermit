@@ -186,36 +186,14 @@ modules would have to be changed...
 #include "ckcasc.h"			/* ASCII character symbols */
 #include "ckucmd.h"                     /* Command parsing definitions */
 
-#ifdef OSF13
-#ifdef CK_ANSIC
-#ifdef _NO_PROTO
-#undef _NO_PROTO
-#endif /* _NO_PROTO */
-#endif /* CK_ANSIC */
-#endif /* OSF13 */
 
-#ifndef HPUXPRE65
 #include <errno.h>			/* Error number symbols */
-#else
-#ifndef ERRNO_INCLUDED
-#include <errno.h>			/* Error number symbols */
-#endif	/* ERRNO_INCLUDED */
-#endif	/* HPUXPRE65 */
 
 /* Error number symbols - any compiler targeting Windows
  * and non-watcom compilers targeting OS/2. */
 
 
-#ifdef OSK
-#define cc ccount			/* OS-9/68K compiler bug */
-#endif /* OSK */
 
-#ifdef GEMDOS				/* Atari ST */
-#ifdef putchar
-#undef putchar
-#endif /* putchar */
-#define putchar(x) conoc(x)
-#endif /* GEMDOS */
 
 #ifdef CK_AUTODL
 extern int cmdadl, justone;
@@ -228,11 +206,7 @@ extern int timelimit, nzxopts, nopush, nolocal, xcmdsrc, keepallchars;
 #ifdef CKXPRINTF			/* Our printf macro conflicts with */
 #undef printf				/* use of "printf" in syslog.h */
 #endif /* CKXPRINTF */
-#ifdef RTAIX
-#include <sys/syslog.h>
-#else  /* RTAIX */
 #include <syslog.h>
-#endif /* RTAIX */
 #ifdef CKXPRINTF
 #define printf ckxprintf
 #endif /* CKXPRINTF */
@@ -345,9 +319,6 @@ _PROTOTYP( static VOID cmdnewl, (char) );
 _PROTOTYP( static VOID cmdchardel, (void) );
 _PROTOTYP( static VOID cmdecho, (char, int) );
 _PROTOTYP( static int test, (int, int) );
-#ifdef GEMDOS
-_PROTOTYP( extern char *strchr, (char *, int) );
-#endif /* GEMDOS */
 
 extern char * dftty;
 
@@ -359,23 +330,7 @@ static int esflag = 0;			/* Escape was typed */
 
 /* Directory separator */
 
-#ifdef GEMDOS
-static char dirsep = '\\';
-#else
-#ifdef datageneral
-static char dirsep = ':';
-#else
-#ifdef MAC
-static char dirsep = ':';
-#else
-#ifdef STRATUS
-static char dirsep = '>';
-#else
 static char dirsep = '/';		/* UNIX, OS/2, OS-9, Amiga, etc. */
-#endif /* STRATUS */
-#endif /* MAC */
-#endif /* datageneral */
-#endif /* GEMDOS */
 
 /*  H A S N O P A T H  */
 
@@ -897,12 +852,6 @@ prompt(f) xx_strp f;
     if (!*sx)				/* Don't print if empty */
       return;
 
-#ifdef OSK
-    fputs(sx, stdout);
-#else
-#ifdef MAC
-    printf("%s", sx);
-#else
 #ifdef IKSD
     if (inserver) {			/* Print the prompt. */
         ttoc(CK_CR);			/* If TELNET Server */
@@ -912,8 +861,6 @@ prompt(f) xx_strp f;
 #endif /* IKSD */
       printf("\r%s",sx);
       fflush(stdout);			/* Now! */
-#endif /* MAC */
-#endif /* OSK */
 }
 
 #ifndef NOSPL
@@ -1801,17 +1748,12 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 #endif /* DTILDE */
 
 #ifndef NOPARTIAL
-#ifdef OSK
-    /* This large array is dynamic for OS-9 -- should do for others too... */
-    extern char **mtchs;
-#else
 #ifdef UNIX
     /* OK, for UNIX too */
     extern char **mtchs;
 #else
     extern char *mtchs[];
 #endif /* UNIX */
-#endif /* OSK */
 #endif /* NOPARTIAL */
 
     if (!xhlp) xhlp = "";
@@ -1964,21 +1906,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 /* This is to get around "cd /" failing because "too many directories match" */
 
 	    expanded = 0;		/* Didn't call zxpand */
-#ifdef datageneral
-	    debug(F110,"cmifi isdir 1",*xp,0);
-	    {
-		int y; char *s;
-		s = *xp;
-		y = strlen(s);
-		if (y > 1 &&
-		    (s[y-1] == ':' ||
-		     s[y-1] == '^' ||
-		     s[y-1] == '=')
-		    )
-		  s[y-1] = NUL;
-	    }
-	    debug(F110,"cmifi isdir 2",*xp,0);
-#endif /*  datageneral */
 
 	    itsadir = isdir(*xp);	/* Is it a directory? */
 	    debug(F111,"cmifi itsadir",*xp,itsadir);
@@ -2099,10 +2026,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 			    if (*(ptr-1) != '/')
 			      ckstrncat(atmbuf,"/",ATMBL);
 #else
-#ifdef datageneral
-			    if (*(ptr-1) != ':')
-			      ckstrncat(atmbuf,":",ATMBL);
-#endif /* datageneral */
 #endif /* UNIX */
 			    ckstrncat(atmbuf,sv,ATMBL);
 			    debug(F110,"cmifip add path",atmbuf,0);
@@ -2231,15 +2154,11 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 #endif	/* NOLASTFILE */
 	    return(x);
 
-#ifndef MAC
 	  case 2:			/* ESC */
 	    debug(F101,"cmifi esc, xc","",xc);
 	    if (xc == 0) {
 		if (*xdef) {
 		    printf("%s ",xdef); /* If at beginning of field */
-#ifdef GEMDOS
-		    fflush(stdout);
-#endif /* GEMDOS */
 		    inword = cmflgs = 0;
 		    addbuf(xdef);	/* Supply default. */
 		    if (setatm(xdef,0) < 0) {
@@ -2350,16 +2269,8 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 		  cc -= 2;
 	    }
 
-#ifdef datageneral
-	    *sp++ = '+';		/* Data General AOS wildcard */
-#else
 	    *sp++ = '*';		/* Others */
-#endif /* datageneral */
 	    *sp-- = '\0';
-#ifdef GEMDOS
-	    if (!strchr(*xp, '.'))	/* abde.e -> abcde.e* */
-	      strcat(*xp, ".*");	/* abc -> abc*.* */
-#endif /* GEMDOS */
 	    /* Add wildcard and expand list. */
 #ifdef COMMENT
 	    /* This kills partial completion when ESC given in path segment */
@@ -2530,7 +2441,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 		    *xp = atmbuf;
 		} else {		/* Not a directory or dirflg */
 #endif /* CK_TMPDIR */
-#ifndef datageneral			/* VS dirnames must not end in ":" */
 		    if (dirflg) {
 			int len;
 			len = strlen(filbuf);
@@ -2541,7 +2451,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 			    }
 			}
 		    }
-#endif /* datageneral */
 		    sp = filbuf + cc;	/* Point past what user typed. */
 		    {
 			int x;
@@ -2565,9 +2474,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 			debug(F111,"cmifi after erase sp=",sp,cc);
 		    }
 		    printf("%s ",sp);	/* Print the completed name. */
-#ifdef GEMDOS
-		    fflush(stdout);
-#endif /* GEMDOS */
 		    addbuf(sp);		/* Add the characters to cmdbuf. */
 		    if (setatm(filbuf,0) < 0) { /* And to atmbuf. */
 			printf("?Completed name too long\n");
@@ -2597,9 +2503,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 	      printf(dirflg ? " Directory name" : " Input file specification");
 	    else
 	      printf(" %s",xhlp);
-#ifdef GEMDOS
-	    fflush(stdout);
-#endif /* GEMDOS */
 	    /* If user typed an opening quote or brace, just skip past it */
 
 	    if (**xp == '"' || **xp == '{') {
@@ -2636,16 +2539,8 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 #endif /* NOSPL */
 	    debug(F111,"cmifi ? *xp, cc",*xp,cc);
 	    sp = *xp + cc;		/* Insert "*" at end */
-#ifdef datageneral
-	    *sp++ = '+';		/* Insert +, the DG wild card */
-#else
 	    *sp++ = '*';
-#endif /* datageneral */
 	    *sp-- = '\0';
-#ifdef GEMDOS
-	    if (! strchr(*xp, '.'))	/* abde.e -> abcde.e* */
-	      strcat(*xp, ".*");	/* abc -> abc*.* */
-#endif /* GEMDOS */
 	    debug(F110,"cmifi ? wild",*xp,0);
 
 	    nzxopts |= dirflg ? ZX_DIRONLY : (d ? 0 : ZX_FILONLY);
@@ -2694,7 +2589,6 @@ cmifi2(xhlp,xdef,xp,wild,d,path,f,dirflg)
 	    printf("%s%s",cmprom,cmdbuf);
 	    fflush(stdout);
 	    break;
-#endif /* MAC */
 	}
 #ifdef BS_DIRSEP
         dirnamflg = 1;
@@ -2812,9 +2706,6 @@ cmfld(xhlp,xdef,xp,f) char *xhlp, *xdef, **xp; xx_strp f;
 	  case 2:			/* ESC */
 	    if (xc == 0 && *xdef) {
 		printf("%s ",xdef); /* If at beginning of field, */
-#ifdef GEMDOS
-		fflush(stdout);
-#endif /* GEMDOS */
 		addbuf(xdef);		/* Supply default. */
 		inword = cmflgs = 0;
 		if (setatm(xdef,0) < 0) {
@@ -2929,9 +2820,6 @@ cmtxt(xhlp,xdef,xp,f) char *xhlp; char *xdef; char **xp; xx_strp f;
 	  case -9:			/* Buffer overflow */
 	    printf("Command or field too long\n");
 	  case -4:			/* EOF */
-#ifdef MAC
-	  case -3:			/* Quit/Timeout */
-#endif /* MAC */
 	  case -2:			/* Overflow */
 	  case -1:			/* Deletion */
 	    return(x);
@@ -2995,9 +2883,6 @@ cmtxt(xhlp,xdef,xp,f) char *xhlp; char *xdef; char **xp; xx_strp f;
 		if (*xdef) {		/* Have a default for this field? */
 		    printf("%s ",xdef);	/* Yes, supply it */
 		    inword = cmflgs = 0;
-#ifdef GEMDOS
-		    fflush(stdout);
-#endif /* GEMDOS */
 		    cc = addbuf(xdef);
 		} else bleep(BP_WARN);	/* No default */
 	    } else {			/* Already in field */
@@ -3008,9 +2893,6 @@ cmtxt(xhlp,xdef,xp,f) char *xhlp; char *xdef; char **xp; xx_strp f;
 		} else if ((int)strlen(xdef) > x) { /* Yes */
 		    p = xdef + x;
 		    printf("%s ", p);
-#ifdef GEMDOS
-		    fflush(stdout);
-#endif /* GEMDOS */
 		    addbuf(p);
 		    inword = cmflgs = 0;
 		    debug(F110,"cmtxt: addbuf",cmdbuf,0);
@@ -3342,9 +3224,6 @@ cmkey2(table,n,xhlp,xdef,tok,f,pmsg)
             if (cc == 0) {
 		if (*xdef != NUL) {     /* Nothing in atmbuf */
 		    printf("%s ",xdef); /* Supply default if any */
-#ifdef GEMDOS
-		    fflush(stdout);
-#endif /* GEMDOS */
 		    addbuf(xdef);
 		    if (setatm(xdef,0) < 0) {
 			printf("?Default too long\n");
@@ -3487,9 +3366,6 @@ cmkey2(table,n,xhlp,xdef,tok,f,pmsg)
 	    if (test(table[z].flgs,CM_NOR)) no_recall = 1;
 #endif /* CK_RECALL */
 	    cmkwflgs = table[z].flgs;
-#ifdef GEMDOS
-	    fflush(stdout);
-#endif /* GEMDOS */
 	    addbuf(xp);
 	    if (cmswitch && test(table[z].flgs,CM_ARG)) {
 		bp--;			/* Replace trailing space with : */
@@ -6313,11 +6189,6 @@ gtword(brk) int brk;
 #endif /* IKSD */
     extern int kstartactive;
 
-#ifdef datageneral
-    extern int termtype;                /* DG terminal type flag */
-    extern int con_reads_mt;            /* Console read asynch is active */
-    if (con_reads_mt) connoi_mt();      /* Task would interfere w/cons read */
-#endif /* datageneral */
 
 #ifdef COMMENT
 #ifdef DEBUG
@@ -6520,13 +6391,6 @@ CMDIRPARSE:
             }
 #endif /* IKSD */
 
-#ifdef MAC
-	   if (c == -3)			/* Empty word... */
-	     if (blocklvl > 0)
-	       continue;
-	     else
-	       return(-3);
-#endif /* MAC */
 	   if (c == EOF) {		/* This can happen if stdin not tty. */
 #ifdef EINTR
 /*
@@ -6622,19 +6486,11 @@ CMDIRPARSE:
                 *bp++ = (char) c;	/* deposit in buffer if not already */
 		debug(F101,"gtword SPACE fnstate","",fnstate);
 		debug(F101,"gtword SPACE inword","",inword);
-#ifdef BEBOX
-                if (echof) {
-		    cmdecho((char) c, 0); /* Echo what was typed. */
-                    fflush(stdout);
-                    fflush(stderr);
-                }
-#else
                 if (echof) {
 		    cmdecho((char) c, 0); /* Echo what was typed. */
 		    if (timelimit)
 		      fflush(stdout);
 		}
-#endif /* BEBOX */
                 if (inword == 0
 #ifdef FUNCTIONTEST
                     && !fnstate
@@ -6686,19 +6542,11 @@ CMDIRPARSE:
 		) {
                 *bp++ = (char) c;	/* Switch argument separator */
 		/* debug(F111,"gtword switch argsep",cmdbuf,brk); */
-#ifdef BEBOX
-                if (echof) {
-		    cmdecho((char) c, 0); /* Echo what was typed. */
-                    fflush(stdout);
-                    fflush(stderr);
-                }
-#else
 		if (echof) {
 		    cmdecho((char) c, 0); /* Echo what was typed. */
 		    if (timelimit)
 		      fflush(stdout);
 		}
-#endif /* BEBOX */
 		if ((*pp != lbrace) || (bracelvl == 0)) {
 		    np = bp;
 		    cmbptr = np;
@@ -6715,10 +6563,6 @@ CMDIRPARSE:
             if (c == LF || c == CK_CR) {	/* CR or LF. */
 		if (echof) {
                     cmdnewl((char)c);	/* echo it. */
-#ifdef BEBOX
-                    fflush(stdout);
-                    fflush(stderr);
-#endif /* BEBOX */
                 }
 		{
 		    /* Trim trailing comment and whitespace */
@@ -6979,9 +6823,6 @@ CMDIRPARSE:
 		  case VT:
 		    if (lastfile) {
 			printf("%s ",lastfile);
-#ifdef GEMDOS
-			fflush(stdout);
-#endif /* GEMDOS */
 			inword = cmflgs = 0;
 			addbuf(lastfile);	/* Supply default. */
 			if (setatm(lastfile,0) < 0) {
@@ -7012,13 +6853,7 @@ CMDIRPARSE:
 			    *bp = NUL;
 			}
 			ckstrncpy(cmdbuf,recall[current],CMDBL);
-#ifdef OSK
-			fflush(stdout);
-			write(fileno(stdout), "\r", 1);
-			printf("%s%s",cmprom,cmdbuf);
-#else
 			printf("\r%s%s",cmprom,cmdbuf);
-#endif /* OSK */
 			current--;
 		    }
 		    last_recall = 1;
@@ -7041,13 +6876,7 @@ CMDIRPARSE:
 			    *bp = NUL;
 			}
 			ckstrncpy(cmdbuf,recall[current],CMDBL);
-#ifdef OSK
-			fflush(stdout);
-			write(fileno(stdout), "\r", 1);
-			printf("%s%s",cmprom,cmdbuf);
-#else
 			printf("\r%s%s",cmprom,cmdbuf);
-#endif /* OSK */
 			last_recall = 2;
 			return(cmflgs = -1); /* Force reparse */
 		    }
@@ -7064,20 +6893,12 @@ CMDIRPARSE:
 		continue;		/* continue, don't put in buffer */
 	    }
 	    linebegin = 0;		/* Not at beginning of line */
-#ifdef BEBOX
-	    if (echof) {
-                cmdecho((char) c, 0);	/* Echo what was typed. */
-                fflush (stdout);
-                fflush(stderr);
-            }
-#else
 #ifdef NOSPL
             if (echof || chsrc)
 #else
             if (echof || (echostars && chsrc))
 #endif	/* NOSPL */
 	      cmdecho((char) c, 0);	/* Echo what was typed. */
-#endif /* BEBOX */
         } else {			/* This character was quoted. */
 	    int qf = 1;
 	    quote = 0;			/* Unset the quote flag. */
@@ -7108,15 +6929,7 @@ CMDIRPARSE:
 		goto CMDIRPARSE;
 #endif /* BS_DIRSEP */
 	    }
-#ifdef BEBOX
-	    if (echof) {
-                cmdecho((char) c, qf);	/* Echo what was typed. */
-                fflush (stdout);
-                fflush(stderr);
-            }
-#else
 	    if (echof) cmdecho((char) c, qf); /* Now echo quoted character */
-#endif /* BEBOX */
 	    /* debug(F111,"gtword quote",cmdbuf,c); */
 	}
 #ifdef COMMENT
@@ -7354,21 +7167,6 @@ cmdgetc(timelimit) int timelimit;
 	  cmdchardel();
 	return(c);
     }
-#ifdef datageneral
-    {
-	char ch;
-	c = dgncinb(0,&ch,1);		/* -1 is EOF, -2 TO,
-                                         * -c is AOS/VS error */
-	if (c == -2) {			/* timeout was enabled? */
-	    resto(channel(0));		/* reset timeouts */
-	    c = dgncinb(0,&ch,1);	/* retry this now! */
-	}
-	if (c < 0) return(-4);		/* EOF or some error */
-	else c = (int) ch & 0177;	/* Get char without parity */
-/*	echof = 1; */
-    }
-#else /* Not datageneral */
-#ifndef MINIX2
     if (
 #ifdef IKSD
 	(!local && inserver) ||
@@ -7520,14 +7318,6 @@ cmdgetc(timelimit) int timelimit;
 #endif /* CMD_CONINC */
 	c = getchar();
     }
-#else  /* MINIX2 */
-#undef getc
-#ifdef CMD_CONINC
-#undef CMD_CONINC
-#endif /* CMD_CONINC */
-    c = getc(stdin);
-    /* debug(F101,"cmdgetc getc","",c); */
-#endif /* MINIX2 */
 #ifdef RTU
     if (rtu_bug) {
 #ifdef CMD_CONINC
@@ -7537,7 +7327,6 @@ cmdgetc(timelimit) int timelimit;
 	rtu_bug = 0;
     }
 #endif /* RTU */
-#endif /* datageneral */
     return(c);				/* Return what we got */
 }
 
@@ -7547,21 +7336,6 @@ cmdgetc(timelimit) int timelimit;
 
 #ifndef USE_FILE_CNT			/* stdin->__cnt */
 #ifndef USE_FILE__CNT			/* Note: two underscores */
-#ifdef HPUX				/* HPUX 7-11 */
-#ifndef HPUX5
-#ifndef HPUX6
-#define USE_FILE__CNT
-#endif /* HPUX6 */
-#endif /* HPUX5 */
-#else
-#ifdef ANYSCO				/* SCO UNIX, OSR5, Unixware, etc */
-#ifndef OLD_UNIXWARE			/* But not Unixware 1.x or 2.0 */
-#ifndef UNIXWARE2			/* or 2.1.0 */
-#define USE_FILE__CNT
-#endif /* UNIXWARE2 */
-#endif /* OLD_UNIXWARE */
-#endif /* ANYSCO */
-#endif /* HPUX */
 #endif /* USE_FILE__CNT */
 #endif /* USE_FILE_CNT */
 
@@ -7679,21 +7453,6 @@ cmdnewl(c) char c;
     /* OS2 no longer needs this as all CR are converted to NL in coninc() */
     /* This eliminates the ugly extra blank lines discussed above.        */
 #endif /* COMMENT */
-#ifdef aegis
-    if (c == CK_CR) putchar(NL);
-#endif /* aegis */
-#ifdef AMIGA
-    if (c == CK_CR) putchar(NL);
-#endif /* AMIGA */
-#ifdef datageneral
-    if (c == CK_CR) putchar(NL);
-#endif /* datageneral */
-#ifdef GEMDOS
-    if (c == CK_CR) putchar(NL);
-#endif /* GEMDOS */
-#ifdef STRATUS
-    if (c == CK_CR) putchar(NL);
-#endif /* STRATUS */
 }
 
 static VOID
@@ -7702,21 +7461,7 @@ cmdchardel() {				/* Erase a character from the screen */
     if (!echostars)
 #endif	/* NOSPL */
       if (!dpx) return;
-#ifdef datageneral
-    /* DG '\b' is EM (^y or \031) */
-    if (termtype == 1)
-      /* Erase a character from non-DG screen, */
-      dgncoub(1,"\010 \010",3);
-    else
-#endif /* datageneral */
       printf("\b \b");
-#ifdef GEMDOS
-    fflush(stdout);
-#else
-#ifdef BEBOX
-    fflush(stdout);
-#endif /* BEBOX */
-#endif /* GEMDOS */
 }
 
 static VOID

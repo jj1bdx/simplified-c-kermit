@@ -62,9 +62,6 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 #include "ckcdeb.h"
 #include "ckcker.h"
 #include "ckcasc.h"
-#ifdef I386IX                           /* Has to come before ckcnet.h in */
-#include <errno.h>                      /* this version, but after in others */
-#endif /* I386IX */
 #include "ckcnet.h"                     /* which includes ckctel.h */
 #include "ckuusr.h"
 
@@ -74,23 +71,12 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 #include <arpa/nameser_compat.h>
 #endif	/* USE_NAMESER_COMPAT */
 
-#ifdef MINIX3
-#include <net/gen/resolv.h>
-#include <net/gen/nameser.h>
-#else
 #include <arpa/nameser.h>
 #include <resolv.h>
-#endif /* MINIX 3 */
 
-#ifndef PS2AIX10
 #ifndef BSD4
-#ifndef I386IX
-#ifndef RTAIX
 #include <netdb.h>
-#endif /* RTAIX */
-#endif /* I386IX */
 #endif /* BSD4 */
-#endif /* PS2AIX10 */
 #ifndef T_SRV
 #define T_SRV 33
 #endif /* T_SRV */
@@ -113,13 +99,6 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 #endif /* NONET */
 
 #ifndef NOMHHOST
-#ifdef datageneral
-#define NOMHHOST
-#else
-#ifdef HPUX5WINTCP
-#define NOMHHOST
-#endif /* HPUX5WINTCP */
-#endif /* datageneral */
 #endif /* NOMHHOST */
 
 #ifdef INADDRX
@@ -190,13 +169,6 @@ int tt_push_inited = 0;
 
 /* Also see ckcnet.h -- hmmm, why don't we always include inet.h? */
 
-#ifdef HPUX
-#ifndef HPUX7                           /* HPUX 7.00 doesn't have it */
-#ifndef HPUX6                           /* HPUX 6.00 doesn't have it */
-#include <arpa/inet.h>                  /* For inet_ntoa() prototype */
-#endif /* HPUX6 */
-#endif /* HPUX7 */
-#endif /* HPUX */
 
 
 #ifndef NODCLTIMEVAL
@@ -213,23 +185,8 @@ struct timezone {
 #endif /* NODCLTIMEVAL */
 
 
-#ifdef OSF13
-#ifdef CK_ANSIC
-#ifdef _NO_PROTO
-#undef _NO_PROTO
-#endif /* _NO_PROTO */
-#endif /* CK_ANSIC */
-#endif /* OSF13 */
 
-#ifndef I386IX
-#ifndef HPUXPRE65
 #include <errno.h>			/* Error number symbols */
-#else
-#ifndef ERRNO_INCLUDED
-#include <errno.h>			/* Error number symbols */
-#endif	/* ERRNO_INCLUDED */
-#endif	/* HPUXPRE65 */
-#endif /* I386IX */
 
 
 #include <signal.h>                     /* Everybody needs this */
@@ -241,21 +198,6 @@ struct timezone {
 #endif /* ZILOG */
 
 
-#ifdef datageneral                      /* Data General AOS/VS */
-#include <:usr:include:vs_tcp_errno.h>
-#include <:usr:include:sys:vs_tcp_types.h>
-#ifdef SELECT
-/*
-  NOTE: This can be compiled and linked OK with SELECT defined
-  but it doesn't work at all.  Anybody who cares and knows how
-  to fix it, feel free.
-*/
-#include <:usr:include:sys:vs_tcp_time.h>
-#endif /* SELECT */
-#include <:usr:include:sys:socket.h>
-#include <:usr:include:netinet:in.h>
-#include <:usr:include:netdb.h>
-#endif /* datageneral */
 
 #ifndef socket_errno
 #define socket_errno errno
@@ -392,17 +334,6 @@ int tcp_linger  = 0;                    /* SO_LINGER */
 int tcp_linger_tmo = 0;                 /* SO_LINGER timeout */
 #endif /* SO_LINGER */
 
-#ifdef HPUX                             /* But the data structures */
-#ifndef HPUX8                           /* needed for linger are not */
-#ifndef HPUX9                           /* defined in HP-UX versions */
-#ifndef HPUX10                          /* prior to 8.00. */
-#ifdef SO_LINGER
-#undef SO_LINGER
-#endif /* SO_LINGER */
-#endif /* HPUX10 */
-#endif /* HPUX9 */
-#endif /* HPUX8 */
-#endif /* HPUX */
 
 #ifndef SO_OOBINLINE                    /* Hopefully only HP-UX 7.0 */
 #define SO_OOBINLINE 0x0100
@@ -627,19 +558,6 @@ CHAR ttibuf[TTIBUFL+1];
   use different forms of select()...
 */
 #ifndef NOSELECT         /* Option to override BSDSELECT */
-#ifdef BELLV10
-/*
-  Note: Although BELLV10 does have TCP/IP support, and does use the unique
-  form of select() that is evident in this module (and in ckutio.c), it does
-  not have a sockets library and so we can't build Kermit TCP/IP support for
-  it.  For this, somebody would have to write TCP/IP streams code.
-*/
-#define BELLSELECT
-#ifndef FD_SETSIZE
-#define FD_SETSIZE 128
-#endif /* FD_SETSIZE */
-#else
-#endif /* BELLV10 */
 #endif /* NOSELECT */
 /*
   Others (TGV, TCPware, ...) use alarm()/signal().  The BSDSELECT case does not
@@ -962,63 +880,6 @@ ck_copyhostent(h) struct hostent * h;
     return(&hosts[next++]);
 }
 
-#ifdef EXCELAN
-/*
-  Most other BSD sockets implementations define these in header files
-  and libraries.
-*/
-struct servent {
-    unsigned short s_port;
-};
-
-struct hostent {
-    short h_addrtype;
-    struct in_addr h_addr;
-    int h_length;
-};
-
-struct servent *
-getservbyname(service, connection) char *service,*connection; {
-    static struct servent servrec;
-    int port;
-
-    port = 0;
-    if (strcmp(service, "telnet") == 0) port = 23;
-    else if (strcmp(service, "smtp") == 0) port = 25;
-    else port = atoi(service);
-
-    debug(F101,"getservbyname return port ","",port);
-
-    if (port > 0) {
-        servrec.s_port = htons(port);
-        return(&servrec);
-    }
-    return((struct servent *) NULL);
-}
-
-struct hostent *
-gethostbyname(hostname) char *hostname; {
-    return((struct hostent *) NULL);
-}
-
-unsigned long
-inet_addr(name) char *name; {
-    unsigned long addr;
-
-    addr = rhost(&name);
-    debug(F111,"inet_addr ",name,(int)addr);
-    return(addr);
-}
-
-char *
-inet_ntoa(in) struct in_addr in; {
-    static char name[80];
-    ckmakxmsg(name, ckuitoa(in.s_net),".",ckuitoa(in.s_host),".",
-               ckuitoa(in.s_lh),".", ckuitoa(in.s_impno));
-    return(name);
-}
-#else
-#endif /* EXCELAN */
 
 int
 gettcpport() {
@@ -1028,7 +889,6 @@ gettcpport() {
 #endif /* TCPSOCKET */
 
 #ifndef NOTCPOPTS
-#ifndef datageneral
 int
 #ifdef CK_ANSIC
 ck_linger( int sock, int onoff, int timo )
@@ -1462,28 +1322,13 @@ no_delay(sock,onoff)  int sock; int onoff;
 #endif /* SOL_SOCKET */
     return 0;
 }
-#endif /* datageneral */
 #endif /* NOTCPOPTS */
 
-#ifdef SUNX25
-#ifndef X25_WR_FACILITY
-/* For Solaris 2.3 / SunLink 8.x - see comments in ckcnet.h */
-void
-bzero(s,n) char *s; int n; {
-    memset(s,0,n);
-}
-#endif /* X25_WR_FACILITY */
-#endif /* SUNX25 */
 
 #ifdef TCPSOCKET
 #ifndef NOLISTEN
 
 #ifdef BSDSELECT
-#ifndef BELLV10
-#ifndef datageneral
-#ifdef hp9000s500                       /* HP-9000/500 HP-U 5.21 */
-#include <time.h>
-#else
 
 /****** THIS SECTION ADDED BY STEVE RANCE - OS9 NETWORK SERVER
 *       ------------------------------------------------------
@@ -1509,32 +1354,14 @@ bzero(s,n) char *s; int n; {
 *       stever@ozemail.com.au
 */
 
-#ifdef  OSK
-#define BSDSELECT                       /* switch on BSD select code */
-#define FD_SETSIZE 32                   /* Max # of paths in OS9 */
-#define FD_ZERO(p)                      ((*p)=0)
-#define FD_SET(n,b)                     ((*b)|=(1<<(n)))
-#define FD_ISSET(n,b)           1       /* always say data is ready */
-#define select(a,b,c,d,e)       1       /* always say 1 path has data */
-typedef int     fd_set;                 /* keep BSD Code Happy */
-struct timeval {int tv_sec,tv_usec;};   /* keep BSD Code Happy */
-
-/****** END OF OS9 MODS FROM STEVE RANCE **************************/
-#endif /* OSK */
 
 #include <sys/time.h>
-#endif /* hp9000s500 */
-#endif /* datageneral */
-#endif /* BELLV10 */
 #ifdef SELECT_H
 #include <sys/select.h>
 #endif /* SELECT_H */
 #endif /* BSDSELECT */
 
 #ifdef SELECT
-#ifdef CK_SCOV5
-#include <sys/select.h>
-#endif /* CK_SCOV5 */
 #endif /* SELECT */
 
 #ifdef NOTUSED
@@ -1593,7 +1420,6 @@ tcpsocket_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo {
 #ifdef SOL_SOCKET
     setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
 
-#ifndef datageneral
 #ifdef TCP_NODELAY
     no_delay(ttyfd,tcp_nodelay);
 #endif /* TCP_NODELAY */
@@ -1609,7 +1435,6 @@ tcpsocket_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo {
 #ifdef SO_RCVBUF
     recvbuf(ttyfd,tcp_recvbuf);
 #endif /* SO_RCVBUF */
-#endif /* datageneral */
 #endif /* SOL_SOCKET */
 #endif /* NOTCPOPTS */
 
@@ -1908,14 +1733,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
             FD_SET(tcpsrfd, &rfds);
             ready_to_accept =
               ((select(FD_SETSIZE,
-#ifdef HPUX
-#ifdef HPUX1010
-                       (fd_set *)
-#else
-
-                       (int *)
-#endif /* HPUX1010 */
-#else
 #ifdef __DECC
 #ifdef INTSELECT
                        (int *)
@@ -1923,7 +1740,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
                        (fd_set *)
 #endif /* def INTSELECT [else] */
 #endif /* __DECC */
-#endif /* HPUX */
                        &rfds, NULL, NULL, &tv) > 0) &&
                FD_ISSET(tcpsrfd, &rfds));
 #else /* BSDSELECT */
@@ -1977,7 +1793,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
         setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
 
 #ifndef NOTCPOPTS
-#ifndef datageneral
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
         no_delay(ttyfd,tcp_nodelay);
@@ -1998,7 +1813,6 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
         recvbuf(ttyfd,tcp_recvbuf);
 #endif /* SO_RCVBUF */
 #endif /* SOL_SOCKET */
-#endif /* datageneral */
 #endif /* NOTCPOPTS */
 
         ttnet = nett;                   /* TCP/IP (sockets) network */
@@ -2063,18 +1877,14 @@ tcpsrv_open(name,lcl,nett,timo) char * name; int * lcl; int nett; int timo;
 
 
 
-#ifndef datageneral
         /* Find out our own IP address. */
         l_slen = sizeof(l_addr);
         bzero((char *)&l_addr, l_slen);
-#ifndef EXCELAN
         if (!getsockname(ttyfd, (struct sockaddr *)&l_addr, &l_slen)) {
             char * s = (char *)inet_ntoa(l_addr.sin_addr);
             ckstrncpy(myipaddr, s,20);
             debug(F110,"getsockname",myipaddr,0);
         }
-#endif /* EXCELAN */
-#endif /* datageneral */
 
         if (tn_ini() < 0)               /* Start TELNET negotiations. */
           if (ttchk() < 0) {            /* Disconnected? */
@@ -2125,9 +1935,6 @@ ckname2addr( char * name )
 ckname2addr(name) char * name;
 #endif /* CK_ANSIC */
 {
-#ifdef HPUX5
-    return("");
-#else
     struct hostent *host;
 
     if (name == NULL || *name == '\0')
@@ -2139,7 +1946,6 @@ ckname2addr(name) char * name;
         return(inet_ntoa(*((struct in_addr *) host->h_addr)));
     }
     return("");
-#endif /* HPUX5 */
 }
 
 char *
@@ -2149,9 +1955,6 @@ ckaddr2name( char * addr )
 ckaddr2name(addr) char * addr;
 #endif /* CK_ANSIC */
 {
-#ifdef HPUX5
-    return("");
-#else
     struct hostent *host;
     struct in_addr sin_addr;
 
@@ -2165,7 +1968,6 @@ ckaddr2name(addr) char * addr;
         return((char *)host->h_name);
     }
     return("");
-#endif /* HPUX5 */
 }
 #endif /* TCPSOCKET */
 
@@ -2180,17 +1982,6 @@ ckgetpeer() {
 #ifdef GPEERNAME_T
     static GPEERNAME_T saddrlen;
 #else
-#ifdef PTX
-    static size_t saddrlen;
-#else
-#ifdef AIX42
-    /* It's size_t in 4.2 but int in 4.1 and earlier. */
-    /* Note: the 4.2 man page lies; believe socket.h. */
-    static size_t saddrlen;
-#else
-#ifdef UNIXWARE
-    static size_t saddrlen;
-#else  /* UNIXWARE */
 #ifdef MACOSX10
     static unsigned int saddrlen;
 #else
@@ -2200,9 +1991,6 @@ ckgetpeer() {
     static int saddrlen;
 #endif	/* CK_64BIT */
 #endif /* MACOSX10 */
-#endif /* UNIXWARE */
-#endif /* AIX42 */
-#endif /* PTX */
 #endif	/* GPEERNAME_T */
     saddrlen = sizeof(saddr);
     if (getpeername(ttyfd,(struct sockaddr *)&saddr,&saddrlen) < 0) {
@@ -2276,9 +2064,7 @@ ckgetfqhostname(name) char * name;
         bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
 #endif /* HADDRLIST */
 #ifdef COMMENT
-#ifndef EXCELAN
         debug(F111,"BCOPY","host->h_addr",host->h_addr);
-#endif /* EXCELAN */
         debug(F111,"BCOPY"," (caddr_t)&r_addr.sin_addr",
               (caddr_t)&r_addr.sin_addr);
 #endif	/* COMMENT */
@@ -2459,9 +2245,6 @@ netopen(name, lcl, nett) char *name; int *lcl, nett;
 {
     char *p;
     int i, x, dns = 0;
-#ifdef SOLARIS
-    int rc_inet_addr = 0;
-#endif /* SOLARIS */
 #ifdef TCPSOCKET
     int isconnect = 0;
 #ifdef SO_OOBINLINE
@@ -2473,19 +2256,9 @@ netopen(name, lcl, nett) char *name; int *lcl, nett;
     struct sockaddr_in sin;
     struct sockaddr_in l_addr;
     GSOCKNAME_T l_slen;
-#ifdef EXCELAN
-    struct sockaddr_in send_socket;
-#endif /* EXCELAN */
 
 #ifdef INADDRX
 /* inet_addr() is of type struct in_addr */
-#ifdef datageneral
-    extern struct in_addr inet_addr();
-#else
-#ifdef HPUX5WINTCP
-    extern struct in_addr inet_addr();
-#endif /* HPUX5WINTCP */
-#endif /* datageneral */
     struct in_addr iax;
 #else
 #ifdef INADDR_NONE
@@ -2503,19 +2276,6 @@ netopen(name, lcl, nett) char *name; int *lcl, nett;
 #endif /* INADDR_NONE */
 #endif /* COMMENT */
 
-#ifdef SUNX25                           /* Code for SunLink X.25 support */
-#define X29PID 1                        /* X.29 Protocol ID */
-_PROTOTYP(SIGTYP x25oobh, (int) );
-    CONN_DB x25host;
-#ifndef X25_WR_FACILITY
-    FACILITY x25facil;
-#else
-    FACILITY_DB x25facil;
-#endif /* X25_WR_FACILITY */
-    static int needh = 1;
-    PID_T pid;
-    extern int linkid, lcn, x25ver;
-#endif /* SUNX25 */
 #ifdef ANYX25
     extern int revcall, closgr, cudata;
     extern char udata[];
@@ -2534,125 +2294,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     debug(F101,"netopen nett","",nett);
     *ipaddr = '\0';                     /* Initialize IP address string */
 
-#ifdef SUNX25
-    if (nett == NET_SX25) {             /* If network type is X.25 */
-        netclos();                      /* Close any previous net connection */
-        ttnproto = NP_NONE;             /* No protocol selected yet */
-
-        /* Set up host structure */
-        bzero((char *)&x25host,sizeof(x25host));
-        if ((x25host.hostlen = pkx121(name,x25host.host)) < 0) {
-            fprintf (stderr,"Invalid X.121 host address %s\n",name);
-            errno = 0;
-            return (-1);
-        }
-        x25host.datalen = X29PIDLEN;
-        x25host.data[0] = X29PID;
-
-        /* Set call user data if specified */
-        if (cudata) {
-            ckstrncpy((char *)x25host.data+X29PIDLEN,udata,(int)strlen(udata));
-            x25host.datalen += (int)strlen(udata);
-        }
-
-        /* Open SunLink X.25 socket */
-        if (!quiet && *name) {
-            printf(" Trying %s... ", name);
-            fflush(stdout);
-        }
-        if ((ttyfd = socket(AF_X25, SOCK_STREAM, 0)) < 0) {
-            debug(F101,"netopen socket error","",errno);
-            perror ("X.25 socket error");
-            return (-1);
-        }
-
-        /* Setting X.25 out-of-band data handler */
-        pid = getpid();
-        if (ioctl(ttyfd,SIOCSPGRP,&pid)) {
-            perror("X.25 set process group id error");
-            return(-1);
-        }
-        (VOID) signal(SIGURG,x25oobh);
-
-        /* Set reverse charge call and closed user group if requested */
-        bzero ((char *)&x25facil,sizeof(x25facil));
-
-#ifndef X25_WR_FACILITY
-/*  New SunLink (7.0 or 8.0, not sure which)... */
-        x25facil.type = T_REVERSE_CHARGE; /* Reverse Charge */
-        x25facil.f_reverse_charge = revcall ? 1 : 0;
-        if (ioctl(ttyfd,X25_SET_FACILITY,&x25facil) < 0) {
-            perror ("Setting X.25 reverse charge");
-            return (-1);
-        }
-        if (closgr > -1) {              /* Closed User Group (Outgoing) */
-            bzero ((char *)&x25facil,sizeof(x25facil));
-            x25facil.type = T_CUG;
-            x25facil.f_cug_req = CUG_REQ_ACS;
-            x25facil.f_cug_index = closgr;
-            if (ioctl(ttyfd,X25_SET_FACILITY,&x25facil) < 0) {
-                perror ("Setting X.25 closed user group");
-                return (-1);
-            }
-        }
-#else
-/*  Old SunLink 6.0 (or 7.0?)... */
-        if (revcall) x25facil.reverse_charge = revcall;
-        if (closgr > -1) {
-            x25facil.cug_req = 1;
-            x25facil.cug_index = closgr;
-        }
-        if (ioctl(ttyfd,X25_WR_FACILITY,&x25facil) < 0) {
-            perror ("Setting X.25 facilities");
-            return (-1);
-        }
-#endif /* X25_WR_FACILITY */
-
-        /*  Need X.25 header with bits Q and M */
-        if (ioctl (ttyfd,X25_HEADER,&needh) < 0) {
-            perror ("Setting X.25 header");
-            return (-1);
-        }
-
-        /* Connects to remote host via SunLink X.25 */
-        if (connect(ttyfd,(struct sockaddr *)&x25host,sizeof(x25host)) < 0) {
-            i = errno;
-            debug(F101,"netopen connect errno","",i);
-            if (i) {
-                perror("netopen x25 connect");
-                x25diag();
-            }
-            (VOID) netclos();
-            ttyfd = -1;
-            wasclosed = 1;
-            ttnproto = NP_NONE;
-            errno = i;
-            return (-1);
-        }
-
-        /* Get X.25 link identification used for the connection */
-        if (ioctl(ttyfd,X25_GET_LINK,&linkid) < 0) {
-            perror ("Getting X.25 link id");
-            return (-1);
-        }
-
-        /* Get X.25 logical channel number used for the connection */
-        if (ioctl(ttyfd,X25_RD_LCGN,&lcn) < 0) {
-            perror ("Getting X.25 lcn");
-            return (-1);
-        }
-
-        /* Get SunLink X.25 version */
-        if (ioctl(ttyfd,X25_VERSION,&x25ver) < 0) {
-            perror ("Getting SunLink X.25 version");
-            return (-1);
-        }
-        ttnet = nett;                   /* Sunlink X.25 network */
-        ttnproto = NP_X3;               /* PAD X.3, X.28, X.29 protocol */
-        if (lcl) if (*lcl < 0) *lcl = 1; /* Local mode */
-        return(0);
-    } else /* Note that SUNX25 support can coexist with TCP/IP support. */
-#endif /* SUNX25 */
 
 #ifdef IBMX25
     /* riehm */
@@ -3068,20 +2709,7 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     iax.s_addr = inet_addr(namecopy);
     debug(F111,"netopen inet_addr",namecopy,iax.s_addr);
 #else /* INADDR_NONE */
-#ifdef SOLARIS
-    /* In Solaris inet_addr() is of type in_addr_t which is uint32_t */
-    /* (unsigned) yet it returns -1 (signed) on failure. */
-    /* It makes a difference in 64-bit builds. */
-    rc_inet_addr = inet_addr(namecopy);	/* Assign return code to an int */
-    iax = (unsigned) rc_inet_addr;	/* and from there to whatever.. */
-    debug(F111,"netopen rc_inet_addr",namecopy,rc_inet_addr);
-#else
-#ifndef datageneral
     iax = (unsigned int) inet_addr(namecopy);
-#else
-    iax = -1L;
-#endif /* datageneral */
-#endif /* SOLARIS */
     debug(F111,"netopen inet_addr",namecopy,iax);
 #endif /* INADDR_NONE */
 #endif /* INADDRX */
@@ -3092,15 +2720,11 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 /* because INADDR_NONE should be all 1's anyway, thus the OR part is */
 /* probably superfluous -- not sure why it's even there, maybe it should be */
 /* removed. */
-#ifdef SOLARIS
-	rc_inet_addr == -1
-#else
 #ifdef INADDR_NONE
         iax.s_addr == INADDR_NONE /* || iax.s_addr == (unsigned long) -1L */
 #else /* INADDR_NONE */
         iax < 0
 #endif /* INADDR_NONE */
-#endif /* SOLARIS */
         ) {
         if (!quiet) {
             printf(" DNS Lookup... ");
@@ -3148,16 +2772,10 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
             bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
 #endif /* h_addr */
 #else  /* HADDRLIST */
-#ifdef HPUX6
-	    r_addr.sin_addr.s_addr = (u_long)host->h_addr;
-#else  /* HPUX6 */
             bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
-#endif	/* HPUX6 */
 #endif /* HADDRLIST */
 
-#ifndef HPUX6
             debug(F111,"BCOPY","host->h_length",host->h_length);
-#endif	/* HPUX6 */
         }
     }
 #endif /* NOMHHOST */
@@ -3209,23 +2827,11 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     /* Loop to try additional IP addresses, if any. */
 
     do {
-#ifdef EXCELAN
-        send_socket.sin_family = AF_INET;
-        send_socket.sin_addr.s_addr = 0;
-        send_socket.sin_port = 0;
-        if ((ttyfd = socket(SOCK_STREAM, (struct sockproto *)0,
-                            &send_socket, SO_REUSEADDR)) < 0)
-#else  /* EXCELAN */
 
         if ((ttyfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-#endif /* EXCELAN */
             {
-#ifdef EXCELAN
-                experror("TCP socket error");
-#else
                 perror("TCP socket error");
                 debug(F101,"netopen socket error","",errno);
-#endif /* EXCELAN */
                 return (-1);
             }
         errno = 0;
@@ -3288,7 +2894,6 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 
        /* If a specific TCP address on the local host is desired we */
        /* must bind it to the socket.                               */
-#ifndef datageneral
          if (tcp_address) {
              int s_errno;
 
@@ -3316,15 +2921,10 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
                  return(-1);
              }
          }
-#endif /* datageneral */
 
 /* Now connect to the socket on the other end. */
 
-#ifdef EXCELAN
-        if (connect(ttyfd, &r_addr) < 0)
-#else
         if (connect(ttyfd, (struct sockaddr *)&r_addr, sizeof(r_addr)) < 0)
-#endif /* EXCELAN */
           {
               i = errno;                /* Save error code */
 #ifdef RLOGCODE
@@ -3368,13 +2968,9 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
               wasclosed = 1;
               ttnproto = NP_NONE;
               errno = i;                /* And report this error */
-#ifdef EXCELAN
-              if (errno) experror("netopen connect");
-#else
               debug(F101,"netopen connect errno","",errno);
               if (!quiet)
                 perror("Failed");
-#endif /* EXCELAN */
               return(-1);
           }
         isconnect = 1;
@@ -3498,29 +3094,7 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 #endif /* TCPIPLIB */
 #endif /* RLOGCODE */
 
-#ifdef datageneral
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef BSD43
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef OSF1
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
 #ifdef POSIX
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef MOTSV88R4
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef SOLARIS
-/*
-  Maybe this applies to all SVR4 versions, but the other (else) way has been
-  compiling and working fine on all the others, so best not to change it.
-*/
-    setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef OSK
     setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
 #else
 #ifdef CLIX
@@ -3528,17 +3102,10 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
 #else
     setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE, &on, sizeof on);
 #endif /* CLIX */
-#endif /* OSK */
-#endif /* SOLARIS */
-#endif /* MOTSV88R4 */
 #endif /* POSIX */
-#endif /* BSD43 */
-#endif /* OSF1 */
-#endif /* datageneral */
 #endif /* SO_OOBINLINE */
 
 #ifndef NOTCPOPTS
-#ifndef datageneral
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
     no_delay(ttyfd,tcp_nodelay);
@@ -3556,22 +3123,17 @@ _PROTOTYP(SIGTYP x25oobh, (int) );
     recvbuf(ttyfd,tcp_recvbuf);
 #endif /* SO_RCVBUF */
 #endif /* SOL_SOCKET */
-#endif /* datageneral */
 #endif /* NOTCPOPTS */
 
-#ifndef datageneral
     /* Find out our own IP address. */
     /* We need the l_addr structure for [E]KLOGIN. */
     l_slen = sizeof(l_addr);
     bzero((char *)&l_addr, l_slen);
-#ifndef EXCELAN
     if (!getsockname(ttyfd, (struct sockaddr *)&l_addr, &l_slen)) {
         char * s = (char *)inet_ntoa(l_addr.sin_addr);
         ckstrncpy(myipaddr, s, 20);
         debug(F110,"getsockname",myipaddr,0);
     }
-#endif /* EXCELAN */
-#endif /* datageneral */
 
 /*
   This is really only needed for Kerberos IV but is useful information in any
@@ -3840,9 +3402,7 @@ nettchk() {                             /* for reading from network */
     }
 #endif /* NETLEBUF */
 
-#ifndef BEBOX
     socket_errno = 0; /* This is a function call in NT, and BeOS */
-#endif /* BEBOX */
 
     if (ttyfd == -1) {
         debug(F100,"nettchk socket is closed","",0);
@@ -4727,7 +4287,6 @@ getlocalipaddr( void )
 getlocalipaddr()
 #endif /* CK_ANSIC */
 {
-#ifndef datageneral
     struct sockaddr_in l_sa;
     struct sockaddr_in r_sa;
     GSOCKNAME_T slen = sizeof(struct sockaddr_in);
@@ -4774,9 +4333,6 @@ getlocalipaddr()
         }
     }
     return getlocalipaddrs(myipaddr,sizeof(myipaddr),0);
-#else /* datageneral */
-    return(-1);
-#endif /* datageneral */
 }
 
 int
@@ -4786,7 +4342,6 @@ getlocalipaddrs( char * buf, int  bufsz, int index )
 getlocalipaddrs(buf,bufsz,index) char * buf; int bufsz; int index;
 #endif /* CK_ANSIC */
 {
-#ifndef datageneral
     char localhost[256];
     struct hostent * host=NULL;
     struct sockaddr_in l_sa;
@@ -4862,7 +4417,6 @@ getlocalipaddrs(buf,bufsz,index) char * buf; int bufsz; int index;
                      0
                      );
     }
-#endif /* datageneral */
     return(-1);
 }
 
@@ -5173,11 +4727,7 @@ rlogoobh( int sig )
 rlogoobh(sig) int sig;
 #endif /* CK_ANSIC */
 {
-#ifdef SOLARIS
-    char                                /* Or should it be char for all? */
-#else
     CHAR
-#endif /* SOLARIS */
       oobdata;
 
     /* int  count = 0; */ /* (not used) */
@@ -5258,470 +4808,6 @@ netbreak() {
 
 
 #ifdef NETCONN
-#ifdef SUNX25
-/*
-  SunLink X.25 support by Marcello Frutig, Catholic University,
-  Rio de Janeiro, Brazil, 1990.
-*/
-
-/* PAD X.3, X.28 and X.29 support */
-
-static CHAR x29err[MAXPADPARMS+3] = { X29_ERROR, INVALID_PAD_PARM, '\0' };
-
-/* Initialize PAD */
-
-extern CHAR padparms[];
-
-VOID
-initpad() {
-  padparms[PAD_BREAK_CHARACTER]        = 0;  /* Break character */
-  padparms[PAD_ESCAPE]                 = 1;  /* Escape permitted */
-  padparms[PAD_ECHO]                   = 1;  /* Kermit PAD does echo */
-  padparms[PAD_DATA_FORWARD_CHAR]      = 2;  /* forward character CR */
-  padparms[PAD_DATA_FORWARD_TIMEOUT]   = 0;  /* no timeout forward condition */
-  padparms[PAD_FLOW_CONTROL_BY_PAD]    = 0;  /* not used */
-  padparms[PAD_SUPPRESSION_OF_SIGNALS] = 1;  /* allow PAD service signals */
-  padparms[PAD_BREAK_ACTION]           = 21; /* brk action: INT pk + brk ind*/
-  padparms[PAD_SUPPRESSION_OF_DATA]    = 0;  /* no supression of user data */
-  padparms[PAD_PADDING_AFTER_CR]       = 0;  /* no padding after CR */
-  padparms[PAD_LINE_FOLDING]           = 0;  /* no line fold */
-  padparms[PAD_LINE_SPEED]             = 0;  /* line speed - don't care */
-  padparms[PAD_FLOW_CONTROL_BY_USER]   = 0;  /* flow cont of PAD - not used */
-  padparms[PAD_LF_AFTER_CR]            = 0;  /* no LF insertion after CR */
-  padparms[PAD_PADDING_AFTER_LF]       = 0;  /* no padding after LF */
-  padparms[PAD_EDITING]                = 1;  /* can edit */
-  padparms[PAD_CHAR_DELETE_CHAR]       = 8;  /* character delete character */
-  padparms[PAD_BUFFER_DELETE_CHAR]     = 21; /* buffer delete character */
-  padparms[PAD_BUFFER_DISPLAY_CHAR]    = 18; /* buffer display character */
-}
-
-/* Set PAD parameters */
-
-VOID
-setpad(s,n) CHAR *s; int n; {
-    int i;
-    CHAR *ps = s;
-
-    if (n < 1) {
-        initpad();
-    } else {
-        for (i = 0; i < n; i++) {
-            if (*ps > MAXPADPARMS)
-              x29err[i+2] = *ps;
-            else
-              padparms[*ps] = *(ps+1);
-            ps += 2;
-        }
-    }
-}
-
-/* Read PAD parameters */
-
-VOID
-readpad(s,n,r) CHAR *s; int n; CHAR *r; {
-    int i;
-    CHAR *ps = s;
-    CHAR *pr = r;
-
-    *pr++ = X29_PARAMETER_INDICATION;
-    if (n > 0) {
-        for (i = 0; i < n; i++, ps++) {
-            if (*ps > MAXPADPARMS) {
-                x29err[i+2] = *ps++;
-            } else {
-                *pr++ = *ps;
-                *pr++ = padparms[*ps++];
-            }
-        }
-    } else {
-        for (i = 1; i < MAXPADPARMS; i++) {
-            *pr++ = i;
-            *pr++ = padparms[i];
-        }
-    }
-}
-
-int
-qbitpkt(s,n) CHAR *s; int n; {
-    CHAR *ps = s;
-    int x29cmd = *ps;
-    CHAR *psa = s+1;
-    CHAR x29resp[(MAXPADPARMS*2)+1];
-
-    switch (x29cmd) {
-
-        case X29_SET_PARMS:
-            setpad (ps+1,n/2);
-            if ((int)strlen((char *)x29err) > 2) {
-                ttol(x29err,(int)strlen((char *)x29err));
-                x29err[2] = '\0';
-            }
-            return (-2);
-        case X29_READ_PARMS:
-            readpad (ps+1,n/2,x29resp);
-            setqbit ();
-            ttol(x29resp,(n>1)?(n+1):(2*MAXPADPARMS+1));
-            if ((int)strlen((char *)x29err) > 2) {
-                ttol(x29err,(int)strlen((char *)x29err));
-                x29err[2] = '\0';
-            }
-            resetqbit();
-            break;
-        case X29_SET_AND_READ_PARMS:
-            setpad (ps+1,n/2);
-            readpad (ps+1,n/2,x29resp);
-            setqbit();
-            ttol(x29resp,(n>1)?(n+1):(2*MAXPADPARMS+1));
-            if ((int)strlen((char *)x29err) > 2) {
-                ttol (x29err,(int)strlen((char *)x29err));
-                x29err [2] = '\0';
-            }
-            resetqbit();
-            return (-2);
-        case X29_INVITATION_TO_CLEAR:
-            (VOID) x25clear();
-            return (-1);
-        case X29_INDICATION_OF_BREAK:
-            break;
-    }
-    return (0);
-}
-
-/* PAD break action processor */
-
-VOID
-breakact() {
-    extern char x25obuf[MAXOX25];
-    extern int obufl;
-    extern int active;
-    extern unsigned char tosend;
-    static CHAR indbrk[3] = {
-        X29_INDICATION_OF_BREAK,
-        PAD_SUPPRESSION_OF_DATA,
-        1
-    };
-    CHAR intudat, cause, diag;
-
-    if (x25stat() < 0) return;  /* Ignore if no virtual call established */
-
-    if (padparms[PAD_BREAK_ACTION] != 0) /* Forward condition */
-        if (ttol((CHAR *)x25obuf,obufl) < 0) {
-            perror ("\r\nCan't send characters");
-            active = 0;
-        } else {
-            bzero (x25obuf,sizeof(x25obuf));
-            obufl = 0;
-            tosend = 0;
-        };
-
-    switch (padparms[PAD_BREAK_ACTION]) {
-
-       case 0 : break;                  /* do nothing */
-       case 1 : /* send interrupt packet with interrupt user data field = 1 */
-                intudat = 1;
-                x25intr (intudat);
-                break;
-       case 2 : /* send reset packet with cause and diag = 0 */
-                cause = diag = 0;
-                x25reset (cause,diag);
-                break;
-       case 5 : /* send interrupt packet with interrupt user data field = 0 */
-                intudat = 0;
-                x25intr (intudat);
-                setqbit ();
-                /* send indication of break without a parameter field */
-                ttoc(X29_INDICATION_OF_BREAK);
-                resetqbit ();
-                break;
-       case 8 : active = 0;             /* leave data transfer */
-                conol ("\r\n");
-                break;
-       case 21: /* send interrupt packet with interrupt user data field = 0 */
-                intudat = 0;
-                x25intr (intudat);
-                setpad (indbrk+1,2);    /* set pad to discard input */
-                setqbit ();
-                /* send indication of break with parameter field */
-                ttol (indbrk,sizeof(indbrk));
-                resetqbit ();
-                break;
-     }
-}
-
-/* X.25 support functions */
-
-X25_CAUSE_DIAG diag;
-
-/*
-  Convert a null-terminated string representing an X.121 address
-  to a packed BCD form.
-*/
-int
-pkx121(str,bcd) char *str; CHAR *bcd; {
-    int i, j;
-    u_char c;
-
-    i = j = 0;
-    while (str[i]) {
-        if (i >= 15 || str [i] < '0' || str [i] > '9')
-          return (-1);
-        c = str [i] - '0';
-        if (i & 1)
-          bcd [j++] |= c;
-        else
-          bcd [j] = c << 4;
-        i++;
-    }
-    return (i);
-}
-
-/* Reads and prints X.25 diagnostic */
-
-int
-x25diag () {
-    int i;
-
-    bzero ((char *)&diag,sizeof(diag));
-    if (ioctl(ttyfd,X25_RD_CAUSE_DIAG,&diag)) {
-        perror ("Reading X.25 diagnostic");
-        return(-1);
-    }
-    if (diag.datalen > 0) {
-        printf ("X.25 Diagnostic :");
-        for (i = 0; i < (int)diag.datalen; i++)
-          printf(" %02h",diag.data[i])+
-        printf ("\r\n");
-    }
-    return(0);
-}
-
-/* X.25 Out-of-Band Signal Handler */
-
-SIGTYP
-x25oobh(foo) int foo; {
-    int oobtype;
-    u_char oobdata;
-    int t;
-
-    (VOID) signal(SIGURG,x25oobh);
-    do {
-        if (ioctl(ttyfd,X25_OOB_TYPE,&oobtype)) {
-            perror ("Getting signal type");
-            return;
-        }
-        switch (oobtype) {
-          case INT_DATA:
-            if (recv(ttyfd,(char *)&oobdata,1,MSG_OOB) < 0) {
-                perror ("Receiving X.25 interrupt data");
-                return;
-            }
-            t = oobdata;
-            printf ("\r\nInterrupt received, data = %d\r\n", t);
-            break;
-          case VC_RESET:
-            printf ("\r\nVirtual circuit reset\r\n");
-            x25diag ();
-            break;
-          case N_RESETS:
-            printf ("\r\nReset timeout\r\n");
-            break;
-          case N_CLEARS:
-            printf ("\r\nClear timeout\r\n");
-            break;
-          case MSG_TOO_LONG:
-            printf ("\r\nMessage discarded, too long\r\n");
-            break;
-          default:
-            if (oobtype) printf("\r\nUnknown oob type %d\r\n",oobtype);
-            break;
-        }
-    } while (oobtype);
-}
-
-/* Send a X.25 interrupt packet */
-
-int
-#ifdef CK_ANSIC
-x25intr(char intr)
-#else
-x25intr(intr) char intr;
-#endif /* CK_ANSIC */
-/* x25intr */ {
-    if (send(ttyfd,&intr,1,MSG_OOB) < 0) return(-1);
-    debug(F100,"X.25 intr","",0);
-    return(0);
-}
-
-/* Reset X.25 virtual circuit */
-int
-#ifdef CK_ANSIC
-x25reset(char cause, char diagn)
-#else
-x25reset(cause, diagn) char cause; char diagn;
-#endif /* CK_ANSIC */
-/* x25reset */ {
-    bzero ((char *)&diag,sizeof(diag));
-    diag.flags   = 0;
-    diag.datalen = 2;
-    diag.data[0] = cause;
-    diag.data[1] = diagn;
-    if (ioctl(ttyfd,X25_WR_CAUSE_DIAG,&diag) < 0)
-      return(-1);
-    debug(F100,"X.25 reset","",0);
-    return(0);
-}
-
-/* Clear X.25 virtual circuit */
-int
-x25clear() {
-    int i;
-    debug(F100,"X.25 clear","",0);
-    bzero ((char *)&diag,sizeof(diag));
-    diag.flags = (1 << DIAG_TYPE);
-    diag.datalen = 2;
-    diag.data[0] = 0;
-    diag.data[1] = 0;
-    ioctl (ttyfd,X25_WR_CAUSE_DIAG,&diag); /* Send Clear Request */
-    return(ttclos(0));                  /* Close socket */
-}
-
-/* X.25 status */
-int
-x25stat() {
-    if (ttyfd == -1) return (-1);
-    return(0);
-}
-
-/* Set Q_BIT on */
-VOID
-setqbit() {
-    static int qbiton = 1 << Q_BIT;
-    ioctl (ttyfd,X25_SEND_TYPE,&qbiton);
-}
-
-/* Set Q_BIT off */
-VOID
-resetqbit() {
-    static int qbitoff = 0;
-    ioctl (ttyfd,X25_SEND_TYPE,&qbitoff);
-}
-
-/* Read n characters from X.25 circuit into buf */
-
-int
-x25xin(n,buf) int n; CHAR *buf; {
-    register int x, c;
-    int qpkt;
-
-    do {
-        x = read(ttyfd,buf,n);
-        if (buf[0] & (1 << Q_BIT)) { /* If Q_BIT packet, process it */
-            /* If return -1 : invitation to clear; -2 : PAD changes */
-            if ((c=qbitpkt(buf+1,x-2)) < 0) return(c);
-            qpkt = 1;
-        } else qpkt = 0;
-    } while (qpkt);
-
-#ifdef COMMENT                  /* Disabled by Stephen Riehm 19.12.97 */
-    /* BUG!
-     * if buf[] is full, then this null lands in nirvana!
-     * I was unable to find any code which needs a trailing null in buf[]
-     */
-    if (x > 0) buf[x] = '\0';
-#endif /* COMMENT */
-    if (x < 1) x = -1;
-    debug(F101,"x25xin x","",x);
-
-    return(x);
-}
-
-#ifdef COMMENT /* NO LONGER NEEDED! */
-/* X.25 read a line */
-
-int
-#ifdef PARSENSE
-#ifdef CK_ANSIC
-x25inl(CHAR *dest, int max,int timo, CHAR eol, CHAR start)
-#else
-x25inl(dest,max,timo,eol,start) int max,timo; CHAR *dest, eol, start;
-#endif /* CK_ANSIC */
-#else /* not PARSENSE */
-#ifdef CK_ANSIC
-x25inl(CHAR *dest, int max,int timo, CHAR eol)
-#else
-x25inl(dest,max,timo,eol) int max,timo; CHAR *dest, eol;
-#endif /* __SDTC__ */
-#endif /*PARSENSE */
- /* x25inl */ {
-    CHAR *pdest;
-    int pktype, goteol, rest, n;
-    int i, flag = 0;
-    extern int ttprty, ttpflg;
-    int ttpmsk;
-
-    ttpmsk = (ttprty) ? 0177 : 0377;    /* Set parity stripping mask */
-
-    debug(F101,"x25inl max","",max);
-    debug(F101,"x25inl eol","",eol);
-    pdest  = dest;
-    rest   = max;
-    goteol = 0;
-    do {
-        n = read(ttyfd,pdest,rest);
-        n--;
-        pktype = *pdest & 0x7f;
-        switch (pktype) {
-          case 1 << Q_BIT:
-            if (qbitpkt(pdest+1,--n) < 0) return(-2);
-            break;
-          default:
-            if (flag == 0) { /* if not in packet, search start */
-                for (i = 1; (i < n) &&
-                     !(flag = ((dest[i] & 0x7f) == start));
-                     i++);
-                if (flag == 0) { /* not found, discard junk */
-                    debug(F101,"x25inl skipping","",n);
-                    continue;
-                } else {                /* found, discard junk before start */
-                    int k;
-                    n = n - i + 1;
-                    for (k = 1; k <= n; k++, i++) dest[k] = dest[i];
-                }
-            }
-            for (i = 0; (i < n) && /* search for eol */
-                 !(goteol=(((*pdest = *(pdest+1)&ttpmsk)&0x7f)== eol));
-                 i++,pdest++);
-            *pdest = '\0';
-            rest -= n;
-        }
-    } while ((rest > 0) && (!goteol));
-
-    if (goteol) {
-        n = max - rest;
-        debug (F111,"x25inl X.25 got",(char *) dest,n);
-        if (timo) ttimoff();
-        if (ttpflg++ == 0 && ttprty == 0) {
-            if ((ttprty = parchk(dest,start,n)) > 0) {
-                int j;
-                debug(F101,"x25inl senses parity","",ttprty);
-                debug(F110,"x25inl packet before",(char *)dest,0);
-                ttpmsk = 0x7f;
-                for (j = 0; j < n; j++)
-                  dest[j] &= 0x7f; /* Strip parity from packet */
-                debug(F110,"x25inl packet after ",dest,0);
-            } else {
-                debug(F101,"parchk","",ttprty);
-                if (ttprty < 0) { ttprty = 0; n = -1; }
-            }
-        }
-        ttimoff();
-        return(n);
-    }
-    ttimoff();
-    return(-1);
-}
-#endif /* COMMENT */
-#endif /* SUNX25 */
 
 #ifdef IBMX25
 /*
@@ -7574,15 +6660,6 @@ x25dump_prim(primitive)    N_npi_ctl_t *primitive; {
 #ifndef TIMEH
 #ifndef SYSTIMEH
 #ifndef SYSTIMEBH
-#ifdef Plan9
-#include <sys/time.h>
-#else
-#ifdef AIX41
-#include <time.h>
-#else
-#ifdef SUNOS4
-#include <sys/time.h>
-#else
 #ifdef SYSTIMEH
 #include <sys/time.h>
 #else
@@ -7597,9 +6674,6 @@ x25dump_prim(primitive)    N_npi_ctl_t *primitive; {
 #endif /* CLIX */
 #endif /* POSIX */
 #endif /* SYSTIMEH */
-#endif /* SUNOS4 */
-#endif /* AIX41 */
-#endif /* Plan9 */
 #endif
 #endif
 #endif
@@ -7904,19 +6978,9 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
     struct sockaddr_in sin;
     struct sockaddr_in l_addr;
     GSOCKNAME_T l_slen;
-#ifdef EXCELAN
-    struct sockaddr_in send_socket;
-#endif /* EXCELAN */
 
 #ifdef INADDRX
 /* inet_addr() is of type struct in_addr */
-#ifdef datageneral
-    extern struct in_addr inet_addr();
-#else
-#ifdef HPUX5WINTCP
-    extern struct in_addr inet_addr();
-#endif /* HPUX5WINTCP */
-#endif /* datageneral */
     struct in_addr iax;
 #else
 #ifdef INADDR_NONE
@@ -8028,11 +7092,7 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
     iax.s_addr = inet_addr(http_ip[0]?http_ip:hostname);
     debug(F111,"http_open inet_addr",http_ip[0]?http_ip:hostname,iax.s_addr);
 #else /* INADDR_NONE */
-#ifndef datageneral
     iax = (unsigned int) inet_addr(http_ip[0]?http_ip:hostname);
-#else
-    iax = -1L;
-#endif /* datageneral */
     debug(F111,"http_open inet_addr",http_ip[0]?http_ip:hostname,iax);
 #endif /* INADDR_NONE */
 #endif /* INADDRX */
@@ -8079,9 +7139,7 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
             bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
 #endif /* HADDRLIST */
 #ifdef COMMENT
-#ifndef EXCELAN
             debug(F111,"BCOPY","host->h_addr",host->h_addr);
-#endif /* EXCELAN */
             debug(F111,"BCOPY"," (caddr_t)&r_addr.sin_addr",
                   (caddr_t)&r_addr.sin_addr);
             debug(F111,"BCOPY"," r_addr.sin_addr.s_addr",
@@ -8138,29 +7196,16 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
     /* Loop to try additional IP addresses, if any. */
 
     do {
-#ifdef EXCELAN
-        send_socket.sin_family = AF_INET;
-        send_socket.sin_addr.s_addr = 0;
-        send_socket.sin_port = 0;
-        if ((httpfd = socket(SOCK_STREAM, (struct sockproto *)0,
-                            &send_socket, SO_REUSEADDR)) < 0)
-#else  /* EXCELAN */
         if ((httpfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-#endif /* EXCELAN */
             {
-#ifdef EXCELAN
-                experror("TCP socket error");
-#else
                 perror("TCP socket error");
                 debug(F101,"http_open socket error","",errno);
-#endif /* EXCELAN */
                 return (-1);
             }
         errno = 0;
 
        /* If a specific TCP address on the local host is desired we */
        /* must bind it to the socket.                               */
-#ifndef datageneral
          if (tcp_address) {
              int s_errno;
 
@@ -8187,15 +7232,10 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
                  return(-1);
              }
          }
-#endif /* datageneral */
 
 /* Now connect to the socket on the other end. */
 
-#ifdef EXCELAN
-        if (connect(httpfd, &r_addr) < 0)
-#else
         if (connect(httpfd, (struct sockaddr *)&r_addr, sizeof(r_addr)) < 0)
-#endif /* EXCELAN */
           {
               i = errno;                /* Save error code */
 #ifdef HADDRLIST
@@ -8225,13 +7265,9 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
               http_close();
               httpfd = -1;
               errno = i;                /* And report this error */
-#ifdef EXCELAN
-              if (errno) experror("http_open connect");
-#else
               debug(F101,"http_open connect errno","",errno);
               if (!quiet)
                 perror("Failed");
-#endif /* EXCELAN */
               return(-1);
           }
         isconnect = 1;
@@ -8267,29 +7303,7 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
 
 #ifdef SO_OOBINLINE
     /* See note on SO_OOBINLINE in netopen() */
-#ifdef datageneral
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef BSD43
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef OSF1
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
 #ifdef POSIX
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef MOTSV88R4
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef SOLARIS
-/*
-  Maybe this applies to all SVR4 versions, but the other (else) way has been
-  compiling and working fine on all the others, so best not to change it.
-*/
-    setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
-#else
-#ifdef OSK
     setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE,(char *) &on, sizeof on);
 #else
 #ifdef CLIX
@@ -8297,17 +7311,10 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
 #else
     setsockopt(httpfd, SOL_SOCKET, SO_OOBINLINE, &on, sizeof on);
 #endif /* CLIX */
-#endif /* OSK */
-#endif /* SOLARIS */
-#endif /* MOTSV88R4 */
 #endif /* POSIX */
-#endif /* BSD43 */
-#endif /* OSF1 */
-#endif /* datageneral */
 #endif /* SO_OOBINLINE */
 
 #ifndef NOTCPOPTS
-#ifndef datageneral
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
     no_delay(ttyfd,tcp_nodelay);
@@ -8325,22 +7332,17 @@ http_open(hostname, svcname, use_ssl, rdns_name, rdns_len, agent)
     recvbuf(ttyfd,tcp_recvbuf);
 #endif /* SO_RCVBUF */
 #endif /* SOL_SOCKET */
-#endif /* datageneral */
 #endif /* NOTCPOPTS */
 
-#ifndef datageneral
     /* Find out our own IP address. */
     /* We need the l_addr structure for [E]KLOGIN. */
     l_slen = sizeof(l_addr);
     bzero((char *)&l_addr, l_slen);
-#ifndef EXCELAN
     if (!getsockname(httpfd, (struct sockaddr *)&l_addr, &l_slen)) {
         char * s = (char *)inet_ntoa(l_addr.sin_addr);
         ckstrncpy(myipaddr, s, 20);
         debug(F110,"getsockname",myipaddr,0);
     }
-#endif /* EXCELAN */
-#endif /* datageneral */
 
 /* See note in netopen() on Reverse DNS lookups */
      if (tcp_rdns == SET_ON) {
@@ -10525,11 +9527,6 @@ http_connect(socket, agent, hdrlist, user, pwd, array, host_port)
 #define NTOHSP(x,y) x[0] << 8 | x[1]; x += y
 
 #ifndef CKQUERYTYPE
-#ifdef UNIXWARE
-#ifndef UW7
-#define CKQUERYTYPE CHAR
-#endif /* UW7 */
-#endif /* UNIXWARE */
 #endif /* CKQUERYTYPE */
 
 #ifndef CKQUERYTYPE

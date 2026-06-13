@@ -24,11 +24,6 @@
 
 /* Command recall */
 
-#ifdef pdp11				/* Not enough room for this */
-#ifndef NORECALL
-#define NORECALL
-#endif /* NORECALL */
-#endif /* pdp11 */
 
 #ifdef DYNAMIC				/* Dynamic command buffers */
 /*
@@ -62,24 +57,8 @@
 /* Special getchars */
 
 
-#ifdef aegis
-#undef getchar
-#define getchar()   coninc(0)
-#endif /* aegis */
 
-#ifdef AMIGA
-#undef getchar
-#define getchar() coninc(0)
-#endif /* AMIGA */
 
-#ifdef Plan9
-#undef getchar
-#define getchar() coninc(0)
-#undef putchar
-#define putchar(c) conoc(c)
-#undef printf
-#define printf conprint
-#endif /* Plan9 */
 
 /* Sizes of things */
 
@@ -111,11 +90,7 @@
 #ifdef BIGBUFOK
 #define CMDBL 32763
 #else
-#ifdef SUNOS4                           /* fdc 23 September 2023 */
-#define CMDBL 16384
-#else
 #define CMDBL 4092
-#endif /* SUNOS4 */
 #endif /* BIGBUFOK */
 #endif /* NOSPL */
 #endif /* CMDBL */
@@ -181,11 +156,7 @@ struct keytab {				/* Keyword table */
 /* String preprocessing function */
 
 #ifdef CK_ANSIC				/* ANSI C */
-#ifdef M_SYSV				/* SCO Microsoft C wants no args */
-typedef int (*xx_strp)();
-#else
 typedef int (*xx_strp)(char *, char **, int *); 
-#endif /* M_SYSV */
 #else					/* Not ANSI C */
 typedef int (*xx_strp)();
 #endif /* CK_ANSIC */

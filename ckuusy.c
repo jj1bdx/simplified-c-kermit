@@ -91,9 +91,7 @@ extern int revcall, closgr, cudata;
 extern char udata[];
 extern int x25fd;
 #endif /* ANYX25 */
-#ifndef OSK
 extern
-#endif /* OSK */
 
 int telnetfd;
 extern struct keytab netcmd[];
@@ -653,11 +651,6 @@ char * http_hlp[] = {
 
 VOID
 usage() {
-#ifdef MINIX
-    conol("Usage: ");
-    conol(xarg0);
-    conol(" [-x arg [-x arg]...[-yyy]..] ]\n");
-#else
     conol("Usage: ");
     conol(xarg0);
     if (howcalled == I_AM_KERMIT || howcalled == I_AM_IKSD ||
@@ -698,7 +691,6 @@ usage() {
 	printf("For a list of extended options use '%s --help'.\n",
 	       xarg0);
     }
-#endif /* MINIX */
 }
 
 
@@ -3289,9 +3281,6 @@ extern char *line, *tmpbuf;             /* Character buffers for anything */
 #ifdef NETCONN
 #ifdef ANYX25
 	  case 'X':			/* SET HOST to X.25 address */
-#ifdef SUNX25
-	  case 'Z':			/* SET HOST to X.25 file descriptor */
-#endif /* SUNX25 */
 #endif /* ANYX25 */
 #ifdef TCPSOCKET
 	  case 'J':
@@ -3476,20 +3465,6 @@ extern char *line, *tmpbuf;             /* Character buffers for anything */
 		    ckstrncpy(ttname, line,TTNAMLEN+1);
 		    cxtype = CXT_TCPIP;	/* Set connection type */
 		    setflow();		/* Set appropriate flow control. */
-#ifdef SUNX25
-		} else if (x == 'X') {	/* X.25 address */
-		    nettype = NET_SX25;
-		    mdmtyp = -nettype;
-		} else if (x == 'Z') {	/* Open X.25 file descriptor */
-		    nettype = NET_SX25;
-		    mdmtyp = -nettype;
-		    x25fd = 1;
-#endif /* SUNX25 */
-#ifdef STRATUSX25
-		} else if (x == 'X') {	/* X.25 address */
-		    nettype = NET_VX25;
-		    mdmtyp = -nettype;
-#endif /* STRATUSX25 */
 #ifdef IBMX25
 		} else if (x == 'X') {	/* X.25 address */
 		    nettype = NET_IX25;

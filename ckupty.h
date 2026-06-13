@@ -27,9 +27,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif /* HAVE_UNISTD_H */
-#ifdef __SCO__
-#include <sys/unistd.h>
-#endif /* __SCO__ */
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif /* HAVE_STDLIB_H */
@@ -37,9 +34,7 @@
 #include <stdio.h>
 
 #include <sys/stat.h>
-#ifndef SUNOS41
 #include <sys/ioctl.h>
-#endif	/* SUNOS41 */
 #include <sys/file.h>
 #include <sys/time.h>
 #include <ctype.h>
@@ -57,12 +52,6 @@
 
 #include <signal.h>
 
-#ifdef HPUX
-#include <sys/ptyio.h>
-#endif /* HPUX */
-#ifdef sysvimp
-#include <compat.h>
-#endif /* sysvimp */
 
 #ifdef COMMENT
 /* I don't think we actually use this for anything */
@@ -80,20 +69,14 @@
 #endif /* HAVE_STREAMS */
 
 #ifdef POSIX_TERMIOS
-#ifndef ultrix
 #include <termios.h>
-#else
-#include <sgtty.h>
-#endif /* ultrix */
 #else /* POSIX_TERMIOS */
 #include <sgtty.h>
 #endif /* POSIX_TERMIOS */
 
 #include <netdb.h>
 /* #include <syslog.h> */
-#ifndef ultrix
 #include <string.h>
-#endif /* ultrix */
 /* #include <sys/param.h> */		/* (now done in ckcdeb.h) */
 
 #ifdef HAVE_STREAMS

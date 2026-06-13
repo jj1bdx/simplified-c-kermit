@@ -49,9 +49,6 @@
 #ifndef BSD44
 #define NOHTERMCAP
 #else
-#ifdef __bsdi__
-#define NOHTERMCAP
-#else
 #ifdef MACOSX
 #ifndef OLDMACOSX           
 #include <term.h>           /* macOS after 10.12 */
@@ -59,7 +56,6 @@
 #endif /* OLDMACOSX */
 #define NOHTERMCAP
 #endif /* MACOSX */
-#endif /* __bsdi__ */
 #endif /* BSD44 */
 #endif /* NOTERMCAP */
 #endif /* NOHTERMCAP */
@@ -109,12 +105,6 @@ _PROTOTYP( char * ckgetfqhostname,(char *));
 #ifdef TCPSOCKET
 #define NETCONN
 #else
-#ifdef SUNX25
-#define NETCONN
-#else
-#ifdef STRATUSX25
-#define NETCONN
-#else
 #ifdef IBMX25
 #define NETCONN
 #else
@@ -138,8 +128,6 @@ _PROTOTYP( char * ckgetfqhostname,(char *));
 #endif /* STRATUSX25 */
 #endif /* IBMX25 */
 #endif /* HPX25 */
-#endif /* DECNET */
-#endif /* NPIPE */
 #endif /* CK_NETBIOS */
 #endif /* NETCONN */
 
@@ -196,11 +184,7 @@ extern int dialog;
 #ifdef DYNAMIC
 static char *cmdstr = NULL;             /* Place to build generic command */
 #else
-#ifdef pdp11
-static char cmdstr[256];
-#else
 static char cmdstr[4096];
-#endif /* pdp11 */
 #endif /* DYNAMIC */
 
 #ifndef NOMSEND
@@ -250,10 +234,6 @@ extern int cmd_rows, cmd_cols, xcmdsrc;
 extern char cmdfil[];
 
 
-#ifdef datageneral                      /* 2/12/92 ENH */
-#include <sysid.h>
-extern int con_reads_mt, conint_ch, conint_avl;
-#endif /* datageneral */
 
 #ifdef UNIX
 #include <fcntl.h>			/* For creat() */
@@ -795,15 +775,6 @@ ttgtpn() {				/* Get typical port name */
   but that requires changing the API definition.
 */
     return(
-#ifdef SOLARIS
-"/dev/cua/a"
-#else  /* SOLARIS */
-#ifdef HPUX10
-"/dev/cua0p0"
-#else  /* HPUX10 */
-#ifdef HPUX
-"/dev/cua00"
-#else  /* HPUX */
 #ifdef __FreeBSD__
 "/dev/cuaa0"
 #else  /* __FreeBSD__ */
@@ -813,54 +784,6 @@ ttgtpn() {				/* Get typical port name */
 #ifdef BSD44
 "/dev/tty00"
 #else  /* BSD44 */
-#ifdef OSK
-"/t1"
-#else  /* OSK */
-#ifdef QNX
-"/dev/ser1"
-#else  /* QNX */
-#ifdef QNX6
-"/dev/ser1"
-#else  /* QNX6 */
-#ifdef UNIXWARE
-"/dev/term/00 or /dev/tty00"
-#else  /* UNIXWARE */
-#ifdef CK_SCOV5
-"/dev/tty1A"
-#else  /* CK_SCOV5 */
-#ifdef CK_SCO32V4
-"/dev/tty1A"
-#else  /* CK_SCO32V4 */
-#ifdef M_XENIX
-"/dev/tty1A"
-#else  /* M_XENIX */
-#ifdef AIXRS
-"/dev/tty0"
-#else  /* AIXRS */
-#ifdef DGUX
-"/dev/tty00"
-#else  /* DGUX */
-#ifdef datageneral
-"@con1"
-#else  /* datageneral */
-#ifdef IRIX
-"/dev/ttym0"
-#else  /* IRIX */
-#ifdef SUNOS4
-"/dev/ttyh0"
-#else  /* SUNOS4 */
-#ifdef SV68R3V6
-"/dev/scc0"
-#else  /* SV68R3V6 */
-#ifdef MOTSV88R4
-"/dev/contty00"
-#else  /* MOTSV88R4 */
-#ifdef NEXT
-"/dev/cufa"
-#else
-#ifdef OSF
-"/dev/ttyd1"
-#else
 #ifdef SINIX
 "/dev/ttyc1"
 #else
@@ -870,28 +793,9 @@ ttgtpn() {				/* Get typical port name */
 "(sorry no example available)"
 #endif /* UNIX */
 #endif /* SINIX */
-#endif /* OSF */
-#endif /* NEXT */
-#endif /* MOTSV88R4 */
-#endif /* SV68R3V6 */
-#endif /* SUNOS4 */
-#endif /* IRIX */
-#endif /* datageneral */
-#endif /* DGUX */
-#endif /* AIX */
-#endif /* M_XENIX */
-#endif /* CK_SCO32V4 */
-#endif /* CK_SCOV5 */
-#endif /* UNIXWARE */
-#endif /* QNX6 */
-#endif /* QNX */
-#endif /* OSK */
 #endif /* BSD44 */
 #endif /* __linux__ */
 #endif /* __FreeBSD__ */
-#endif /* HPUX */
-#endif /* HPUX10 */
-#endif /* SOLARIS */
 	   );
 }
 
@@ -922,12 +826,10 @@ _PROTOTYP( char * strerror, (int) );
     extern char *sys_errlist[];
 #endif /* NDSYSERRLIST */
 #else  /* !__386BSD__ */
-#ifndef __bsdi__
 #ifndef NDSYSERRLIST
     extern int sys_nerr;
     extern const char *const sys_errlist[];
 #endif /* NDSYSERRLIST */
-#endif /* __bsdi__ */
 #endif /* __386BSD__ */
 #ifdef CKROOT
     if (ckrooterr)
@@ -1147,19 +1049,7 @@ initpat() {
 #ifdef UNIX
         makestr(&(txtpatterns[i]),txtp[SYS_UNIX][i]);
 #else /* UNIX */
-#ifdef STRATUS
-        makestr(&(txtpatterns[i]),txtp[SYS_VOS][i]);
-#else /* STRATUS */
-#ifdef datageneral
-        makestr(&(txtpatterns[i]),txtp[SYS_DG][i]);
-#else /* datageneral */
-#ifdef OSK
-        makestr(&(txtpatterns[i]),txtp[SYS_OSK][i]);
-#else /* OSK */
         makestr(&(txtpatterns[i]),txtp[SYS_UNK][i]);
-#endif /* OSK */
-#endif /* datageneral */
-#endif /* STRATUS */
 #endif /* UNIX */
         if (!txtp[i])
           break;
@@ -1168,19 +1058,7 @@ initpat() {
 #ifdef UNIX
         makestr(&(binpatterns[i]),binp[SYS_UNIX][i]);
 #else /* UNIX */
-#ifdef STRATUS
-        makestr(&(binpatterns[i]),binp[SYS_VOS][i]);
-#else /* STRATUS */
-#ifdef datageneral
-        makestr(&(binpatterns[i]),binp[SYS_DG][i]);
-#else /* datageneral */
-#ifdef OSK
-        makestr(&(binpatterns[i]),binp[SYS_OSK][i]);
-#else /* OSK */
         makestr(&(binpatterns[i]),binp[SYS_UNK][i]);
-#endif /* OSK */
-#endif /* datageneral */
-#endif /* STRATUS */
 #endif /* UNIX */
         if (!binp[i])
           break;
@@ -2289,11 +2167,7 @@ setflow() {
         else                            /* otherwise */
           flow = FLO_XONX;              /* use Xon/Xoff. */
 #else
-#ifndef NEXT
-#ifndef IRIX
         flow = FLO_XONX;                /* Use Xon/Xoff. */
-#endif /* IRIX */
-#endif /* NEXT */
 #endif /* CK_RTSCTS */
     }
 #endif /* NODIAL */
@@ -2362,30 +2236,22 @@ shomdm() {
       case -2: printf("No modem control for this device\r\n"); break;
       case -1: printf("Modem signals unavailable\r\n"); break;
       default:
-#ifndef MAC
         printf(
           " Carrier Detect      (CD):  %s\r\n",(y & BM_DCD) ? "On": "Off");
         printf(
           " Dataset Ready       (DSR): %s\r\n",(y & BM_DSR) ? "On": "Off");
-#endif /* MAC */
         printf(
           " Clear To Send       (CTS): %s\r\n",(y & BM_CTS) ? "On": "Off");
-#ifndef STRATUS
-#ifndef MAC
         printf(
           " Ring Indicator      (RI):  %s\r\n",(y & BM_RNG) ? "On": "Off");
-#endif /* MAC */
         printf(
           " Data Terminal Ready (DTR): %s\r\n",
           (y & BM_DTR) ? "On": "Off"
           );
-#ifndef MAC
         printf(
           " Request To Send     (RTS): %s\r\n",
           (y & BM_RTS) ? "On": "Off"
           );
-#endif /* MAC */
-#endif /* STRATUS */
     }
 #ifdef BETADEBUG
 #ifdef CK_TAPI
@@ -2697,14 +2563,9 @@ dbchr(c) int c;
 
 #ifdef SVORPOSIX
 #ifndef BSD44
-#ifndef apollo
 #include <sys/utsname.h>
-#endif /* apollo */
 #endif /* BSD44 */
 #else
-#ifdef BELLV10
-#include <utsname.h>
-#endif /* BELLV10 */
 #endif /* SVORPOSIX*/
 
 #ifdef CKSYSLOG
@@ -2725,24 +2586,16 @@ ckhost(vvbuf,vvlen) char * vvbuf; int vvlen;
 #endif /* NOSERVER */
 #endif /* NOPUSH */
 
-#ifdef pdp11
-    *vvbuf = NUL;
-#else  /* Everything else - rest of this routine */
 
     char *g;
 
 #ifdef SVORPOSIX
 #ifndef BSD44
 #ifndef _386BSD
-#ifndef APOLLOSR10
     struct utsname hname;
-#endif /* APOLLOSR10 */
 #endif /* _386BSD */
 #endif /* BSD44 */
 #endif /* SVORPOSIX */
-#ifdef datageneral
-    int ac0 = (char *) vvbuf, ac1 = -1, ac2 = 0;
-#endif /* datageneral */
 
 #ifndef NOPUSH
     if (getenv("CK_NOPUSH")) {          /* No shell access allowed */
@@ -2755,12 +2608,7 @@ ckhost(vvbuf,vvlen) char * vvbuf; int vvlen;
 
     *vvbuf = NUL;                       /* How let's get our host name ... */
 
-#ifndef BELLV10                         /* Does not have gethostname() */
-#ifndef OXOS
 #ifdef SVORPOSIX
-#ifdef APOLLOSR10
-    ckstrncpy(vvbuf,"Apollo",vvlen);
-#else
 #ifdef BSD44
     if (gethostname(vvbuf,vvlen) < 0)
       *vvbuf = NUL;
@@ -2768,13 +2616,6 @@ ckhost(vvbuf,vvlen) char * vvbuf; int vvlen;
 #ifdef _386BSD
     if (gethostname(vvbuf,vvlen) < 0) *vvbuf = NUL;
 #else
-#ifdef QNX
-#ifdef TCPSOCKET
-    if (gethostname(vvbuf,vvlen) < 0) *vvbuf = NUL;
-#else
-    if (uname(&hname) > -1) ckstrncpy(vvbuf,hname.nodename,vvlen);
-#endif /* TCPSOCKET */
-#else /* SVORPOSIX but not _386BSD or BSD44 */
 #ifdef __ia64__
     if (uname(&hname) > -1) ckstrncpy(vvbuf,hname.nodename,vvlen);
 #else
@@ -2792,42 +2633,19 @@ ckhost(vvbuf,vvlen) char * vvbuf; int vvlen;
 	ckstrncpy(vvbuf,p,vvlen);
     }
 #endif /* __ia64__ */
-#endif /* QNX */
 #endif /* _386BSD */
 #endif /* BSD44 */
-#endif /* APOLLOSR10 */
 #else /* !SVORPOSIX */
 #ifdef BSD4
     if (gethostname(vvbuf,vvlen) < 0) *vvbuf = NUL;
 #else /* !BSD4 */
-#ifdef datageneral
-    if (sys($HNAME,&ac0,&ac1,&ac2) == 0) /* successful */
-        vvlen = ac2 + 1;                /* enh - have to add one */
-#else
-#ifdef OSK
-#ifdef TCPSOCKET
-        if (gethostname(vvbuf, vvlen) < 0) *vvbuf = NUL;
-#endif /* TCPSOCKET */
-#endif /* OSK */
-#endif /* datageneral */
 #endif /* BSD4 */
 #endif /* SVORPOSIX */
-#else /* OXOS */
-    /* If TCP/IP is not installed, gethostname() fails, use uname() */
-    if (gethostname(vvbuf,vvlen) < 0) {
-        if (uname(&hname) > -1)
-            ckstrncpy(vvbuf,hname.nodename,vvlen);
-        else
-            *vvbuf = NUL;
-    }
-#endif /* OXOS */
-#endif /* BELLV10 */
     if (*vvbuf == NUL) {                /* If it's still empty */
         g = getenv("HOST");             /* try this */
         if (g) ckstrncpy(vvbuf,g,vvlen);
     }
     vvbuf[vvlen-1] = NUL;               /* Make sure result is terminated. */
-#endif /* pdp11 */
 }
 #ifdef BSD44
 #undef BSD4
@@ -2914,30 +2732,18 @@ askmore() {
 	    /* fall thru on purpose */
 
           case SP: case 'y': case 'Y': case 012:  case 015:
-#ifdef OSK
-            write(1, "\015      \015", sizeof "\015      \015" - 1);
-#else
             printf("\015      \015");
-#endif /* OSK */
             rv = 1;
             break;
           /* No */
           case 'n': case 'N': case 'q': case 'Q':
-#ifdef OSK
-            printf("\n");
-#else
             printf("\015\012");
-#endif /* OSK */
             rv = 0;
             break;
 	  case '\003':
 	  case '\004':
 	  case '\032':
-#ifdef OSK
-	    printf("^%c...\n", (c + 0100));
-#else
 	    printf("^%c...\015\012", (c + 0100));
-#endif /* OSK */
 	    rv = 0;
 	    break;
           /* Invalid answer */
@@ -2976,10 +2782,6 @@ trap(sig) int sig;
 #ifdef __EMX__
     signal(SIGINT, SIG_ACK);
 #endif
-#ifdef GEMDOS
-/* GEM is not reentrant, no i/o from interrupt level */
-    cklongjmp(cmjbuf,1);                /* Jump back to parser now! */
-#endif /* GEMDOS */
 
 #ifdef DEBUG
     if (deblog) {
@@ -3048,9 +2850,6 @@ trap(sig) int sig;
     apcactive = APC_INACTIVE;
 #endif /* CK_APC */
 
-#ifdef STRATUS
-    conres();                           /* Set console back to normal mode */
-#endif /* STRATUS */
 #ifndef NOXFER
     if (ft_win) {                       /* If curses window open, */
         debug(F100,"^C trap() curses","",0);
@@ -3062,25 +2861,12 @@ trap(sig) int sig;
 #ifndef NOXFER
     }
 #endif /* NOXFER */
-#ifdef datageneral
-    connoi_mt();                        /* Kill asynch task that listens to */
-    ttimoff();
-    conres();                           /* the keyboard */
-#endif /* datageneral */
 
 #ifndef NOCCTRAP
 /*  This is stupid -- every version should have ttimoff()...  */
 #ifdef UNIX
     ttimoff();                          /* Turn off any timer interrupts */
 #else
-#ifdef OSK
-    ttimoff();                          /* Turn off any timer interrupts */
-#else
-#ifdef STRATUS
-    ttimoff();                          /* Turn off any timer interrupts */
-#else
-#endif /* STRATUS */
-#endif /* OSK */
 #endif /* UNIX */
 
 #ifdef NETPTY
@@ -3129,15 +2915,6 @@ trap(sig) int sig;
     }
 #endif	/* NETPTY */
 
-#ifdef OSK
-    sigmask(-1);
-/*
-  We are in an intercept routine but do not perform a F$RTE (done implicitly
-  by rts).  We have to decrement the sigmask as F$RTE does.  Warning: longjump
-  only restores the cpu registers, NOT the fpu registers.  So don't use fpu at
-  all or at least don't use common fpu (double or float) register variables.
-*/
-#endif /* OSK */
 
     debug(F100,"trap about to longjmp","",0);
     cklongjmp(cmjbuf,1);
@@ -3173,14 +2950,6 @@ ck_time() {
 
 /*  C C _ C L E A N  --  Cleanup after terminal interrupt handler */
 
-#ifdef GEMDOS
-int
-cc_clean() {
-    zclose(ZIFILE);                     /* If we were transferring a file, */
-    zclose(ZOFILE);                     /* close it. */
-    printf("^C...\n");                  /* Not VMS, no problem... */
-}
-#endif /* GEMDOS */
 
 
 /*  S T P T R A P -- Handle SIGTSTP (suspend) signals */
@@ -3456,7 +3225,6 @@ doxlog(x, fn, fs, fm, status, msg)
 }
 #endif /* TLOG */
 
-#ifndef MAC
 /*
   The rest of this file is for all implementations but the Macintosh.
 */
@@ -3482,28 +3250,12 @@ chkint() {
     if (!xfrint)
       return(0);
     if ((!local) || (quiet)) return(0); /* Only do this if local & not quiet */
-#ifdef datageneral
-    if (con_reads_mt)                   /* if conint_mt task is active */
-      if (conint_avl) {                 /* and there's an interrupt pending */
-          cn = 1;                       /* process it */
-          ch = conint_ch;
-          conint_avl = 0;               /* turn off flag so conint_mt can */
-      } else                            /* proceed */
-        return(0);
-    else                                /* if conint_mt not active */
-      if ((ch = coninc(2)) < 0)         /* try to get char manually */
-        return(0);                      /* I/O error, or no data */
-      else                              /* if successful, set cn so we */
-        cn = 1;                         /* know we got one */
-    debug(F101,"chkint got keyboard character",ch,cn);
-#else /* !datageneral */
     cn = conchk();                      /* Any input waiting? */
     debug(F101,"conchk","",cn);
     if (cn < 1) return(0);
     ch = coninc(5) ;
     debug(F101,"coninc","",ch);
     if (ch < 0) return(0);
-#endif /* datageneral */
 
     ch &= 0177;
     switch (ch) {
@@ -3607,15 +3359,9 @@ chkint() {
         resend(winlo);
         return(0);
 
-#ifdef datageneral
-      case '\03':                       /* We're not trapping ^C's with */
-        trap(0);                        /* signals, so we check here    */
-#endif /* datageneral */
 
       case 'C': case 'c':               /* Ctrl-C */
-#ifndef datageneral
       case '\03':
-#endif /* datageneral */
 
       case 'E': case 'e':               /* Send error packet */
       case 0005:
@@ -3699,11 +3445,9 @@ intmsg(n) long n;
 #ifdef CK_NEED_SIG
     buf[0] = NUL;                       /* Keep compilers happy */
 #endif /* CK_NEED_SIG */
-#ifndef OXOS
 #ifdef SVORPOSIX
     conchk();                           /* Clear out pending escape-signals */
 #endif /* SVORPOSIX */
-#endif /* ! OXOS */
     if ((!server && n == 1L) || (server && n < 0L)) {
 
 #ifdef CK_NEED_SIG
@@ -4071,13 +3815,9 @@ _PROTOTYP( VOID conbgt, (int) );
 #endif /* UNIX */
             return;
         }
-#ifdef MAC
-        conoll(""); conol(s); conoc(SP); hpos = len + 1;
-#else
         ckstrncpy(fbuf,s,80);
         abuf[0] = a2buf[0] = NUL;
         newdpy = 1;                     /* New file so refresh display */
-#endif /* MAC */
         return;
 
       case SCR_AN:                      /* As-name */
@@ -4087,17 +3827,11 @@ _PROTOTYP( VOID conbgt, (int) );
 #endif /* COMMENT */
             return;
         }
-#ifdef MAC
-        if (hpos + len > 75) { conoll(""); hpos = 0; }
-        conol("=> "); conol(s);
-        if ((hpos += (len + 3)) > 78) { conoll(""); hpos = 0; }
-#else
         if (abuf[0]) {
             ckstrncpy(a2buf,s,80);
         } else {
             ckstrncpy(abuf,s,80);
         }
-#endif /* MAC */
         return;
 
       case SCR_FS:                      /* File-size */
@@ -4114,20 +3848,13 @@ _PROTOTYP( VOID conbgt, (int) );
 #endif /* UNIX */
             return;
         }
-#ifdef MAC
-        sprintf(buf,", Size: %s",ckfstoa(n));  conoll(buf);  hpos = 0;
-#endif /* MAC */
         return;
 
       case SCR_XD:                      /* X-packet data */
         if (fdispla == XYFD_B)
           return;
-#ifdef MAC
-        conoll(""); conoll(s); hpos = 0;
-#else
         ckstrncpy(fbuf,s,80);
         abuf[0] = a2buf[0] = NUL;
-#endif /* MAC */
         return;
 
       case SCR_ST:                      /* File status */
@@ -4293,14 +4020,6 @@ _PROTOTYP( VOID conbgt, (int) );
             return;
         }
 
-#ifdef MAC
-      case SCR_PN:                      /* Packet number */
-        if (fdispla == XYFD_B) {
-            return;
-        }
-	ckmakmsg(buf,80,s,": ",ckltoa(n),NULL);
-        conol(buf); hpos += (int)strlen(buf); return;
-#endif /* MAC */
 
       case SCR_PT:                      /* Packet type or pseudotype */
         if (fdispla == XYFD_B)
@@ -4310,19 +4029,14 @@ _PROTOTYP( VOID conbgt, (int) );
             showpkt(NUL);               /* show progress. */
             return;
         }
-#ifndef AMIGA
         if (hpos++ > 77) {              /* If near right margin, */
             conoll("");                 /* Start new line */
             hpos = 0;                   /* and reset counter. */
         }
-#endif /* AMIGA */
         if (c == 'Z' && fdispla == XYFD_S)
           return;
         else
           conoc(c);                     /* Display the packet type. */
-#ifdef AMIGA
-        if (c == 'G') conoll("");       /* New line after G packets */
-#endif /* AMIGA */
         return;
 
       case SCR_TC:                      /* Transaction complete */
@@ -5270,29 +4984,7 @@ logchar(c) char c;
 #ifdef UNIX
 	 c != '\r' &&
 #else
-#ifdef datageneral
-	 c != '\r' &&
-#else
-#ifdef STRATUS
-	 c != '\r' &&
-#else
-#ifdef AMIGA
-	 c != '\r' &&
-#else
-#ifdef GEMDOS
-	 c != '\r' &&
-#endif /* GEMDOS */
-#endif /* AMIGA */
-#endif /* STRATUS */
-#endif /* datageneral */
 #endif /* UNIX */
-#ifdef OSK
-	 c != '\n' &&
-#else
-#ifdef MAC
-	 c != '\n' &&
-#endif /* MAC */
-#endif /* OSK */
 	 c != XON &&
 	 c != XOFF))
       oktolog = 1;
@@ -5360,13 +5052,6 @@ ck_repaint() {
     return(0);
 }
 
-#ifdef STRATUS
-/* VOS has curses but no tgetent() */
-int
-tgetent(s1, s2) char * s1, * s2; {
-    return(1);
-}
-#endif /* STRATUS */
 
 
 /*
@@ -5406,12 +5091,6 @@ tgetent(s1, s2) char * s1, * s2; {
 
 /* Avoid conficts with curses.h */
 
-#ifdef QNX
-/* Same as ckcasc.h, but in a different radix... */
-#ifdef ESC
-#undef ESC
-#endif /* ESC */
-#endif /* QNX */
 
 #ifndef MYCURSES
 #undef VOID                             /* This was defined in ckcdeb.h */
@@ -5447,17 +5126,6 @@ tgetent(s1, s2) char * s1, * s2; {
 #ifdef CKXPRINTF                        /* Our printf macro conflicts with */
 #undef printf                           /* use of "printf" in curses.h */
 #endif /* CKXPRINTF */
-#ifdef M_XENIX				/* SCO XENIX... */
-#ifdef M_TERMCAP
-#undef M_TERMCAP
-#endif /* M_TERMCAP */
-#ifndef M_TERMINFO
-#define M_TERMINFO
-#endif /* M_TERMINFO */
-#endif /* M_XENIX */
-#ifdef RTAIX
-#undef NLS				/* Avoid 'redeclaration of free'. */
-#endif /* RTAIX */
 #include <curses.h>
 #ifdef CKXPRINTF
 #define printf ckxprintf
@@ -5495,8 +5163,6 @@ fxdinit(int xdispla )
 fxdinit(xdispla) int xdispla;
 #endif /* CK_ANSIC */
 {
-#ifndef COHERENT
-#ifndef STRATUS
     char *s;
     int x, dummy;
 
@@ -5578,8 +5244,6 @@ fxdinit(xdispla) int xdispla;
         fxd_inited = 1;
     }
 #endif /* VMS */
-#endif /* STRATUS */
-#endif /* COHERENT */
 }
 #endif /* NODISPLAY */
 
@@ -5747,15 +5411,7 @@ ck_termset(x) int x;
 #endif /* TPUTSFNTYPE */
 
 #ifndef TPUTSARGTYPE
-#ifdef HPUX9
-#define TPUTSARGTYPE char
-#else
-#ifdef HPUX10
-#define TPUTSARGTYPE char
-#else
 #define TPUTSARGTYPE int
-#endif /* HPUX10 */
-#endif /* HPUX9 */
 #endif /* TPUTSARGTYPE */
 
 static TPUTSFNTYPE
@@ -6394,14 +6050,7 @@ char *s;        /* a string */
   do this with real curses, and then only if clearok() and wrefresh() are
   provided in the curses library.
 */
-#ifdef QNX
-#ifndef QNX16
-        clearok(stdscr, 1);             /* QNX doesn't have curscr */
-#endif /* QNX16 */
-        wrefresh(stdscr);
-#else
         wrefresh(curscr);
-#endif /* QNX */
 #else  /* No CK_WREFRESH */
 /*
   Kermit's do-it-yourself method, works with all types of fullscreen
@@ -6416,34 +6065,9 @@ char *s;        /* a string */
         repaint = 0;
     }
     if (cendw) {                        /* endwin() was called previously */
-#ifdef QNX
-/*
-  In QNX, if we don't call initscr() here we core dump.
-  I don't have any QNX curses documentation, but other curses manuals
-  say that initscr() should be called only once per application, and
-  experience shows that on other systems, calling initscr() here generally
-  results in a core dump.
-*/
-        debug(F100,"screenc re-calling initscr QNX","",0);
-        initscr();
-        clear();
-        refresh();
-#ifdef COMMENT
-/*
-  But even so, second and subsequent curses displays are messed up.
-  Calling touchwin, refresh, etc, doesn't make any difference.
-*/
-        debug(F100,"screenc calling touchwin QNX","",0);
-        touchwin(stdscr);
-        debug(F100,"screenc calling refresh QNX","",0);
-        refresh();
-#endif /* COMMENT */
-
-#else /* All others... */
         debug(F100,"screenc calling clear","",0);
         clear();
         debug(F100,"screenc clear ok","",0);
-#endif /* QNX */
         debug(F100,"screenc setup ok","",0);
         debug(F100,"screenc doing first move","",0);
         move(CW_BAN,0);                 /* Display the banner */
@@ -6451,10 +6075,6 @@ char *s;        /* a string */
 #ifdef TCPSOCKET
         debug(F110,"screenc myipaddr",myipaddr,0);
 #endif /* TCPSOCKET */
-#ifdef HPUX1010
-        debug(F100,"screenc calling first printw...","",0);
-/* Right here is where HP-UX 10.10 libxcurse.1 Rev 76.20 hangs... */
-#endif /* HPUX1010 */
         if (myhost[0]) {
 #ifdef TCPSOCKET
             if (!myipaddr[0]
@@ -6468,9 +6088,6 @@ char *s;        /* a string */
         } else {
             printw("%s",versio);
         }
-#ifdef HPUX1010
-        debug(F100,"screenc first printw returns","",0);
-#endif /* HPUX1010 */
         move(CW_DIR,3);
         printw("Current Directory: %s",zgtdir());
         if (net) {
@@ -7194,9 +6811,6 @@ char *s;        /* a string */
   Why and when was this call to conres() added?  It makes no sense,
   and it breaks echoing on Solaris 8.
 */
-#ifdef SOLARIS
-          conres();
-#endif /* SOLARIS */
 #endif /* COMMENT */
 
 #ifdef COMMENT
@@ -7269,7 +6883,6 @@ char *s;        /* a string */
 
 #endif /* MAC */
 
-#endif /* NOXFER */
 
 #ifndef CK_CURPOS
 /* Dummies for when cursor control is not supported */
@@ -7746,11 +7359,7 @@ getslot() {                             /* Find a free slot for us */
 #ifndef NOFTRUNCATE
         if (x != DB_RECL) {             /* Watch out for trailing junk */
             debug(F101,"getslot bad size","",x);  /* (Shouldn't happen...) */
-#ifdef COHERENT
-            chsize(fileno(dbfp),i);
-#else
             dummy = ftruncate(fileno(dbfp),(CK_OFF_T)i);
-#endif /* COHERENT */
             x = 0;
             CKFSEEK(dbfp,i,0);
             break;
@@ -7815,11 +7424,7 @@ getslot() {                             /* Find a free slot for us */
 #ifndef NOFTRUNCATE
     if (i > dblastused+DB_RECL) {
         debug(F101,"getslot truncating at","",dblastused+DB_RECL);
-#ifdef COHERENT
-        x = chsize(fileno(dbfp),dblastused+DB_RECL);
-#else
         x = ftruncate(fileno(dbfp),(CK_OFF_T)(dblastused+DB_RECL));
-#endif /* COHERENT */
         if (x < 0)                      /* (Not fatal) */
           debug(F101,"getslot ftruncate failed", "", errno);
     }

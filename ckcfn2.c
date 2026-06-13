@@ -2855,19 +2855,7 @@ rpack() {
 */
 	j = ttinl(recpkt,r_pkt[k].bf_len - 1,rcvtimo,e,stchr,turn);
 #else
-#ifdef datageneral
-	j = ttinl(recpkt,r_pkt[k].bf_len - 1,rcvtimo,e,stchr,turn);
-#else
-#ifdef STRATUS
-	j = ttinl(recpkt,r_pkt[k].bf_len - 1,rcvtimo,e,stchr,turn);
-#else
-#ifdef OSK
-	j = ttinl(recpkt,r_pkt[k].bf_len - 1,rcvtimo,e,stchr,turn);
-#else
 	j = ttinl(recpkt,r_pkt[k].bf_len - 1,rcvtimo,e,stchr);
-#endif /* OSK */
-#endif /* STRATUS */
-#endif /* datageneral */
 #endif /* UNIX */
 	if (parity != 0 && parity != 's' && ttprty != 0) {
 	    if (parity != ttprty) autopar = 1;
@@ -3254,19 +3242,7 @@ logpkt(c,n,s,len) char c; int n; CHAR *s; int len;
 #ifdef UNIX
 			      "\n", 1
 #else
-#ifdef datageneral
-			      "\n", 1
-#else
-#ifdef OSK
-			      "\r", 1
-#else
-#ifdef MAC
-			      "\r", 1
-#else
 			      "\015\012", 2
-#endif /* MAC */
-#endif /* OSK */
-#endif /* datageneral */
 #endif /* UNIX */
 			      ) < 0) {
 		pktlog = 0;

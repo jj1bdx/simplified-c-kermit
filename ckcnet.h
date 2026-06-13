@@ -175,38 +175,15 @@ _PROTOTYP( int gettcpport, (void) );
 
   Maybe this can be adapted to VAX PSI and other X.25 products too.
 */
-#ifndef SUNOS4                          /* Only valid for SUNOS4 */
-#ifndef SOLARIS
-#ifdef SUNX25
-#undef SUNX25
-#endif /* SUNX25 */
-#endif /* SOLARIS */
-#endif /* SUNOS4 */
 
-#ifdef STRATUSX25
-#define ANYX25
-#define MAX_USER_DATA 128 /* SUN defines this in a header file, I believe. */
-#endif /* STRATUSX25 */
 
-#ifdef SUNX25
-#define ANYX25
-#endif /* SUNX25 */
 
 #ifdef IBMX25                           /* AIX 4.1 X.25 */
-#ifndef AIX41
 #undef IBMX25
-#else /* AIX41 */
-#define ANYX25
-#define MAX_USER_DATA NPI_MAX_DATA      /* used for buffer sizes */
-#endif /* AIX41 */
 #endif /* IBMX25 */
 
 #ifdef HPX25                            /* HP-UX 10.* X.25 */
-#ifndef HPUX10
 #undef HPX25
-#else /* HPUX10 */
-#define ANYX25
-#endif /* HPUX10 */
 #endif /* HPX25 */
 
 #ifdef ANYX25
@@ -254,39 +231,6 @@ _PROTOTYP( int gettcpport, (void) );
 #define MAXOX25 MAX_USER_DATA
 #endif /* ANYX25 */
 
-#ifdef SUNX25
-#ifdef SOLARIS25                        /* and presumably SunLink 9.xx */
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/ioccom.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/sockio.h>
-#include <sundev/syncstat.h>
-#include <netx25/x25_pk.h>
-#include <netx25/x25_ctl.h>
-#include <netx25/x25_ioctl.h>
-#else
-#include <sys/ioctl.h>                  /* X.25 includes, Sun only */
-#include <sys/systm.h>
-#ifndef SOLARIS
-#include <sys/mbuf.h>
-#endif /* SOLARIS */
-#include <sys/socket.h>
-#include <sys/protosw.h>
-#ifdef SOLARIS
-#include <sys/sockio.h>
-#else
-#include <sys/domain.h>
-#endif /* SOLARIS */
-#include <sys/socketvar.h>
-#include <net/if.h>
-#include <sundev/syncstat.h>
-#include <netx25/x25_pk.h>
-#include <netx25/x25_ctl.h>
-#include <netx25/x25_ioctl.h>
-#endif /* SOLARIS25 */
-#endif /* SUNX25 */
 
 #ifdef ANYX25
 
@@ -408,11 +352,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #endif /* TCPSOCKET */                  /* WINTCP, which is for VMS! */
 #endif /* WOLLONGONG */
 
-#ifdef EXCELAN                          /* EXCELAN implies TCPSOCKET */
-#ifndef TCPSOCKET
-#define TCPSOCKET
-#endif /* TCPSOCKET */
-#endif /* EXCELAN */
 
 #ifdef INTERLAN                         /* INTERLAN implies TCPSOCKET */
 #ifndef TCPSOCKET
@@ -420,28 +359,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #endif /* TCPSOCKET */
 #endif /* INTERLAN */
 
-#ifdef BEBOX
-#ifndef TCPSOCKET
-#define TCPSOCKET
-#endif /* TCPSOCKET */
-#ifndef TCPIPLIB
-#define TCPIPLIB
-#endif /* TCPIPLIB */
-#define socket_errno    h_errno
-#define socket_read(x,y,z)      recv(x,y,sizeof(char),z)
-#define socket_write(x,y,z)     send(x,y,sizeof(char),z)
-#define socket_ioctl    ioctl
-#define socket_close(x)         closesocket(x)
-#ifndef FIONBIO
-#define FIONBIO 2
-#endif /* FIONBIO */
-#ifndef FIONREAD
-#define FIONREAD       1
-#endif /* FIONREAD */
-#ifndef SIOCATMARK
-#define SIOCATMARK     3
-#endif /* SIOCATMARK */
-#endif /* BEBOX */
 
 #ifdef COMMENT /* no longer used but might come in handy again later... */
 /*
@@ -451,13 +368,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 */
 #ifndef CK_READ0
 #ifdef TCPSOCKET
-#ifdef SUNOS41                          /* It works in SunOS 4.1 */
-#define CK_READ0
-#else
-#ifdef NEXT                             /* and NeXTSTEP */
-#define CK_READ0
-#endif /* NEXT */
-#endif /* SUNOS41 */
 #endif /* TCPSOCKET */
 #endif /* CK_READ0 */
 #endif /* COMMENT */
@@ -475,25 +385,9 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
    gethostbyname("").
 */
 #ifndef CKGHNLHOST
-#ifdef datageneral
-#define CKGHNLHOST
-#else
-#ifdef SOLARIS
-#define CKGHNLHOST
-#else
-#ifdef SUNOS4
-#define CKGHNLHOST
-#else
-#ifdef UNIXWARE
-#define CKGHNLHOST
-#else
 #ifdef SINIX
 #define CKGHNLHOST
 #endif /* SINIX */
-#endif /* UNIXWARE */
-#endif /* SUNOS4 */
-#endif /* SOLARIS */
-#endif /* datageneral */
 #endif /* CKGHNLHOST */
 
 #ifndef RLOGCODE                        /* What about Rlogin? */
@@ -504,39 +398,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
   any others have these without verifying first.  Not that it really makes
   much difference since you can only use Rlogin if you are root...
 */
-#ifdef SUNOS41
-#define RLOGCODE
-#else
-#ifdef SOLARIS
-#define RLOGCODE
-#else
-#ifdef HPUX9
-#define RLOGCODE
-#else
-#ifdef HPUX10
-#define RLOGCODE
-#else
-#ifdef OSF40
-#define RLOGCODE
-#else
-#ifdef NEXT
-#define RLOGCODE
-#else
-#ifdef AIX41
-#define RLOGCODE
-#else
-#ifdef UNIXWARE
-#define RLOGCODE
-#else
-#ifdef IRIX51
-#define RLOGCODE
-#else
-#ifdef IRIX60
-#define RLOGCODE
-#else
-#ifdef QNX
-#define RLOGCODE
-#else
 #ifdef __linux__
 #define RLOGCODE
 #else
@@ -544,17 +405,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #define RLOGCODE
 #endif /* BSD44 */
 #endif /* __linux__ */
-#endif /* QNX */
-#endif /* IRIX60 */
-#endif /* IRIX51 */
-#endif /* UNIXWARE */
-#endif /* AIX41 */
-#endif /* NEXT */
-#endif /* OSF40 */
-#endif /* HPUX10 */
-#endif /* HPUX9 */
-#endif /* SOLARIS */
-#endif /* SUNOS41 */
 #endif /* NORLOGIN */
 #endif /* RLOGCODE */
 #endif /* TCPSOCKET */
@@ -574,9 +424,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #ifdef UNIX
 #define TTLEBUF
 #else
-#ifdef datageneral
-#define TTLEBUF
-#endif /* datageneral */
 #endif /* UNIX */
 #endif /* TTLEBUF */
 
@@ -584,11 +431,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #endif /* NETLEBUF */
 #endif /* TNCODE */
 
-#ifdef SUNX25                           /* SUNX25 implies TCPSOCKET */
-#ifndef TCPSOCKET                       /* But doesn't imply TNCODE */
-#define TCPSOCKET
-#endif /* TCPSOCKET */
-#endif /* SUNX25 */
 
 #ifndef TCPSOCKET
 #ifndef NO_DNS_SRV
@@ -607,18 +449,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #ifdef NOLOCAL
 #define NO_DNS_SRV
 #endif /* NOLOCAL */
-#ifdef STRATUS
-#define NO_DNS_SRV
-#endif /* STRATUS */
-#ifdef datageneral
-#define NO_DNS_SRV
-#endif /* datageneral */
-#ifdef ultrix
-#define NO_DNS_SRV
-#endif /* ultrix */
-#ifdef NEXT
-#define NO_DNS_SRV
-#endif /* NEXT */
 #endif /* NO_DNS_SRV */
 
 #ifndef CK_DNS_SRV                      /* Use DNS SRV records to determine */
@@ -636,15 +466,6 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 /* BSD sockets library header files */
 
 
-#ifdef HPUX6
-/* These are missing in HP-UX 6.xx */
-#ifndef bzero
-#define bzero(s,n) memset(s,0,n)
-#endif /* bzero */
-#ifndef bcopy
-#define bcopy(h,a,l) memcpy(a,h,l)
-#endif /* bcopy */
-#endif /* HPUX6 */
 
 #ifdef UNIX                             /* UNIX section */
 
@@ -659,33 +480,10 @@ _PROTOTYP( int x25local_nua, (char *) ); /* find local NUA */
 #ifndef bzero
 #define bzero(s,n) memset(s,0,n)
 #endif
-#ifdef SOLARIS
-#ifdef SUNX25
-#undef bzero
-/*
-  WOULD YOU BELIEVE... That the Solaris X.25 /opt/SUNWcomm/lib/libsockx25
-  library references bzero, even though the use of bzero is forbidden in
-  Solaris?  Look for the function definition in ckcnet.c.
-*/
-_PROTOTYP( void bzero, (char *, int) );
-#endif /* SUNX25 */
-#ifndef bcopy
-#define bcopy(h,a,l) memcpy(a,h,l)
-#endif
-#else
 #ifndef bcopy
 #define bcopy(h,a,l) memmove(a,h,l)
 #endif
-#endif /* SOLARIS */
 #else /* !SVR4 */
-#ifdef PTX                              /* Sequent DYNIX PTX 1.3 */
-#ifndef bzero
-#define bzero(s,n) memset(s,0,n)
-#endif
-#ifndef bcopy
-#define bcopy(h,a,l) memcpy(a,h,l)
-#endif
-#endif /* PTX */
 #endif /* SVR4 */
 
 #ifdef INTERLAN                         /* Racal-Interlan TCP/IP */
@@ -696,82 +494,29 @@ _PROTOTYP( void bzero, (char *, int) );
 #include <interlan/in.h>
 #include <interlan/telnet.h>            /* Why twice ? ? ? */
 #else /* Not Interlan */
-#ifdef BEBOX
-#include <socket.h>
-#else /* Not BEBOX */                   /* Normal BSD TCP/IP library */
 #ifdef COMMENT
-#ifndef HPUX
 #include <arpa/telnet.h>
-#endif /* HPUX */
 #endif /* COMMENT */
-#ifdef SCO234
-#include <sys/errno.tcp.h>
-#include <sys/types.tcp.h>
-#endif /* SCO234 */
 #include <sys/socket.h>
 #ifdef WOLLONGONG
 #include <sys/in.h>
 #else
 #include <netinet/in.h>
-#ifndef SV68R3V6                /* (maybe this should be SVR3 in general) */
 #include <netinet/tcp.h>        /* Added June 2001 */
-#endif /* SV68R3V6 */
 #endif /* WOLLONGONG */
-#endif /* BEBOX */
 #endif /* INTERLAN */
 
-#ifndef EXCELAN
 #include <netdb.h>
 #ifndef INTERLAN
 #ifdef WOLLONGONG
 #define minor                           /* Do not include <sys/macros.h> */
 #include <sys/inet.h>
 #else
-#ifndef OXOS
-#ifndef HPUX
-#ifndef BEBOX
 #include <arpa/inet.h>
-#endif /* BEBOX */
-#endif /* HPUX */
-#else /* OXOS */
-/* In too many releases of X/OS, <arpa/inet.h> declares inet_addr() as
- * ``struct in_addr''.  This is definitively wrong, and could cause
- * core dumps.  Instead of including that bad file, inet_addr() is
- * correctly declared here.  Of course, all the declarations done there
- * has been copied here.
- */
-unsigned long inet_addr();
-char    *inet_ntoa();
-struct  in_addr inet_makeaddr();
-unsigned long inet_network();
-#endif /* OXOS */
 #endif /* WOLLONGONG */
 #endif /* INTERLAN */
-#endif /* EXCELAN */
 
-#ifdef EXCELAN                          /* Excelan TCP/IP */
-#ifndef bzero
-#define bzero(s,n) memset(s,0,n)
-#endif /* bzero */
-#ifndef bcopy
-#define bcopy(h,a,l) memcpy(a,h,l)
-#endif /* bcopy */
-#include <ex_errno.h>
-#endif /* EXCELAN */
 
-#ifdef I386IX                           /* Interactive Sys V R3 network. */
-/* #define TELOPTS */                   /* This might need defining. */
-#define ORG_NLONG ENAMETOOLONG          /* Resolve conflicting symbols */
-#undef ENAMETOOLONG                     /* in <errno.h> and <net/errno.h> */
-#define ORG_NEMPTY ENOTEMPTY
-#undef ENOTEMPTY
-#include <net/errno.h>
-#undef ENAMETOOLONG
-#define ENAMETOOLONG ORG_NLONG
-#undef ENOTEMPTY
-#define ENOTEMPTY ORG_NEMPTY
-#include <netinet/tcp.h>                /* for inet_addr() */
-#endif /* I386IX */
 /*
   Data type of the inet_addr() function...
   We define INADDRX if it is of type struct inaddr.
@@ -790,42 +535,12 @@ unsigned long inet_network();
 
 
 
-#ifdef STRATUS  /* Stratus VOS using OS TCP/IP products S235, S236, S237 */
-#include <tcp_socket.h>
-/* This gets used some places when TCPSOCKET is defined. */
-/* OS TCP provides bzero(), but not bcopy()... go figure. */
-#define bcopy(s,d,z) memcpy(d,s,z)
-#endif /* STRATUS */
 
-#ifdef OSK
-#ifndef OSKXXC
-#include <inet/in.h>
-#include <inet/netdb.h>
-#include <inet/socket.h>
-#else
-#include <INET/in.h>
-#include <INET/netdb.h>
-#include <INET/socket.h>
-#endif /* OSKXXC */
-#ifndef bzero
-#define bzero(s,n) memset(s,0,n)
-#endif
-#ifndef bcopy
-#define bcopy(h,a,l) memcpy(a,h,l)
-#endif
-typedef char * caddr_t; /* core address type */
-#endif /* OSK */
 
 #endif /* UNIX */
 #endif /* TCPSOCKET */
 
 #ifndef NOINADDRX		      /* 301 - Needed for Solaris 10 and 11 */
-#ifdef SOLARIS
-#define NOINADDRX
-#ifdef INADDR_NONE
-#undef INADDR_NONE
-#endif	/* INADDR_NONE */
-#endif	/* SOLARIS */
 #endif	/* NOINADDRX */
 
 #ifdef NOINADDRX
@@ -837,27 +552,9 @@ typedef char * caddr_t; /* core address type */
 #ifdef TCPSOCKET
 #ifndef NOHADDRLIST
 #ifndef HADDRLIST
-#ifdef SUNOS41
-#define HADDRLIST
-#endif /* SUNOS41 */
-#ifdef SOLARIS
-#define HADDRLIST
-#endif /* SOLARIS */
 #ifdef LINUX
 #define HADDRLIST
 #endif /* LINUX */
-#ifdef AIXRS
-#define HADDRLIST
-#endif /* AIXRS */
-#ifdef HPUX
-#define HADDRLIST
-#endif /* HPUX */
-#ifdef IRIX
-#define HADDRLIST
-#endif /* IRIX */
-#ifdef I386IX
-#define HADDRLIST
-#endif /* I386IX */
 #endif /* HADDRLIST */
 /* A system that defines h_addr as h_addr_list[0] should be HADDRLIST */
 #ifndef HADDRLIST
@@ -870,11 +567,9 @@ typedef char * caddr_t; /* core address type */
 
 #ifdef TNCODE                           /* If we're compiling telnet code... */
 #ifndef IKS_OPTION
-#ifndef STRATUS
 #ifndef NOIKSD
 #define IKS_OPTION
 #endif /* NOIKSD */
-#endif /* STRATUS */
 #endif /* IKS_OPTION */
 #include "ckctel.h"
 #else
@@ -948,17 +643,6 @@ _PROTOTYP( char * ckaddr2name, (char *));
 
 /* AIX */
 
-#ifdef AIXRS
-#ifndef TCP_NODELAY
-#define TCP_NODELAY 0x1
-#endif /* TCP_NODELAY */
-#ifndef TCP_MAXSEG
-#define TCP_MAXSEG 0x2
-#endif /* TCP_MAXSEG */
-#ifndef TCP_KEEPALIVE
-#define TCP_KEEPALIVE 0x8
-#endif /* TCP_KEEPALIVE */
-#endif /* AIXRS */
 #endif /* TCPSOCKET */
 
 #ifdef RLOGCODE
@@ -1026,9 +710,6 @@ extern char * tcp_http_proxy_pwd;       /* Password of user */
 /* They say it themselves - this does not conform to standards */
 #define socklen_t int
 #else
-#ifdef HPUX
-#define socklen_t int
-#endif	/* HPUX */
 #endif	/* TRU64 */
 
 #ifndef SOCKOPT_T
@@ -1043,21 +724,6 @@ extern char * tcp_http_proxy_pwd;       /* Password of user */
 #undef SOCKOPT_T
 #define SOCKOPT_T unsigned int
 #else
-#ifdef AIX42
-#undef SOCKOPT_T
-#define SOCKOPT_T unsigned long
-#else
-#ifdef PTX
-#undef SOCKOPT_T
-#define SOCKOPT_T size_t
-#else
-#ifdef UNIXWARE
-#undef SOCKOPT_T
-#define SOCKOPT_T size_t
-#else /* UNIXWARE */
-#endif /* UNIXWARE */
-#endif /* PTX */
-#endif /* AIX42 */
 #endif /* MACOSX10 */
 #endif /* SOCKOPT_T */
 
@@ -1075,21 +741,6 @@ extern char * tcp_http_proxy_pwd;       /* Password of user */
 #undef GSOCKNAME_T
 #define GSOCKNAME_T unsigned int
 #else
-#ifdef PTX
-#undef GSOCKNAME_T
-#define GSOCKNAME_T size_t
-#else
-#ifdef AIX42                            /* size_t in 4.2++, int in 4.1-- */
-#undef GSOCKNAME_T
-#define GSOCKNAME_T size_t
-#else
-#ifdef UNIXWARE
-#undef GSOCKNAME_T
-#define GSOCKNAME_T size_t
-#else
-#endif /* UNIXWARE */
-#endif /* AIX41 */
-#endif /* PTX */
 #endif /* MACOSX10 */
 #endif /* GSOCKNAME_T */
 

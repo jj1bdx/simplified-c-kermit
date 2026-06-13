@@ -29,32 +29,8 @@ char *ckusigv = "Signal support, 10.0.100, 23 Sep 2022";
 extern ckjmpbuf cmjbuf;
 #endif /* NOCCTRAP */
 
-#ifdef MAC
-#define signal msignal
-#define SIGTYP long
-#define alarm malarm
-#define SIG_IGN 0
-#define SIGALRM 1
-#define SIGINT  2
-SIGTYP (*msignal(int type, SIGTYP (*func)(int)))(int);
-#endif /* MAC */
 
-#ifdef STRATUS
-/* We know these are set here.  MUST unset them before the definitions. */
-#define signal vsignal
-#define alarm valarm
-SIGTYP (*vsignal(int type, SIGTYP (*func)(int)))(int);
-int valarm(int interval);
-#endif /* STRATUS */
 
-#ifdef AMIGA
-#define signal asignal
-#define alarm aalarm
-#define SIGALRM (_NUMSIG+1)
-#define SIGTYP void
-SIGTYP (*asignal(int type, SIGTYP (*func)(int)))(int);
-unsigned aalarm(unsigned);
-#endif /* AMIGA */
 
 
 
