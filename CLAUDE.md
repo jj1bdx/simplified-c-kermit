@@ -6,7 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 C-Kermit 10.0 Beta.12 test repository (serial/network communication software, file transfer via the Kermit protocol). Original author: Frank da Cruz, kermitproject.org. Changelog: https://www.kermitproject.org/ckdaily.html#changelog
 
-Windows, OS/2, and VMS support was removed from this tree on 2026-06-12 (see `SIMPLIFY_20260612.md`): all `ckv*` files were deleted and the corresponding `#ifdef` blocks stripped with unifdef. That state is the initial git commit (`5a8fc5a`). Android support was removed the same day in commit `ad4139f` (see `SIMPLIFY_20260612_2.md`). SSL/TLS and Kerberos support (and with them the whole Telnet authentication/encryption stack: KRB4, SRP, DES/CAST) was removed on 2026-06-13 (see `SIMPLIFY_20260613.md`): the `ck_*` security files plus `ckuath.*`/`ckuat2.h` were deleted and all `+ssl`/`+krb*`/`+srp` makefile targets removed. Linux/macOS/Unix platform code is unaffected.
+Windows, OS/2, and VMS support was removed from this tree on 2026-06-12 (see `SIMPLIFY_20260612.md`): all `ckv*` files were deleted and the corresponding `#ifdef` blocks stripped with unifdef. That state is the initial git commit (`5a8fc5a`). Android support was removed the same day in commit `ad4139f` (see `SIMPLIFY_20260612_2.md`). SSL/TLS and Kerberos support (and with them the whole Telnet authentication/encryption stack: KRB4, SRP, DES/CAST) was removed on 2026-06-13 (see `SIMPLIFY_20260613.md`): the `ck_*` security files plus `ckuath.*`/`ckuat2.h` were deleted and all `+ssl`/`+krb*`/`+srp` makefile targets removed.
+
+Four further simplifications followed on 2026-06-13, on the premise that this is now a Linux/macOS/Unix-only tree:
+
+- **Non-ANSI / K&R C removed** (commit `20bf398`, see `SIMPLIFY_20260613_2.md`): all pre-ANSI fallback branches were stripped on the assumption that `CK_ANSIC` is always defined. The portability aliases (`_PROTOTYP`, `VOID`, `CKVOID`, `CONST`, …) are now unconditional ANSI definitions but were intentionally left in use at call sites.
+- **26 obsolete platform macros removed from the C source** (commit `c1c710b`, see `SIMPLIFY_20260613_3.md`): `AS400 __386BSD__ C70 CIE SINIX SNI544 SNI543 SNI541 POWERMAX ICL_SVR4 XF68R3V6 XF88R32 IX370 PCIX sxaE50 RTU TRS16 _386BSD OU8 UW7 NEUTRINO LYNXOS UTS24 VXVE ZILOG AMIX` were treated as permanently undefined and their dead `#ifdef` branches deleted with `unifdef`.
+- **38 dead makefile targets removed** (commit `aca665a`): the per-platform targets that defined those 26 flags (SINIX/SNI, UnixWare 7/OpenUNIX, ICL SVR4, LynxOS, Concurrent RTU-BSD, 386BSD, PowerMAX, CIE, TRS-16, QNX Neutrino 2, PC/IX, IX/370, UTS24, C/70, ZEUS, VX/VE, SX/A), plus their alias/dispatcher targets and the matching top-of-file platform-menu entries.
+- **Stale `-DRTU` comments removed** (commit `dd1cccd`).
+
+**IMPORTANT — do not remove `SVR4`, `SVR3`, or `ATTSV`.** They look like obsolete System V flags but are still defined and load-bearing on macOS and BSD via the `MACOSX10` → `MACOSX` → `BSD44` → `SVR4` → `SVR3`/`ATTSV` implication chain in `ckcdeb.h`, where they gate live serial/file/network code. They are undefined only on the `linux` build. Verify any future "always undefined" assumption against the macOS/BSD builds (`gcc -E -DMACOSX10 …` / `-DBSD44`), not just `make linux`.
+
+Linux/macOS/Unix platform code is otherwise unaffected by all of the above.
 
 ## Build
 
@@ -42,7 +53,7 @@ make ckcpro.c
 
 ## Code conventions
 
-The code is intentionally written in maximally portable, pre-ANSI-friendly C (the project predates and deliberately avoids autoconf and modern toolchain assumptions; it still targets very old Unixes, VMS, etc.). Match the existing style: feature selection via `#ifdef` blocks keyed off platform/feature macros, `/* */` comments, conservative C constructs. `ckcdeb.h` is the master header included everywhere (platform definitions, debug macros); `ckcker.h` holds Kermit protocol symbols.
+The code is intentionally written in a conservative, highly portable C style (the project predates and deliberately avoids autoconf and modern toolchain assumptions). It now assumes an ANSI/ISO C compiler — `CK_ANSIC` is treated as always defined and the K&R fallback paths have been removed (see above) — but otherwise keeps the original portable idiom. Match the existing style: feature selection via `#ifdef` blocks keyed off platform/feature macros, `/* */` comments, conservative C constructs. `ckcdeb.h` is the master header included everywhere (platform definitions, debug macros); `ckcker.h` holds Kermit protocol symbols.
 
 ## File naming scheme
 
