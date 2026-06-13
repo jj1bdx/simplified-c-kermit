@@ -1,3 +1,4 @@
+# Modified for C17 project
 # Source - https://stackoverflow.com/a/79505976
 # Posted by Ravindu Gamage
 # Retrieved 2025-11-09, License - CC BY-SA 4.0
@@ -5,7 +6,7 @@
 {
   "CompileFlags": {
     "Add": [
-      "-std=c++20",
+      "-std=c17",
       "-Wall",
       "-Wextra",
       "-Wpedantic",
