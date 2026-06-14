@@ -23,8 +23,8 @@
 * Removed unusable/dead makefile targets
 * Removed non-ANSI / K&R code
 * Applied clang-format in a limited basis
-  * Disabled `InsertBraces` - break the code
-  * Disabled `SortIncludes` - break the macro definition code
+  * Disabled `InsertBraces` - enabling breaks the code
+  * Disabled `SortIncludes` - enabling breaks the macro definition code
 
 ## License
 
@@ -32,7 +32,8 @@ Simplified 3-Clause BSD License
 
 ## Reference
 
-See <https://www.kermitproject.org/ckdaily.html#changelog> for the details.
+* See <https://www.kermitproject.org/ckdaily.html#changelog> for the details of the original C-Kermit Project.
+* My C-Kermit test repository: <https://github.com/jj1bdx/c-kermit-alpha/>
 
 ## AI Usage
 
