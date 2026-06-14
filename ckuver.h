@@ -25,8 +25,8 @@
 #ifndef HERALD
 #ifdef MACOSX
 #define HERALD " macOS" /* Use a newer name */
-#endif /* MACOSX */
-#endif /* HERALD */
+#endif                  /* MACOSX */
+#endif                  /* HERALD */
 
 #ifndef HERALD
 #ifdef __OpenBSD__
@@ -72,65 +72,65 @@
 
 /* Hardware type */
 
-#ifdef vax				/* DEC VAX */
+#ifdef vax /* DEC VAX */
 #ifndef CKCPU
 #define CKCPU "vax"
 #endif /* CKCPU */
 #endif /*  vax */
 
-#ifdef __ALPHA				/* DEC Alpha */
+#ifdef __ALPHA /* DEC Alpha */
 #ifndef CKCPU
 #define CKCPU "Alpha"
 #endif /* CKCPU */
 #endif /* __ALPHA */
 
-#ifdef __alpha				/* OSF/1 uses lowercase... */
+#ifdef __alpha /* OSF/1 uses lowercase... */
 #ifndef CKCPU
 #define CKCPU "Alpha"
 #endif /* CKCPU */
 #endif /* __alpha */
 
-#ifdef ia64				/* IA64 / Itanium */
+#ifdef ia64 /* IA64 / Itanium */
 #ifndef CKCPU
 #define CKCPU "ia64"
 #endif /* CKCPU */
 #endif /* i686 */
 
-#ifdef i686				/* Intel 80686 */
+#ifdef i686 /* Intel 80686 */
 #ifndef CKCPU
 #define CKCPU "i686"
 #endif /* CKCPU */
 #endif /* i686 */
 
-#ifdef i586				/* Intel 80586 */
+#ifdef i586 /* Intel 80586 */
 #ifndef CKCPU
 #define CKCPU "i586"
 #endif /* CKCPU */
 #endif /* i586 */
 
-#ifdef i486				/* Intel 80486 */
+#ifdef i486 /* Intel 80486 */
 #ifndef CKCPU
 #define CKCPU "i486"
-#endif /* CKCPU */
-#endif /* i80486 */
-#ifdef i386				/* Intel 80386 */
+#endif      /* CKCPU */
+#endif      /* i80486 */
+#ifdef i386 /* Intel 80386 */
 #ifndef CKCPU
 #define CKCPU "i386"
 #endif /* CKCPU */
 #endif /* i80386 */
 
-#ifdef M_I586				/* Intel 80586 */
+#ifdef M_I586 /* Intel 80586 */
 #ifndef CKCPU
 #define CKCPU "i586"
-#endif /* CKCPU */
-#endif /* M_I586 */
-#ifdef M_I486				/* Intel 80486 */
+#endif        /* CKCPU */
+#endif        /* M_I586 */
+#ifdef M_I486 /* Intel 80486 */
 #ifndef CKCPU
 #define CKCPU "i486"
 #endif /* CKCPU */
 #endif /* M_I486 */
 
-#ifdef sparc				/* SUN SPARC */
+#ifdef sparc /* SUN SPARC */
 #ifndef CKCPU
 #define CKCPU "sparc"
 #endif /* CKCPU */

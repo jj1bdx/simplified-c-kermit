@@ -35,13 +35,13 @@ typedef jmp_buf ckjmpbuf;
 #endif /* JBNOTARRAY */
 
 #ifdef JBNOTARRAY
-typedef ckjmpbuf * ckjptr;
-#define ckjaddr(x) & x
-#define ckjdref(x) * x
+typedef ckjmpbuf *ckjptr;
+#define ckjaddr(x) &x
+#define ckjdref(x) *x
 #ifdef CK_POSIX_SIG
-#define cksetjmp(x) sigsetjmp(x,1)
+#define cksetjmp(x) sigsetjmp(x, 1)
 #else
-#define cksetjmp(x) setjmp(x,1)
+#define cksetjmp(x) setjmp(x, 1)
 #endif /* CK_POSIX_SIG */
 #else  /* jmp_buf is an array */
 typedef ckjmpbuf ckjptr;
@@ -54,18 +54,10 @@ typedef ckjmpbuf ckjptr;
 #endif /* CK_POSIX_SIG */
 #endif /* JBNOTARRAY */
 
-_PROTOTYP( int cc_execute, (ckjptr, ck_sigfunc, ck_sigfunc) );
-_PROTOTYP( int alrm_execute,
-	  (ckjptr,
-	   int timo,
-	   ck_sighand handler,
-	   ck_sigfunc, ck_sigfunc) );
-_PROTOTYP( int cc_alrm_execute,
-	  (ckjptr,
-	   int timo,
-	   ck_sighand handler,
-	   ck_sigfunc,
-	   ck_sigfunc) );
+_PROTOTYP(int cc_execute, (ckjptr, ck_sigfunc, ck_sigfunc));
+_PROTOTYP(int alrm_execute,
+          (ckjptr, int timo, ck_sighand handler, ck_sigfunc, ck_sigfunc));
+_PROTOTYP(int cc_alrm_execute,
+          (ckjptr, int timo, ck_sighand handler, ck_sigfunc, ck_sigfunc));
 
 /* End of ckusig.h */
-
