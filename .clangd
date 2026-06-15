@@ -3,7 +3,6 @@
 {
   "CompileFlags": {
     "Add": [
-      "-std=gnu17",
       "-funsigned-char",
       "-DLINUX",
       "-DFNFLOAT",
