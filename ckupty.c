@@ -368,14 +368,16 @@ void init_termbuf(int fd) {
   debug(F111, "init_termbuf() tcgetattr(ttyfd)", ckitoa(rc), errno);
 #endif /* INIT_SPTY */
 #endif /* USE_TERMIO */
-  if (!rc)
+  if (!rc) {
     termbuf2 = termbuf;
+  }
 }
 
 #ifdef TIOCPKT_IOCTL
 void copy_termbuf(char *cp, int len) {
-  if (len > sizeof(termbuf))
+  if (len > sizeof(termbuf)) {
     len = sizeof(termbuf);
+  }
   memcpy((char *)&termbuf, cp, len);
   termbuf2 = termbuf;
 }
@@ -394,14 +396,19 @@ void set_termbuf(int fd) /* Only make the necessary changes. */
 
 #ifndef USE_TERMIO
   debug(F100, "set_termbuf USE_TERMIO", "", 0);
-  if (memcmp((char *)&termbuf.sg, (char *)&termbuf2.sg, sizeof(termbuf.sg)))
+  if (memcmp((char *)&termbuf.sg, (char *)&termbuf2.sg, sizeof(termbuf.sg))) {
     ioctl(ttyfd, TIOCSETN, (char *)&termbuf.sg);
-  if (memcmp((char *)&termbuf.tc, (char *)&termbuf2.tc, sizeof(termbuf.tc)))
+  }
+  if (memcmp((char *)&termbuf.tc, (char *)&termbuf2.tc, sizeof(termbuf.tc))) {
     ioctl(ttyfd, TIOCSETC, (char *)&termbuf.tc);
-  if (memcmp((char *)&termbuf.ltc, (char *)&termbuf2.ltc, sizeof(termbuf.ltc)))
+  }
+  if (memcmp((char *)&termbuf.ltc, (char *)&termbuf2.ltc,
+             sizeof(termbuf.ltc))) {
     ioctl(ttyfd, TIOCSLTC, (char *)&termbuf.ltc);
-  if (termbuf.lflags != termbuf2.lflags)
+  }
+  if (termbuf.lflags != termbuf2.lflags) {
     ioctl(ttyfd, TIOCLSET, (char *)&termbuf.lflags);
+  }
 #else /* USE_TERMIO */
   x = memcmp((char *)&termbuf, (char *)&termbuf2, sizeof(termbuf));
   debug(F101, "set_termbuf !USE_TERMIO memcmp", "", x);
@@ -490,9 +497,10 @@ long pty_cleanup(char *slave, int pid, int update_utmp) {
 
   debug(F111, "pty_cleanup()", slave, pid);
 #ifdef WANT_UTMP
-  if (update_utmp)
+  if (update_utmp) {
     pty_update_utmp(PTY_DEAD_PROCESS, 0, "", slave, (char *)0,
                     PTY_UTMP_USERNAME_VALID);
+  }
 #endif /* WANT_UTMP */
 
 #ifdef SETUID
@@ -540,8 +548,9 @@ long pty_cleanup(char *slave, int pid, int update_utmp) {
       return errno;
     case 0:
       ptyint_void_association();
-      if (retval = (pty_open_ctty(slave, &fd, -1)))
+      if (retval = (pty_open_ctty(slave, &fd, -1))) {
         exit(retval);
+      }
       ptyint_vhangup();
       exit(0);
       break;
@@ -644,8 +653,9 @@ long pty_getpty(int *fd, char *slave, int slavelength) {
     goto have_fd;
   }
   *fd = open("/dev/pty", O_RDWR | O_NDELAY); /* sysvimp */
-  if (*fd >= 0)
+  if (*fd >= 0) {
     debug(F110, "pty_getpty()", "open(/dev/pty) success", 0);
+  }
 
 have_fd:
   /* This would be the pty master */
@@ -656,8 +666,9 @@ have_fd:
 #ifdef HAVE_GRANTPT
 #ifdef HAVE_PTMX
     debug(F100, "HAVE_GRANTPT", "", 0);
-    if (grantpt(*fd) || unlockpt(*fd))
+    if (grantpt(*fd) || unlockpt(*fd)) {
       return (PTY_GETPTY_STREAMS);
+    }
 #endif /* HAVE_PTMX */
 #endif /* HAVE_GRANTPT */
 
@@ -703,8 +714,9 @@ have_fd:
       sprintf(slavebuf, "/dev/ptyXX"); /* safe */
       slavebuf[sizeof("/dev/pty") - 1] = *cp;
       slavebuf[sizeof("/dev/ptyp") - 1] = '0';
-      if (stat(slavebuf, &stb) < 0)
+      if (stat(slavebuf, &stb) < 0) {
         break;
+      }
       for (i = 0; i < 16; i++) {
         slavebuf[sizeof("/dev/ptyp") - 1] = "0123456789abcdef"[i];
         errno = 0;
@@ -1054,8 +1066,9 @@ int flags;
   ent.ut_time = time(0);
 
 #ifdef NO_UT_PID
-  if (process_type == PTY_LOGIN_PROCESS)
+  if (process_type == PTY_LOGIN_PROCESS) {
     return (0L);
+  }
 #else  /* NO_UT_PID */
 
   ent.ut_pid = pid;
@@ -1076,10 +1089,11 @@ int flags;
 #endif /*NO_UT_PID*/
 
 #ifndef NO_UT_HOST
-  if (host)
+  if (host) {
     strncpy(ent.ut_host, host, sizeof(ent.ut_host));
-  else
+  } else {
     ent.ut_host[0] = '\0';
+  }
 #endif /* NO_UT_HOST */
 
 #ifndef NO_UT_PID
@@ -1093,8 +1107,9 @@ int flags;
   } else {
 
     tmpx = line + strlen(line) - 1;
-    if (*(tmpx - 1) != '/')
+    if (*(tmpx - 1) != '/') {
       tmpx--; /* last 2 chars unless it's a '/' */
+    }
     ckmakmsg(utmp_id, 5, "kl", tmpx, NULL, NULL);
     strncpy(ent.ut_id, utmp_id, sizeof(ent.ut_id));
   }
@@ -1106,10 +1121,11 @@ int flags;
 
 #endif /* NO_UT_PID */
 
-  if (username[0])
+  if (username[0]) {
     strncpy(userbuf, username, sizeof(userbuf));
-  else
+  } else {
     userbuf[0] = '\0';
+  }
 
 #ifdef HAVE_SETUTENT
 
@@ -1127,8 +1143,9 @@ int flags;
     struct utmp *utptr;
     strncpy(ut.ut_line, line, sizeof(ut.ut_line));
     utptr = getutline(&ut);
-    if (utptr)
+    if (utptr) {
       strncpy(userbuf, utptr->ut_user, sizeof(ut.ut_user));
+    }
   }
 #endif /* WTMP_REQUIRES_USERNAME */
 
@@ -1155,10 +1172,11 @@ int flags;
   utx.ut_tv.tv_sec = ent.ut_time;
   utx.ut_tv.tv_usec = 0;
 #endif /* HAVE_GETUTMPX */
-  if (host)
+  if (host) {
     strncpy(utx.ut_host, host, sizeof(utx.ut_host));
-  else
+  } else {
     utx.ut_host[0] = 0;
+  }
   pututxline(&utx);
   endutxent();
 #endif /* HAVE_SETUTXENT */
@@ -1169,17 +1187,20 @@ int flags;
   } else {
     int lc;
     tty = -1;
-    if ((fd = open(UTMP_FILE, O_RDWR)) < 0)
+    if ((fd = open(UTMP_FILE, O_RDWR)) < 0) {
       return (errno);
+    }
     for (lc = 0; lseek(fd, (off_t)(lc * sizeof(struct utmp)), SEEK_SET) != -1;
          lc++) {
-      if (read(fd, (char *)&ut, sizeof(struct utmp)) != sizeof(struct utmp))
+      if (read(fd, (char *)&ut, sizeof(struct utmp)) != sizeof(struct utmp)) {
         break;
+      }
       if (strncmp(ut.ut_line, ent.ut_line, sizeof(ut.ut_line)) == 0) {
         tty = lc;
 #ifdef WTMP_REQUIRES_USERNAME
-        if (!username && (flags & PTY_UTMP_USERNAME_VALID))
+        if (!username && (flags & PTY_UTMP_USERNAME_VALID)) {
           strncpy(userbuf, ut.ut_user, sizeof(ut.ut_user));
+        }
 #endif /* WTMP_REQUIRES_USERNAME */
         break;
       }
@@ -1194,10 +1215,11 @@ int flags;
 #endif /* HAVE_SETUTENT */
 
   /* Don't record LOGIN_PROCESS entries. */
-  if (process_type == PTY_LOGIN_PROCESS)
+  if (process_type == PTY_LOGIN_PROCESS) {
     return (0);
-  else
+  } else {
     return (ptyint_update_wtmp(&ent, host, userbuf));
+  }
 }
 #ifndef WTMP_FILE
 #ifdef _PATH_WTMP
@@ -1236,12 +1258,14 @@ char *user;
   struct utmpx utx;
 
   getutmpx(ent, &utx);
-  if (host)
+  if (host) {
     strncpy(utx.ut_host, host, sizeof(utx.ut_host));
-  else
+  } else {
     utx.ut_host[0] = 0;
-  if (user)
+  }
+  if (user) {
     strncpy(utx.ut_user, user, sizeof(utx.ut_user));
+  }
   updwtmpx(WTMPX_FILE, &utx);
 #endif /* HAVE_UPDWTMPX */
 
@@ -1267,8 +1291,9 @@ char *user;
 #ifdef HAVE_GETUTENT
 #ifdef USER_PROCESS
       if (ent->ut_name) {
-        if (!ut.ut_pid)
+        if (!ut.ut_pid) {
           ut.ut_pid = getpid();
+        }
         ut.ut_type = USER_PROCESS;
 
       } else {
@@ -1282,8 +1307,9 @@ char *user;
 #endif /* USER_PROCESS */
 #endif /* HAVE_GETUTENT */
 
-      if (write(fd, (char *)&ut, sizeof(struct utmp)) != sizeof(struct utmp))
+      if (write(fd, (char *)&ut, sizeof(struct utmp)) != sizeof(struct utmp)) {
         ftruncate(fd, statb.st_size);
+      }
     }
     close(fd);
   }
@@ -1457,10 +1483,12 @@ int getptyslave(int *fd, int fc) {
   /* Set the tty modes, and make this our controlling tty. */
   set_termbuf(t);
 
-  if (t != 0)
+  if (t != 0) {
     dup2(t, 0);
-  if (t != 1)
+  }
+  if (t != 1) {
     dup2(t, 1);
+  }
   if (t != 2) {
     if (fc == 0) {
       dup2(t, 2);
@@ -1468,8 +1496,9 @@ int getptyslave(int *fd, int fc) {
       /* For external protocols, send stderr to /dev/null */
     }
   }
-  if (t > 2)
+  if (t > 2) {
     close(t);
+  }
 
   if (ttyfd > 2) {
     close(ttyfd);
@@ -1530,10 +1559,11 @@ int fd;
     debug(F111, "pty_trap_handler()", "ioctl(TIOCREQSET) failed", errno);
     return (-1);
   }
-  if (ri.request == TIOCCLOSE)
+  if (ri.request == TIOCCLOSE) {
     return (1);
-  else
+  } else {
     return (0);
+  }
 }
 #endif /* HAVE_PTYTRAP */
 
@@ -1541,14 +1571,17 @@ void exec_cmd(char *s) {
   struct stringarray *q;
   char **args = NULL;
 
-  if (!s)
+  if (!s) {
     return;
-  if (!*s)
+  }
+  if (!*s) {
     return;
+  }
 
   q = cksplit(1, 0, s, NULL, "\\%[]&$+-/=*^_@!{}/<>|.#~'`:;?", 7, 0, 0, 0);
-  if (!q)
+  if (!q) {
     return;
+  }
 
   args = q->a_head + 1;
 
@@ -1564,8 +1597,9 @@ void exec_cmd(char *s) {
         debug(F111, "exec_cmd arg", args[i], i);
         if (i == n && args[i]) {
           debug(F101, "exec_cmd SUBSTITUTING NULL", "", i);
-          if (strlen(args[i]) == 0)
+          if (strlen(args[i]) == 0) {
             makestr(&(args[i]), NULL);
+          }
         }
       }
     }
@@ -1603,8 +1637,9 @@ int do_pty(int *fd, char *cmd, int fc) {
   errno = 0;
 
   if ((retval = pty_getpty(&ttyfd, Xline, 20)) != 0) {
-    if (msg++ == 0)
+    if (msg++ == 0) {
       perror(Xline);
+    }
     debug(F111, "do_pty()", "pty_getpty() fails", retval);
     *fd = ttyfd;
     return (-1);

@@ -131,18 +131,21 @@ static char rxresult[RXRESULT + 1];
 int ckstrncpy(char *dest, const char *src, int len) {
   int i;
   if (len < 1 || !src || !dest) { /* Nothing or nowhere to copy */
-    if (dest)
+    if (dest) {
       *dest = NUL;
+    }
     return (0);
   }
 #ifndef NOCKSTRNCPY
-  for (i = 0; src[i] && (i < len - 1); i++) /* Args OK, copy */
+  for (i = 0; src[i] && (i < len - 1); i++) { /* Args OK, copy */
     dest[i] = src[i];
+  }
   dest[i] = NUL;
 #else
   i = strlen(src);
-  if (i > len)
+  if (i > len) {
     i = len;
+  }
   strncpy(dest, src, i);
   dest[len] = NUL;
 #endif /* NOCKSTRNCPY */
@@ -169,31 +172,37 @@ int ckstrncat(char *dest, const char *src, int len) {
   register char *s1, *s2;
 #endif                            /* NOCKSTRNCPY */
   if (len < 1 || !src || !dest) { /* Nothing or nowhere to copy */
-    if (dest)
+    if (dest) {
       *dest = NUL;
+    }
     return (0);
   }
 #ifndef NOCKSTRNCPY
   /* Args OK, copy */
-  for (i = 0, j = strlen(dest); src[i] && (i < len - j - 1); i++)
+  for (i = 0, j = strlen(dest); src[i] && (i < len - j - 1); i++) {
     dest[i + j] = src[i];
+  }
   dest[i + j] = NUL;
 #else
   j = 0;
   s1 = dest;
-  while (*s1++)
+  while (*s1++) {
     j++; /* j = strlen(dest); */
-  s1--;  /* (back up over NUL) */
+  }
+  s1--; /* (back up over NUL) */
 
   i = 0;
   s2 = (char *)src;
-  while (*s2++)
+  while (*s2++) {
     i++; /* i = strlen(src); */
+  }
 
-  if (i > (len - j))
+  if (i > (len - j)) {
     i = len - j;
-  if (i <= 0)
+  }
+  if (i <= 0) {
     return (0);
+  }
 
   j = i;                         /* This should be a bit faster...    */
   s2 = (char *)src;              /* depends on strcpy implementation; */
@@ -227,10 +236,12 @@ int ckmakmsg(char *buf, int len, char *s1, char *s2, char *s3, char *s4) {
   char *s;
   char *p, *a[4];
 
-  if (!buf)
+  if (!buf) {
     return (n); /* No destination */
-  if (len < 1)
+  }
+  if (len < 1) {
     return (n); /* No size */
+  }
 
   s = buf; /* Point to destination */
   a[0] = s1;
@@ -242,10 +253,11 @@ int ckmakmsg(char *buf, int len, char *s1, char *s2, char *s3, char *s4) {
     if (p) {                    /* If pointer not null */
       n = ckstrncpy(s, p, len); /* Copy safely */
       m += n;                   /* Accumulate total */
-      if (p[n])                 /* Didn't get whole thing? */
+      if (p[n]) {               /* Didn't get whole thing? */
         return (-m);            /* return indicating buffer full */
-      len -= n;                 /* Deduct from space left */
-      s += n;                   /* Otherwise advance dest pointer */
+      }
+      len -= n; /* Deduct from space left */
+      s += n;   /* Otherwise advance dest pointer */
     }
   }
   return (m); /* Return total bytes copied */
@@ -262,10 +274,12 @@ int ckmakxmsg(char *buf, int len, char *s1, char *s2, char *s3, char *s4,
   char *s;
   char *p, *a[12];
 
-  if (!buf)
+  if (!buf) {
     return (n); /* No destination */
-  if (len < 1)
+  }
+  if (len < 1) {
     return (n); /* No size */
+  }
 
   s = buf; /* Point to destination */
   a[0] = s1;
@@ -285,10 +299,11 @@ int ckmakxmsg(char *buf, int len, char *s1, char *s2, char *s3, char *s4,
     if (p) {                    /* If pointer not null */
       n = ckstrncpy(s, p, len); /* Copy safely */
       m += n;                   /* Accumulate total */
-      if (p[n])                 /* Didn't get whole thing? */
+      if (p[n]) {               /* Didn't get whole thing? */
         return (-m);            /* return indicating buffer full */
-      len -= n;                 /* Deduct from space left */
-      s += n;                   /* Otherwise advance dest pointer */
+      }
+      len -= n; /* Deduct from space left */
+      s += n;   /* Otherwise advance dest pointer */
     }
   }
   return (m); /* Return total bytes copied */
@@ -301,14 +316,18 @@ int ckmakxmsg(char *buf, int len, char *s1, char *s2, char *s3, char *s4,
 char *chartostr(int x) /* Call with char x */
 {
   static char buf[2]; /* Returns string pointer. */
-  if (x < 32)
+  if (x < 32) {
     return (ccntab[x]);
-  if (x == 127)
+  }
+  if (x == 127) {
     return ("DEL");
-  if (x > 127 && x < 161)
+  }
+  if (x > 127 && x < 161) {
     return (c1tab[x - 128]);
-  if (x == 0xAD)
+  }
+  if (x == 0xAD) {
     return ("SHY");
+  }
   buf[1] = NUL;
   buf[0] = (unsigned)(x & 0xff);
   return ((char *)buf);
@@ -321,12 +340,15 @@ char *chartostr(int x) /* Call with char x */
 int ckrchar(char *s) {
   register CHAR c = '\0', *p;
   p = (CHAR *)s;
-  if (!p)
+  if (!p) {
     p = (CHAR *)""; /* Null pointer == empty string */
-  if (!*p)
+  }
+  if (!*p) {
     return (0);
-  while (*p) /* Crawl to end of string */
+  }
+  while (*p) { /* Crawl to end of string */
     c = *p++;
+  }
   return ((unsigned)(c & 0xff)); /* Return final character */
 }
 
@@ -342,10 +364,12 @@ int ckrchar(char *s) {
 */
 char *ckstrchr(char *s, char c)
 /* ckstrchr */ {
-  if (!s)
+  if (!s) {
     return (NULL);
-  while (*s && *s != c)
+  }
+  while (*s && *s != c) {
     s++;
+  }
   return ((*s == c) ? s : NULL);
 }
 
@@ -362,11 +386,13 @@ char *ckstrchr(char *s, char c)
 char *ckstrrchr(char *s, char c)
 /* ckstrchr */ {
   char *s2 = NULL;
-  if (!s)
+  if (!s) {
     return (NULL);
+  }
   while (*s) {
-    if (*s == c)
+    if (*s == c) {
       s2 = s;
+    }
     s++;
   }
   return (s2);
@@ -378,15 +404,18 @@ char *ckstrrchr(char *s, char c)
 
 char *ckstrpbrk(char *s1, char *s2) {
   char c1, c2, *s3;
-  if (!s1 || !s2)
+  if (!s1 || !s2) {
     return (NULL);
-  if (!*s1 || !*s2)
+  }
+  if (!*s1 || !*s2) {
     return (NULL);
+  }
   while ((c1 = *s1++)) {
     s3 = s2;
     while ((c2 = *s3++)) {
-      if (c2 == c1)
+      if (c2 == c1) {
         return (s1 - 1);
+      }
     }
   }
   return (NULL);
@@ -398,11 +427,13 @@ char *ckstrpbrk(char *s1, char *s2) {
 
 int cklower(char *s) {
   int n = 0;
-  if (!s)
+  if (!s) {
     return (0);
+  }
   while (*s) {
-    if (isupper(*s))
+    if (isupper(*s)) {
       *s = (char)tolower(*s);
+    }
     s++, n++;
   }
   return (n);
@@ -414,11 +445,13 @@ int cklower(char *s) {
 
 int ckupper(char *s) {
   int n = 0;
-  if (!s)
+  if (!s) {
     return (0);
+  }
   while (*s) {
-    if (islower(*s))
+    if (islower(*s)) {
       *s = (char)toupper(*s);
+    }
     s++, n++;
   }
   return (n);
@@ -456,14 +489,17 @@ char *ckltoa(long n)
     x = n % 10L;
     buf[k] = x + '0';
     n = n / 10L;
-    if (!n)
+    if (!n) {
       break;
+    }
   }
-  if (sign)
+  if (sign) {
     buf[--k] = '-'; /* Add sign if necessary */
+  }
   len = 31 - k;
-  if (len + numbp > NUMBUF)
+  if (len + numbp > NUMBUF) {
     numbp = 0;
+  }
   p = numbuf + numbp;
   q = p;
   s = buf + k;
@@ -486,12 +522,14 @@ char *ckultoa(unsigned long n)
     x = n % 10L;
     buf[k] = x + '0';
     n = n / 10L;
-    if (!n)
+    if (!n) {
       break;
+    }
   }
   len = 31 - k;
-  if (len + numbp > NUMBUF)
+  if (len + numbp > NUMBUF) {
     numbp = 0;
+  }
   p = numbuf + numbp;
   q = p;
   s = buf + k;
@@ -515,8 +553,9 @@ char *ckltox(long n) /* Long int to "0x.." hex string */
     k++;
   }
   k += 2; /* "0x" */
-  if (numbp + k >= NUMBUF)
+  if (numbp + k >= NUMBUF) {
     numbp = 0;
+  }
   p = numbuf + numbp;
   q = p;
   s = buf;
@@ -555,14 +594,17 @@ char *ckfstoa(CK_OFF_T n)
     }
     buf[k] = x + '0';
     n = n / (CK_OFF_T)10;
-    if (!n)
+    if (!n) {
       break;
+    }
   }
-  if (sign)
+  if (sign) {
     buf[--k] = '-'; /* Add sign if necessary */
+  }
   len = 31 - k;
-  if (len + numbp > NUMBUF)
+  if (len + numbp > NUMBUF) {
     numbp = 0;
+  }
   p = numbuf + numbp;
   q = p;
   s = buf + k;
@@ -584,10 +626,12 @@ ckatofs(char *s)
 /* ckatofs */ {
   CK_OFF_T result = (CK_OFF_T)0;
   int minus = 0;
-  while (*s && (*s == SP || *s == HT))
+  while (*s && (*s == SP || *s == HT)) {
     s++;
-  if (*s == '+')
+  }
+  if (*s == '+') {
     s++;
+  }
   if (*s == '-') {
     minus = 1;
     s++;
@@ -625,8 +669,9 @@ char *ckctoa(char c) /* Char to string */
 /* ckctoa */ {
   static char buf[32];
   static int current = 0;
-  if (current >= 30)
+  if (current >= 30) {
     current = 0;
+  }
   buf[current++] = c;
   buf[current++] = '\0';
   return ((char *)(buf + current - 2));
@@ -638,17 +683,20 @@ char *ckctox(CHAR c, int flag) /* Unsigned char to hex */
   static int current = 0;
   int x;
   char h;
-  if (current > 45)
+  if (current > 45) {
     current = 0;
+  }
   x = (c >> 4) & 0x0f;
   h = rxdigits[x];
-  if (!flag && isupper(rxdigits[x]))
+  if (!flag && isupper(rxdigits[x])) {
     h = tolower(rxdigits[x]);
+  }
   buf[current++] = h;
   x = c & 0x0f;
   h = rxdigits[x];
-  if (!flag && isupper(rxdigits[x]))
+  if (!flag && isupper(rxdigits[x])) {
     h = tolower(rxdigits[x]);
+  }
   buf[current++] = h;
   buf[current++] = '\0';
   return ((char *)(buf + current - 3));
@@ -670,37 +718,45 @@ int ckindex(char *s1, char *s2, int t, int r, int icase) {
   int len1 = 0, len2 = 0, i, j, x, ot = t; /* ot = original t */
   char *s;
 
-  if (!s1 || !s2)
+  if (!s1 || !s2) {
     return (0);
+  }
   s = s1;
-  while (*s++)
+  while (*s++) {
     len1++; /* length of string to look for */
+  }
   s = s2;
-  while (*s++)
+  while (*s++) {
     len2++; /* length of string to look in */
+  }
   s = s2;
-  if (t < 0)
+  if (t < 0) {
     t = len2 - 1;
+  }
 
   j = len2 - len1; /* length difference */
 
-  if (j < 0 || (r == 0 && t > j)) /* search string is longer */
+  if (j < 0 || (r == 0 && t > j)) { /* search string is longer */
     return (0);
+  }
   if (r == 0) {                      /* Index */
     s = s2 + t;                      /* Point to beginning of target */
     for (i = 0; i <= (j - t); i++) { /* Now compare */
       x = ckstrcmp(s1, s, len1, icase);
-      if (!x)
+      if (!x) {
         return (i + 1 + t);
+      }
       s++;
     }
   } else {           /* Reverse Index */
     i = len2 - len1; /* Where to start looking */
-    if (ot > 0)      /* Figure in offset if any */
+    if (ot > 0) {    /* Figure in offset if any */
       i -= t;
+    }
     for (j = i; j > -1; j--) {
-      if (!ckstrcmp(s1, &s2[j], len1, icase))
+      if (!ckstrcmp(s1, &s2[j], len1, icase)) {
         return (j + 1);
+      }
     }
   }
   return (0);
@@ -733,8 +789,9 @@ char *ckstrstr(char *s1, char *s2) {
 /* WARNING: this function writes into its argument, it always has. */
 
 char *brstrip(char *p) {
-  if (!p)
+  if (!p) {
     return ("");
+  }
   if (*p == '{' || (*p == '"' && dblquo)) {
     int x;
     x = (int)strlen(p) - 1;
@@ -762,8 +819,9 @@ char *brstrip(char *p) {
 int dquote(char *fn, int len, int flag) {
   int spaces = 0, k = 0;
   char *p, ch, ch2;
-  if (!fn)
+  if (!fn) {
     return (0);
+  }
 
   k = strlen(fn);
   for (p = fn; *p; p++) {
@@ -773,8 +831,9 @@ int dquote(char *fn, int len, int flag) {
     }
   }
   if (spaces) {
-    if (k + 2 >= len)
+    if (k + 2 >= len) {
       return (k);
+    }
     p = fn;
     ch = *p;
     *p = flag ? '{' : '"';
@@ -810,10 +869,12 @@ int untabify(char *s1, char *s2, int max) {
       continue;
     }
     z = 8 - i % 8;
-    if (z == 0)
+    if (z == 0) {
       z = 8;
-    for (j = 0; j < z && i < max; j++)
+    }
+    for (j = 0; j < z && i < max; j++) {
       s2[i++] = ' ';
+    }
   }
   s2[i] = '\0';
   return (0);
@@ -852,12 +913,14 @@ void makelist(char *s, char *list[], int len) {
   if (*s != '{') {                     /* Outer braces only */
     if ((p = (char *)malloc(n + 1))) { /* So just one pattern */
       strcpy(p, s);                    /* (no need for ckstrncpy here) */
-      if (list[0])
+      if (list[0]) {
         free(list[0]);
+      }
       list[0] = p;
     }
-    if (s2)
+    if (s2) {
       free(s2);
+    }
     return;
   }
   q = 0; /* Inner ones too */
@@ -883,14 +946,16 @@ void makelist(char *s, char *list[], int len) {
       if (--bc == 0) {            /* End of a group */
         *s++ = NUL;
         debug(F111, "makelist element", p, i);
-        if (list[i])
+        if (list[i]) {
           free(list[i]);
+        }
         if ((list[i] = (char *)malloc(n + 1))) {
           ckstrncpy(list[i], p, n + 1); /* Note: n+1 */
           i++;
         }
-        while (*s == SP)
+        while (*s == SP) {
           s++;
+        }
         p = s;
         n = 0;
         continue;
@@ -905,8 +970,9 @@ void makelist(char *s, char *list[], int len) {
     }
   }
   if (*p && i < len) { /* Last one */
-    if (list[i])
+    if (list[i]) {
       free(list[i]);
+    }
     if ((list[i] = (char *)malloc(n + 1))) {
       ckstrncpy(list[i], p, n + 1);
       debug(F111, "makelist last element", p, i);
@@ -914,12 +980,14 @@ void makelist(char *s, char *list[], int len) {
   }
   i++; /* Clear out the rest of the list */
   for (; i < len; i++) {
-    if (list[i])
+    if (list[i]) {
       free(list[i]);
+    }
     list[i] = NULL;
   }
-  if (s2)
+  if (s2) {
     free(s2);
+  }
 }
 
 /*
@@ -952,12 +1020,14 @@ void makestr(char **p, const char *s)
   register const char *s2;
   register char *q2;
 
-  if (*p == s) /* The two pointers are the same. */
-    return;    /* Don't do anything. */
+  if (*p == s) { /* The two pointers are the same. */
+    return;      /* Don't do anything. */
+  }
 
-  if (!s) { /* New definition is null? */
-    if (*p) /* Free old storage. */
+  if (!s) {   /* New definition is null? */
+    if (*p) { /* Free old storage. */
       free(*p);
+    }
     *p = NULL; /* Return null pointer. */
     makestrlen = 0;
     return;
@@ -967,8 +1037,9 @@ void makestr(char **p, const char *s)
   /* Didn't fit */
 
   x = 0;
-  while (*s2++)
+  while (*s2++) {
     x++; /* Get (rest of) length of s.  */
+  }
 
   if (x >= 0) {        /* Get length, even of empty string. */
     q = malloc(x + 1); /* Get and point to temp storage. */
@@ -996,11 +1067,13 @@ void makestr(char **p, const char *s)
       debug(F110, "MAKESTR MALLOC FAILURE ", tmp, 0);
     }
 #endif /* DEBUG */
-  } else
+  } else {
     q = NULL; /* Length of string is zero */
+  }
 
-  if (*p) /* Now free the original storage. */
+  if (*p) { /* Now free the original storage. */
     free(*p);
+  }
   *p = q;
 }
 
@@ -1008,8 +1081,9 @@ void makestr(char **p, const char *s)
 
 void xmakestr(char **p, const char *s)
 /* xmakestr */ {
-  if (s)
+  if (s) {
     makestr(p, s);
+  }
 }
 
 #ifndef USE_MEMCPY
@@ -1023,23 +1097,29 @@ void ckmemcpy(char *p, char *s, int n) {
   register int i;
   int x;
 
-  if (!s || !p || n <= 0 || p == s) /* Verify args */
+  if (!s || !p || n <= 0 || p == s) { /* Verify args */
     return;
+  }
   x = p - s; /* Check for overlap */
-  if (x < 0)
+  if (x < 0) {
     x = 0 - x;
+  }
   if (x < n) { /* They overlap */
     q = p;
-    if (!(p = (char *)malloc(n))) /* So use a temporary buffer */
+    if (!(p = (char *)malloc(n))) { /* So use a temporary buffer */
       return;
+    }
   }
-  for (i = 0; i < n; i++) /* Copy n bytes */
+  for (i = 0; i < n; i++) { /* Copy n bytes */
     p[i] = s[i];
-  if (q) {                  /* If we used a temporary buffer */
-    for (i = 0; i < n; i++) /* copy from it to destination */
+  }
+  if (q) {                    /* If we used a temporary buffer */
+    for (i = 0; i < n; i++) { /* copy from it to destination */
       q[i] = p[i];
-    if (p)
+    }
+    if (p) {
       free(p); /* and free the temporary buffer */
+    }
   }
 }
 #endif /* USE_MEMCPY */
@@ -1069,30 +1149,39 @@ int ckstrcmp(char *s1, char *s2, register int n, register int c) {
   /* These are too much... */
   /*  debug(F111,"CKSTRLEN s1",s1,n); */
 
-  if (n == 0)
+  if (n == 0) {
     return (0);
-  if (!s1)
+  }
+  if (!s1) {
     s1 = ""; /* Watch out for null pointers. */
-  if (!s2)
+  }
+  if (!s2) {
     s2 = "";
-  if (!*s1)
+  }
+  if (!*s1) {
     return (*s2 ? -1 : 0);
-  if (!*s2)
+  }
+  if (!*s2) {
     return (1);
+  }
 
   /*  debug(F111,"CKSTRLEN s2",s2,n); */
   while (n--) {
     t1 = (CHAR)*s1++; /* Get next character from each. */
     t2 = (CHAR)*s2++;
-    if (!t1)
+    if (!t1) {
       return (t2 ? -1 : 0);
-    if (!t2)
+    }
+    if (!t2) {
       return (1);
+    }
     if (!c) { /* If case doesn't matter */
-      if (isupper(t1))
+      if (isupper(t1)) {
         t1 = tolower(t1); /* Convert case. */
-      if (isupper(t2))
+      }
+      if (isupper(t2)) {
         t2 = tolower(t2);
+      }
     }
 /*      debug(F111,"CKSTRLEN A","",0); */
 #ifdef HAVE_LOCALE
@@ -1104,14 +1193,17 @@ int ckstrcmp(char *s1, char *s2, register int n, register int c) {
     t1buf[0] = t1; /* Convert chars to strings */
     t2buf[0] = t2;
     /*      debug(F111,"CKSTRLEN B2","",0); */
-    if ((rc = strcoll(t1buf, t2buf)))
+    if ((rc = strcoll(t1buf, t2buf))) {
       return (rc);
+    }
 /*      debug(F111,"CKSTRLEN C","",0); */
 #else
-    if (t1 < t2)
+    if (t1 < t2) {
       return (-1); /* s1 < s2 */
-    if (t1 > t2)
+    }
+    if (t1 > t2) {
       return (1); /* s1 > s2 */
+    }
 /*      debug(F111,"CKSTRLEN D","",0); */
 #endif /* HAVE_LOCALE */
   }
@@ -1126,21 +1218,27 @@ int ckstrcmp(char *s1, char *s2, register int n, register int c) {
 int ckstrpre(char *s1, char *s2) {
   CHAR t1, t2;
   int n = 0;
-  if (!s1)
+  if (!s1) {
     s1 = "";
-  if (!s2)
+  }
+  if (!s2) {
     s2 = "";
+  }
   while (1) {
     t1 = (CHAR)*s1++;
     t2 = (CHAR)*s2++;
-    if (!t1 || !t2)
+    if (!t1 || !t2) {
       return (n);
-    if (isupper(t1))
+    }
+    if (isupper(t1)) {
       t1 = tolower(t1);
-    if (isupper(t2))
+    }
+    if (isupper(t2)) {
       t2 = tolower(t2);
-    if (t1 != t2)
+    }
+    if (t1 != t2) {
       return (n);
+    }
     n++;
   }
 }
@@ -1211,8 +1309,9 @@ int ispattern(char *s) {
   int quote = 0, sbflag = 0, sb = 0, cbflag = 0, cb = 0;
 
   char c = 0;
-  if (*s == '^')
+  if (*s == '^') {
     return (1);
+  }
   while ((c = *s++)) {
     if (quote) {
       quote = 0;
@@ -1222,10 +1321,12 @@ int ispattern(char *s) {
       quote = 1;
       continue;
     }
-    if (c == '*')
+    if (c == '*') {
       return (1);
-    if (c == '?')
+    }
+    if (c == '?') {
       return (1);
+    }
     /* Unquoted brackets or braces must match */
     if (c == '[') {
       sbflag++;
@@ -1245,8 +1346,9 @@ int ispattern(char *s) {
       cb--;
       continue;
     }
-    if (!*s && c == '$')
+    if (!*s && c == '$') {
       return (1);
+    }
   }
   return (sbflag || cbflag);
 }
@@ -1268,10 +1370,12 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
 
   globbing = opts & 2;
 
-  if (!string)
+  if (!string) {
     string = "";
-  if (!pattern)
+  }
+  if (!pattern) {
     pattern = "";
+  }
 
   if (!*pattern) { /* Empty pattern matches anything */
     matchdepth++;  /* (it wasn't incremented yet) */
@@ -1288,17 +1392,20 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
     matchend = 0;
     ostring = string;
     lastpat = pattern;
-    if (*pattern == '{')       /* Entire pattern is {a,b.c} */
-      bronly = 1;              /* Maybe */
+    if (*pattern == '{') { /* Entire pattern is {a,b.c} */
+      bronly = 1;          /* Maybe */
+    }
     dot = (opts & 1) ||        /* Match leading dot (if file) */
           ((opts & 2) == 0) || /* always if not file */
           (pattern[0] == '.'); /* or if pattern starts with '.' */
 
     plen = strlen(pattern); /* Length of pattern */
     /* This would be used in calculating length of matching segment */
-    if (plen > 0) /* User's pattern ends with '*' */
-      if (pattern[plen - 1] == '*')
+    if (plen > 0) { /* User's pattern ends with '*' */
+      if (pattern[plen - 1] == '*') {
         xstar = 1;
+      }
+    }
     if (pattern[0] == '*') { /* User's pattern starts with '*' */
       matchpos = 1;
       debug(F111, "CKMATCH 1", string, matchpos);
@@ -1306,8 +1413,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
     if (opts & 4) { /* ^..$ allowed (top level only) */
       /* Rewrite pattern to account for ^..$ anchoring... */
 
-      if (mypat)
+      if (mypat) {
         free(mypat); /* Get space for "*pattern*" */
+      }
       mypat = (char *)malloc(plen + 4);
       if (mypat) {                     /* Got space? */
         char *s = pattern, *p = mypat; /* Set working pointers */
@@ -1316,16 +1424,18 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
         } else if (*s != '*') {        /* otherwise */
           *p++ = '*';                  /* prepend '*' to pattern */
         }
-        while (*s) {           /* Copy rest of pattern */
-          if (!*(s + 1)) {     /* Final pattern character? */
-            if (*s != '$') {   /* If it's not '$' */
-              *p++ = *s;       /* Copy it into the pattern */
-              if (*s++ != '*') /* And if it's also not '*' */
-                *p++ = '*';    /* append '*'. */
+        while (*s) {             /* Copy rest of pattern */
+          if (!*(s + 1)) {       /* Final pattern character? */
+            if (*s != '$') {     /* If it's not '$' */
+              *p++ = *s;         /* Copy it into the pattern */
+              if (*s++ != '*') { /* And if it's also not '*' */
+                *p++ = '*';      /* append '*'. */
+              }
             }
             break;       /* Done */
-          } else         /* Not final character */
+          } else {       /* Not final character */
             *p++ = *s++; /* Just copy it */
+          }
         }
         *p = NUL;        /* Terminate the new pattern */
         pattern = mypat; /* Make the switch */
@@ -1370,11 +1480,13 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
       matchpos = 0;
       MATCHRETURN(16, matchpos);
     }
-    if (!icase) {      /* If ignoring case */
-      if (isupper(cp)) /* convert both to lowercase. */
+    if (!icase) {        /* If ignoring case */
+      if (isupper(cp)) { /* convert both to lowercase. */
         cp = tolower(cp);
-      if (isupper(cs))
+      }
+      if (isupper(cs)) {
         cs = tolower(cs);
+      }
     }
     if (q) { /* This character was quoted */
       debug(F000, "CKMATCH QUOTED", pattern, cp);
@@ -1419,8 +1531,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
       CHAR clist[256];      /* Character list from brackets */
       CHAR c, c1, c2;
 
-      for (i = 0; i < 256; i++) /* memset() etc not portable */
+      for (i = 0; i < 256; i++) { /* memset() etc not portable */
         clist[i] = NUL;
+      }
       psave = ++pattern; /* Where pattern starts */
       debug(F111, "CKMATCH [] ", pattern - 1, matchpos);
       for (flag = 0; !flag; pattern++) { /* Loop thru pattern */
@@ -1431,9 +1544,11 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
           clist[c] = 1;
           continue;
         }
-        if (!icase) /* Case conversion */
-          if (isupper(c))
+        if (!icase) { /* Case conversion */
+          if (isupper(c)) {
             c = tolower(c);
+          }
+        }
         switch (c) {         /* Handle unquoted character */
         case NUL:            /* End of string */
           MATCHRETURN(4, 0); /* No matching ']' so fail */
@@ -1443,10 +1558,12 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
         case '-':            /* A range is specified */
           c1 = (pattern > psave) ? (CHAR) * (pattern - 1) : NUL;
           c2 = (CHAR) * (pattern + 1); /* IGNORE OUT-OF-BOUNDS WARNING */
-          if (c2 == ']')
+          if (c2 == ']') {
             c2 = NUL; /* (it can't happen) */
-          if (c1 == NUL)
+          }
+          if (c1 == NUL) {
             c1 = c2;
+          }
           for (c = c1; c <= c2; c++) {
             clist[c] = 1;
             if (!icase) {
@@ -1493,10 +1610,12 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
         stringpos++;
         pattern = lastpat; /* Back up pattern */
         k = ckmatch(pattern, string, icase, opts);
-        if (xxflag)
+        if (xxflag) {
           MATCHRETURN(0, 0);
-        if (!matchpos && k > 0)
+        }
+        if (!matchpos && k > 0) {
           matchpos = stringpos;
+        }
         MATCHRETURN(5, (*string) ? matchpos : 0);
       }
       if (!matchpos) {
@@ -1512,30 +1631,36 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
       int len = 0;
       debug(F111, "CKMATCH {} ", string, matchpos);
       for (p = pattern++; *p; p++) {
-        if (*p == '{')
+        if (*p == '{') {
           bc++;
-        if (*p == '}')
+        }
+        if (*p == '}') {
           bc--;
-        if (bc < 1)
+        }
+        if (bc < 1) {
           break;
+        }
       }
       if (bc != 0) {       /* Braces don't match */
         MATCHRETURN(6, 0); /* Fail */
       } else {             /* Braces do match */
         int q = 0, done = 0;
         len = *p ? strlen(p + 1) : 0; /* Length of rest of pattern */
-        if (len)
+        if (len) {
           bronly = 0;
-        if (bronly && (matchdepth != 1))
+        }
+        if (bronly && (matchdepth != 1)) {
           bronly = 0;
+        }
         n = p - pattern;                     /* Size of list in braces */
         if ((buf = (char *)malloc(n + 1))) { /* Copy so we can poke it */
           char *tp = NULL;
           int k, sofar;
           ckstrncpy(buf, pattern, n + 1);
           sofar = string - ostring - matchpos + 1;
-          if (sofar < 0)
+          if (sofar < 0) {
             sofar = 0;
+          }
           debug(F111, "CKMATCH .. string", string, sofar);
           debug(F111, "CKMATCH .. ostring", ostring, sofar);
           n = 0;
@@ -1543,8 +1668,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
             n++;
             if (q) { /* This char is quoted */
               q = 0;
-              if (!*s)
+              if (!*s) {
                 done = 1;
+              }
               continue;
             }
             if (*s == CMDQ && !q) { /* Quote next char */
@@ -1553,9 +1679,10 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
             }
             if (!*s || *s == ',') { /* End of this segment */
               int tplen = 0;
-              if (!*s)    /* If end of buffer */
+              if (!*s) {  /* If end of buffer */
                 done = 1; /* then end of last segment */
-              *s = NUL;   /* Overwrite comma with NUL */
+              }
+              *s = NUL; /* Overwrite comma with NUL */
               debug(F111, "CKMATCH {} segment", s2, done);
               tplen = n + len + sofar + 2;
               if (!*s2) { /* Empty segment, no advancement */
@@ -1565,17 +1692,19 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
                 char *pp;
                 pp = matchpos > 0 ? &ostring[matchpos - 1] : ostring;
                 if (bronly) {
-                  if (matchpos > 0)
+                  if (matchpos > 0) {
                     ckstrncpy(tp, pp, sofar + 1);
-                  else
+                  } else {
                     ckstrncpy(tp, pp, sofar);
+                  }
                 } else {
                   tp[0] = '*';
                   tp[1] = NUL;
-                  if (matchpos > 0)
+                  if (matchpos > 0) {
                     ckstrncpy(&tp[1], pp, sofar + 1);
-                  else
+                  } else {
                     ckstrncpy(&tp[1], pp, sofar);
+                  }
                 }
                 ckstrncat(tp, s2, tplen);    /* Current segment */
                 ckstrncat(tp, p + 1, tplen); /* rest of pattern */
@@ -1593,8 +1722,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
                 /* If segment starts with dot */
                 /* then set matchdot option.. */
                 opts2 = opts;
-                if (*s2 == '.')
+                if (*s2 == '.') {
                   opts2 |= 1;
+                }
                 debug(F111, "CKMATCH {} recursing", s2, opts2);
                 k = ckmatch(tp,
                             (string > ostring) ? &ostring[savpos - 1] : string,
@@ -1607,8 +1737,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
 #endif /* DEBUG */
                 free(tp);
                 tp = NULL;
-                if (xxflag)
+                if (xxflag) {
                   MATCHRETURN(0, 0);
+                }
                 if (k == 0) {
                   matchpos = savpos;
                 }
@@ -1627,8 +1758,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
                 pattern = p + 1;
                 break;
               }
-              if (done)   /* If no more segments */
+              if (done) { /* If no more segments */
                 break;    /* break out of segment loop. */
+              }
               s2 = s + 1; /* Otherwise, on to next segment */
               n = 0;
             }
@@ -1641,9 +1773,10 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
       char *psave;
       char *p, *s = NULL; /* meaning match anything */
       int k, n, q = 0;
-      havestar++;             /* The rest can float */
-      while (*pattern == '*') /* Collapse successive asterisks */
+      havestar++;               /* The rest can float */
+      while (*pattern == '*') { /* Collapse successive asterisks */
         pattern++;
+      }
       psave = pattern;       /* First non-asterisk after asterisk */
       lastpat = pattern - 1; /* Ditto, global */
       debug(F111, "CKMATCH * ", string, matchpos);
@@ -1656,8 +1789,9 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
           )
             break;
 #ifdef GLOBBING
-          if (globbing && *p == '/')
+          if (globbing && *p == '/') {
             break;
+          }
 #endif /* GLOBBING */
         }
       }
@@ -1728,11 +1862,13 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
         MATCHRETURN(11, matchpos);
 
       } else { /* A meta char follows asterisk */
-        if (!*string)
+        if (!*string) {
           MATCHRETURN(17, matchpos = 0);
+        }
         while (*string && ((k = ckmatch(p, string, icase, opts)) < 1)) {
-          if (xxflag)
+          if (xxflag) {
             MATCHRETURN(0, 0);
+          }
           string++;
           stringpos++;
         }
@@ -1771,8 +1907,9 @@ xckmatch: {
 #ifdef DEBUG
   char msgbuf[256];
 #endif /* DEBUG */
-  if (matchdepth > 0)
+  if (matchdepth > 0) {
     matchdepth--;
+  }
   matchpos = rc;
 #ifdef DEBUG
   ckmakxmsg(msgbuf, 256, "CKMATCH RETURN[", ckitoa(where),
@@ -1814,19 +1951,23 @@ int isfloat(char *s, int flag) {
   char c;
   CKFLOAT d = 0.0, f = 0.0;
 
-  if (!s)
+  if (!s) {
     return (0);
-  if (!*s)
+  }
+  if (!*s) {
     return (0);
+  }
 
-  while (isspace(*s))
+  while (isspace(*s)) {
     s++;
+  }
 
   if (*s == '-') { /* Handle optional sign */
     sign = 1;
     s++;
-  } else if (*s == '+')
+  } else if (*s == '+') {
     s++;
+  }
   while ((c = *s++)) { /* Handle numeric part */
     switch (state) {
     case 0: /* Mantissa... */
@@ -1838,24 +1979,27 @@ int isfloat(char *s, int flag) {
         d = 1.0;
         continue;
       }
-      if (flag)    /* Not digit or period */
+      if (flag) {  /* Not digit or period */
         goto done; /* break if flag != 0 */
-      return (0);  /* otherwise fail. */
-    case 1:        /* Fraction... */
+      }
+      return (0); /* otherwise fail. */
+    case 1:       /* Fraction... */
       if (isdigit(c)) {
         d *= 10.0;
         f += (CKFLOAT)(c - '0') / d;
         continue;
       }
     default:
-      if (flag)    /* Illegal character */
+      if (flag) {  /* Illegal character */
         goto done; /* Break */
-      return (0);  /* or fail, depending on flag */
+      }
+      return (0); /* or fail, depending on flag */
     }
   }
 done:
-  if (sign)
-    f = 0.0 - f;      /* Apply sign to result */
+  if (sign) {
+    f = 0.0 - f; /* Apply sign to result */
+  }
   floatval = f;       /* Set result */
   return (d ? 2 : 1); /* Succeed */
 }
@@ -1899,10 +2043,12 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
   d = (char *)0; /* Pointer to decimal or string end */
 
   s = number; /* Fix number... */
-  while (*s == ' ' || *s == '\011')
+  while (*s == ' ' || *s == '\011') {
     s++; /* Strip leading whitespace */
-  if (*s == '+')
-    s++;      /* Skip leading plus sign*/
+  }
+  if (*s == '+') {
+    s++; /* Skip leading plus sign*/
+  }
   number = s; /* Start of number */
   if (*s == '-') {
     minus++;
@@ -1912,27 +2058,33 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
 
   s = number; /* Don't allow false precision */
   n = 0;
-  while (*s && *s != '.')
+  while (*s && *s != '.') {
     s++, n++; /* Find decimal */
+  }
 
-  if (p + n > fp_digits) /* Too many digits */
-    p = fp_digits - n;   /* Don't ask for bogus precision */
-  if (p < 0)
-    p = 0;                     /* But don't ask for less than zero */
-  if (n > fp_digits)           /* Integer part has too many digits */
+  if (p + n > fp_digits) { /* Too many digits */
+    p = fp_digits - n;     /* Don't ask for bogus precision */
+  }
+  if (p < 0) {
+    p = 0; /* But don't ask for less than zero */
+  }
+  if (n > fp_digits) {         /* Integer part has too many digits */
     *s = 0;                    /* but we can't truncate it */
-  else                         /* Magnitude is OK */
+  } else {                     /* Magnitude is OK */
     number[fp_digits + 1] = 0; /* Truncate fractional part. */
+  }
 
   len = (int)strlen(number); /* Length of non-bogus number */
   d = s;                     /* Pointer to decimal point */
   if (p > 0) {               /* Rounding the fractional part */
     if (n + p < len) {       /* If it's not already shorter */
-      if (*s == '.')
-        s++;                     /* Skip past decimal */
-      s += p;                    /* Go to desired spot */
-      if (*s > '4' && *s <= '9') /* Check value of digit */
+      if (*s == '.') {
+        s++; /* Skip past decimal */
+      }
+      s += p;                      /* Go to desired spot */
+      if (*s > '4' && *s <= '9') { /* Check value of digit */
         carry = 1;
+      }
       *s = 0; /* And end the string */
       s--;    /* Point to last digit */
     }
@@ -1940,8 +2092,9 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
     if (*s == '.') {
       *s = 0;         /* erase the decimal point */
       if (*(s + 1)) { /* and there is a factional part */
-        if (*(s + 1) > '4' && *(s + 1) <= '9') /* Check for carry */
+        if (*(s + 1) > '4' && *(s + 1) <= '9') { /* Check for carry */
           carry = 1;
+        }
       }
       s--; /* Point to last digit */
     }
@@ -1950,11 +2103,13 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
       s += p;             /* Go left to desired digit */
       *d = 0;             /* Discard fraction */
       carry = 0;
-      if (*s > '4') /* Check first digit of fraction */
-        carry = 1;  /* and set carry flag */
+      if (*s > '4') { /* Check first digit of fraction */
+        carry = 1;    /* and set carry flag */
+      }
       s2 = s;
-      while (s2 < d) /* Fill in the rest with zeros */
+      while (s2 < d) { /* Fill in the rest with zeros */
         *s2++ = '0';
+      }
       s--; /* Point to last digit */
     }
   }
@@ -1966,23 +2121,26 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
       }
       *s += 1; /* Add 1 to current digit */
       carry = 0;
-      if (*s <= '9') /* If result is 9 or less */
-        break;       /* we're done */
-      *s = '0';      /* Otherwise put 0 */
-      carry = 1;     /* carry the 1 */
-      s--;           /* and back up to next digit */
+      if (*s <= '9') { /* If result is 9 or less */
+        break;         /* we're done */
+      }
+      *s = '0';  /* Otherwise put 0 */
+      carry = 1; /* carry the 1 */
+      s--;       /* and back up to next digit */
     }
   }
-  if (minus)
+  if (minus) {
     number--; /* Back up to minus sign, if any. */
+  }
 #ifdef FLT_NOT_DBL
   sscanf(number, "%f", &value); /* Convert back to floating point */
 #else
   sscanf(number, "%lf", &value); /* Convert back to floating point */
 #endif
-  if (obuf)
+  if (obuf) {
     strncpy(obuf, number, obuflen); /* Set string result */
-  return (value);                   /* Return floating-point result */
+  }
+  return (value); /* Return floating-point result */
 }
 
 #endif /* CKFLOAT */
@@ -2024,39 +2182,48 @@ void sh_sort(char **s, char **p, int n, int k, int r, int c) {
   long n1, n2;
 #endif /* CKFLOAT */
 
-  if (!s)
+  if (!s) {
     return; /* Nothing to sort? */
-  if (n < 2)
+  }
+  if (n < 2) {
     return; /* Not enough elements to sort? */
-  if (k < 0)
+  }
+  if (k < 0) {
     k = 0; /* Key */
+  }
 
   m = n; /* Initial group size is whole array */
   while (1) {
-    m = m / 2; /* Divide group size in half */
-    if (m < 1) /* Small as can be, so done */
+    m = m / 2;   /* Divide group size in half */
+    if (m < 1) { /* Small as can be, so done */
       break;
+    }
     for (j = 0; j < n - m; j++) { /* Sort each group */
       t = t2 = s[j + m];          /* Compare this one... */
-      if (!t)                     /* But if it's NULL */
+      if (!t) {                   /* But if it's NULL */
         t2 = "";                  /* make it the empty string */
-      if (p)                      /* Handle parallel array, if any */
+      }
+      if (p) { /* Handle parallel array, if any */
         u = p[j + m];
+      }
       if (k > 0 && *t2) {
-        if ((int)strlen(t2) < k) /* If key too big */
-          t2 = "";               /* make key the empty string */
-        else                     /* Key is in string */
-          t2 = t + k;            /* so point to key position */
+        if ((int)strlen(t2) < k) { /* If key too big */
+          t2 = "";                 /* make key the empty string */
+        } else {                   /* Key is in string */
+          t2 = t + k;              /* so point to key position */
+        }
       }
       for (i = j; i >= 0; i -= m) { /* Loop thru comparands s[i..]*/
         t1 = s[i];
-        if (!t1) /* Same deal */
+        if (!t1) { /* Same deal */
           t1 = "";
+        }
         if (k > 0 && *t1) {
-          if ((int)strlen(t1) < k)
+          if ((int)strlen(t1) < k) {
             t1 = "";
-          else
+          } else {
             t1 = s[i] + k;
+          }
         }
         if (c == 2) { /* Numeric comparison */
           x = 0;
@@ -2065,44 +2232,52 @@ void sh_sort(char **s, char **p, int n, int k, int r, int c) {
           f1 = 0.0;
           if (isfloat(t1, 1)) {
             f1 = floatval;
-            if (isfloat(t2, 1))
+            if (isfloat(t2, 1)) {
               f2 = floatval;
-            else
+            } else {
               f1 = 0.0;
+            }
           }
-          if (f2 < f1)
+          if (f2 < f1) {
             x = 1;
-          else
+          } else {
             x = -1;
+          }
 #else
           n2 = 0L;
           n1 = 0L;
           if (rdigits(t1)) {
             n1 = atol(t1);
-            if (rdigits(t2))
+            if (rdigits(t2)) {
               n2 = atol(t2);
-            else
+            } else {
               n1 = 0L;
+            }
           }
-          if (n2 < n1)
+          if (n2 < n1) {
             x = 1;
-          else
+          } else {
             x = -1;
+          }
 #endif /* CKFLOAT */
         } else {
           x = ckstrcmp(t1, t2, -1, c); /* Compare */
         }
-        if (r == 0 && x < 0)
+        if (r == 0 && x < 0) {
           break;
-        if (r != 0 && x > 0)
+        }
+        if (r != 0 && x > 0) {
           break;
+        }
         s[i + m] = s[i];
-        if (p)
+        if (p) {
           p[i + m] = p[i];
+        }
       }
       s[i + m] = t;
-      if (p)
+      if (p) {
         p[i + m] = u;
+      }
     }
   }
 }
@@ -2130,18 +2305,21 @@ char *ckradix(char *s, int in, int out) {
   CK_OFF_T zz = (CK_OFF_T)0;
   CK_OFF_T z = (CK_OFF_T)0;
 
-  if (in < 2 || in > 36) /* Verify legal input radix */
+  if (in < 2 || in > 36) { /* Verify legal input radix */
     return (NULL);
-  if (out < 2 || out > 36) /* and output radix. */
+  }
+  if (out < 2 || out > 36) { /* and output radix. */
     return (NULL);
+  }
   if (*s == '+') { /* Get sign if any */
     s++;
   } else if (*s == '-') {
     minus++;
     s++;
   }
-  while (*s == SP || *s == '0') /* Trim leading blanks or 0's */
+  while (*s == SP || *s == '0') { /* Trim leading blanks or 0's */
     s++;
+  }
   /*
     For detecting overflow, we use a signed copy of the unsigned long
     accumulator.  If it goes negative, we know we'll overflow NEXT time
@@ -2149,23 +2327,28 @@ char *ckradix(char *s, int in, int out) {
   */
   for (; *s; s++) { /* Convert from input radix to */
     c = *s;         /* unsigned long */
-    if (islower(c))
+    if (islower(c)) {
       c = toupper(c);
-    if (c >= '0' && c <= '9')
+    }
+    if (c >= '0' && c <= '9') {
       d = c - '0';
-    else if (c >= 'A' && c <= 'Z')
+    } else if (c >= 'A' && c <= 'Z') {
       d = c - 'A' + 10;
-    else
+    } else {
       return (NULL);
-    if (d >= in) /* Check for illegal digit */
+    }
+    if (d >= in) { /* Check for illegal digit */
       return (NULL);
+    }
     zz = zz * in + d;
-    if (z < 0L) /* Clever(?) overflow detector */
+    if (z < 0L) { /* Clever(?) overflow detector */
       return ("-1");
+    }
     z = zz;
   }
-  if (!zz)
+  if (!zz) {
     return ("0");
+  }
   r = &rxresult[RXRESULT]; /* Convert from unsigned long */
   *r-- = NUL;              /* to output radix. */
   while (zz > 0 && r > rxresult) {
@@ -2173,8 +2356,9 @@ char *ckradix(char *s, int in, int out) {
     *r-- = rxdigits[d];
     zz = zz / (unsigned)out;
   }
-  if (minus)
+  if (minus) {
     *r-- = '-'; /* Replace original sign */
+  }
   return ((char *)(r + 1));
 }
 
@@ -2232,8 +2416,9 @@ int b8tob64(char *s, int n, char *out, int len) {
   int b3, b4, i, x = 0;
   unsigned int t;
 
-  if (n < 0)
+  if (n < 0) {
     n = strlen(s);
+  }
 
   for (i = 0; i < n; i += 3, x += 4) { /* Loop through source bytes */
     b3 = b4 = 0;
@@ -2247,8 +2432,9 @@ int b8tob64(char *s, int n, char *out, int len) {
       t |= (unsigned)(s[i + 2] & 0xff); /* Yes, OR it in */
       b4 = 1;                           /* and remember */
     }
-    if (x + 4 > len) /* Check output space */
+    if (x + 4 > len) { /* Check output space */
       return (-1);
+    }
     out[x + 3] = b64[b4 ? (t & 0x3f) : 64]; /* 64 = code for '=' */
     t >>= 6;
     out[x + 2] = b64[b3 ? (t & 0x3f) : 64];
@@ -2257,8 +2443,9 @@ int b8tob64(char *s, int n, char *out, int len) {
     t >>= 6;
     out[x] = b64[t & 0x3f];
   }
-  if (x < len)
+  if (x < len) {
     out[x] = NUL; /* Null-terminate the string */
+  }
   return (x);
 }
 
@@ -2300,12 +2487,15 @@ int b64tob8(char *s, int n, char *out, int len) /* Decode */
   x = (n < 0) ? strlen(s) : n; /* Source length */
 
   n = ((x + 3) / 4) * 3; /* Compute destination length */
-  if (x > 0 && s[x - 1] == '=')
+  if (x > 0 && s[x - 1] == '=') {
     n--; /* Account for padding */
-  if (x > 1 && s[x - 2] == '=')
+  }
+  if (x > 1 && s[x - 2] == '=') {
     n--;
-  if (n > len)   /* Destination not big enough */
+  }
+  if (n > len) { /* Destination not big enough */
     return (-1); /* Fail */
+  }
 
   for (i = 0; i < x; i++) { /* Loop thru source */
     c = (CHAR)s[i];         /* Next char */
@@ -2313,22 +2503,24 @@ int b64tob8(char *s, int n, char *out, int len) /* Decode */
     if (t == -2) {          /* Whitespace or Ctrl */
       n--;                  /* Ignore */
       continue;
-    } else if (t == -1) {       /* Illegal code */
-      return (-2);              /* Fail. */
-    } else if (t > 63 || t < 0) /* Illegal value */
-      return (-3);              /* fail. */
-    bits += 6;                  /* Count bits */
-    r <<= 6;                    /* Make space */
-    r |= (unsigned)t;           /* OR in new code */
-    if (bits >= 8) {            /* Have a byte yet? */
-      bits -= 8;                /* Output it */
+    } else if (t == -1) {         /* Illegal code */
+      return (-2);                /* Fail. */
+    } else if (t > 63 || t < 0) { /* Illegal value */
+      return (-3);                /* fail. */
+    }
+    bits += 6;        /* Count bits */
+    r <<= 6;          /* Make space */
+    r |= (unsigned)t; /* OR in new code */
+    if (bits >= 8) {  /* Have a byte yet? */
+      bits -= 8;      /* Output it */
       c = (unsigned)((r >> bits) & 0xff);
       out[k++] = c;
     }
   }
-  if (k < len)
+  if (k < len) {
     out[k] = NUL; /* Null-terminate in case it's */
-  return (k);     /* a text string */
+  }
+  return (k); /* a text string */
 }
 #endif /* NOB64 */
 
@@ -2344,31 +2536,36 @@ int chknum(char *s) /* Check Numeric String */
   int y = 0; /* Flag for digit seen */
   char c;
   debug(F110, "chknum", s, 0);
-  if (!s)
+  if (!s) {
     return (0);
-  if (!*s)
+  }
+  if (!*s) {
     return (0);
+  }
   while ((c = *s++)) { /* For each character in the string */
     switch (c) {
     case SP: /* Allow leading spaces */
     case HT:
-      if (x == 0)
+      if (x == 0) {
         continue;
-      else
+      } else {
         return (0);
+      }
     case '+': /* Allow leading sign */
     case '-':
-      if (x == 0)
+      if (x == 0) {
         x = 1;
-      else
+      } else {
         return (0);
+      }
       break;
     default: /* After that, only decimal digits */
       if (c >= '0' && c <= '9') {
         x = y = 1;
         continue;
-      } else
+      } else {
         return (0);
+      }
     }
   }
   return (y);
@@ -2379,11 +2576,13 @@ int chknum(char *s) /* Check Numeric String */
 /*  Returns 1 if so, 0 if not or if string is empty */
 
 int rdigits(char *s) {
-  if (!s)
+  if (!s) {
     return (0);
+  }
   do {
-    if (!isdigit(*s))
+    if (!isdigit(*s)) {
       return (0);
+    }
     s++;
   } while (*s);
   return (1);
@@ -2418,10 +2617,11 @@ hhmmss(long x)
   x = x % 3600L;
   m = x / 60L; /* Minutes */
   s = x % 60L; /* Seconds */
-  if (x > -1L)
+  if (x > -1L) {
     sprintf(buf, "%02ld:%02ld:%02ld", h, m, s);
-  else
+  } else {
     buf[0] = NUL;
+  }
   return ((char *)buf);
 }
 
@@ -2438,20 +2638,25 @@ void lset(char *p, char *s, int n, int c) {
 #ifndef USE_MEMCPY
   int i;
 #endif /* USE_MEMCPY */
-  if (!s)
+  if (!s) {
     s = "";
+  }
   x = strlen(s);
-  if (x > n)
+  if (x > n) {
     x = n;
+  }
 #ifdef USE_MEMCPY
   memcpy(p, s, x);
-  if (n > x)
+  if (n > x) {
     memset(p + x, c, n - x);
+  }
 #else
-  for (i = 0; i < x; i++)
+  for (i = 0; i < x; i++) {
     *p++ = *s++;
-  for (; i < n; i++)
+  }
+  for (; i < n; i++) {
     *p++ = c;
+  }
 #endif /* USE_MEMCPY */
 }
 
@@ -2462,19 +2667,23 @@ void rset(char *p, char *s, int n, int c) {
 #ifndef USE_MEMCPY
   int i;
 #endif /* USE_MEMCPY */
-  if (!s)
+  if (!s) {
     s = "";
+  }
   x = strlen(s);
-  if (x > n)
+  if (x > n) {
     x = n;
+  }
 #ifdef USE_MEMCPY
   memset(p, c, n - x);
   memcpy(p + n - x, s, x);
 #else
-  for (i = 0; i < (n - x); i++)
+  for (i = 0; i < (n - x); i++) {
     *p++ = c;
-  for (; i < n; i++)
+  }
+  for (; i < n; i++) {
     *p++ = *s++;
+  }
 #endif /* USE_MEMCPY */
 }
 
@@ -2490,8 +2699,9 @@ char *ulongtohex(unsigned long z, int n)
   static char hexbuf[17];
   int i = 16, x, k = 0;
   hexbuf[16] = '\0';
-  if (n > 16)
+  if (n > 16) {
     n = 16;
+  }
   k = 2 * (sizeof(long));
   for (i = 0; i < n; i++) {
     if (i > k || z == 0) {
@@ -2518,28 +2728,33 @@ long hextoulong(char *s, int n) {
   unsigned long result = 0L;
   int d, count = 0;
   int flag = 0;
-  if (!s)
+  if (!s) {
     s = "";
+  }
   if (!*s) {
     return (0L);
   }
-  if (n < 1)
+  if (n < 1) {
     return (0L);
-  if (n > 63)
+  }
+  if (n > 63) {
     n = 63;
+  }
   strncpy(buf, s, n);
   buf[n] = '\0';
   s = buf;
   while (*s) {
     d = *s++;
     if ((d == '0' || d == ' ')) {
-      if (!flag)
+      if (!flag) {
         continue;
+      }
     } else {
       flag = 1;
     }
-    if (islower(d))
+    if (islower(d)) {
       d = toupper(d);
+    }
     if (d >= '0' && d <= '9') {
       d -= 0x30;
     } else if (d >= 'A' && d <= 'F') {
@@ -2547,8 +2762,9 @@ long hextoulong(char *s, int n) {
     } else {
       return (-1L);
     }
-    if (++count > (sizeof(long) * 2))
+    if (++count > (sizeof(long) * 2)) {
       return (-1L);
+    }
     result = (result << 4) | (d & 0x0f);
   }
   return (result);
@@ -2656,14 +2872,17 @@ static void setword(int n, char *s, int len) {
   register char *p;
   register int i, k;
 
-  if (!s)
+  if (!s) {
     s = "";
+  }
 
   if (!wordarray) { /* Allocate result array (only once) */
-    if (!(wordarray = (char **)malloc((MAXWORDS + 1) * sizeof(char *))))
+    if (!(wordarray = (char **)malloc((MAXWORDS + 1) * sizeof(char *)))) {
       return;
-    if (!(wordsize = (int *)malloc((MAXWORDS + 1) * sizeof(int))))
+    }
+    if (!(wordsize = (int *)malloc((MAXWORDS + 1) * sizeof(int)))) {
       return;
+    }
     for (i = 0; i <= MAXWORDS; i++) { /* Initialize result array */
       wordarray[i] = NULL;
       wordsize[i] = 0;
@@ -2724,18 +2943,21 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
   CHAR notsepbuf[256];
 
   notsepbuf[0] = NUL; /* Keep set for "ALL" */
-  if (n4)
+  if (n4) {
     collapse = 0; /* Don't collapse */
+  }
 
-  for (i = 0; i < NESTMAX; i++) /* Initialize nesting stack */
+  for (i = 0; i < NESTMAX; i++) { /* Initialize nesting stack */
     gr_stk[i] = 0;
+  }
 
   setword(1, NULL, 0);
   ck_sval.a_head = wordarray; /* Initialize return value struct */
   ck_sval.a_size = 0;
 
-  if (!s1)
-    s1 = "";  /* s1 = source string */
+  if (!s1) {
+    s1 = ""; /* s1 = source string */
+  }
   if (!*s1) { /* If none, nothing to do */
     return (&ck_sval);
   }
@@ -2768,10 +2990,12 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
   }
   if (!splitbuf || slen >= nsplitbuf) { /* Need to do more... */
     int xx;
-    if (splitbuf) /* Free previous buf if any */
+    if (splitbuf) { /* Free previous buf if any */
       free(splitbuf);
-    while (*p++)
-      slen++;                                    /* Get (rest of) length */
+    }
+    while (*p++) {
+      slen++; /* Get (rest of) length */
+    }
     xx = (slen < 255) ? 255 : slen + (slen / 4); /* Size of new buffer */
     splitbuf = (char *)malloc(xx + 1);           /* Allocate it */
     if (!splitbuf) { /* Memory allocation failure... */
@@ -2786,8 +3010,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
   }
   s = splitbuf;
   sep = s2; /* s2 = break set */
-  if (!sep)
+  if (!sep) {
     sep = "";
+  }
   debug(F110, "cksplit sep", sep, 0);
   notsep = s3; /* s3 = include set */
   debug(F110, "cksplit notsep", notsep, 0);
@@ -2812,8 +3037,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
       flag = 0;
       ss = sep;
       while ((c = *ss++) && !flag) {
-        if (c == (CHAR)i)
+        if (c == (CHAR)i) {
           flag++;
+        }
       }
       if (!flag) {
         notsepbuf[n++] = (CHAR)i;
@@ -2825,31 +3051,36 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
     debug(F110, "CKMATCH NOTSEPBUF ALL", notsep, 0);
   }
   if (*s && csv) { /* For CSV skip leading whitespace */
-    while (*s == SP || *s == HT)
+    while (*s == SP || *s == HT) {
       s++;
+    }
     c = *s;
   }
-  if (n2 == 0 && csv)
+  if (n2 == 0 && csv) {
     n2 = 1; /* CSV implies doublequote grouping */
-  if (n2 < 0)
+  }
+  if (n2 < 0) {
     n2 = 63; /* n2 = grouping mask */
+  }
   grouping = n2;
   p = ""; /* Pointer to current word */
 
   /* TSV is a special case - no quoting or grouping or recursion */
   if (tsv) { /* Tab-separated values list */
              /* This block: 2014/01/31 - fdc */
-    if (!*sep)
+    if (!*sep) {
       sep = "\011"; /* Default separator is Tab */
-    p = s;          /* Point to first element */
+    }
+    p = s; /* Point to first element */
   }
   while (c) {  /* Loop through string */
     c = *s;    /* Get next char */
     if (tsv) { /* Tab-separated-value list? */
       /* This block: 2014/01/31 - fdc */
       ss = sep; /* Get break set */
-      while (*ss && *ss != c)
-        ss++;                       /* See if c is in it */
+      while (*ss && *ss != c) {
+        ss++; /* See if c is in it */
+      }
       if (*ss == c) {               /* Is this the/a break character? */
         *s = NUL;                   /* Yes, terminate this word */
         wordnum++;                  /* Count it */
@@ -2863,14 +3094,16 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
           return (&ck_sval);
         } else if (n < 0 && (wordnum + n > -1)) { /* or from right */
           char *s = wordarray[wordnum + n + 1];
-          if (!s)
+          if (!s) {
             s = "";
+          }
           setword(1, s, strlen(s));
           ck_sval.a_size = 1;
           return (&ck_sval);
         }
-      } else
+      } else {
         len++;
+      }
       goto nextc;
     }
     class = 0;
@@ -2909,8 +3142,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
         x = 0;              /* x == 0 means "is separator" */
       } else if (*sep) {    /* Break set given */
         ss = sep;
-        while (*ss && *ss != c)
+        while (*ss && *ss != c) {
           ss++; /* (instead of ckstrchr()) */
+        }
         x = (*ss != c);
       } else {                         /* Default break set is */
         x = ((c >= 'a' && c <= 'z') || /* all but alphanumerics */
@@ -2919,8 +3153,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
       }
       if (x == 0 && *notsep && c) { /* Include set if given */
         ss = notsep;
-        while (*ss && *ss != c)
+        while (*ss && *ss != c) {
           ss++; /* (instead of ckstrchr()) */
+        }
         x = (*ss == c);
       }
       if (c == n3 && grouping && state == ST_BW) { /* Group quote? */
@@ -2959,8 +3194,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
           p = s;                      /* point to beginning of word */
         }
         gr_lvl++; /* Push closer on nesting stack */
-        if (gr_lvl >= NESTMAX)
+        if (gr_lvl >= NESTMAX) {
           goto xxsplit;
+        }
         gr_stk[gr_lvl] = gr_cls[ko];
         prevstate = state;
         state = ST_IG;             /* Switch to INGROUP state */
@@ -2981,8 +3217,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
         p = s - 1;
         len = 1;
       }
-      if (collapse)
+      if (collapse) {
         break;
+      }
 
     case ST_IW:                   /* INWORD (but not in a group) */
       if (class & CL_SEP) {       /* Ends on any kind of separator */
@@ -2991,10 +3228,11 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
           char *s2 = s;           /* discard surrounding spaces */
           while (s2 > splitbuf) { /* first backwards... */
             s2--;
-            if (*s2 == SP || *s2 == HT)
+            if (*s2 == SP || *s2 == HT) {
               *s2 = NUL;
-            else
+            } else {
               break;
+            }
           }
           s2 = s + 1; /* Then forwards... */
           while (*s2 && (*s2 == SP || *s2 == HT)) {
@@ -3032,19 +3270,22 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
         if (csv) {
           if (*(s + 1) == c) {
             char *s2 = s;
-            while ((*s2 = *(s2 + 1)))
+            while ((*s2 = *(s2 + 1))) {
               s2++;
+            }
             s++;
             c = *s;
           }
         }
         if (c == gr_stk[gr_lvl]) { /* Does it match current opener? */
           gr_lvl--;                /* Yes, pop stack */
-          if (gr_lvl < 0)          /* Don't pop it too much */
+          if (gr_lvl < 0) {        /* Don't pop it too much */
             gr_lvl = 0;
+          }
           if (gr_lvl == 0) { /* If at top of stack */
-            if (gquote)
+            if (gquote) {
               s++;
+            }
             c = *s;
             *s = NUL;  /* we have word. */
             wordnum++; /* Count and dispose of it. */
@@ -3064,21 +3305,24 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
             state = ST_BW; /* Switch to BETWEENWORDS state */
             len = 0;
           }
-          if (gr_lvl < gquote)
+          if (gr_lvl < gquote) {
             gquote = 0;
+          }
         }
       } else if (class & CL_OPN) { /* Have group opener */
         gr_lvl++;                  /* Push on nesting stack */
-        if (gr_lvl >= NESTMAX)
+        if (gr_lvl >= NESTMAX) {
           goto xxsplit;
+        }
         gr_stk[gr_lvl] = gr_cls[ko];
       }
     } /* switch */
 
   nextc:
     s++; /* Next char */
-    if (state)
+    if (state) {
       len++;
+    }
   } /* while (c) */
 
   if (gr_lvl > 0) {           /* In case of an unclosed group */
@@ -3094,8 +3338,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
       return (&ck_sval);
     } else if (n < 0 && (wordnum + n > -1)) { /* Counting from right */
       char *s = wordarray[wordnum + n + 1];
-      if (!s)
+      if (!s) {
         s = "";
+      }
       setword(1, s, strlen(s));
       ck_sval.a_size = 1;
       return (&ck_sval);
@@ -3104,8 +3349,9 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
   if (!splitting) {                    /* Fword... */
     if (n < 0 && (wordnum + n > -1)) { /* Counting from right */
       char *s = wordarray[wordnum + n + 1];
-      if (!s)
+      if (!s) {
         s = "";
+      }
       setword(1, s, strlen(s));
       ck_sval.a_size = 1;
       return (&ck_sval);
@@ -3120,13 +3366,15 @@ struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
       the normal case, and it's required if we're making an argv[] array to
       pass to execvp().  This element is not included in the count.
     */
-    if (wordnum < MAXWORDS)
+    if (wordnum < MAXWORDS) {
       setword(wordnum + 1, NULL, 0);
+    }
   }
 #ifdef DEBUG
   if (deblog) {
-    for (i = 1; i <= wordnum; i++)
+    for (i = 1; i <= wordnum; i++) {
       debug(F111, "cksplit result", wordarray[i], i);
+    }
   }
 #endif /* DEBUG */
   return (&ck_sval);
@@ -3142,16 +3390,20 @@ xxsplit: /* Error return */
 */
 int ckhexbytetoint(char *s) {
   int i, c[2];
-  if (!s)
+  if (!s) {
     return (-1);
-  if ((int)strlen(s) != 2)
+  }
+  if ((int)strlen(s) != 2) {
     return (-1);
+  }
   for (i = 0; i < 2; i++) {
     c[i] = *s++;
-    if (!c[i])
+    if (!c[i]) {
       return (-1);
-    if (islower(c[i]))
+    }
+    if (islower(c[i])) {
       c[i] = toupper(c[i]);
+    }
     if (c[i] >= '0' && c[i] <= '9') {
       c[i] -= 0x30;
     } else if (c[i] >= 'A' && c[i] <= 'F') {

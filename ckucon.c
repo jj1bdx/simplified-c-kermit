@@ -365,21 +365,22 @@ extern USHORT (*xfu)(CHAR); /* Translation function FCS to UCS */
 int chkaes(char c, int src)
 /* chkaes */ {
 
-  oldesc = inesc;           /* Remember previous state */
-  if (c == CAN || c == SUB) /* CAN and SUB cancel any sequence */
+  oldesc = inesc;             /* Remember previous state */
+  if (c == CAN || c == SUB) { /* CAN and SUB cancel any sequence */
     inesc = ES_NORMAL;
-  else               /* Otherwise */
+  } else {           /* Otherwise */
     switch (inesc) { /* enter state switcher */
 
     case ES_NORMAL:        /* NORMAL state */
-      if (c == ESC)        /* Got an ESC */
+      if (c == ESC) {      /* Got an ESC */
         inesc = ES_GOTESC; /* Change state to GOTESC */
-      break;               /* Otherwise stay in NORMAL state */
+      }
+      break; /* Otherwise stay in NORMAL state */
 
     case ES_GOTESC:        /* GOTESC state */
-      if (c == '[')        /* Left bracket after ESC is CSI */
+      if (c == '[') {      /* Left bracket after ESC is CSI */
         inesc = ES_GOTCSI; /* Change to GOTCSI state */
-      else if (c == 'P' || (c > 0134 && c < 0140)) { /* P, [, ^, or _ */
+      } else if (c == 'P' || (c > 0134 && c < 0140)) { /* P, [, ^, or _ */
         inesc = ES_STRING; /* Switch to STRING-absorption state */
 #ifdef CK_APC
         if (c == '_' && pid == 0 && /* APC handled in child only */
@@ -389,33 +390,37 @@ int chkaes(char c, int src)
           apclength = 0;          /* and reset APC buffer pointer */
         }
 #endif /* CK_APC */
-      } else if (c > 057 && c < 0177) /* Final character '0' thru '~' */
-        inesc = ES_NORMAL;            /* Back to normal */
-      else if (c != ESC)              /* ESC in an escape sequence... */
-        inesc = ES_ESCSEQ;            /* starts a new escape sequence */
-      break;                          /* Intermediate or ignored ctrl char */
+      } else if (c > 057 && c < 0177) { /* Final character '0' thru '~' */
+        inesc = ES_NORMAL;              /* Back to normal */
+      } else if (c != ESC) {            /* ESC in an escape sequence... */
+        inesc = ES_ESCSEQ;              /* starts a new escape sequence */
+      }
+      break; /* Intermediate or ignored ctrl char */
 
-    case ES_ESCSEQ:            /* ESCSEQ -- in an escape sequence */
-      if (c > 057 && c < 0177) /* Final character '0' thru '~' */
-        inesc = ES_NORMAL;     /* Return to NORMAL state. */
-      else if (c == ESC)       /* ESC ... */
-        inesc = ES_GOTESC;     /* starts a new escape sequence */
-      break;                   /* Intermediate or ignored ctrl char */
+    case ES_ESCSEQ:              /* ESCSEQ -- in an escape sequence */
+      if (c > 057 && c < 0177) { /* Final character '0' thru '~' */
+        inesc = ES_NORMAL;       /* Return to NORMAL state. */
+      } else if (c == ESC) {     /* ESC ... */
+        inesc = ES_GOTESC;       /* starts a new escape sequence */
+      }
+      break; /* Intermediate or ignored ctrl char */
 
-    case ES_GOTCSI:            /* GOTCSI -- In a control sequence */
-      if (c > 077 && c < 0177) /* Final character '@' thru '~' */
-        inesc = ES_NORMAL;     /* Return to NORMAL. */
-      else if (c == ESC)       /* ESC ... */
-        inesc = ES_GOTESC;     /* starts over. */
-      break;                   /* Intermediate or ignored ctrl char */
+    case ES_GOTCSI:              /* GOTCSI -- In a control sequence */
+      if (c > 077 && c < 0177) { /* Final character '@' thru '~' */
+        inesc = ES_NORMAL;       /* Return to NORMAL. */
+      } else if (c == ESC) {     /* ESC ... */
+        inesc = ES_GOTESC;       /* starts over. */
+      }
+      break; /* Intermediate or ignored ctrl char */
 
     case ES_STRING:        /* Inside a string */
-      if (c == ESC)        /* ESC may be 1st char of terminator */
+      if (c == ESC) {      /* ESC may be 1st char of terminator */
         inesc = ES_TERMIN; /* Go see. */
+      }
 #ifdef CK_APC
-      else if (apcactive && (apclength < apcbuflen)) /* If in APC, */
+      else if (apcactive && (apclength < apcbuflen)) { /* If in APC, */
         apcbuf[apclength++] = c; /* deposit this character. */
-      else {                     /* Buffer overrun */
+      } else {                   /* Buffer overrun */
         apcactive = 0;           /* Discard what we got */
         apclength = 0;           /* and go back to normal */
         apcbuf[0] = 0;           /* Not pretty, but what else */
@@ -444,6 +449,7 @@ int chkaes(char c, int src)
 #endif /* CK_APC */
       }
     }
+  }
   return (0);
 }
 #endif /* NOESCSEQ */
@@ -491,9 +497,10 @@ static void ck_sndmsg() { /* Executed by child only ... */
     signal(CK_FORK_SIG, forkint); /* Set up signal handler */
     kill(parent_id, CK_FORK_SIG); /* Kick the parent */
     debug(F100, "ck_sndmsg pausing", "", 0);
-    for (;;)
+    for (;;) {
       pause(); /* Wait for CK_FORK_SIG or SIGKILL */
-               /* NOTREACHED */
+    }
+    /* NOTREACHED */
   }
   /* We come here from forkint() via [sig]cklongjmp(sig_env,1) */
   debug(F100, "CONNECT ck_sndmsg is parent - returning", "", 0);
@@ -569,9 +576,9 @@ static void pipeint(arg) int arg;
   its asctime() string (26 chars) and then closes the connection.
 */
 #ifdef CK_TRIGGER
-    if (cx == CEV_TRI)
+    if (cx == CEV_TRI) {
       sjval = CEV_TRI; /* Set global variable. */
-    else
+    } else
 #endif /* CK_TRIGGER */
       sjval = CEV_HUP;
     if (jbset) {                 /* jmp_buf is initialized */
@@ -641,13 +648,15 @@ static void pipeint(arg) int arg;
 #ifdef CK_AUTODL
   case CEV_ADL: /* Autodownload */
     apcactive = APC_LOCAL;
-    if (!justone)
+    if (!justone) {
       debug(F100, "CONNECT autodownload at parent", "", 0);
+    }
     /* Copy child's Kermit packet if any */
     read(xpipe[0], (char *)&x, sizeof(x));
     debug(F101, "CONNECT trigger ibc (upper)", "", ibc);
-    if (x > 0)
+    if (x > 0) {
       read(xpipe[0], (char *)ksbuf, x + 1);
+    }
 #endif          /* CK_AUTODL */
   case CEV_APC: /* Application Program Command */
     read(xpipe[0], (char *)&apclength, sizeof(apclength));
@@ -677,11 +686,12 @@ static void pipeint(arg) int arg;
 */
 static int ckcputf() { /* Dump the output buffer */
   int x = 0;
-  if (obc > 0)            /* If we have any characters, */
+  if (obc > 0) {          /* If we have any characters, */
     x = conxo(obc, obuf); /* dump them, */
-  obp = obuf;             /* reset the pointer */
-  obc = 0;                /* and the counter. */
-  return (x);             /* Return conxo's return code */
+  }
+  obp = obuf; /* reset the pointer */
+  obc = 0;    /* and the counter. */
+  return (x); /* Return conxo's return code */
 }
 
 int ckcputc(c)
@@ -698,8 +708,9 @@ int c;
     obp = obuf;           /* reset the pointer */
     obc = 0;              /* and the counter. */
     return (x);           /* Return conxo's return code */
-  } else
+  } else {
     return (0);
+  }
 }
 
 /*  C K C G E T C  --  C-Kermit CONNECT Get Character  */
@@ -728,9 +739,10 @@ int dummy;
       *ibp++ = c; /* Advance buffer pointer */
       ibc++;      /* and count. */
     }
-    if ((n = ttchk()) > 0) { /* Any more waiting? */
-      if (n > (IBUFL - ibc)) /* Get them all at once. */
-        n = IBUFL - ibc;     /* Don't overflow buffer */
+    if ((n = ttchk()) > 0) {   /* Any more waiting? */
+      if (n > (IBUFL - ibc)) { /* Get them all at once. */
+        n = IBUFL - ibc;       /* Don't overflow buffer */
+      }
       if ((n = ttxin(n, (CHAR *)ibp)) > 0) {
         ibc += n; /* Advance counter */
       }
@@ -788,20 +800,21 @@ kbget() {
 #ifdef EINTR
   int tries = 10; /* If read() is interrupted, */
   int ok = 0;
-  while (tries-- > 0) {                   /* try a few times... */
-#endif                                    /* EINTR */
-    if ((kbc = conchk()) < 1)             /* How many chars waiting? */
-      kbc = 1;                            /* If none or dunno, wait for one. */
-    else if (kbc > KBUFL)                 /* If too many, */
-      kbc = KBUFL;                        /* only read this many. */
-    if ((kbc = read(0, kbuf, kbc)) < 1) { /* Now read it/them. */
+  while (tries-- > 0) {         /* try a few times... */
+#endif                          /* EINTR */
+    if ((kbc = conchk()) < 1) { /* How many chars waiting? */
+      kbc = 1;                  /* If none or dunno, wait for one. */
+    } else if (kbc > KBUFL) {   /* If too many, */
+      kbc = KBUFL;              /* only read this many. */
+    }
+    if ((kbc = read(0, kbuf, kbc)) < 1) {            /* Now read it/them. */
       debug(F101, "CONNECT kbget errno", "", errno); /* Got an error. */
 #ifdef EINTR
-      if (errno == EINTR) /* Interrupted system call. */
-        continue;         /* Try again, up to limit. */
-      else                /* Something else. */
-#endif                    /* EINTR */
-        return (-1);      /* Pass along read() error. */
+      if (errno == EINTR) { /* Interrupted system call. */
+        continue;           /* Try again, up to limit. */
+      } else                /* Something else. */
+#endif                      /* EINTR */
+        return (-1);        /* Pass along read() error. */
     }
 #ifdef EINTR
     else {
@@ -809,8 +822,9 @@ kbget() {
       break;
     }
   }
-  if (!ok)
+  if (!ok) {
     return (-1);
+  }
 #endif                           /* EINTR */
   kbp = kbuf;                    /* Adjust buffer pointer, */
   kbc--;                         /* count, */
@@ -885,8 +899,9 @@ static void concld() {
           ck_sndmsg();
         } else {
 #endif /* IBMX25 */
-          if (!quiet)
+          if (!quiet) {
             printf("\r\nCommunications disconnect ");
+          }
           dologend();
           pipemsg(CEV_HUP);
           ck_sndmsg(); /* Wait to be killed */
@@ -904,8 +919,9 @@ static void concld() {
           conol(dbchr(c));
         }
       } else {
-        if (seslog && sessft) /* Binary session log */
-          logchar((char)c);   /* Log char before translation */
+        if (seslog && sessft) { /* Binary session log */
+          logchar((char)c);     /* Log char before translation */
+        }
 
         if (sosi
 #ifndef NOCSETS
@@ -922,8 +938,9 @@ static void concld() {
                 inshift = 0;
                 continue;
               }
-              if (inshift)
+              if (inshift) {
                 c |= 0200;
+              }
             }
 #ifndef NOCSETS
             if (inesc == ES_NORMAL) {
@@ -931,9 +948,9 @@ static void concld() {
               int x;
               if (unicode == 1) { /* Remote is UTF-8 */
                 x = u_to_b((CHAR)c);
-                if (x == -1)
+                if (x == -1) {
                   continue;
-                else if (x == -2) { /* LS or PS */
+                } else if (x == -2) { /* LS or PS */
                   inxbuf[0] = CR;
                   inxbuf[1] = LF;
                   inxcount = 2;
@@ -946,27 +963,32 @@ static void concld() {
                 c = inxbuf[0];
               } else {
 #endif /* UNICODE */
-                if (sxi)
+                if (sxi) {
                   c = (*sxi)((CHAR)c);
-                if (rxi)
+                }
+                if (rxi) {
                   c = (*rxi)((CHAR)c);
+                }
                 inxbuf[0] = c;
 #ifdef UNICODE
               }
 #endif /* UNICODE */
             }
-#endif                             /* NOCSETS */
-            c &= cmdmsk;           /* Apply command mask. */
-            conoc(c);              /* Output to screen */
-            if (seslog && !sessft) /* and session log */
+#endif                               /* NOCSETS */
+            c &= cmdmsk;             /* Apply command mask. */
+            conoc(c);                /* Output to screen */
+            if (seslog && !sessft) { /* and session log */
               logchar(c);
+            }
           }
         } else { /* All at once */
-          for (i = 1; i < ibufl; i++)
+          for (i = 1; i < ibufl; i++) {
             x25ibuf[i] &= (cmask & cmdmsk);
+          }
           conxo(ibufl, x25ibuf);
-          if (seslog)
+          if (seslog) {
             zsoutx(ZSFILE, x25ibuf, ibufl);
+          }
         }
       }
       continue;
@@ -999,9 +1021,11 @@ static void concld() {
       /* Handle TELNET negotiations... */
 
       if ((c == NUL) && network && IS_TELNET()) {
-        if (prev == CK_CR) /* Discard <NUL> of <CR><NUL> */
-          if (!TELOPT_U(TELOPT_BINARY))
+        if (prev == CK_CR) { /* Discard <NUL> of <CR><NUL> */
+          if (!TELOPT_U(TELOPT_BINARY)) {
             continue;
+          }
+        }
       }
       if ((c == IAC) && network && IS_TELNET()) {
         int me_bin = TELOPT_ME(TELOPT_BINARY);
@@ -1024,8 +1048,9 @@ static void concld() {
           }
           continue;
         } else if (tx == -1) { /* I/O error */
-          if (!quiet)
+          if (!quiet) {
             printf("\r\nCommunications disconnect ");
+          }
 #ifdef NOSETBUF
           fflush(stdout);
 #endif /* NOSETBUF */
@@ -1035,8 +1060,9 @@ static void concld() {
           ck_sndmsg();         /* Wait to be killed */
                                /* NOTREACHED */
         } else if (tx == -3) { /* I/O error */
-          if (!quiet)
+          if (!quiet) {
             printf("\r\nConnection closed due to telnet policy ");
+          }
 #ifdef NOSETBUF
           fflush(stdout);
 #endif /* NOSETBUF */
@@ -1046,8 +1072,9 @@ static void concld() {
           ck_sndmsg();         /* Wait to be killed */
                                /* NOTREACHED */
         } else if (tx == -2) { /* I/O error */
-          if (!quiet)
+          if (!quiet) {
             printf("\r\nConnection closed by peer ");
+          }
 #ifdef NOSETBUF
           fflush(stdout);
 #endif /* NOSETBUF */
@@ -1086,8 +1113,9 @@ static void concld() {
 #endif /* IKS_OPTION */
         else if (tx == 6) {
           /* DO LOGOUT received */
-          if (!quiet)
+          if (!quiet) {
             printf("\r\nRemote Logout ");
+          }
 #ifdef NOSETBUF
           fflush(stdout);
 #endif /* NOSETBUF */
@@ -1095,21 +1123,25 @@ static void concld() {
           pipemsg(CEV_HUP);
           ck_sndmsg(); /* Wait to be killed */
                        /* NOTREACHED */
-        } else
+        } else {
           continue; /* Negotiation OK, get next char. */
+        }
 
-      } else if (parity)
+      } else if (parity) {
         c &= 0x7f;
+      }
 
-      if (TELOPT_ME(TELOPT_ECHO) && tn_rem_echo)
+      if (TELOPT_ME(TELOPT_ECHO) && tn_rem_echo) {
         ttoc(c); /* I'm echoing for the remote */
-#endif           /* TNCODE */
+      }
+#endif /* TNCODE */
 
       if (debses) { /* Output character to screen */
         char *s;    /* Debugging display... */
         s = dbchr(c);
-        while (*s)
+        while (*s) {
           ckcputc(*s++);
+        }
       } else {      /* Regular display ... */
         c &= cmask; /* Apply Kermit-to-remote mask */
 #ifdef CK_AUTODL
@@ -1127,8 +1159,9 @@ static void concld() {
           int k;
           k = kstart((CHAR)c); /* Kermit S or I packet? */
 #ifdef CK_XYZ
-          if (!k && zmdlok) /* Or an "sz" start? */
+          if (!k && zmdlok) { /* Or an "sz" start? */
             k = zstart((CHAR)c);
+          }
 #endif /* CK_XYZ */
           if (k) {
             int ksign = 0;
@@ -1141,8 +1174,9 @@ static void concld() {
               k = 0 - k;   /* Convert to actual protocol */
               justone = 1; /* Flag for protocol module */
 #endif /* NOSERVER */
-            } else
+            } else {
               justone = 0;
+            }
             k--; /* Adjust [kz]start's return value */
             if (k == PROTO_K
 #ifdef CK_XYZ
@@ -1156,14 +1190,16 @@ static void concld() {
 
               if (k == PROTO_K) {
                 int i, len = strlen((char *)ksbuf);
-                for (i = 0; i < len; i++)
+                for (i = 0; i < len; i++) {
                   ckcputc(BS);
+                }
               }
 #ifdef CK_XYZ
               else {
                 int i;
-                for (i = 0; i < 3; i++)
+                for (i = 0; i < 3; i++) {
                   ckcputc(CAN);
+                }
               }
 #endif /* CK_XYZ */
               /* Notify parent */
@@ -1175,8 +1211,9 @@ static void concld() {
               /* Copy our Kermit packet to the parent fork */
               n = (int)strlen((char *)ksbuf);
               write(xpipe[1], (char *)&n, sizeof(n));
-              if (n > 0)
+              if (n > 0) {
                 write(xpipe[1], (char *)ksbuf, n + 1);
+              }
               debug(F111, "CONNECT autodownload ksbuf", ksbuf, n);
               debug(F101, "CONNECT autodownload justone", "", justone);
               /* Construct the APC command */
@@ -1220,8 +1257,9 @@ static void concld() {
             inshift = 0;
             continue;
           }
-          if (inshift)
+          if (inshift) {
             c |= 0200;
+          }
         }
         inxbuf[0] = c; /* In case there is no translation */
         inxcount = 1;  /* ... */
@@ -1233,8 +1271,9 @@ static void concld() {
           ch = c;
           if (unicode == 1) { /* Remote is UTF-8 */
             x = u_to_b(ch);
-            if (x < 0)
+            if (x < 0) {
               continue;
+            }
             inxbuf[0] = (unsigned)(x & 0xff);
             c = inxbuf[0];
           } else if (unicode == 2) { /* Local is UTF-8 */
@@ -1242,10 +1281,12 @@ static void concld() {
             c = inxbuf[0];
           } else {
 #endif /* UNICODE */
-            if (sxi)
+            if (sxi) {
               c = (*sxi)((CHAR)c);
-            if (rxi)
+            }
+            if (rxi) {
               c = (*rxi)((CHAR)c);
+            }
             inxbuf[0] = c;
 #ifdef UNICODE
           }
@@ -1254,8 +1295,9 @@ static void concld() {
 #endif /* NOCSETS */
 
 #ifndef NOESCSEQ
-        if (escseq)                   /* If handling escape sequences */
+        if (escseq) {                 /* If handling escape sequences */
           apcrc = chkaes((char)c, 1); /* update our state */
+        }
 #ifdef CK_APC
         /*
           If we are handling APCs, we have several possibilities at this point:
@@ -1266,12 +1308,13 @@ static void concld() {
           char, but only if we have not just entered an APC sequence.
         */
         if (escseq && (apcstatus & APC_ON)) {
-          if (inesc == ES_GOTESC) /* Don't write ESC yet */
+          if (inesc == ES_GOTESC) { /* Don't write ESC yet */
             continue;
-          else if (oldesc == ES_GOTESC && !apcactive) {
+          } else if (oldesc == ES_GOTESC && !apcactive) {
             ckcputc(ESC); /* Write saved ESC */
-            if (seslog && !sessft)
+            if (seslog && !sessft) {
               logchar((char)ESC);
+            }
           } else if (apcrc) { /* We have an APC */
             debug(F111, "CONNECT APC complete", apcbuf, apclength);
             ckcputf();        /* Force screen update */
@@ -1310,22 +1353,25 @@ static void concld() {
                          /* SET TERM CR-DISPLAY CRLF? */
             if (c == CK_CR && tt_crd) {
               ckcputc(c); /* Yes, output CR */
-              if (seslog && !sessft)
+              if (seslog && !sessft) {
                 logchar((char)c);
+              }
               c = LF; /* and insert a linefeed */
             }
             if (c == LF && tt_lfd) { /* SET TERM CR-DISPLA CRLF? */
               ckcputc(CK_CR);        /* Yes, output CR */
-              if (seslog && !sessft)
+              if (seslog && !sessft) {
                 logchar((char)CK_CR);
+              }
             }
             ckcputc(c); /* Write character to screen */
           }
-          if (seslog && !sessft) /* Handle session log */
+          if (seslog && !sessft) { /* Handle session log */
             logchar((char)c);
+          }
 #ifdef CK_TRIGGER
           /* Check for trigger string */
-          if (tt_trigger[0])
+          if (tt_trigger[0]) {
             if ((ix = autoexitchk((CHAR)c)) > -1) {
               ckcputf(); /* Force screen update */
 #ifdef NOSETBUF
@@ -1343,6 +1389,7 @@ static void concld() {
               active = 0;  /* Shouldn't be necessary... */
               break;
             }
+          }
           /* NOTREACHED */
 #endif /* CK_TRIGGER */
         }
@@ -1516,8 +1563,9 @@ int conect() {
     }
 #ifdef IKS_OPTION
     /* If peer is in Kermit server mode, return now. */
-    if (TELOPT_SB(TELOPT_KERMIT).kermit.u_start)
+    if (TELOPT_SB(TELOPT_KERMIT).kermit.u_start) {
       return (0);
+    }
 #endif /* IKS_OPTION */
   }
   dohangup = 0; /* Hangup not requested yet */
@@ -1528,19 +1576,22 @@ int conect() {
   if (msgflg) {
 #ifdef NETCONN
     if (network) {
-      if (ttpipe)
+      if (ttpipe) {
         printf("Connecting via command \"%s\"", ttname);
-      else
+      } else {
         printf("Connecting to host %s", ttname);
+      }
 #ifdef ANYX25
-      if (nettype == NET_SX25 || nettype == NET_IX25)
+      if (nettype == NET_SX25 || nettype == NET_IX25) {
         printf(", Link ID %d, LCN %d", linkid, lcn);
+      }
 #endif /* ANYX25 */
     } else {
 #endif /* NETCONN */
       printf("Connecting to %s", ttname);
-      if (speed > -1L)
+      if (speed > -1L) {
         printf(", speed %ld", speed);
+      }
 #ifdef NETCONN
     }
 #endif /* NETCONN */
@@ -1567,8 +1618,9 @@ int conect() {
       }
       printf("Session Log: %s, %s\r\n", sesfil, s);
     }
-    if (debses)
+    if (debses) {
       printf("Debugging Display...)\r\n");
+    }
     printf("----------------------------------------------------\r\n");
     fflush(stdout);
   }
@@ -1595,8 +1647,9 @@ int conect() {
         goto conret0;
       }
 #ifdef IKS_OPTION
-      if (TELOPT_SB(TELOPT_KERMIT).kermit.u_start)
+      if (TELOPT_SB(TELOPT_KERMIT).kermit.u_start) {
         return (0);
+      }
 #endif                             /* IKS_OPTION */
       if (ttvt(speed, flow) < 0) { /* Try virtual terminal mode again. */
         conres();                  /* Failure this time is fatal. */
@@ -1625,8 +1678,9 @@ int conect() {
       conres();
       printf("?Carrier required but not detected.\n");
 #ifndef NOHINTS
-      if (!hints)
+      if (!hints) {
         return (0);
+      }
       printf("***********************************\n");
       printf(" Hint: To CONNECT to a serial device that\n");
       printf(" is not presenting the Carrier Detect signal,\n");
@@ -1653,8 +1707,9 @@ int conect() {
       if (xuf || tcsl == FC_UTF8) {
         tcs = (tcsr == FC_UTF8) ? tcsl : tcsr; /* The "other" set */
         xfu = xl_fcu[tcs]; /* Local byte to remote Unicode */
-        if (xfu)
+        if (xfu) {
           unicode = (tcsr == FC_UTF8) ? 1 : 2;
+        }
       }
       tcssize = fcsinfo[tcs].size; /* Size of other character set. */
     } else {
@@ -1685,8 +1740,9 @@ int conect() {
     extern int binary; /* See about ZMODEM autodownloads */
     char *s;
     s = binary ? ptab[PROTO_Z].p_b_rcmd : ptab[PROTO_Z].p_t_rcmd;
-    if (!s)
+    if (!s) {
       s = "";
+    }
     zmdlok = (*s != NUL); /* OK if we have external commands */
   }
 #endif /* XYZ_INTERNAL */
@@ -1720,11 +1776,13 @@ int conect() {
   parent_id = getpid(); /* Get parent's pid for signalling */
   debug(F101, "CONNECT parent pid", "", parent_id);
 
-  if (xpipe[0] > -1) /* If old pipe hanging around, close */
+  if (xpipe[0] > -1) { /* If old pipe hanging around, close */
     close(xpipe[0]);
+  }
   xpipe[0] = -1;
-  if (xpipe[1] > -1)
+  if (xpipe[1] > -1) {
     close(xpipe[1]);
+  }
   xpipe[1] = -1;
   goterr = 0;                  /* Error flag for pipe & fork */
   if (pipe(xpipe) != 0) {      /* Create new pipe to pass info */
@@ -1777,8 +1835,8 @@ int conect() {
                parent.  The latter case happens during APC processing - see the code
                around          CEV_APC occurrences to see how the child passes its ibuf
                etc to          parent via          xpipe, for preservation until the next
-               entry to          this module, to          ensure that          no characters are
-               lost between          CONNECT sessions.
+               entry to          this module, to          ensure that          no
+               characters are          lost between          CONNECT sessions.
              */
 
     /*
@@ -1869,8 +1927,9 @@ int conect() {
              This can be caused by the other fork signalling this one about
              an echoing change during TELNET negotiations.
           */
-          if (errno == EINTR)
+          if (errno == EINTR) {
             continue;
+          }
 #endif                /* EINTR */
           conoc(BEL); /* Otherwise, beep */
           active = 0; /* and terminate the read loop */
@@ -1886,9 +1945,10 @@ int conect() {
         if (!kmptr && macrotab[c]) { /* Macro definition for c? */
           kmptr = macrotab[c];       /* Yes, set up macro pointer */
           continue;                  /* and restart the loop, */
-        } else
+        } else {
           c = keymap[c]; /* else use single-char keymap */
-#endif                   /* NOSETKEY */
+        }
+#endif /* NOSETKEY */
         if (
 #ifndef NOSETKEY
             !kmptr &&
@@ -1914,19 +1974,22 @@ int conect() {
               outxbuf[outxcount] = NUL;
             } else if (unicode == 2) { /* Local is UTF-8 */
               x = u_to_b(ch);          /* So translate to remote byte */
-              if (x < 0)
+              if (x < 0) {
                 continue;
+              }
               outxbuf[0] = (unsigned)(x & 0xff);
               outxcount = 1;
               outxbuf[outxcount] = NUL;
             } else {
 #endif /* UNICODE */
               /* Local-to-intermediate */
-              if (sxo)
+              if (sxo) {
                 c = (*sxo)((char)c);
+              }
               /* Intermediate-to-remote */
-              if (rxo)
+              if (rxo) {
                 c = (*rxo)((char)c);
+              }
               outxbuf[0] = c;
               outxcount = 1;
               outxbuf[outxcount] = NUL;
@@ -1934,8 +1997,9 @@ int conect() {
             }
 #endif /* UNICODE */
           }
-          if (escseq)
+          if (escseq) {
             apcrc = chkaes((char)c, 0);
+          }
 #else
           outxbuf[0] = c;
           outxcount = 1;
@@ -1961,10 +2025,12 @@ int conect() {
                   }
                 }
               }
-              if (c == SO)
+              if (c == SO) {
                 outshift = 1; /* User typed SO */
-              if (c == SI)
+              }
+              if (c == SI) {
                 outshift = 0; /* User typed SI */
+              }
             }
             c &= cmask;        /* Apply Kermit-to-host mask now. */
             if (c == '\015') { /* Carriage Return */
@@ -1986,9 +2052,10 @@ int conect() {
               }
               if (stuff > -1) {
                 ttoc(dopar('\015')); /* Send CR */
-                if (duplex)
+                if (duplex) {
                   conoc('\015'); /* Echo CR */
-                c = stuff;       /* Char to stuff */
+                }
+                c = stuff; /* Char to stuff */
                 csave = c;
               }
             }
@@ -2007,14 +2074,16 @@ int conect() {
 
             if (ttoc((char)dopar((CHAR)c)) > -1) {
               if (duplex) { /* If half duplex, must echo */
-                if (debses)
+                if (debses) {
                   conol(dbchr(csave)); /* original char */
-                else                   /* not the translated one */
+                } else {               /* not the translated one */
                   conoc((char)csave);
+                }
                 if (seslog) { /* And maybe log it too */
                   c2 = csave;
-                  if (sessft == 0 && csave == '\r')
+                  if (sessft == 0 && csave == '\r') {
                     c2 = '\n';
+                  }
                   logchar((char)c2);
                 }
               }
@@ -2071,11 +2140,12 @@ int conect() {
     conres();           /* Reset the console. */
     if (dohangup > 0) { /* If hangup requested, do that. */
 #ifndef NODIAL
-      if (dohangup > 1)   /* User asked for it */
+      if (dohangup > 1) { /* User asked for it */
         if (mdmhup() < 1) /* Maybe hang up via modem */
 #endif                    /* NODIAL */
           tthang();       /* And make sure we don't hang up */
-      dohangup = 0;       /* again unless requested again. */
+      }
+      dohangup = 0; /* again unless requested again. */
     }
 
 #ifdef ANYX25
@@ -2088,10 +2158,12 @@ int conect() {
     }
 #endif /* ANYX25 */
 
-    if (quitnow)
+    if (quitnow) {
       doexit(GOOD_EXIT, xitsta); /* Exit now if requested. */
-    if (msgflg)
+    }
+    if (msgflg) {
       printf("(Back at %s)", *myhost ? myhost : "local UNIX system");
+    }
 #ifdef CK_APC
     if (!apcactive)
 #endif /* CK_APC */
@@ -2119,8 +2191,9 @@ conret0:
   xpipe[1] = -1;
   if (msgflg) {
 #ifdef CK_APC
-    if (apcactive == APC_LOCAL)
+    if (apcactive == APC_LOCAL) {
       printf("\n");
+    }
 #endif /* CK_APC */
     printf("----------------------------------------------------\r\n");
   }
@@ -2179,8 +2252,9 @@ int hconne() {
   conol("Command>");   /* Prompt for command. */
   c = CONGKS() & 0177; /* Get character, strip any parity. */
   /* No key mapping or translation here */
-  if (c != CMDQ)
+  if (c != CMDQ) {
     conoll("");
+  }
   conoll("----------------------------------------------------");
   return (c); /* Return it. */
 }
@@ -2198,8 +2272,9 @@ void doesc(char c)
       ttoc((char)d);
       return;
     } else /* Or else look it up below. */
-      if (isupper(c))
+      if (isupper(c)) {
         c = tolower(c);
+      }
 
     switch (c) {
 
@@ -2242,8 +2317,9 @@ void doesc(char c)
         temp[1] = (CHAR)AYT; /* Are You There? */
         temp[2] = NUL;
         ttol((CHAR *)temp, 2);
-      } else
+      } else {
         conoc(BEL);
+      }
       return;
 #endif /* TCPSOCKET */
 #endif /* NETCONN */
@@ -2257,9 +2333,9 @@ void doesc(char c)
     case 'u':                   /* Hangup */
       /*	case '\010': */ /* No, too dangerous */
 #ifdef ANYX25
-      if (network && (nettype == NET_SX25 || nettype == NET_IX25))
+      if (network && (nettype == NET_SX25 || nettype == NET_IX25)) {
         dox25clr = 1;
-      else
+      } else
 #endif /* ANYX25 */
         dohangup = 2;
       active = 0;
@@ -2269,8 +2345,9 @@ void doesc(char c)
 #ifdef ANYX25
     case 'r': /* Reset the X.25 virtual circuit */
     case '\022':
-      if (network && (nettype == NET_SX25 || nettype == NET_IX25))
+      if (network && (nettype == NET_SX25 || nettype == NET_IX25)) {
         (void)x25reset(0, 0);
+      }
       conol("\r\n");
       return;
 #endif /* ANYX25 */
@@ -2286,9 +2363,9 @@ void doesc(char c)
       conoll("");
       conoll("----------------------------------------------------");
 #ifdef NETCMD
-      if (ttpipe)
+      if (ttpipe) {
         ckmakmsg(temp, TMPLEN, " Pipe: \"", ttname, "\"", NULL);
-      else
+      } else
 #endif /* NETCMD */
         ckmakmsg(temp, TMPLEN, " ", (network ? "Host" : "Device"), ": ",
                  ttname);
@@ -2303,10 +2380,11 @@ void doesc(char c)
       conoll(temp);
       sprintf(temp, " Command bytesize: %d", (cmdmsk == 0177) ? 7 : 8);
       conoll(temp);
-      if (hwparity)
+      if (hwparity) {
         sprintf(temp, " Parity[hardware]: %s", parnam((char)hwparity));
-      else
+      } else {
         sprintf(temp, " Parity: %s", parnam((char)parity));
+      }
       conoll(temp);
       sprintf(temp, " Autodownload: %s", autodl ? "on" : "off");
       conoll(temp);
@@ -2315,8 +2393,9 @@ void doesc(char c)
                NULL);
       conoll(temp);
 #ifndef NOSHOW
-      if (!network)
+      if (!network) {
         shomdm();
+      }
 #endif /* NOSHOW */
 #ifdef CKLOGDIAL
       {
@@ -2345,10 +2424,11 @@ void doesc(char c)
     case 'z':
     case '\032': /* Suspend */
 #ifndef NOPUSH
-      if (!nopush)
+      if (!nopush) {
         stptrap(0);
-      else
+      } else {
         conoc(BEL);
+      }
 #else
       conoc(BEL);
 #endif /* NOPUSH */
@@ -2364,8 +2444,9 @@ void doesc(char c)
           printf("Error resuming CONNECT session\n");
           active = 0;
         }
-      } else
+      } else {
         conoc(BEL);
+      }
 #else
       conoc(BEL);
 #endif /* NOPUSH */
@@ -2379,8 +2460,9 @@ void doesc(char c)
         int x;
         ecbp = ecbuf;
         *ecbp++ = c;
-        while (((c = (CONGKS() & cmdmsk)) != '\r') && (c != '\n'))
+        while (((c = (CONGKS() & cmdmsk)) != '\r') && (c != '\n')) {
           *ecbp++ = c;
+        }
         *ecbp = NUL;
         ecbp = ecbuf;
         x = xxesc(&ecbp); /* Interpret it */

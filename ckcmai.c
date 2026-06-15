@@ -1428,21 +1428,27 @@ static int nxxsysids = (sizeof(sysidlist) / sizeof(struct sysdata));
 char *getsysid(char *s) /* Get system-type name */
 {
   int i;
-  if (!s)
+  if (!s) {
     return ("");
-  for (i = 0; i < nxxsysids; i++)
-    if (!strcmp(sysidlist[i].sid_code, s))
+  }
+  for (i = 0; i < nxxsysids; i++) {
+    if (!strcmp(sysidlist[i].sid_code, s)) {
       return (sysidlist[i].sid_name);
+    }
+  }
   return (s);
 }
 
 int getsysix(char *s) { /* Get system-type index */
   int i;
-  if (!s)
+  if (!s) {
     return (-1);
-  for (i = 0; i < nxxsysids; i++)
-    if (!strcmp(sysidlist[i].sid_code, s))
+  }
+  for (i = 0; i < nxxsysids; i++) {
+    if (!strcmp(sysidlist[i].sid_code, s)) {
       return (i);
+    }
+  }
   return (-1);
 }
 #endif /* NOXFER */
@@ -1453,10 +1459,12 @@ int getsysix(char *s) { /* Get system-type index */
 int isabsolute(char *path) {
   int rc = 0;
   int x;
-  if (!path)
+  if (!path) {
     return (0);
-  if (!*path)
+  }
+  if (!*path) {
     return (0);
+  }
   x = (int)strlen(path);
   debug(F111, "isabsolute", path, x);
 #ifdef UNIX
@@ -1477,13 +1485,14 @@ int isabsolute(char *path) {
 int is_a_tty(int n) {
 #ifdef UNIX
   extern int ttfdflg;
-  if (ttfdflg > 0)
+  if (ttfdflg > 0) {
     return (1);
+  }
 #endif /* UNIX */
 #ifdef IKSD
-  if (inserver)
+  if (inserver) {
     return (1);
-  else
+  } else
 #endif /* IKSD */
     return (isatty(n));
 }
@@ -1537,40 +1546,56 @@ void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
                char *sndtstr, char *rcvbstr, char *rcvtstr)
 /* initproto */ {
 
-  if (upbstr)     /* Convert null strings */
-    if (!*upbstr) /* to null pointers */
+  if (upbstr) {     /* Convert null strings */
+    if (!*upbstr) { /* to null pointers */
       upbstr = NULL;
+    }
+  }
 
-  if (uptstr)     /* Convert null strings */
-    if (!*uptstr) /* to null pointers */
+  if (uptstr) {     /* Convert null strings */
+    if (!*uptstr) { /* to null pointers */
       uptstr = NULL;
+    }
+  }
 
-  if (sndbstr)
-    if (!*sndbstr)
+  if (sndbstr) {
+    if (!*sndbstr) {
       sndbstr = NULL;
+    }
+  }
 
-  if (sndtstr)
-    if (!*sndtstr)
+  if (sndtstr) {
+    if (!*sndtstr) {
       sndtstr = NULL;
+    }
+  }
 
-  if (rcvbstr)
-    if (!*rcvbstr)
+  if (rcvbstr) {
+    if (!*rcvbstr) {
       rcvbstr = NULL;
+    }
+  }
 
-  if (rcvtstr)
-    if (!*rcvtstr)
+  if (rcvtstr) {
+    if (!*rcvtstr) {
       rcvtstr = NULL;
+    }
+  }
 
-  if (srvstr)
-    if (!*srvstr)
+  if (srvstr) {
+    if (!*srvstr) {
       srvstr = NULL;
+    }
+  }
 
   protocol = y; /* Set protocol */
 
-  if (ptab[protocol].rpktlen > -1)
+  if (ptab[protocol].rpktlen > -1) {
     urpsiz = ptab[protocol].rpktlen;
-  if (ptab[protocol].spktflg > -1)
+  }
+  if (ptab[protocol].spktflg > -1) {
     spsizf = ptab[protocol].spktflg;
+  }
   if (ptab[protocol].spktlen > -1) {
     spsiz = ptab[protocol].spktlen;
     debug(F101, "initproto spsiz", "", spsiz);
@@ -1579,18 +1604,24 @@ void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
       debug(F101, "initproto spsizr", "", spsizr);
     }
   }
-  if (ptab[protocol].winsize > -1)
+  if (ptab[protocol].winsize > -1) {
     wslotr = ptab[protocol].winsize;
-  if (ptab[protocol].prefix > -1)
+  }
+  if (ptab[protocol].prefix > -1) {
     prefixing = ptab[protocol].prefix;
-  if (ptab[protocol].fnca > -1)
+  }
+  if (ptab[protocol].fnca > -1) {
     fncact = ptab[protocol].fnca;
-  if (ptab[protocol].fncn > -1)
+  }
+  if (ptab[protocol].fncn > -1) {
     fncnv = ptab[protocol].fncn;
-  if (ptab[protocol].fnsp > -1)
+  }
+  if (ptab[protocol].fnsp > -1) {
     fnspath = ptab[protocol].fnsp;
-  if (ptab[protocol].fnrp > -1)
+  }
+  if (ptab[protocol].fnrp > -1) {
     fnrpath = ptab[protocol].fnrp;
+  }
 
   makestr(&(ptab[protocol].h_b_init), upbstr);
   makestr(&(ptab[protocol].h_t_init), uptstr);
@@ -1605,16 +1636,18 @@ void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
 #ifndef NOCMDL
 void docmdline(void *threadinfo) {
 #ifdef CK_LOGIN
-#endif        /* CK_LOGIN */
-  proto();    /* Take any requested action, then */
-  if (!quiet) /* put cursor back at left margin, */
+#endif          /* CK_LOGIN */
+  proto();      /* Take any requested action, then */
+  if (!quiet) { /* put cursor back at left margin, */
     conoll("");
+  }
 #ifndef NOLOCAL
   if (cnflg) { /* Re-connect if requested */
     cnflg = 0;
     doconect(0, 0);
-    if (ttchk() < 0)
+    if (ttchk() < 0) {
       dologend();
+    }
   }
 #endif /* NOLOCAL */
 
@@ -1661,13 +1694,14 @@ void ikslogin(void) {
 #endif /* CK_LOGIN */
 
 #ifdef IKSD
-    if (inserver)
+    if (inserver) {
       printf("\r\nInternet Kermit Service ready at %s%s\r\n", s, versio);
-    else
+    } else
 #endif /* IKSD */
       printf("\r\nC-Kermit ready at %s%s\r\n", s, versio);
-    if (*myhost)
+    if (*myhost) {
       printf("%s\r\n", myhost);
+    }
     printf("\r\n");
   }
 #ifdef CK_LOGIN
@@ -1684,8 +1718,9 @@ void ikslogin(void) {
     srvidl = timelimit = logintimo;                /* For interactive login */
     rtimer();                                      /* Reset timer */
     for (i = 0; i < iks_retry && !x_logged; i++) { /* Count retries */
-      if (gtimer() > logintimo)
+      if (gtimer() > logintimo) {
         break;
+      }
 #ifdef TNCODE
       tn_wait("login loop");
       tn_push();
@@ -1702,11 +1737,12 @@ void ikslogin(void) {
         arg_x = 1; /* Enter server mode */
         sstate = 'x';
 #ifdef IKSDPOPBACK
-        justone = 1;  /* Execute one command at a time. */
-#endif                /* IKSDPOPBACK */
-        proto();      /* Enter protocol if requested. */
-        if (x_logged) /* Logged in */
+        justone = 1;    /* Execute one command at a time. */
+#endif                  /* IKSDPOPBACK */
+        proto();        /* Enter protocol if requested. */
+        if (x_logged) { /* Logged in */
           break;
+        }
       } else { /* Not in client/server mode */
 #endif         /* IKS_OPTION */
         debug(F101, "IKSD starting with Username prompt", "", 0);
@@ -1728,8 +1764,9 @@ void ikslogin(void) {
     srvidl = timelimit = iks_timo; /* Reset command timelimit */
     debug(F101, "MAIN LOGIN", "", x_logged);
     if (!x_logged) { /* Logins failed. */
-      if (TELOPT_SB(TELOPT_KERMIT).kermit.me_start)
+      if (TELOPT_SB(TELOPT_KERMIT).kermit.me_start) {
         errpkt((CHAR *)"Login Timeout");
+      }
       msleep(500);
       doexit(BAD_EXIT, 0);
     }
@@ -1758,9 +1795,10 @@ void ikslogin(void) {
 #ifdef IKSDCONF
         int saved = iksdcf;
         iksdcf = 0;
-#endif                           /* IKSDCONF */
-        if (dodo(k, "", 0) > -1) /* set it up, */
-          parser(1);             /* execute it */
+#endif                             /* IKSDCONF */
+        if (dodo(k, "", 0) > -1) { /* set it up, */
+          parser(1);               /* execute it */
+        }
 #ifdef IKSDCONF
         iksdcf = saved;
 #endif                  /* IKSDCONF */
@@ -1771,8 +1809,9 @@ void ikslogin(void) {
   } /* if (inserver) */
 #else /* CK_LOGIN */
 #ifdef IKSD
-  if (inserver)
+  if (inserver) {
     srvidl = timelimit = iks_timo; /* Set idle limits for IKS */
+  }
 #endif /* IKSD */
 #endif /* CK_LOGIN */
 #endif /* IKSD */
@@ -1780,10 +1819,12 @@ void ikslogin(void) {
 
 void failcmdline(void *foo) {
 #ifndef NOLOCAL
-  if (cnflg)
+  if (cnflg) {
     doconect(0, 0); /* connect again if requested. */
-  if (ttchk() < 0)
+  }
+  if (ttchk() < 0) {
     dologend();
+  }
 #endif /* NOLOCAL */
 }
 #endif /* NOCMDL */
@@ -1802,8 +1843,9 @@ void dotakeini(void *threadinfo) /* Execute init file. */
   debug(F101, "main executing init file", "", tlevel);
   while (tlevel > -1) {
     sstate = (CHAR)parser(1); /* Execute one command at a time. */
-    if (sstate)
+    if (sstate) {
       proto(); /* Enter protocol if requested. */
+    }
   }
   debug(F101, "main exits init file", "", tlevel);
 
@@ -1840,16 +1882,18 @@ void doicp(void *threadinfo)
       dodo(x, NULL, CF_CMDL);          /* set up for macro execution */
       while (maclvl > -1) {            /* Loop getting macro commands. */
         sstate = (CHAR)parser(1);
-        if (sstate)
+        if (sstate) {
           proto(); /* Enter protocol if requested. */
+        }
       }
     }
   }
 #endif        /* NOSPL */
   while (1) { /* Loop getting commands. */
     sstate = (CHAR)parser(0);
-    if (sstate)
+    if (sstate) {
       proto(); /* Enter protocol if requested. */
+    }
   }
 }
 
@@ -1870,14 +1914,16 @@ void docmdfile(void *threadinfo) /* Execute application file */
   debug(F110, "main cmdfil", cmdfil, 0);
 #ifndef NOSPL
   addmac("\\%0", cmdfil);
-#endif             /* NOSPL */
-  dotake(cmdfil);  /* Set up the command file */
-  if (tlevel > -1) /* Remember we did this */
+#endif               /* NOSPL */
+  dotake(cmdfil);    /* Set up the command file */
+  if (tlevel > -1) { /* Remember we did this */
     cfilef = 1;
+  }
   while (tlevel > -1) { /* Execute it until it runs out. */
     sstate = parser(1); /* Loop getting commands. */
-    if (sstate)
+    if (sstate) {
       proto(); /* Enter protocol if requested. */
+    }
   }
 
   return;
@@ -1917,8 +1963,9 @@ void setprefix(int z) {
          ;
          i < 32; i++)
       ctlp[i] = val;
-    for (i = 127; i < 160; i++)
+    for (i = 127; i < 160; i++) {
       ctlp[i] = val;
+    }
     ctlp[(unsigned)255] = val;
     if (z == PX_NON) {              /* These are never safe */
       if (network) {                /* Assume network = telnet or rlogin */
@@ -1928,8 +1975,9 @@ void setprefix(int z) {
         ctlp[mystch] = ctlp[mystch + 128] = 1; /* Kermit packet start */
       } else {
         ctlp[CK_CR] = ctlp[255] = ctlp[mystch] = ctlp[mystch + 128] = 1;
-        if (flow == FLO_XONX) /* Xon/Xoff forces prefixing */
+        if (flow == FLO_XONX) { /* Xon/Xoff forces prefixing */
           ctlp[XON] = ctlp[XOFF] = ctlp[XON + 128] = ctlp[XOFF + 128] = 1;
+        }
       }
     }
     break;
@@ -1937,15 +1985,18 @@ void setprefix(int z) {
   case PX_CAU:   /* Cautious or Minimal */
   case PX_WIL:   /* Minimal ("wild") */
     ctlp[0] = 1; /* Does not include 0 */
-    for (i = 1; i < 32; i++)
+    for (i = 1; i < 32; i++) {
       ctlp[i] = 0;
-    for (i = 127; i < 160; i++)
+    }
+    for (i = 127; i < 160; i++) {
       ctlp[i] = 0;
+    }
     ctlp[mystch] = ctlp[mystch + 128] = 1; /* Kermit start of packet */
-    if (seol != 13)
+    if (seol != 13) {
       ctlp[seol] = ctlp[seol + 128] = 1; /* Kermit end */
-    ctlp[13] = ctlp[141] = 1;            /* In case of TELNET (NVT rules) */
-    ctlp[(unsigned)255] = 1;             /* Ditto */
+    }
+    ctlp[13] = ctlp[141] = 1; /* In case of TELNET (NVT rules) */
+    ctlp[(unsigned)255] = 1;  /* Ditto */
 
     /* ^D, ^J, ^M, or ^U followed by tilde trigger Rlogin escape */
 
@@ -1955,8 +2006,9 @@ void setprefix(int z) {
 
     if (flow == FLO_XONX ||    /* Xon/Xoff forces prefixing these */
         prefixing == PX_CAU || /* So does CAUTIOUS */
-        network)               /* Networks too... */
+        network) {             /* Networks too... */
       ctlp[XON] = ctlp[XOFF] = ctlp[XON + 128] = ctlp[XOFF + 128] = 1;
+    }
     if (prefixing == PX_CAU) { /* Cautious - add some more */
 #ifdef UNPREFIXZERO
       ctlp[0] = 1;
@@ -2002,8 +2054,9 @@ void makever(void) {
 
   if (*ck_s_who) {
     y = strlen(ck_s_who);
-    if (CKVERLEN < x + y + 1)
+    if (CKVERLEN < x + y + 1) {
       return;
+    }
     ckstrncat(versio, "-", CKVERLEN);
     ckstrncat(versio, ck_s_who, CKVERLEN);
   }
@@ -2030,12 +2083,13 @@ void makever(void) {
   debug(F110, "makever Kermit version", versio, 0);
 
   x = 0;
-  if (noherald || quiet)
+  if (noherald || quiet) {
     x = 1;
-  else if (bgset > 0)
+  } else if (bgset > 0) {
     x = 1;
-  else if (bgset < 0 && backgrd > 0)
+  } else if (bgset < 0 && backgrd > 0) {
     x = 1;
+  }
 
   ssl = "";
   krb4 = "";
@@ -2084,12 +2138,14 @@ void dourl(void) {
       printf("?Incomplete IKSD URL\n");
       doexit(BAD_EXIT, 1);
     }
-    if (!g_url.usr)
+    if (!g_url.usr) {
       makestr(&g_url.usr, "anonymous");
+    }
     if (!g_url.psw) {
       char *tmpbuf = NULL;
-      if (!(tmpbuf = (char *)malloc(1024)))
+      if (!(tmpbuf = (char *)malloc(1024))) {
         fatal("dourl: out of memory");
+      }
       if (!ckstrcmp(g_url.usr, "anonymous", -1, 0)) {
         ckmakmsg(tmpbuf, 1024, uidbuf, "@", myhost, NULL);
         makestr(&g_url.psw, tmpbuf);
@@ -2129,8 +2185,9 @@ void dourl(void) {
 #else
     {
       char *script = NULL;
-      if (!(script = (char *)malloc(SCRIPTLEN)))
+      if (!(script = (char *)malloc(SCRIPTLEN))) {
         fatal("dourl: out of memory");
+      }
       if (!g_url.pth) { /* Write the appropriate script */
         cflg = 1;
         ckmakxmsg(script, SCRIPTLEN, "if not eq {\\v(authstate)} {user} ",
@@ -2220,10 +2277,11 @@ MAINNAME(int argc, char **argv) {
     char *s;      /* this one. */
     for (i = 1; i < argc; i++) {
       s = argv[i];
-      if (!s)
+      if (!s) {
         n = 0;
-      else
+      } else {
         n = (int)strlen(s);
+      }
       if (n > 4) {
         if (!ckstrcmp("--unbuffered", s, n, 0)) {
           unbuf++;
@@ -2232,8 +2290,9 @@ MAINNAME(int argc, char **argv) {
       }
     }
   }
-  if (unbuf)
+  if (unbuf) {
     setbuf(stdout, NULL);
+  }
 #endif /* UNIX */
 
   {                      /* Get OFF_T size for printf - fdc 06 Jan 2024 */
@@ -2257,22 +2316,26 @@ MAINNAME(int argc, char **argv) {
   xarg0 = argv[0];
   zstrip(argv[0], &p); /* Get name we were invoked with */
   makestr(&myname, p);
-  if (!ckstrcmp(myname, "telnet", -1, 0))
+  if (!ckstrcmp(myname, "telnet", -1, 0)) {
     howcalled = I_AM_TELNET;
-  else if (!ckstrcmp(myname, "rlogin", -1, 0))
+  } else if (!ckstrcmp(myname, "rlogin", -1, 0)) {
     howcalled = I_AM_RLOGIN;
-  else if (!ckstrcmp(myname, "iksd", -1, 0))
+  } else if (!ckstrcmp(myname, "iksd", -1, 0)) {
     howcalled = I_AM_IKSD;
+  }
 #ifdef NEWFTP
-  else if (!ckstrcmp(myname, "ftp", -1, 0))
+  else if (!ckstrcmp(myname, "ftp", -1, 0)) {
     howcalled = I_AM_FTP;
+  }
 #endif /* NEWFTP */
 #ifndef NOHTTP
-  else if (!ckstrcmp(myname, "http", -1, 0))
+  else if (!ckstrcmp(myname, "http", -1, 0)) {
     howcalled = I_AM_HTTP;
+  }
 #endif /* NOHTTP */
-  else if (!ckstrcmp(myname, "kermit-sshsub", -1, 0))
+  else if (!ckstrcmp(myname, "kermit-sshsub", -1, 0)) {
     howcalled = I_AM_SSHSUB;
+  }
 
 #ifndef NOICP
   cmdini(); /* Must come before prescan */
@@ -2293,10 +2356,12 @@ MAINNAME(int argc, char **argv) {
 #endif           /* NOSPL */
 #ifndef NOSETKEY /* Allocate & initialize the keymap */
   /* This code was moved to before sysinit() for K95G */
-  if (!(keymap = (KEY *)malloc(sizeof(KEY) * KMSIZE)))
+  if (!(keymap = (KEY *)malloc(sizeof(KEY) * KMSIZE))) {
     fatal("main: no memory for keymap");
-  if (!(macrotab = (MACRO *)malloc(sizeof(MACRO) * KMSIZE)))
+  }
+  if (!(macrotab = (MACRO *)malloc(sizeof(MACRO) * KMSIZE))) {
     fatal("main: no memory for macrotab");
+  }
   for (i = 0; i < KMSIZE; i++) {
     keymap[i] = (KEY)i;
     macrotab[i] = NULL;
@@ -2311,13 +2376,15 @@ MAINNAME(int argc, char **argv) {
     byteorder = 0; /* Big Endian */
     bigendian = 1;
   }
-  if (sizeof(CK_OFF_T) == 8) /* Large files and ints? */
+  if (sizeof(CK_OFF_T) == 8) { /* Large files and ints? */
     havelfs = 1;
+  }
 
-  if (sysinit() < 0) /* System-dependent initialization. */
+  if (sysinit() < 0) { /* System-dependent initialization. */
     fatal("Can't initialize!");
-  else
+  } else {
     initflg = 1; /* Remember we did. */
+  }
 
 #ifdef HAVE_LOCALE
   setlocale(LC_ALL, ""); /* Enable using non-C locales */
@@ -2328,8 +2395,9 @@ MAINNAME(int argc, char **argv) {
     char *h;
     char *homedir(void);
     h = homepath();
-    if (h)
+    if (h) {
       ckstrncpy(homedirpath, h, CKMAXPATH);
+    }
   }
 #ifdef GETEXEDIR
   getexedir(); /* Compute exedir variable */
@@ -2344,8 +2412,9 @@ MAINNAME(int argc, char **argv) {
   zsyslog(); /* Open syslog */
 #else        /* SYSLOGLEVEL */
 #ifdef IKSD
-  if (inserver)
+  if (inserver) {
     zsyslog(); /* Open syslog */
+  }
 #endif /* IKSD */
 #endif /* SYSLOGLEVEL */
 #endif /* CKSYSLOG */
@@ -2439,8 +2508,9 @@ MAINNAME(int argc, char **argv) {
 
   sstate = 0; /* No default start state. */
 #ifdef DYNAMIC
-  if (getiobs() < 0)
+  if (getiobs() < 0) {
     fatal("Can't allocate i/o buffers!");
+  }
 #endif /* DYNAMIC */
 
 #ifndef NOSPL
@@ -2452,8 +2522,9 @@ MAINNAME(int argc, char **argv) {
     c = time(NULL); /* Get current time */
     c *= getpid();  /* multiply it by our PID */
                     /* Referenced before set... DELIBERATELY */
-    for (n = 0; n < sizeof(stackdata); n++) /* IGNORE WARNING */
-      c += stackdata[n];                    /* DELIBERATELY USED BEFORE SET */
+    for (n = 0; n < sizeof(stackdata); n++) { /* IGNORE WARNING */
+      c += stackdata[n];                      /* DELIBERATELY USED BEFORE SET */
+    }
     srand((unsigned int)c);
   }
 #endif /* NORANDOM */
@@ -2470,13 +2541,14 @@ MAINNAME(int argc, char **argv) {
 #ifndef NOXFER
     myindex = getsysix(cksysid); /* System index */
 #endif                           /* NOXFER */
-    if (local)
+    if (local) {
       if (ttopen(ttname, &local, 0, 0) < 0) {
         conol("Can't open device: ");
         conoll(ttname);
         local = 0;
         ckstrncpy(ttname, CTTNAM, TTNAMLEN);
       }
+    }
     setflow();        /* Set appropriate flow control */
     speed = ttgspd(); /* Get transmission speed. */
 #ifdef IKSD
@@ -2490,8 +2562,9 @@ MAINNAME(int argc, char **argv) {
 #endif         /* ANYX25 */
 
 #ifndef NOXFER
-  if (inibufs(SBSIZ, RBSIZ) < 0) /* Allocate packet buffers */
+  if (inibufs(SBSIZ, RBSIZ) < 0) { /* Allocate packet buffers */
     fatal("Can't allocate packet buffers!");
+  }
 #ifndef NOCKSPEED
   setprefix(prefixing); /* Set up control char prefixing */
 #endif                  /* NOCKSPEED */
@@ -2529,8 +2602,9 @@ MAINNAME(int argc, char **argv) {
     extern int ttmdm;
 
 #ifdef UNIX
-    if (isatty(0))
+    if (isatty(0)) {
       fatal("Internet Kermit Service cannot be started at a terminal.");
+    }
 #endif /* UNIX */
 
     reliable = xreliable = SET_ON; /* IKSD has reliable connection */
@@ -2544,13 +2618,15 @@ MAINNAME(int argc, char **argv) {
 #ifdef IKSD
     if (inserver) { /* If IKSD */
       doiksdinit(); /* Execute IKSD configuration file */
-      while (tlevel > -1)
+      while (tlevel > -1) {
         parser(1); /* (Ignore any file-xfer commands) */
-      iksdcf = 1;  /* IKSD c.f. has been processed */
+      }
+      iksdcf = 1; /* IKSD c.f. has been processed */
     }
-    if (!iklogopen)
+    if (!iklogopen) {
       (void)doiklog(); /* Open Kermit-specific log */
-#endif                 /* IKSD */
+    }
+#endif /* IKSD */
 
 #ifdef UNIX
     setbuf(stdout, NULL);             /* Don't buffer the output */
@@ -2718,8 +2794,9 @@ MAINNAME(int argc, char **argv) {
 #ifndef NOLOCAL
     if (cflg) { /* Connect first if requested */
       doconect(0, 0);
-      if (ttchk() < 0)
+      if (ttchk() < 0) {
         dologend();
+      }
       cflg = 0;
     }
 #endif /* NOLOCAL */
@@ -2727,9 +2804,10 @@ MAINNAME(int argc, char **argv) {
 #ifndef NOXFER
     if (sstate) {
 #ifndef NOLOCAL
-      if (displa)
+      if (displa) {
         concb((char)escape); /* (for console "interrupts") */
-#endif                       /* NOLOCAL */
+      }
+#endif /* NOLOCAL */
 #ifdef NOCCTRAP
       docmdline(1);
 #else  /* NOCCTRAP */
@@ -2752,14 +2830,17 @@ MAINNAME(int argc, char **argv) {
 #ifndef NOICP
     if (local) {
 #ifdef NETCONN
-      if ((cflg || cnflg) && tn_exit && ttchk() < 0)
+      if ((cflg || cnflg) && tn_exit && ttchk() < 0) {
         doexit(GOOD_EXIT, xitsta); /* Exit with good status */
-#endif                             /* NETCONN */
+      }
+#endif /* NETCONN */
       if (exitonclose && !network &&
-          (carrier != CAR_OFF && (ttgmdm() & BM_DCD) == 0))
+          (carrier != CAR_OFF && (ttgmdm() & BM_DCD) == 0)) {
         doexit(GOOD_EXIT, xitsta); /* Exit with good status */
-      if (exitonclose && network && ttchk() < 0)
+      }
+      if (exitonclose && network && ttchk() < 0) {
         doexit(GOOD_EXIT, xitsta); /* Exit with good status */
+      }
     }
 #endif /* NOICP */
 #endif /* NOLOCAL */
@@ -2785,11 +2866,13 @@ MAINNAME(int argc, char **argv) {
   if (!nolocale) {
     /* Can also disable locale processing by setting K_NOLOCALE=1 */
     char *s = getenv("K_NOLOCALE"); /* environment variable */
-    if (s)
-      if (rdigits(s))
+    if (s) {
+      if (rdigits(s)) {
         if (atoi(s) != 0) {
           nolocale = 1;
         }
+      }
+    }
     if (!nolocale) {         /* Locale not disabled */
       setlocale(LC_ALL, ""); /* Enable using non-C locales */
     }
@@ -2809,8 +2892,9 @@ MAINNAME(int argc, char **argv) {
   while (1) {
     debug(F100, "main setting interrupt trap", "", 0);
     setint(); /* Set up command interrupt traps */
-    if (!cc_execute(ckjaddr(cmjbuf), doicp, failicp))
+    if (!cc_execute(ckjaddr(cmjbuf), doicp, failicp)) {
       break;
+    }
   }
 #endif /* NOCCTRAP */
 #endif /* NOICP */
@@ -2824,12 +2908,14 @@ MAINNAME(int argc, char **argv) {
 
 int getiobs(void) {
   zinbuffer = (char *)malloc(INBUFSIZE);
-  if (!zinbuffer)
+  if (!zinbuffer) {
     return (-1);
+  }
   zoutbuffer = (char *)malloc(zobufsize);
   debug(F101, "zoutbuffer malloc", "", zobufsize);
-  if (!zoutbuffer)
+  if (!zoutbuffer) {
     return (-1);
+  }
   debug(F100, "getiobs ok", "", 0);
   return (0);
 }

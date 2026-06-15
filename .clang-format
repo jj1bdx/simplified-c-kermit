@@ -1,8 +1,6 @@
 ## Based on LLVM
 # for c-kermit to maintain code integrity:
 #
-# DISABLE InsertBraces
-#
 ---
 Language:        Cpp
 AccessModifierOffset: -2
@@ -178,7 +176,7 @@ IndentPPDirectives: None
 IndentRequiresClause: true
 IndentWidth:     2
 IndentWrappedFunctionNames: false
-InsertBraces:    false
+InsertBraces:    true
 InsertNewlineAtEOF: false
 InsertTrailingCommas: None
 IntegerLiteralSeparator:

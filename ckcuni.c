@@ -9933,235 +9933,273 @@ struct x_to_unicode u_c1pics = {32,
 
 USHORT
 ascii_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   /*
     NOTE: Strict ANSI compilers complain about "<" and similar comparisons
     between unsigned and signed quantities, as found in all the routines of
     the "blah_u()" class -- casts must be added to squelch the warnings.
   */
-  if (c < u_ascii.offset)
+  if (c < u_ascii.offset) {
     return (c);
-  else if (c >= u_ascii.offset + u_ascii.size)
+  } else if (c >= u_ascii.offset + u_ascii.size) {
     return (c);
-  else
+  } else {
     return (u_ascii.map[c - u_ascii.offset]);
+  }
 }
 
 USHORT
 british_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_british.offset)
+  }
+  if (c < u_british.offset) {
     return (c);
-  else if (c >= u_british.offset + u_british.size)
+  } else if (c >= u_british.offset + u_british.size) {
     return (c);
-  else
+  } else {
     return (u_british.map[c - u_british.offset]);
+  }
 }
 
 USHORT
 dutch_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_dutch.offset)
+  }
+  if (c < u_dutch.offset) {
     return (c);
-  else if (c >= u_dutch.offset + u_dutch.size)
+  } else if (c >= u_dutch.offset + u_dutch.size) {
     return (c);
-  else
+  } else {
     return (u_dutch.map[c - u_dutch.offset]);
+  }
 }
 
 USHORT
 finnish_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_finnish.offset)
+  }
+  if (c < u_finnish.offset) {
     return (c);
-  else if (c >= u_finnish.offset + u_finnish.size)
+  } else if (c >= u_finnish.offset + u_finnish.size) {
     return (c);
-  else
+  } else {
     return (u_finnish.map[c - u_finnish.offset]);
+  }
 }
 
 USHORT
 french_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_french.offset)
+  }
+  if (c < u_french.offset) {
     return (c);
-  else if (c >= u_french.offset + u_french.size)
+  } else if (c >= u_french.offset + u_french.size) {
     return (c);
-  else
+  } else {
     return (u_french.map[c - u_french.offset]);
+  }
 }
 
 USHORT
 fr_canadian_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_fr_canadian.offset)
+  }
+  if (c < u_fr_canadian.offset) {
     return (c);
-  else if (c >= u_fr_canadian.offset + u_fr_canadian.size)
+  } else if (c >= u_fr_canadian.offset + u_fr_canadian.size) {
     return (c);
-  else
+  } else {
     return (u_fr_canadian.map[c - u_fr_canadian.offset]);
+  }
 }
 
 USHORT
 german_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_german.offset)
+  }
+  if (c < u_german.offset) {
     return (c);
-  else if (c >= u_german.offset + u_german.size)
+  } else if (c >= u_german.offset + u_german.size) {
     return (c);
-  else
+  } else {
     return (u_german.map[c - u_german.offset]);
+  }
 }
 
 USHORT
 hungarian_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_hungarian.offset)
+  }
+  if (c < u_hungarian.offset) {
     return (c);
-  else if (c >= u_hungarian.offset + u_hungarian.size)
+  } else if (c >= u_hungarian.offset + u_hungarian.size) {
     return (c);
-  else
+  } else {
     return (u_hungarian.map[c - u_hungarian.offset]);
+  }
 }
 
 USHORT
 italian_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_italian.offset)
+  }
+  if (c < u_italian.offset) {
     return (c);
-  else if (c >= u_italian.offset + u_italian.size)
+  } else if (c >= u_italian.offset + u_italian.size) {
     return (c);
-  else
+  } else {
     return (u_italian.map[c - u_italian.offset]);
+  }
 }
 
 USHORT
 icelandic_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_icelandic.offset)
+  }
+  if (c < u_icelandic.offset) {
     return (c);
-  else if (c >= u_icelandic.offset + u_icelandic.size)
+  } else if (c >= u_icelandic.offset + u_icelandic.size) {
     return (c);
-  else
+  } else {
     return (u_icelandic.map[c - u_icelandic.offset]);
+  }
 }
 
 USHORT
 jis0201r_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_jis0201r.offset)
+  }
+  if (c < u_jis0201r.offset) {
     return (c);
-  else if (c >= u_jis0201r.offset + u_jis0201r.size)
+  } else if (c >= u_jis0201r.offset + u_jis0201r.size) {
     return (c);
-  else
+  } else {
     return (u_jis0201r.map[c - u_jis0201r.offset]);
+  }
 }
 
 USHORT
 jis0201k_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_jis0201k.offset)
+  }
+  if (c < u_jis0201k.offset) {
     return (c);
-  else if (c >= u_jis0201k.offset + u_jis0201k.size)
+  } else if (c >= u_jis0201k.offset + u_jis0201k.size) {
     return (c);
-  else
+  } else {
     return (u_jis0201k.map[c - u_jis0201k.offset]);
+  }
 }
 
 USHORT
 norwegian_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_norwegian.offset)
+  }
+  if (c < u_norwegian.offset) {
     return (c);
-  else if (c >= u_norwegian.offset + u_norwegian.size)
+  } else if (c >= u_norwegian.offset + u_norwegian.size) {
     return (c);
-  else
+  } else {
     return (u_norwegian.map[c - u_norwegian.offset]);
+  }
 }
 
 USHORT
 danish_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_danish.offset)
+  }
+  if (c < u_danish.offset) {
     return (c);
-  else if (c >= u_danish.offset + u_danish.size)
+  } else if (c >= u_danish.offset + u_danish.size) {
     return (c);
-  else
+  } else {
     return (u_danish.map[c - u_danish.offset]);
+  }
 }
 
 USHORT
 portuguese_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_portuguese.offset)
+  }
+  if (c < u_portuguese.offset) {
     return (c);
-  else if (c >= u_portuguese.offset + u_portuguese.size)
+  } else if (c >= u_portuguese.offset + u_portuguese.size) {
     return (c);
-  else
+  } else {
     return (u_portuguese.map[c - u_portuguese.offset]);
+  }
 }
 
 USHORT
 spanish_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_spanish.offset)
+  }
+  if (c < u_spanish.offset) {
     return (c);
-  else if (c >= u_spanish.offset + u_spanish.size)
+  } else if (c >= u_spanish.offset + u_spanish.size) {
     return (c);
-  else
+  } else {
     return (u_spanish.map[c - u_spanish.offset]);
+  }
 }
 
 USHORT
 swedish_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_swedish.offset)
+  }
+  if (c < u_swedish.offset) {
     return (c);
-  else if (c >= u_swedish.offset + u_swedish.size)
+  } else if (c >= u_swedish.offset + u_swedish.size) {
     return (c);
-  else
+  } else {
     return (u_swedish.map[c - u_swedish.offset]);
+  }
 }
 
 USHORT
 swiss_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_swiss.offset)
+  }
+  if (c < u_swiss.offset) {
     return (c);
-  else if (c >= u_swiss.offset + u_swiss.size)
+  } else if (c >= u_swiss.offset + u_swiss.size) {
     return (c);
-  else
+  } else {
     return (u_swiss.map[c - u_swiss.offset]);
+  }
 }
 
 USHORT
 apl1_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_apl1.offset)
+  }
+  if (c < u_apl1.offset) {
     return (c);
-  else if (c >= u_apl1.offset + u_apl1.size)
+  } else if (c >= u_apl1.offset + u_apl1.size) {
     return (c);
-  else
+  } else {
     return (u_apl1.map[c - u_apl1.offset]);
+  }
 }
 
 USHORT
@@ -10169,274 +10207,311 @@ ident_u(CHAR c) { return ((USHORT)c); }
 
 USHORT
 iso_8859_1_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_1.offset)
+  if (c < u_8859_1.offset) {
     return (c);
-  else if (c >= u_8859_1.offset + u_8859_1.size)
+  } else if (c >= u_8859_1.offset + u_8859_1.size) {
     return (c);
-  else
+  } else {
     return (u_8859_1.map[c - u_8859_1.offset]);
+  }
 }
 
 USHORT
 iso_8859_2_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_2.offset)
+  if (c < u_8859_2.offset) {
     return (c);
-  else if (c >= u_8859_2.offset + u_8859_2.size)
+  } else if (c >= u_8859_2.offset + u_8859_2.size) {
     return (c);
-  else
+  } else {
     return (u_8859_2.map[c - u_8859_2.offset]);
+  }
 }
 
 USHORT
 iso_8859_3_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_3.offset)
+  if (c < u_8859_3.offset) {
     return (c);
-  else if (c >= u_8859_3.offset + u_8859_3.size)
+  } else if (c >= u_8859_3.offset + u_8859_3.size) {
     return (c);
-  else
+  } else {
     return (u_8859_3.map[c - u_8859_3.offset]);
+  }
 }
 
 USHORT
 iso_8859_4_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_4.offset)
+  if (c < u_8859_4.offset) {
     return (c);
-  else if (c >= u_8859_4.offset + u_8859_4.size)
+  } else if (c >= u_8859_4.offset + u_8859_4.size) {
     return (c);
-  else
+  } else {
     return (u_8859_4.map[c - u_8859_4.offset]);
+  }
 }
 
 USHORT
 iso_8859_5_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_5.offset)
+  if (c < u_8859_5.offset) {
     return (c);
-  else if (c >= u_8859_5.offset + u_8859_5.size)
+  } else if (c >= u_8859_5.offset + u_8859_5.size) {
     return (c);
-  else
+  } else {
     return (u_8859_5.map[c - u_8859_5.offset]);
+  }
 }
 
 USHORT
 koi8_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_koi8.offset)
+  if (c < u_koi8.offset) {
     return (c);
-  else if (c >= u_koi8.offset + u_koi8.size)
+  } else if (c >= u_koi8.offset + u_koi8.size) {
     return (c);
-  else
+  } else {
     return (u_koi8.map[c - u_koi8.offset]);
+  }
 }
 
 USHORT
 koi8r_u(CHAR c) /* KOI8-R to Unicode */
 {
   c &= 0x7f;
-  if (c < u_koi8r.offset)
+  if (c < u_koi8r.offset) {
     return (c);
-  else if (c >= u_koi8r.offset + u_koi8r.size)
+  } else if (c >= u_koi8r.offset + u_koi8r.size) {
     return (c);
-  else
+  } else {
     return (u_koi8r.map[c - u_koi8r.offset]);
+  }
 }
 
 USHORT
 koi8u_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_koi8u.offset)
+  if (c < u_koi8u.offset) {
     return (c);
-  else if (c >= u_koi8u.offset + u_koi8u.size)
+  } else if (c >= u_koi8u.offset + u_koi8u.size) {
     return (c);
-  else
+  } else {
     return (u_koi8u.map[c - u_koi8u.offset]);
+  }
 }
 
 USHORT
 iso_8859_6_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_6.offset)
+  if (c < u_8859_6.offset) {
     return (c);
-  else if (c >= u_8859_6.offset + u_8859_6.size)
+  } else if (c >= u_8859_6.offset + u_8859_6.size) {
     return (c);
-  else
+  } else {
     return (u_8859_6.map[c - u_8859_6.offset]);
+  }
 }
 
 USHORT
 iso_8859_7_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_7.offset)
+  if (c < u_8859_7.offset) {
     return (c);
-  else if (c >= u_8859_7.offset + u_8859_7.size)
+  } else if (c >= u_8859_7.offset + u_8859_7.size) {
     return (c);
-  else
+  } else {
     return (u_8859_7.map[c - u_8859_7.offset]);
+  }
 }
 
 USHORT
 iso_8859_8_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_8.offset)
+  if (c < u_8859_8.offset) {
     return (c);
-  else if (c >= u_8859_8.offset + u_8859_8.size)
+  } else if (c >= u_8859_8.offset + u_8859_8.size) {
     return (c);
-  else
+  } else {
     return (u_8859_8.map[c - u_8859_8.offset]);
+  }
 }
 
 USHORT
 hebrew7_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_hebrew7.offset)
+  if (c < u_hebrew7.offset) {
     return (c);
-  else if (c >= u_hebrew7.offset + u_hebrew7.size)
+  } else if (c >= u_hebrew7.offset + u_hebrew7.size) {
     return (c);
-  else
+  } else {
     return (u_hebrew7.map[c - u_hebrew7.offset]);
+  }
 }
 
 USHORT
 elot927_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_elot927.offset)
+  if (c < u_elot927.offset) {
     return (c);
-  else if (c >= u_elot927.offset + u_elot927.size)
+  } else if (c >= u_elot927.offset + u_elot927.size) {
     return (c);
-  else
+  } else {
     return (u_elot927.map[c - u_elot927.offset]);
+  }
 }
 
 USHORT
 iso_8859_9_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_9.offset)
+  if (c < u_8859_9.offset) {
     return (c);
-  else if (c >= u_8859_9.offset + u_8859_9.size)
+  } else if (c >= u_8859_9.offset + u_8859_9.size) {
     return (c);
-  else
+  } else {
     return (u_8859_9.map[c - u_8859_9.offset]);
+  }
 }
 
 USHORT
 iso_8859_10_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_10.offset)
+  if (c < u_8859_10.offset) {
     return (c);
-  else if (c >= u_8859_10.offset + u_8859_10.size)
+  } else if (c >= u_8859_10.offset + u_8859_10.size) {
     return (c);
-  else
+  } else {
     return (u_8859_10.map[c - u_8859_10.offset]);
+  }
 }
 
 USHORT
 iso_8859_15_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_8859_15.offset)
+  if (c < u_8859_15.offset) {
     return (c);
-  else if (c >= u_8859_15.offset + u_8859_15.size)
+  } else if (c >= u_8859_15.offset + u_8859_15.size) {
     return (c);
-  else
+  } else {
     return (u_8859_15.map[c - u_8859_15.offset]);
+  }
 }
 
 USHORT
 apl2_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_apl2.offset)
+  if (c < u_apl2.offset) {
     return (c);
-  else if (c >= u_apl2.offset + u_apl2.size)
+  } else if (c >= u_apl2.offset + u_apl2.size) {
     return (c);
-  else
+  } else {
     return (u_apl2.map[c - u_apl2.offset]);
+  }
 }
 
 USHORT
 apl3_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_apl3.offset)
+  if (c < u_apl3.offset) {
     return (c);
-  else if (c >= u_apl3.offset + u_apl3.size)
+  } else if (c >= u_apl3.offset + u_apl3.size) {
     return (c);
-  else
+  } else {
     return (u_apl3.map[c - u_apl3.offset]);
+  }
 }
 
 USHORT
 apl4_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_apl4.offset)
+  if (c < u_apl4.offset) {
     return (c);
-  else if (c >= u_apl4.offset + u_apl4.size)
+  } else if (c >= u_apl4.offset + u_apl4.size) {
     return (c);
-  else
+  } else {
     return (u_apl4.map[c - u_apl4.offset]);
+  }
 }
 
 USHORT
 apl5_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_apl5.offset)
+  if (c < u_apl5.offset) {
     return (c);
-  else if (c >= u_apl5.offset + u_apl5.size)
+  } else if (c >= u_apl5.offset + u_apl5.size) {
     return (c);
-  else
+  } else {
     return (u_apl5.map[c - u_apl5.offset]);
+  }
 }
 
 USHORT
 koi7_u(CHAR c) {
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c < u_koi7.offset)
+  }
+  if (c < u_koi7.offset) {
     return (c);
-  else if (c >= u_koi7.offset + u_koi7.size)
+  } else if (c >= u_koi7.offset + u_koi7.size) {
     return (c);
-  else
+  } else {
     return (u_koi7.map[c - u_koi7.offset]);
+  }
 }
 
 USHORT
 decmcs_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   c &= 0x7f;
-  if (c < u_decmcs.offset)
+  if (c < u_decmcs.offset) {
     return (c);
-  else if (c >= u_decmcs.offset + u_decmcs.size)
+  } else if (c >= u_decmcs.offset + u_decmcs.size) {
     return (c);
-  else
+  } else {
     return (u_decmcs.map[c - u_decmcs.offset]);
+  }
 }
 
 USHORT
@@ -10444,15 +10519,17 @@ nextstep_u(CHAR c) { return (u_nextstep.map[(c & 0x7f) - u_nextstep.offset]); }
 
 USHORT
 dgi_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   return (u_dgi.map[(c & 0x7f) - u_dgi.offset]);
 }
 
 USHORT
 hproman8_u(CHAR c) {
-  if (c >= 0x80 && c < 0xa0)
+  if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
   return (u_hproman8.map[(c & 0x7f) - u_hproman8.offset]);
 }
 
@@ -10538,254 +10615,277 @@ quickdraw_u(CHAR c) { return (u_quickdraw.map[c & 0x7f]); }
 USHORT
 decspec_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_decspec.offset)
+  if (c < u_decspec.offset) {
     return (c);
-  else if (c >= u_decspec.offset + u_decspec.size)
+  } else if (c >= u_decspec.offset + u_decspec.size) {
     return (c);
-  else
+  } else {
     return (u_decspec.map[c - u_decspec.offset]);
+  }
 }
 
 USHORT
 dectech_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_dectech.offset)
+  if (c < u_dectech.offset) {
     return (c);
-  else if (c >= u_dectech.offset + u_dectech.size)
+  } else if (c >= u_dectech.offset + u_dectech.size) {
     return (c);
-  else
+  } else {
     return (u_dectech.map[c - u_dectech.offset]);
+  }
 }
 
 USHORT
 dgspec_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_dgspec.offset)
+  if (c < u_dgspec.offset) {
     return (c);
-  else if (c >= u_dgspec.offset + u_dgspec.size)
+  } else if (c >= u_dgspec.offset + u_dgspec.size) {
     return (c);
-  else
+  } else {
     return (u_dgspec.map[c - u_dgspec.offset]);
+  }
 }
 
 USHORT
 dgline_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_dgline.offset)
+  if (c < u_dgline.offset) {
     return (c);
-  else if (c >= u_dgline.offset + u_dgline.size)
+  } else if (c >= u_dgline.offset + u_dgline.size) {
     return (c);
-  else
+  } else {
     return (u_dgline.map[c - u_dgline.offset]);
+  }
 }
 
 USHORT
 dgword_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_dgword.offset)
+  if (c < u_dgword.offset) {
     return (c);
-  else if (c >= u_dgword.offset + u_dgword.size)
+  } else if (c >= u_dgword.offset + u_dgword.size) {
     return (c);
-  else
+  } else {
     return (u_dgword.map[c - u_dgword.offset]);
+  }
 }
 
 USHORT
 hpline_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_hpline.offset)
+  if (c < u_hpline.offset) {
     return (c);
-  else if (c >= u_hpline.offset + u_hpline.size)
+  } else if (c >= u_hpline.offset + u_hpline.size) {
     return (c);
-  else
+  } else {
     return (u_hpline.map[c - u_hpline.offset]);
+  }
 }
 
 USHORT
 hpmath_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_hpmath.offset)
+  if (c < u_hpmath.offset) {
     return (c);
-  else if (c >= u_hpmath.offset + u_hpmath.size)
+  } else if (c >= u_hpmath.offset + u_hpmath.size) {
     return (c);
-  else
+  } else {
     return (u_hpmath.map[c - u_hpmath.offset]);
+  }
 }
 
 USHORT
 qnxgrph_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_qnxgrph.offset)
+  if (c < u_qnxgrph.offset) {
     return (c);
-  else if (c >= u_qnxgrph.offset + u_qnxgrph.size)
+  } else if (c >= u_qnxgrph.offset + u_qnxgrph.size) {
     return (c);
-  else
+  } else {
     return (u_qnxgrph.map[c - u_qnxgrph.offset]);
+  }
 }
 
 USHORT
 hz1500_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_hz1500.offset)
+  if (c < u_hz1500.offset) {
     return (c);
-  else if (c >= u_hz1500.offset + u_hz1500.size)
+  } else if (c >= u_hz1500.offset + u_hz1500.size) {
     return (c);
-  else
+  } else {
     return (u_hz1500.map[c - u_hz1500.offset]);
+  }
 }
 
 USHORT
 sniblanks_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_sniblanks.offset)
+  if (c < u_sniblanks.offset) {
     return (c);
-  else if (c >= u_sniblanks.offset + u_sniblanks.size)
+  } else if (c >= u_sniblanks.offset + u_sniblanks.size) {
     return (c);
-  else
+  } else {
     return (u_sniblanks.map[c - u_sniblanks.offset]);
+  }
 }
 
 USHORT
 snibrack_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_snibrack.offset)
+  if (c < u_snibrack.offset) {
     return (c);
-  else if (c >= u_snibrack.offset + u_snibrack.size)
+  } else if (c >= u_snibrack.offset + u_snibrack.size) {
     return (c);
-  else
+  } else {
     return (u_snibrack.map[c - u_snibrack.offset]);
+  }
 }
 
 USHORT
 snifacet_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_snifacet.offset)
+  if (c < u_snifacet.offset) {
     return (c);
-  else if (c >= u_snifacet.offset + u_snifacet.size)
+  } else if (c >= u_snifacet.offset + u_snifacet.size) {
     return (c);
-  else
+  } else {
     return (u_snifacet.map[c - u_snifacet.offset]);
+  }
 }
 
 USHORT
 sniibm_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_sniibm.offset)
+  if (c < u_sniibm.offset) {
     return (c);
-  else if (c >= u_sniibm.offset + u_sniibm.size)
+  } else if (c >= u_sniibm.offset + u_sniibm.size) {
     return (c);
-  else
+  } else {
     return (u_sniibm.map[c - u_sniibm.offset]);
+  }
 }
 
 USHORT
 snieuro_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_snieuro.offset)
+  if (c < u_snieuro.offset) {
     return (c);
-  else if (c >= u_snieuro.offset + u_snieuro.size)
+  } else if (c >= u_snieuro.offset + u_snieuro.size) {
     return (c);
-  else
+  } else {
     return (u_snieuro.map[c - u_snieuro.offset]);
+  }
 }
 
 USHORT
 heath19g_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_heath19g.offset)
+  if (c < u_heath19g.offset) {
     return (c);
-  else if (c >= u_heath19g.offset + u_heath19g.size)
+  } else if (c >= u_heath19g.offset + u_heath19g.size) {
     return (c);
-  else
+  } else {
     return (u_heath19g.map[c - u_heath19g.offset]);
+  }
 }
 
 USHORT
 tvig_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_tvig.offset)
+  if (c < u_tvig.offset) {
     return (c);
-  else if (c >= u_tvig.offset + u_tvig.size)
+  } else if (c >= u_tvig.offset + u_tvig.size) {
     return (c);
-  else
+  } else {
     return (u_tvig.map[c - u_tvig.offset]);
+  }
 }
 
 USHORT
 wyse_gn_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_wyse_gn.offset)
+  if (c < u_wyse_gn.offset) {
     return (c);
-  else if (c >= u_wyse_gn.offset + u_wyse_gn.size)
+  } else if (c >= u_wyse_gn.offset + u_wyse_gn.size) {
     return (c);
-  else
+  } else {
     return (u_wyse_gn.map[c - u_wyse_gn.offset]);
+  }
 }
 
 USHORT
 wyse_g1_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_wyse_g1.offset)
+  if (c < u_wyse_g1.offset) {
     return (c);
-  else if (c >= u_wyse_g1.offset + u_wyse_g1.size)
+  } else if (c >= u_wyse_g1.offset + u_wyse_g1.size) {
     return (c);
-  else
+  } else {
     return (u_wyse_g1.map[c - u_wyse_g1.offset]);
+  }
 }
 
 USHORT
 wyse_g2_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_wyse_g2.offset)
+  if (c < u_wyse_g2.offset) {
     return (c);
-  else if (c >= u_wyse_g2.offset + u_wyse_g2.size)
+  } else if (c >= u_wyse_g2.offset + u_wyse_g2.size) {
     return (c);
-  else
+  } else {
     return (u_wyse_g2.map[c - u_wyse_g2.offset]);
+  }
 }
 
 USHORT
 wyse_g3_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_wyse_g3.offset)
+  if (c < u_wyse_g3.offset) {
     return (c);
-  else if (c >= u_wyse_g3.offset + u_wyse_g3.size)
+  } else if (c >= u_wyse_g3.offset + u_wyse_g3.size) {
     return (c);
-  else
+  } else {
     return (u_wyse_g3.map[c - u_wyse_g3.offset]);
+  }
 }
 
 USHORT
 smiley_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_smiley.offset)
+  if (c < u_smiley.offset) {
     return (c);
-  else if (c >= u_smiley.offset + u_smiley.size)
+  } else if (c >= u_smiley.offset + u_smiley.size) {
     return (c);
-  else
+  } else {
     return (u_smiley.map[c - u_smiley.offset]);
+  }
 }
 
 USHORT
 c0pics_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_c0pics.offset)
+  if (c < u_c0pics.offset) {
     return (c);
-  else if (c >= u_c0pics.offset + u_c0pics.size)
+  } else if (c >= u_c0pics.offset + u_c0pics.size) {
     return (c);
-  else
+  } else {
     return (u_c0pics.map[c - u_c0pics.offset]);
+  }
 }
 
 USHORT
 c1pics_u(CHAR c) {
   c &= 0x7f;
-  if (c < u_c1pics.offset)
+  if (c < u_c1pics.offset) {
     return (c);
-  else if (c >= u_c1pics.offset + u_c1pics.size)
+  } else if (c >= u_c1pics.offset + u_c1pics.size) {
     return (c);
-  else
+  } else {
     return (u_c1pics.map[c - u_c1pics.offset]);
+  }
 }
 
 #ifdef KANJI /* Kanji/Unicode functions */
@@ -10910,16 +11010,18 @@ un_to_sj(USHORT un) /* Unicode to Shift-JIS */
   }
   if (un >= 0x0391 && un < 0x0401) { /* Greek */
     greek++;
-    if (un <= 0x039c)
+    if (un <= 0x039c) {
       return (usj_0391[un - 0x0391]);
+    }
     greek--;
     bad++;
     return (0xfffd);
   }
   if (un >= 0x0401 && un < 0x2010) { /* Cyrillic */
     cyrillic++;
-    if (un <= 0x0451)
+    if (un <= 0x0451) {
       return (usj_0401[un - 0x0401]);
+    }
     cyrillic--;
     bad++;
     return (0xfffd);
@@ -11160,16 +11262,18 @@ un_to_sj(USHORT un) /* Unicode to Shift-JIS */
   }
   if (un >= 0x3000 && un < 0x4e00) { /* CJK symbols & punc */
     kanji++;
-    if (un <= 0x30ff)
+    if (un <= 0x30ff) {
       return (usj_3000[un - 0x3000]);
+    }
     kanji--;
     bad++;
     return (0xfffd);
   }
   if (un >= 0xff00 && un < 0xffff) { /* Half/full-width Roman & Katakana */
     if (un <= 0xff9f) {
-      if (un > 0xff60)
+      if (un > 0xff60) {
         kana++;
+      }
       return (usj_ff00[un - 0xff00]);
     }
     bad++;
@@ -11177,8 +11281,9 @@ un_to_sj(USHORT un) /* Unicode to Shift-JIS */
   }
   if (un >= 0x4e00 && un < 0xe000) { /* Kanji */
     kanji++;
-    if (un <= 0x9fa0)
+    if (un <= 0x9fa0) {
       return (usj_4e00[un - 0x4e00]);
+    }
     kanji--;
     bad++;
     return (0xfffd);
@@ -11221,16 +11326,17 @@ un_to_sj(USHORT un) /* Unicode to Shift-JIS */
 /* Unicode-to-blah functions, tx_blah(). */
 
 static int tx_punc(USHORT c) {
-  if (c >= 0x2000 && c <= 0x200a) /* Various-width spaces */
+  if (c >= 0x2000 && c <= 0x200a) { /* Various-width spaces */
     return ((CHAR)(0x20));
-  else if (c >= 0x2010 && c <= 0x2015) /* Various-width dashes */
+  } else if (c >= 0x2010 && c <= 0x2015) { /* Various-width dashes */
     return ((CHAR)'-');
-  else if (c >= 0x2018 && c <= 0x201b) /* Assorted single quotes */
+  } else if (c >= 0x2018 && c <= 0x201b) { /* Assorted single quotes */
     return ((CHAR)0x27);
-  else if (c >= 0x201c && c <= 0x201f) /* Assorted double quotes */
+  } else if (c >= 0x201c && c <= 0x201f) { /* Assorted double quotes */
     return ((CHAR)0x22);
-  else if ((c >= 0x2022 && c <= 0x2024) || c == 0x2043) /* Bullets */
+  } else if ((c >= 0x2022 && c <= 0x2024) || c == 0x2043) { /* Bullets */
     return ((CHAR)0xb7);
+  }
   switch (c) {
   case 0x2039: /* Less-than sign */
     return ((CHAR)0x3c);
@@ -11245,27 +11351,29 @@ static int tx_punc(USHORT c) {
 
 int /* For Latin-1 */
 tx_ident(USHORT c) {
-  if (c == 0x203e) /* Overline -> Macron */
+  if (c == 0x203e) { /* Overline -> Macron */
     return ((CHAR)0xaf);
-  else if (c < 0x100) /* Latin-1 range */
+  } else if (c < 0x100) { /* Latin-1 range */
     return ((CHAR)(c & 0xff));
-  else /* Or maybe from punctuation block */
+  } else { /* Or maybe from punctuation block */
     return (tx_punc(c));
+  }
 }
 
 int tx_usascii(USHORT c) {
-  if (c < 0x80)
+  if (c < 0x80) {
     return ((CHAR)(c & 0xff));
-  else if (c >= 0x2000 && c <= 0x200a) /* Various-width spaces */
+  } else if (c >= 0x2000 && c <= 0x200a) { /* Various-width spaces */
     return ((CHAR)(0x20));
-  else if (c >= 0x2010 && c <= 0x2015) /* Various-width dashes */
+  } else if (c >= 0x2010 && c <= 0x2015) { /* Various-width dashes */
     return ((CHAR)'-');
-  else if (c >= 0x2018 && c <= 0x201b) /* Assorted single quotes */
+  } else if (c >= 0x2018 && c <= 0x201b) { /* Assorted single quotes */
     return ((CHAR)0x27);
-  else if (c >= 0x201c && c <= 0x201f) /* Assorted double quotes */
+  } else if (c >= 0x201c && c <= 0x201f) { /* Assorted double quotes */
     return ((CHAR)0x22);
-  else if ((c >= 0x2022 && c <= 0x2024) || c == 0x2043) /* Bullets */
+  } else if ((c >= 0x2022 && c <= 0x2024) || c == 0x2043) { /* Bullets */
     return ((CHAR)0xb7);
+  }
   switch (c) {
   case 0x2039: /* Less-than sign */
     return ((CHAR)0x3c);
@@ -11282,17 +11390,19 @@ int tx_usascii(USHORT c) {
 }
 
 int tx_british(USHORT c) {
-  if (c & 0xff00)
+  if (c & 0xff00) {
     return (-1);
-  else if (c == (USHORT)0x00a3) /* Pound sign */
+  } else if (c == (USHORT)0x00a3) { /* Pound sign */
     return (0x2b);
-  else
+  } else {
     return (tx_usascii(c));
+  }
 }
 
 int tx_apl1(USHORT c) {
-  if (c >= 0x0041 && c <= 0x005a) /* Letters */
+  if (c >= 0x0041 && c <= 0x005a) { /* Letters */
     return (c + 0x20);
+  }
   switch (c) { /* Others */
   case 0x0024:
     return ((CHAR)0x7e);
@@ -11437,8 +11547,9 @@ int tx_apl1(USHORT c) {
 
 int /* Canadian French */
 tx_fr_canadian(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xe0:
     return (0x40); /* a grave */
@@ -11467,8 +11578,9 @@ tx_fr_canadian(USHORT c) {
 
 int /* Danish/Norwegian */
 tx_danish(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xc6:
     return (0x5b); /* AE */
@@ -11489,8 +11601,9 @@ tx_danish(USHORT c) {
 
 int /* Dutch */
 tx_dutch(USHORT c) {
-  if (c & 0xfe00) /* Out of range */
+  if (c & 0xfe00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0x007c:
     return (0x5d); /* vertical bar */
@@ -11517,8 +11630,9 @@ tx_dutch(USHORT c) {
 
 int /* Finnish */
 tx_finnish(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xc4:
     return (0x5b); /* A diaeresis */
@@ -11545,8 +11659,9 @@ tx_finnish(USHORT c) {
 
 int /* French */
 tx_french(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xa3:
     return (0x23); /* pound sign */
@@ -11575,8 +11690,9 @@ tx_french(USHORT c) {
 
 int /* German */
 tx_german(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xa7:
     return (0x40); /* section sign */
@@ -11601,34 +11717,37 @@ tx_german(USHORT c) {
 
 int /* Hebrew-7 */
 tx_hebrew7(USHORT c) {
-  if (c < 0x60) /* ASCII */
+  if (c < 0x60) { /* ASCII */
     return ((CHAR)(c & 0x7f));
-  else if (c >= 123 && c < 128) /* ASCII */
+  } else if (c >= 123 && c < 128) { /* ASCII */
     return ((CHAR)(c & 0x7f));
-  else if (c >= 0x05d0 && c <= 0x05ea) /* Hebrew 27 contiguous characters */
+  } else if (c >= 0x05d0 && c <= 0x05ea) { /* Hebrew 27 contiguous characters */
     return ((CHAR)((int)c - 0x5d0 + 96));
-  else
+  } else {
     return (-1);
+  }
 }
 
 int /* Greek ELOT 927 */
 tx_elot927(USHORT c) {
   if (c <= 0x80) { /* ASCII */
-    if (islower(c))
+    if (islower(c)) {
       c = toupper(c); /* Send all letters in uppercase */
+    }
     return ((CHAR)(c & 0x7f));
   }
 
   /* Greek -- map all Greek characters to unaccented uppercase */
 
-  if (c >= 0x0391 && c <= 0x03a1) /* Alpha thru Rho - uppercase */
+  if (c >= 0x0391 && c <= 0x03a1) { /* Alpha thru Rho - uppercase */
     return ((CHAR)((int)c - 0x0391 + 97));
-  else if (c >= 0x03a3 && c <= 0x03a9) /* Sigma thru Omega - uppercase */
+  } else if (c >= 0x03a3 && c <= 0x03a9) { /* Sigma thru Omega - uppercase */
     return ((CHAR)((int)c - 0x0391 + 96));
-  else if (c >= 0x03b1 && c <= 0x03c1) /* Alpha thru Rho - lowercase */
+  } else if (c >= 0x03b1 && c <= 0x03c1) { /* Alpha thru Rho - lowercase */
     return ((CHAR)((int)c - 0x0391 + 97));
-  else if (c >= 0x03c3 && c <= 0x03c9) /* Sigma thru Omega - uppercase */
+  } else if (c >= 0x03c3 && c <= 0x03c9) { /* Sigma thru Omega - uppercase */
     return ((CHAR)((int)c - 0x0391 + 96));
+  }
   switch (c) {
   case 0x03c2:
     return ((CHAR)114); /* Terminal sigma */
@@ -11691,10 +11810,11 @@ tx_elot927(USHORT c) {
 
 int /* Hungarian */
 tx_hungarian(USHORT c) {
-  if (c == 0x02dd || c == 0x2033)
-    return (0x7e);     /* double acute accent */
-  else if (c & 0xff00) /* Out of range */
+  if (c == 0x02dd || c == 0x2033) {
+    return (0x7e);         /* double acute accent */
+  } else if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xc1:
     return (0x40); /* A acute */
@@ -11719,8 +11839,9 @@ tx_hungarian(USHORT c) {
 
 int /* Icelandic */
 tx_icelandic(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xde:
     return (0x40); /* Thorn */
@@ -11745,8 +11866,9 @@ tx_icelandic(USHORT c) {
 
 int /* Italian */
 tx_italian(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xa3:
     return (0x23); /* pound sign */
@@ -11775,8 +11897,9 @@ tx_italian(USHORT c) {
 
 int /* JIS 0201 Roman */
 tx_jis0201r(USHORT c) {
-  if (c & 0xff80) /* 7 bits */
+  if (c & 0xff80) { /* 7 bits */
     return (-1);
+  }
   switch (c) { /* Like ASCII with */
   case 0x00a5:
     return (92); /* two exceptions */
@@ -11791,18 +11914,20 @@ tx_jis0201r(USHORT c) {
 
 int /* JIS 0201 Katakana */
 tx_jis0201k(USHORT c) {
-  if (c < 0xff61 || c > 0xff9f)
+  if (c < 0xff61 || c > 0xff9f) {
     return (-1); /* Out of range */
-  else
+  } else {
     return ((int)c - 0xfec0); /* 0xff61 - a0 = 0xfec0 */
+  }
 }
 
 int /* Short KOI */
 tx_koi7(USHORT c) {
-  if (c < 0x50)
+  if (c < 0x50) {
     return ((CHAR)(c & 0x7f));
-  else if (c > 0x7f)
+  } else if (c > 0x7f) {
     return (-1); /* Out of range */
+  }
   switch (c) {
   case 0x0410:
     return ((CHAR)97);
@@ -11873,8 +11998,9 @@ tx_koi7(USHORT c) {
 
 int /* Portuguese */
 tx_portuguese(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xe0:
     return (0xa7); /* section sign */
@@ -11899,8 +12025,9 @@ tx_portuguese(USHORT c) {
 
 int /* Spanish */
 tx_spanish(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xa3:
     return (0x23); /* pound sign */
@@ -11925,8 +12052,9 @@ tx_spanish(USHORT c) {
 
 int /* Swedish */
 tx_swedish(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xc9:
     return (0x40); /* E acute */
@@ -11955,8 +12083,9 @@ tx_swedish(USHORT c) {
 
 int /* Swiss NRC */
 tx_swiss(USHORT c) {
-  if (c & 0xff00) /* Out of range */
+  if (c & 0xff00) { /* Out of range */
     return (-1);
+  }
   switch (c) {
   case 0xf9:
     return (0x23); /* u grave */
@@ -11989,8 +12118,9 @@ tx_swiss(USHORT c) {
 
 int /* Dyadic APL */
 tx_apl2(USHORT c) {
-  if (c >= 0x0041 && c <= 0x005a) /* Letters */
+  if (c >= 0x0041 && c <= 0x005a) { /* Letters */
     return (c - 0xa2);
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)0xa0);
@@ -12133,8 +12263,9 @@ tx_apl2(USHORT c) {
   case 0x25cb:
     return ((CHAR)0xdd);
   default:
-    if (c < 0xa0)
+    if (c < 0xa0) {
       return ((CHAR)(c & 0xff));
+    }
     return (tx_punc(c));
   }
 }
@@ -12925,8 +13056,9 @@ tx_apl5(USHORT c) {
 
 int /* Latin-2 */
 tx_8859_2(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)160);
@@ -13127,8 +13259,9 @@ tx_8859_2(USHORT c) {
 
 int /* Latin-3 */
 tx_8859_3(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)160);
@@ -13315,8 +13448,9 @@ tx_8859_3(USHORT c) {
 
 int /* Latin-4 */
 tx_8859_4(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)160);
@@ -13517,8 +13651,9 @@ tx_8859_4(USHORT c) {
 
 int /* ISO 8859-5 (Latin/Cyrillic) */
 tx_8859_5(USHORT c) {
-  if (c < 0xa0) /* (8859-5 is not Latin-5!) */
+  if (c < 0xa0) { /* (8859-5 is not Latin-5!) */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)160);
@@ -13719,8 +13854,9 @@ tx_8859_5(USHORT c) {
 
 int /* ISO 8859-6 (Latin/Arabic) */
 tx_8859_6(USHORT c) {
-  if (c < 0xa0) /* (8859-6 != Latin-6) */
+  if (c < 0xa0) { /* (8859-6 != Latin-6) */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)160);
@@ -13831,8 +13967,9 @@ tx_8859_6(USHORT c) {
 
 int /* ISO 8859-7 (Latin/Greek) */
 tx_8859_7(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)160);
@@ -14025,8 +14162,9 @@ tx_8859_7(USHORT c) {
 
 int /* ISO 8859-8 (Latin/Hebrew) */
 tx_8859_8(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)160);
@@ -14151,8 +14289,9 @@ tx_8859_8(USHORT c) {
 
 int /* ISO 8859-9 (Latin-4) */
 tx_8859_9(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x011E:
     return ((CHAR)208); /* Differs from Latin-1 in */
@@ -14173,8 +14312,9 @@ tx_8859_9(USHORT c) {
 
 int /* Latin-6 */
 tx_8859_10(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)160);
@@ -14375,8 +14515,9 @@ tx_8859_10(USHORT c) {
 
 int /* ISO 8859-15 Latin-9 */
 tx_8859_15(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x20AC:
     return ((CHAR)0xA4); /* Differs from Latin-1 in */
@@ -14401,8 +14542,9 @@ tx_8859_15(USHORT c) {
 
 int /* Old KOI-8 (ECMA 113 First Ed.) */
 tx_koi8(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x0410:
     return ((CHAR)(225 & 0xff));
@@ -14537,8 +14679,9 @@ tx_koi8(USHORT c) {
 
 int /* UCS-2 to KOI8-R (Russia) */
 tx_koi8r(USHORT c) {
-  if (c < 0x00A0)
+  if (c < 0x00A0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)(154 & 0xff));
@@ -14803,8 +14946,9 @@ tx_koi8r(USHORT c) {
 
 int /* KOI8-U (Ukraine) */
 tx_koi8u(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00A0:
     return ((CHAR)(154 & 0xff));
@@ -15069,8 +15213,9 @@ tx_koi8u(USHORT c) {
 
 int /* DEC MCS */
 tx_decmcs(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a6:
   case 0x00a8:
@@ -15099,8 +15244,9 @@ tx_decmcs(USHORT c) {
 
 int /* NeXTSTEP */
 tx_nextstep(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(128 & 0xff));
@@ -15361,8 +15507,9 @@ tx_nextstep(USHORT c) {
 
 int /* DG International */
 tx_dgi(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(160 & 0xff));
@@ -15555,8 +15702,9 @@ tx_dgi(USHORT c) {
 
 int /* Macintosh Latin */
 tx_maclatin(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(202 & 0xff));
@@ -15821,8 +15969,9 @@ tx_maclatin(USHORT c) {
 
 int /* Apple QuickDraw / CP10000 */
 tx_quickdraw(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(202 & 0xff));
@@ -16087,8 +16236,9 @@ tx_quickdraw(USHORT c) {
 
 int /* HP Roman-8 */
 tx_hproman8(USHORT c) {
-  if (c < 0xa0)
+  if (c < 0xa0) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(160 & 0xff));
@@ -16281,8 +16431,9 @@ tx_hproman8(USHORT c) {
 
 int /* PC Code Page 437 */
 tx_cp437(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -16633,8 +16784,9 @@ tx_cp437(USHORT c) {
 
 int /* Mazovia */
 tx_mazovia(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00d3:
     return ((CHAR)0xa3 & 0xff); /* O acute */
@@ -16679,8 +16831,9 @@ tx_mazovia(USHORT c) {
 
 int /* PC Code Page 850 */
 tx_cp850(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -16945,8 +17098,9 @@ tx_cp850(USHORT c) {
 
 int /* PC Code Page 858 */
 tx_cp858(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -17211,8 +17365,9 @@ tx_cp858(USHORT c) {
 
 int /* Windows Code Page 1250 (Latin-2) */
 tx_cp1250(USHORT c) {
-  if (c < 0x80 || (c > 0xbf && c <= 0xff)) /* Has C1 graphics */
+  if (c < 0x80 || (c > 0xbf && c <= 0xff)) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x002D:
     return ((CHAR)(0xad & 0xff));
@@ -17334,8 +17489,9 @@ tx_cp1250(USHORT c) {
 
 int /* Windows Code Page 1251 (Cyrillic) */
 tx_cp1251(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   /* This is simply the inverse of u_cp1251.map */
   switch (c) {
   case 0x003c:
@@ -17601,8 +17757,9 @@ tx_cp1251(USHORT c) {
 
 int /* Unicode to Windows Code Page 1252 (Latin-1) */
 tx_cp1252(USHORT c) {
-  if (c < 0x80 || (c > 0x9f && c <= 0xff)) /* Has C1 graphics */
+  if (c < 0x80 || (c > 0x9f && c <= 0xff)) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x0152: /* OE */
     return ((CHAR)(0x8c & 0xff));
@@ -17660,8 +17817,9 @@ tx_cp1252(USHORT c) {
 
 int /* PC Code Page 852 */
 tx_cp852(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -17926,8 +18084,9 @@ tx_cp852(USHORT c) {
 
 int /* Windows Code Page 1253 (Greek) */
 tx_cp1253(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x003c:
     return ((CHAR)(0x8b & 0xff));
@@ -18156,8 +18315,9 @@ tx_cp1253(USHORT c) {
 
 int /* Windows Code Page 1254 (Turkish) */
 tx_cp1254(USHORT c) {
-  if (c < 0x80)
+  if (c < 0x80) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x011e:
     return ((CHAR)(0xd0 & 0xff)); /* G breve    */
@@ -18177,8 +18337,9 @@ tx_cp1254(USHORT c) {
 }
 
 int tx_cp1255(USHORT c) {
-  if (c < 0x080)
+  if (c < 0x080) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x20AC:
     return ((CHAR)(0x80 & 0xff)); /* EURO SIGN */
@@ -18397,8 +18558,9 @@ int tx_cp1255(USHORT c) {
 
 int /* Windows Arabic */
 tx_cp1256(USHORT c) {
-  if (c < 0x80)
+  if (c < 0x80) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x20AC:
     return ((CHAR)(0x80 & 0xff)); /* EURO SIGN */
@@ -18647,8 +18809,9 @@ tx_cp1256(USHORT c) {
 
 int /* Windows Code Page 1257 (Latin-4) */
 tx_cp1257(USHORT c) {
-  if (c < 0x80)
+  if (c < 0x80) {
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x003c:
     return ((CHAR)(0x8b & 0xff));
@@ -18873,8 +19036,9 @@ tx_cp1257(USHORT c) {
 
 int /* Windows Code Page 1258 (Viet Nam) */
 tx_cp1258(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x20AC:
     return ((CHAR)(0x80 & 0xff)); /* EURO SIGN */
@@ -19656,8 +19820,9 @@ tx_cp37(USHORT c) {
 
 int /* PC Code Page 855 */
 tx_cp855(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a4:
     return ((CHAR)(207 & 0xff));
@@ -19918,8 +20083,9 @@ tx_cp855(USHORT c) {
 
 int /* PC Code Page 856 */
 tx_cp856(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(0xff & 0xff));
@@ -20184,8 +20350,9 @@ tx_cp856(USHORT c) {
 
 int /* PC Code Page 857 */
 tx_cp857(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00c7:
     return ((CHAR)(128 & 0xff));
@@ -20446,8 +20613,9 @@ tx_cp857(USHORT c) {
 
 int /* PC Code Page 862 */
 tx_cp862(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x05d0:
     return ((CHAR)(128 & 0xff));
@@ -20712,8 +20880,9 @@ tx_cp862(USHORT c) {
 
 int /* PC Code Page 864 */
 tx_cp864(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00b0:
     return ((CHAR)0x80 & 0xff);
@@ -20966,8 +21135,9 @@ tx_cp864(USHORT c) {
 
 int /* PC Code Page 866 */
 tx_cp866(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -21232,8 +21402,9 @@ tx_cp866(USHORT c) {
 
 int /* PC Code Page 869 */
 tx_cp869(USHORT c) {
-  if (c < 0x80) /* Has C1 graphics */
+  if (c < 0x80) { /* Has C1 graphics */
     return ((CHAR)(c & 0xff));
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)(255 & 0xff));
@@ -21480,8 +21651,9 @@ tx_cp869(USHORT c) {
 
 int /* PC Code Page C0 graphics */
 tx_smiley(USHORT c) {
-  if (c > 0x1f)
+  if (c > 0x1f) {
     return (-1);
+  }
   switch (c) {
   case 0x00a0:
     return ((CHAR)0 & 0x7f);
@@ -21554,7 +21726,7 @@ tx_smiley(USHORT c) {
 
 USHORT /* Horizontal Scan Lines Unicode substitutions */
 tx_hslsub(USHORT c) {
-  if (c >= 0x23BA && c <= 0x23BD)
+  if (c >= 0x23BA && c <= 0x23BD) {
     switch (c) {
     case 0x23BA:
       return (0x2500); /* H line - Scan 1 */
@@ -21565,13 +21737,15 @@ tx_hslsub(USHORT c) {
     case 0x23BD:
       return (0x2500); /* H line - Scan 9 */
     }
+  }
   return (c);
 }
 
 USHORT /* Kermit font 0xE??? Unicode substitutions */
 tx_usub(USHORT c) {
-  if (c < 0xE000 || c > 0xEFFF)
+  if (c < 0xE000 || c > 0xEFFF) {
     return (c);
+  }
   switch (c) {
   case 0xE200:
     return (0x2524); /* Extensible Left Brace Middle */
@@ -21641,8 +21815,9 @@ tx_usub(USHORT c) {
 int /* Unicode to CP437 substitutions */
 tx_cpsub(USHORT c) {
   int x;
-  if (c < 0x0080) /* ASCII */
+  if (c < 0x0080) { /* ASCII */
     return ((CHAR)(c & 0xff));
+  }
 
   if (c >= 0x0080 && c <= 0x0100) {
     switch (c) { /* Latin-1 */
@@ -22887,9 +23062,10 @@ int utf8_to_ucs2(CHAR ch, USHORT **ucs2) {
   unsigned c = ch;         /* Input byte */
   int haveucs2 = 0;
 
-  if (ch < 0x80) {    /* ASCII char... */
-    if (utfcount > 0) /* Not legal in UTF-8 sequence */
-      utferror = 1;   /* so flag */
+  if (ch < 0x80) {      /* ASCII char... */
+    if (utfcount > 0) { /* Not legal in UTF-8 sequence */
+      utferror = 1;     /* so flag */
+    }
     haveucs2 = 1;
     ucs2return = ch;      /* but also return it */
     utfcount = 0;         /* reset UTF-8 count */
@@ -22903,12 +23079,14 @@ int utf8_to_ucs2(CHAR ch, USHORT **ucs2) {
         ucs2return <<= 6;          /* Shift result */
         ucs2return |= (ch & 0x3f); /* and OR in this byte */
       }
-      if (--utfcount == 0)
+      if (--utfcount == 0) {
         haveucs2 = 1;
+      }
     }
   } else { /* c >= 0xc0... */
-    if (utfcount > 0)
+    if (utfcount > 0) {
       utferror = 1;
+    }
     if (c < 0xe0) {
       utfcount = 1;
       ucs2return = (c & 0x1f);
@@ -22941,12 +23119,14 @@ int utf8_to_ucs2(CHAR ch, USHORT **ucs2) {
   }
   if (haveucs2) {
     *ucs2 = &ucs2return;
-    if (utferror)
+    if (utferror) {
       utfcount = 0 - utfcount;
+    }
     return (utfcount);
   } else {
-    if (utfcount == 0)
+    if (utfcount == 0) {
       utfcount++;
+    }
     return (utfcount);
   }
 }
@@ -23054,14 +23234,17 @@ int /* UTF-8 to byte */
 u_to_b(CHAR c) {
   int x;
   USHORT *ucs2, uc;
-  if (!xuf)                   /* If no conversion function */
-    return (c);               /* don't convert (shouldn't happen). */
+  if (!xuf) {   /* If no conversion function */
+    return (c); /* don't convert (shouldn't happen). */
+  }
   x = utf8_to_ucs2(c, &ucs2); /* Send for conversion to UCS-2 */
-  if (x > 0)                  /* Not done yet... */
+  if (x > 0) {                /* Not done yet... */
     return (-1);
-  uc = (x < 0) ? 0xfffd : *ucs2;    /* Done, check result */
-  if (uc == 0x2028 || uc == 0x2029) /* LS or PS */
+  }
+  uc = (x < 0) ? 0xfffd : *ucs2;      /* Done, check result */
+  if (uc == 0x2028 || uc == 0x2029) { /* LS or PS */
     return (-2);
+  }
   return ((unsigned)(((*xuf)(uc)) & 0xff)); /* Convert UCS-2 to byte */
 }
 
@@ -23092,8 +23275,9 @@ b_to_u(CHAR c, CHAR *buf, int buflen, int setsize) {
   }
   uc = c;
   if (((setsize > 128) && (c & 0x80)) || setsize <= 128) {
-    if (xfu) /* FCS-to-UCS function */
+    if (xfu) { /* FCS-to-UCS function */
       uc = (*xfu)(c);
+    }
   }
   count = ucs2_to_utf8(uc, &tmp);
   if (count < 0) {
@@ -23107,8 +23291,9 @@ b_to_u(CHAR c, CHAR *buf, int buflen, int setsize) {
     debug(F101, "WARNING: UTF8 buffer overflow", "", count);
     count = buflen - 1;
   }
-  for (i = 0; i < count; i++) /* Copy to result buffer */
+  for (i = 0; i < count; i++) { /* Copy to result buffer */
     buf[i] = tmp[i];
+  }
   buf[i] = '\0';
   return (count);
 }

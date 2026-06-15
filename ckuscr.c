@@ -175,11 +175,13 @@ static int sequenc() {
           }
           seq_buf[i++] = oct_char;
           break;
-        } else
+        } else {
           seq_buf[i++] = *s; /* Treat ~ as quote */
+        }
       }
-    } else
+    } else {
       seq_buf[i++] = *s; /* Plain old character */
+    }
     s++;
   }
   seq_buf[i] = '\0';
@@ -222,8 +224,9 @@ static void dorseq(void *threadinfo)
 #endif /* CK_LOGIN */
 
   while (!got_it) {
-    for (i = 0; i < rseql - 1; i++)
+    for (i = 0; i < rseql - 1; i++) {
       rseqgot[i] = rseqgot[i + 1];
+    }
     x = ttinc(0); /* Read a character */
     debug(F101, "recvseq", "", x);
     if (x < 0) {
@@ -249,17 +252,20 @@ static void dorseq(void *threadinfo)
 #endif                                     /* NETCONN */
     rseqgot[rseql - 1] = (char)(x & 0x7f); /* Got a character */
     burst--;                               /* One less waiting */
-    if (scr_echo)
+    if (scr_echo) {
       conbuf[concnt++] = rseqgot[rseql - 1]; /* Buffer it */
-    if (seslog)                              /* Log it in session log */
+    }
+    if (seslog) /* Log it in session log */
 #ifdef UNIX
       if (sessft != 0 || rseqgot[rseql - 1] != '\r')
 #else
-#endif                          /* UNIX */
-        if (rseqgot[rseql - 1]) /* Filter out NULs */
+#endif                            /* UNIX */
+        if (rseqgot[rseql - 1]) { /* Filter out NULs */
           sesbuf[sescnt++] = rseqgot[rseql - 1];
-    if ((int)strlen(rseqtrace) < SBUFL - 2)
+        }
+    if ((int)strlen(rseqtrace) < SBUFL - 2) {
       strcat(rseqtrace, dbchr(rseqgot[rseql - 1]));
+    }
     got_it = (!strncmp(rseqe, rseqgot, rseql));
     if (burst <= 0) { /* Flush buffered output */
       myflsh();
@@ -267,8 +273,9 @@ static void dorseq(void *threadinfo)
         return;
       }
       /* prevent overflow of "conbuf" and "sesbuf" */
-      if (burst > MAXBURST)
+      if (burst > MAXBURST) {
         burst = MAXBURST;
+      }
     }
   }
   return;
@@ -302,8 +309,9 @@ static void recvseq() {
     return;
   }
   *trace = '\0';
-  for (i = 0; i < 7; i++)
+  for (i = 0; i < 7; i++) {
     got[i] = '\0';
+  }
 
   rseqtrace = trace;
   rseqe = e;
@@ -342,43 +350,51 @@ static void dooseq(void *threadinfo) {
 
   if (!strcmp(seq_buf, "EOT")) {
     ttoc(dopar('\004'));
-    if (scr_echo)
+    if (scr_echo) {
       conol("<EOT>");
-    if (seslog && duplex)
+    }
+    if (seslog && duplex) {
       logstr("<EOT>", 5);
+    }
   } else if (!strcmp(seq_buf, "BREAK") || !strcmp(seq_buf, "\\b") ||
              !strcmp(seq_buf, "\\B")) {
     ttsndb();
-    if (scr_echo)
+    if (scr_echo) {
       conol("<BREAK>");
-    if (seslog)
+    }
+    if (seslog) {
       logstr("{BREAK}", 7);
+    }
   } else {
     if (l > 0) {
-      for (sb = seq_buf; *sb; sb++)
-        *sb = dopar(*sb);       /* add parity */
+      for (sb = seq_buf; *sb; sb++) {
+        *sb = dopar(*sb); /* add parity */
+      }
       ttol((CHAR *)seq_buf, l); /* send it */
       if (scr_echo && duplex) {
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
         conxo(l, seq_buf);
       }
-      if (seslog && duplex) /* log it */
+      if (seslog && duplex) { /* log it */
         logstr(seq_buf, strlen(seq_buf));
+      }
     }
     if (!no_cr) {
       ttoc(dopar(CK_CR));
 #ifdef TCPSOCKET
       if (is_tn) {
-        if (!TELOPT_ME(TELOPT_BINARY) && tn_nlm != TNL_CR)
+        if (!TELOPT_ME(TELOPT_BINARY) && tn_nlm != TNL_CR) {
           ttoc((char)((tn_nlm == TNL_CRLF) ? dopar(LF) : dopar(NUL)));
-        else if (TELOPT_ME(TELOPT_BINARY) &&
-                 (tn_b_nlm == TNL_CRLF || tn_b_nlm == TNL_CRNUL))
+        } else if (TELOPT_ME(TELOPT_BINARY) &&
+                   (tn_b_nlm == TNL_CRLF || tn_b_nlm == TNL_CRNUL)) {
           ttoc((char)((tn_b_nlm == TNL_CRLF) ? dopar(LF) : dopar(NUL)));
+        }
       }
 #endif /* TCPSOCKET */
-      if (seslog && duplex)
+      if (seslog && duplex) {
         logchar(dopar(CK_CR));
+      }
     }
   }
   return;
@@ -398,8 +414,9 @@ static int outseq() {
     delay = sequenc();
     alrm_execute(ckjaddr(alrmrng), SND_ALRM, scrtime, dooseq, failoseq);
 
-    if (!delay)
+    if (!delay) {
       return (oseqret);
+    }
     msleep(DEL_MSEC); /* delay, loop to next send */
   }
 }
@@ -414,8 +431,9 @@ int dologin(char *cmdstr) {
 
   tlog(F100, loginv, "", 0L);
 
-  if (speed < 0L)
+  if (speed < 0L) {
     speed = ttgspd();
+  }
   if (ttopen(ttname, &local, mdmtyp, 0) < 0) {
     ckmakmsg(seq_buf, SBUFL, "Sorry, can't open ", ttname, NULL, NULL);
     perror(seq_buf);
@@ -425,17 +443,19 @@ int dologin(char *cmdstr) {
   scr_echo = (!quiet && !backgrd && secho);
 #ifndef NOSPL
   if (scr_echo && cmdlvl > 1) {
-    if (cmdstk[cmdlvl].src == CMD_TF)
+    if (cmdstk[cmdlvl].src == CMD_TF) {
       scr_echo = techo;
-    if (cmdstk[cmdlvl].src == CMD_MD)
+    }
+    if (cmdstk[cmdlvl].src == CMD_MD) {
       scr_echo = mecho;
+    }
   }
 #endif /* NOSPL */
   if (scr_echo) {
 #ifdef NETCONN
-    if (network)
+    if (network) {
       printf("Executing SCRIPT to host %s.\n", ttname);
-    else
+    } else
 #endif /* NETCONN */
       printf("Executing SCRIPT through %s, speed %ld.\n", ttname, speed);
   }
@@ -445,8 +465,9 @@ int dologin(char *cmdstr) {
 #endif /* TNCODE */
 
   *seq_buf = 0;
-  for (e = s; *e; e++)
+  for (e = s; *e; e++) {
     ckstrncat(seq_buf, dbchr(*e), SBUFL);
+  }
   tlog(F110, "SCRIPT string: ", seq_buf, 0L);
 
   /* Condition console terminal and communication line... */
@@ -464,42 +485,51 @@ int dologin(char *cmdstr) {
 
   while (*s) { /* While not done with buffer */
 
-    while (*s && isspace(*s))
+    while (*s && isspace(*s)) {
       s++; /* Skip over separating whitespaces */
-           /* Gather up expect sequence */
+    }
+    /* Gather up expect sequence */
     got_it = 0;
     recvseq();
 
-    while (!got_it) {  /* Have it yet? */
-      if (*s++ != '-') /* No, is there a conditional send? */
-        goto failret;  /* No, return failure */
-      flushi();        /* Yes, flush out input buffer */
-      if (outseq())    /* If unable to send, */
-        goto failret;  /* return failure. */
-      if (*s++ != '-') /* If no conditional response here, */
-        goto failret;  /* return failure. */
-      recvseq();       /* All OK, read response from host. */
+    while (!got_it) {    /* Have it yet? */
+      if (*s++ != '-') { /* No, is there a conditional send? */
+        goto failret;    /* No, return failure */
+      }
+      flushi();       /* Yes, flush out input buffer */
+      if (outseq()) { /* If unable to send, */
+        goto failret; /* return failure. */
+      }
+      if (*s++ != '-') { /* If no conditional response here, */
+        goto failret;    /* return failure. */
+      }
+      recvseq(); /* All OK, read response from host. */
     } /* Loop back and check got_it */
 
     while (*s && !isspace(*s++))
       ; /* Skip over conditionals */
-    while (*s && isspace(*s))
-      s++;    /* Skip over separating whitespaces */
+    while (*s && isspace(*s)) {
+      s++; /* Skip over separating whitespaces */
+    }
     flushi(); /* Flush */
-    if (*s)
-      if (outseq())
+    if (*s) {
+      if (outseq()) {
         goto failret; /* If any */
+      }
+    }
   }
   ck_signal(SIGALRM, savealm);
-  if (scr_echo)
+  if (scr_echo) {
     printf("Script successful.\n");
+  }
   tlog(F100, "Script successful.", "", 0L);
   return (1);
 
 failret:
   ck_signal(SIGALRM, savealm);
-  if (scr_echo)
+  if (scr_echo) {
     printf("Sorry, script failed\n");
+  }
   tlog(F100, "Script failed", "", 0L);
   return (0);
 }
@@ -517,11 +547,13 @@ void flushi() {
 #endif /* TNCODE */
 #endif /* NETCONN */
   ) {
-    if ((n = ttchk()) < 0) /* Yes, anything in buffer? */
+    if ((n = ttchk()) < 0) { /* Yes, anything in buffer? */
       return;
-    if (n > MAXBURST)
+    }
+    if (n > MAXBURST) {
       n = MAXBURST; /* Make sure not too much, */
-    myflsh();       /* and that buffers are empty. */
+    }
+    myflsh(); /* and that buffers are empty. */
     while (n-- > 0) {
       x = ttinc(0); /* Collect a character */
 #ifdef NETCONN
@@ -540,16 +572,19 @@ void flushi() {
         }
 
         /* Recalculate flush count */
-        if ((n = ttchk()) < 0)
+        if ((n = ttchk()) < 0) {
           return;
-        if (n > MAXBURST)
+        }
+        if (n > MAXBURST) {
           n = MAXBURST;
+        }
         continue;
       }
 #endif /* TNCODE */
 #endif /* NETCONN */
-      if (scr_echo)
+      if (scr_echo) {
         conbuf[concnt++] = (CHAR)x; /* buffer for console */
+      }
       if (seslog)
 #ifdef UNIX
         if (sessft != 0 || x != '\r')
@@ -558,8 +593,9 @@ void flushi() {
           sesbuf[sescnt++] = (CHAR)x; /* buffer for session log */
     }
     myflsh();
-  } else
+  } else {
     ttflui(); /* Otherwise just flush. */
+  }
 }
 
 #else  /* NOSCRIPT */

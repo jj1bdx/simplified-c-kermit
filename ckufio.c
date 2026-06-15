@@ -441,8 +441,9 @@ int pam_cb(int num_msg, PAM_CONST struct pam_message **msg,
       /* received by REMOTE LOGIN.                                 */
       if (pam_pw) {
         ckstrncpy(message, pam_pw, PAM_MAX_MSG_SIZE);
-      } else
+      } else {
         readpass((char *)msg[i]->msg, message, PAM_MAX_MSG_SIZE);
+      }
     } else if (msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
       debug(F111, "pam_cb", "Reading response, with echo", 0);
       readtext((char *)msg[i]->msg, message, PAM_MAX_MSG_SIZE);
@@ -813,18 +814,23 @@ void logwtmp(const char *line, const char *name, const char *host)
   int dummy;
   /* time_t time(); */
 
-  if (!ckxwtmp)
+  if (!ckxwtmp) {
     return;
+  }
 
-  if (!wtmpfile)
+  if (!wtmpfile) {
     makestr(&wtmpfile, WTMPFILE);
+  }
 
-  if (!line)
+  if (!line) {
     line = "";
-  if (!name)
+  }
+  if (!name) {
     name = "";
-  if (!host)
+  }
+  if (!host) {
     host = "";
+  }
 
   if (!wtmpfd && (wtmpfd = open(wtmpfile, O_WRONLY | O_APPEND, 0)) < 0) {
     ckxwtmp = 0;
@@ -901,14 +907,18 @@ char *s1, *s2, *s3;
 {
   int level;
 
-  if (!ckxlogging) /* syslogging */
+  if (!ckxlogging) { /* syslogging */
     return;
-  if (!s1)
+  }
+  if (!s1) {
     s1 = ""; /* Fix null args */
-  if (!s2)
+  }
+  if (!s2) {
     s2 = "";
-  if (!s3)
+  }
+  if (!s3) {
     s3 = "";
+  }
   switch (n) {   /* Translate Kermit level */
   case SYSLG_DB: /* to syslog level */
     level = LOG_DEBUG;
@@ -1000,8 +1010,9 @@ static void getfullname(char *name) {
   /* If necessary we could also chase down symlinks here... */
   zfnqfp(name, CKMAXPATH - len, p);
   while (*p) {
-    if (*p < '!')
+    if (*p < '!') {
       *p = '_';
+    }
     p++;
   }
 }
@@ -1010,11 +1021,13 @@ static void getfullname(char *name) {
 
 void /* Called in ckcmai.c */
 doiklog() {
-  if (iklogopen) /* Already open? */
+  if (iklogopen) { /* Already open? */
     return;
+  }
   if (xferlog) {                    /* Open iksd log if requested */
-    if (!xferfile)                  /* If no pathname given */
+    if (!xferfile) {                /* If no pathname given */
       makestr(&xferfile, XFERFILE); /* use this default */
+    }
     if (*xferfile) {
       xferlog = open(xferfile, O_WRONLY | O_APPEND | O_CREAT, 0660);
       debug(F101, "doiklog open", "", xferlog);
@@ -1024,13 +1037,16 @@ doiklog() {
 #endif /* CKSYSLOG */
         debug(F101, "doiklog open errno", "", errno);
         xferlog = 0;
-      } else
+      } else {
         iklogopen = 1;
-    } else
+      }
+    } else {
       xferlog = 0;
+    }
 #ifdef CKSYSLOG
-    if (xferlog && ckxlogging)
+    if (xferlog && ckxlogging) {
       syslog(LOG_INFO, "xferlog: %s open ok", xferfile);
+    }
 #endif /* CKSYSLOG */
   }
 }
@@ -1065,11 +1081,12 @@ int zopeni(int n, char *name) {
   }
 #ifdef CKROOT
   debug(F111, "zopeni setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zopeni setroot violation", name, 0);
       return (0);
     }
+  }
 #endif                      /* CKROOT */
   fp[n] = fopen(name, "r"); /* Real file, open it. */
                             /* debug(F111,"zopeni fopen", name, fp[n]); */
@@ -1097,8 +1114,9 @@ int zopeni(int n, char *name) {
     return (0);
   } else {
 #ifdef CKSYSLOG
-    if (ckxsyslog >= SYSLG_FA && ckxlogging)
+    if (ckxsyslog >= SYSLG_FA && ckxlogging) {
       syslog(LOG_INFO, "file[%d] %s: open read ok", n, fullname);
+    }
 #endif /* CKSYSLOG */
     clearerr(fp[n]);
     return (1);
@@ -1131,8 +1149,9 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
   }
 #endif /* DEBUG */
 
-  if (chkfn(n) != 0) /* Already open? */
-    return (0);      /* Nothing to do. */
+  if (chkfn(n) != 0) { /* Already open? */
+    return (0);        /* Nothing to do. */
+  }
 
   if ((n == ZCTERM) || (n == ZSTDIO)) { /* Terminal or standard output */
     fp[ZOFILE] = stdout;
@@ -1146,11 +1165,12 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
 
 #ifdef CKROOT
   debug(F111, "zopeno setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zopeno setroot violation", name, 0);
       return (0);
     }
+  }
 #endif /* CKROOT */
 
   ckstrncpy(p, "w", 8);       /* Assume write/create mode */
@@ -1198,10 +1218,11 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
   }
   debug(F111, "zopeno istty", name, istty);
   debug(F110, "zopeno fopen arg", p, 0);
-  if (istty)
+  if (istty) {
     fp[n] = fdopen(filefd, p);
-  else
+  } else {
     fp[n] = fopen(name, p); /* Try to open the file */
+  }
   ispipe[ZIFILE] = 0;
 
 #ifdef ZDEBUG
@@ -1210,12 +1231,14 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
 
   if (fp[n] == NULL) { /* Failed */
     debug(F101, "zopeno failed errno", "", errno);
-    if (istty)
+    if (istty) {
       close(filefd);
+    }
 #ifdef CKSYSLOG
-    if (ckxsyslog >= SYSLG_FC && ckxlogging)
+    if (ckxsyslog >= SYSLG_FC && ckxlogging) {
       syslog(LOG_INFO, "file[%d] %s: %s failed (%m)", n, fullname,
              append ? "append" : "create");
+    }
 #endif     /* CKSYSLOG */
   } else { /* Succeeded */
     extern int zofbuffer, zofblock, zobufsize;
@@ -1225,8 +1248,9 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
 #ifdef DONDELAY
     } else if (n == ZOFILE && !zofblock) { /* blocking or nonblocking */
       int flags;
-      if ((flags = fcntl(fileno(fp[n]), F_GETFL, 0)) > -1)
+      if ((flags = fcntl(fileno(fp[n]), F_GETFL, 0)) > -1) {
         fcntl(fileno(fp[n]), F_SETFL, flags | O_NDELAY);
+      }
       debug(F100, "zopeno ZOFILE nonblocking", "", 0);
 #endif                                      /* DONDELAY */
     } else if (n == ZOFILE && !zofbuffer) { /* buffered or unbuffered */
@@ -1236,15 +1260,18 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
 
 #ifdef CK_LOGIN
     /* Enforce anonymous file-creation permission */
-    if (isguest)
+    if (isguest) {
       if (n == ZWFILE || n == ZMFILE || n == ZOFILE || n == ZDFILE ||
-          n == ZTFILE || n == ZPFILE || n == ZSFILE)
+          n == ZTFILE || n == ZPFILE || n == ZSFILE) {
         chmod(name, ckxperms);
+      }
+    }
 #endif /* CK_LOGIN */
 #ifdef CKSYSLOG
-    if (ckxsyslog >= SYSLG_FC && ckxlogging)
+    if (ckxsyslog >= SYSLG_FC && ckxlogging) {
       syslog(LOG_INFO, "file[%d] %s: %s ok", n, fullname,
              append ? "append" : "create");
+    }
 #endif /* CKSYSLOG */
     debug(F100, "zopeno ok", "", 0);
   }
@@ -1263,10 +1290,12 @@ int zclose(int n) {
   extern CK_OFF_T ffc;
 
   debug(F101, "zclose file number", "", n);
-  if (chkfn(n) < 1)
-    return (0);                       /* Check range of n */
-  if ((n == ZOFILE) && (zoutcnt > 0)) /* (PWP) output leftovers */
+  if (chkfn(n) < 1) {
+    return (0); /* Check range of n */
+  }
+  if ((n == ZOFILE) && (zoutcnt > 0)) { /* (PWP) output leftovers */
     x2 = zoutdump();
+  }
 
   if (fp[ZSYSFN] || ispipe[n]) { /* If file is really pipe */
 #ifndef NOPUSH
@@ -1277,8 +1306,9 @@ int zclose(int n) {
     debug(F101, "zclose zclosf", "", x);
     /* debug(F101,"zclose zclosf fp[n]","",fp[n]); */
   } else {
-    if ((fp[n] != stdout) && (fp[n] != stdin))
+    if ((fp[n] != stdout) && (fp[n] != stdin)) {
       x = fclose(fp[n]);
+    }
     fp[n] = NULL;
   }
   iflen = -1L;    /* Invalidate file length */
@@ -1293,8 +1323,9 @@ int zclose(int n) {
     if (xferlog && (n == ZIFILE || n == ZOFILE)) {
       char *s, *p;
       extern char ttname[];
-      if (!iklogopen)
+      if (!iklogopen) {
         (void)doiklog(); /* Open log if necessary */
+      }
       debug(F101, "zclose iklogopen", "", iklogopen);
       if (iklogopen) {
         int len;
@@ -1302,20 +1333,23 @@ int zclose(int n) {
 
         timenow = time(NULL);
 #ifdef CK_LOGIN
-        if (logged_in)
+        if (logged_in) {
           s = clienthost;
-        else
+        } else
 #endif /* CK_LOGIN */
           s = (char *)ttname;
-        if (!s)
+        if (!s) {
           s = "";
-        if (!*s)
+        }
+        if (!*s) {
           s = "*";
+        }
 #ifdef CK_LOGIN
         if (logged_in) {
           p = guestpass;
-          if (!*p)
+          if (!*p) {
             p = "*";
+          }
         } else
 #endif /* CK_LOGIN */
           p = whoami();
@@ -1323,13 +1357,14 @@ int zclose(int n) {
         len = 24 + 12 + (int)strlen(s) + 16 + (int)strlen(fullname) + 1 + 1 +
               1 + 1 + (int)strlen(p) + 6 + 2 + 12;
         fnam = fullname;
-        if (!*fnam)
+        if (!*fnam) {
           fnam = "(pipe)";
+        }
 
-        if (len > IKSDMSGLEN)
+        if (len > IKSDMSGLEN) {
           sprintf(iksdmsg, /* SAFE */
                   "%.24s [BUFFER WOULD OVERFLOW]\n", ctime(&timenow));
-        else
+        } else {
           sprintf(iksdmsg, /* SAFE */
                   "%.24s %d %s %s %s %c %s %c %c %s %s %d %s\n",
                   ctime(&timenow),         /* date/time */
@@ -1354,6 +1389,7 @@ int zclose(int n) {
                   0,  /* User ID on client system unknown */
                   "*" /* Ditto */
           );
+        }
         debug(F110, "zclose iksdmsg", iksdmsg, 0);
         dummy = write(xferlog, iksdmsg, (int)strlen(iksdmsg));
       }
@@ -1373,23 +1409,27 @@ int zchin(int n, int *c) {
 #ifdef IKSD
   if (inserver && !local && (n == ZCTERM || n == ZSTDIO)) {
     a = coninc(0);
-    if (*c < 0)
+    if (*c < 0) {
       return (-1);
+    }
   } else
 #endif /* IKSD */
     /* (PWP) Just in case this gets called when it shouldn't. */
     if (n == ZIFILE) {
       a = zminchar(); /* Note: this catches Ctrl-Z */
-      if (a < 0)      /* (See zinfill()...) */
+      if (a < 0) {    /* (See zinfill()...) */
         return (-1);
+      }
     } else {
       a = getc(fp[n]);
-      if (a == EOF)
+      if (a == EOF) {
         return (-1);
+      }
 #ifdef CK_CTRLZ
       /* If SET FILE EOF CTRL-Z, first Ctrl-Z marks EOF */
-      if (!binary && a == 0x1A && eofmethod == XYEOF_Z)
+      if (!binary && a == 0x1A && eofmethod == XYEOF_Z) {
         return (-1);
+      }
 #endif /* CK_CTRLZ */
     }
   *c = (CHAR)a & 0377;
@@ -1412,29 +1452,35 @@ int zsinl(int n, char *s, int x) {
   char *buf;
   extern CHAR feol; /* Line terminator */
 
-  if (!s || chkfn(n) < 1) /* Make sure file is open, etc */
+  if (!s || chkfn(n) < 1) { /* Make sure file is open, etc */
     return (-1);
+  }
   buf = s;
   s[0] = '\0'; /* Don't return junk */
 
   a = -1;       /* Current character, none yet. */
   while (x--) { /* Up to given length */
     int old = 0;
-    if (feol) /* Previous character */
+    if (feol) { /* Previous character */
       old = a;
+    }
     if (zchin(n, &a) < 0) { /* Read a character from the file */
       debug(F101, "zsinl zchin fail", "", count);
-      if (count == 0)
+      if (count == 0) {
         z = -1; /* EOF or other error */
+      }
       break;
-    } else
+    } else {
       count++;
+    }
     if (feol) { /* Single-character line terminator */
-      if (a == feol)
+      if (a == feol) {
         break;
-    } else {           /* CRLF line terminator */
-      if (a == '\015') /* CR, get next character */
+      }
+    } else {             /* CRLF line terminator */
+      if (a == '\015') { /* CR, get next character */
         continue;
+      }
       if (old == '\015') { /* Previous character was CR */
         if (a == '\012') { /* This one is LF, so we have a line */
           break;
@@ -1466,10 +1512,12 @@ int zxin(int n, char *s, int x) {
   if (inserver && !local && (n == ZCTERM || n == ZSTDIO)) {
     int a, i;
     a = ttchk();
-    if (a < 1)
+    if (a < 1) {
       return (0);
-    for (i = 0; i < a && i < x; i++)
+    }
+    for (i = 0; i < a && i < x; i++) {
       s[i] = coninc(0);
+    }
     return (i);
   }
 #endif /* IKSD */
@@ -1501,16 +1549,18 @@ int zinfill() {
   if (inserver && !local && fp[ZIFILE] == stdin) {
     int a, i;
     a = ttchk();
-    if (a < 0)
+    if (a < 0) {
       return (-2);
+    }
     for (i = 0; i < a && i < INBUFSIZE; i++) {
       zinbuffer[i] = coninc(0);
     }
     zincnt = i;
     /* set pointer to beginning, (== &zinbuffer[0]) */
     zinptr = zinbuffer;
-    if (zincnt == 0)
+    if (zincnt == 0) {
       return (-1);
+    }
     zincnt--;                         /* One less char in buffer */
     return ((int)(*zinptr++) & 0377); /* because we return the first */
   }
@@ -1541,8 +1591,9 @@ int zinfill() {
       debug(F101, "zinfill ttwait", "", z);
     }
 #endif /* NOXFER */
-    if (z == 0)
+    if (z == 0) {
       return (-3);
+    }
   }
 #endif /* SELECT */
 
@@ -1578,8 +1629,9 @@ int zinfill() {
     for (i = 0; i < zincnt; i++) {
       if (zinbuffer[i] == SUB) {
         zincnt = i; /* Stop at first Ctrl-Z */
-        if (i == 0)
+        if (i == 0) {
           return (-1);
+        }
         break;
       }
     }
@@ -1622,12 +1674,15 @@ int zinfill() {
 int zsout(int n, char *s) {
   int rc = 0;
   rc = chkfn(n);
-  if (rc < 1)
+  if (rc < 1) {
     return (-1); /* Keep this, prevents memory faults */
-  if (!s)
+  }
+  if (!s) {
     return (0); /* Null pointer, do nothing, succeed */
-  if (!*s)
+  }
+  if (!*s) {
     return (0); /* empty string, ditto */
+  }
 
 #ifdef IKSD
   /*
@@ -1648,8 +1703,9 @@ int zsout(int n, char *s) {
     return ((rc == k) ? 0 : -1);
   }
   rc = fputs(s, fp[n]) == EOF ? -1 : 0;
-  if (n == ZWFILE)
+  if (n == ZWFILE) {
     fflush(fp[n]);
+  }
   return (rc);
 }
 
@@ -1658,8 +1714,9 @@ int zsout(int n, char *s) {
 /*  Returns 0 on success, -1 on failure */
 
 int zsoutl(int n, char *s) {
-  if (zsout(n, s) < 0)
+  if (zsout(n, s) < 0) {
     return (-1);
+  }
 
 #ifdef IKSD
   if (inserver && !local && (n == ZCTERM || n == ZSTDIO)) {
@@ -1667,12 +1724,14 @@ int zsoutl(int n, char *s) {
   }
 #endif /* IKSD */
 
-  if (n == ZSFILE) /* Session log is unbuffered */
+  if (n == ZSFILE) { /* Session log is unbuffered */
     return (write(fileno(fp[n]), "\n", 1) == 1 ? 0 : -1);
-  else if (fputs("\n", fp[n]) == EOF)
+  } else if (fputs("\n", fp[n]) == EOF) {
     return (-1);
-  if (n == ZDIFIL || n == ZWFILE) /* Flush connection log records */
+  }
+  if (n == ZDIFIL || n == ZWFILE) { /* Flush connection log records */
     fflush(fp[n]);
+  }
   return (0);
 }
 
@@ -1682,10 +1741,12 @@ int zsoutl(int n, char *s) {
 
 int zsoutx(int n, char *s, int x) {
   int k;
-  if (!s)
+  if (!s) {
     return (0);
-  if (!*s)
+  }
+  if (!*s) {
     return (0);
+  }
 
 #ifdef IKSD
   if (inserver && !local && (n == ZCTERM || n == ZSTDIO)) {
@@ -1693,8 +1754,9 @@ int zsoutx(int n, char *s, int x) {
   }
 #endif /* IKSD */
 
-  if ((k = (int)strlen(s)) > x)
+  if ((k = (int)strlen(s)) > x) {
     x = k; /* Nothing else would make sense */
+  }
   return (write(fileno(fp[n]), s, x) == x ? x : -1);
 }
 
@@ -1712,13 +1774,15 @@ int zchout(register int n, char c)
   }
 #endif /* IKSD */
 
-  if (n == ZSFILE) /* Use unbuffered for session log */
+  if (n == ZSFILE) { /* Use unbuffered for session log */
     return (write(fileno(fp[n]), &c, 1) == 1 ? 0 : -1);
+  }
   /* Buffered for everything else */
-  if (putc(c, fp[n]) == EOF)         /* If true, maybe there was an error */
+  if (putc(c, fp[n]) == EOF) {       /* If true, maybe there was an error */
     return (ferror(fp[n]) ? -1 : 0); /* Check to make sure */
-  else                               /* Otherwise... */
+  } else {                           /* Otherwise... */
     return (0);                      /* There was no error. */
+  }
 }
 
 /* (PWP) buffered character output routine to speed up file IO */
@@ -1728,8 +1792,9 @@ int zoutdump() {
   char *zp;
   zoutptr = zoutbuffer; /* Reset buffer pointer in all cases */
 #ifdef DEBUG
-  if (deblog)
+  if (deblog) {
     debug(F101, "zoutdump zoutcnt", "", zoutcnt);
+  }
 #endif                /* DEBUG */
   if (zoutcnt == 0) { /* Nothing to output */
     return (0);
@@ -1759,8 +1824,9 @@ int zoutdump() {
   while (zoutcnt > 0) {
     if ((x = write(fileno(fp[ZOFILE]), zp, zoutcnt)) > -1) {
 #ifdef DEBUG
-      if (deblog) /* Save a function call... */
+      if (deblog) { /* Save a function call... */
         debug(F101, "zoutdump wrote", "", x);
+      }
 #endif              /* DEBUG */
       zoutcnt -= x; /* Adjust output buffer count */
       zp += x;      /* and pointer */
@@ -1789,8 +1855,9 @@ int zoutdump() {
 int chkfn(int n) {
   /* if (n != ZDFILE) debug(F101,"chkfn","",n); */
   if (n < 0 || n >= ZNFILS) {
-    if (n != ZDFILE)
+    if (n != ZDFILE) {
       debug(F101, "chkfn out of range", "", n);
+    }
     return (-1);
   } else {
     /* if (n != ZDFILE) debug(F101,"chkfn fp[n]","",fp[n]); */
@@ -1832,32 +1899,38 @@ zgetfs(char *name) {
   int needrlink = 0;
   char *s;
 
-  if (!name)
+  if (!name) {
     name = "";
-  if (!*name)
+  }
+  if (!*name) {
     return (-1);
+  }
 
 #ifdef UNIX
   x = strlen(name);
-  if (x == 9 && !strcmp(name, "/dev/null"))
+  if (x == 9 && !strcmp(name, "/dev/null")) {
     return (0);
+  }
 #endif /* UNIX */
 
   s = name;
 #ifdef DTILDE
   if (*s == '~') {
     s = tilde_expand(s);
-    if (!s)
+    if (!s) {
       s = "";
-    if (!*s)
+    }
+    if (!*s) {
       s = name;
+    }
   }
 #endif /* DTILDE */
   x = ckstrncpy(fnam, s, CKMAXPATH);
   s = fnam;
   debug(F111, "zgetfs fnam", s, x);
-  if (x > 0 && s[x - 1] == '/')
+  if (x > 0 && s[x - 1] == '/') {
     s[x - 1] = '\0';
+  }
 
   zgfs_dir = 0;   /* Assume it's not a directory */
   zgfs_link = 0;  /* Assume it's not a symlink */
@@ -1868,8 +1941,9 @@ zgetfs(char *name) {
 #ifdef USE_LSTAT /* OK to use lstat()? */
   x = lstat(s, &buf);
   debug(F101, "STAT", "", 1);
-  if (x < 0) /* stat() failed */
+  if (x < 0) { /* stat() failed */
     return (-1);
+  }
   if (/* Now see if it's a symlink */
 #ifdef S_ISLNK
       S_ISLNK(buf.st_mode)
@@ -1888,8 +1962,9 @@ zgetfs(char *name) {
       size = buf.st_size; /* Remember size of link */
       x = stat(s, &buf);  /* Now stat the linked-to file */
       debug(F101, "STAT", "", 2);
-      if (x < 0) /* so we can see if it's a directory */
+      if (x < 0) { /* so we can see if it's a directory */
         return (-1);
+      }
     } else {
       ckstrncpy(linkname, "(lookup failed)", CKMAXPATH);
     }
@@ -1897,8 +1972,9 @@ zgetfs(char *name) {
 #else  /* !USE_LSTAT */
   x = stat(s, &buf); /* No lstat(), use stat() instead */
   debug(F101, "STAT", "", 3);
-  if (x < 0)
+  if (x < 0) {
     return (-1);
+  }
 #endif /* USE_LSTAT */
 
   /* Do we need to call readlink()? */
@@ -1935,10 +2011,11 @@ zgetfs(char *name) {
     x = readlink(s, linkname, CKMAXPATH);
 #ifdef DEBUG
     debug(F111, "zgetfs readlink", s, x);
-    if (x < 0)
+    if (x < 0) {
       debug(F101, "zgetfs readlink errno", "", errno);
-    else
+    } else {
       debug(F110, "zgetfs readlink result", linkname, 0);
+    }
 #endif /* DEBUG */
     if (x > -1 && x < CKMAXPATH) {
       zgfs_link = 1;
@@ -1948,8 +2025,9 @@ zgetfs(char *name) {
 #else  /* !CKSYMLINK */
   x = stat(s, &buf); /* Just stat the file */
   debug(F111, "zgetfs stat", s, x);
-  if (x < 0) /* and get the size */
+  if (x < 0) { /* and get the size */
     return (-1);
+  }
 #endif /* CKSYMLINK */
 
   zgfs_mtime = buf.st_mtime;
@@ -1979,37 +2057,44 @@ zchki(char *name) {
   int x, itsadir = 0;
   extern int zchkid, diractive, matchfifo;
 
-  if (!name)
+  if (!name) {
     return (-1);
+  }
   x = strlen(name);
-  if (x < 1)
+  if (x < 1) {
     return (-1);
+  }
   s = name;
 
 #ifdef UNIX
-  if (x == 9 && !strcmp(s, "/dev/null"))
+  if (x == 9 && !strcmp(s, "/dev/null")) {
     return (0);
-  if (x == 8 && !strcmp(s, "/dev/tty"))
+  }
+  if (x == 8 && !strcmp(s, "/dev/tty")) {
     return (0);
+  }
 #endif /* UNIX */
 
 #ifdef DTILDE
   if (*s == '~') {
     s = tilde_expand(s);
-    if (!s)
+    if (!s) {
       s = "";
-    if (!*s)
+    }
+    if (!*s) {
       s = name;
+    }
   }
 #endif /* DTILDE */
 
 #ifdef CKROOT
   debug(F111, "zchki setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zchki setroot violation", name, 0);
       return (-1);
     }
+  }
 #endif       /* CKROOT */
              /*
                In (at least) Mac OS X 10.6, stat(filename) returns 1 even if the file
@@ -2043,8 +2128,9 @@ zchki(char *name) {
     Or to use access() rather that stat().  But all of these approaches
     have their portability risks.
   */
-  if (S_ISDIR(buf.st_mode))
+  if (S_ISDIR(buf.st_mode)) {
     itsadir = 1;
+  }
 
   if (!(itsadir && zchkid)) { /* Unless this... */
     if (!S_ISREG(buf.st_mode) /* Must be regular file */
@@ -2065,8 +2151,9 @@ zchki(char *name) {
     debug(F100, "zchki swapping ids for access()", "", 0);
     priv_on();
 #endif /* SW_ACC_ID */
-    if ((x = access(s, R_OK)) < 0)
+    if ((x = access(s, R_OK)) < 0) {
       x = access(s, X_OK); /* For RUN-class commands */
+    }
 #ifdef SW_ACC_ID
     priv_off();
     debug(F100, "zchki swapped ids restored", "", 0);
@@ -2101,19 +2188,21 @@ int zchko(char *name) {
 
   debug(F110, "zchko entry", name, 0);
 
-  if (!name)
+  if (!name) {
     return (-1); /* Watch out for null pointer. */
+  }
 
   oname = name;
 
 #ifdef CKROOT
   debug(F111, "zchko setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zchko setroot violation", name, 0);
       errno = EACCES;
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
   x = (int)strlen(name); /* Get length of filename */
@@ -2124,20 +2213,24 @@ int zchko(char *name) {
   /*
     Writing to null device is OK.
   */
-  if (x == 9 && !strcmp(name, "/dev/null"))
+  if (x == 9 && !strcmp(name, "/dev/null")) {
     return (0);
-  if (x == 8 && !strcmp(name, "/dev/tty"))
+  }
+  if (x == 8 && !strcmp(name, "/dev/tty")) {
     return (0);
+  }
 #endif /* UNIX */
 
   s = name;
 #ifdef DTILDE
   if (*s == '~') {
     s = tilde_expand(s);
-    if (!s)
+    if (!s) {
       s = "";
-    if (!*s)
+    }
+    if (!*s) {
       s = name;
+    }
     x = strlen(s);
   }
 #endif /* DTILDE */
@@ -2181,9 +2274,10 @@ int zchko(char *name) {
     /* Must attempt to open it so isatty() can be used */
     fd = open(name, O_WRONLY | O_CREAT | flags, 0600);
     debug(F111, "zchko open", name, fd);
-    if (fd > -1) {    /* to get a file descriptor */
-      if (isatty(fd)) /* for isatty() */
+    if (fd > -1) {      /* to get a file descriptor */
+      if (isatty(fd)) { /* for isatty() */
         istty++;
+      }
       debug(F111, "zchko isatty", name, istty);
       /*
         Failure to close this file caused creation of
@@ -2209,12 +2303,13 @@ int zchko(char *name) {
 #endif /* NOUUCP */
 #endif /* UNIX */
 
-  if (zchkod)
-    goto doaccess;          /* fdc 20160129 */
-                            /*
-                              The following code gets the name of the containing directory so we
-                              can use access() to check if we are allowed to create files in it.
-                            */
+  if (zchkod) {
+    goto doaccess; /* fdc 20160129 */
+  }
+  /*
+    The following code gets the name of the containing directory so we
+    can use access() to check if we are allowed to create files in it.
+  */
   for (i = x; i > 0; i--) { /* Strip filename from right. */
     if (ISDIRSEP(s[i - 1])) {
       itsadir = 1;
@@ -2238,16 +2333,18 @@ int zchko(char *name) {
           break;
         }
       }
-      if (i == 0)
+      if (i == 0) {
         s[0] = '\0';
+      }
     }
   } else {
     s[i++] = '.'; /* Append "." to path. */
     s[i] = '\0';
   }
 
-  if (!s[0])
+  if (!s[0]) {
     ckstrncpy(s, ".", x + 3);
+  }
 
 doaccess:
 
@@ -2265,12 +2362,14 @@ doaccess:
 #endif /* SW_ACC_ID */
 
 xzchko: /* Exit point */
-  if (x < 0)
+  if (x < 0) {
     debug(F111, "zchko access failed:", s, errno);
-  else
+  } else {
     debug(F111, "zchko access ok:", s, x);
-  if (s)
+  }
+  if (s) {
     free(s); /* Free temporary storage */
+  }
 
   return ((x < 0) ? -1 : 0); /* and return. */
 }
@@ -2282,17 +2381,19 @@ xzchko: /* Exit point */
 int zdelet(char *name) {
   int x;
 #ifdef CK_LOGIN
-  if (isguest)
+  if (isguest) {
     return (-1);
+  }
 #endif /* CK_LOGIN */
 
 #ifdef CKROOT
   debug(F111, "zdelet setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zdelet setroot violation", name, 0);
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
   x = unlink(name);
@@ -2302,10 +2403,11 @@ int zdelet(char *name) {
     fullname[0] = '\0';
     zfnqfp(name, CKMAXPATH, fullname);
     debug(F110, "zdelet fullname", fullname, 0);
-    if (x < 0)
+    if (x < 0) {
       syslog(LOG_INFO, "file[] %s: delete failed (%m)", fullname);
-    else
+    } else {
       syslog(LOG_INFO, "file[] %s: delete ok", fullname);
+    }
   }
 #endif /* CKSYSLOG */
   return (x);
@@ -2322,10 +2424,12 @@ void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
   char fullname[CKMAXPATH + 1];
   int devnull = 0;
   int acase = 0;
-  if (!name2)
+  if (!name2) {
     return;
-  if (!name)
+  }
+  if (!name) {
     name = "";
+  }
 
   debug(F111, "nzrtol name", name, fncnv);
 
@@ -2333,10 +2437,12 @@ void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
   s = name;
   if (*s == '~') {
     s = tilde_expand(s);
-    if (!s)
+    if (!s) {
       s = "";
-    if (*s)
+    }
+    if (*s) {
       name = s;
+    }
   }
 #endif /* DTILDE */
 
@@ -2376,8 +2482,9 @@ void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
     debug(F101, "nzrtol sizing CKMAXNAM", "", CKMAXNAM);
     while (*p && n < CKMAXPATH) { /* Copy name to new buffer */
       if (++i > CKMAXNAM) {       /* If this segment too long */
-        while (*p && *p != '/')   /* skip past the rest... */
+        while (*p && *p != '/') { /* skip past the rest... */
           p++;
+        }
         i = 0;                /* and reset counter. */
       } else if (*p == '/') { /* End of this segment. */
         i = 0;                /* Reset counter. */
@@ -2399,35 +2506,40 @@ void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
 
   p = name2;
   for (; *name != '\0' && n < CKMAXNAM; name++) {
-    if (*name > SP)
+    if (*name > SP) {
       flag = 1; /* Strip leading blanks and controls */
-    if (flag == 0 && *name < '!')
+    }
+    if (flag == 0 && *name < '!') {
       continue;
+    }
     if (fncnv > 0) {
       if (*name == SP) {
         *p++ = '_';
         n++;
         continue;
       }
-      if (isupper(*name)) /* Check for mixed case */
+      if (isupper(*name)) { /* Check for mixed case */
         acase |= 1;
-      else if (islower(*name))
+      } else if (islower(*name)) {
         acase |= 2;
+      }
     }
     *p++ = *name;
     n++;
   }
-  *p-- = '\0';                  /* Terminate */
-  while (*p < '!' && p > name2) /* Strip trailing blanks & controls */
+  *p-- = '\0';                    /* Terminate */
+  while (*p < '!' && p > name2) { /* Strip trailing blanks & controls */
     *p-- = '\0';
+  }
 
   if (*name2 == '\0') {              /* Nothing left? */
     ckstrncpy(name2, "NONAME", max); /* do this... */
   } else if (acase == 1) {           /* All uppercase? */
     p = name2;                       /* So convert all letters to lower */
     while (*p) {
-      if (isupper(*p))
+      if (isupper(*p)) {
         *p = tolower(*p);
+      }
       p++;
     }
   }
@@ -2452,8 +2564,9 @@ void zstrip(char *name, char **name2) {
   pp = work;
 #ifdef DTILDE
   /* Strip leading tilde */
-  if (*name == '~')
+  if (*name == '~') {
     name++;
+  }
   debug(F110, "zstrip after tilde-stripping", name, 0);
 #endif /* DTILDE */
   for (cp = name; *cp; cp++) {
@@ -2462,8 +2575,9 @@ void zstrip(char *name, char **name2) {
       n = 0;
     } else {
       *pp++ = *cp;
-      if (n++ >= CKMAXPATH)
+      if (n++ >= CKMAXPATH) {
         break;
+      }
     }
   }
   *pp = '\0'; /* Terminate the string */
@@ -2511,12 +2625,13 @@ void nzltor(char *name, char *name2, int fncnv, int fnspath,
   } else { /* PATHNAMES RELATIVE or ABSOLUTE */
     char *p = name;
     while (1) {
-      if (!strncmp(p, "../", 3))
+      if (!strncmp(p, "../", 3)) {
         p += 3;
-      else if (!strncmp(p, "./", 2))
+      } else if (!strncmp(p, "./", 2)) {
         p += 2;
-      else
+      } else {
         break;
+      }
     }
     if (fnspath == PATH_ABS) { /* ABSOLUTE */
       zfnqfp(p, CKMAXPATH, fullname);
@@ -2539,36 +2654,40 @@ void nzltor(char *name, char *name2, int fncnv, int fnspath,
   for (cp = name, n = 0; *cp && n < max; cp++, n++) { /* Convert name chars */
     c = *cp;
 #ifndef NOCSETS
-    if (sxo)
-      c = (*sxo)(c);             /* Convert to ASCII */
-#endif                           /* NOCSETS */
-    if (fncnv > 0 && islower(c)) /* Uppercase letters */
-      *pp++ = toupper(c);        /* Change tilde to hyphen */
-    else if (c == '~')
+    if (sxo) {
+      c = (*sxo)(c); /* Convert to ASCII */
+    }
+#endif                             /* NOCSETS */
+    if (fncnv > 0 && islower(c)) { /* Uppercase letters */
+      *pp++ = toupper(c);          /* Change tilde to hyphen */
+    } else if (c == '~') {
       *pp++ = '-';
-    else if (fncnv > 0 && c == '#') /* Change number sign to 'X' */
+    } else if (fncnv > 0 && c == '#') { /* Change number sign to 'X' */
       *pp++ = 'X';
-    else if (c == '*' || c == '?') /* Change wildcard chars to 'X' */
+    } else if (c == '*' || c == '?') { /* Change wildcard chars to 'X' */
       *pp++ = 'X';
-    else if (c == ' ') /* Change space to underscore */
+    } else if (c == ' ') { /* Change space to underscore */
       *pp++ = '_';
-    else if (c < ' ') /* Change controls to 'X' */
+    } else if (c < ' ') { /* Change controls to 'X' */
       *pp++ = 'X';
-    else if (fncnv > 0 && c == '.') { /* Change dot to underscore */
-      dotp = pp;                      /* Remember where we last did this */
+    } else if (fncnv > 0 && c == '.') { /* Change dot to underscore */
+      dotp = pp;                        /* Remember where we last did this */
       *pp++ = '_';
     } else {
-      if (c == '/')
+      if (c == '/') {
         dirp = pp;
+      }
       *pp++ = c;
     }
   }
   *pp = NUL; /* Tie it off. */
-  if (dotp > dirp)
+  if (dotp > dirp) {
     *dotp = '.'; /* Restore last dot in file name */
-  cp = name2;    /* If nothing before dot, */
-  if (*work == '.')
+  }
+  cp = name2; /* If nothing before dot, */
+  if (*work == '.') {
     *cp++ = 'X'; /* insert 'X' */
+  }
   ckstrncpy(cp, work, max);
 #ifndef NOCSETS
   language = langsv;
@@ -2596,19 +2715,23 @@ int zchdir(char *dirnam) {
 #endif                        /* NOSPL */
 
   debug(F110, "zchdir", dirnam, 0);
-  if (!dirnam)
+  if (!dirnam) {
     dirnam = "";
-  if (!*dirnam)       /* If argument is null or empty, */
+  }
+  if (!*dirnam) {     /* If argument is null or empty, */
     dirnam = zhome(); /* use user's home directory. */
+  }
   sp = dirnam;
   debug(F110, "zchdir 2", dirnam, 0);
 
 #ifdef DTILDE
   hd = tilde_expand(dirnam); /* Attempt to expand tilde */
-  if (!hd)
+  if (!hd) {
     hd = "";
-  if (*hd == '\0')
+  }
+  if (*hd == '\0') {
     hd = dirnam; /* in directory name. */
+  }
 #else
   hd = dirnam;
 #endif /* DTILDE */
@@ -2616,18 +2739,20 @@ int zchdir(char *dirnam) {
 
 #ifdef CKROOT
   debug(F111, "zchdir setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(hd)) {
       debug(F110, "zchdir setroot violation", hd, 0);
       return (0);
     }
+  }
 #endif /* CKROOT */
 
   if (chdir(hd) == 0) { /* Try to cd */
 #ifdef IKSDB
 #ifdef CK_LOGIN
-    if (inserver && ikdbopen)
+    if (inserver && ikdbopen) {
       slotdir(isguest ? anonroot : "", zgtdir());
+    }
 #endif /* CK_LOGIN */
 #endif /* IKSDB */
 
@@ -2637,10 +2762,11 @@ int zchdir(char *dirnam) {
       static int on_cd = 0;
       if (!on_cd) {
         on_cd = 1;
-        k = mlook(mactab, "on_cd", nmac); /* Look this up */
-        if (k >= 0) {                     /* If found, */
-          if (dodo(k, zgtdir(), 0) > -1)  /* set it up, */
-            parser(1);                    /* and execute it */
+        k = mlook(mactab, "on_cd", nmac);  /* Look this up */
+        if (k >= 0) {                      /* If found, */
+          if (dodo(k, zgtdir(), 0) > -1) { /* set it up, */
+            parser(1);                     /* and execute it */
+          }
         }
         on_cd = 0;
       }
@@ -2661,8 +2787,9 @@ char *zhome() {
   char *home;
 
 #ifdef CKROOT
-  if (ckrootset)
+  if (ckrootset) {
     return ((char *)ckroot);
+  }
 #endif /* CKROOT */
 
   home = getenv("HOME");
@@ -2702,8 +2829,9 @@ char *zgtdir() {
   extern char *getwd();
   s = getwd(buf);
   debug(F110, "zgtdir BSD4 getwd()", s, 0);
-  if (!s)
+  if (!s) {
     s = "./";
+  }
   return (s);
 #else
 #ifdef BSD44
@@ -2712,8 +2840,9 @@ char *zgtdir() {
 #endif /* DCLGETCWD */
   debug(F101, "zgtdir BSD44 CWDBL", "", CWDBL);
   s = getcwd(buf, CWDBL);
-  if (!s)
+  if (!s) {
     s = "./";
+  }
   return (s);
 #else
 #ifdef SVORPOSIX
@@ -2722,8 +2851,9 @@ char *zgtdir() {
 #endif /* DCLGETCWD */
   debug(F101, "zgtdir SVORPOSIX CWDBL", "", CWDBL);
   s = getcwd(buf, CWDBL);
-  if (!s)
+  if (!s) {
     s = "./";
+  }
   return (s);
 #else
   return ("./");
@@ -2745,10 +2875,12 @@ int zxcmd(int filnum, char *comand) {
     return (-1);
   }
   debug(F111, "zxcmd", comand, filnum);
-  if (chkfn(filnum) < 0)
+  if (chkfn(filnum) < 0) {
     return (-1); /* Need a valid Kermit file number. */
-  if (filnum == ZSTDIO || filnum == ZCTERM) /* But not one of these. */
+  }
+  if (filnum == ZSTDIO || filnum == ZCTERM) { /* But not one of these. */
     return (0);
+  }
 
   out = (filnum == ZIFILE || filnum == ZRFILE) ? 0 : 1;
   debug(F101, "zxcmd out", comand, out);
@@ -2776,8 +2908,9 @@ int zxcmd(int filnum, char *comand) {
     errno = 0;
     fp[filnum] = popen(comand, "w");
     debug(F111, "zxcmd popen", fp[filnum] ? "OK" : "Failed", errno);
-    if (fp[filnum] == NULL)
+    if (fp[filnum] == NULL) {
       return (0);
+    }
     ispipe[filnum] = 1;
     zoutcnt = 0; /* (PWP) reset input buffer */
     zoutptr = zoutbuffer;
@@ -2803,23 +2936,27 @@ int zxcmd(int filnum, char *comand) {
     struct passwd *p;
     char *defshell;
     defshell = "/bin/sh";
-    if (priv_can())
+    if (priv_can()) {
       exit(1); /* Turn off any privileges! */
+    }
     debug(F101, "zxcmd pid", "", pid);
     close(pipes[0]); /* close input side of pipe */
     close(0);        /* close stdin */
-    if (open("/dev/null", 0) < 0)
+    if (open("/dev/null", 0) < 0) {
       return (0); /* replace input by null */
+    }
 #ifndef SVORPOSIX
     dup2(pipes[1], 1); /* BSD: replace stdout & stderr */
     dup2(pipes[1], 2); /* by the pipe */
 #else
-    close(1);               /* AT&T: close stdout */
-    if (dup(pipes[1]) != 1) /* Send stdout to the pipe */
+    close(1);                 /* AT&T: close stdout */
+    if (dup(pipes[1]) != 1) { /* Send stdout to the pipe */
       return (0);
+    }
     close(2); /* Send stderr to the pipe */
-    if (dup(pipes[1]) != 2)
+    if (dup(pipes[1]) != 2) {
       return (0);
+    }
 #endif               /* SVORPOSIX */
     close(pipes[1]); /* Don't need this any more. */
 
@@ -2827,15 +2964,18 @@ int zxcmd(int filnum, char *comand) {
     if (shpath == NULL) {
       p = getpwuid(real_uid()); /* Get login data */
       /* debug(F111,"zxcmd shpath","getpwuid()",p); */
-      if (p == (struct passwd *)NULL || !*(p->pw_shell))
+      if (p == (struct passwd *)NULL || !*(p->pw_shell)) {
         shpath = defshell;
-      else
+      } else {
         shpath = p->pw_shell;
+      }
     }
     shptr = shname = shpath;
-    while (*shptr != '\0')
-      if (*shptr++ == '/')
+    while (*shptr != '\0') {
+      if (*shptr++ == '/') {
         shname = shptr;
+      }
+    }
     debug(F110, shpath, shname, 0);
     restorsigs(); /* Restore ignored signals */
     execl(shpath, shname, "-c", comand, (char *)NULL); /* Execute the cmd */
@@ -2974,8 +3114,9 @@ static int numfnd = 0; /* Number of matches found */
 
 static int initspace(char *resarry[], int len) {
 #ifdef DYNAMIC
-  if (len < MINSPACE)
+  if (len < MINSPACE) {
     len = MINSPACE;
+  }
   if (!sspace) { /* Need to allocate string space? */
     while (len >= MINSPACE) {
       if ((sspace = malloc(len + 2))) { /* Got it. */
@@ -3016,8 +3157,9 @@ int zsetfil(int n, int fc) {
       free(sspace);
       sspace = NULL;
     }
-    if (initspace(mtchs, n) < 0)
+    if (initspace(mtchs, n) < 0) {
       return (-1);
+    }
   case 2: /* Fall thru deliberately */
     return (ssplen);
   case 3: /* Listsize */
@@ -3026,8 +3168,9 @@ int zsetfil(int n, int fc) {
       mtchs = NULL;
     }
     mtchs = (char **)malloc(n * sizeof(char *));
-    if (!mtchs)
+    if (!mtchs) {
       return (-1);
+    }
     maxnames = n;
   case 4: /* Fall thru deliberately */
     return (maxnames);
@@ -3064,12 +3207,13 @@ static
 
 #ifdef CKROOT
   debug(F111, "zxpand setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(fnarg)) {
       debug(F110, "zxpand setroot violation", fnarg, 0);
       nxpand = fcount = 0;
       return (0);
     }
+  }
 #endif /* CKROOT */
 
 #ifdef DTILDE                   /* Built with tilde-expansion? */
@@ -3082,30 +3226,36 @@ static
   fn = fnbuf; /* Point to what we'll work with */
   debug(F110, "zxpand fn 1", fn, 0);
 
-  if (!*fn) /* But make sure something is there */
+  if (!*fn) { /* But make sure something is there */
     return (0);
+  }
 
   p = fn + (int)strlen(fn) - 1;
   if (*p == '/') { /* If last char = / it must be a dir */
-    if (!xfilonly && !iswild(p))
+    if (!xfilonly && !iswild(p)) {
       haveonedir++;
-    ckstrncat(fn, "*", CKMAXPATH + 8); /* so append '*' */
-  } else if (p > fn) {                 /* If ends in "/." */
-    if (*(p - 1) == '/' && *p == '.')  /* change '.' to '*' */
+    }
+    ckstrncat(fn, "*", CKMAXPATH + 8);  /* so append '*' */
+  } else if (p > fn) {                  /* If ends in "/." */
+    if (*(p - 1) == '/' && *p == '.') { /* change '.' to '*' */
       *p = '*';
+    }
   } else if (p == fn) { /* If it's '.' alone */
-    if (*p == '.')      /* change '.' to '*' */
+    if (*p == '.') {    /* change '.' to '*' */
       *p = '*';
+    }
   }
   debug(F110, "zxpand fn 2", fn, 0);
   x = isdir(fn); /* Is it a directory? */
   debug(F111, "zxpand isdir 1", fn, x);
   if (x) { /* If so, make it into a wildcard */
-    if (!xfilonly && !iswild(p))
+    if (!xfilonly && !iswild(p)) {
       haveonedir++;
+    }
     if ((x = strlen(fn)) > 0) {
-      if (!ISDIRSEP(fn[x - 1]))
+      if (!ISDIRSEP(fn[x - 1])) {
         fn[x++] = DIRSEP;
+      }
       fn[x++] = '*';
       fn[x] = '\0';
     }
@@ -3122,27 +3272,29 @@ static
     fcount = 0;
     if (!mtchs) {
       mtchs = (char **)malloc(maxnames * sizeof(*mtchs));
-      if (!mtchs)
+      if (!mtchs) {
         return (nxpand = fcount);
+      }
     }
     fcount = 1;
     debug(F110, "zxpand haveonedir A1", fnarg, 0);
     initspace(mtchs, ssplen);
     addresult(fnarg, 1);
-    if (numfnd < 0)
+    if (numfnd < 0) {
       return (-1);
+    }
     mtchptr = mtchs; /* Save pointer for next. */
     debug(F111, "zxpand haveonedir A2", *mtchptr, numfnd);
     return (nxpand = fcount);
   }
 
 #ifndef NOPUSH
-  if (!nopush && wildxpand)    /* Who is expanding wildcards? */
+  if (!nopush && wildxpand) {  /* Who is expanding wildcards? */
     fcount = (mtchs == NULL && /* Shell */
               (mtchs = (char **)malloc(maxnames * sizeof(*mtchs))) == NULL)
                  ? 0
                  : shxpand(fn, mtchs, maxnames);
-  else
+  } else
 #endif                         /* NOPUSH */
     fcount = (mtchs == NULL && /* Kermit */
               (mtchs = (char **)malloc(maxnames * sizeof(*mtchs))) == NULL)
@@ -3153,18 +3305,20 @@ static
     fcount = 1;
     debug(F110, "zxpand haveonedir B", fnarg, 0);
     addresult(fnarg, 1);
-    if (numfnd < 0)
+    if (numfnd < 0) {
       return (-1);
+    }
   }
   mtchptr = mtchs; /* Save pointer for next. */
   nxpand = fcount;
 
 #ifdef DEBUG
   if (deblog) {
-    if (fcount > 1)
+    if (fcount > 1) {
       debug(F111, "zxpand ok", mtchs[0], fcount);
-    else
+    } else {
       debug(F101, "zxpand fcount", "", fcount);
+    }
   }
 #endif /* DEBUG */
   return (fcount);
@@ -3227,8 +3381,9 @@ int nzxpand(char *s, int flags) {
 #endif /* DEBUG */
 
   x = zxpand(s);
-  if (x > 1)
+  if (x > 1) {
     sh_sort(mtchs, NULL, x, 0, 0, 1); /* Alphabetize the list */
+  }
   xdironly = 0;
   xfilonly = 0;
   xmatchdot = 0;
@@ -3309,8 +3464,9 @@ void znewn(char *fn, char **s) {
 
   buf = znewbuf;
   *s = NULL; /* Initialize return value */
-  if (!fn)
+  if (!fn) {
     fn = ""; /* Check filename argument */
+  }
   i = strlen(fn);
 
   /* If incoming file already has a backup suffix, remove it. */
@@ -3325,11 +3481,12 @@ void znewn(char *fn, char **s) {
       p = dname;
       for (flag = state = 0; (!flag && (i > 0)); i--) {
         switch (state) {
-        case 0:            /* State 0 - final char */
-          if (p[i] == '~') /* Is tilde */
-            state = 1;     /* Switch to next state */
-          else             /* Otherwise */
-            flag = 1;      /* Quit - no backup suffix. */
+        case 0:              /* State 0 - final char */
+          if (p[i] == '~') { /* Is tilde */
+            state = 1;       /* Switch to next state */
+          } else {           /* Otherwise */
+            flag = 1;        /* Quit - no backup suffix. */
+          }
           break;
         case 1:                                 /* State 1 - digits */
           if (p[i] == '~' && p[i - 1] == '.') { /* Have suffix */
@@ -3348,17 +3505,20 @@ void znewn(char *fn, char **s) {
     }
   }
   if ((fnlen = strlen(fn)) < 1) { /* Get length */
-    if (dname)
+    if (dname) {
       free(dname);
+    }
     return;
   }
   debug(F111, "znewn", fn, fnlen);
 
   debug(F101, "znewn max 1", "", max);
-  if (max < 14)
+  if (max < 14) {
     max = 14; /* Make max reasonable for any UNIX */
-  if (max > ZNEWNBL)
+  }
+  if (max > ZNEWNBL) {
     max = ZNEWNBL;
+  }
   debug(F101, "znewn max 2", "", max);
 
   if ((fnfp = zfnqfp(fn, ZNEWNBL, buf))) { /* Get fully qualified name */
@@ -3366,8 +3526,9 @@ void znewn(char *fn, char **s) {
     k = strlen(fn);                        /* Length of name part */
     debug(F111, "znewn namepart", namepart, k);
   } else {
-    if (dname)
+    if (dname) {
       free(dname);
+    }
     return;
   }
   buflen = fnfp->len; /* Length of fully qualified name */
@@ -3381,8 +3542,9 @@ void znewn(char *fn, char **s) {
     while (n-- > 0) {            /* Find any existing name.~n~ files */
       xp = *mtchptr++;           /* Point at matching name */
       t = atoi(xp + buflen + 2); /* Get number */
-      if (t > d)
+      if (t > d) {
         d = t; /* Save d = highest version number */
+      }
     }
     sprintf(buf + buflen, ".~%d~", d + 1); /* Yes, make "name.~<d+1>~" */
     debug(F110, "znewn A newname", buf, 0);
@@ -3400,26 +3562,31 @@ void znewn(char *fn, char **s) {
       ckstrncpy(buf2 + xlen, ".~*~", ZNEWNBL + 12 - xlen); /* backup number */
       n = nzxpand(buf2, ZX_FILONLY);
       debug(F111, "znewn B matches", buf2, n);
-      if (n > 0)
+      if (n > 0) {
         break;
+      }
     }
     while (n-- > 0) {          /* Find any existing name.~n~ files */
       xp = *mtchptr++;         /* Point at matching name */
       t = atoi(xp + xlen + 2); /* Get number */
-      if (t > d)
+      if (t > d) {
         d = t; /* Save d = highest version number */
+      }
     }
-    if (d > 0)           /* If the odometer turned over... */
-      if ((d % 10) == 9) /* back up one space. */
+    if (d > 0) {           /* If the odometer turned over... */
+      if ((d % 10) == 9) { /* back up one space. */
         xlen--;
+      }
+    }
     sprintf(buf2 + xlen, ".~%d~", d + 1); /* This just fits */
     ckstrncpy(buf, buf2, ZNEWNBL + 12); /* (we could be more clever here...) */
     debug(F110, "znewn B new name", buf, 0);
   }
   *s = buf;         /* Point to new name */
   ck_znewn = d + 1; /* Also make it available globally */
-  if (dname)
+  if (dname) {
     free(dname);
+  }
   return;
 }
 
@@ -3434,21 +3601,26 @@ int zrename(char *old, char *new) {
   char *p, *s;
   int x;
 
-  if (!old)
+  if (!old) {
     old = "";
-  if (!new)
+  }
+  if (!new) {
     new = "";
+  }
   debug(F110, "zrename old", old, 0);
   debug(F110, "zrename new", new, 0);
-  if (!*old)
+  if (!*old) {
     return (-1);
-  if (!*new)
+  }
+  if (!*new) {
     return (-1);
+  }
 
 #ifdef IKSD
 #ifdef CK_LOGIN
-  if (inserver && isguest)
+  if (inserver && isguest) {
     return (-1);
+  }
 #endif /* CK_LOGIN */
 #endif /* IKSD */
 
@@ -3472,13 +3644,15 @@ int zrename(char *old, char *new) {
   if (isdir(new)) {
     char *q = NULL;
     x = strlen(new);
-    if (!(p = malloc(strlen(new) + strlen(old) + 2)))
+    if (!(p = malloc(strlen(new) + strlen(old) + 2))) {
       return (-1);
-    strcpy(p, new);                /* (safe) Directory part */
-    if (!ISDIRSEP(*(new + x - 1))) /* Separator, if needed */
-      strcat(p, "/");              /* (safe) */
-    zstrip(old, &q);               /* Strip path part from old name */
-    strcat(p, q);                  /* cat to new directory (safe) */
+    }
+    strcpy(p, new);                  /* (safe) Directory part */
+    if (!ISDIRSEP(*(new + x - 1))) { /* Separator, if needed */
+      strcat(p, "/");                /* (safe) */
+    }
+    zstrip(old, &q); /* Strip path part from old name */
+    strcat(p, q);    /* cat to new directory (safe) */
     s = p;
     debug(F110, "zrename dir", s, 0);
   }
@@ -3489,8 +3663,9 @@ int zrename(char *old, char *new) {
 
 #ifdef IKSD
   if (inserver && (!ENABLED(en_del))) {
-    if (zchki(s) > -1) /* Destination file exists? */
+    if (zchki(s) > -1) { /* Destination file exists? */
       return (-1);
+    }
   }
 #endif /* IKSD */
 
@@ -3499,8 +3674,9 @@ int zrename(char *old, char *new) {
   /* Atomic, preferred, uses a single system call, rename(), if available. */
   x = rename(old, s);
   debug(F111, "zrename rename()", old, x);
-  if (x)
+  if (x) {
     x = -1;
+  }
 #endif /* RENAME */
 
   /* If rename() failed or not available try link()/unlink() */
@@ -3531,15 +3707,17 @@ int zrename(char *old, char *new) {
     zfnqfp(old, CKMAXPATH, fullname);
     tmp2[0] = '\0';
     zfnqfp(s, CKMAXPATH, tmp2);
-    if (x > -1)
+    if (x > -1) {
       syslog(LOG_INFO, "file[] %s: renamed to %s ok", fullname, tmp2);
-    else
+    } else {
       syslog(LOG_INFO, "file[] %s: rename to %s failed (%m)", fullname, tmp2);
+    }
   }
 #endif /* CKSYSLOG */
 
-  if (p)
+  if (p) {
     free(p);
+  }
   return (x);
 }
 
@@ -3566,23 +3744,28 @@ int zcopy(char *source, char *destination) {
   int perms;             /* Output file permissions */
   char buf[1024];        /* File copying buffer */
 
-  if (!source)
+  if (!source) {
     source = "";
-  if (!destination)
+  }
+  if (!destination) {
     destination = "";
+  }
 
   debug(F110, "zcopy src arg", source, 0);
   debug(F110, "zcopy dst arg", destination, 0);
 
-  if (!*source)
+  if (!*source) {
     return (-1);
-  if (!*destination)
+  }
+  if (!*destination) {
     return (-1);
+  }
 
 #ifdef IKSD
 #ifdef CK_LOGIN
-  if (inserver && isguest)
+  if (inserver && isguest) {
     return (-4);
+  }
 #endif /* CK_LOGIN */
 #endif /* IKSD */
 
@@ -3608,11 +3791,12 @@ int zcopy(char *source, char *destination) {
     debug(F101, "STAT", "", 6);
     if (stat(dst, &dstbuf) == 0) {
       debug(F101, "STAT", "", 7);
-      if (srcbuf.st_dev == dstbuf.st_dev)
+      if (srcbuf.st_dev == dstbuf.st_dev) {
         if (srcbuf.st_ino == dstbuf.st_ino) {
           debug(F100, "zcopy files identical: stat()", "", 0);
           return (-5);
         }
+      }
     }
   } else { /* stat() failed... */
     debug(F101, "STAT", "", 8);
@@ -3620,12 +3804,14 @@ int zcopy(char *source, char *destination) {
     return (-3);
   }
   fullname[0] = '\0'; /* Get full pathnames */
-  if (zfnqfp(source, CKMAXPATH, fullname))
+  if (zfnqfp(source, CKMAXPATH, fullname)) {
     src = fullname;
+  }
   debug(F110, "zcopy src", src, 0);
   tmp2[0] = '\0';
-  if (zfnqfp(destination, CKMAXPATH, tmp2))
+  if (zfnqfp(destination, CKMAXPATH, tmp2)) {
     dst = tmp2;
+  }
   debug(F110, "zcopy dst 1", dst, 0);
   if (!strcmp(src, dst)) { /* Src and dst are same file? */
     debug(F100, "zcopy files identical: strcmp()", "", 0); /* This... */
@@ -3638,8 +3824,9 @@ int zcopy(char *source, char *destination) {
   if (isdir(dst)) { /* Destination is a directory? */
     char *q = NULL; /* Yes, add filename to it. */
     x = strlen(dst);
-    if (x < 1)
+    if (x < 1) {
       return (-1);
+    }
     if (!ISDIRSEP(*(dst + x - 1))) { /* Add separator if needed */
       tmp2[x++] = '/';
       tmp2[x] = '\0';
@@ -3652,8 +3839,9 @@ int zcopy(char *source, char *destination) {
 
 #ifdef IKSD
   if (inserver && (!ENABLED(en_del))) {
-    if (zchki(dst) > -1) /* Destination file exists? */
+    if (zchki(dst) > -1) { /* Destination file exists? */
       return (-4);
+    }
   }
 #endif /* IKSD */
 
@@ -3688,10 +3876,12 @@ int zcopy(char *source, char *destination) {
       rc = (x == 0) ? 0 : -6; /* In case of read failure */
     }
   }
-  if (in > -1)
+  if (in > -1) {
     close(in); /* Close files */
-  if (out > -1)
+  }
+  if (out > -1) {
     close(out);
+  }
   if (rc == -1) { /* Set return code */
     switch (errno) {
     case ENOENT:
@@ -3707,10 +3897,11 @@ int zcopy(char *source, char *destination) {
 
 #ifdef CKSYSLOG
   if (rc > -1 && ckxsyslog >= SYSLG_FC && ckxlogging) {
-    if (rc)
+    if (rc) {
       syslog(LOG_INFO, "file[] %s: copy to %s failed (%m)", fullname, tmp2);
-    else
+    } else {
       syslog(LOG_INFO, "file[] %s: copy to %s ok", fullname, tmp2);
+    }
   }
 #endif /* CKSYSLOG */
 
@@ -3786,10 +3977,12 @@ char *zgperm(char *f) {
   char *s = (char *)xlperms;
   struct stat buf;
   debug(F110, "zgperm", f, 0);
-  if (!f)
+  if (!f) {
     return ("----------");
-  if (!*f)
+  }
+  if (!*f) {
     return ("----------");
+  }
 
 #ifdef DTILDE            /* Built with tilde-expansion? */
   if (*f == '~') {       /* Starts with tilde? */
@@ -3799,22 +3992,24 @@ char *zgperm(char *f) {
 
 #ifdef CKROOT
   debug(F111, "zgperm setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(f)) {
       debug(F110, "zgperm setroot violation", f, 0);
       return ("----------");
     }
+  }
 #endif /* CKROOT */
 
 #ifdef USE_LSTAT
-  if (diractive)
+  if (diractive) {
     x = lstat(f, &buf);
-  else
+  } else
 #endif /* USE_LSTAT */
     x = stat(f, &buf);
   debug(F101, "STAT", "", 9);
-  if (x < 0)
+  if (x < 0) {
     return ("----------");
+  }
   sprintf(s, "%o", buf.st_mode);
   debug(F110, "zgperm", s, 0);
   return (s);
@@ -3833,10 +4028,12 @@ char *ziperm(char *f) {
 
   debug(F110, "ziperm", f, 0);
 
-  if (!f)
+  if (!f) {
     return (NULL);
-  if (!*f)
+  }
+  if (!*f) {
     return (NULL);
+  }
 
 #ifdef DTILDE            /* Built with tilde-expansion? */
   if (*f == '~') {       /* Starts with tilde? */
@@ -3848,14 +4045,15 @@ char *ziperm(char *f) {
     perms = zgfs_mode; /* zgetfs() already got them */
   } else {
 #ifdef USE_LSTAT
-    if (diractive)
+    if (diractive) {
       x = lstat(f, &buf);
-    else
+    } else
 #endif /* USE_LSTAT */
       x = stat(f, &buf);
     debug(F101, "STAT", "", 10);
-    if (x < 0)
+    if (x < 0) {
       return ("----------");
+    }
     perms = buf.st_mode;
   }
   switch (perms & S_IFMT) {
@@ -3895,14 +4093,16 @@ char *ziperm(char *f) {
     *s++ = '?';
     break;
   }
-  if (perms & S_IRUSR) /* Owner's permissions */
+  if (perms & S_IRUSR) { /* Owner's permissions */
     *s++ = 'r';
-  else
+  } else {
     *s++ = '-';
-  if (perms & S_IWUSR)
+  }
+  if (perms & S_IWUSR) {
     *s++ = 'w';
-  else
+  } else {
     *s++ = '-';
+  }
   switch (perms & (S_IXUSR | S_ISUID)) {
   case 0:
     *s++ = '-';
@@ -3917,14 +4117,16 @@ char *ziperm(char *f) {
     *s++ = 's';
     break;
   }
-  if (perms & S_IRGRP) /* Group permissions */
+  if (perms & S_IRGRP) { /* Group permissions */
     *s++ = 'r';
-  else
+  } else {
     *s++ = '-';
-  if (perms & S_IWGRP)
+  }
+  if (perms & S_IWGRP) {
     *s++ = 'w';
-  else
+  } else {
     *s++ = '-';
+  }
   switch (perms & (S_IXGRP | S_ISGID)) {
   case 0:
     *s++ = '-';
@@ -3939,14 +4141,16 @@ char *ziperm(char *f) {
     *s++ = 's';
     break;
   }
-  if (perms & S_IROTH) /* World permissions */
+  if (perms & S_IROTH) { /* World permissions */
     *s++ = 'r';
-  else
+  } else {
     *s++ = '-';
-  if (perms & S_IWOTH)
+  }
+  if (perms & S_IWOTH) {
     *s++ = 'w';
-  else
+  } else {
     *s++ = '-';
+  }
   switch (perms & (S_IXOTH | S_ISVTX)) {
   case 0:
     *s++ = '-';
@@ -3986,8 +4190,9 @@ int zsattr(struct zattr *xx) {
   struct stat buf;
 
   k = iflen % 1024; /* File length in K */
-  if (k)
+  if (k) {
     k = 1L;
+  }
   xx->lengthk = (iflen / 1024) + k;
   xx->type.len = 0; /* File type can't be filled in here */
   xx->type.val = "";
@@ -4018,8 +4223,9 @@ int zsattr(struct zattr *xx) {
   xx->gprotect.len = 0; /* Generic protection */
   xx->gprotect.val = "";
   x = -1;
-  if (*nambuf)
+  if (*nambuf) {
     x = stat(nambuf, &buf);
+  }
   debug(F101, "STAT", "", 11);
   if (x >= 0) {
     debug(F111, "zsattr buf.st_mode & 0777", nambuf, buf.st_mode & 0777);
@@ -4030,12 +4236,15 @@ int zsattr(struct zattr *xx) {
     x = 0;
 #ifdef CK_GPERMS
     /* Generic permissions only if we have stat.h symbols defined */
-    if (buf.st_mode & S_IRUSR)
+    if (buf.st_mode & S_IRUSR) {
       x |= 1; /* Read */
-    if (buf.st_mode & S_IWUSR)
+    }
+    if (buf.st_mode & S_IWUSR) {
       x |= (2 + 16); /* Write and Delete */
-    if (buf.st_mode & S_IXUSR)
+    }
+    if (buf.st_mode & S_IXUSR) {
       x |= 4; /* Execute */
+    }
     gperms[0] = tochar(x);
     gperms[1] = NUL;
     xx->gprotect.len = 1;
@@ -4071,8 +4280,9 @@ char *zdtstr(time_t timearg)
   int yy, ss;
 
   debug(F101, "zdtstr timearg", "", timearg);
-  if (timearg < 0)
+  if (timearg < 0) {
     return ("");
+  }
   time_stamp = localtime(&(timearg));
   if (!time_stamp) {
     debug(F100, "localtime returns null", "", 0);
@@ -4091,23 +4301,29 @@ char *zdtstr(time_t timearg)
   yy += 1900;
   debug(F101, "zdatstr year", "", yy);
 
-  if (time_stamp->tm_mon < 0 || time_stamp->tm_mon > 11)
+  if (time_stamp->tm_mon < 0 || time_stamp->tm_mon > 11) {
     return ("");
-  if (time_stamp->tm_mday < 0 || time_stamp->tm_mday > 31)
+  }
+  if (time_stamp->tm_mday < 0 || time_stamp->tm_mday > 31) {
     return ("");
-  if (time_stamp->tm_hour < 0 || time_stamp->tm_hour > 23)
+  }
+  if (time_stamp->tm_hour < 0 || time_stamp->tm_hour > 23) {
     return ("");
-  if (time_stamp->tm_min < 0 || time_stamp->tm_min > 59)
+  }
+  if (time_stamp->tm_min < 0 || time_stamp->tm_min > 59) {
     return ("");
+  }
   ss = time_stamp->tm_sec; /* Seconds */
-  if (ss < 0 || ss > 59)   /* Some systems give a BIG number */
+  if (ss < 0 || ss > 59) { /* Some systems give a BIG number */
     ss = 0;
+  }
   sprintf(datbuf, "%04d%02d%02d %02d:%02d:%02d", yy, time_stamp->tm_mon + 1,
           time_stamp->tm_mday, time_stamp->tm_hour, time_stamp->tm_min, ss);
   yy = (int)strlen(datbuf);
   debug(F111, "zdatstr", datbuf, yy);
-  if (yy > 17)
+  if (yy > 17) {
     datbuf[17] = '\0';
+  }
   return (datbuf);
 #endif /* TIMESTAMP */
 }
@@ -4120,28 +4336,33 @@ char *zfcdat(char *name) {
   int x;
   char *s;
 
-  if (!name)
+  if (!name) {
     return ("");
+  }
   s = name;
-  if (!*s)
+  if (!*s) {
     return ("");
+  }
 
 #ifdef CKROOT
   debug(F111, "zfcdat setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(name)) {
       debug(F110, "zfcdat setroot violation", name, 0);
       return ("");
     }
+  }
 #endif /* CKROOT */
 
 #ifdef DTILDE
   if (*s == '~') {
     s = tilde_expand(s);
-    if (!s)
+    if (!s) {
       s = "";
-    if (!*s)
+    }
+    if (!*s) {
       s = name;
+    }
   }
 #endif /* DTILDE */
 
@@ -4279,10 +4500,11 @@ time_t zstrdt(char *date, int len) {
   tzset(); /* Set timezone */
 #else
 #ifdef V7
-  if ((tz = getenv("TZ")) == NULL)
+  if ((tz = getenv("TZ")) == NULL) {
     timezone = 0; /* UTC/GMT */
-  else
+  } else {
     timezone = atoi(&tz[3]); /* Set 'timezone'. */
+  }
   timezone *= 60L;
 #endif /* V7 */
 #endif /* SVORPOSIX */
@@ -4291,8 +4513,9 @@ time_t zstrdt(char *date, int len) {
   debug(F100, "zstrdt so far so good", "", 0);
 
   s[4] = '\0';
-  for (i = 0; i < 4; i++) /* Fix the year */
+  for (i = 0; i < 4; i++) { /* Fix the year */
     s[i] = date[i];
+  }
 
   n = atoi(s);
   debug(F111, "zstrdt year", s, n);
@@ -4320,8 +4543,9 @@ time_t zstrdt(char *date, int len) {
         return (-1);
       }
       days += monthdays[n];
-      if (isleapyear && n > 2)
+      if (isleapyear && n > 2) {
         ++days;
+      }
       continue;
 
     case 6: /* DD: day */
@@ -4369,8 +4593,9 @@ time_t zstrdt(char *date, int len) {
     }
     time_stamp = localtime(&tmx);
     debug(F101, "zstrdt tmx 1", "", tmx);
-    if (!time_stamp)
+    if (!time_stamp) {
       return (-1);
+    }
 #ifdef BSD44
     { /* New to 7.0 - Works in at at least BSDI 3.1 and FreeBSD 2.2.7 */
       long zz;
@@ -4487,8 +4712,9 @@ char *zlocaltime(char *gmtstring) {
   debug(F100, "zlocaltime so far so good", "", 0);
 
   s[4] = '\0';
-  for (i = 0; i < 4; i++) /* Fix the year */
+  for (i = 0; i < 4; i++) { /* Fix the year */
     s[i] = date[i];
+  }
 
   n = atoi(s);
   debug(F111, "zlocaltime year", s, n);
@@ -4516,8 +4742,9 @@ char *zlocaltime(char *gmtstring) {
         return (NULL);
       }
       days += monthdays[n];
-      if (isleapyear && n > 2)
+      if (isleapyear && n > 2) {
         ++days;
+      }
       continue;
 
     case 6: /* DD: day */
@@ -4563,25 +4790,32 @@ char *zlocaltime(char *gmtstring) {
       representing the local time equivalent of the given UTC time.
     */
     time_stamp = localtime(&tmx);
-    if (!time_stamp)
+    if (!time_stamp) {
       return (NULL);
+    }
   }
 
   /* Now we simply reformat the struct tm to a string */
 
   x = time_stamp->tm_year;
-  if (time_stamp->tm_year < 70 || time_stamp->tm_year > 8099)
+  if (time_stamp->tm_year < 70 || time_stamp->tm_year > 8099) {
     return (NULL);
-  if (time_stamp->tm_mon < 0 || time_stamp->tm_mon > 11)
+  }
+  if (time_stamp->tm_mon < 0 || time_stamp->tm_mon > 11) {
     return (NULL);
-  if (time_stamp->tm_mday < 1 || time_stamp->tm_mday > 31)
+  }
+  if (time_stamp->tm_mday < 1 || time_stamp->tm_mday > 31) {
     return (NULL);
-  if (time_stamp->tm_hour < 0 || time_stamp->tm_hour > 24)
+  }
+  if (time_stamp->tm_hour < 0 || time_stamp->tm_hour > 24) {
     return (NULL);
-  if (time_stamp->tm_min < 0 || time_stamp->tm_min > 60)
+  }
+  if (time_stamp->tm_min < 0 || time_stamp->tm_min > 60) {
     return (NULL);
-  if (time_stamp->tm_sec < 0 || time_stamp->tm_sec > 60)
+  }
+  if (time_stamp->tm_sec < 0 || time_stamp->tm_sec > 60) {
     return (NULL);
+  }
   sprintf(zltimbuf, "%04d%02d%02d %02d:%02d:%02d", time_stamp->tm_year + 1900,
           time_stamp->tm_mon + 1, time_stamp->tm_mday, time_stamp->tm_hour,
           time_stamp->tm_min, time_stamp->tm_sec);
@@ -4655,20 +4889,24 @@ int zstime(char *f, struct zattr *yy, int x)
 
   long tm = 0L;
 
-  if (!f)
+  if (!f) {
     f = "";
-  if (!*f)
+  }
+  if (!*f) {
     return (-1);
-  if (!yy)
+  }
+  if (!yy) {
     return (-1);
+  }
 
 #ifdef CKROOT
   debug(F111, "zstime setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(f)) {
       debug(F110, "zstime setroot violation", f, 0);
       return (0);
     }
+  }
 #endif /* CKROOT */
 
   if (yy->date.len == 0) {      /* No date in struct */
@@ -4724,8 +4962,9 @@ zsperms:
       flag = 1;
       s = yy->lprotect.val; /* UNIX filemode */
       xx = yy->lprotect.len;
-      if (xx < 0) /* len < 0 means inheritance */
+      if (xx < 0) { /* len < 0 means inheritance */
         xx = 0 - xx;
+      }
       for (i = 0; i < xx; i++) { /* Decode octal string */
         if (*s <= '7' && *s >= '0') {
           x = 8 * x + (int)(*s) - '0';
@@ -4758,24 +4997,28 @@ zsperms:
       debug(F101, "zstime gprotect", "", g);
 #ifdef S_IRUSR
       debug(F100, "zstime S_IRUSR", "", 0);
-      if (g & 1)
+      if (g & 1) {
         x |= S_IRUSR; /* Read permission */
+      }
       flag = 1;
 #endif /* S_IRUSR */
 #ifdef S_IWUSR
       debug(F100, "zstime S_IWUSR", "", 0);
-      if (g & 2)
+      if (g & 2) {
         x |= S_IWUSR; /* Write permission */
-      if (g & 16)
+      }
+      if (g & 16) {
         x |= S_IWUSR; /* Delete permission */
+      }
       flag = 1;
 #endif /* S_IWUSR */
 #ifdef S_IXUSR
       debug(F100, "zstime S_IXUSR", "", 0);
-      if (g & 4) /* Has execute permission bit */
+      if (g & 4) { /* Has execute permission bit */
         x |= S_IXUSR;
-      else            /* Doesn't have it */
+      } else {        /* Doesn't have it */
         mask &= 0666; /* so also clear it out of mask */
+      }
       flag = 1;
 #endif /* S_IXUSR */
       debug(F101, "zstime mask x", "", x);
@@ -4835,8 +5078,8 @@ zsperms:
                   previous file was a directory, this would turn the new file into a
                   directory             too, but it's not, so we try to unset the right bit.
                   Luckily,             this code             will probably never be executed
-                  since the             upper level modules do             not allow             reception of a file
-                  that has             the same name as a directory.
+                  since the             upper level modules do             not allow
+                  reception of a file             that has             the same name as a directory.
             
                   NOTE 2: We change the permissions *before* we change the modification
                   time,             otherwise changing the permissions would set the mod
@@ -4855,12 +5098,14 @@ zsperms:
         debug(F101, "zstime chmod", "", x);
       }
     }
-    if (x < 0)
+    if (x < 0) {
       return (-1);
+    }
 #endif /* CK_PERMS */
 
-    if (!setdate) /* We don't have a date */
-      return (0); /* so skip the following... */
+    if (!setdate) { /* We don't have a date */
+      return (0);   /* so skip the following... */
+    }
 
     if (
 #ifdef BSD44
@@ -4923,22 +5168,26 @@ char *f;
   int n;
 
 #ifdef CK_LOGIN
-  if (isguest)
+  if (isguest) {
     return (-2);
+  }
 #endif /* CK_LOGIN */
 
-  if (!f)
+  if (!f) {
     f = "";
-  if (!*f)
+  }
+  if (!*f) {
     return (-1);
+  }
 
 #ifdef CKROOT
   debug(F111, "zmail setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(f)) {
       debug(F110, "zmail setroot violation", f, 0);
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
 #ifdef BSD4
@@ -4952,8 +5201,9 @@ char *f;
   n = strlen(f);
   n = n + n + 15 + (int)strlen(p);
 
-  if (n > ZMBUFLEN)
+  if (n > ZMBUFLEN) {
     return (-2);
+  }
 
   sprintf(zmbuf, "Mail -s %c%s%c %s < %s", '"', f, '"', p, f);
   zsyscmd(zmbuf);
@@ -4978,22 +5228,26 @@ int zprint(char *p, char *f) /* Print file f with options p */
   int n;
 
 #ifdef CK_LOGIN
-  if (isguest)
+  if (isguest) {
     return (-2);
+  }
 #endif /* CK_LOGIN */
 
-  if (!f)
+  if (!f) {
     f = "";
-  if (!*f)
+  }
+  if (!*f) {
     return (-1);
+  }
 
 #ifdef CKROOT
   debug(F111, "zprint setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(f)) {
       debug(F110, "zprint setroot violation", f, 0);
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
   debug(F110, "zprint file", f, 0);
@@ -5010,18 +5264,21 @@ int zprint(char *p, char *f) /* Print file f with options p */
   */
   if (printpipe && printername) {
     n = 8 + (int)strlen(f) + (int)strlen(printername);
-    if (n > ZMBUFLEN)
+    if (n > ZMBUFLEN) {
       return (-2);
+    }
     sprintf(zmbuf, "cat %s | %s", f, printername);
   } else if (printername) {
     n = 8 + (int)strlen(f) + (int)strlen(printername);
-    if (n > ZMBUFLEN)
+    if (n > ZMBUFLEN) {
       return (-2);
+    }
     sprintf(zmbuf, "cat %s >> %s", f, printername);
   } else {
     n = 4 + (int)strlen(PRINTCMD) + (int)strlen(p) + (int)strlen(f);
-    if (n > ZMBUFLEN)
+    if (n > ZMBUFLEN) {
       return (-2);
+    }
     sprintf(zmbuf, "%s %s < %s", PRINTCMD, p, f);
   }
   debug(F110, "zprint command", zmbuf, 0);
@@ -5057,8 +5314,9 @@ int shxpand(char *pat, char *namlst[], int len) {
   }
   oldmtchs = 0;      /* Remember there are no matches */
   fgbuf = malloc(x); /* Get buffer for command */
-  if (!fgbuf)
-    return (-1);                             /* Fail if cannot */
+  if (!fgbuf) {
+    return (-1); /* Fail if cannot */
+  }
   ckmakmsg(fgbuf, x, lscmd, " ", pat, NULL); /* Form the command */
   zxcmd(ZIFILE, fgbuf);                      /* Start the command */
   i = 0;                                     /* File counter */
@@ -5069,23 +5327,28 @@ int shxpand(char *pat, char *namlst[], int len) {
     if (c == ' ' || c == '\n') { /* Got newline or space? */
       *p = '\0';                 /* Yes, terminate string */
       p = scratch;               /* Point back to beginning */
-      if (zchki(p) == -1)        /* Does file exist? */
+      if (zchki(p) == -1) {      /* Does file exist? */
         continue;                /* No, continue */
-      itsadir = isdir(p);        /* Yes, is it a directory? */
-      if (xdironly && !itsadir)  /* Want only dirs but this isn't */
+      }
+      itsadir = isdir(p);         /* Yes, is it a directory? */
+      if (xdironly && !itsadir) { /* Want only dirs but this isn't */
+        continue;                 /* so skip. */
+      }
+      if (xfilonly && itsadir) { /* It's a dir but want only files */
         continue;                /* so skip. */
-      if (xfilonly && itsadir)   /* It's a dir but want only files */
-        continue;                /* so skip. */
-      x = (int)strlen(p);        /* Keep - get length of name */
-      q = malloc(x + 1);         /* Allocate space for it */
-      if (!q)
-        goto shxfin;      /* Fail if space can't be obtained */
+      }
+      x = (int)strlen(p); /* Keep - get length of name */
+      q = malloc(x + 1);  /* Allocate space for it */
+      if (!q) {
+        goto shxfin; /* Fail if space can't be obtained */
+      }
       strcpy(q, scratch); /* (safe) Copy name to space */
       namlst[i++] = q;    /* Copy pointer to name into array */
-      if (i >= len)
+      if (i >= len) {
         goto shxfin; /* Fail if too many */
-    } else {         /* Regular character */
-      *p++ = c;      /* Copy it into scratch area */
+      }
+    } else {    /* Regular character */
+      *p++ = c; /* Copy it into scratch area */
     }
   }
   retcode = i; /* Return number of matching files */
@@ -5130,16 +5393,19 @@ static struct path *splitpath(char *p) {
   debug(F111, "splitpath", p, xrecursive);
   head = prv = NULL;
 
-  if (!p)
+  if (!p) {
     return (NULL);
-  if (!*p)
+  }
+  if (!*p) {
     return (NULL);
+  }
 
   if (!strcmp(p, "**")) { /* Fix this */
     p = "*";
   }
-  if (ISDIRSEP(*p))
+  if (ISDIRSEP(*p)) {
     p++; /* Skip leading slash if any */
+  }
 
   /* Make linked list of path segments from pattern */
 
@@ -5152,10 +5418,11 @@ static struct path *splitpath(char *p) {
       return ((struct path *)NULL);
     }
     cur->fwd = NULL;
-    if (head == NULL) /* First, make list head */
+    if (head == NULL) { /* First, make list head */
       head = cur;
-    else /* Not first, link into chain */
+    } else { /* Not first, link into chain */
       prv->fwd = cur;
+    }
     prv = cur; /* Link from previous to this one */
 
     /* General case (UNIX) */
@@ -5164,11 +5431,14 @@ static struct path *splitpath(char *p) {
     }
 
     cur->npart[i] = '\0'; /* End this path segment */
-    if (i >= CKMAXNAM)
-      while (!ISDIRSEP(*p) && *p != '\0')
+    if (i >= CKMAXNAM) {
+      while (!ISDIRSEP(*p) && *p != '\0') {
         p++;
-    if (ISDIRSEP(*p))
+      }
+    }
+    if (ISDIRSEP(*p)) {
       p++;
+    }
   }
   if (prv) {
     makestr(&xpatlast, prv->npart);
@@ -5220,29 +5490,34 @@ static int fgen(char *pat, char *resarry[], int len) {
   xleafwild = 0;
   xpatabsolute = 0;
 
-  if (!(head = splitpath(pat))) /* Make the path segment list */
+  if (!(head = splitpath(pat))) { /* Make the path segment list */
     return (-1);
+  }
 
   sptr = scratch;
 
-  if (!ISDIRSEP(*pat)) /* If name is not absolute */
-    *sptr++ = '.';     /* put "./" in front. */
+  if (!ISDIRSEP(*pat)) { /* If name is not absolute */
+    *sptr++ = '.';       /* put "./" in front. */
+  }
   *sptr++ = DIRSEP;
   *sptr = '\0';
 
   makestr(&xpat, pat); /* Save copy of original pattern */
   debug(F110, "fgen scratch", scratch, 0);
 
-  for (n = 0, s = xpat; *s; s++) /* How many slashes in the pattern */
-    if (*s == DIRSEP)            /* since these are fences for */
-      n++;                       /* pattern matching */
+  for (n = 0, s = xpat; *s; s++) { /* How many slashes in the pattern */
+    if (*s == DIRSEP) {            /* since these are fences for */
+      n++;                         /* pattern matching */
+    }
+  }
   xpatslash = n;
   debug(F101, "fgen xpatslash", "", xpatslash);
 
   numfnd = 0; /* None found yet */
 
-  if (initspace(resarry, ssplen) < 0)
+  if (initspace(resarry, ssplen) < 0) {
     return (-1);
+  }
 
   xpatwild = iswild(xpat); /* Original pattern is wild? */
   xpatabsolute = isabsolute(xpat);
@@ -5355,8 +5630,9 @@ static void traverse(struct path *pl, char *sofar, char *endcur) {
     if (xrecursive || xfilonly || xdironly || xpatslash) {
       itsadir = xisdir(sofar);
       debug(F101, "STAT", "", 17);
-    } else
+    } else {
       itsadir = (strncmp(sofar, "./", 2) == 0);
+    }
   } else {
     itsadir = xisdir(sofar);
     debug(F101, "STAT", "", 18);
@@ -5384,17 +5660,21 @@ static void traverse(struct path *pl, char *sofar, char *endcur) {
 #endif /* USE_LSTAT */
 #endif /* CKSYMLINK */
 
-  if (!xmatchdot && xpatlast[0] == '.')
+  if (!xmatchdot && xpatlast[0] == '.') {
     xmatchdot = 1;
-  if (!xmatchdot && xpat[0] == '.' && xpat[1] != '/' && xpat[1] != '.')
+  }
+  if (!xmatchdot && xpat[0] == '.' && xpat[1] != '/' && xpat[1] != '.') {
     xmatchdot = 1;
+  }
 
   /* ckmatch() options */
 
-  if (xmatchdot)
+  if (xmatchdot) {
     mopts |= 1; /* Match dot */
-  if (!xrecursive)
+  }
+  if (!xrecursive) {
     mopts |= 2; /* Dirsep is fence */
+  }
 
   debug(F111, "traverse entry xpat", xpat, xpatslash);
   debug(F111, "traverse entry xpatlast", xpatlast, xmatchdot);
@@ -5424,9 +5704,9 @@ static void traverse(struct path *pl, char *sofar, char *endcur) {
 #ifndef NOSKIPMATCH
     /* This speeds things up a bit. */
     /* If it causes trouble define NOSKIPMATCH and rebuild. */
-    if (xpat[0] == '*' && !xpat[1])
+    if (xpat[0] == '*' && !xpat[1]) {
       x = xmatchdot ? 1 : (s[0] != '.');
-    else
+    } else
 #endif                                /* NOSKIPMATCH */
       x = ckmatch(xpat, s, 1, mopts); /* Match with original pattern */
     debug(F111, "traverse xpatslash ckmatch", s, x);
@@ -5447,11 +5727,12 @@ static void traverse(struct path *pl, char *sofar, char *endcur) {
   debug(F111, "traverse itswild ", pl->npart, itswild);
 
 #ifdef RECURSIVE
-  if (xrecursive > 0) {                  /* If recursing and... */
-    if (segisdir && itswild)             /* this is a dir and npart is wild */
-      goto blah;                         /* or... */
-    else if (!xpatabsolute && !xpatwild) /* search object is nonwild */
-      goto blah;                         /* then go recurse */
+  if (xrecursive > 0) {        /* If recursing and... */
+    if (segisdir && itswild) { /* this is a dir and npart is wild */
+      goto blah;               /* or... */
+    } else if (!xpatabsolute && !xpatwild) { /* search object is nonwild */
+      goto blah;                             /* then go recurse */
+    }
   }
 #endif /* RECURSIVE */
 
@@ -5493,8 +5774,9 @@ static void traverse(struct path *pl, char *sofar, char *endcur) {
   *endcur = '\0'; /* End current string */
   debug(F111, "traverse sofar 3", sofar, 0);
 
-  if (!itsadir)
+  if (!itsadir) {
     return;
+  }
 
   /* Search is recursive or ... */
   /* path segment contains wildcards, have to open and search directory. */
@@ -5539,8 +5821,9 @@ blah:
 #endif /* unos */
     )
       exists = 1;
-    if (!exists)
+    if (!exists) {
       continue;
+    }
 
     ckstrncpy(nambuf, /* Copy the name */
               dirbuf->d_name, CKMAXNAM);
@@ -5565,8 +5848,9 @@ blah:
       the name only.
     */
     /* Do this first to save pointless function calls */
-    if (nambuf[0] == '.' && !xmatchdot) /* Dir name starts with '.' */
+    if (nambuf[0] == '.' && !xmatchdot) { /* Dir name starts with '.' */
       continue;
+    }
     if (stathack) {
       if (xrecursive || xfilonly || xdironly || xpatslash) {
         itsadir = xisdir(sofar); /* See if it's a directory */
@@ -5605,8 +5889,9 @@ blah:
       debug(F110, "traverse add: recursive && isdir && segisdir or match",
             sofar, segisdir);
       addresult(sofar, itsadir);
-      if (numfnd < 0)
+      if (numfnd < 0) {
         return;
+      }
     }
 #endif /* RECURSIVE */
 
@@ -5636,27 +5921,32 @@ blah:
         debug(F110, "traverse mresult s1 kludge", s1, 0);
       }
 
-      if (xrecursive && xpatslash == 0)
+      if (xrecursive && xpatslash == 0) {
         s2 = nambuf;
-      while ((s1[0] == '.') && (s1[1] == '/')) /* Strip "./" */
+      }
+      while ((s1[0] == '.') && (s1[1] == '/')) { /* Strip "./" */
         s1 += 2;
-      while ((s2[0] == '.') && (s2[1] == '/')) /* Ditto */
+      }
+      while ((s2[0] == '.') && (s2[1] == '/')) { /* Ditto */
         s2 += 2;
+      }
       opts = mopts;       /* Match options */
-      if (itsadir)        /* Current segment is a directory */
+      if (itsadir) {      /* Current segment is a directory */
         opts = mopts & 1; /* No fences */
-      s3 = s2;            /* Get segment depth */
+      }
+      s3 = s2; /* Get segment depth */
       depth = 0;
       while (*s3) {
-        if (*s3++ == '/')
+        if (*s3++ == '/') {
           depth++;
+        }
       }
 #ifndef NOSKIPMATCH
       /* This speeds things up a bit. */
       /* If it causes trouble define NOSKIPMATCH and rebuild. */
-      if (depth == 0 && (s1[0] == '*') && !s1[1])
+      if (depth == 0 && (s1[0] == '*') && !s1[1]) {
         mresult = xmatchdot ? 1 : (s2[0] != '.');
-      else
+      } else
 #endif                                      /* NOSKIPMATCH */
         mresult = ckmatch(s1, s2, 1, opts); /* Match */
     }
@@ -5678,19 +5968,21 @@ blah:
                         The problem here is that segisdir is apparently not set
                         appropriately.             If I leave in the !segisdir test, then
                         "dir             /recursive blah" (where blah is             a
-                        directory name)             misses some             regular files because
-                        sometimes segisdir             is             set and sometimes it's             not.  But
-                        if I comment it out, then             "dir             <star>/<star>.txt lists
-                        every file in * and does not even open up             the             subdirectories.
-                        However, "dir /rec             <star>/<star>.txt" works right.
+                        directory name)             misses some             regular files
+                        because             sometimes segisdir             is             set and
+                        sometimes it's             not.  But             if I comment it out, then             "dir
+                        <star>/<star>.txt lists             every file in * and does not even open up
+                        the             subdirectories.             However, "dir /rec
+                        <star>/<star>.txt" works right.
                       */
           mresult &&  /* Matched */
           !itsadir && /* sofar is not a directory */
           ((!xrecursive && !segisdir) || xrecursive)) {
         debug(F110, "traverse add: match && !itsadir", sofar, 0);
         addresult(sofar, itsadir);
-        if (numfnd < 0)
+        if (numfnd < 0) {
           return;
+        }
       } else if (itsadir && (xrecursive || mresult)) {
         struct path *xx = NULL;
         *eos++ = DIRSEP; /* Add directory separator */
@@ -5735,11 +6027,13 @@ static void addresult(char *str, int itsadir) {
     debug(F100, "addresult string space not init'd", "", 0);
     initspace(mtchs, ssplen);
   }
-  if (!str)
+  if (!str) {
     str = "";
+  }
   debug(F111, "addresult", str, itsadir);
-  if (!*str)
+  if (!*str) {
     return;
+  }
 
   if (itsadir < 0) {
     itsadir = xisdir(str);
@@ -5748,8 +6042,9 @@ static void addresult(char *str, int itsadir) {
     debug(F111, "addresult skip", str, itsadir);
     return;
   }
-  while (str[0] == '.' && ISDIRSEP(str[1])) /* Strip all "./" from front */
+  while (str[0] == '.' && ISDIRSEP(str[1])) { /* Strip all "./" from front */
     str += 2;
+  }
   if (--remlen < 0) { /* Elements left in array of names */
     debug(F111, "addresult ARRAY FULL", str, numfnd);
     numfnd = -1;
@@ -5758,8 +6053,9 @@ static void addresult(char *str, int itsadir) {
   len = (int)strlen(str); /* Space this will use */
   debug(F111, "addresult len", str, len);
 
-  if (len < 1)
+  if (len < 1) {
     return;
+  }
 
   if ((freeptr + len + itsadir + 1) > (sspace + ssplen)) {
     debug(F111, "addresult OUT OF SPACE", str, numfnd);
@@ -5825,13 +6121,15 @@ char *whoami() {
 
   debug(F111, "whoami ruid A", realname, ruid);
 
-  if (ruid != -1)
+  if (ruid != -1) {
     return (realname);
+  }
 
   ruid = real_uid(); /* get our uid */
   debug(F101, "whoami ruid B", "", ruid);
-  if (ruid < 0)
+  if (ruid < 0) {
     ruid = getuid();
+  }
   debug(F101, "whoami ruid C", "", ruid);
 
   /* how about $USER or $LOGNAME? */
@@ -5852,9 +6150,11 @@ char *whoami() {
   if ((c = getlogin()) != NULL) { /* name from utmp file */
     ckstrncpy(loginname, c, UIDBUFLEN);
     debug(F110, "whoami loginname", loginname, 0);
-    if ((p = getpwnam(loginname)) != NULL)       /* get passwd entry */
-      if (p->pw_uid == ruid)                     /* for loginname */
+    if ((p = getpwnam(loginname)) != NULL) {     /* get passwd entry */
+      if (p->pw_uid == ruid) {                   /* for loginname */
         ckstrncpy(realname, envname, UIDBUFLEN); /* if uid's are same */
+      }
+    }
   }
 
   /* Use first name we get for ruid */
@@ -5896,18 +6196,20 @@ char *tilde_expand(char *dirname) {
   } else {
     debug(F110, "tilde_expand working...", "", 0);
     j = (int)strlen(dirname);
-    for (i = 0; i < j; i++) /* find username part of string */
-      if (!ISDIRSEP(dirname[i]))
+    for (i = 0; i < j; i++) { /* find username part of string */
+      if (!ISDIRSEP(dirname[i])) {
         temp[i] = dirname[i];
-      else
+      } else {
         break;
+      }
+    }
     temp[i] = '\0'; /* tie off with a NULL */
     debug(F111, "tilde_expand first part", temp, i);
     if (i == 1) { /* if just a "~" */
 #ifdef IKSD
-      if (inserver)
+      if (inserver) {
         user = getpwnam(uidbuf); /* Get info on current user */
-      else
+      } else
 #endif /* IKSD */
       {
         char *p = whoami();
@@ -5952,11 +6254,13 @@ int zsyscmd(char *s) {
   PID_T shpid;
   int status;
 
-  if (nopush)
+  if (nopush) {
     return (-1);
+  }
   if ((shpid = fork())) {
-    if (shpid < (PID_T)0)
+    if (shpid < (PID_T)0) {
       return (-1); /* Parent */
+    }
     while (shpid != (PID_T)wait(&status))
       ;
     return (status);
@@ -5999,8 +6303,9 @@ void z_exec(char *p, char **s, int t) {
   }
   restorsigs(); /* Restore ignored signals */
   x = execvp(p, s);
-  if (x < 0)
+  if (x < 0) {
     debug(F101, "z_exec errno", "", errno);
+  }
 #endif /* NOZEXEC */
 }
 
@@ -6023,12 +6328,15 @@ int zshcmd(char *s) {
 #ifdef NOPUSH
   return (0);
 #else
-  if (nopush)
+  if (nopush) {
     return (-1);
-  if (!s)
+  }
+  if (!s) {
     return (-1);
-  while (*s == ' ')
+  }
+  while (*s == ' ') {
     s++;
+  }
 
   debug(F110, "zshcmd command", s, 0);
 
@@ -6036,8 +6344,9 @@ int zshcmd(char *s) {
     char *shpath, *shname, *shptr; /* For finding desired shell */
     struct passwd *p;
     char *defshell = "/bin/sh";
-    if (priv_can())
+    if (priv_can()) {
       exit(1); /* Turn off privs. */
+    }
     /* New way lets user override with SHELL variable, but does not rely on it.
      */
     /* This allows user to specify a different shell. */
@@ -6062,9 +6371,11 @@ int zshcmd(char *s) {
       }
     }
     shptr = shname = shpath;
-    while (*shptr != '\0')
-      if (*shptr++ == DIRSEP)
+    while (*shptr != '\0') {
+      if (*shptr++ == DIRSEP) {
         shname = shptr;
+      }
+    }
     restorsigs(); /* Restore ignored signals */
     debug(F110, "zshcmd execl shpath", shpath, 0);
     debug(F110, "zshcmd execl shname", shname, 0);
@@ -6087,8 +6398,9 @@ int zshcmd(char *s) {
 #endif /* CK_CHILD */
     void (*istat)(int), (*qstat)(int);
 
-    if (pid == (PID_T)-1)
+    if (pid == (PID_T)-1) {
       return (-1); /* fork() failed? */
+    }
 
     istat = ck_signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */
     qstat = ck_signal(SIGQUIT, SIG_IGN); /* interrupts itself... */
@@ -6124,16 +6436,20 @@ int iswild(char *filespec) {
   char c, *p, *f;
   int x;
   int quo = 0;
-  if (!filespec) /* Safety */
+  if (!filespec) { /* Safety */
     return (0);
-  if (!wildena) /* Wildcards disabled - 12 Jun 2005 */
+  }
+  if (!wildena) { /* Wildcards disabled - 12 Jun 2005 */
     return (0);
+  }
   f = filespec;
   if (wildxpand) { /* Shell handles wildcarding */
-    if ((x = nzxpand(filespec, 0)) > 1)
+    if ((x = nzxpand(filespec, 0)) > 1) {
       return (1);
-    if (x == 0)
+    }
+    if (x == 0) {
       return (0); /* File does not exist */
+    }
     p = malloc(CKMAXNAM + 20);
     znext(p);
     x = (strcmp(filespec, p) != 0);
@@ -6195,8 +6511,9 @@ int isalink(char *s) {
 #else
   int r = 0;
   char filbuf[CKMAXPATH + 4];
-  if (readlink(s, filbuf, CKMAXPATH) > -1)
+  if (readlink(s, filbuf, CKMAXPATH) > -1) {
     r = 1;
+  }
   debug(F110, "isalink readlink", s, r);
   return (r);
 #endif /* CKSYMLINK */
@@ -6207,19 +6524,22 @@ int isdir(char *s) {
   struct stat statbuf;
   char fnam[CKMAXPATH + 4];
 
-  if (!s)
+  if (!s) {
     return (0);
+  }
   debug(F110, "isdir entry", s, 0);
 #ifdef DTILDE            /* 2005-08-13 */
   if (*s == '~') {       /* Starts with tilde? */
     s = tilde_expand(s); /* Attempt to expand tilde */
-    if (!s)
+    if (!s) {
       s = "";
+    }
     debug(F110, "isdir tilde_expand", s, 0);
   }
 #endif /* DTILDE */
-  if (!*s)
+  if (!*s) {
     return (0);
+  }
 
 #ifdef ISDIRCACHE
   if (prevstat > -1) {
@@ -6255,8 +6575,9 @@ int isdir(char *s) {
 #endif /* S_ISLNK */
 #endif /* NOLINKBITS */
     if (needrlink) {
-      if (readlink(s, fnam, CKMAXPATH) > -1)
+      if (readlink(s, fnam, CKMAXPATH) > -1) {
         islink = 1;
+      }
     }
   }
 #else
@@ -6297,32 +6618,38 @@ int zmkdir(char *path) {
   char *xp, *tp, c;
   int x, count = 0;
 
-  if (!path)
+  if (!path) {
     path = "";
-  if (!*path)
+  }
+  if (!*path) {
     return (-1);
+  }
 
 #ifdef CKROOT
   debug(F111, "zmkdir setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(path)) {
       debug(F110, "zmkdir setroot violation", path, 0);
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
   x = strlen(path);
   debug(F111, "zmkdir", path, x);
-  if (x < 1 || x > MAXPATH) /* Check length */
+  if (x < 1 || x > MAXPATH) { /* Check length */
     return (-1);
-  if (!(tp = malloc(x + 1))) /* Make a temporary copy */
+  }
+  if (!(tp = malloc(x + 1))) { /* Make a temporary copy */
     return (-1);
+  }
   strcpy(tp, path); /* safe (prechecked) */
 #ifdef DTILDE
   if (*tp == '~') {        /* Starts with tilde? */
     xp = tilde_expand(tp); /* Attempt to expand tilde */
-    if (!xp)
+    if (!xp) {
       xp = "";
+    }
     if (*xp) {
       char *zp;
       debug(F110, "zmkdir tilde_expand", xp, 0);
@@ -6339,20 +6666,23 @@ int zmkdir(char *path) {
 #endif /* DTILDE */
   debug(F110, "zmkdir tp after tilde_expansion", tp, 0);
   xp = tp;
-  if (ISDIRSEP(*xp)) /* Don't create root directory! */
+  if (ISDIRSEP(*xp)) { /* Don't create root directory! */
     xp++;
+  }
 
   /* Go thru filespec from left to right... */
 
-  for (; *xp; xp++) {   /* Create parts that don't exist */
-    if (!ISDIRSEP(*xp)) /* Find next directory separator */
+  for (; *xp; xp++) {     /* Create parts that don't exist */
+    if (!ISDIRSEP(*xp)) { /* Find next directory separator */
       continue;
+    }
     c = *xp;          /* Got one. */
     *xp = NUL;        /* Make this the end of the string. */
     if (!isdir(tp)) { /* This directory exists already? */
 #ifdef CK_LOGIN
-      if (isguest) /* Not allowed for guests */
+      if (isguest) { /* Not allowed for guests */
         return (-1);
+      }
 #ifndef NOXFER
       /* Nor if MKDIR and/or CD are disabled */
       else
@@ -6379,8 +6709,9 @@ int zmkdir(char *path) {
         free(tp); /* Free temporary buffer. */
         tp = NULL;
         return (-1); /* Return failure code. */
-      } else
+      } else {
         count++;
+      }
     }
     *xp = c; /* Replace the separator. */
   }
@@ -6391,22 +6722,26 @@ int zmkdir(char *path) {
 
 int zrmdir(char *path) {
 #ifdef CK_LOGIN
-  if (isguest)
+  if (isguest) {
     return (-1);
+  }
 #endif /* CK_LOGIN */
 
-  if (!path)
+  if (!path) {
     path = "";
-  if (!*path)
+  }
+  if (!*path) {
     return (-1);
+  }
 
 #ifdef CKROOT
   debug(F111, "zrmdir setroot", ckroot, ckrootset);
-  if (ckrootset)
+  if (ckrootset) {
     if (!zinroot(path)) {
       debug(F110, "zrmdir setroot violation", path, 0);
       return (-1);
     }
+  }
 #endif /* CKROOT */
 
 #ifndef NOMKDIR
@@ -6460,12 +6795,15 @@ struct zfnfp *zfnqfp(char *fname, int buflen, char *buf) {
   int itsadir = 0;
 
   s = fname;
-  if (!s)
+  if (!s) {
     return (NULL);
-  if (!*s)
+  }
+  if (!*s) {
     return (NULL);
-  if (!buf)
+  }
+  if (!buf) {
     return (NULL);
+  }
 
   /* Initialize the data structure */
 
@@ -6480,10 +6818,12 @@ struct zfnfp *zfnqfp(char *fname, int buflen, char *buf) {
     char *xp;
     xp = tilde_expand(s);            /* Attempt to expand tilde */
     debug(F110, "zfnqfp xp", xp, 0); /* (realpath() doesn't do this) */
-    if (!xp)
+    if (!xp) {
       xp = "";
-    if (*xp)
+    }
+    if (*xp) {
       s = xp;
+    }
   }
 #endif /* DTILDE */
 
@@ -6536,13 +6876,16 @@ norealpath:
     debug(F110, "zfnqfp while *s", s, 0);
     if (*s == '.' && *(s + 1) == '/') {
       s += 2;
-      while (*s == '/')
+      while (*s == '/') {
         s++;
-    } else
+      }
+    } else {
       break;
+    }
   }
-  if (!*s)
+  if (!*s) {
     return (NULL);
+  }
   if (*s == '/') { /* Pathname is absolute */
     ckstrncpy(buf, s, len);
     x = strlen(buf);
@@ -6554,9 +6897,10 @@ norealpath:
       x = ckstrncpy(buf, p, len);
       buf[x++] = '/';
       debug(F110, "zfnqfp buf 1", buf, 0);
-      len -= x;                       /* How much room left in buffer */
-      if ((y = (int)strlen(s)) > len) /* If enough room... */
+      len -= x;                         /* How much room left in buffer */
+      if ((y = (int)strlen(s)) > len) { /* If enough room... */
         return (NULL);
+      }
       ckstrncpy(buf + x, s, len); /* ... append the filename */
       debug(F110, "zfnqfp buf 2", buf, 0);
     } else {
@@ -6587,8 +6931,9 @@ norealpath:
       for (k = 0; k < 4; k++) {
         sb[k] = buf[x + k];
         sb[k + 1] = '\0';
-        if (!sb[k])
+        if (!sb[k]) {
           break;
+        }
       }
       if (!strncmp(sb, "/./", 3)) { /* Eliminate "./" in "/./" */
         x += 1;
@@ -6613,8 +6958,9 @@ norealpath:
     }
     tmp[i++] = buf[x]; /* Regular character, copy */
     tmp[i] = NUL;
-    if (buf[x] == '/') /* Remember rightmost "/" */
+    if (buf[x] == '/') { /* Remember rightmost "/" */
       j = i;
+    }
   }
   ckstrncpy(buf, tmp, buflen - 1); /* Copy the result back */
 
@@ -6656,12 +7002,15 @@ int zcmpfn(char *s1, char *s2) {
 #endif /* USE_LSTAT */
   int x, rc = 0;
 
-  if (!s1)
+  if (!s1) {
     s1 = "";
-  if (!s2)
+  }
+  if (!s2) {
     s2 = "";
-  if (!*s1 || !*s2)
+  }
+  if (!*s1 || !*s2) {
     return (0);
+  }
 
 #ifdef CKSYMLINK /* We're doing symlinks? */
 #ifdef USE_LSTAT /* OK to use lstat()? */
@@ -6711,8 +7060,9 @@ int zcmpfn(char *s1, char *s2) {
     if (zfnqfp(s2, CKMAXPATH, buf2)) {
       debug(F110, "zcmpfn s1", buf1, 0);
       debug(F110, "zcmpfn s2", buf2, 0);
-      if (!strncmp(buf1, buf2, CKMAXPATH))
+      if (!strncmp(buf1, buf2, CKMAXPATH)) {
         rc = 1;
+      }
     }
   }
   debug(F101, "zcmpfn result", "", rc);
@@ -6726,15 +7076,19 @@ int zcmpfn(char *s1, char *s2) {
 int zsetroot(char *s) /* Sets the root */
 {
   char buf[CKMAXPATH + 1];
-  if (!s)
+  if (!s) {
     return (-1);
-  if (!*s)
+  }
+  if (!*s) {
     return (-1);
+  }
   debug(F110, "zsetroot", s, 0);
-  if (!isdir(s))
+  if (!isdir(s)) {
     return (-2);
-  if (!zfnqfp(s, CKMAXPATH, buf)) /* Get full, real path */
+  }
+  if (!zfnqfp(s, CKMAXPATH, buf)) { /* Get full, real path */
     return (-3);
+  }
   if (access(buf, R_OK) < 0) { /* Check access */
     debug(F110, "zsetroot access denied", buf, 0);
     return (-4);
@@ -6746,8 +7100,9 @@ int zsetroot(char *s) /* Sets the root */
       return (-5);
     }
   }
-  if (zchdir(buf) < 1)
+  if (zchdir(buf) < 1) {
     return (-4); /* Change directory to new root */
+  }
   ckrootset = ckstrncpy(ckroot, buf, CKMAXPATH); /* Now set the new root */
   if (ckroot[ckrootset - 1] != '/') {
     ckroot[ckrootset++] = '/';
@@ -6760,8 +7115,9 @@ int zsetroot(char *s) /* Sets the root */
 
 char *zgetroot(void) /* Returns the root */
 {
-  if (!ckrootset)
+  if (!ckrootset) {
     return (NULL);
+  }
   return ((char *)ckroot);
 }
 
@@ -6772,12 +7128,14 @@ int zinroot(char *s) /* Checks if file s is in the root */
   char buf[CKMAXPATH + 2];
 
   debug(F111, "zinroot setroot", ckroot, ckrootset);
-  ckrooterr = 0;                        /* Reset global error flag */
-  if (!ckrootset)                       /* Root not set */
-    return (1);                         /* so it's ok - no need to check */
-  if (!(f = zfnqfp(s, CKMAXPATH, buf))) /* Get full and real pathname */
-    return (0);                         /* Fail if we can't  */
-  n = f->len;                           /* Length of full pathname */
+  ckrooterr = 0;    /* Reset global error flag */
+  if (!ckrootset) { /* Root not set */
+    return (1);     /* so it's ok - no need to check */
+  }
+  if (!(f = zfnqfp(s, CKMAXPATH, buf))) { /* Get full and real pathname */
+    return (0);                           /* Fail if we can't  */
+  }
+  n = f->len; /* Length of full pathname */
   debug(F111, "zinroot n", buf, n);
   if (n < (ckrootset - 1) || n > CKMAXPATH) { /* Bad length */
     ckrooterr = 1;                            /* Fail */
@@ -6789,8 +7147,9 @@ int zinroot(char *s) /* Checks if file s is in the root */
   }
   x = strncmp(buf, ckroot, ckrootset); /* Compare, case-sensitive */
   debug(F111, "zinroot checked", buf, x);
-  if (x == 0) /* OK */
+  if (x == 0) { /* OK */
     return (1);
+  }
   ckrooterr = 1; /* Not OK */
   return (0);
 }
@@ -6845,8 +7204,9 @@ struct passwd *sgetpwnam(char *name) {
 
   p = getpwnam(name);
   /* debug(F111,"sgetpwnam","getpwnam()",p); */
-  if (p == NULL)
+  if (p == NULL) {
     return (NULL);
+  }
   if (save.pw_name) {
     free(save.pw_name);
     free(save.pw_passwd);
@@ -6925,8 +7285,9 @@ int zvuser(char *name) {
 
   debug(F111, "user", name, logged_in);
 
-  if (!name)
+  if (!name) {
     name = "";
+  }
   zvuname[0] = NUL;
 
   debug(F101, "zvuser ckxsyslog", "", ckxsyslog);
@@ -6935,8 +7296,9 @@ int zvuser(char *name) {
   debug(F100, "zvuser CKSYSLOG defined", "", 0);
 #endif /* CKSYSLOG */
 
-  if (logged_in) /* Should not be called if logged in */
+  if (logged_in) { /* Should not be called if logged in */
     return (0);
+  }
 
 #ifdef CKSYSLOG
   if (ckxsyslog && ckxlogging) {
@@ -6997,16 +7359,19 @@ int zvuser(char *name) {
     */
     debug(F100, "zvuser sgetpwnam ok", "", 0);
     shell = pw->pw_shell;
-    if (!shell)
+    if (!shell) {
       shell = "";
-    if (!*shell)
+    }
+    if (!*shell) {
       shell = _PATH_BSHELL;
+    }
     debug(F110, "zvuser shell", shell, 0);
 #ifdef GETUSERSHELL
     while ((cp = getusershell()) != NULL) {
       debug(F110, "zvuser getusershell", cp, 0);
-      if ((int)strcmp(cp, shell) == 0)
+      if ((int)strcmp(cp, shell) == 0) {
         break;
+      }
     }
     debug(F100, "zvuser endusershell 1", "", 0);
 #ifndef NODCLENDUSERSHELL
@@ -7081,10 +7446,12 @@ int zvuser(char *name) {
            *kdata.pinst ? "." : "", kdata.pinst, kdata.prealm,
            (kerb_ok = kuserok(&kdata, name) == 0) ? "" : " not", name,
            kerb_ok ? "" : "; Password required.");
-    if (kerb_ok)
+    if (kerb_ok) {
       return (1);
-  } else
+    }
+  } else {
     return (0);
+  }
 #endif /* FTP_KERBEROS */
 }
 
@@ -7096,12 +7463,14 @@ static int checkuser(char *name) {
   int i;
   char line[CKXLOGBSIZ + 1];
 
-  if (!name)
+  if (!name) {
     name = "";
+  }
   i = strlen(name);
   debug(F111, "checkuser name", name, i);
-  if (!*name)
+  if (!*name) {
     return (1);
+  }
 
   fd = fopen(userfile ? userfile : _PATH_FTPUSERS, "r");
   /* debug(F111,"checkuser userfile",userfile,fd); */
@@ -7109,8 +7478,9 @@ static int checkuser(char *name) {
     line[0] = '\0';
     while (fgets(line, sizeof(line), fd)) {
       debug(F110, "checkuser line", line, 0);
-      if (line[0] <= '#')
+      if (line[0] <= '#') {
         continue;
+      }
       if (strncmp(line, name, i) == 0) {
         debug(F110, "checkuser REFUSED", name, 0);
         return (1);
@@ -7133,8 +7503,9 @@ void zvlogout() {
 #endif /* CKSYSLOG */
 #ifdef CKWTMP
   debug(F110, "WTMP logout", cksysline, logged_in);
-  if (logged_in)
+  if (logged_in) {
     logwtmp(cksysline, "", "");
+  }
 #endif /* CKWTMP */
   pw = NULL;
   logged_in = 0;
@@ -7153,8 +7524,9 @@ kpass(name, p) char *name, *p;
   unsigned long faddr;
   struct hostent *hp;
 
-  if (krb_get_lrealm(realm, 1) != KSUCCESS)
+  if (krb_get_lrealm(realm, 1) != KSUCCESS) {
     return (0);
+  }
 
   ckstrncpy(tkt_file, TKT_ROOT, 20);
   ckstrncat(tkt_file, "_ftpdXXXXXX", 20);
@@ -7162,8 +7534,9 @@ kpass(name, p) char *name, *p;
 
   (void)ckstrncpy(instance, krb_get_phost(hostname), sizeof(instance));
 
-  if ((hp = gethostbyname(instance)) == NULL)
+  if ((hp = gethostbyname(instance)) == NULL) {
     return (0);
+  }
 
 #ifdef HADDRLIST
   hp = ck_copyhostent(hp); /* safe copy that won't change */
@@ -7232,8 +7605,9 @@ zvpass( char *p )
     return (0);
   }
   debug(F111, "zvpass", p ? (guest ? p : "xxxxxx") : "(null)", guest);
-  if (!p)
+  if (!p) {
     p = "";
+  }
   askpasswd = 0;
   if (guest && !*p) { /* Guests must specify a password */
 #ifdef CKSYSLOG
@@ -7298,10 +7672,11 @@ zvpass( char *p )
     debug(F110, "zvpass", "PAM validates OK", 0);
     pam_end(pamh, 0);
 #else /* CK_PAM */
-    if (pw == NULL)
+    if (pw == NULL) {
       salt = "xx";
-    else
+    } else {
       salt = pw->pw_passwd;
+    }
 
     /*
       On 64-bit platforms this can give "cast to pointer from integer of
@@ -7354,10 +7729,11 @@ zvpass( char *p )
          old current directory remains accessible as "." outside the new root.
        */
   if (guest) {
-    if (anonroot) /* Non-default anonymous root */
+    if (anonroot) { /* Non-default anonymous root */
       dir = anonroot;
-    else
+    } else {
       makestr(&anonroot, dir);
+    }
     errno = 0;
     debug(F110, "zvpass anon chroot", dir, 0);
     if (chroot(dir) < 0) {
@@ -7420,9 +7796,10 @@ zvpass( char *p )
 #endif /* SETPROCTITLE */
 
 #ifdef CKSYSLOG
-    if (ckxsyslog && ckxlogging)
+    if (ckxsyslog && ckxlogging) {
       syslog(LOG_INFO, "login: %s %s", pw->pw_name,
              clienthost ? clienthost : "(unknown host)");
+    }
 #endif /* CKSYSLOG */
   }
   ckstrncpy(zvhome, home, CKMAXPATH); /* Set environment variables */
@@ -7473,10 +7850,12 @@ zvpass( char *p )
       p2 = dir;
     } else {
       p2 = zgtdir();
-      if (!p2)
+      if (!p2) {
         p2 = "";
-      if (!*p2)
+      }
+      if (!*p2) {
         p2 = home;
+      }
     }
     strncpy(&dbrec[DB_DLEN], ulongtohex((unsigned long)strlen(p2), 4), 4);
     lset(&dbrec[dbfld[db_DIR].off], p2, 1024, 32);

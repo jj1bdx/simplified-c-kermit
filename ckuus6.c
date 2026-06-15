@@ -823,8 +823,9 @@ int doask(int cx) {
     struct FDB sw, fl;
     int getval;
     char c;
-    if (cx == XXASKQ) /* Don't log ASKQ response */
+    if (cx == XXASKQ) { /* Don't log ASKQ response */
       debok = 0;
+    }
     cmfdbi(&sw,                           /* First FDB - command switches */
            _CMKEY,                        /* fcode */
            "Variable name or switch", "", /* default */
@@ -845,10 +846,12 @@ int doask(int cx) {
            NULL, NULL, NULL);
     while (1) {       /* Parse 0 or more switches */
       x = cmfdb(&sw); /* Parse something */
-      if (x < 0)
+      if (x < 0) {
         return (x);
-      if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+      }
+      if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
         break;
+      }
       c = cmgbrk();
       if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
         printf("?This switch does not take an argument\n");
@@ -861,8 +864,9 @@ int doask(int cx) {
       switch (cmresult.nresult) {
       case ASK_QUI:
         nomsg = 1;
-        if (cx == XXASKQ)
+        if (cx == XXASKQ) {
           echostars = 0;
+        }
         break;
       case ASK_PUP:
         popupflg = 1;
@@ -871,23 +875,27 @@ int doask(int cx) {
         guiflg = 1;
         break;
       case ASK_TMO: {
-        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0)
+        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0) {
           return (y);
-        if (x < 0)
+        }
+        if (x < 0) {
           x = 0;
+        }
         mytimer = x;
         break;
       }
       case ASK_ECH: {
-        if ((y = cmfld("Character to echo", "*", &s, xxstring)) < 0)
+        if ((y = cmfld("Character to echo", "*", &s, xxstring)) < 0) {
           return (y);
+        }
         echochar = *s;
         break;
       }
       case ASK_DEF: {
         if ((y = cmfld("Text to supply if reply is empty", "", &s, xxstring)) <
-            0)
+            0) {
           return (y);
+        }
         ckstrncpy(dfbuf, s, 1024);
         dfanswer = dfbuf;
         break;
@@ -899,12 +907,14 @@ int doask(int cx) {
     /* Have variable name, make copy. */
     ckstrncpy(vnambuf, cmresult.sresult, VNAML);
     vnp = vnambuf;
-    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&'))
+    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&')) {
       vnp++;
+    }
     y = 0;
     if (*vnp == '%' || *vnp == '&') {
-      if ((y = parsevar(vnp, &x, &z)) < 0)
+      if ((y = parsevar(vnp, &x, &z)) < 0) {
         return (y);
+      }
     }
   } else if (cx == XXGETC) { /* GETC */
     struct FDB sw, fl;
@@ -930,10 +940,12 @@ int doask(int cx) {
            NULL, NULL, NULL);
     while (1 && !peek) { /* Parse 0 or more switches */
       x = cmfdb(&sw);    /* Parse something */
-      if (x < 0)
+      if (x < 0) {
         return (x);
-      if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+      }
+      if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
         break;
+      }
       c = cmgbrk();
       if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
         printf("?This switch does not take an argument\n");
@@ -951,10 +963,12 @@ int doask(int cx) {
         nomsg = 1;
         break;
       case GETC_TMO: { /* GETC /TIMEOUT:sec */
-        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0)
+        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0) {
           return (y);
-        if (x < 0)
+        }
+        if (x < 0) {
           x = 0;
+        }
         mytimer = x;
         break;
       }
@@ -972,8 +986,9 @@ int doask(int cx) {
                   there is typeahead.  - fdc, 21 Apr 2017.
                 */
       int itsatty = -1;
-      if ((y = cmcfm()) < 0) /* Get confirmation */
+      if ((y = cmcfm()) < 0) { /* Get confirmation */
         return (y);
+      }
       itsatty = isatty(0); /* Is stdin a tty? */
       debug(F101, "GETC peek", "", peek);
       debug(F101, "GETC itsatty", "", itsatty);
@@ -983,34 +998,40 @@ int doask(int cx) {
     /* Regular GETC... Have variable name, make copy. */
     ckstrncpy(vnambuf, cmresult.sresult, VNAML);
     vnp = vnambuf;
-    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&'))
+    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&')) {
       vnp++;
+    }
     y = 0;
     if (*vnp == '%' || *vnp == '&') {
-      if ((y = parsevar(vnp, &x, &z)) < 0)
+      if ((y = parsevar(vnp, &x, &z)) < 0) {
         return (y);
+      }
     }
   } else if (cx != XXGOK && cx != XXRDBL && !peek) { /* Get variable name */
     if ((y = cmfld("Variable name", "", &s, NULL)) < 0) {
       if (y == -3) {
         printf("?Variable name required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
     ckstrncpy(vnambuf, s, VNAML); /* Make a copy. */
     vnp = vnambuf;
-    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&'))
+    if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&')) {
       vnp++;
+    }
     y = 0;
     if (*vnp == '%' || *vnp == '&') {
-      if ((y = parsevar(vnp, &x, &z)) < 0)
+      if ((y = parsevar(vnp, &x, &z)) < 0) {
         return (y);
+      }
     }
   }
   if (cx == XXREA || cx == XXRDBL) { /* READ or READBLOCK command */
-    if ((y = cmcfm()) < 0)           /* Get confirmation */
+    if ((y = cmcfm()) < 0) {         /* Get confirmation */
       return (y);
+    }
     if (chkfn(ZRFILE) < 1) { /* File open? */
       printf("?Read file not open\n");
       return (success = 0);
@@ -1059,10 +1080,12 @@ int doask(int cx) {
            NULL, NULL, NULL);
     while (1) {       /* Parse 0 or more switches */
       x = cmfdb(&sw); /* Parse something */
-      if (x < 0)
+      if (x < 0) {
         return (x);
-      if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+      }
+      if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
         break;
+      }
       c = cmgbrk();
       if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
         printf("?This switch does not take an argument\n");
@@ -1080,17 +1103,20 @@ int doask(int cx) {
         guiflg = 1;
         break;
       case ASK_TMO: {
-        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0)
+        if ((y = cmnum("seconds", "1", 10, &x, xxstring)) < 0) {
           return (y);
-        if (x < 0)
+        }
+        if (x < 0) {
           x = 0;
+        }
         mytimer = x;
         break;
       }
       case ASK_DEF: {
         if ((y = cmfld("Text to supply if reply is empty", "", &s, xxstring)) <
-            0)
+            0) {
           return (y);
+        }
         ckstrncpy(dfbuf, s, 1024);
         dfanswer = dfbuf;
         break;
@@ -1106,11 +1132,13 @@ int doask(int cx) {
   } else if ((y = cmtxt("Prompt,\n\
  enclose in { braces } or \" quotes \" to preserve leading and trailing\n\
  spaces, precede question mark with backslash (\\).",
-                        "", &p, xxstring)) < 0)
+                        "", &p, xxstring)) < 0) {
     return (y);
+  }
 
-  if (!p)
+  if (!p) {
     p = "";
+  }
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
 
@@ -1121,8 +1149,9 @@ int doask(int cx) {
 reprompt:
   if (cx == XXASKQ) { /* For ASKQ, */
     cmini(0);         /* no-echo mode. */
-    if (echochar)
+    if (echochar) {
       echostars = echochar;
+    }
   } else { /* For others, regular echoing. */
     cmini(ckxech);
     echostars = 0;
@@ -1130,8 +1159,9 @@ reprompt:
   askflag = 1;
   x = -1; /* This means to reparse. */
   cmflgs = 0;
-  if (pflag)
+  if (pflag) {
     prompt(xxstring); /* Issue prompt. */
+  }
 
   asktimedout = 0; /* Handle timed responses. */
   timelimit = mytimer;
@@ -1148,13 +1178,15 @@ reparse:
       if (x == -10) {
         char *ds;
         ds = dfanswer ? dfanswer : "No";
-        if (!nomsg)
+        if (!nomsg) {
           printf("?Timed out, assuming \"%s\"", ds);
+        }
         printf("\n");
         asktimedout = 1;
         x = lookup(yesno, ds, nyesno, NULL);
-        if (x != 1)
+        if (x != 1) {
           x = 0;
+        }
         goto gokdone;
       } else if (x == -3) {                   /* No answer? */
         printf("Please respond Yes or No\n"); /* Make them answer */
@@ -1162,11 +1194,13 @@ reparse:
         goto reprompt;
       } else if (x == -1) {
         goto reparse;
-      } else
+      } else {
         goto reprompt;
+      }
     }
-    if (cmcfm() < 0) /* Get confirmation */
+    if (cmcfm() < 0) { /* Get confirmation */
       goto reparse;
+    }
   gokdone:
     askflag = 0;
     cmsetp(psave); /* Restore prompt */
@@ -1184,19 +1218,22 @@ reparse:
     }
     concb((char)escape); /* Put keyboard back in cbreak mode */
     if (x > -1) {
-      if (xcmdsrc == 0)
+      if (xcmdsrc == 0) {
         printf("\r\n");
+      }
       tmp[0] = (char)(x & 0xff);
       tmp[1] = NUL;
       y = addmac(vnp, tmp); /* Add it to the macro table. */
       debug(F111, "getc/getk addmac", vnp, y);
-    } else
+    } else {
       y = -1;
+    }
     cmsetp(psave); /* Restore old prompt. */
     if (x < -1) {
       asktimedout = 1;
-      if (!quiet && !nomsg)
+      if (!quiet && !nomsg) {
         printf("?Timed out");
+      }
       printf("\n");
     }
     timelimit = 0;
@@ -1213,9 +1250,10 @@ reparse:
       debug(F111, "ASK cmtxt", s, x);
       cmres();
     }
-    cmdsquo(y);       /* Restore previous quoting */
-    if (cx == XXASKQ) /* ASKQ must echo CRLF here */
+    cmdsquo(y);         /* Restore previous quoting */
+    if (cx == XXASKQ) { /* ASKQ must echo CRLF here */
       printf("\r\n");
+    }
     if (x == -10 && dfanswer) { /* Don't fail on timeout if */
       s = dfanswer;             /* a default was specified */
       asktimedout = 0;          /* and don't fail */
@@ -1224,12 +1262,14 @@ reparse:
     if (x < 0) {      /* If cmtxt parse error, */
       cmsetp(psave);  /* restore original prompt */
       if (x == -10) { /* Timed out with no response */
-        if (!nomsg)
+        if (!nomsg) {
           printf("?Timed out");
+        }
         printf("\n");
         asktimedout = 1;
-        if (dfanswer) /* Supply default answer if any */
+        if (dfanswer) { /* Supply default answer if any */
           s = dfanswer;
+        }
         success = x = 0; /* (was "x = -9;") */
       }
       timelimit = 0;
@@ -1262,14 +1302,17 @@ int doincr(int cx) /* INCREMENT, DECREMENT */
     if (y == -3) {
       printf("?Variable name required\n");
       return (-9);
-    } else
+    } else {
       return (y);
+    }
   }
   ckstrncpy(vnambuf, s, VNAML);
-  if ((y = cmnumw("by amount", "1", 10, &x, xxstring)) < 0)
+  if ((y = cmnumw("by amount", "1", 10, &x, xxstring)) < 0) {
     return (y);
-  if ((y = cmcfm()) < 0)
+  }
+  if ((y = cmcfm()) < 0) {
     return (y);
+  }
 
   z = (cx == XX_INCR || cx == XXINC) ? 1 : 0; /* Increment or decrement? */
 
@@ -1283,34 +1326,42 @@ int doincr(int cx) /* INCREMENT, DECREMENT */
 /* Used by doundef() */
 static int xxundef(char *s, int verbose, int simulate) {
   int rc = 0;
-  if (!s)
+  if (!s) {
     return (0);
+  }
   if (*s == CMDQ && *(s + 1) == '%') {
     char c = *(s + 2), *p = NULL;
     if (c >= '0' && c <= '9') {
-      if (maclvl < 0)
+      if (maclvl < 0) {
         p = g_var[c];
-      else
+      } else {
         p = m_arg[maclvl][c - '0'];
+      }
     } else {
-      if (isupper(c))
+      if (isupper(c)) {
         c += ('a' - 'A');
-      if (c >= 'a' && c <= 'z')
+      }
+      if (c >= 'a' && c <= 'z') {
         p = g_var[c];
+      }
     }
-    if (!p)
+    if (!p) {
       return (-1);
+    }
   }
-  if (verbose)
+  if (verbose) {
     printf(" %s ", s);
+  }
   if (simulate) {
     printf("(SELECTED)\n");
   } else if ((x = delmac(s, 1)) > -1) { /* Full name required */
     rc = 1;
-    if (verbose)
+    if (verbose) {
       printf("(OK)\n");
-  } else if (verbose)
+    }
+  } else if (verbose) {
     printf("(FAILED)\n");
+  }
   return (rc);
 }
 
@@ -1344,8 +1395,9 @@ int doundef(int cx) /* UNDEF, _UNDEF */
       printf("?Memory allocation failure\n");
       return (-9);
     }
-    for (i = 0; i < UNDEFMAX; i++)
+    for (i = 0; i < UNDEFMAX; i++) {
       undeflist[i] = NULL;
+    }
   }
   cmfdbi(&sw,                           /* First FDB - command switches */
          _CMKEY,                        /* fcode */
@@ -1367,10 +1419,12 @@ int doundef(int cx) /* UNDEF, _UNDEF */
          (cx == XXUNDEF) ? NULL : xxstring, NULL, NULL);
   while (1) {       /* Parse 0 or more switches */
     x = cmfdb(&sw); /* Parse something */
-    if (x < 0)
+    if (x < 0) {
       return (x);
-    if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+    }
+    if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
       break;
+    }
     c = cmgbrk();
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
       printf("?This switch does not take an argument\n");
@@ -1396,8 +1450,9 @@ int doundef(int cx) /* UNDEF, _UNDEF */
     x = cmfld("Macro or variable name", "", &s,
               ((cx == XXUNDEF) ? NULL : xxstring));
     if (x == -3) {
-      if ((y = cmcfm()) < 0)
+      if ((y = cmcfm()) < 0) {
         return (y);
+      }
       break;
     } else if (y < 0) {
       return (y);
@@ -1408,8 +1463,9 @@ int doundef(int cx) /* UNDEF, _UNDEF */
 
   for (i = 0; i < n; i++) {
     flag = 0;
-    if (!(vnp = undeflist[i]))
+    if (!(vnp = undeflist[i])) {
       continue;
+    }
     if (vnp[0] == CMDQ && (vnp[1] == '%' || vnp[1] == '&')) {
       flag++;
       vnp++;
@@ -1418,16 +1474,18 @@ int doundef(int cx) /* UNDEF, _UNDEF */
       if (flag) {
         if ((y = parsevar(vnp, &x, &z)) < 0) {
           vnp--;
-          if (verbose)
+          if (verbose) {
             printf(" %s...error\n", vnp);
+          }
           continue;
         }
         vnp--;
       }
       x = xxundef(vnp, verbose, simulate);
       if (x > -1) {
-        if (!x && !simulate)
+        if (!x && !simulate) {
           errors++;
+        }
         rc += x;
       }
       continue;
@@ -1440,11 +1498,13 @@ int doundef(int cx) /* UNDEF, _UNDEF */
           x = xxundef(mactab[j].kwd, verbose, simulate);
           if (x > -1) {
             rc += x;
-            if (!x)
+            if (!x) {
               errors++;
+            }
           }
-          if (!simulate)
+          if (!simulate) {
             j--; /* Because mactab shifted up */
+          }
         }
       }
     } else if (vnp[0] == '%') { /* It's a \%x variable */
@@ -1456,13 +1516,15 @@ int doundef(int cx) /* UNDEF, _UNDEF */
         if (ckmatch(vnp, &vnbuf[1], 0, 1)) {
           x = xxundef(vnbuf, verbose, simulate);
           if (x > -1) {
-            if (!x)
+            if (!x) {
               errors++;
+            }
             rc += x;
           }
         }
-        if (j == '9')
+        if (j == '9') {
           j = (int)'a' - 1; /* 9 -> a */
+        }
       }
     } else if (vnp[0] == '&') {
       if (!arraymsg && !quiet) {
@@ -1473,8 +1535,9 @@ int doundef(int cx) /* UNDEF, _UNDEF */
       errors++;
     }
   }
-  if (verbose)
+  if (verbose) {
     printf("undefined: %d, errors: %d\n", rc, errors);
+  }
 
   for (i = 0; i < UNDEFMAX; i++) { /* Check them all */
     if (undeflist[i]) {            /* in case we were interrupted */
@@ -1508,18 +1571,20 @@ int dodef(int cx) {
     unungw();
   }
   if (!s) {
-    if (cx == XXDFX || cx == XXASX)
+    if (cx == XXDFX || cx == XXASX) {
       /* Evaluate variable name */
       y = cmfld("Macro or variable name", "", &s, xxstring);
-    else
+    } else {
       /* Don't evaluate the variable name */
       y = cmfld("Macro or variable name", "", &s, NULL);
+    }
     if (y < 0) {
       if (y == -3) {
         printf("?Variable name required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
   }
   k = strlen(s);
@@ -1530,47 +1595,58 @@ int dodef(int cx) {
   ckstrncpy(vnambuf, s, VNAML);
   vnambuf[VNAML] = NUL;
   vnp = vnambuf;
-  if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&'))
+  if (vnambuf[0] == CMDQ && (vnambuf[1] == '%' || vnambuf[1] == '&')) {
     vnp++;
+  }
   if (*vnp == '%' || *vnp == '&') {
-    if ((y = parsevar(vnp, &x, &z)) < 0)
+    if ((y = parsevar(vnp, &x, &z)) < 0) {
       return (y);
+    }
     debug(F101, "dodef parsevar x", "", x);
     if (mydot) {
-      if ((doeval = cmkey(asgtab, nasgtab, "operator", "=", NULL)) < 0)
+      if ((doeval = cmkey(asgtab, nasgtab, "operator", "=", NULL)) < 0) {
         return (doeval);
-      if (doeval > 0) /* Type of assignment */
+      }
+      if (doeval > 0) { /* Type of assignment */
         cx = XXASS;
+      }
     }
     if (y == 1) { /* Simple variable */
-      if ((y = cmtxt("Definition of variable", "", &s, NULL)) < 0)
+      if ((y = cmtxt("Definition of variable", "", &s, NULL)) < 0) {
         return (y);
+      }
       s = brstrip(s);
       debug(F110, "xxdef var name", vnp, 0);
       debug(F110, "xxdef var def", s, 0);
     } else if (y == 2) { /* Array element */
-      if ((y = arraynam(vnp, &x, &z)) < 0)
+      if ((y = arraynam(vnp, &x, &z)) < 0) {
         return (y);
+      }
       if (x == 96) {
         printf("?Argument vector array is read-only\n");
         return (-9);
       }
-      if (chkarray(x, z) < 0)
+      if (chkarray(x, z) < 0) {
         return (-2);
-      if ((y = cmtxt("Definition of array element", "", &s, NULL)) < 0)
+      }
+      if ((y = cmtxt("Definition of array element", "", &s, NULL)) < 0) {
         return (y);
+      }
       debug(F110, "xxdef array ref", vnp, 0);
       debug(F110, "xxdef array def", s, 0);
     }
   } else { /* Macro */
     if (mydot) {
-      if ((doeval = cmkey(asgtab, nasgtab, "operator", "=", NULL)) < 0)
+      if ((doeval = cmkey(asgtab, nasgtab, "operator", "=", NULL)) < 0) {
         return (doeval);
-      if (doeval > 0)
+      }
+      if (doeval > 0) {
         cx = XXASS;
+      }
     }
-    if ((y = cmtxt("Definition of macro", "", &s, NULL)) < 0)
+    if ((y = cmtxt("Definition of macro", "", &s, NULL)) < 0) {
       return (y);
+    }
 #ifdef DEBUG
     if (deblog) {
       debug(F110, "xxdef macro name", vnp, 0);
@@ -1602,10 +1678,11 @@ int dodef(int cx) {
   if (y < 0) {
     printf("?%s failed\n", (cx == XXASS || cx == XXASX) ? "ASSIGN" : "DEFINE");
     return (success = 0);
-  } else if (cx == XXASX || cx == XXDFX) /* For _ASG or _DEF, */
-    return (1);                          /* don't change success variable */
-  else
+  } else if (cx == XXASX || cx == XXDFX) { /* For _ASG or _DEF, */
+    return (1);                            /* don't change success variable */
+  } else {
     return (success = 1);
+  }
 }
 #endif /* NOSPL */
 
@@ -1630,17 +1707,19 @@ getdname(void) {
 
 char *getdnum(int n) /* Get dial number n from directory */
 {
-  if (n < 0 || n > dncount || n > MAXDNUMS)
+  if (n < 0 || n > dncount || n > MAXDNUMS) {
     return ("");
-  else
+  } else {
     return (dn_p[n]);
+  }
 }
 
 char * /* Check area code for spurious leading digit */
 chk_ac(int i, char buf[]) {
   char *p;
-  if (!buf)
+  if (!buf) {
     return ("");
+  }
   p = (char *)buf; /* Country we are calling: */
   if (i == 44 ||   /* UK */
       i == 49 ||   /* Germany */
@@ -1660,8 +1739,9 @@ chk_ac(int i, char buf[]) {
       i == 33 ||   /* France (as of 1997) */
       i == 358     /* Finland (ditto) */
   ) {
-    if (buf[0] == '0')
+    if (buf[0] == '0') {
       p++;
+    }
   }
   return (p);
 }
@@ -1677,18 +1757,23 @@ chk_ac(int i, char buf[]) {
 */
 static int callisld(char *src, char *dest) {
   int i;
-  if (dialfld) /* Force long distance? */
+  if (dialfld) { /* Force long distance? */
     return (1);
-  if (!strcmp(src, dest)) {        /* Area codes are the same */
-    for (i = 0; i < nlocalac; i++) /* Is AC in the lc-area-codes list? */
-      if (!strcmp(src, diallcac[i]))
-        return (2); /* Yes so must be dialed */
-    return (0);     /* No so don't dial it. */
   }
-  for (i = 0; i < nlocalac; i++)    /* ACs not the same so look in list */
-    if (!strcmp(dest, diallcac[i])) /* Match */
-      return (2);                   /* So local call with area code */
-  return (1);                       /* Not local so long-distance */
+  if (!strcmp(src, dest)) {          /* Area codes are the same */
+    for (i = 0; i < nlocalac; i++) { /* Is AC in the lc-area-codes list? */
+      if (!strcmp(src, diallcac[i])) {
+        return (2); /* Yes so must be dialed */
+      }
+    }
+    return (0); /* No so don't dial it. */
+  }
+  for (i = 0; i < nlocalac; i++) {    /* ACs not the same so look in list */
+    if (!strcmp(dest, diallcac[i])) { /* Match */
+      return (2);                     /* So local call with area code */
+    }
+  }
+  return (1); /* Not local so long-distance */
 }
 
 char pdsfx[64] = {NUL, NUL};
@@ -1700,17 +1785,21 @@ static char *xdial(char *s) /* Run dial string thru macro */
   char *s2;
   s2 = NULL;
   makestr(&s2, s); /* Copy the argument */
-  if (!dialmac)    /* Dial macro name given? */
+  if (!dialmac) {  /* Dial macro name given? */
     return (NULL);
-  if ((x = mxlook(mactab, dialmac, nmac)) < 0) /* Is the macro defined? */
+  }
+  if ((x = mxlook(mactab, dialmac, nmac)) < 0) { /* Is the macro defined? */
     return (NULL);
+  }
   m = maclvl;
   x = dodo(x, s2, 0); /* Set up the macro */
-  if (s2)
+  if (s2) {
     free(s2);
+  }
   if (x > 0) {
-    while (maclvl > m) /* Execute the parser */
+    while (maclvl > m) { /* Execute the parser */
       parser(1);
+    }
     return (mrval[maclvl + 1]); /* Return the result */
   }
   return (NULL);
@@ -1775,11 +1864,13 @@ static int dncvt(int k, int cx, int prefix,
     ) {
       char *p = NULL;
       dialtype = -2;
-      if (!cktapiConvertPhoneNumber(dn_p[k], &p))
+      if (!cktapiConvertPhoneNumber(dn_p[k], &p)) {
         return (-1);
+      }
       makestr(&dn_p2[k], p);
-      if (p)
+      if (p) {
         free(p);
+      }
       return (0);
     } else
 #endif                            /* CK_TAPI */
@@ -1792,18 +1883,21 @@ static int dncvt(int k, int cx, int prefix,
   ccbuf[0] = NUL; /* Do country code first */
 
   if (!diallcc) { /* Do we know our own? */
-    if (cx != XXLOOK)
+    if (cx != XXLOOK) {
       printf("Error - prior SET DIAL COUNTRY-CODE command required\n");
+    }
     return (-1);
   }
 
   /* Parse the number */
 
   while (1) { /* Get the country code */
-    while (*s == HT || *s == SP)
+    while (*s == HT || *s == SP) {
       s++;
-    if (!s) /* Not in standard format */
+    }
+    if (!s) { /* Not in standard format */
       break;
+    }
     if (*s == '(') {  /* Beginning of area code  */
       s++;            /* Skip past parenthesis   */
       ccbuf[i] = NUL; /* End of country code */
@@ -1813,11 +1907,13 @@ static int dncvt(int k, int cx, int prefix,
       }
       break;
     } else { /* Collect country code */
-      if (isdigit(*s))
+      if (isdigit(*s)) {
         ccbuf[i++] = *s; /* copy this character */
+      }
       s++;
-      if (!*s || i > 127) /* watch out for memory leak */
+      if (!*s || i > 127) { /* watch out for memory leak */
         break;
+      }
     }
   }
   cc = atoi(ccbuf); /* Numeric version of country code */
@@ -1826,20 +1922,24 @@ static int dncvt(int k, int cx, int prefix,
   acbuf[0] = NUL; /* Initialize area-code buffer */
   acptr = acbuf;  /* and pointer. */
   while (1) {
-    while (*s == HT || *s == SP) /* Ignore whitespace */
+    while (*s == HT || *s == SP) { /* Ignore whitespace */
       s++;
-    if (!s) /* String finished */
+    }
+    if (!s) { /* String finished */
       break;
+    }
     if (*s == ')') {  /* End of area code  */
       s++;            /* Skip past parenthesis   */
       acbuf[i] = NUL; /* Terminate area-code buffer */
       break;
     } else {             /* Part of area code */
-      if (isdigit(*s))   /* If it's a digit, */
+      if (isdigit(*s)) { /* If it's a digit, */
         acbuf[i++] = *s; /* copy this character */
-      s++;               /* Point to next */
-      if (!*s || i > 23) /* Watch out for overflow */
+      }
+      s++;                 /* Point to next */
+      if (!*s || i > 23) { /* Watch out for overflow */
         break;
+      }
     }
   }
 
@@ -1851,22 +1951,26 @@ static int dncvt(int k, int cx, int prefix,
   i = atoi(ccbuf);
   acptr = chk_ac(i, acbuf);
 
-  while (*s == HT || *s == SP) /* Skip whitespace */
+  while (*s == HT || *s == SP) { /* Skip whitespace */
     s++;
+  }
 
   /* printf("S=[%s], ACPTR=[%s]\n",s,acptr); */
 
   if (*s && *acptr) { /* Area code was delimited */
 
-    while (*s == '-' || *s == '.') /* Skip past gratuitious punctuation */
+    while (*s == '-' || *s == '.') { /* Skip past gratuitious punctuation */
       s++;
-    if (!*s)
+    }
+    if (!*s) {
       s--; /* But not to end of string */
+    }
 
     if (strcmp(diallcc, ccbuf)) { /* Out of country? */
       if (!dialixp) {             /* Need intl-prefix */
-        if (cx != XXLOOK)
+        if (cx != XXLOOK) {
           printf("Error - No international dialing prefix defined\n");
+        }
         return (-1);
       }
       what = dn_x[k] = DN_INTL;
@@ -1880,8 +1984,9 @@ static int dncvt(int k, int cx, int prefix,
 
     } else if ((x = callisld(lac, acptr)) >= 1) { /* In-country LD */
       if (!diallac && cx != XXLOOK) { /* Don't know my own area code */
-        if (cc == 1)
+        if (cc == 1) {
           printf("WARNING - Prior SET DIAL AREA-CODE needed\n");
+        }
       }
       if (x == 2) {                              /* Local call with area code */
         what = dn_x[k] = DN_LOCAL;               /* Local-call */
@@ -1913,12 +2018,13 @@ static int dncvt(int k, int cx, int prefix,
       if (!prefix || !(dialpxo || ndialpxx)) {   /* Not dialing from PBX */
         p = (prefix && diallcp) ? diallcp : "";  /* local-prefix */
         p2 = (suffix && diallcs) ? diallcs : ""; /* local-suffix */
-        if (x == 2)
+        if (x == 2) {
           ckmakxmsg(outbuf, 256, npr, p, acptr, s, p2, sfx, NULL, NULL, NULL,
                     NULL, NULL, NULL);
-        else
+        } else {
           ckmakxmsg(outbuf, 256, npr, p, s, p2, sfx, NULL, NULL, NULL, NULL,
                     NULL, NULL, NULL);
+        }
         ckmakmsg(pdsfx, 64, p2, sfx, NULL, NULL);
 
       } else {          /* Dialing from a PBX and not TAPI */
@@ -1928,9 +2034,11 @@ static int dncvt(int k, int cx, int prefix,
           j = (int)strlen(s);
           for (kx = 0; kx < ndialpxx; kx++) {
             i = (int)strlen(dialpxx[kx]);
-            if (j > i)
-              if (!(x = ckstrcmp(dialpxx[kx], s, i, 0)))
+            if (j > i) {
+              if (!(x = ckstrcmp(dialpxx[kx], s, i, 0))) {
                 break;
+              }
+            }
           }
           if (!x) {
             char *icp, buf[32];
@@ -1946,8 +2054,9 @@ static int dncvt(int k, int cx, int prefix,
                 char c, *bp;
                 int n;
                 c = *(icp + 1);
-                if (isupper(c))
+                if (isupper(c)) {
                   c = tolower(c);
+                }
                 if (c == 'v' || c == 'f') {
                   n = 32;
                   bp = buf;
@@ -1964,12 +2073,13 @@ static int dncvt(int k, int cx, int prefix,
             p = (prefix && diallcp) ? diallcp : "";
             /* local-suffix */
             p2 = (prefix && diallcs) ? diallcs : "";
-            if (x == 2)
+            if (x == 2) {
               ckmakxmsg(outbuf, 256, dialpxo ? dialpxo : "", npr, p, acptr, s,
                         p2, sfx, NULL, NULL, NULL, NULL, NULL);
-            else
+            } else {
               ckmakxmsg(outbuf, 256, dialpxo ? dialpxo : "", npr, p, s, p2, sfx,
                         NULL, NULL, NULL, NULL, NULL, NULL);
+            }
           }
         }
       }
@@ -1984,12 +2094,14 @@ static int dncvt(int k, int cx, int prefix,
     s = ss;
 
     for (i = 0; i < 255; i++) {
-      if (!*s)
+      if (!*s) {
         break;
+      }
       while (!isdigit(*s)) { /* Pay attention only to digits */
         s++;
-        if (!*s)
+        if (!*s) {
           break;
+        }
       }
       xbuf[i] = *s++;
     }
@@ -2009,8 +2121,9 @@ static int dncvt(int k, int cx, int prefix,
       if (x == 1) { /* Or exact match with local CC+AC? */
         ckmakmsg(ybuf, 256, diallcc, lac, NULL, NULL);
         n = (int)strlen(ybuf);
-        if (n > 0 && !ckstrcmp(xbuf, ybuf, n, 0))
+        if (n > 0 && !ckstrcmp(xbuf, ybuf, n, 0)) {
           x = 0;
+        }
       }
     }
     if (x == 0 || x == 2) { /* Local call */
@@ -2021,9 +2134,11 @@ static int dncvt(int k, int cx, int prefix,
         j = (int)strlen(ybuf);
         for (kx = 0; kx < ndialpxx; kx++) {
           i = (int)strlen(dialpxx[kx]);
-          if (j >= i)
-            if (!(xx = ckstrcmp(dialpxx[kx], &xbuf[j], i, 0)))
+          if (j >= i) {
+            if (!(xx = ckstrcmp(dialpxx[kx], &xbuf[j], i, 0))) {
               break;
+            }
+          }
         }
       }
       if (!xx) {
@@ -2039,8 +2154,9 @@ static int dncvt(int k, int cx, int prefix,
             char c, *bp;
             int n;
             c = *(icp + 1);
-            if (isupper(c))
+            if (isupper(c)) {
               c = tolower(c);
+            }
             if (c == 'v' || c == 'f') {
               n = 32;
               bp = buf;
@@ -2071,8 +2187,9 @@ static int dncvt(int k, int cx, int prefix,
         p = (prefix && dialldp) ? dialldp : "";
         p2 = (suffix && diallds) ? diallds : "";
         s = xbuf + n;
-        while (*s == '-' || *s == '.')
+        while (*s == '-' || *s == '.') {
           s++;
+        }
         ckmakxmsg(outbuf, 256, pxo, npr, p, s, p2, sfx, NULL, NULL, NULL, NULL,
                   NULL, NULL);
         ckmakmsg(pdsfx, 64, p2, sfx, NULL, NULL);
@@ -2098,11 +2215,13 @@ static int dncvt(int k, int cx, int prefix,
       tapiconv == CK_ON) {
     p = NULL;
     dialtype = -2;
-    if (!cktapiConvertPhoneNumber(dn_p[k], &p))
+    if (!cktapiConvertPhoneNumber(dn_p[k], &p)) {
       return (-1);
+    }
     makestr(&dn_p2[k], p);
-    if (p)
+    if (p) {
       free(p);
+    }
     return (0);
   } else {
 #endif /* CK_TAPI */
@@ -2124,11 +2243,13 @@ static int ddcvt(char *s, FILE *f, int n) /* Dial Directory Convert */
 
   debug(F110, "ddcvt file", s, 0);
 
-  if (!s || !f) /* No filename or file */
+  if (!s || !f) { /* No filename or file */
     return (-1);
-  if (!*s)
+  }
+  if (!*s) {
 
     fclose(f);
+  }
   znewn(s, &s2); /* s2 = address of static buffer */
   debug(F110, "ddcvt newname", s2, 0);
 
@@ -2160,8 +2281,9 @@ static int ddcvt(char *s, FILE *f, int n) /* Dial Directory Convert */
 
   while (1) {
     linebuf[0] = NUL; /* Read a line */
-    if (fgets(linebuf, 1023, f) == NULL)
+    if (fgets(linebuf, 1023, f) == NULL) {
       break;
+    }
     debug(F110, "ddcvt linebuf", linebuf, 0);
     if (!linebuf[0]) { /* Empty line */
       fprintf(f2, "\n");
@@ -2169,25 +2291,30 @@ static int ddcvt(char *s, FILE *f, int n) /* Dial Directory Convert */
     }
     x = (int)strlen(linebuf); /* Strip line terminator, */
     while (x-- > 0) {         /* if any. */
-      if (linebuf[x] <= SP)
+      if (linebuf[x] <= SP) {
         linebuf[x] = NUL;
-      else
+      } else {
         break;
+      }
     }
     xwords(linebuf, 5, info, 1); /* Parse it the old way */
-    for (x = 1; x < 6; x++)
-      if (!info[x])
+    for (x = 1; x < 6; x++) {
+      if (!info[x]) {
         info[x] = "";
+      }
+    }
     fprintf(f2, "%-16s %-20s ; %5s %-6s %s\n", info[1], info[2], info[3],
             info[4], info[5]);
   }
   printf(" OK\n\n");
   rc = 0; /* Success */
 ddexit:
-  if (f)
+  if (f) {
     fclose(f);
-  if (f2)
+  }
+  if (f2) {
     fclose(f2);
+  }
   return (rc);
 }
 
@@ -2211,18 +2338,22 @@ ludial(char *s, int cx) /* (DIAL, LOOKUP, etc)   */
   int zz = 1;
 #endif /* LUDEBUG */
 
-  if (!s || ndialdir < 1) /* Validate arguments */
+  if (!s || ndialdir < 1) { /* Validate arguments */
     return (-1);
+  }
 
-  if ((n1 = (int)strlen(s)) < 1) /* Length of string to look up */
+  if ((n1 = (int)strlen(s)) < 1) { /* Length of string to look up */
     return (-1);
+  }
 
-  if (!(line = malloc(1024))) /* Allocate input buffer */
+  if (!(line = malloc(1024))) { /* Allocate input buffer */
     return (-1);
+  }
 
 #ifdef LUDEBUG
-  if (zz)
+  if (zz) {
     printf("LUDIAL 1 s[%s], n1=%d\n", s, n1);
+  }
 #endif /* LUDEBUG */
 
   pass = 0;
@@ -2246,10 +2377,11 @@ lu_again:
 
     I.e. is the "9600" a speed, or part of the phone number?
   */
-  while (1) {             /* We make one pass */
-    if (!f) {             /* Directory not open */
-      if (dd >= ndialdir) /* No directories left? */
-        break;            /* Done. */
+  while (1) {               /* We make one pass */
+    if (!f) {               /* Directory not open */
+      if (dd >= ndialdir) { /* No directories left? */
+        break;              /* Done. */
+      }
       debug(F111, "ludial dialdir[dd]", dialdir[dd], dd);
       if ((f = fopen(dialdir[dd], "r")) == NULL) { /* Open it */
         perror(dialdir[dd]); /* Can't, print message saying why */
@@ -2261,11 +2393,13 @@ lu_again:
         continue;
       }
       dirline = 0; /* Directory file line number */
-      if (dialdpy && !pass)
+      if (dialdpy && !pass) {
         printf("Opening: %s...\n", dialdir[dd]);
+      }
       dd++;
-      if (!oldflg)
+      if (!oldflg) {
         olddir = 0;
+      }
       newdir = 0;
     }
     oldentry = 0;
@@ -2279,11 +2413,13 @@ lu_again:
       }
       continue;
     }
-    if (!line[0]) /* Empty line */
+    if (!line[0]) { /* Empty line */
       continue;
+    }
 #ifdef LUDEBUG
-    if (zz)
+    if (zz) {
       printf("LUDIAL 2 s[%s]\n", s);
+    }
 #endif /* LUDEBUG */
 
     /* Make a copy and parse it the old way */
@@ -2294,26 +2430,32 @@ lu_again:
       xwords(pp, 5, info, 0); /* Parse it the old way */
 
 #ifdef LUDEBUG
-      if (zz)
+      if (zz) {
         printf("LUDIAL 3 s[%s]\n", s);
+      }
 #endif /* LUDEBUG */
 
-      if (!info[1])
+      if (!info[1]) {
         continue;
+      }
       if (*info[1] == ';') { /* If full-line comment, */
         newdir = 1;          /* (only new directories have them) */
         continue;            /* keep reading. */
       }
-      if (!info[2])
+      if (!info[2]) {
         continue;
-      if (*info[2] == '+')
+      }
+      if (*info[2] == '+') {
         newentry = 1;
+      }
       if (info[4]) {
         if ((*info[4] == '=') || !ckstrcmp(info[4], "none", 4, 0) ||
             !ckstrcmp(info[4], "even", 4, 0) ||
             !ckstrcmp(info[4], "space", 5, 0) ||
-            !ckstrcmp(info[4], "mark", 4, 0) || !ckstrcmp(info[4], "odd", 3, 0))
+            !ckstrcmp(info[4], "mark", 4, 0) ||
+            !ckstrcmp(info[4], "odd", 3, 0)) {
           oldentry = 1;
+        }
       }
     }
     if (pp) {
@@ -2346,8 +2488,9 @@ lu_again:
         sprintf(tmpbuf, "WARNING: Old-style dialing directory detected:\n%s",
                 line);
         convert = uq_ok(tmpbuf, "Shall I convert it for you? ", 3, NULL, 0);
-      } else
+      } else {
         convert = dialcvt;
+      }
       if (convert) {
         debug(F111, "ludial calling ddcvt", dialdir[dd - 1], dd);
         if (ddcvt(dialdir[dd - 1], f, dd - 1) < 0) {
@@ -2363,57 +2506,70 @@ lu_again:
         f = NULL;
         continue;
       } else {
-        if (dialcvt == 2)
+        if (dialcvt == 2) {
           printf(
               "  OK, will ignore speed and parity fields, continuing...\n\n");
+        }
         olddir = 1;
       }
     }
 
 #ifdef LUDEBUG
-    if (zz)
+    if (zz) {
       printf("LUDIAL XX s[%s], n1=%d\n", s, n1);
+    }
 #endif /* LUDEBUG */
 
     /* Now parse again for real */
 
-    if (oldentry) /* Parse it the old way */
+    if (oldentry) { /* Parse it the old way */
       xwords(line, 5, info, 0);
-    else /* Parse it the new way */
+    } else { /* Parse it the new way */
       xwords(line, 2, info, 1);
+    }
 
 #ifdef LUDEBUG
-    if (zz)
+    if (zz) {
       printf("LUDIAL YY s[%s], n1=%d\n", s, n1);
-    if (zz)
+    }
+    if (zz) {
       printf("%s [%s]\n", info[1], info[2]);
+    }
 #endif /* LUDEBUG */
 
-    if (info[1]) {                         /* First word is entry name */
-      if ((n3 = (int)strlen(info[1])) < 1) /* Its length */
-        continue;                          /* If no first word, keep reading. */
-      if (n3 < n1)                         /* Search name is longer */
-        continue;                          /* Can't possibly match */
-      if (ambiguous && n3 != n1)
+    if (info[1]) {                           /* First word is entry name */
+      if ((n3 = (int)strlen(info[1])) < 1) { /* Its length */
+        continue; /* If no first word, keep reading. */
+      }
+      if (n3 < n1) { /* Search name is longer */
+        continue;    /* Can't possibly match */
+      }
+      if (ambiguous && n3 != n1) {
         continue;
+      }
 
 #ifdef LUDEBUG
-      if (zz)
+      if (zz) {
         printf("MATCHING: [%s] [%s], n1=%d\n", s, info[1], n1);
+      }
 #endif /* LUDEBUG */
 
-      if (ckstrcmp(s, info[1], n1, 0)) /* Caseless string comparison */
+      if (ckstrcmp(s, info[1], n1, 0)) { /* Caseless string comparison */
         continue;
+      }
 
 #ifdef LUDEBUG
-      if (zz)
+      if (zz) {
         printf("MATCH OK: [%s] [%s], n1=%d\n", s, info[1], n1);
+      }
 #endif /* LUDEBUG */
 
-      if (!info[2]) /* No phone number given */
+      if (!info[2]) { /* No phone number given */
         continue;
-      if ((n2 = (int)strlen(info[2])) < 1) /* Length of phone number */
-        continue;                          /* Ignore empty phone numbers */
+      }
+      if ((n2 = (int)strlen(info[2])) < 1) { /* Length of phone number */
+        continue;                            /* Ignore empty phone numbers */
+      }
 
       /* Got one */
 
@@ -2435,8 +2591,9 @@ lu_again:
       }
       dn_p[dncount++] = pp; /* Add pointer to array. */
       if (dncount == 1) {   /* First one... */
-        if (d_name)
+        if (d_name) {
           free(d_name);
+        }
         if (!(d_name = (char *)malloc(n3 + 1))) { /* Save its name */
           printf("?internal error - ludial malloc 2\n");
           if (line) {
@@ -2451,18 +2608,22 @@ lu_again:
       } else {                   /* Second or subsequent one */
 
 #ifdef LUDEBUG
-        if (zz)
+        if (zz) {
           printf("d_name=[%s],info[1]=%s,t=[%d]\n", d_name, info[1], t);
+        }
 #endif /* LUDEBUG */
 
-        if ((int)strlen(info[1]) == t)          /* Lengths compare */
-          if (!ckstrcmp(d_name, info[1], t, 0)) /* Caseless compare OK */
+        if ((int)strlen(info[1]) == t) {          /* Lengths compare */
+          if (!ckstrcmp(d_name, info[1], t, 0)) { /* Caseless compare OK */
             continue;
+          }
+        }
 
         /* Name given by user matches entries with different names */
 
-        if (ambiguous) /* Been here before */
+        if (ambiguous) { /* Been here before */
           break;
+        }
 
         ambiguous = 1;                  /* Now an exact match is required */
         for (j = 0; j < dncount; j++) { /* Clean out previous list */
@@ -2476,8 +2637,9 @@ lu_again:
       }
     }
   }
-  if (line)
+  if (line) {
     free(line);
+  }
   if (dncount == 0 && ambiguous) {
     printf(" Lookup: \"%s\" - ambiguous%s\n", s,
            cx == XXLOOK ? "" : " - dialing skipped");
@@ -2495,10 +2657,11 @@ char *pncvt(char *s) /* Phone number conversion */
   makestr(&q, dn_p2[0]);  /* being used */
   makestr(&dn_p[0], s);   /* Copy the argument string to here */
   dncvt(0, XXLOOK, 1, 1); /* Convert it */
-  if (!dn_p2[0])          /* Put result where can return it */
+  if (!dn_p2[0]) {        /* Put result where can return it */
     pnbuf[0] = NUL;
-  else
+  } else {
     ckstrncpy(pnbuf, dn_p2[0], 127);
+  }
   makestr(&dn_p[0], p); /* Restore these */
   makestr(&dn_p2[0], q);
   makestr(&p, NULL); /* Free these */
@@ -2555,21 +2718,26 @@ int dodial(int cx) /* DIAL or REDIAL */
   }
   s = NULL;          /* Initialize user's dial string */
   if (cx == XXRED) { /* REDIAL or... */
-    if ((y = cmcfm()) < 0)
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
   } else if (cx == XXANSW) { /* ANSWER or ... */
-    if ((y = cmnum("timeout (seconds)", "0", 10, &x, xxstring)) < 0)
+    if ((y = cmnum("timeout (seconds)", "0", 10, &x, xxstring)) < 0) {
       return (y);
+    }
     dialatmo = x;
-    if ((y = cmcfm()) < 0)
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
   } else { /* DIAL or LOOKUP */
-    if (ndialdir > 0)
+    if (ndialdir > 0) {
       s3 = "Number to dial or entry from dial directory";
-    else
+    } else {
       s3 = "Number to dial";
-    if ((x = cmtxt(s3, dialnum ? dialnum : "", &s, xxstring)) < 0)
+    }
+    if ((x = cmtxt(s3, dialnum ? dialnum : "", &s, xxstring)) < 0) {
       return (x);
+    }
     if (s) {
       len = (int)strlen(s);
       ckstrncpy(tmpbuf, s, TMPBUFSIZ); /* Save literal copy */
@@ -2596,8 +2764,9 @@ int dodial(int cx) /* DIAL or REDIAL */
 #endif /* TN_COMPORT */
         )
           printf("Please SET HOST first, and then SET MODEM TYPE\n");
-        else
+        else {
           printf("Sorry, you must SET MODEM TYPE first\n");
+        }
         dialsta = DIA_NOMO;
         return (success = 0);
       }
@@ -2634,22 +2803,27 @@ int dodial(int cx) /* DIAL or REDIAL */
       } else if (dn_p[j]) { /* Not the first time, */
         free(dn_p[j]);      /* free previous, if any, */
         dn_p[j] = NULL;     /* then set to NULL. */
-        if (dn_p2[j])
+        if (dn_p2[j]) {
           free(dn_p2[j]);
+        }
         dn_p2[j] = NULL;
-      } else
+      } else {
         break; /* Already NULL */
+      }
     }
-    if (len == 0)
+    if (len == 0) {
       s = NULL;
-    if (!s)
-      s = dialnum;
+    }
     if (!s) {
-      if (cx == XXLOOK)
+      s = dialnum;
+    }
+    if (!s) {
+      if (cx == XXLOOK) {
         printf("?Lookup what?\n");
-      else
+      } else {
         printf("%s\n", (cx == XXRED) ? "?No DIAL command given yet"
                                      : "?You must specify a number to dial");
+      }
       return (-9);
     }
 
@@ -2666,31 +2840,37 @@ int dodial(int cx) /* DIAL or REDIAL */
       wasalpha = 1;
       if (ndialdir > 0) {  /* Do we have a dialing directory? */
         n = ludial(s, cx); /* Look up what the user typed */
-        if (n == 0)
+        if (n == 0) {
           printf(" Lookup: \"%s\" - not found%s\n", s,
                  cx == XXLOOK ? "" : " - dialing as given\n");
+        }
       }
       debug(F101, "dodial", s, n);
       if (n < 0 && cx != XXLOOK) { /* Error out if they wanted to dial */
-        if (n == -1)               /* -2 means ludial already gave msg */
+        if (n == -1) {             /* -2 means ludial already gave msg */
           printf(" Lookup: fatal error - dialing skipped\n");
+        }
         dialsta = DIA_DIR;
         return (-9);
       }
-      if (n > 0) /* A successful lookup */
+      if (n > 0) { /* A successful lookup */
         lufound = 1;
+      }
     } else if (*s == '=') { /* If number starts with = sign */
       s++;                  /* strip it */
       literal = 1;          /* remember this */
-      while (*s == SP)
+      while (*s == SP) {
         s++; /* and then also any leading spaces */
+      }
     } else if (tmpbuf[0] == '{' && tmpbuf[1] == '{') {
       makelist(tmpbuf, dn_p, MAXDNUMS);
       makestr(&dscopy, tmpbuf);
       s = tmpbuf;
-      for (n = 0; n < MAXDNUMS; n++) /* (have to count how many) */
-        if (!dn_p[n])
+      for (n = 0; n < MAXDNUMS; n++) { /* (have to count how many) */
+        if (!dn_p[n]) {
           break;
+        }
+      }
       braces = 1;
     }
     if (cx == XXLOOK && !wasalpha && !braces) {
@@ -2698,8 +2878,9 @@ int dodial(int cx) /* DIAL or REDIAL */
       char *p;
       n = 0;
       p = literal ? s : pncvt(dscopy);
-      if (!p)
+      if (!p) {
         p = "";
+      }
       if (*p) {
         printf("%s  => %s\n", dscopy, p);
         return (success = 1);
@@ -2716,15 +2897,17 @@ int dodial(int cx) /* DIAL or REDIAL */
     if ((cx == XXDIAL && partial == 0 && previous != DIA_PART) ||
         (cx == XXLOOK && n > 0)) {
       makestr(&dialnum, dscopy);
-      if (!quiet && dscopy && !dialnum)
+      if (!quiet && dscopy && !dialnum) {
         printf("WARNING - memory allocation failure: redial number\n");
+      }
     }
     if (n > 0) {
       if (!quiet && !backgrd && !braces /* && dialdpy */) {
-        if (!strcmp(d_name, s))
+        if (!strcmp(d_name, s)) {
           printf(" Lookup: \"%s\" - exact match\n", s);
-        else
+        } else {
           printf(" Lookup: \"%s\" - uniquely matches \"%s\"\n", s, d_name);
+        }
       }
       if ((cx == XXLOOK) || ((n > 1) && !quiet && !backgrd /* && dialdpy */)) {
         printf(" %d telephone number%sfound for \"%s\"%s\n", n,
@@ -2759,15 +2942,18 @@ int dodial(int cx) /* DIAL or REDIAL */
       }
       if ((cx == XXLOOK) || ((n > 1) && !quiet && !backgrd /* && dialdpy */)) {
         int nn = n;
-        if (cx != XXLOOK)
-          if (n > 12)
+        if (cx != XXLOOK) {
+          if (n > 12) {
             nn = 12;
+          }
+        }
         for (i = 0; i < nn; i++) {
           printf("%3d. %-12s  %-20s =>  %-20s  (%d)\n", i + 1, s3, dn_p[i],
                  dn_p2[i] ? dn_p2[i] : "(processing failed)", dn_x[i]);
         }
-        if (cx != XXLOOK && n != nn)
+        if (cx != XXLOOK && n != nn) {
           printf("And %d more...\n", n - nn);
+        }
       }
     } else if (n == 0) { /* Not found in directory */
       makestr(&(dn_p[0]), literal ? s : dscopy);
@@ -2793,14 +2979,16 @@ int dodial(int cx) /* DIAL or REDIAL */
       }
       if (n > -1) {
         int k;
-        if (n > 0) /* A successful lookup */
+        if (n > 0) { /* A successful lookup */
           lufound = 1;
-        if (cx == XXLOOK && n == 0)
+        }
+        if (cx == XXLOOK && n == 0) {
           printf(" Lookup: \"%s\" - not found\n", dscopy);
-        else
+        } else {
           printf("%s %d network entr%s found for \"%s\"%s\n",
                  cx == XXLOOK ? " Lookup:" : "", n, (n == 1) ? "y" : "ies",
                  dscopy, (n > 0) ? ":" : ".");
+        }
 
         for (i = 0; i < n; i++) {
 
@@ -2808,8 +2996,9 @@ int dodial(int cx) /* DIAL or REDIAL */
           for (k = 0; k < 4; k++) {
             if (nh_px[k][i]) {
               printf(" %s", nh_px[k][i]);
-            } else
+            } else {
               break;
+            }
           }
           printf("\n");
         }
@@ -2817,8 +3006,9 @@ int dodial(int cx) /* DIAL or REDIAL */
     }
 #endif /* NETCONN */
 #endif /* NONET */
-    if (cx == XXLOOK)
+    if (cx == XXLOOK) {
       return (success = lufound);
+    }
   } /* cx != XXANSW */
 
   /*
@@ -2832,9 +3022,10 @@ int dodial(int cx) /* DIAL or REDIAL */
     parity should be used), this might prevent successful dialing.  For that
     reason, we don't do this for V.25bis modems.
   */
-  sparity = parity;               /* Save current parity */
-  if ((dialcapas & CKD_V25) == 0) /* If not V.25bis...  */
-    parity = 0;                   /* Set parity to NONE */
+  sparity = parity;                 /* Save current parity */
+  if ((dialcapas & CKD_V25) == 0) { /* If not V.25bis...  */
+    parity = 0;                     /* Set parity to NONE */
+  }
 
   flowsave = flow;
 /*
@@ -2865,11 +3056,12 @@ use Ctrl-C to interrupt dialing, turn on your modem, then %s.\n",
       }
       if (flow == FLO_RTSC) {
         if (!(x & BM_CTS)) {
-          if (msgflg)
+          if (msgflg) {
             printf(
                 "WARNING - SET FLOW RTS/CTS is in effect but modem's CTS signal is off.\n\
 Disabling flow control temporarily %s...\n",
                 cx == XXANSW ? "while waiting for call" : "during dialing");
+          }
           flow = FLO_NONE;
         }
       }
@@ -2885,8 +3077,9 @@ Disabling flow control temporarily %s...\n",
   i = 0;
   dialcount = 0;
   do {
-    if (i > 0)
+    if (i > 0) {
       printf("\nDial attempt %d of %d...\n", i + 1, xretries);
+    }
     dialcount = i + 1;
     success = 0;
     /* And the ability to dial alternate numbers. */
@@ -2898,15 +3091,18 @@ Disabling flow control temporarily %s...\n",
         continue;
       }
       xredial = (i == 0 && j == 0) ? 0 : 1;
-      if (!s)
+      if (!s) {
         s = dn_p[j];
+      }
 
 #ifndef NOSPL
       sav = s;
       p = xdial(s); /* Apply DIAL macro now */
-      if (p)
-        if (*p)
+      if (p) {
+        if (*p) {
           s = p;
+        }
+      }
 #endif /* NOSPL */
 
       /* Dial confirmation */
@@ -2930,13 +3126,15 @@ Disabling flow control temporarily %s...\n",
         }
       }
       if (dialtest) { /* Just testing */
-        if (i + j == 0)
+        if (i + j == 0) {
           printf("\nTESTING...\n");
+        }
 #ifndef NOSPL
-        if (dialmac)
+        if (dialmac) {
           printf(" Number: \"%s\" => \"%s\"\n", sav, s);
-        else
+        } else {
           printf(" Number: \"%s\"\n", s);
+        }
 #endif /* NOSPL */
         dialsta = DIA_BUSY;
         success = 0;
@@ -2946,13 +3144,16 @@ Disabling flow control temporarily %s...\n",
         what &= ~(W_DIALING);
         if (!success) {
           if (dialsta < 8 || /* Break out if unrecoverable error */
-              dialsta == DIA_INTR || dialsta == DIA_ERR || previous == DIA_PART)
+              dialsta == DIA_INTR || dialsta == DIA_ERR ||
+              previous == DIA_PART) {
             break;
+          }
         }
       }
     }
-    if (success) /* Succeeded, leave the outer loop */
+    if (success) { /* Succeeded, leave the outer loop */
       break;
+    }
     if (dialsta < 8 ||         /* Break out if unrecoverable error */
         dialsta == DIA_INTR || /* Interrupted */
         dialsta == DIA_NODT || /* No dialtone */
@@ -2960,23 +3161,27 @@ Disabling flow control temporarily %s...\n",
         dialsta == DIA_BLCK || /* Blacklisted */
         dialsta == DIA_DIR ||  /* Dialing directory error */
         dialsta == DIA_ERR ||  /* Modem command error */
-        previous == DIA_PART)
+        previous == DIA_PART) {
       break;
-    if (++i >= xretries) /* Break out if too many tries */
+    }
+    if (++i >= xretries) { /* Break out if too many tries */
       break;
+    }
     if (!backgrd && !quiet) {
-      if (dialint > 5)
+      if (dialint > 5) {
         printf("\nWill redial in %d second%s- press any key to redial "
                "immediately.\n",
                dialint, dialint == 1 ? " " : "s ");
+      }
       printf("Ctrl-C to cancel...\n");
     }
     x = dialint; /* Redial interval */
     while (x-- > 0) {
       if ((y = conchk()) > 0) { /* Did they type something? */
-        while (y--)
+        while (y--) {
           coninc(0); /* Yes, absorb it */
-        break;       /* And wake up */
+        }
+        break; /* And wake up */
       }
       sleep(1); /* No interrupt, sleep a sec */
     }
@@ -2990,8 +3195,9 @@ dialfin:
     } else if (!quiet) {
       bleep((short)BP_NOTE);
     }
-    if (sparity > -1)
+    if (sparity > -1) {
       parity = sparity; /* Restore parity if we saved it */
+    }
     flow = flowsave;
   }
   if (cx != XXLOOK) {
@@ -3012,8 +3218,9 @@ dialfin:
         printf("Device:      %s\n", ttname);
         printf("Speed:       %ld\n", speed);
         printf("Dial status: %d", dialsta);
-        if (dialsta < 35 && dialmsg[dialsta])
+        if (dialsta < 35 && dialmsg[dialsta]) {
           printf(" [%s]", dialmsg[dialsta]);
+        }
         printf("\n");
         if (dialsta == DIA_TIMO || dialsta == DIA_NRDY ||
             (dialsta > 13 && dialsta != DIA_BUSY && dialsta != DIA_NOAN)) {
@@ -3045,20 +3252,22 @@ dialfin:
             printf("    SET SPEED ? to see the list of valid speeds.\n");
           }
           if (dialhng) {
-            if (dialmhu)
+            if (dialmhu) {
               printf(" . SET MODEM HANGUP-METHOD RS232 and try again.\n");
-            else
+            } else {
               printf(
                   " . SET MODEM HANGUP-METHOD MODEM-COMMAND and try again.\n");
+            }
             printf(" . If that doesn't work, try again with SET DIAL HANGUP "
                    "OFF.\n");
           } else {
             printf(" . Give a HANGUP or SET DIAL HANGUP ON command and try "
                    "again.\n");
           }
-          if (!dialdpy)
+          if (!dialdpy) {
             printf(" . Use SET DIAL DISPLAY ON to watch the dialog between "
                    "Kermit and modem.\n");
+          }
         }
 #ifndef NOSHOW
         printf(" . SHOW COMMUNICATIONS, SHOW MODEM, SHOW DIAL to see current "
@@ -3099,10 +3308,12 @@ static char *mbuf = NULL;
 static long xn = 0L;
 
 static int storechar(char c) {
-  if (!mp)
+  if (!mp) {
     return (-1);
-  if (++xn > TYPXBUFL)
+  }
+  if (++xn > TYPXBUFL) {
     return (-1);
+  }
   debug(F111, "storechar xn", ckitoa((int)c), xn);
   *mp++ = c;
   return (0);
@@ -3185,11 +3396,13 @@ typegetline(int incs, int outcs, char *buf, int n) {
   }
 #endif /* DEBUG */
 
-  if (incs < 0) /* Shouldn't happen */
+  if (incs < 0) { /* Shouldn't happen */
     return (-2);
+  }
 
-  if (outcs == -1) /* Can happen */
+  if (outcs == -1) { /* Can happen */
     outcs = incs;
+  }
 
   if (incs != outcs || incs == FC_UCS2) { /* See if we should translate */
     xlate = 1;
@@ -3211,11 +3424,13 @@ typegetline(int incs, int outcs, char *buf, int n) {
                  character set.            But since we are            using            UCS-2, we have
                  several sources for            confusion: (1) xgnbyte() might            return in            LE
                  or BE byte order,            with no explicit indication of what the            order
-                 is; but            (2)            xpnbyte() wants BE; but (3) Windows wants LE.
+                 is; but            (2)            xpnbyte() wants BE; but (3) Windows
+                 wants LE.
                */
     while (1) {
-      if (typ_int) /* Quit if interrupted */
+      if (typ_int) { /* Quit if interrupted */
         return (0);
+      }
       c0 = xgnbyte(FC_UCS2, incs, NULL); /* Convert to UCS-2 */
       debug(F000, "typegetline c0", "", c0);
       if (c0 < 0) { /* EOF */
@@ -3230,36 +3445,43 @@ typegetline(int incs, int outcs, char *buf, int n) {
       }
 #ifdef DEBUG
       if (deblog && typ_lines == 0) {
-        if (count == 0) /* Check fileorder after BOM */
+        if (count == 0) { /* Check fileorder after BOM */
           debug(F111, "typegetline fileorder", "2", fileorder);
+        }
       }
 #endif /* DEBUG */
 
-      if (c0 == 0 && c1 == 0x0D) /* Now see if we have EOL */
+      if (c0 == 0 && c1 == 0x0D) { /* Now see if we have EOL */
         yyn = xn;
+      }
 
-      if (c0 == 0 && c1 == 0x0A) /* Now see if we have EOL */
+      if (c0 == 0 && c1 == 0x0A) { /* Now see if we have EOL */
         xxn = xn;
+      }
 
       count++; /* Count byte */
 
       /* Give the two bytes to xpnbyte() in BE order */
 
-      if ((x = xpnbyte(c0, TC_UCS2, outcs, storechar)) < 0)
+      if ((x = xpnbyte(c0, TC_UCS2, outcs, storechar)) < 0) {
         return (-1);
-      if ((x = xpnbyte(c1, TC_UCS2, outcs, storechar)) < 0)
+      }
+      if ((x = xpnbyte(c1, TC_UCS2, outcs, storechar)) < 0) {
         return (-1);
+      }
 
       if (xxn > -1) { /* Have end of line? */
         xn = xxn;
-        if (yyn == xxn - 2) /* Adjust for CRLF */
+        if (yyn == xxn - 2) { /* Adjust for CRLF */
           xn = yyn;
+        }
         break; /* And break out of loop. */
       }
     }
     mbuf[xn] = NUL;
-    if (xn > n) /* Can truncate here... */
+    if (xn > n) { /* Can truncate here... */
       xn = n;
+    }
     memcpy(buf, mbuf, xn);
     debug(F011, "typegetline xlate", buf, xn);
     return ((eof && (xn == 0)) ? -1 : xn);
@@ -3279,14 +3501,17 @@ typegetline(int incs, int outcs, char *buf, int n) {
     while (n--) {                  /* Up to given length */
       if (zchin(ZIFILE, &a) < 0) { /* Read a character from the file */
         debug(F101, "typegetline zchin fail", "", count);
-        if (count == 0)
+        if (count == 0) {
           x = -1; /* EOF or other error */
+        }
         break;
-      } else
+      } else {
         count++;
+      }
       if (feol) { /* Single-character line terminator */
-        if (a == feol)
+        if (a == feol) {
           break;
+        }
       } else { /* CRLF line terminator */
         if (a == LF) {
           if (s[len] == CK_CR) { /* This probably won't happen */
@@ -3347,18 +3572,22 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
 
   void (*oldsig)(int);
 
-  if (!file)
+  if (!file) {
     file = "";
-  if (!*file)
+  }
+  if (!*file) {
     return (-2);
+  }
 
   if (ofp != stdout) { /* In case of previous interruption */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
-  if (!outfile)
+  if (!outfile) {
     outfile = "";
+  }
   if (outfile[0]) {
     ofp = fopen(outfile, "w"); /* Open output file */
     if (!ofp) {
@@ -3368,8 +3597,9 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
     }
   }
   number = z;
-  if (number && prefix)
+  if (number && prefix) {
     prefix = NULL;
+  }
 
 #ifdef UNICODE
   ucsbom_sav = ucsbom; /* We are not creating a file */
@@ -3386,10 +3616,12 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
 #ifdef UNICODE
   debug(F111, "dotype fileorder", "A", fileorder);
 
-  if (outcs == FC_UCS2) /* Output is UCS-2? */
+  if (outcs == FC_UCS2) { /* Output is UCS-2? */
     ucs2 = 1;
-  if (fileorder < 0)
+  }
+  if (fileorder < 0) {
     fileorder = ucsorder;
+  }
   debug(F111, "dotype fileorder", "B", fileorder);
 #endif /* UNICODE */
 
@@ -3405,8 +3637,9 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   }
 #endif /* CK_TTGWSIZ */
 
-  if (prefix)
+  if (prefix) {
     pfxlen = strlen(prefix);
+  }
 
   if (paging < 0) { /* Count only, don't print */
     counting = 1;
@@ -3414,16 +3647,18 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
     width = 0;
     paging = 0;
   }
-  if (ucs2) /* Crude... */
+  if (ucs2) { /* Crude... */
     width *= 2;
+  }
 
   if (zchki(file) == -2) { /* It's a directory */
     debug(F111, "dotype zchki failure", file, -2);
     if (xcmdsrc == 0) {
       printf("?Not a regular file: \"%s\"\n", file);
       rc = -9;
-    } else
+    } else {
       rc = 0;
+    }
     goto xdotype;
   }
   /*  printf("%s: %d\n","DOTYPE tlevel BEFORE open:",tlevel); */
@@ -3432,8 +3667,9 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
     if (xcmdsrc == 0) {
       printf("?Can't open file: \"%s\"\n", file);
       rc = -9;
-    } else
+    } else {
       rc = 0;
+    }
     goto xdotype;
   }
   /*  printf("%s: %d\n","DOTYPE tlevel AFTER open:",tlevel); */
@@ -3442,8 +3678,9 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   oldsig = ck_signal(SIGINT, tytrap); /* Save current interrupt trap. */
   /* debug(F111,"type SIGINT trap set",ckitoa(errno),oldsig); */
 
-  if (paging > -1) /* More-prompting */
+  if (paging > -1) { /* More-prompting */
     xaskmore = paging;
+  }
 
   binary = 0;
 
@@ -3498,20 +3735,24 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
       debug(F101, "type interrupted line", "", lines);
       printf("^C...\n");   /* Print message */
       if (ofp != stdout) { /* Close any output file */
-        if (ofp)
+        if (ofp) {
           fclose(ofp);
+        }
         ofp = stdout;
       }
       goto xxdotype;
     }
-    typ_lines++;                        /* For \v(ty_ln) */
-    if (pat)                            /* Matching? */
-      if (!ckmatch(pat, buf, 1, 1 + 4)) /* Line matches pattern? */
-        continue;                       /* No, skip it */
+    typ_lines++;                          /* For \v(ty_ln) */
+    if (pat) {                            /* Matching? */
+      if (!ckmatch(pat, buf, 1, 1 + 4)) { /* Line matches pattern? */
+        continue;                         /* No, skip it */
+      }
+    }
     typ_mtchs++;
 
-    if (head > 0 && !tailing && lines == head) /* Handle /HEAD:n */
+    if (head > 0 && !tailing && lines == head) { /* Handle /HEAD:n */
       break;
+    }
 
     buf[TYPBUFL + 1] = NUL; /* Just in case... */
     if (prefix) {           /* Add specified prefix to each line */
@@ -3554,27 +3795,32 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
       int i, k, z;                       /* expand tabs; assume every 8 cols. */
       line[0] = NUL;
       for (i = 0, k = 0; i < width; k++) { /* Character loop... */
-        if (!buf[k]) /* No more chars in this line, done. */
+        if (!buf[k]) { /* No more chars in this line, done. */
           break;
-        if (buf[k] != '\t') { /* If it's not a tab */
-          if (i >= LINBUFSIZ) /* Check for overflow */
+        }
+        if (buf[k] != '\t') {   /* If it's not a tab */
+          if (i >= LINBUFSIZ) { /* Check for overflow */
             break;
+          }
           obuf[i++] = buf[k]; /* and then deposit it. */
           obuf[i] = NUL;      /* Keep it null-terminated */
           continue;
         }
         z = 8 - (i % 8); /* It's a tab, expand it. */
-        if (z == 0)
+        if (z == 0) {
           z = 8;
+        }
         for (j = 0; j < z && i < LINBUFSIZ; j++) {
 #ifdef UNICODE
-          if (ucs2 && !ucsorder)
+          if (ucs2 && !ucsorder) {
             obuf[i++] = NUL;
+          }
 #endif /* UNICODE */
           obuf[i++] = ' ';
 #ifdef UNICODE
-          if (ucs2 && ucsorder)
+          if (ucs2 && ucsorder) {
             obuf[i++] = NUL;
+          }
 #endif /* UNICODE */
         }
         obuf[i++] = NUL;
@@ -3587,8 +3833,9 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
     if (tailing) {      /* If /TAIL:n... */
       k = lines % head; /* save this line in circular buffer */
       if (!counting) {
-        if (tail[k])
+        if (tail[k]) {
           free(tail[k]);
+        }
         tail[k] = malloc(len + 2);
         if (!tail[k]) {
           printf("?Memory allocation failure\n");
@@ -3599,17 +3846,20 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
         continue;
       }
     }
-    if (counting) /* If only counting */
-      continue;   /* we're done with this line */
+    if (counting) { /* If only counting */
+      continue;     /* we're done with this line */
+    }
 
     if (paging) { /* Displaying this line... */
       int u;
-      u = len;                /* Length in BYTES */
-      if (ucs2)               /* If outputting in UCS-2 */
-        u /= 2;               /* convert length to CHARACTERS */
+      u = len;    /* Length in BYTES */
+      if (ucs2) { /* If outputting in UCS-2 */
+        u /= 2;   /* convert length to CHARACTERS */
+      }
       x = (u / cmd_cols) + 1; /* Crudely allow for wrap */
-      if (cmd_rows > 0 && cmd_cols > 0)
+      if (cmd_rows > 0 && cmd_cols > 0) {
         n += x; /* This assumes terminal will wrap */
+      }
     }
     typeline(buf, len, outcs, ofp); /* Print line, length based */
 #ifdef CK_TTGWSIZ
@@ -3631,9 +3881,10 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
 xdotype:
   if (counting) {
     fprintf(ofp, "%s: %d line%s\n", file, typ_lines, typ_lines == 1 ? "" : "s");
-    if (pat)
+    if (pat) {
       fprintf(ofp, "%s: %d match%s\n", pat, typ_mtchs,
               typ_mtchs == 1 ? "" : "es");
+    }
     goto xxdotype;
   }
   if (tailing && tail) { /* Typing tail of file? */
@@ -3642,8 +3893,9 @@ xdotype:
     } else {             /* More lines than tail number */
       lines = k;         /* Last line to show */
       k++;               /* First line to show */
-      if (k >= head)
+      if (k >= head) {
         k = 0;
+      }
     }
     n = first;             /* Output line counter */
     for (i = k;; i++) {    /* Loop thru circular buffer */
@@ -3653,15 +3905,18 @@ xdotype:
       }
       j = i % head; /* Index of this line */
       s = tail[j];  /* Point to line to display */
-      if (!s)       /* (shouldn't happen...) */
+      if (!s) {     /* (shouldn't happen...) */
         break;
+      }
       if (paging) { /* Crudely allow for line wrap */
         x = tlen[j];
-        if (ucs2)
+        if (ucs2) {
           x /= 2;
+        }
         x = x / cmd_cols + 1;
-        if (cmd_rows > 0 && cmd_cols > 0)
+        if (cmd_rows > 0 && cmd_cols > 0) {
           n += x;
+        }
       }
       typeline(s, tlen[j], outcs, ofp); /* Display this line */
       if (paging && ofp == stdout) {    /* Pause at end of screen */
@@ -3676,14 +3931,16 @@ xdotype:
         }
       }
       tail[j] = NULL;
-      free(s);               /* Free the line */
-      if (i % head == lines) /* When to stop */
+      free(s);                 /* Free the line */
+      if (i % head == lines) { /* When to stop */
         break;
+      }
     }
     free((char *)tail); /* Free the list */
     tail = NULL;
-    if (tlen)
+    if (tlen) {
       free((char *)tlen);
+    }
     tlen = NULL;
   }
 
@@ -3693,17 +3950,20 @@ xxdotype:
   ck_signal(SIGINT, oldsig); /* Put old signal action back. */
   if (tailing && tail) {
     for (i = 0; i < head; i++) { /* Free each line. */
-      if (tail[i])
+      if (tail[i]) {
         free(tail[i]);
+      }
     }
     free((char *)tail); /* Free list pointer */
-    if (tlen)
+    if (tlen) {
       free((char *)tlen);
+    }
   }
   x = zclose(ZIFILE);  /* Done, close the input file */
   if (ofp != stdout) { /* Close any output file */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
   binary = save; /* Restore text/binary mode */
@@ -3822,8 +4082,9 @@ int dogrep() {
   makestr(&grep_except, NULL);
 
   if (ofp != stdout) { /* In case of previous interruption */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
   cmfdbi(&sw,    /* First FDB - command switches */
@@ -3847,8 +4108,9 @@ int dogrep() {
          NULL, NULL);
   while (1) {       /* Parse 0 or more switches */
     x = cmfdb(&sw); /* Parse something */
-    if (x < 0)
+    if (x < 0) {
       return (x);
+    }
     if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
       break;
     }
@@ -3865,8 +4127,9 @@ int dogrep() {
     case GREP_COUN: {
       gr_coun++;
       if (getval) {
-        if ((x = cmfld("Variable for result", "", &s, NULL)) < 0)
+        if ((x = cmfld("Variable for result", "", &s, NULL)) < 0) {
           return (x);
+        }
         makestr(&cv, s);
       }
       break;
@@ -3919,26 +4182,30 @@ int dogrep() {
         if (x == -3) {
           printf("?Array name required\n");
           return (-9);
-        } else
+        } else {
           return (x);
+        }
       }
       if (!*s) {
         printf("?Array name required\n");
         return (-9);
       }
       s2 = s;
-      if (*s == CMDQ)
+      if (*s == CMDQ) {
         s++;
-      if (*s == '&')
+      }
+      if (*s == '&') {
         s++;
+      }
       if (!isalpha(*s)) {
         printf("?Bad array name - \"%s\"\n", s2);
         return (-9);
       }
       array = *s++;
 
-      if (isupper(array))
+      if (isupper(array)) {
         array = tolower(array);
+      }
       if (*s && (*s != '[' || *(s + 1) != ']')) {
         printf("?Bad array name - \"%s\"\n", s2);
         return (-9);
@@ -3957,16 +4224,18 @@ int dogrep() {
 #ifndef NOSPL
     case GREP_MACR: { /* Results become macro definition */
       gr_macr = 1;
-      if ((x = cmfld("macro name", "", &s, xxstring)) < 0)
+      if ((x = cmfld("macro name", "", &s, xxstring)) < 0) {
         return (x);
+      }
       ckstrncpy(macroname, s, CKMAXPATH); /* Macro name */
       break;
     }
 #endif /* NOSPL */
     case GREP_TYPE: {
       extern struct keytab txtbin[];
-      if ((x = cmkey(txtbin, 3, "", "", xxstring)) < 0)
+      if ((x = cmkey(txtbin, 3, "", "", xxstring)) < 0) {
         return (x);
+      }
       if (x == 2) { /* ALL */
         xmode = -1;
       } else { /* TEXT or BINARY only */
@@ -3976,21 +4245,25 @@ int dogrep() {
       break;
     }
     case GREP_OUTP: /* Send output to file */
-      if ((x = cmofi("File for GREP'd lines", "", &s, xxstring)) < 0)
+      if ((x = cmofi("File for GREP'd lines", "", &s, xxstring)) < 0) {
         return (x);
+      }
       ckstrncpy(outfile, s, CKMAXPATH);
       break;
     case GREP_EXCP: /* Exception pattern */
       if (getval) {
-        if ((x = cmfld("Exception pattern", "", &s, xxstring)) < 0)
+        if ((x = cmfld("Exception pattern", "", &s, xxstring)) < 0) {
           return (x);
+        }
         gr_excp++;
         makestr(&grep_except, s);
       }
     case GREP_DISP: /* Display options */
       if (getval) {
-        if ((y = cmnum("number: max lines to show", "0", 10, &x, xxstring)) < 0)
+        if ((y = cmnum("number: max lines to show", "0", 10, &x, xxstring)) <
+            0) {
           return (y);
+        }
         dispmode = x; /* Number of lines to display */
         break;
       }
@@ -4035,11 +4308,13 @@ int dogrep() {
 #ifndef ZXREWIND
   ckstrncpy(line, s, LINBUFSIZ);
 #endif /* ZXREWIND */
-  if ((y = cmcfm()) < 0)
+  if ((y = cmcfm()) < 0) {
     return (y);
+  }
 
-  if (gr_page > -1)
+  if (gr_page > -1) {
     xaskmore = gr_page; /* Paging... */
+  }
 
   p = tmpbuf; /* Point to pattern */
   debug(F111, "GREP pat", p, x);
@@ -4050,10 +4325,12 @@ int dogrep() {
 #else
   {
     int flags = ZX_FILONLY; /* Expand file list */
-    if (matchdot)
+    if (matchdot) {
       flags |= ZX_MATCHDOT;
-    if (recursive)
+    }
+    if (recursive) {
       flags |= ZX_RECURSE;
+    }
     fc = nzxpand(line, flags); /* Number of files that match */
     debug(F110, "GREP fc (number of files to grep)", fc, 0);
   }
@@ -4100,18 +4377,22 @@ int dogrep() {
   debug(F101, "GREP gr_noli", "", gr_noli);
   debug(F101, "GREP wild", "", wild);
 
-  while (1) {     /* Loop for each file */
-    znext(name);  /* Get next file */
-    if (!name[0]) /* No more, done */
+  while (1) {       /* Loop for each file */
+    znext(name);    /* Get next file */
+    if (!name[0]) { /* No more, done */
       break;
-    if (gr_nobk)                               /* Skipping backup files? */
-      if (ckmatch("*.~[1-9]*~", name, 1, 1))   /* Backup file? */
+    }
+    if (gr_nobk) {                             /* Skipping backup files? */
+      if (ckmatch("*.~[1-9]*~", name, 1, 1)) { /* Backup file? */
         continue;                              /* Yes, skip */
+      }
+    }
     if (scan) {                                /* /TYPE: given? */
       switch (scanfile(name, &y, nscanfile)) { /* Yes, scan the file */
       case FT_BIN:
-        if (xmode != 1)
+        if (xmode != 1) {
           continue;
+        }
         break;
       case FT_TEXT:
       case FT_7BIT:
@@ -4120,13 +4401,15 @@ int dogrep() {
       case FT_UTF8:
       case FT_UCS2:
 #endif /* UNICODE */
-        if (xmode != 0)
+        if (xmode != 0) {
           continue;
+        }
       }
     }
     fp = fopen(name, "r"); /* Open */
-    if (!fp)               /* Can't */
+    if (!fp) {             /* Can't */
       continue;            /* Skip */
+    }
     debug(F110, "GREP file open ok", name, 0);
     count = 0;                                  /* Match count, this file */
     fline = 0;                                  /* Line count, this file */
@@ -4142,19 +4425,22 @@ int dogrep() {
       debug(F111, "GREP line and number", line, fline);
       len = (int)strlen(line); /* Get length */
       debug(F111, "GREP line length", "", len);
-      while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r'))
+      while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
         line[--len] = NUL; /* Chop off terminators */
-      if (verbatim) {      /* Match literally */
+      }
+      if (verbatim) { /* Match literally */
         match = ckindex(p, line, 0, 0, gr_case);
       } else {
         match = ckmatch(p, line, gr_case, 1 + 4); /* Match pattern */
         if (match && gr_excp) {
-          if (ckmatch(grep_except, line, gr_case, 1 + 4))
+          if (ckmatch(grep_except, line, gr_case, 1 + 4)) {
             match = 0;
+          }
         }
       }
-      if (gr_noma) /* Invert match sense if requested */
+      if (gr_noma) { /* Invert match sense if requested */
         match = !match;
+      }
       if (match) { /* Have a matching line */
         mc++;      /* Total match count */
         count++;   /* Match count this file */
@@ -4185,8 +4471,9 @@ int dogrep() {
 #endif           /* NOSPL */
           break; /* Only need one per file */
         }
-        if (gr_coun || gr_noli) /* Not listing each line */
-          continue;             /* so don't print anything now. */
+        if (gr_coun || gr_noli) { /* Not listing each line */
+          continue;               /* so don't print anything now. */
+        }
 
         if (wild) {   /* If searching multiple files */
           rp1 = name; /* set pointer to filename */
@@ -4196,8 +4483,9 @@ int dogrep() {
           rp2 = ckitoa(fline); /* set pointer to line number */
         }
         rp3 = line;
-        if (cmd_rows > 0 && cmd_cols > 0)
+        if (cmd_rows > 0 && cmd_cols > 0) {
           sline += (len / cmd_cols) + 1;
+        }
 #ifndef NOSPL
         if (array) {
           char tmpstr[10000];
@@ -4205,15 +4493,18 @@ int dogrep() {
           tmplen = (int)strlen(rp1) + (int)strlen(rp2) + (int)strlen(rp3) + 2;
           debug(F100, "GREP adding line to array", "", 0);
           debug(F101, "GREP tmplen", "", tmplen);
-          if (!rp1)
+          if (!rp1) {
             rp1 = "";
-          if (!rp2)
+          }
+          if (!rp2) {
             rp2 = "";
+          }
           debug(F110, "GREP rp1", rp1, ""); /* filename */
           debug(F110, "GREP rp2", rp2, ""); /* line number in file */
           debug(F110, "GREP rp3", rp3, ""); /* the matching line */
-          if (!(int)strlen(rp3))            /* (shouldn't happen) */
+          if (!(int)strlen(rp3)) {          /* (shouldn't happen) */
             printf("*** EMPTY MATCH STRING ***\n");
+          }
           /* name:lineno:line */
           if ((int)strlen(rp1) && (int)strlen(rp2)) {
             ckmakxmsg(tmpstr, tmplen, rp1, ":", rp2, ":", rp3, NULL, NULL, NULL,
@@ -4234,15 +4525,17 @@ int dogrep() {
 #endif /* NOSPL */
           debug(F100, "GREP printing line", "", 0);
           if (wild) {
-            if ((int)strlen(rp2))
+            if ((int)strlen(rp2)) {
               fprintf(ofp, "%s%s%s%s%s\n", rp1, ":", rp2, ":", rp3);
-            else
+            } else {
               fprintf(ofp, "%s%s%s\n", rp1, ":", rp3);
+            }
           } else {
-            if ((int)strlen(rp2))
+            if ((int)strlen(rp2)) {
               fprintf(ofp, "%s%s%s\n", rp2, ":", rp3);
-            else
+            } else {
               fprintf(ofp, "%s\n", rp3);
+            }
           }
           if (sline > cmd_rows - 3) {
             if (!askmore()) {
@@ -4281,8 +4574,9 @@ int dogrep() {
 xgrep:
 #ifndef NOSPL
   if (gr_macr) { /* If /macro assign matches to macro */
-    if (*macrodef)
+    if (*macrodef) {
       addmac(macroname, macrodef);
+    }
   }
   /*
     ...resize array resize...
@@ -4296,19 +4590,22 @@ xgrep:
     a_dim[arraynum] = high;   /* Adjust dimension */
     makestr(&(ap[0]), ckitoa(arrayslot));
     /* deallocate leftover elements */
-    for (i = arrayslot + 1; i <= GREPARRAYSIZE; i++)
+    for (i = arrayslot + 1; i <= GREPARRAYSIZE; i++) {
       makestr(&(a_ptr[x][i]), NULL); /* from original array. */
+    }
   }
   if (gr_coun && cv) {            /* /COUNT:blah */
     addmac(cv, ckitoa(bigcount)); /* set the variable */
     makestr(&cv, NULL);           /* free this */
   }
 #endif /* NOSPL */
-  if (fp)
-    fclose(fp);        /* close input file if still open */
+  if (fp) {
+    fclose(fp); /* close input file if still open */
+  }
   if (ofp != stdout) { /* Close any output file */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
   return (success = mc ? 1 : 0);
@@ -4324,8 +4621,9 @@ static void freedirlist() {
   if (dirlist) {
     int i;
     for (i = 0; i < ndirlist; i++) {
-      if (dirlist[i])
+      if (dirlist[i]) {
         free(dirlist[i]);
+      }
     }
     free((char *)dirlist);
     dirlist = NULL;
@@ -4557,12 +4855,13 @@ void showdiropts() {
     prtopt(&optlines, "/NOSORT ");
   } else if (dir_sort > 0) {
     x++;
-    if (dir_skey == DIRS_NM)
+    if (dir_skey == DIRS_NM) {
       s = "/SORT:NAME";
-    else if (dir_skey == DIRS_SZ)
+    } else if (dir_skey == DIRS_SZ) {
       s = "/SORT:SIZE";
-    else if (dir_skey == DIRS_DT)
+    } else if (dir_skey == DIRS_DT) {
       s = "/SORT:DATE";
+    }
     prtopt(&optlines, s);
   }
   if (dir_rvrs > -1) {
@@ -4578,8 +4877,9 @@ void showdiropts() {
     }
     x++;
   }
-  if (!x)
+  if (!x) {
     prtopt(&optlines, "(no options set)");
+  }
   prtopt(&optlines, "");
 }
 #endif /* NOSHOW */
@@ -4591,10 +4891,11 @@ int setdiropts() { /* Set DIRECTORY option defaults */
   char c;
   while (1) {
     if ((y = cmswi(dirswtab, ndirswtab, "Switch", "", xxstring)) < 0) {
-      if (y == -3)
+      if (y == -3) {
         break;
-      else
+      } else {
         return (y);
+      }
     }
     c = cmgbrk();
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
@@ -4647,9 +4948,11 @@ int setdiropts() { /* Set DIRECTORY option defaults */
       break;
     case DIR_SRT:
       x = DIRS_NM;
-      if (getval)
-        if ((x = cmkey(dirsort, ndirsort, "Sort key", "name", xxstring)) < 0)
+      if (getval) {
+        if ((x = cmkey(dirsort, ndirsort, "Sort key", "name", xxstring)) < 0) {
           return (x);
+        }
+      }
       xk = x;
       xs = 1;
       break;
@@ -4684,9 +4987,12 @@ int setdiropts() { /* Set DIRECTORY option defaults */
       xg = 0;
       break;
     case DIR_MSG:
-      if (getval)
-        if ((x = cmfld("Message to append to each line", "", &s, xxstring)) < 0)
+      if (getval) {
+        if ((x = cmfld("Message to append to each line", "", &s, xxstring)) <
+            0) {
           return (x);
+        }
+      }
       xg = 1;
       ckstrncpy(tmpbuf, brstrip(s), TMPBUFSIZ);
       break;
@@ -4695,38 +5001,53 @@ int setdiropts() { /* Set DIRECTORY option defaults */
       return (-9);
     }
   }
-  if ((x = cmcfm()) < 0) /* Get confirmation */
+  if ((x = cmcfm()) < 0) { /* Get confirmation */
     return (x);
-  if (xv > -1)
+  }
+  if (xv > -1) {
     dir_verb = xv; /* Confirmed, save defaults */
-  if (xp > -1)
+  }
+  if (xp > -1) {
     dir_page = xp;
-  if (xd > -1)
+  }
+  if (xd > -1) {
     dir_date = xd;
-  if (xh > -1)
+  }
+  if (xh > -1) {
     dir_head = xh;
-  if (xs > -1)
+  }
+  if (xs > -1) {
     dir_sort = xs;
-  if (xk > -1)
+  }
+  if (xk > -1) {
     dir_skey = xk;
-  if (xx > -1)
+  }
+  if (xx > -1) {
     dir_rvrs = xx;
-  if (xf > -1)
+  }
+  if (xf > -1) {
     dir_dots = xf;
-  if (xa > -1)
+  }
+  if (xa > -1) {
     dir_show = xa;
-  if (xm > -1)
+  }
+  if (xm > -1) {
     dir_mode = xm;
-  if (xb > -1)
+  }
+  if (xb > -1) {
     dir_back = xb;
+  }
 #ifdef RECURSIVE
-  if (xr > -1)
+  if (xr > -1) {
     dir_recu = xr;
+  }
 #endif /* RECURSIVE */
-  if (xg > -1)
+  if (xg > -1) {
     dir_msg = xg;
-  if (xg > 0)
+  }
+  if (xg > 0) {
     makestr(&dirmsg, tmpbuf);
+  }
   return (success = 1);
 }
 
@@ -4795,12 +5116,14 @@ int domydir(int cx) /* Internal DIRECTORY command */
   modtime[0] = '\0'; /* Initialize TOUCH /MODTIME */
 
   if (ofp != stdout) { /* In case of previous interruption */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
-  for (i = 0; i < 16; i++)
+  for (i = 0; i < 16; i++) {
     xlist[i] = NULL;
+  }
 
   dir_top = 0;
   name[0] = NUL;
@@ -4813,8 +5136,9 @@ int domydir(int cx) /* Internal DIRECTORY command */
   sortby = dir_skey > -1 ? dir_skey : 0;
   reverse = dir_rvrs > -1 ? dir_rvrs : 0;
   msg = dir_msg > -1 ? dir_msg : 0;
-  if (dir_dots > -1)
+  if (dir_dots > -1) {
     matchdot = dir_dots;
+  }
   xfermod = dir_mode > -1 ? dir_mode : 0;
   backup = dir_back > -1 ? dir_back : 1;
 #ifdef RECURSIVE
@@ -4892,10 +5216,12 @@ again:
   while (1) {       /* Parse 0 or more switches */
     x = cmfdb(&sw); /* Parse something */
     debug(F101, "domydir cmfdb", "", x);
-    if (x < 0)
+    if (x < 0) {
       return (x);
-    if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+    }
+    if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
       break;
+    }
     c = cmgbrk();
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
       printf("?This switch does not take an argument\n");
@@ -4910,8 +5236,9 @@ again:
     case DIR_COU: {
       dir_cou++;
       if (getval) {
-        if ((x = cmfld("Variable for result", "", &s, NULL)) < 0)
+        if ((x = cmfld("Variable for result", "", &s, NULL)) < 0) {
           return (x);
+        }
         makestr(&cv, s);
       }
       break;
@@ -4965,9 +5292,11 @@ again:
       goto again;
     case DIR_SRT:
       x = DIRS_NM;
-      if (c == ':' || c == '=')
-        if ((x = cmkey(dirsort, ndirsort, "Sort key", "name", xxstring)) < 0)
+      if (c == ':' || c == '=') {
+        if ((x = cmkey(dirsort, ndirsort, "Sort key", "name", xxstring)) < 0) {
           return (x);
+        }
+      }
       xsort = 1;
       sortby = x;
       break;
@@ -5025,9 +5354,12 @@ again:
       msg = 0;
       break;
     case DIR_MSG:
-      if (c == ':' || c == '=')
-        if ((x = cmfld("Message to append to each line", "", &s, xxstring)) < 0)
+      if (c == ':' || c == '=') {
+        if ((x = cmfld("Message to append to each line", "", &s, xxstring)) <
+            0) {
           return (x);
+        }
+      }
       msg = 1;
       ckstrncpy(tmpbuf, brstrip(s), TMPBUFSIZ);
       break;
@@ -5035,10 +5367,12 @@ again:
     case DIR_SMA:
     case DIR_LAR: {
       CK_OFF_T y;
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmnumw("File size in bytes", "0", 10, &y, xxstring)) < 0)
+      }
+      if ((x = cmnumw("File size in bytes", "0", 10, &y, xxstring)) < 0) {
         return (x);
+      }
       fs++;
       show = 1;
       switch (cmresult.nresult) {
@@ -5053,10 +5387,12 @@ again:
     }
     case DIR_TOP:
       dir_top = 10;
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmnum("How many lines to show", "10", 10, &y, xxstring)) < 0)
+      }
+      if ((x = cmnum("How many lines to show", "10", 10, &y, xxstring)) < 0) {
         return (x);
+      }
       dir_top = y;
       break;
 
@@ -5071,25 +5407,29 @@ again:
         if (x == -3) {
           printf("?Array name required\n");
           return (-9);
-        } else
+        } else {
           return (x);
+        }
       }
       if (!*s) {
         printf("?Array name required\n");
         return (-9);
       }
       s2 = s;
-      if (*s == CMDQ)
+      if (*s == CMDQ) {
         s++;
-      if (*s == '&')
+      }
+      if (*s == '&') {
         s++;
+      }
       if (!isalpha(*s)) {
         printf("?Bad array name - \"%s\"\n", s2);
         return (-9);
       }
       array = *s++;
-      if (isupper(array))
+      if (isupper(array)) {
         array = tolower(array);
+      }
       if (*s && (*s != '[' || *(s + 1) != ']')) {
         printf("?Bad array name - \"%s\"\n", s2);
         return (-9);
@@ -5101,14 +5441,16 @@ again:
     case DIR_BEF:
     case DIR_NAF:
     case DIR_NBF:
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmdate("File-time", "", &s, 0, xxstring)) < 0) {
         if (x == -3) {
           printf("?Date-time required\n");
           rc = -9;
-        } else
+        } else {
           rc = x;
+        }
         goto xdomydir;
       }
       fs++;
@@ -5128,14 +5470,16 @@ again:
       }
       break;
     case DIR_EXC:
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmfld("Pattern", "", &s, xxstring)) < 0) {
         if (x == -3) {
           printf("?Pattern required\n");
           rc = -9;
-        } else
+        } else {
           rc = x;
+        }
         goto xdomydir;
       }
       fs++;
@@ -5149,8 +5493,9 @@ again:
     case DIR_BIN: {
       extern struct keytab txtbin[];
       extern int xfiletype;
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmkey(txtbin, 3, "", "all", xxstring)) < 0) {
         rc = x;
         goto xdomydir;
@@ -5164,8 +5509,9 @@ again:
       break;
     }
     case DIR_OUT:
-      if ((x = cmofi("File for directory listing", "", &s, xxstring)) < 0)
+      if ((x = cmofi("File for directory listing", "", &s, xxstring)) < 0) {
         return (x);
+      }
       ckstrncpy(outfile, s, CKMAXPATH + 1);
       break;
 
@@ -5175,22 +5521,25 @@ again:
 
     case 7777: /* CASE: (CHANGE only) */
       if (change) {
-        if ((x = cmkey(onoff, 2, "", "on", xxstring)) < 0)
+        if ((x = cmkey(onoff, 2, "", "on", xxstring)) < 0) {
           return (x);
+        }
         chcase = x;
       }
       break;
 
     case DIR_MOD: /* TOUCH or CHANGE /MODTIME: */
       if (change) {
-        if ((x = cmkey(chmttab, nchmttab, "", "update", xxstring)) < 0)
+        if ((x = cmkey(chmttab, nchmttab, "", "update", xxstring)) < 0) {
           return (x);
+        }
         chmtopt = x;
         break;
       }
       if ((x = cmdate("File modification date-time", "now", &s, 0, xxstring)) <
-          0)
+          0) {
         return (x);
+      }
       ckstrncpy(modtime, brstrip(s), 100);
       break;
 
@@ -5248,10 +5597,12 @@ again:
 
   while (!touch && !change) { /* Multiple filespecs only for DIR */
     x = cmfld("Another filespec or Enter", "", &s, xxstring);
-    if (x == -3)
+    if (x == -3) {
       break;
-    if (x < 0)
+    }
+    if (x < 0) {
       return (x);
+    }
     ckstrncat(line, ",", LINBUFSIZ);
     ckstrncat(line, s, LINBUFSIZ);
     multiple++;
@@ -5281,14 +5632,16 @@ again:
     debug(F110, "CHANGE string1", string1, 0);
 
     x = cmfld("Text to change it to", "", &s2, xxstring);
-    if (x < 0 && x != -3)
+    if (x < 0 && x != -3) {
       return (x);
+    }
     s2 = brstrip(s2);
     s2len = ckstrncpy(string2, s2, 1024);
     debug(F110, "CHANGE string2", string2, 0);
   }
-  if ((x = cmcfm()) < 0) /* Get confirmation */
+  if ((x = cmcfm()) < 0) { /* Get confirmation */
     return (x);
+  }
   /*
     Command is TOUCH and file doesn't exist.
   */
@@ -5306,8 +5659,9 @@ again:
         xxstruct.lprotect.len = 0;
         xxstruct.gprotect.len = 0;
 #ifdef UNIX
-        if (s[0] == '~')
+        if (s[0] == '~') {
           s = tilde_expand(s);
+        }
 #endif /* UNIX */
         /* the IF condition was added 2013-04-15 */
 
@@ -5338,10 +5692,11 @@ again:
                                          */
     char *m;
 
-    if (*s == '/')
+    if (*s == '/') {
       m = "does not match switch or name of accessible file";
-    else
+    } else {
       m = "not found or not accessible";
+    }
     printf("\"%s\" - %s\n", s, m);
     rc = -9;
     goto xdomydir;
@@ -5358,13 +5713,14 @@ again:
     page = 0;
   }
 
-  if (!wild)
+  if (!wild) {
     if (isdir(s)) {               /* Is it a directory? */
       p = s + (int)strlen(s) - 1; /* Yes */
       debug(F000, "domydir directory 1", s, *p);
       wild = 1; /* Now it's wild */
       debug(F000, "domydir directory 2", s, *p);
     }
+  }
 
 #ifdef ZXREWIND
   /* cmifi() already called nzxpand so we can just re-use the same list. */
@@ -5382,14 +5738,17 @@ again:
          to changing the timestamps of existing files -- it can only do one file
          at a time.
        */
-    if (!touch && !change)
+    if (!touch && !change) {
       s = name; /* fdc - 5 October 2022 */
+    }
     nzxopts = (show == ZX_DIRONLY) ? ZX_DIRONLY
                                    : (show == ZX_FILONLY ? ZX_FILONLY : 0);
-    if (matchdot)
+    if (matchdot) {
       nzxopts |= ZX_MATCHDOT;
-    if (recursive)
+    }
+    if (recursive) {
       nzxopts |= ZX_RECURSE;
+    }
     x = nzxpand(s, nzxopts); /* Expand file list */
     debug(F111, "domydir nzxpand", s, x);
     debug(F111, "999 domydir nzxpand result", s, x);
@@ -5408,9 +5767,10 @@ again:
     }
     arrayindex = xx;
     ap = a_ptr[xx];           /* Pointer to list of elements */
-    if (ap)                   /* Set element 0 to dimension */
+    if (ap) {                 /* Set element 0 to dimension */
       makestr(&(ap[0]), "0"); /* which so far is zero */
-    if (n < 1) {              /* No files matched, done. */
+    }
+    if (n < 1) { /* No files matched, done. */
       rc = 0;
       goto xdomydir;
     }
@@ -5419,23 +5779,25 @@ again:
     if (!touch && x < 1) {
 #ifdef CKROOT
       extern int ckrooterr;
-      if (ckrooterr)
+      if (ckrooterr) {
         printf("?Off limits: %s\n", s);
-      else
+      } else
 #endif /* CKROOT */
-        if (x == 0 && isdir(s))
+        if (x == 0 && isdir(s)) {
           printf("?Empty directory - \"%s\"\n", s);
-        else
+        } else {
           printf("?%s %s match - \"%s\"\n", (x == 0) ? "No" : "Too many",
                  (show == 2) ? "directories" : "files", brstrip(s));
+        }
       rc = -9;
       goto xdomydir;
     }
   nx = x; /* Remember how many files */
   reallysort = xsort;
-  if (nx < 2)
+  if (nx < 2) {
     reallysort = 0; /* Skip sorting if none or one */
-  xsort = 1;        /* 2013-12-06 but do everything else */
+  }
+  xsort = 1; /* 2013-12-06 but do everything else */
 
   if (msg) {
     makestr(&dirmsg, tmpbuf);
@@ -5456,8 +5818,9 @@ again:
   /* Display the listing */
 
 #ifndef NOSPL
-  if (array) /* Storing instead of printing */
+  if (array) { /* Storing instead of printing */
     heading = 0;
+  }
 #endif /* NOSPL */
 
   if (heading) { /* If /HEADING print heading */
@@ -5465,11 +5828,13 @@ again:
     fprintf(ofp, "\nDirectory of %s\n\n", tmpbuf);
     n += 3;
   }
-  if (page > -1) /* Paging */
+  if (page > -1) { /* Paging */
     xaskmore = page;
+  }
 
-  if (dir_exc)                    /* Have exception list? */
+  if (dir_exc) {                  /* Have exception list? */
     makelist(dir_exc, xlist, 16); /* Yes, convert to array */
+  }
 
   if (!verbose && !touch && !change) { /* /BRIEF */
     if (outfile[0]) {                  /* To file  */
@@ -5477,26 +5842,30 @@ again:
       znext(name);
       while (name[0]) { /* One line per file */
         k++;
-        if (fs)
+        if (fs) {
           if (fileselect(name, dir_aft, dir_bef, dir_naf, dir_nbf, minsize,
                          maxsize, !backup, 16, xlist) < 1) {
             znext(name);
             continue;
           }
+        }
         fprintf(ofp, "%s\n", name);
         znext(name);
       }
-      if (heading)
+      if (heading) {
         fprintf(ofp, "Files: %d\n\n", k);
+      }
       rc = 1;
       goto xdomydir;
     } else {
       rc = xfilhelp(x, "", "", n, 0, 1, dir_aft, dir_bef, dir_naf, dir_nbf,
                     minsize, maxsize, !backup, 16, xlist);
-      if (rc < 0)
+      if (rc < 0) {
         goto xdomydir;
-      if (heading && rc > 0)
+      }
+      if (heading && rc > 0) {
         fprintf(ofp, "Files: %d\n\n", x); /* (Might scroll a line or 2) */
+      }
       rc = 1;
       goto xdomydir;
     }
@@ -5545,12 +5914,13 @@ again:
   diractive = 1;    /* DIRECTORY command is active */
   znext(name);      /* Get next file */
   while (name[0]) { /* Loop for each file */
-    if (fs)
+    if (fs) {
       if (fileselect(name, dir_aft, dir_bef, dir_naf, dir_nbf, minsize, maxsize,
                      !backup, 16, xlist) < 1) {
         znext(name);
         continue;
       }
+    }
     len = zgetfs(name); /* Get file length */
     debug(F111, "domydir loop zgetfs", name, len);
     itsadir = zgfs_dir; /* See if it's a directory */
@@ -5610,8 +5980,9 @@ again:
         break;
       }
       if (!k) {
-        if (verbose)
+        if (verbose) {
           printf("%s: Skipped (not a text file)\n", name);
+        }
         znext(name);
         continue;
       }
@@ -5655,8 +6026,9 @@ again:
         ckstrncpy(tmpfile, chgdestdir, CKMAXPATH);
         debug(F110, "CHANGE tmpfile", tmpfile, 0);
         while (*p++) {
-          if (ISDIRSEP(*p))
+          if (ISDIRSEP(*p)) {
             p2 = p;
+          }
         } /* Just the name */
         if (!p2) { /* name had no slashes in it */
           p2 = name;
@@ -5683,8 +6055,9 @@ again:
         ckstrncpy(backupfile, chgbackupdir, CKMAXPATH);
         debug(F111, "CHANGE backupfile", backupfile, 1);
         while (*p++) {
-          if (ISDIRSEP(*p))
+          if (ISDIRSEP(*p)) {
             p2 = p;
+          }
         } /* Just the name */
         if (!p2) { /* name had no slashes in it */
           p2 = name;
@@ -5715,10 +6088,12 @@ again:
       if (chmtopt == CHMT_P || changebackup) {
         debug(F110, "CHANGE file timestamp name", name, 0);
         dstr = zfcdat(name);
-        if (!dstr)
+        if (!dstr) {
           dstr = "";
-        if (!*dstr)
+        }
+        if (!*dstr) {
           printf("WARNING: can't get date for %s\n", name);
+        }
         debug(F110, "CHANGE file timestamp dstr", dstr, 0);
         xxstruct.date.val = dstr; /* change file's modtime */
         xxstruct.date.len = (int)strlen(xxstruct.date.val);
@@ -5730,8 +6105,9 @@ again:
         printf("?Memory allocation failure\n");
         fclose(ofp);
         fclose(ifp);
-        if (bfp)
+        if (bfp) {
           fclose(bfp);
+        }
         success = 0;
         goto xdomydir;
       }
@@ -5741,8 +6117,9 @@ again:
         printf("?Memory allocation failure\n");
         fclose(ofp);
         fclose(ifp);
-        if (bfp)
+        if (bfp) {
           fclose(bfp);
+        }
         success = 0;
         goto xdomydir;
       }
@@ -5768,7 +6145,7 @@ again:
               break;
             }
           }
-        } else
+        } else {
           while (1) {          /* One or maybe more occurrences */
             changes++;         /* Count this change */
             totalchanges++;    /* Increment total changes */
@@ -5808,11 +6185,13 @@ again:
               break;
             }
           }
+        }
       }
       fclose(ifp); /* End... close files */
       if (!simulate) {
-        if (bfp)
+        if (bfp) {
           fclose(bfp);
+        }
         fclose(ofp);
       }
       bfp = ifp = ofp = NULL;
@@ -5861,16 +6240,19 @@ preserving original modtime: %s %s\n",
               goto xdomydir;
             }
           }
-          if (verbose)
+          if (verbose) {
             printf("Changed %s: %s -> %s\n", result, string1, string2);
+          }
         } else if (changeinplace) {
           zdelet(tmpfile); /* Delete temporary file */
-          if (changebackup)
+          if (changebackup) {
             zdelet(backupfile); /* and backup */
+          }
         }
       }
-      if (znext(name)) /* Get next file */
+      if (znext(name)) { /* Get next file */
         continue;
+      }
       success = 1; /* If none we're finished */
       goto xdomydir;
     }
@@ -5916,8 +6298,9 @@ preserving original modtime: %s %s\n",
       dstr = zfcdat(name);
       debug(F111, "domydir zcfdat", dstr, 0);
     }
-    if (!dstr)
+    if (!dstr) {
       dstr = "";
+    }
     {
       /*
         Note that zfcdat() always returns "" or yyyymmdd hh:mm:ss, so any
@@ -5928,8 +6311,9 @@ preserving original modtime: %s %s\n",
       int x;
       char *p = "00000000 00:00:00";
       x = ckstrncpy(xbuf, dstr, 32);
-      if (x < 17)
+      if (x < 17) {
         ckstrncpy(&xbuf[x], p + x, 32 - x);
+      }
       dstr = xbuf;
     }
     if (engdate) { /* English date requested? */
@@ -5972,15 +6356,17 @@ preserving original modtime: %s %s\n",
 #endif /* CK_PERMS */
 
     if (itsadir && len < (CK_OFF_T)0) { /* Directory */
-      if (p)
+      if (p) {
         sprintf(linebuf, "%10s%-10s  %s  %s", p, "<DIR>", dstr, name);
-      else
+      } else {
         sprintf(linebuf, "%-10s  %s  %s", "<DIR>", dstr, name);
+      }
     } else { /* Regular file */
-      if (p)
+      if (p) {
         sprintf(linebuf, "%10s%10s  %s  %s", p, ckfstoa(len), dstr, name);
-      else
+      } else {
         sprintf(linebuf, "%10s  %s  %s", ckfstoa(len), dstr, name);
+      }
     }
 #ifdef UNIX
 #ifdef CKSYMLINK
@@ -5995,10 +6381,12 @@ preserving original modtime: %s %s\n",
       extern char linkname[];
       n = strlen(linebuf);
       m = strlen(linkname) + n;
-      if (m < CKMAXPATH + 58)
+      if (m < CKMAXPATH + 58) {
         strcpy(linebuf + n, " -> "); /* safe (checked) */
-      if (m + 4 < CKMAXPATH - 58)
+      }
+      if (m + 4 < CKMAXPATH - 58) {
         strcpy(linebuf + n + 4, linkname); /* safe (checked) */
+      }
     } else
 #endif               /* CKSYMLINK */
 #endif               /* UNIX */
@@ -6035,15 +6423,17 @@ preserving original modtime: %s %s\n",
         if (*s) {
           int n;
           n = strlen(linebuf);
-          if (n + 4 < CKMAXPATH - 58)
+          if (n + 4 < CKMAXPATH - 58) {
             strcpy(linebuf + n, s); /* safe (checked) */
+          }
         }
       }
     if (msg && dirmsg) {
       int n;
       n = strlen(linebuf);
-      if (n + dirmsglen + 2 < CKMAXPATH)
+      if (n + dirmsglen + 2 < CKMAXPATH) {
         sprintf((char *)(linebuf + n), " %s", dirmsg); /* SAFE */
+      }
     }
     if (xsort) { /* Sorting - save line */
       i = strlen(linebuf);
@@ -6057,8 +6447,9 @@ preserving original modtime: %s %s\n",
     }
     znext(name); /* Peek ahead to next file */
     if (!xsort) {
-      if (!touch || (touch && verbose))
+      if (!touch || (touch && verbose)) {
         fprintf(ofp, "%s\n", linebuf);
+      }
       if (page && (name[0] || heading)) { /* If /PAGE */
         if (cmd_cols > 0) {
           int x = strlen(linebuf);
@@ -6109,10 +6500,12 @@ preserving original modtime: %s %s\n",
         skey = 0;
       }
     }
-    if (reallysort)
+    if (reallysort) {
       sh_sort(dirlist, NULL, ndirlist, skey, reverse, filecase);
-    if (dir_top > 0 && dir_top < ndirlist)
+    }
+    if (dir_top > 0 && dir_top < ndirlist) {
       ndirlist = dir_top;
+    }
     for (i = 0; i < ndirlist; i++) {
 #ifndef NOSPL
       /* Storing result filenames in an array... */
@@ -6120,8 +6513,9 @@ preserving original modtime: %s %s\n",
         char *name;
         name = dirlist[i] + namepos;
         debug(F111, "domydir array", name, nfiles);
-        if (ap)
+        if (ap) {
           makestr(&(ap[i + 1]), name);
+        }
         continue;
       }
 #endif /* NOSPL */
@@ -6150,8 +6544,9 @@ preserving original modtime: %s %s\n",
     }
 #ifndef NOSPL
     if (array) {
-      if (ap)
+      if (ap) {
         makestr(&(ap[0]), ckitoa(ndirlist));
+      }
       rc = 1;
       goto xdomydir;
     }
@@ -6166,10 +6561,11 @@ preserving original modtime: %s %s\n",
             ckfstoa(nbytes), (nbytes == 1) ? "" : "s");
 #ifdef CKFLOAT
     gm = ((CKFLOAT)nbytes) / 1000000.0;
-    if (gm > 1000.0)
+    if (gm > 1000.0) {
       fprintf(ofp, " (%0.2fGB)", (gm / 1000.0));
-    else if (gm >= 0.01)
+    } else if (gm >= 0.01) {
       fprintf(ofp, " (%0.2fMB)", gm);
+    }
 #endif /* CKFLOAD */
     fprintf(ofp, "\n\n");
   } else if (dir_cou && !cv) {
@@ -6179,15 +6575,17 @@ xdomydir:
 #ifndef NOSPL
   if (dir_cou && cv) { /* /COUNT:var */
     int n;
-    n = totalchanges; /* Number of changes for CHANGE */
-    if (cx != XXCHG)  /* Number for files for DIRECTORY */
+    n = totalchanges;  /* Number of changes for CHANGE */
+    if (cx != XXCHG) { /* Number for files for DIRECTORY */
       n = nfiles;
+    }
     addmac(cv, ckitoa(n)); /* set the variable */
     makestr(&cv, NULL);    /* free this */
   }
-  if (ap) {                           /* If we have a result array */
-    if (a_dim[arrayindex] > nmatches) /* but it was not filled */
-      a_dim[arrayindex] = nmatches;   /* adjust dimension */
+  if (ap) {                             /* If we have a result array */
+    if (a_dim[arrayindex] > nmatches) { /* but it was not filled */
+      a_dim[arrayindex] = nmatches;     /* adjust dimension */
+    }
   }
 #endif /* NOSPL */
   if (g_matchdot > -1) {
@@ -6196,12 +6594,14 @@ xdomydir:
   }
   freedirlist();
   if (ofp != stdout) { /* Close any output file */
-    if (ofp)
+    if (ofp) {
       fclose(ofp);
+    }
     ofp = stdout;
   }
-  if (rc > 0)
+  if (rc > 0) {
     success = 1;
+  }
   return (rc);
 }
 
@@ -6221,18 +6621,21 @@ int dodir(int cx) /* Do the DIRECTORY command */
 
   msg =
       (cx == XXLS) ? "Arguments for ls" : "Directory and/or file specification";
-  if ((x = cmtxt(msg, "", &s, xxstring)) < 0)
+  if ((x = cmtxt(msg, "", &s, xxstring)) < 0) {
     return (x);
+  }
 
   ckstrncpy(tmpbuf, s, TMPBUFSIZ); /* Copy the filespec */
   s = tmpbuf;
 
-  if ((y = cmcfm()) < 0)
+  if ((y = cmcfm()) < 0) {
     return (y);
+  }
 
   lp = line;
-  if (!(dc = getenv("CK_DIR")))
+  if (!(dc = getenv("CK_DIR"))) {
     dc = DIRCMD;
+  }
   ckmakmsg(lp, LINBUFSIZ, dc, " ", s, NULL);
   debug(F110, "DIR", line, 0);
   x = zshcmd(line);
@@ -6245,21 +6648,24 @@ int dodir(int cx) /* Do the DIRECTORY command */
 
 int doenable(int y, int x) {
 #ifdef CK_LOGIN
-  if (isguest)  /* IKSD: Don't let guests */
-    return (0); /* enable anything that's disabled */
-#endif          /* CK_LOGIN */
+  if (isguest) { /* IKSD: Don't let guests */
+    return (0);  /* enable anything that's disabled */
+  }
+#endif /* CK_LOGIN */
   switch (x) {
   case EN_ALL:
     en_cwd = en_cpy = en_del = en_dir = en_fin = en_get = y;
     en_ren = en_sen = en_set = en_spa = en_typ = en_ret = y;
-    if (!inserver)
+    if (!inserver) {
       en_who = en_mai = en_pri = y;
+    }
     en_mkd = en_rmd = y;
     en_xit = y;
     en_bye = y;
 #ifndef NOPUSH
-    if (!nopush && !inserver)
+    if (!nopush && !inserver) {
       en_hos = y;
+    }
 #endif /* NOPUSH */
 #ifndef NOSPL
     en_asg = en_que = y;
@@ -6298,8 +6704,9 @@ int doenable(int y, int x) {
     break;
 #ifndef NOPUSH
   case EN_HOS:
-    if (!nopush)
+    if (!nopush) {
       en_hos = y;
+    }
     break;
 #endif /* NOPUSH */
   case EN_REN:
@@ -6410,8 +6817,9 @@ void showdelopts() {
     x++;
   }
 #endif /* CK_TTGWSIZ */
-  if (!x)
+  if (!x) {
     prtopt(&optlines, "(no options set)");
+  }
   prtopt(&optlines, "");
 }
 #endif /* NOSHOW */
@@ -6422,10 +6830,11 @@ int setdelopts() {
   char c;
   while (1) {
     if ((y = cmswi(deltab, ndeltab, "Switch", "", xxstring)) < 0) {
-      if (y == -3)
+      if (y == -3) {
         break;
-      else
+      } else {
         return (y);
+      }
     }
     c = cmgbrk();
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
@@ -6477,18 +6886,24 @@ int setdelopts() {
       return (-9);
     }
   }
-  if ((x = cmcfm()) < 0) /* Get confirmation */
+  if ((x = cmcfm()) < 0) { /* Get confirmation */
     return (x);
-  if (x_pag > -1)
+  }
+  if (x_pag > -1) {
     del_pag = x_pag;
-  if (x_dot > -1)
+  }
+  if (x_dot > -1) {
     del_dot = x_dot;
-  if (x_hdg > -1)
+  }
+  if (x_hdg > -1) {
     del_hdg = x_hdg;
-  if (x_lis > -1)
+  }
+  if (x_lis > -1) {
     del_lis = x_lis;
-  if (x_ask > -1)
+  }
+  if (x_ask > -1) {
     del_ask = x_ask;
+  }
   return (success = 1);
 }
 
@@ -6520,21 +6935,27 @@ int dodel() { /* DELETE */
 
   char *dxlist[8];
 
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 8; i++) {
     dxlist[i] = NULL;
+  }
 
   g_matchdot = matchdot;
 
-  if (del_lis > -1)
+  if (del_lis > -1) {
     x_lis = del_lis;
-  if (del_dot > -1)
+  }
+  if (del_dot > -1) {
     matchdot = del_dot;
-  if (del_hdg > -1)
+  }
+  if (del_hdg > -1) {
     x_hdg = del_hdg;
-  if (del_pag > -1)
+  }
+  if (del_pag > -1) {
     xaskmore = del_pag;
-  if (del_ask > -1)
+  }
+  if (del_ask > -1) {
     asking = del_ask;
+  }
 
   diractive = 1;
   nolinks = 2; /* By default don't follow links */
@@ -6569,14 +6990,17 @@ again:
   while (!havename && !confirmed) {
     x = cmfdb(&sw); /* Parse something */
     if (x < 0) {    /* Error */
-      if (x == -3)
+      if (x == -3) {
         break;
-      if (x == -2 || x == -9)
+      }
+      if (x == -2 || x == -9) {
         printf("?Does not match switch or filename: \"%s\"\n", atmbuf);
+      }
       return (x);
     }
-    if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+    if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
       break;
+    }
     c = cmgbrk(); /* Get break character */
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
       printf("?This switch does not take an argument\n");
@@ -6593,14 +7017,16 @@ again:
     case DEL_BEF:
     case DEL_NAF:
     case DEL_NBF:
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmdate("File-time", "", &s, 0, xxstring)) < 0) {
         if (x == -3) {
           printf("?Date-time required\n");
           x = -9;
-        } else
+        } else {
           rc = x;
+        }
         goto xdelete;
       }
       fs++;
@@ -6637,14 +7063,16 @@ again:
       deldirs = 1;
       goto again;
     case DEL_EXC:
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmfld("Pattern", "", &s, xxstring)) < 0) {
         if (x == -3) {
           printf("?Pattern required\n");
           x = -9;
-        } else
+        } else {
           rc = x;
+        }
         goto xdelete;
       }
       fs++;
@@ -6688,10 +7116,12 @@ again:
 
     case DEL_SMA:
     case DEL_LAR:
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmnum("File size in bytes", "0", 10, &y, xxstring)) < 0)
+      }
+      if ((x = cmnum("File size in bytes", "0", 10, &y, xxstring)) < 0) {
         return (x);
+      }
       fs++;
       deltree = 0;
       switch (cmresult.nresult) {
@@ -6716,10 +7146,12 @@ again:
       break;
     case DEL_TYP: {
       extern struct keytab txtbin[];
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmkey(txtbin, 3, "", "", xxstring)) < 0)
+      }
+      if ((x = cmkey(txtbin, 3, "", "", xxstring)) < 0) {
         return (x);
+      }
       if (x == 2) { /* ALL */
         xmode = -1;
       } else { /* TEXT or BINARY only */
@@ -6734,23 +7166,25 @@ again:
     }
   }
   if (qflag && (cmresult.fcode == _CMFLD)) {
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
-    else
+    } else {
       return (success = 0);
+    }
   }
   if (cmresult.fcode != _CMIFI) {
     if (*atmbuf) {
       int x;
-      if (iswild(atmbuf) && nzxpand(atmbuf, nzxopts) == 0)
+      if (iswild(atmbuf) && nzxpand(atmbuf, nzxopts) == 0) {
         printf("?No files match: %s\n", brstrip(atmbuf));
-      else if ((x = zchki(atmbuf)) == -1)
+      } else if ((x = zchki(atmbuf)) == -1) {
         printf("?File not found: %s\n", brstrip(atmbuf));
-      else if (x == -2)
+      } else if (x == -2) {
         printf("?Not a regular file: %s\n", atmbuf);
-      else
+      } else {
         /* printf("?Not a deletable file: %s\n",atmbuf); */
         goto tryanyway;
+      }
     } else {
       printf("?A file specification is required\n");
     }
@@ -6760,16 +7194,19 @@ tryanyway:
   ckstrncpy(tmpbuf, cmresult.sresult, TMPBUFSIZ); /* Safe copy of filespec */
   if (deldirs) {
     ckstrncpy(safebuf, cmresult.sresult, CKMAXPATH);
-    len = zgetfs(tmpbuf);      /* Is it a directory name? */
-    argisdir = zgfs_dir;       /* Then because of how zxpand() */
-    if (argisdir && zgfs_link) /* works, we have to add it to */
-      argisdir = 0;            /* the list. */
-    if (itsadir)
+    len = zgetfs(tmpbuf);        /* Is it a directory name? */
+    argisdir = zgfs_dir;         /* Then because of how zxpand() */
+    if (argisdir && zgfs_link) { /* works, we have to add it to */
+      argisdir = 0;              /* the list. */
+    }
+    if (itsadir) {
       len = -2;
+    }
   }
   debug(F110, "DELETE file", tmpbuf, 0);
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
 
 #ifdef IKSD
 #ifdef CK_LOGIN
@@ -6813,12 +7250,15 @@ tryanyway:
 #ifdef ZXREWIND
     z = zxrewind(); /* Rewind file list */
 #else
-    if (!deldirs)
+    if (!deldirs) {
       nzxopts = ZX_FILONLY;
-    if (recursive)
+    }
+    if (recursive) {
       nzxopts |= ZX_RECURSE;
-    if (matchdot)
+    }
+    if (matchdot) {
       nzxopts |= ZX_MATCHDOT;
+    }
     errno = 0;
     z = nzxpand(s, nzxopts); /* Expand file list */
 #endif /* ZXREWIND */
@@ -6833,8 +7273,9 @@ tryanyway:
 
     if (z > 0) {
       success = 1;
-      if (x_hdg > 0)
+      if (x_hdg > 0) {
         printf("\n");
+      }
 
       while (1) {       /* Loop for all files */
         znext(tmpbuf);  /* Get next file */
@@ -6842,16 +7283,18 @@ tryanyway:
           if (deldirs && recursive && argisdir) {
             ckstrncpy(tmpbuf, safebuf, TMPBUFSIZ);
             argisdir = 0; /* (only do this once) */
-          } else
+          } else {
             break;
+          }
         }
         skip = 0;
         if (!deltree) {
-          if (fs)
+          if (fs) {
             if (fileselect(tmpbuf, del_aft, del_bef, del_naf, del_nbf, minsize,
                            maxsize, 0, 8, dxlist) < 1) {
               skip++;
             }
+          }
         }
         if (!skip && scan && itsadir) {
           skip++;
@@ -6859,8 +7302,9 @@ tryanyway:
         if (!skip && scan) {
           switch (scanfile(tmpbuf, &y, nscanfile)) {
           case FT_BIN:
-            if (xmode != 1)
+            if (xmode != 1) {
               skip++;
+            }
             break;
           case FT_TEXT:
           case FT_7BIT:
@@ -6869,8 +7313,9 @@ tryanyway:
           case FT_UTF8:
           case FT_UCS2:
 #endif /* UNICODE */
-            if (xmode != 0)
+            if (xmode != 0) {
               skip++;
+            }
           }
         }
         if (!skip && asking) {
@@ -6893,11 +7338,13 @@ tryanyway:
         itsadir = zgfs_dir;
         if (itsadir && zgfs_link) { /* Treat links to directories */
           itsadir = 0;              /* as regular files */
-          if (scan)                 /* But not if /TYPE: was given */
+          if (scan) {               /* But not if /TYPE: was given */
             skip++;
+          }
         }
-        if (itsadir) /* (emulate non-Unix code) */
+        if (itsadir) { /* (emulate non-Unix code) */
           len = -2;
+        }
 
         if (skip) {
           continue;
@@ -6913,10 +7360,11 @@ tryanyway:
             if (++n > cmd_rows - 3) {
               int xx;
               xx = askmore();
-              if (!xx)
+              if (!xx) {
                 goto xdelete;
-              else
+              } else {
                 n = 0;
+              }
             }
           }
         } else if (len >= 0 || !itsadir) { /* Regular file */
@@ -6981,10 +7429,11 @@ tryanyway:
           }
         } else if (x_lis > 0) {
           lines++;
-          if (isdir(tmpbuf))
+          if (isdir(tmpbuf)) {
             printf(" %s (FAILED: directory)\n", tmpbuf);
-          else
+          } else {
             printf(" %s (FAILED: not a regular file)\n", tmpbuf);
+          }
           if (++n > cmd_rows - 3) {
             if (!askmore()) {
               goto xdelete;
@@ -6995,8 +7444,9 @@ tryanyway:
         }
       }
       if (x_hdg > 0) {
-        if (lines > 0)
+        if (lines > 0) {
           printf("\n");
+        }
         if (++n > cmd_rows - 3) {
           if (!askmore()) {
             goto xdelete;
@@ -7015,10 +7465,11 @@ tryanyway:
                bad, bad == 1 ? "" : "s");
       }
     } else if (x_lis > 0) {
-      if (errno)
+      if (errno) {
         printf("?%s: %s\n", ck_errstr(), tmpbuf);
-      else
+      } else {
         printf("?Can't delete: %s\n", tmpbuf);
+      }
     }
   }
 xdelete:
@@ -7046,12 +7497,14 @@ int doelse() {
     } else {         /* If interactive, */
       cmini(ckxech); /* just start a new command */
       printf("\n");  /* (like in MS-DOS Kermit) */
-      if (pflag)
+      if (pflag) {
         prompt(xxstring);
+      }
     }
   } else { /* Condition is false */
-    if ((y = cmtxt("command to be ignored", "", &s, NULL)) < 0)
+    if ((y = cmtxt("command to be ignored", "", &s, NULL)) < 0) {
       return (y); /* Gobble up rest of line */
+    }
   }
   return (0);
 }
@@ -7073,19 +7526,21 @@ int doswitch() {
   y = cmfld("Variable name", "", &s, xxstring);
   debug(F111, "doswitch cmfld", s, y);
   if (y < 0) {
-    if (y == -3) /* Because brstrip() writes */
-      s = brbuf; /* into its argument. */
-    else
+    if (y == -3) { /* Because brstrip() writes */
+      s = brbuf;   /* into its argument. */
+    } else {
       return (y);
+    }
   }
   debug(F110, "doswitch A", s, 0);
   if (!strcmp(s, "(")) {
     pp++;
     if ((y = cmfld("Variable name", "", &s, xxstring)) < 0) {
-      if (y == -3)
+      if (y == -3) {
         s = brbuf;
-      else
+      } else {
         return (y);
+      }
       debug(F110, "doswitch B", s, 0);
     }
   }
@@ -7097,8 +7552,9 @@ int doswitch() {
     }
   }
   if (pp > 0) { /* If open paren given parse closing */
-    if ((y = cmfld("Closing parenthesis", "", &s, NULL)) < 0)
+    if ((y = cmfld("Closing parenthesis", "", &s, NULL)) < 0) {
       return (y);
+    }
     if (strcmp(atmbuf, ")")) {
       printf("?Closing parenthesis required\n");
       return (-9);
@@ -7125,10 +7581,12 @@ int doswitch() {
 
   /* Get body */
 
-  if ((y = cmtxt("series of cases", "", &s, NULL)) < 0)
+  if ((y = cmtxt("series of cases", "", &s, NULL)) < 0) {
     return (y);
-  if ((y = (int)strlen(s)) < 1)
+  }
+  if ((y = (int)strlen(s)) < 1) {
     return (-2);
+  }
   if (s[0] != '{' && s[y - 1] != '}') { /* Supply braces if missing */
     ckmakmsg(tmpbuf, TMPBUFSIZ, "{ ", s, " }", NULL);
     s = tmpbuf;
@@ -7165,15 +7623,18 @@ int dofor() {        /* The FOR command. */
       if (y == -3) {
         printf("?Variable name required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
-    if (strcmp(s, "("))
+    if (strcmp(s, "(")) {
       break;
+    }
     pp++;
   }
-  if (*s == CMDQ) /* If loop variable starts with */
-    mustquote++;  /* backslash, mustquote is > 0. */
+  if (*s == CMDQ) { /* If loop variable starts with */
+    mustquote++;    /* backslash, mustquote is > 0. */
+  }
   debug(F111, " dofor loop variable mustquote", s, mustquote);
 
   lp = line; /* Build a copy of the command */
@@ -7181,24 +7642,27 @@ int dofor() {        /* The FOR command. */
   lp += (int)strlen(line); /* "_for" macro. */
   ap = lp;                 /* Save pointer to macro args. */
 
-  if (*s == CMDQ)
+  if (*s == CMDQ) {
     s++; /* Skip past backslash if any. */
+  }
   while ((*lp++ = *s++))
     ; /* copy it */
   lp--;
   *lp++ = SP; /* add a space */
 
   if ((y = cmnum("initial value", "", 10, &fx, xxstring)) < 0) {
-    if (y == -3)
+    if (y == -3) {
       return (-2);
-    else
+    } else {
       return (y);
+    }
   }
   debug(F101, " dofor fx", "", fx);
   s = atmbuf; /* Copy the atom buffer */
 
-  if ((int)strlen(s) < 1)
+  if ((int)strlen(s) < 1) {
     goto badfor;
+  }
   /*
     In edit 192, we change the loop variables to be evaluated at loop entry,
     not each time through the loop.  This was required in order to allow
@@ -7220,15 +7684,17 @@ int dofor() {        /* The FOR command. */
 #endif /* DEBUG */
 
   if ((y = cmnum("final value", "", 10, &fy, xxstring)) < 0) {
-    if (y == -3)
+    if (y == -3) {
       return (-2);
-    else
+    } else {
       return (y);
+    }
   }
   debug(F101, " dofor loop exit value", "", fy);
   s = atmbuf; /* Same deal */
-  if ((int)strlen(s) < 1)
+  if ((int)strlen(s) < 1) {
     goto badfor;
+  }
 
   sprintf(tmpbuf, "%d", fy); /* SAFE */
   s = tmpbuf;
@@ -7254,18 +7720,21 @@ int dofor() {        /* The FOR command. */
         pp--;   /* Count it */
         s = di; /* supply default interval */
         fz = atoi(s);
-      } else /* Not closing paren, invalid */
+      } else { /* Not closing paren, invalid */
         return (y);
-    } else /* Other error */
+      }
+    } else { /* Other error */
       return (y);
+    }
     debug(F101, " dofor default increment supplied", "", fz);
   } else { /* Number */
     x_ifnum = 0;
     debug(F101, " dofor parsed increment ok", "", fz);
     s = atmbuf; /* Use it */
   }
-  if ((int)strlen(s) < 1)
+  if ((int)strlen(s) < 1) {
     goto badfor;
+  }
 
   sprintf(tmpbuf, "%d", fz); /* (SAFE) Same deal */
   s = tmpbuf;
@@ -7280,10 +7749,11 @@ int dofor() {        /* The FOR command. */
 #endif /* DEBUG */
 
   /* Insert the appropriate comparison operator */
-  if (fz < 0)
+  if (fz < 0) {
     *lp++ = '<';
-  else
+  } else {
     *lp++ = '>';
+  }
   *lp++ = SP;
 
 #ifdef DEBUG
@@ -7292,17 +7762,20 @@ int dofor() {        /* The FOR command. */
 #endif /* DEBUG */
 
   if (pp > 0) { /* If open paren given parse closing */
-    if ((y = cmfld("Closing parenthesis", "", &s, NULL)) < 0)
+    if ((y = cmfld("Closing parenthesis", "", &s, NULL)) < 0) {
       return (y);
+    }
     if (strcmp(atmbuf, ")")) {
       printf("?Closing parenthesis required\n");
       return (-9);
     }
   }
-  if ((y = cmtxt("Command(s) to execute", "", &s, NULL)) < 0)
+  if ((y = cmtxt("Command(s) to execute", "", &s, NULL)) < 0) {
     return (y);
-  if ((y = (int)strlen(s)) < 1)
+  }
+  if ((y = (int)strlen(s)) < 1) {
     return (-2);
+  }
   debug(F110, " doif FOR body A", s, 0);
   if (s[0] != '{' && s[y - 1] != '}') { /* Supply braces if missing */
     ckmakmsg(tmpbuf, TMPBUFSIZ, "{ ", s, " }", NULL);
@@ -7372,51 +7845,64 @@ long tod2sec(char *t) {
   long t2;
   long hh = 0L, mm = 0L, ss = 0L;
 
-  if (!t)
+  if (!t) {
     t = "";
-  if (!*t)
+  }
+  if (!*t) {
     return (-3L);
+  }
   debug(F110, "tod2sec", t, 0);
 
-  if (isdigit(*t)) /* Get hours from argument */
+  if (isdigit(*t)) { /* Get hours from argument */
     hh = *t++ - '0';
-  else
+  } else {
     return (-1L);
-  if (isdigit(*t))
+  }
+  if (isdigit(*t)) {
     hh = hh * 10 + *t++ - '0';
-  if (*t == ':')
+  }
+  if (*t == ':') {
     t++;
-  else if (!*t)
+  } else if (!*t) {
     goto xtod2sec;
-  else
+  } else {
     return (-1L);
+  }
 
-  if (isdigit(*t)) /* Minutes */
+  if (isdigit(*t)) { /* Minutes */
     mm = *t++ - '0';
-  else
+  } else {
     return (-1L);
-  if (isdigit(*t))
+  }
+  if (isdigit(*t)) {
     mm = mm * 10 + *t++ - '0';
-  if (mm > 60L)
+  }
+  if (mm > 60L) {
     return (-1L);
-  if (*t == ':')
+  }
+  if (*t == ':') {
     t++;
-  else if (!*t)
+  } else if (!*t) {
     goto xtod2sec;
-  else
+  } else {
     return (-1L);
+  }
 
-  if (isdigit(*t)) /* Seconds */
+  if (isdigit(*t)) { /* Seconds */
     ss = *t++ - '0';
-  else
+  } else {
     return (-1L);
-  if (isdigit(*t))
+  }
+  if (isdigit(*t)) {
     ss = ss * 10 + *t++ - '0';
-  if (ss > 60L)
+  }
+  if (ss > 60L) {
     return (-1L);
+  }
 
-  if (*t > 32) /* No trailing junk allowed */
+  if (*t > 32) { /* No trailing junk allowed */
     return (-1L);
+  }
 
 xtod2sec:
 
@@ -7441,15 +7927,16 @@ int dopaus(int cx) {
 #ifdef OLDWAIT
   zz = -1L;
   x_ifnum = 1; /* Turn off internal complaints */
-  if (cx == XXWAI)
+  if (cx == XXWAI) {
     y = cmnum("seconds to wait, or time of day hh:mm:ss", "1", 10, &x,
               xxstring);
-  else if (cx == XXPAU)
+  } else if (cx == XXPAU) {
     y = cmnum("seconds to pause, or time of day hh:mm:ss", "1", 10, &x,
               xxstring);
-  else
+  } else {
     y = cmnum("milliseconds to sleep, or time of day hh:mm:ss", "100", 10, &x,
               xxstring);
+  }
   x_ifnum = 0;
   if (y < 0) {
     if (y == -2) {      /* Invalid number or expression */
@@ -7468,33 +7955,40 @@ int dopaus(int cx) {
         p = now;
         ztime(&p);
         tnow = atol(p + 11) * 3600L + atol(p + 14) * 60L + atol(p + 17);
-        if (zz < tnow)  /* User's time before now */
-          zz += 86400L; /* So make it tomorrow */
-        zz -= tnow;     /* Seconds from now. */
+        if (zz < tnow) { /* User's time before now */
+          zz += 86400L;  /* So make it tomorrow */
+        }
+        zz -= tnow; /* Seconds from now. */
       }
-    } else
+    } else {
       return (y);
+    }
   }
-  if (x < 0)
+  if (x < 0) {
     x = 0;
+  }
   switch (cx) {
   case XXPAU: /* PAUSE */
   case XXMSL: /* MSLEEP */
-    if ((y = cmcfm()) < 0)
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     break;
   case XXWAI:   /* WAIT */
     z = 0;      /* Modem signal mask */
     while (1) { /* Read zero or more signal names */
       y = cmkey(mstab, nms, "modem signal", "", xxstring);
-      if (y == -3)
+      if (y == -3) {
         break; /* -3 means they typed CR */
-      if (y < 0)
+      }
+      if (y < 0) {
         return (y); /* Other negatives are errors */
-      z |= y;       /* OR the bit into the signal mask */
+      }
+      z |= y; /* OR the bit into the signal mask */
     }
-    if ((y = cmcfm()) < 0)
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     break;
 
   default: /* Shouldn't happen */
@@ -7544,21 +8038,25 @@ int dopaus(int cx) {
       debug(F101, "WAIT x", "", x);
       if (z > 0) {         /* Looking for any modem signals? */
         mdmsig = ttgmdm(); /* Yes, get them */
-        if (mdmsig < 0)    /* Failed */
+        if (mdmsig < 0) {  /* Failed */
           return (success = 0);
-        if ((mdmsig & z) == z)  /* Got what we wanted? */
-          return (success = 1); /* Succeed */
+        }
+        if ((mdmsig & z) == z) { /* Got what we wanted? */
+          return (success = 1);  /* Succeed */
+        }
       }
-      if (x == 0) /* WAIT 0 and didn't get our signals */
+      if (x == 0) { /* WAIT 0 and didn't get our signals */
         break;
+      }
     }
     sleep(1); /* No interrupt, sleep one second */
   } while (--x > 0);
 
-  if (cx == XXWAI)      /* If WAIT and loop exhausted */
+  if (cx == XXWAI) {    /* If WAIT and loop exhausted */
     success = (z == 0); /* Fail. */
-  else                  /*  */
+  } else {              /*  */
     success = (x == 0); /* Set SUCCESS/FAILURE for PAUSE. */
+  }
   return (success);
 
 #else  /* New code uses chained FDBs and allows FILE waits... */
@@ -7606,8 +8104,9 @@ int dopaus(int cx) {
   );
   x = cmfdb(&nu); /* Parse a number or a field */
   if (x < 0) {
-    if (x == -3)
+    if (x == -3) {
       x = -2;
+    }
     return (x);
   }
   switch (cmresult.fcode) {
@@ -7626,47 +8125,55 @@ int dopaus(int cx) {
       p = now;
       ztime(&p);
       tnow = atol(p + 11) * 3600L + atol(p + 14) * 60L + atol(p + 17);
-      if (zz < tnow)  /* User's time before now */
-        zz += 86400L; /* So make it tomorrow */
-      zz -= tnow;     /* Seconds from now. */
+      if (zz < tnow) { /* User's time before now */
+        zz += 86400L;  /* So make it tomorrow */
+      }
+      zz -= tnow; /* Seconds from now. */
     }
   }
   debug(F101, "PAUSE/WAIT/MSLEEP zz", "", zz);
   switch (cx) {
   case XXPAU: /* PAUSE */
   case XXMSL: /* MSLEEP */
-    if ((y = cmcfm()) < 0)
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     break;
   case XXWAI: /* WAIT */
     z = 0;    /* Modem signal mask */
     y = cmkey(waittab, nwaittab, "", "", xxstring);
     if (y < 0) {
       if (y == -3) {
-        if ((y = cmcfm()) < 0)
+        if ((y = cmcfm()) < 0) {
           return (y);
+        }
         break;
-      } else
+      } else {
         return (y);
+      }
     }
     if (y == WAIT_FIL) { /* FILE */
       int wild = 0;
-      if ((z = cmkey(wfswi, nwfswi, "event", "", xxstring)) < 0)
+      if ((z = cmkey(wfswi, nwfswi, "event", "", xxstring)) < 0) {
         return (z);
+      }
       filewait = z;
-      if (filewait == WF_MOD || filewait == WF_DEL)
+      if (filewait == WF_MOD || filewait == WF_DEL) {
         z = cmifi("Filename", "", &s, &wild, xxstring);
-      else
+      } else {
         z = cmfld("Filename", "", &s, xxstring);
-      if (z < 0)
+      }
+      if (z < 0) {
         return (z);
+      }
       if (wild || ((filewait == WF_CRE) && iswild(s))) {
         printf("?Wildcards not valid here\n");
         return (-9);
       }
       ckstrncpy(tmpbuf, s, TMPBUFSIZ);
-      if ((z = cmcfm()) < 0)
+      if ((z = cmcfm()) < 0) {
         return (z);
+      }
       break;
     } else if (y != WAIT_MDM) { /* A modem signal */
       z |= y;                   /* OR the bit into the signal mask */
@@ -7674,14 +8181,17 @@ int dopaus(int cx) {
     if (!filewait) { /* Modem signals... */
       while (1) {    /* Get zero or more signal names */
         y = cmkey(mstab, nms, "modem signal", "", xxstring);
-        if (y == -3)
+        if (y == -3) {
           break; /* -3 means they typed CR */
-        if (y < 0)
+        }
+        if (y < 0) {
           return (y); /* Other negatives are errors */
-        z |= y;       /* OR the bit into the signal mask */
+        }
+        z |= y; /* OR the bit into the signal mask */
       }
-      if ((y = cmcfm()) < 0)
+      if ((y = cmcfm()) < 0) {
         return (y);
+      }
       break;
     }
 
@@ -7699,8 +8209,9 @@ int dopaus(int cx) {
       return (-9);
     }
   }
-  if (sleepcan)
+  if (sleepcan) {
     concb((char)escape); /* Ensure single-char wakeup */
+  }
 
   if (cx == XXMSL) { /* Millisecond sleep */
     msleep(zz < 0 ? x : x * 1000);
@@ -7714,8 +8225,9 @@ int dopaus(int cx) {
     fs = zchki(tmpbuf); /* Check if file exists */
     switch (filewait) {
     case WF_DEL:
-      if (fs == -1)
+      if (fs == -1) {
         return (success = 1);
+      }
       break;
     case WF_MOD:
       if (fs == -1) {
@@ -7723,16 +8235,18 @@ int dopaus(int cx) {
         return (-9);
       }
       s = zfcdat(tmpbuf); /* Get current modification date */
-      if (!s)
+      if (!s) {
         s = "";
+      }
       if (ckstrncpy(filedate, s, 32) != 17) {
         printf("?Can't get modification time: %s\n", tmpbuf);
         return (-9);
       }
       break;
     case WF_CRE:
-      if (fs > -1)
+      if (fs > -1) {
         return (success = 1);
+      }
       break;
     }
   }
@@ -7749,42 +8263,52 @@ int dopaus(int cx) {
         if (z != 0) {
           mdmsig = ttgmdm(); /* Get them. */
           debug(F101, "WAIT ttgmdm", "", mdmsig);
-          if (mdmsig < 0)         /* Failure to get them? */
+          if (mdmsig < 0) {       /* Failure to get them? */
             return (success = 0); /* Fail. */
-          if ((mdmsig & z) == z)  /* Got desired ones? */
-            return (success = 1); /* Succeed. */
-        } else if (x == 0)
+          }
+          if ((mdmsig & z) == z) { /* Got desired ones? */
+            return (success = 1);  /* Succeed. */
+          }
+        } else if (x == 0) {
           return (success = 0);
+        }
       }
     } else {                    /* FILE... */
       fs = zchki(tmpbuf);       /* Get file status */
       if (filewait == WF_MOD) { /* Wait for modification */
-        if (fs == -1)           /* Failure to get status */
+        if (fs == -1) {         /* Failure to get status */
           return (success = 0); /* so WAIT fails. */
-        s = zfcdat(tmpbuf);     /* Get current modification time */
-        if (!s)
-          s = "";                /* And compare with the time */
-        if (strcmp(s, filedate)) /* when the WAIT started */
+        }
+        s = zfcdat(tmpbuf); /* Get current modification time */
+        if (!s) {
+          s = ""; /* And compare with the time */
+        }
+        if (strcmp(s, filedate)) { /* when the WAIT started */
           return (success = 1);
+        }
       } else if (filewait == WF_DEL) { /* Wait for deletion */
-        if (fs == -1)                  /* If file doesn't exist, */
+        if (fs == -1) {                /* If file doesn't exist, */
           return (success = 1);        /* succeed. */
+        }
       } else if (filewait == WF_CRE) { /* Wait for creation */
-        if (fs != -1)                  /* If file exists */
+        if (fs != -1) {                /* If file exists */
           return (success = 1);        /* succeed. */
+        }
       }
     }
-    if (x < 1) /* SLEEP/WAIT/PAUSE 0 */
+    if (x < 1) { /* SLEEP/WAIT/PAUSE 0 */
       break;
+    }
     sleep(waitinterval); /* No interrupt, sleep */
     x -= waitinterval;   /* Deduct sleep time */
   } while (x > 0);
 
-  if (cx == XXWAI)      /* WAIT time expired */
+  if (cx == XXWAI) {    /* WAIT time expired */
     success = (z == 0); /* Succeed if no modem signals */
-  else                  /* For SLEEP or PAUSE, success */
+  } else {              /* For SLEEP or PAUSE, success */
     success = (x == 0); /* depends on whether it was */
-  return (success);     /* interrupted from the keyboard. */
+  }
+  return (success); /* interrupted from the keyboard. */
 #endif /* OLDWAIT */
 }
 #endif /* NOSPL */
@@ -7836,8 +8360,9 @@ int docopy() {
 
   while (!havename) {
     x = cmfdb(&sw); /* Parse something */
-    if (x < 0)      /* Error */
+    if (x < 0) {    /* Error */
       return (x);
+    }
     switch (cmresult.fcode) {
     case _CMKEY:
       c = cmgbrk(); /* Get break character */
@@ -7874,8 +8399,9 @@ int docopy() {
       case 994:
         if ((x = cmkey(ovwtab, novwtab,
                        "When to overwrite existing destination file", "",
-                       xxstring)) < 0)
+                       xxstring)) < 0) {
           return (x);
+        }
         overwrite = x;
         break;
 #ifndef NOSPL
@@ -7921,13 +8447,15 @@ int docopy() {
       if (x == -3) {
         printf("?Name for destination file required\n");
         return (-9);
-      } else
+      } else {
         return (x);
+      }
     }
   }
   ckstrncpy(p, s, TMPBUFSIZ); /* Safe copy of destination name */
-  if ((y = cmcfm()) < 0)
+  if ((y = cmcfm()) < 0) {
     return (y);
+  }
   if (appending && swapping) {
     printf("?Sorry, /APPEND and /SWAP conflict\n");
     return (-9);
@@ -7964,9 +8492,10 @@ int docopy() {
 #endif /* ZXREWIND */
 
 #ifdef UNIX
-  if (wild)
+  if (wild) {
     sh_sort(mtchs, NULL, z, 0, 0, filecase); /* Alphabetize the filename list */
-#endif                                       /* UNIX */
+  }
+#endif /* UNIX */
 
 #ifdef IKSD
   if (!targetisdir && zchki(p) > -1) { /* Destination file exists? */
@@ -7990,8 +8519,9 @@ int docopy() {
   while (z > 0) {
 
     znext(line);
-    if (!line[0])
+    if (!line[0]) {
       break;
+    }
 
     errno = 0; /* Reset errno */
 
@@ -8027,9 +8557,11 @@ int docopy() {
         debug(F110, "COPY n2", n2, 0);
         if (!strcmp(n1, n2)) {          /* Same name? */
           if (overwrite == OVW_NEVER) { /* Never overwrite? */
-            if (listing)                /* Skip */
-              if (listing)
+            if (listing) {              /* Skip */
+              if (listing) {
                 printf("%s => %s (SKIPPED)\n", line, nm);
+              }
+            }
             continue;
           }
           ckstrncpy(d1, zfcdat(line), 20); /* Source file timestamp */
@@ -8037,16 +8569,19 @@ int docopy() {
           x = strcmp(d1, d2);              /* Compare them */
           if (((overwrite == OVW_NEWER) && (x < 0)) ||
               ((overwrite == OVW_OLDER) && (x > 0))) {
-            if (listing)
-              if (listing)
+            if (listing) {
+              if (listing) {
                 printf("%s => %s (SKIPPED)\n", line, nm);
+              }
+            }
             continue;
           }
         }
       }
     }
-    if (listing)
+    if (listing) {
       printf("%s => %s ", line, nm);
+    }
 
     /* Straight copy */
     if (!swapping && !appending && !fromb64 && !tob64 && !toscreen &&
@@ -8056,51 +8591,58 @@ int docopy() {
         debug(F111, "COPY not OK", line, x);
         switch (x) {
         case -2:
-          if (listing)
+          if (listing) {
             printf("(FAILED: Not a regular file)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Not a regular file - %s\n", line);
+          }
           rc = 0;
           break;
         case -3:
-          if (listing)
+          if (listing) {
             printf("(FAILED: Not found or not accessible)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Not found or not accessible - %s\n", line);
+          }
           rc = 0;
           break;
         case -4:
-          if (listing)
+          if (listing) {
             printf("(FAILED: Permission denied)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Permission denied - %s\n", line);
+          }
           rc = 0;
           break;
         case -5:
-          if (listing)
+          if (listing) {
             printf("(Source and destination are the same file)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Source and destination are the same file - %s\n", line);
+          }
           break;
         case -6:
-          if (listing)
+          if (listing) {
             printf("(FAILED: Input/Output error)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Input/Output error - %s\n", line);
+          }
           rc = 0;
           break;
         case -7:
-          if (listing)
+          if (listing) {
             printf("(FAILED: %s - %s)\n", p, ck_errstr());
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?%s - %s\n", ck_errstr(), p);
+          }
           rc = 0;
           break;
         default:
-          if (listing)
+          if (listing) {
             printf("(FAILED: %s)\n", ck_errstr());
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?%s\n", ck_errstr());
+          }
           rc = 0;
         }
       } else { /* Regular copy succeeded */
@@ -8129,8 +8671,9 @@ int docopy() {
           }
         }
 #endif /* NOXFER */
-        if (listing && rc > -1)
+        if (listing && rc > -1) {
           printf("(OK)\n");
+        }
       }
 
     } else { /* Special options */
@@ -8142,14 +8685,16 @@ int docopy() {
       FILE *in = NULL;
       FILE *out = NULL;
 
-      if (toscreen)
+      if (toscreen) {
         out = (FILE *)stdout;
+      }
 
       if ((in = fopen(line, "r")) == NULL) { /* Open input file */
-        if (listing)
+        if (listing) {
           printf("(FAILED: %s)\n", ck_errstr());
-        else if (!nolist)
+        } else if (!nolist) {
           printf("?%s - %s)\n", ck_errstr(), line);
+        }
         rc = 0;
         continue;
       }
@@ -8158,14 +8703,16 @@ int docopy() {
           char *buf = NULL; /* so append this filename to it */
           zstrip(line, &buf);
           p[targetlen] = NUL;
-          if (buf)
+          if (buf) {
             ckstrncat(p, buf, TMPBUFSIZ);
+          }
         }
         if (zcmpfn(line, p)) { /* Input and output are same file? */
-          if (listing)
+          if (listing) {
             printf("(FAILED: Source and destination identical)\n");
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?Source and destination identical - %s\n", line);
+          }
           rc = 0;
           continue;
         }
@@ -8173,10 +8720,11 @@ int docopy() {
       if (toscreen == 0) {
         if ((out = fopen(p, (appending ? "a" : "w"))) == NULL) {
           fclose(in);
-          if (listing)
+          if (listing) {
             printf("(FAILED: %s - %s)\n", p, ck_errstr());
-          else if (!nolist)
+          } else if (!nolist) {
             printf("?%s - %s\n", p, ck_errstr());
+          }
           rc = 0;
           continue;
         }
@@ -8189,24 +8737,27 @@ int docopy() {
         while (1) { /* Loop... */
           prev = x;
           if ((x = fread(ibuf, 1, 54, in)) < 1) { /* EOF */
-            if (listing)
+            if (listing) {
               printf("(OK)\n");
+            }
             break;
           }
           if (prev % 3) {
-            if (listing)
+            if (listing) {
               printf("(FAILED: Phase error at %d)\n", prev);
-            else if (!nolist)
+            } else if (!nolist) {
               printf("?Phase error at %d\n", prev);
+            }
             rc = 0;
             break;
           }
           if (swapping) {
             if (x & 1) {
-              if (listing)
+              if (listing) {
                 printf("(FAILED: Swap error)\n");
-              else if (!nolist)
+              } else if (!nolist) {
                 printf("?Swap error\n");
+              }
               rc = 0;
               break;
             }
@@ -8217,10 +8768,11 @@ int docopy() {
             }
           }
           if ((y = b8tob64(ibuf, x, obuf, 180)) < 0) {
-            if (listing)
+            if (listing) {
               printf("(FAILED: Encoding error)\n");
-            else if (!nolist)
+            } else if (!nolist) {
               printf("?Encoding error\n");
+            }
             rc = 0;
             break;
           }
@@ -8234,10 +8786,11 @@ int docopy() {
         if (toscreen == 0) {
           if ((out = fopen(p, appending ? "a" : "w")) == NULL) {
             fclose(in);
-            if (listing)
+            if (listing) {
               printf("(FAILED: %s - %s)\n", p, ck_errstr());
-            else if (!nolist)
+            } else if (!nolist) {
               printf("?%s - %s\n", p, ck_errstr());
+            }
             rc = 0;
             continue;
           }
@@ -8246,19 +8799,21 @@ int docopy() {
         while (x) {
           x = fread(ibuf, 1, 80, in);
           if ((y = b64tob8(ibuf, x, obuf, 80)) < 0) {
-            if (listing)
+            if (listing) {
               printf("(FAILED: Decoding error)\n");
-            else if (!nolist)
+            } else if (!nolist) {
               printf("?Decoding error\n");
+            }
             rc = 0;
             break;
           }
           if (swapping) {
             if (x & 1) {
-              if (listing)
+              if (listing) {
                 printf("(FAILED: Swap error)\n");
-              else if (!nolist)
+              } else if (!nolist) {
                 printf("?Swap error\n");
+              }
               rc = 0;
               break;
             }
@@ -8270,10 +8825,11 @@ int docopy() {
           }
           if (y > 0) {
             if (fwrite(obuf, 1, y, out) < 1) {
-              if (listing)
+              if (listing) {
                 printf("(FAILED: %s - %s)\n", p, ck_errstr());
-              else if (!nolist)
+              } else if (!nolist) {
                 printf("?%s - %s\n", p, ck_errstr());
+              }
               rc = 0;
               break;
             }
@@ -8293,21 +8849,24 @@ int docopy() {
           while (1) {
             x = fread((char *)c, 1, 2, in);
             if (x < 1) {
-              if (listing)
+              if (listing) {
                 printf("(OK)\n");
+              }
               break;
             } else if (x == 1) {
               c[1] = c[0];
               c[0] = NUL;
               printf("(WARNING: Odd byte count)");
-              if (!listing)
+              if (!listing) {
                 printf("\n");
+              }
             }
             if (fprintf(out, "%c%c", c[1], c[0]) == EOF) {
-              if (listing)
+              if (listing) {
                 printf("(FAILED: %s - %s)\n", p, ck_errstr());
-              else if (!nolist)
+              } else if (!nolist) {
                 printf("?%s - %s\n", p, ck_errstr());
+              }
               rc = 0;
               break;
             }
@@ -8322,15 +8881,17 @@ int docopy() {
           while (1) {
             x = fread(&c, 1, 1, in);
             if (x < 1) {
-              if (listing)
+              if (listing) {
                 printf("(OK)\n");
+              }
               break;
             }
             if (fwrite(&c, 1, 1, out) < 1) {
-              if (listing)
+              if (listing) {
                 printf("(FAILED: %s - %s)\n", p, ck_errstr());
-              else if (!nolist)
+              } else if (!nolist) {
                 printf("?%s - %s\n", p, ck_errstr());
+              }
               rc = 0;
               break;
             }
@@ -8355,8 +8916,9 @@ int docopy() {
             }
             /* worry about LF vs CRLF... */
             if (c == '\013' || c == '\012') {
-              if (p == 0 && c == '\012' && prev == '\013')
-                continue;     /* Leftover LF from CRLF */
+              if (p == 0 && c == '\012' && prev == '\013') {
+                continue; /* Leftover LF from CRLF */
+              }
               linebuf[p] = 0; /* Null-terminate the line */
 #ifdef COPYINTERPRET
               /* copy /INTERPRET - fdc 20220920 */
@@ -8403,16 +8965,20 @@ int docopy() {
         xdocopy:
           free(linebuf);
         }
-      if (!toscreen)
-        if (out)
+      if (!toscreen) {
+        if (out) {
           fclose(out);
-      if (in)
+        }
+      }
+      if (in) {
         fclose(in);
+      }
     }
     concb((char)escape);
   }
-  if (rc > -1)
+  if (rc > -1) {
     success = rc;
+  }
   return (rc);
 }
 #endif /* ZCOPY */
@@ -8435,8 +9001,9 @@ cvtfnin(void) {
 
 static int cvtfnout(char c) /* Output function for xpnbyte() */
 {
-  if (pcvtbufout - cvtbufout >= CKMAXPATH)
+  if (pcvtbufout - cvtbufout >= CKMAXPATH) {
     return (-1);
+  }
   *pcvtbufout++ = c;
   *pcvtbufout = NUL;
   return (1);
@@ -8453,8 +9020,9 @@ char *cvtstring(char *s, int csin, int csout) {
   pcvtbufout = cvtbufout;
   *pcvtbufout = NUL;
 
-  if (csin == csout)           /* If the two sets are the same */
+  if (csin == csout) {         /* If the two sets are the same */
     return ((char *)cvtbufin); /* don't bother converting */
+  }
 
   initxlate(csin, csout); /* Initialize the translator */
 
@@ -8503,14 +9071,17 @@ int shorename() {
 
 int setrename() { /* Parse SET RENAME options */
   int x, y;
-  if ((x = cmkey(renamset, nrenamset, "", "", xxstring)) < 0)
+  if ((x = cmkey(renamset, nrenamset, "", "", xxstring)) < 0) {
     return (x);
+  }
   switch (x) {
   case REN_OVW: /* COLLISION */
-    if ((x = cmkey(r_collision, nr_collision, "", "", xxstring)) < 0)
+    if ((x = cmkey(r_collision, nr_collision, "", "", xxstring)) < 0) {
       return (x);
-    if ((y = cmcfm()) < 0)
+    }
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     ren_coll = x;
     break;
   case DEL_LIS: /* LIST */
@@ -8523,11 +9094,13 @@ int setrename() { /* Parse SET RENAME options */
 
 int gnirts(char *s1, char *s2, int len) {
   int n, m = 0;
-  if (!s1) /* Null source pointer, fail */
+  if (!s1) { /* Null source pointer, fail */
     return (0);
+  }
   n = (int)strlen(s1);
-  if (n > len - 1) /* Source longer than dest, fail */
+  if (n > len - 1) { /* Source longer than dest, fail */
     return (0);
+  }
   s2[n--] = NUL;        /* Deposit null byte at end of dest */
   for (; n >= 0; n--) { /* Copy the rest backwards */
     *s2++ = s1[n];
@@ -8592,8 +9165,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
   debug(F110, "RENAMEONE ren_sub[1]", ren_sub[1], 0);
   debug(F110, "RENAMEONE ren_sub[2]", ren_sub[2], 0);
 
-  if (op == REN_OP_SIM && !nolist) /* For convenience */
+  if (op == REN_OP_SIM && !nolist) { /* For convenience */
     listing = 1;
+  }
 #ifndef NOSPL
   honorcase = inpcas[cmdlvl]; /* Inherit SET CASE value */
 #else
@@ -8604,12 +9178,15 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
 #endif /* UNIX */
 #endif /* NOSPL */
 
-  if (!old)
+  if (!old) {
     old = ""; /* In case of bad args */
-  if (!new)
+  }
+  if (!new) {
     new = "";
-  if (!*old)
+  }
+  if (!*old) {
     return (success = 0);
+  }
   ckstrncpy(out, new, CKMAXPATH); /* So we don't write into */
   new = out;                      /* our argument... */
   size = CKMAXPATH;
@@ -8641,14 +9218,17 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
     }
   }
   if (!casing && !replacing && !converting) {
-    if (!*new)
+    if (!*new) {
       return (success = 0);
-    if (!arg2isfile) {              /* Destination is a directory? */
-      if (!isdir(old)) {            /* and source is not? */
-        int n, x = 0;               /* Concatenate them */
-        if ((n = strlen(new)) > 0)  /* so we can check for */
-          if (ISDIRSEP(new[n - 1])) /* collisions. */
+    }
+    if (!arg2isfile) {                /* Destination is a directory? */
+      if (!isdir(old)) {              /* and source is not? */
+        int n, x = 0;                 /* Concatenate them */
+        if ((n = strlen(new)) > 0) {  /* so we can check for */
+          if (ISDIRSEP(new[n - 1])) { /* collisions. */
             x++;
+          }
+        }
         ckmakmsg(buf, size, new, x ? "" : "/", old, "");
         debug(F110, "RENAMEONE new new", new, 0);
         new = buf;
@@ -8657,11 +9237,14 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
     }
   } else if (*new) { /* Directory to move file to */
     int n, x = 0;    /* after changing its name */
-    if (!isdir(new))
+    if (!isdir(new)) {
       return (success = 0);
-    if ((n = strlen(new)) > 0)
-      if (ISDIRSEP(new[n - 1]))
+    }
+    if ((n = strlen(new)) > 0) {
+      if (ISDIRSEP(new[n - 1])) {
         x++;
+      }
+    }
     ckmakmsg(dir, CKMAXPATH, new, x ? "" : "/", "", "");
   }
 
@@ -8681,8 +9264,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
     bp[0] = old;        /* Original name */
     bp[1] = ren_sub[0]; /* String to be replaced */
     bp[2] = ren_sub[1]; /* What to replace it with */
-    if (!bp[2])
+    if (!bp[2]) {
       bp[2] = "";
+    }
 
     len0 = (int)strlen(bp[0]); /* length of original filename */
     len1 = (int)strlen(bp[1]); /* length of target substring */
@@ -8723,8 +9307,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         default:
           if (isdigit(c)) {
             occur = c - '0';
-            if (minus)
+            if (minus) {
               occur = 0 - occur;
+            }
             anchor = 0;
           }
           minus = 0;
@@ -8768,20 +9353,23 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         if (s0) {
           (void)gnirts(bp[0], s0, len0 + 1);
           bp[0] = s0;
-        } else
+        } else {
           return (0);
+        }
         s1 = (char *)malloc(len1 + 1); /* Reverse target string */
         if (s1) {
           (void)gnirts(bp[1], s1, len1 + 1);
           bp[1] = s1;
-        } else
+        } else {
           return (0);
+        }
         s2 = (char *)malloc(len2 + 1); /* Reverse replacement string */
         if (s2) {
           (void)gnirts(bp[2], s2, len2 + 1);
           bp[2] = s2;
-        } else
+        } else {
           return (0);
+        }
         debug(F111, "RENAMEONE s0", s0, len0);
         debug(F111, "RENAMEONE s1", s1, len1);
         debug(F111, "RENAMEONE s2", s2, len2);
@@ -8822,34 +9410,41 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
           ckstrncpy(new, p, x + 2);
           free(p);
         }
-        if (s0)
+        if (s0) {
           free(s0); /* Free the temporary strings */
-        if (s1)
+        }
+        if (s1) {
           free(s1);
-        if (s2)
+        }
+        if (s2) {
           free(s2);
+        }
         debug(F110, "RENAMEONE new3", new, 0);
       }
     }
   }
   if (casing) { /* Changing case? */
     char c, *t; /* See if mixed case. */
-    if (!replaced)
+    if (!replaced) {
       ckstrncpy(new, old, size); /* Copy old name to new name */
+    }
     t = new;
     while ((c = *t++)) {
-      if (islower(c))
+      if (islower(c)) {
         flag |= 1; /* Have a lowercase letter */
-      else if (isupper(c))
+      } else if (isupper(c)) {
         flag |= 2; /* Have an uppercase letter */
-      if (flag == 3)
+      }
+      if (flag == 3) {
         break; /* Have a mixed-case name */
+      }
     }
-    if (all || flag < 3) {          /* Not skipping or not mixed case */
-      if (casing == 1 && flag != 1) /* Change case to lower */
+    if (all || flag < 3) {            /* Not skipping or not mixed case */
+      if (casing == 1 && flag != 1) { /* Change case to lower */
         (void)cklower(new);
-      else if (casing == 2 && flag != 2) /* Change case to upper */
+      } else if (casing == 2 && flag != 2) { /* Change case to upper */
         (void)ckupper(new);
+      }
     }
   }
   if (*destdir && !arg2isfile) { /* Moving without renaming */
@@ -8870,8 +9465,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
   }
   skip = 0; /* Can we skip this one? */
   if (!skip) {
-    if (!ckstrcmp(old, new, -1, 1))
+    if (!ckstrcmp(old, new, -1, 1)) {
       skip = 1;
+    }
   }
   if (op == 0 && !skip && (collision != RENX_OVWR)) {
     if (zchki(new) > (CK_OFF_T)-1) { /* New file already exists?  */
@@ -8881,8 +9477,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         break;
       case RENX_FAIL: /* Or fail. */
         skip = 3;
-        if (!listing && !nolist)
+        if (!listing && !nolist) {
           printf("?File already exists: %s\n", new);
+        }
       }
     }
   }
@@ -8892,31 +9489,37 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
   debug(F100, "RENAMEONE ----------------", "", 0);
 
   if (skip == 3) {
-    if (listing)
+    if (listing) {
       printf("%s => %s (SKIPPED: %s already exists)\n", old, new, new);
+    }
     rc = 0;
   } else if (skip) { /* Skipping this one */
-    if (listing)
+    if (listing) {
       printf("%s => %s (%s)\n", old, new,
              (skip == 2) ? "COLLISION: SKIPPED" : "SKIPPED");
+    }
   } else {                  /* Have to rename this one */
     if (op == REN_OP_CHK) { /* Checking for collisions */
       return ((zchki(new) > (CK_OFF_T)-1) ? 0 : 1);
     } else if (op == REN_OP_SIM) { /* Simulating */
-      if (listing)
+      if (listing) {
         printf("%s => %s (SIMULATED)\n", old, new);
+      }
     } else { /* Really renaming */
-      if (listing)
+      if (listing) {
         printf("%s => %s ", old, new);
+      }
       if (zrename(old, new) < 0) {
         rc = 0;
-        if (listing)
+        if (listing) {
           printf("(FAILED: %s)\n", ck_errstr());
-        else if (!nolist)
+        } else if (!nolist) {
           printf("?%s\n", ck_errstr());
+        }
       } else {
-        if (listing)
+        if (listing) {
           printf("(OK)\n");
+        }
       }
     }
   }
@@ -8943,12 +9546,15 @@ int dorenam() {
   collision = ren_coll; /* Inherit SET RENAME COLLISION */
   listing = ren_list;   /* Inhereit SET RENAME LIST */
 
-  if (ren_sub[0])
+  if (ren_sub[0]) {
     makestr(&(ren_sub[0]), NULL);
-  if (ren_sub[1])
+  }
+  if (ren_sub[1]) {
     makestr(&(ren_sub[1]), NULL);
-  if (ren_sub[2])
+  }
+  if (ren_sub[2]) {
     makestr(&(ren_sub[2]), NULL);
+  }
   line[0] = NUL;
   tmpbuf[0] = NUL;
 
@@ -8984,14 +9590,16 @@ int dorenam() {
       printf("?Command incomplete\n");
       return (-9);
     } else if (x < 0) { /* Other error */
-      if (x == -1)
+      if (x == -1) {
         return (x);
-      if (iswild(atmbuf) && nzxpand(atmbuf, nzxopts) == 0)
+      }
+      if (iswild(atmbuf) && nzxpand(atmbuf, nzxopts) == 0) {
         printf("?No files match: %s\n", brstrip(atmbuf));
-      else if (zchki(atmbuf) == -1)
+      } else if (zchki(atmbuf) == -1) {
         printf("?File not found: %s\n", brstrip(atmbuf));
-      else
+      } else {
         printf("?Error with switch or filename: %s\n", brstrip(atmbuf));
+      }
       return (-9);
     }
     fn = cmresult.nresult;    /* For brevity */
@@ -9002,8 +9610,9 @@ int dorenam() {
         printf("?This switch does not take an argument\n");
         return (-9);
       }
-      if (!getval && (cmgkwflgs() & CM_ARG))
-        noarg = 1;                /* Remember arg is missing */
+      if (!getval && (cmgkwflgs() & CM_ARG)) {
+        noarg = 1; /* Remember arg is missing */
+      }
       switch (cmresult.nresult) { /* Handle the switch */
       case DEL_LIS:               /* /LIST */
       case DEL_VRB:               /* /VERBOSE */
@@ -9023,10 +9632,11 @@ int dorenam() {
         if (!noarg) {
           if ((x = cmkey((fn == REN_UPP) ? r_upper : r_lower, 2, "", "all",
                          xxstring)) < 0) {
-            if (x == -3)
+            if (x == -3) {
               x = 1;
-            else
+            } else {
               return (x);
+            }
           }
           all = x;
         }
@@ -9038,10 +9648,11 @@ int dorenam() {
         if (!noarg) {
           if ((x = cmkey(r_collision, nr_collision, "", "overwrite",
                          xxstring)) < 0) {
-            if (x == -3)
+            if (x == -3) {
               x = RENX_OVWR;
-            else
+            } else {
               return (x);
+            }
           }
           collision = x;
         }
@@ -9060,10 +9671,11 @@ int dorenam() {
           return (x);
         }
         if (s[0]) {
-          if (s[0] == '{' && s[1] == '{') /* Get the list */
+          if (s[0] == '{' && s[1] == '{') { /* Get the list */
             makelist(s, ren_sub, 3);
-          else
+          } else {
             makestr(&(ren_sub[0]), s);
+          }
         }
         converting = 0;
         break;
@@ -9107,8 +9719,9 @@ int dorenam() {
           if (x == -3) {
             printf("?Pair of character-set names required\n");
             return (-9);
-          } else
+          } else {
             return (x);
+          }
         }
         cset1 = x;
         c = cmgbrk();
@@ -9121,18 +9734,23 @@ int dorenam() {
           if (x == -3) {
             printf("?Second character-set name required\n");
             return (-9);
-          } else
+          } else {
             return (x);
+          }
         }
         cset2 = x;
-        if (casing)
+        if (casing) {
           casing = 0;
-        if (ren_sub[0])
+        }
+        if (ren_sub[0]) {
           makestr(&(ren_sub[0]), NULL);
-        if (ren_sub[1])
+        }
+        if (ren_sub[1]) {
           makestr(&(ren_sub[1]), NULL);
-        if (ren_sub[2])
+        }
+        if (ren_sub[2]) {
           makestr(&(ren_sub[2]), NULL);
+        }
         converting = 1;
         break;
 #endif /* NOUNICODE */
@@ -9155,8 +9773,9 @@ int dorenam() {
     return (-9); /* Shouldn't happen */
   }
   wild = cmresult.nresult; /* Source specification wild? */
-  if (!wild)
+  if (!wild) {
     wild = iswild(line);
+  }
 
   debug(F111, "RENAME WILD", line, wild);
 
@@ -9173,19 +9792,22 @@ int dorenam() {
         printf("?%s required\n", wild ? "Target directory" : "New name");
         return (-9);
       }
-    } else
+    } else {
       return (x);
+    }
   }
   ckstrncpy(p, s, TMPBUFSIZ); /* Make a safe copy of the new name */
 
-  if ((y = cmcfm()) < 0)
+  if ((y = cmcfm()) < 0) {
     return (y); /* Confirm the command */
+  }
 
   s = line;
-  if (!wild) /* Just one */
+  if (!wild) { /* Just one */
     return (success =
                 renameone(s, p, replacing, casing, all, converting, cset1,
                           cset2, listing, nolist, sim, TMPBUFSIZ, collision));
+  }
 
   if (!casing && !replacing && !converting) { /* Multiple files */
     if (!isdir(p)) {
@@ -9206,9 +9828,10 @@ int dorenam() {
   debug(F111, "dorename p", p, z);
 
 #ifdef UNIX
-  if (wild && z > 1)
+  if (wild && z > 1) {
     sh_sort(mtchs, NULL, z, 0, 0, filecase); /* Alphabetize the filename list */
-#endif                                       /* UNIX */
+  }
+#endif /* UNIX */
 
   /* For /COLLISION:FAIL make a silent pass to see if there would be any */
 
@@ -9216,13 +9839,16 @@ int dorenam() {
     int n = 0;
     char line[CKMAXPATH + 2];
     while (z-- > 0) {
-      if (!(z == 0 && !wild))
+      if (!(z == 0 && !wild)) {
         znext(line);
-      if (!line[0])
+      }
+      if (!line[0]) {
         break;
+      }
       if (!renameone((char *)line, p, replacing, casing, all, converting, cset1,
-                     cset2, 0, 1, REN_OP_CHK, TMPBUFSIZ, RENX_FAIL))
+                     cset2, 0, 1, REN_OP_CHK, TMPBUFSIZ, RENX_FAIL)) {
         n++;
+      }
     }
     if (n > 0) {
       printf("?Failed: %d file%s would be overwritten\n", n,
@@ -9238,10 +9864,12 @@ int dorenam() {
   }
   while (z-- > 0 && rc > 0) {
     char line[CKMAXPATH + 2];
-    if (!(z == 0 && !wild))
+    if (!(z == 0 && !wild)) {
       znext(line);
-    if (!line[0])
+    }
+    if (!line[0]) {
       break;
+    }
     rc = renameone((char *)line, p, replacing, casing, all, converting, cset1,
                    cset2, listing, nolist, sim, TMPBUFSIZ, collision);
   }
@@ -9265,12 +9893,14 @@ int doreturn(char *s) {
     return (success = 0);
   }
   line = malloc(LINBUFSIZ);
-  if (line == NULL)
+  if (line == NULL) {
     return (success = 0);
+  }
   lp = line; /* Expand return value now */
   x = LINBUFSIZ - 1;
-  if (!s)
+  if (!s) {
     s = "";
+  }
   debug(F110, "RETURN s", s, 0);
   if (zzstring(s, &lp, &x) > -1) {
     s = line;
@@ -9290,17 +9920,20 @@ int doreturn(char *s) {
     popclvl();
   }
   if (tra_asg) { /* If tracing show return value */
-    if (*s)
+    if (*s) {
       printf("<<< %s: \"%s\"\n", m_arg[maclvl][0], s);
-    else
+    } else {
       printf("<<< %s: (null)\n", m_arg[maclvl][0]);
+    }
   }
   popclvl(); /* Pop from enclosing TAKE or macro */
   debug(F111, "RETURN tolevel", s, maclvl);
-  if (!s)
+  if (!s) {
     s = "";
-  if (!*s)
+  }
+  if (!*s) {
     s = NULL;
+  }
   makestr(&(mrval[maclvl + 1]), s); /* Set the RETURN value */
   free(line);
   return (success = 1); /* Macro succeeds if we RETURN */
@@ -9318,8 +9951,9 @@ int doopen() { /* OPEN { append, read, write } */
     if (x == -3) {
       printf("?Mode required\n");
       return (-9);
-    } else
+    } else {
       return (x);
+    }
   }
   switch (x) {
   case OPN_FI_R: /* Old file (READ) */
@@ -9331,27 +9965,32 @@ int doopen() { /* OPEN { append, read, write } */
       if (z == -3) {
         printf("?Input filename required\n");
         return (-9);
-      } else
+      } else {
         return (z);
+      }
     }
     if (y) { /* No wildcards allowed */
       printf("\n?Please specify a single file\n");
       return (-2);
     }
     ckstrncpy(line, s, LINBUFSIZ);
-    if ((int)strlen(line) < 1)
+    if ((int)strlen(line) < 1) {
       return (-2);
-    if ((z = cmnum("buffer size", "4096", 10, &y, xxstring)) < 0)
+    }
+    if ((z = cmnum("buffer size", "4096", 10, &y, xxstring)) < 0) {
       return (z);
+    }
     if (y < 1) {
       printf("?Positive number required\n");
       return (-9);
     }
-    if ((z = cmcfm()) < 0)
+    if ((z = cmcfm()) < 0) {
       return (z);
+    }
     readblock = y;
-    if (readbuf)
+    if (readbuf) {
       free((char *)readbuf);
+    }
     if (!(readbuf = (CHAR *)malloc(readblock + 1))) {
       printf("?Can't allocate read buffer\n");
       return (-9);
@@ -9372,14 +10011,17 @@ int doopen() { /* OPEN { append, read, write } */
       if (y == -3) {
         printf("?Command name required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
     ckstrncpy(line, brstrip(s), LINBUFSIZ);
-    if (!line[0])
+    if (!line[0]) {
       return (-2);
-    if ((y = cmcfm()) < 0)
+    }
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     if (!readbuf) {
       if (!(readbuf = (CHAR *)malloc(readblock + 1))) {
         printf("?Can't allocate read buffer\n");
@@ -9401,17 +10043,21 @@ int doopen() { /* OPEN { append, read, write } */
       if (y == -3) {
         printf("?Command name required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
     ckstrncpy(line, brstrip(s), LINBUFSIZ);
-    if (!line[0])
+    if (!line[0]) {
       return (-2);
-    if ((y = cmcfm()) < 0)
+    }
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     success = zxcmd(ZWFILE, line);
-    if (!success && msgflg)
+    if (!success && msgflg) {
       printf("Can't open process for writing: %s\n", line);
+    }
     return (success);
 #endif /* NOPUSH */
 
@@ -9421,8 +10067,9 @@ int doopen() { /* OPEN { append, read, write } */
       if (z == -3) {
         printf("?Filename required\n");
         return (-9);
-      } else
+      } else {
         return (z);
+      }
     }
     if (z == 2) {
       printf("?Sorry, %s is a directory name\n", s);
@@ -9436,10 +10083,12 @@ int doopen() { /* OPEN { append, read, write } */
     fcb.lblopts = 0;
     fcb.dsp = (x == OPN_FI_W) ? XYFZ_N : XYFZ_A; /* Create or Append */
     ckstrncpy(line, s, LINBUFSIZ);
-    if ((int)strlen(line) < 1)
+    if ((int)strlen(line) < 1) {
       return (-2);
-    if ((y = cmcfm()) < 0)
+    }
+    if ((y = cmcfm()) < 0) {
       return (y);
+    }
     return (success = zopeno(ZWFILE, line, NULL, &fcb));
 
 #ifndef NOLOCAL
@@ -9451,8 +10100,9 @@ int doopen() { /* OPEN { append, read, write } */
       ttnproto = NP_NONE;
     }
     if ((y = setlin((x == OPN_SER) ? XYLINE : XYHOST, 1, 0)) < 0) {
-      if (x == OPN_NET)
+      if (x == OPN_NET) {
         ttnproto = z;
+      }
       success = 0;
     }
     didsetlin++;
@@ -9512,8 +10162,9 @@ int doxget(int cx) {
       int x;
       x = doftpget(cx, 0);
       debug(F101, "doftpget return", "", x);
-      if (x > -1)
+      if (x > -1) {
         success = x;
+      }
       debug(F101, "doftpget success", "", success);
       return (x);
     }
@@ -9600,7 +10251,7 @@ int doxget(int cx) {
          rcvcmd ? rcvtab : gettab,   /* Keyword table */
          &fl                         /* Pointer to next FDB */
   );
-  if (rcvcmd || mget)   /* RECEIVE or MGET */
+  if (rcvcmd || mget) { /* RECEIVE or MGET */
     cmfdbi(&fl, _CMTXT, /* fcode */
            rcvcmd ?     /* hlpmsg */
                "Output filename or Command"
@@ -9613,7 +10264,7 @@ int doxget(int cx) {
            xxstring              /* Always evaluate - fdc 2006/02/01 */
            ,
            NULL, &cm);
-  else
+  } else {
     cmfdbi(&fl,               /* Remote filename or command */
            _CMFLD,            /* fcode */
            "Remote filename", /* hlpmsg */
@@ -9622,6 +10273,7 @@ int doxget(int cx) {
            0,                 /* addtl numeric data 1 */
            0,                 /* addtl numeric data 2 */
            xxstring, NULL, &cm);
+  }
   cmfdbi(&cm,    /* Confirmation */
          _CMCFM, /* fcode */
          "",     /* hlpmsg */
@@ -9636,10 +10288,12 @@ int doxget(int cx) {
   while (1) {       /* Parse 0 or more switches */
     x = cmfdb(&sw); /* Parse something */
     debug(F101, "xget cmfdb", "", x);
-    if (x < 0)                    /* Error */
-      goto xgetx;                 /* or reparse needed */
-    if (cmresult.fcode != _CMKEY) /* Break out if not a switch */
+    if (x < 0) {  /* Error */
+      goto xgetx; /* or reparse needed */
+    }
+    if (cmresult.fcode != _CMKEY) { /* Break out if not a switch */
       break;
+    }
     c = cmgbrk(); /* Get break character */
     if ((getval = (c == ':' || c == '=')) && !(cmgkwflgs() & CM_ARG)) {
       printf("?This switch does not take an argument\n");
@@ -9666,10 +10320,11 @@ int doxget(int cx) {
         x = -9;
         goto xgetx;
       }
-      if (rcvcmd)
+      if (rcvcmd) {
         sw.hlpmsg = "Command, or switch"; /* Change help message */
-                                          /* Fall thru... */
-#endif                                    /* PIPESEND */
+      }
+      /* Fall thru... */
+#endif /* PIPESEND */
 
     case SND_REC:                  /* /RECURSIVE */
       pv[SND_PTH].ival = PATH_REL; /* Implies relative pathnames */
@@ -9693,10 +10348,12 @@ int doxget(int cx) {
         pv[n].ival = 1;
         break;
       }
-      if ((x = cmkey(onoff, 2, "", "on", xxstring)) < 0)
+      if ((x = cmkey(onoff, 2, "", "on", xxstring)) < 0) {
         goto xgetx;
-      if (!nopush)
+      }
+      if (!nopush) {
         pv[n].ival = x;
+      }
       break;
 
       /* File transfer modes - each undoes the others */
@@ -9713,8 +10370,9 @@ int doxget(int cx) {
       break;
 
     case SND_EXC: /* Excludes */
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmfld("Pattern", "", &s, xxstring)) < 0) {
         if (x == -3) {
           printf("?Pattern required\n");
@@ -9722,8 +10380,9 @@ int doxget(int cx) {
         }
         goto xgetx;
       }
-      if (pv[n].sval)
+      if (pv[n].sval) {
         free(pv[n].sval);
+      }
       y = strlen(s);
       if (y > 256) {
         printf("?Pattern too long - 256 max\n");
@@ -9739,8 +10398,9 @@ int doxget(int cx) {
 
     case SND_MOV: /* MOVE after */
     case SND_REN: /* RENAME after */
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmfld(
                n == SND_MOV
                    ? "device and/or directory for source file after sending"
@@ -9769,19 +10429,22 @@ int doxget(int cx) {
       break;
 
     case SND_ASN: /* As-name */
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if (mget) {
         printf("?Sorry, as-name not allowed with MGET\n");
         x = -9;
         goto xgetx;
       }
-      if ((x = cmfld("Name to store it under", "", &s, xxstring)) < 0)
+      if ((x = cmfld("Name to store it under", "", &s, xxstring)) < 0) {
         goto xgetx;
+      }
       s = brstrip(s);
       if ((y = strlen(s)) > 0) {
-        if (pv[n].sval)
+        if (pv[n].sval) {
           free(pv[n].sval);
+        }
         pv[n].sval = malloc(y + 1);
         if (pv[n].sval) {
           strcpy(pv[n].sval, s); /* safe */
@@ -9793,22 +10456,27 @@ int doxget(int cx) {
 #ifdef PIPESEND
     case SND_FLT: /* Filter */
       debug(F101, "xget /filter getval", "", getval);
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmfld("Filter program to receive through", "", &s, NULL)) < 0) {
-        if (x == -3)
-          s = "";
-        else
-          goto xgetx;
       }
-      if (*s)
+      if ((x = cmfld("Filter program to receive through", "", &s, NULL)) < 0) {
+        if (x == -3) {
+          s = "";
+        } else {
+          goto xgetx;
+        }
+      }
+      if (*s) {
         s = brstrip(s);
+      }
       y = strlen(s);
       for (x = 0; x < y; x++) { /* Make sure they included "\v(...)" */
-        if (s[x] != '\\')
+        if (s[x] != '\\') {
           continue;
-        if (s[x + 1] == 'v')
+        }
+        if (s[x + 1] == 'v') {
           break;
+        }
       }
       if (x == y) {
         printf("?Filter must contain a replacement variable for filename.\n");
@@ -9821,8 +10489,9 @@ int doxget(int cx) {
         pv[n].sval = NULL;
       }
       if ((y = strlen(s)) > 0) {
-        if ((pv[n].sval = malloc(y + 1)))
+        if ((pv[n].sval = malloc(y + 1))) {
           strcpy(pv[n].sval, s); /* safe */
+        }
       }
       break;
 #endif /* PIPESEND */
@@ -9832,28 +10501,33 @@ int doxget(int cx) {
         pv[n].ival = PATH_REL;
         break;
       }
-      if ((x = cmkey(rpathtab, nrpathtab, "", "on", xxstring)) < 0)
+      if ((x = cmkey(rpathtab, nrpathtab, "", "on", xxstring)) < 0) {
         goto xgetx;
+      }
       pv[n].ival = x; /* Ditto */
       break;
 
     case SND_NAM: /* Filenames */
-      if (!getval)
+      if (!getval) {
         break;
-      if ((x = cmkey(fntab, nfntab, "", "converted", xxstring)) < 0)
+      }
+      if ((x = cmkey(fntab, nfntab, "", "converted", xxstring)) < 0) {
         goto xgetx;
+      }
       pv[n].ival = x;
       break;
 
     case SND_PRO: /* Protocol to use */
-      if (!getval)
+      if (!getval) {
         break;
+      }
       if ((x = cmkey(protos, nprotos, "File-transfer protocol", "", xxstring)) <
           0) {
-        if (x == -3)
+        if (x == -3) {
           x = 0;
-        else
+        } else {
           goto xgetx;
+        }
       }
       debug(F111, "xget /proto", atmbuf, x);
       pv[n].ival = x;
@@ -9885,8 +10559,9 @@ int doxget(int cx) {
   case _CMTXT: /* (4) As-name */
     if (rcvcmd) {
       ckstrncpy(tmpbuf, cmresult.sresult, TMPBUFSIZ);
-      if ((int)strlen(tmpbuf) > 0)
+      if ((int)strlen(tmpbuf) > 0) {
         asname = 1;
+      }
     } else {
       ckstrncpy(line, cmresult.sresult, LINBUFSIZ);
     }
@@ -9907,8 +10582,9 @@ int doxget(int cx) {
     if (pv[SND_CMD].ival > 0) {
       debug(F100, "xget calling cmtxt", "", 0);
       x = cmtxt("Local command to pipe into", "", &s, NULL);
-      if (x < 0 && x != -3)
+      if (x < 0 && x != -3) {
         goto xgetx;
+      }
       if (x != -3) {
         ckstrncpy(tmpbuf, s, TMPBUFSIZ);
         asname = 1;
@@ -9916,12 +10592,14 @@ int doxget(int cx) {
     } else if (!rcvcmd) {
       x = cmofi("Name or directory for incoming file", "", &s, NULL);
       debug(F111, "xget cmofi", s, x);
-      if (x < 0 && x != -3)
+      if (x < 0 && x != -3) {
         goto xgetx;
+      }
       if (x != -3) {
         ckstrncpy(tmpbuf, s, TMPBUFSIZ);
-        if ((x = cmcfm()) < 0)
+        if ((x = cmcfm()) < 0) {
           goto xgetx;
+        }
         asname = 1;
       }
     }
@@ -9930,10 +10608,11 @@ int doxget(int cx) {
 
   debug(F111, "xget asname", cmarg2, asname);
   if (!asname) {
-    if (pv[SND_ASN].sval)
+    if (pv[SND_ASN].sval) {
       ckstrncpy(tmpbuf, pv[SND_ASN].sval, TMPBUFSIZ);
-    else
+    } else {
       tmpbuf[0] = NUL;
+    }
   }
   cmarg2 = brstrip(cmarg2); /* Strip outer braces if any. */
   debug(F110, "xget cmarg", cmarg, 0);
@@ -9957,8 +10636,9 @@ int doxget(int cx) {
     } else if (rcvfilter) {
       printf("?Sorry, no GET /COMMAND while RECEIVE FILTER selected\n");
       goto xgetx;
-    } else
+    } else {
       pipesend = 1;
+    }
   }
   debug(F101, "xget /COMMAND pipesend", "", pipesend);
 #endif /* PIPESEND */
@@ -9976,8 +10656,9 @@ int doxget(int cx) {
   }
 #endif /* CK_RESEND */
 
-  if (pv[SND_EXC].ival > 0) /* /EXCEPT */
+  if (pv[SND_EXC].ival > 0) { /* /EXCEPT */
     makelist(pv[SND_EXC].sval, rcvexcept, NSNDEXCEPT);
+  }
 
 #ifdef IKS_OPTION
   if (!rcvcmd
@@ -10043,27 +10724,36 @@ int doxget(int cx) {
 
   if (pv[SND_PRO].ival > -1) { /* Change according to switch */
     protocol = pv[SND_PRO].ival;
-    if (ptab[protocol].rpktlen > -1) /* copied from initproto() */
+    if (ptab[protocol].rpktlen > -1) { /* copied from initproto() */
       urpsiz = ptab[protocol].rpktlen;
-    if (ptab[protocol].spktflg > -1)
+    }
+    if (ptab[protocol].spktflg > -1) {
       spsizf = ptab[protocol].spktflg;
+    }
     if (ptab[protocol].spktlen > -1) {
       spsiz = ptab[protocol].spktlen;
-      if (spsizf)
+      if (spsizf) {
         spsizr = spmax = spsiz;
+      }
     }
-    if (ptab[protocol].winsize > -1)
+    if (ptab[protocol].winsize > -1) {
       wslotr = ptab[protocol].winsize;
-    if (ptab[protocol].prefix > -1)
+    }
+    if (ptab[protocol].prefix > -1) {
       prefixing = ptab[protocol].prefix;
-    if (ptab[protocol].fnca > -1)
+    }
+    if (ptab[protocol].fnca > -1) {
       fncact = ptab[protocol].fnca;
-    if (ptab[protocol].fncn > -1)
+    }
+    if (ptab[protocol].fncn > -1) {
       fncnv = ptab[protocol].fncn;
-    if (ptab[protocol].fnsp > -1)
+    }
+    if (ptab[protocol].fnsp > -1) {
       fnspath = ptab[protocol].fnsp;
-    if (ptab[protocol].fnrp > -1)
+    }
+    if (ptab[protocol].fnrp > -1) {
       fnrpath = ptab[protocol].fnrp;
+    }
   }
   debug(F101, "xget protocol", "", protocol);
   debug(F111, "xget cmarg2", cmarg2, xfermode);
@@ -10097,12 +10787,14 @@ int doxget(int cx) {
   debug(F101, "xget binary", "", binary);
   debug(F101, "xget omode", "", omode);
 
-  if (pv[SND_XPA].ival > 0) /* /TRANSPARENT */
-    xfrxla = 0;             /* Don't translate character sets */
+  if (pv[SND_XPA].ival > 0) { /* /TRANSPARENT */
+    xfrxla = 0;               /* Don't translate character sets */
+  }
 
 #ifdef PIPESEND
-  if (pv[SND_FLT].ival > 0)
+  if (pv[SND_FLT].ival > 0) {
     makestr(&rcvfilter, pv[SND_FLT].sval);
+  }
 #endif /* PIPESEND */
 
 #ifdef CK_TMPDIR
@@ -10157,8 +10849,9 @@ int doxget(int cx) {
       goto xgetx;
     }
 #endif /* CK_LOGIN */
-    if (!p)
+    if (!p) {
       p = "";
+    }
     if (!*p) {
       printf("?New name required for /RENAME\n");
       x = -9;
@@ -10170,12 +10863,14 @@ int doxget(int cx) {
   }
 
 #ifdef CALIBRATE
-  if (pv[SND_CAL].ival > 0)
+  if (pv[SND_CAL].ival > 0) {
     calibrate = (CK_OFF_T)1;
+  }
 #endif /* CALIBRATE */
   g_displa = fdispla;
-  if (pv[SND_SHH].ival > 0)
+  if (pv[SND_SHH].ival > 0) {
     fdispla = 0;
+  }
   debug(F101, "xget display", "", fdispla);
 
   if (pv[SND_NAM].ival > -1) { /* /FILENAMES */
@@ -10205,32 +10900,39 @@ int doxget(int cx) {
   if (opkt) { /* Extended GET Options*/
     sstate = (CHAR)'o';
     oopts = 0;
-    if (pv[SND_DEL].ival > 0)
+    if (pv[SND_DEL].ival > 0) {
       oopts |= GOPT_DEL; /* GET /DELETE */
-    if (pv[SND_RES].ival > 0)
+    }
+    if (pv[SND_RES].ival > 0) {
       oopts |= GOPT_RES; /* GET /RECOVER */
-    if (pv[SND_REC].ival > 0)
+    }
+    if (pv[SND_REC].ival > 0) {
       oopts |= GOPT_REC; /* GET /RECURSIVE */
-  } else if (rcvcmd)
+    }
+  } else if (rcvcmd) {
     sstate = (CHAR)'v'; /* RECEIVE or CRECEIVE */
-  else if (pv[SND_DEL].ival > 0)
+  } else if (pv[SND_DEL].ival > 0) {
     sstate = (CHAR)'h'; /* GET /DELETE (= RETRIEVE) */
-  else if (pv[SND_RES].ival > 0)
+  } else if (pv[SND_RES].ival > 0) {
     sstate = (CHAR)'j'; /* GET /RECOVER (= REGET) */
-  else
+  } else {
     sstate = (CHAR)'r'; /* Regular GET */
+  }
   getcmd = 1;
   debug(F000, "xget sstate", "", sstate);
   if (local) {
-    if (pv[SND_SHH].ival != 0)
+    if (pv[SND_SHH].ival != 0) {
       displa = 1;
-    if (protocol == PROTO_K) /* fdc 20070108 */
+    }
+    if (protocol == PROTO_K) { /* fdc 20070108 */
       ttflui();
+    }
   }
   x = 0;
 #ifdef PIPESEND
-  if (pipesend)
+  if (pipesend) {
     goto xgetx;
+  }
 #endif /* PIPESEND */
 
 #ifdef CK_TMPDIR
@@ -10287,9 +10989,11 @@ int doxget(int cx) {
   debug(F110, "xget cmarg2", cmarg2, 0);
 
 xgetx:
-  for (i = 0; i < SND_MAX; i++)
-    if (pv[i].sval)
+  for (i = 0; i < SND_MAX; i++) {
+    if (pv[i].sval) {
       free(pv[i].sval);
+    }
+  }
   return (x);
 }
 #endif /* NOXFER */
@@ -10315,8 +11019,9 @@ int dogta(int cx) {
   extern char **topxarg;
 
   debug(F100, "GETARGS: dogta entry cx", "", cx);
-  if ((y = cmcfm()) < 0)
+  if ((y = cmcfm()) < 0) {
     return (y);
+  }
   debug(F101, " dogta maclvl", "", maclvl);
   if (cx == XXGTA) {
     debug(F101, " dogta _GETARGS maclvl", "", maclvl);
@@ -10325,8 +11030,9 @@ int dogta(int cx) {
   } else {
     return (-2);
   }
-  if (maclvl < 1)
+  if (maclvl < 1) {
     return (success = 0);
+  }
 
   /* Make new copies of macro arguments /%0..9 */
 
@@ -10335,17 +11041,19 @@ int dogta(int cx) {
   mbuf[2] = NUL; /* Argument name buf */
 
   if (cx == XXPTA) { /* Go NOINT because _PUTARGS */
-    if (cmdint)      /* temporarily changes maclvl. */
+    if (cmdint) {    /* temporarily changes maclvl. */
       connoi();      /* Interrupts OFF. */
+    }
   }
   for (i = 0; i < 10; i++) { /* For all args */
     c = (char)(i + '0');     /* Make name */
     mbuf[1] = (char)c;       /* Insert digit */
     if (cx == XXGTA) {       /* Get arg from level-minus-2 */
-      if (maclvl == 1)
+      if (maclvl == 1) {
         p = g_var[c]; /* If at level 1 use globals 0..9 */
-      else
+      } else {
         p = m_arg[maclvl - 2][i]; /* Otherwise they're on the stack */
+      }
       debug(F111, " dogta _GETARGS m_arg addmac var i", mbuf, i);
       debug(F111, " dogta _GETARGS m_arg addmac def i", p, i);
       addmac(mbuf, p);
@@ -10360,12 +11068,14 @@ int dogta(int cx) {
       merror[cmdlvl - 2] = merror[cmdlvl];
       xquiet[cmdlvl - 2] = xquiet[cmdlvl];
       xvarev[cmdlvl - 2] = xvarev[cmdlvl];
-    } else
+    } else {
       return (success = 0); /* Bad call to this routine */
+    }
   }
   if (cx == XXPTA) { /* Restore interrupts if we */
-    if (cmdint)      /* turned them off above. */
+    if (cmdint) {    /* turned them off above. */
       conint(trap, stptrap);
+    }
   }
   /* Now take care of the argument vector array \&_[], \v(return), */
   /* and \v(argc) by just copying the pointers. */
@@ -10419,10 +11129,12 @@ int dogoto(char *s, int cx) {
   bc = 0;                   /* Brace counter */
 
   cmd = (cx == XXGOTO) ? "GOTO" : ((cx == XXFWD) ? "FORWARD" : "_FORWARD");
-  if (!s)
+  if (!s) {
     s = "";
-  if (!*s)
+  }
+  if (!*s) {
     empty = 1;
+  }
 
 #ifdef DEBUG
   if (deblog) {
@@ -10440,8 +11152,9 @@ int dogoto(char *s, int cx) {
   if (s[x]) {
     debug(F100, "GOTO target overflow", "", 0);
     printf("?GOTO target or SWITCH case label too long\n");
-    if (stopflg)
+    if (stopflg) {
       dostop(); /* If in SWITCH return to prompt */
+    }
     return (success = 0);
   }
   s = tmp3 + 1;
@@ -10452,8 +11165,9 @@ int dogoto(char *s, int cx) {
   if (!stopflg && !empty) {
     if (s[1] == '.' || s[1] == SP || s[1] == NUL) {
       printf("?Bad label syntax - '%s'\n", s);
-      if (stopflg)
+      if (stopflg) {
         dostop(); /* If in SWITCH return to prompt */
+      }
       return (success = 0);
     }
   }
@@ -10477,40 +11191,46 @@ int dogoto(char *s, int cx) {
 
       flag = 1;                       /* flag for valid label position */
       for (i = 0; i < m; i++, lp++) { /* search for label in macro body */
-        if (*lp == '{')               /* But only at this level */
+        if (*lp == '{') {             /* But only at this level */
           bc++;                       /* Anything inside braces is off */
-        else if (*lp == '}')          /* limits. */
+        } else if (*lp == '}') {      /* limits. */
           bc--;
-        if (stopflg && bc > 0) /* This is good for SWITCH */
-          continue;            /* but interferes with WHILE, etc. */
+        }
+        if (stopflg && bc > 0) { /* This is good for SWITCH */
+          continue;              /* but interferes with WHILE, etc. */
+        }
         if (*lp == ',') {
           flag = 1;
           continue;
         }
-        if (flag) {      /* If in valid label position */
-          if (*lp == SP) /* eat leading spaces */
+        if (flag) {        /* If in valid label position */
+          if (*lp == SP) { /* eat leading spaces */
             continue;
+          }
           if (*lp != ':') { /* Look for label introducer */
             flag = 0;       /* this isn't it */
             continue;       /* keep looking */
           }
         }
-        if (!flag)  /* We don't have a label */
-          continue; /*  so keep looking... */
+        if (!flag) { /* We don't have a label */
+          continue;  /*  so keep looking... */
+        }
         xp = lp;
         tp = tmplbl; /* Copy the label from the macro */
         j = 0;       /* to make it null-terminated */
         while ((*tp = *xp)) {
           if (j++ > LBLSIZ - 1) { /* j = length of word from macro */
             printf("?GOTO target or SWITCH case label too long\n");
-            if (stopflg)
+            if (stopflg) {
               dostop(); /* Return to prompt */
+            }
             return (success = 0);
           }
-          if (!*tp || *tp == ',') /* Look for end of word */
+          if (!*tp || *tp == ',') { /* Look for end of word */
             break;
-          else
+          } else {
             tp++, xp++; /* Next character */
+          }
         }
         *tp = NUL; /* In case we stopped early */
         /* Now do caseless string comparison, using longest length */
@@ -10522,8 +11242,9 @@ int dogoto(char *s, int cx) {
           zzstring(tmplbl, &p, &n);
           if (n < 0) {
             printf("?GOTO target or SWITCH case label too long\n");
-            if (stopflg)
+            if (stopflg) {
               dostop(); /* Return to prompt */
+            }
             return (0);
           }
           ckstrncpy(tmplbl, tmp2, LBLSIZ);
@@ -10593,13 +11314,16 @@ int dogoto(char *s, int cx) {
         tfline[tlevel] = 0;
       }
       while (!feof(tfile[tlevel])) {
-        if (getnct(line, LINBUFSIZ, tfile[tlevel], 0) < 0)
-          break;   /* If no more, done, label not found */
+        if (getnct(line, LINBUFSIZ, tfile[tlevel], 0) < 0) {
+          break; /* If no more, done, label not found */
+        }
         lp = line; /* Got line */
-        while (*lp == SP || *lp == HT)
+        while (*lp == SP || *lp == HT) {
           lp++; /* Strip leading whitespace */
-        if (*lp != ':')
-          continue;               /* Check for label introducer */
+        }
+        if (*lp != ':') {
+          continue; /* Check for label introducer */
+        }
         while (*(lp + 1) == SP) { /* Remove space between : and name */
           *(lp + 1) = ':';
           lp++; /* Strip leading whitespace */
@@ -10610,8 +11334,9 @@ int dogoto(char *s, int cx) {
           if (*tp < 33) {
             *tp = NUL;
             break;
-          } else
+          } else {
             tp++, j++;
+          }
         }
         if (!ckstrcmp(lp, s, (y > j) ? y : j, 0)) { /* Caseless compare */
           x = 1;                                    /* Got it */
@@ -10624,13 +11349,15 @@ int dogoto(char *s, int cx) {
       }
       if (x == 0) { /* If not found, print message */
         debug(F101, "GOTO failed at cmdlvl", "", cmdlvl);
-        if (stopflg)
+        if (stopflg) {
           return (0);
+        }
         if (!popclvl()) { /* pop up to next higher level */
           printf("?Label '%s' not found\n", s); /* if none */
           return (0);                           /* quit */
-        } else
+        } else {
           continue; /* otherwise look again */
+        }
       }
       return (x); /* Send back return code */
     }
@@ -10673,17 +11400,20 @@ int dogoto(char *s, int cx) {
 */
 int chkvar(char *s) {
   int z = 0; /* Return code - assume failure. */
-  if (!s)
+  if (!s) {
     s = ""; /* Watch our for null pointers. */
-  if (!*s)
-    return (0);     /* Empty arg so not a variable. */
+  }
+  if (!*s) {
+    return (0); /* Empty arg so not a variable. */
+  }
   if (*s == CMDQ) { /* Object begins with backslash. */
     char c;
     c = s[1]; /* Character following backslash. */
     if (c) {
       int t = 0;
-      if (c == CMDQ) /* Quoted backslash */
+      if (c == CMDQ) { /* Quoted backslash */
         return (1);
+      }
       c = (char)(islower(c) ? toupper(c) : c); /* Otherwise... */
       if (c == '%') {                          /* Simple variable */
 #ifdef OLDCHKVAR
@@ -10692,10 +11422,12 @@ int chkvar(char *s) {
         return (1);
 #endif                       /* OLDCHKVAR */
       } else if (c == '&') { /* Array */
-        if (!s[2])
+        if (!s[2]) {
           return (0);
-        if (s[3] == '[')
+        }
+        if (s[3] == '[') {
           t = ckindex("]", s, 4, 0, 1);
+        }
 #ifndef OLDCHKVAR
         return ((t > 0) ? 1 : 0);
 #endif                       /* OLDCHKVAR */
@@ -10709,9 +11441,11 @@ int chkvar(char *s) {
       } else if (c == 'F') { /* Function reference */
         /* Don't actually call it - it might have side effects */
         int x;
-        if ((x = ckindex("(", s, 3, 0, 1))) /* Just check syntax */
-          if ((x = ckindex(")", s, x, 0, 1)))
+        if ((x = ckindex("(", s, 3, 0, 1))) { /* Just check syntax */
+          if ((x = ckindex(")", s, x, 0, 1))) {
             z = 1;
+          }
+        }
         /* Insert a better syntax check here if necessary */
       }
 #ifdef OLDCHKVAR
@@ -10790,8 +11524,9 @@ ifagain:
   x = cmfdb(&kw); /* Parse a keyword or a number */
   debug(F111, "boolval cmfdb", "", x);
   if (x < 0) {
-    if (x == -3)
+    if (x == -3) {
       x = -2;
+    }
     return (x);
   }
   debug(F111, "boolval switch", "", cmresult.fcode);
@@ -10806,8 +11541,9 @@ ifagain:
     i = ckindex("if ", cmdbuf, 0, 0, 0);
     if (i) {
       i += 2;
-      while (cmdbuf[i] == ' ')
+      while (cmdbuf[i] == ' ') {
         i++;
+      }
       if (cmdbuf[i]) {
         int j, k;
         j = i;
@@ -10830,15 +11566,16 @@ ifagain:
 #endif /* FNFLOAT */
     ) {
       i = mlook(mactab, cmresult.sresult, nmac); /* Look it up */
-      if (i > -1)                                /* in the macro table */
+      if (i > -1) {                              /* in the macro table */
         s = mactab[x].mval;                      /* and get its value */
-      else /* Otherwise if no such macro */
+      } else /* Otherwise if no such macro */
       {
-        if (varnam[0])
+        if (varnam[0]) {
           printf("?Variable %s does not have a numeric value\n", varnam);
-        else
+        } else {
           printf("?Not an IF condition, macro name or number: %s\n",
                  cmresult.sresult);
+        }
         return (-9);
       }
     }
@@ -10877,34 +11614,40 @@ ifagain:
       z = (cmresult.nresult == 0) ? 0 : 1;
     break;
   case XXIFLP: /* Left paren */
-    if (pcount == 0 && ifargs > 0)
+    if (pcount == 0 && ifargs > 0) {
       return (-2);
+    }
     parens = 1;
     pcount++;
     ifargs++;
     *bx++ = '(';
     goto ifagain;
   case XXIFRP: /* Right paren */
-    if (!parens)
+    if (!parens) {
       return (-2);
-    if (--pcount < 0)
+    }
+    if (--pcount < 0) {
       return (-2);
+    }
     ifargs++;
     *bx++ = ')';
     *bx = NUL;
-    if (pcount == 0)
+    if (pcount == 0) {
       goto ifend;
+    }
     goto ifagain;
   case XXIFAN: /* AND (&&) */
     ifargs++;
-    if (!ecount)
+    if (!ecount) {
       return (-2);
+    }
     *bx++ = '&';
     goto ifagain;
   case XXIFOR: /* OR (||) */
     ifargs++;
-    if (!ecount)
+    if (!ecount) {
       return (-2);
+    }
     *bx++ = '|';
     goto ifagain;
   case XXIFNO:                /* IF NOT [ NOT [ NOT ... ] ] */
@@ -10942,8 +11685,9 @@ ifagain:
     break;
 
   case XXIFDE: /* IF DEFINED */
-    if ((x = cmfld("Macro or variable name", "", &s, NULL)) < 0)
+    if ((x = cmfld("Macro or variable name", "", &s, NULL)) < 0) {
       return ((x == -3) ? -2 : x);
+    }
 
     if (*s == CMDQ) {
       char *lp;
@@ -10955,8 +11699,9 @@ ifagain:
         ckstrncpy(line, s + 2, 256);
         if (line[0]) {
           lp = ckstrchr(line, '(');
-          if (lp)
+          if (lp) {
             *lp = NUL;
+          }
           x = lookup(fnctab, line, nfuncs, &t);
           z = x > -1;
         }
@@ -10969,8 +11714,9 @@ ifagain:
           ckstrncpy(line, s + 3, 256);
           if (line[0]) {
             lp = ckstrchr(line, ')');
-            if (lp)
+            if (lp) {
               *lp = NUL;
+            }
             x = lookup(vartab, line, nvars, &t);
             z = x > -1;
             if (z) {     /* 8.0.203 */
@@ -10991,8 +11737,9 @@ ifagain:
           lp = line;     /* check for that -- overflow means */
           line[0] = NUL; /* the quantity is defined. */
           x = zzstring(s, &lp, &t);
-          if ((x < 0 && t != 255) || !line[0])
+          if ((x < 0 && t != 255) || !line[0]) {
             z = 0;
+          }
           debug(F111, "if defined zzstring", line, z);
           debug(F101, "if defined zzstring t", "", t);
         }
@@ -11008,8 +11755,9 @@ ifagain:
     char *lp;
     char line[32];
     int j, k, t, x;
-    if ((x = cmfld("Array name", "", &s, NULL)) < 0)
+    if ((x = cmfld("Array name", "", &s, NULL)) < 0) {
       return ((x == -3) ? -2 : x);
+    }
     if (*s == CMDQ) {
       if (*(s + 1) != '&') {
         t = 31;
@@ -11022,30 +11770,34 @@ ifagain:
     z = 0;
     if ((x = arraybounds(s, &j, &k)) > -1) {
       if (a_ptr[x]) {
-        if (j < 1)
+        if (j < 1) {
           z = 1;
-        else if (j <= a_dim[x])
+        } else if (j <= a_dim[x]) {
           z = 1;
-        if (z == 1 && k > a_dim[x])
+        }
+        if (z == 1 && k > a_dim[x]) {
           z = 0;
+        }
       }
     }
     break;
   }
-  case XXIFBG:         /* IF BACKGROUND */
-  case XXIFFG:         /* IF FOREGROUND */
-    bgchk();           /* Check background status */
-    if (ifc == XXIFFG) /* Foreground */
+  case XXIFBG:           /* IF BACKGROUND */
+  case XXIFFG:           /* IF FOREGROUND */
+    bgchk();             /* Check background status */
+    if (ifc == XXIFFG) { /* Foreground */
       z = pflag ? 1 : 0;
-    else
+    } else {
       z = pflag ? 0 : 1; /* Background */
+    }
     ifargs += 1;
     break;
 
   case XXIFCO: /* IF COUNT */
     z = (--count[cmdlvl] > 0);
-    if (cx == XXWHI)
+    if (cx == XXWHI) {
       count[cmdlvl] += 2; /* Don't ask... */
+    }
     debug(F101, "if count", "", z);
     ifargs += 1;
     break;
@@ -11064,8 +11816,9 @@ ifagain:
           printf("?File or directory name required\n");
           return (-9);
         }
-      } else
+      } else {
         return (x);
+      }
     }
     s = brstrip(s);
 #ifdef UNIX
@@ -11108,8 +11861,9 @@ ifagain:
       if (x == -3) {
         printf("?Text required\n");
         return (-9);
-      } else
+      } else {
         return (x);
+      }
     }
     s = brstrip(s); /* Strip braces */
     x = (int)strlen(s);
@@ -11123,8 +11877,9 @@ ifagain:
       if (y == -3) {
         printf("?Text required\n");
         return (-9);
-      } else
+      } else {
         return (y);
+      }
     }
     s = brstrip(s);
     y = (int)strlen(s);
@@ -11178,8 +11933,9 @@ ifagain:
         printf("?Quantity required\n");
         return (-9);
       }
-      if (x < 0)
+      if (x < 0) {
         return (x);
+      }
       debug(F101, "xxifgt cmfld", "", x);
       ckstrncpy(line, s, LINBUFSIZ);
       lp = brstrip(line);
@@ -11222,11 +11978,13 @@ ifagain:
       printf("?Quantity required\n");
       return (-9);
     }
-    if (y < 0)
+    if (y < 0) {
       return (y);
+    }
     s = brstrip(s);
-    if (!*s)
+    if (!*s) {
       return (-2);
+    }
     if (ifc == XXIFVE) {
       tp = line;
     } else {
@@ -11268,22 +12026,24 @@ ifagain:
       f2 = (CKFLOAT)n2;
       f2flag = 1;
     }
-    if (f2flag && !f1flag)
+    if (f2flag && !f1flag) {
       f1 = (CKFLOAT)n1;
-    if (f1flag)
+    }
+    if (f1flag) {
       z = ((f1 < f2 && xx == XXIFLT) || (f1 != f2 && xx == XXIFNQ) ||
            (f1 <= f2 && xx == XXIFLE) || (f1 == f2 && xx == XXIFAE) ||
            (f1 >= f2 && xx == XXIFGE) || (f1 > f2 && xx == XXIFGT));
-    else
+    } else
 #endif /* FNFLOAT */
       z = ((n1 < n2 && xx == XXIFLT) || (n1 != n2 && xx == XXIFNQ) ||
            (n1 <= n2 && xx == XXIFLE) || (n1 == n2 && xx == XXIFAE) ||
            (n1 >= n2 && xx == XXIFGE) || (n1 > n2 && xx == XXIFGT));
     debug(F101, "xxifge z", "", z);
-    if (ifc == XXIFVE)
+    if (ifc == XXIFVE) {
       ifargs += 2;
-    else
+    } else {
       ifargs += 3;
+    }
     break;
   }
 
@@ -11295,8 +12055,9 @@ ifagain:
         printf("?Quantity required\n");
         return (-9);
       }
-    } else if (x < 0)
+    } else if (x < 0) {
       return (x);
+    }
     x = LINBUFSIZ - 1;
     lp = line;
     zzstring(s, &lp, &x);
@@ -11310,11 +12071,13 @@ ifagain:
 #ifdef ZFCDAT
   case XXIFNE: {      /* IF NEWER */
     char d1[20], *d2; /* Buffers for 2 dates */
-    if ((z = cmifi("First file", "", &s, &y, xxstring)) < 0)
+    if ((z = cmifi("First file", "", &s, &y, xxstring)) < 0) {
       return (z);
+    }
     ckstrncpy(d1, zfcdat(s), 20);
-    if ((z = cmifi("Second file", "", &s, &y, xxstring)) < 0)
+    if ((z = cmifi("Second file", "", &s, &y, xxstring)) < 0) {
       return (z);
+    }
     d2 = zfcdat(s);
     if ((int)strlen(d1) != 17 || (int)strlen(d2) != 17) {
       printf("?Failure to get file date\n");
@@ -11367,8 +12130,9 @@ ifagain:
     break;
 
   case XXIFOP: /* IF OPEN */
-    if ((x = cmkey(iotab, niot, "file or log", "", xxstring)) < 0)
+    if ((x = cmkey(iotab, niot, "file or log", "", xxstring)) < 0) {
       return (x);
+    }
     if (x == 9999 || x == ZSTDIO) {
       bgchk(); /* Check background status */
       z = pflag ? 1 : 0;
@@ -11379,8 +12143,9 @@ ifagain:
       extern int dialog;
       z = dialog ? 1 : 0;
 #endif /* CKLOGDIAL */
-    } else
+    } else {
       z = (chkfn(x) > 0) ? 1 : 0;
+    }
     ifargs += 1;
     break;
 
@@ -11404,8 +12169,9 @@ ifagain:
     z = 0;
 #ifndef NODIAL
 #ifdef CK_TAPI
-    if (local && !network && tttapi)
+    if (local && !network && tttapi) {
       z = 1;
+    }
 #endif /* CK_TAPI */
 #endif /* NODIAL */
     break;
@@ -11418,8 +12184,9 @@ ifagain:
         printf("?String required\n");
         return (-9);
       }
-    } else if (x < 0)
+    } else if (x < 0) {
       return (x);
+    }
     ckstrncpy(line, s, LINBUFSIZ);
     s = brstrip(line);
     debug(F110, "xxifma string", line, 0);
@@ -11430,8 +12197,9 @@ ifagain:
         printf("?Pattern required\n");
         return (-9);
       }
-    } else if (x < 0)
+    } else if (x < 0) {
       return (x);
+    }
     ckstrncpy(tmpbuf, p, TMPBUFSIZ);
     p = brstrip(tmpbuf);
     debug(F110, "xxifma pattern", tmpbuf, 0);
@@ -11444,8 +12212,9 @@ ifagain:
     break;
   }
   case XXIFAV: { /* IF AVAILABLE */
-    if ((x = cmkey(availtab, availtabn, "", "", xxstring)) < 0)
+    if ((x = cmkey(availtab, availtabn, "", "", xxstring)) < 0) {
       return (x);
+    }
     switch (x) {
     case AV_KRB4:
       z = ck_krb4_is_installed();
@@ -11486,8 +12255,9 @@ ifagain:
           printf("?File or directory name required\n");
           return (-9);
         }
-      } else
+      } else {
         return (x);
+      }
     }
     s = brstrip(s);
     /*
@@ -11514,8 +12284,9 @@ ifagain:
     break;
 
   case XXIFWI: /* WILD */
-    if ((x = cmfld("File specification", "", &s, xxstring)) < 0)
+    if ((x = cmfld("File specification", "", &s, xxstring)) < 0) {
       return (x);
+    }
     z = iswild(s);
     break;
 
@@ -11542,27 +12313,32 @@ ifagain:
   case XXIFCM: { /* IF COMMAND */
     extern struct keytab cmdtab[];
     extern int ncmd;
-    if ((x = cmfld("Word", "", &s, xxstring)) < 0)
+    if ((x = cmfld("Word", "", &s, xxstring)) < 0) {
       return (x);
+    }
     z = lookup(cmdtab, s, ncmd, &y);
     z = (z == -2 || z > -1) ? 1 : 0;
     break;
   }
 #ifdef CKFLOAT
   case XXIFFP: /* IF FLOAT */
-    if ((x = cmfld("Number", "", &s, xxstring)) < 0)
-      if (x != -3) /* e.g. empty variable */
+    if ((x = cmfld("Number", "", &s, xxstring)) < 0) {
+      if (x != -3) { /* e.g. empty variable */
         return (x);
+      }
+    }
     z = isfloat(s, 0);
     break;
 #endif /* CKFLOAT */
 
   case XXIFKB: /* KBHIT */
     z = conchk();
-    if (z < 0)
+    if (z < 0) {
       z = 0;
-    if (z > 1)
+    }
+    if (z > 1) {
       z = 1;
+    }
     break;
 
   case XXIFKG: { /* KERBANG */
@@ -11582,8 +12358,9 @@ ifagain:
     int y;
 
     y = cmkeyx(fnctab, nfuncs, "Name of function", "", NULL);
-    if (y == -1) /* Reparse needed */
+    if (y == -1) { /* Reparse needed */
       return (y);
+    }
     if (y < 0) { /* Something given but didn't match */
       int dummy;
       char *p;
@@ -11595,8 +12372,9 @@ ifagain:
       }
       /* Chop off leading "\\f" or "\f" or "f" */
       p = atmbuf;
-      if (*p == CMDQ) /* Allow for \\f... */
+      if (*p == CMDQ) { /* Allow for \\f... */
         p++;
+      }
       if (*p == CMDQ && (*(p + 1) == 'f' || *(p + 1) == 'F')) { /* or \f */
         p += 2;
       } else if (*p == 'f' || *p == 'F') { /* or just f */
@@ -11609,8 +12387,9 @@ ifagain:
   }
   case XXIFTXT:   /* IF TEXT - 2013/04/17 */
   case XXIFBIN: { /* IF BINARY - 2013/04/17 */
-    if ((x = cmifi("Filename", "", &s, &y, xxstring)) < 0)
+    if ((x = cmifi("Filename", "", &s, &y, xxstring)) < 0) {
       return (x);
+    }
     if (y) {
       printf("?Please enter the name of a single file\n");
       return (-9);
@@ -11645,10 +12424,11 @@ ifagain:
     return (-2);
   } /* end of switch */
 
-  if (z)
+  if (z) {
     *bx++ = '1';
-  else
+  } else {
     *bx++ = '0';
+  }
   *bx = NUL;
   if (bx > boolval + BOOLLEN - 2) {
     printf("?Boolean expression too long");
@@ -11657,8 +12437,9 @@ ifagain:
   ecount++; /* Expression counter */
   debug(F101, "boolexp parens", "", parens);
   debug(F101, "boolexp pcount", "", pcount);
-  if (parens && pcount > 0)
+  if (parens && pcount > 0) {
     goto ifagain;
+  }
 
 ifend: /* No more - done */
   *bx = NUL;
@@ -11680,28 +12461,33 @@ int doif(int cx) {
   z = boolexp(cx); /* Evaluate the condition(s) */
   debug(F010, "doif cmdbuf", cmdbuf, 0);
   debug(F101, "doif boolexp", "", z);
-  if (z < 0)
+  if (z < 0) {
     return (z);
+  }
 
   if (cx == XXIF) { /* Allow IF to have XIF semantics. */
     char *p;
     p = cmpeek();
-    if (!p)
+    if (!p) {
       p = "";
-    while (*p) {
-      if (*p == SP || *p == HT)
-        p++;
-      else
-        break;
     }
-    if (*p == '{')
+    while (*p) {
+      if (*p == SP || *p == HT) {
+        p++;
+      } else {
+        break;
+      }
+    }
+    if (*p == '{') {
       cx = XXIFX;
+    }
   }
   switch (cx) { /* Separate handling for IF and XIF */
 
   case XXASSER: /* And ASSERT */
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
     return (success = z);
 
   case XXIF:           /* This is IF... */
@@ -11717,13 +12503,15 @@ int doif(int cx) {
       } else {         /* If interactive, */
         cmini(ckxech); /* just start a new command */
         printf("\n");  /* (like in MS-DOS Kermit) */
-        if (pflag)
+        if (pflag) {
           prompt(xxstring);
+        }
       }
     } else {              /* Condition is false */
       iftest[cmdlvl] = 0; /* Remember command failed. */
-      if ((y = cmtxt("command to be ignored", "", &s, NULL)) < 0)
+      if ((y = cmtxt("command to be ignored", "", &s, NULL)) < 0) {
         return (y); /* Gobble up rest of line */
+      }
     }
     return (0);
 
@@ -11731,8 +12519,9 @@ int doif(int cx) {
     char *p;
     char e[5];
     int i;
-    if ((y = cmtxt("Object command", "", &s, NULL)) < 0)
+    if ((y = cmtxt("Object command", "", &s, NULL)) < 0) {
       return (y); /* Get object command. */
+    }
     p = s;
     lp = line;
     debug(F110, "doif THEN part", s, -54);
@@ -11741,19 +12530,23 @@ int doif(int cx) {
     }
     debug(F111, "doif THEN part 2", line, z);
 
-    while (*p == SP)
-      p++;             /* Strip trailing spaces */
+    while (*p == SP) {
+      p++; /* Strip trailing spaces */
+    }
     ifcmd[cmdlvl] = 0; /* Assume ELSE part in same line */
     iftest[cmdlvl] = z ? 1 : 0;
     if (*p) {   /* At end? */
       if (!z) { /* No, use ELSE-part, if any */
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < 4; i++) {
           e[i] = *p++;
-        if (ckstrcmp(e, "else", 4, 0)) /* See if we have an ELSE */
-          return (-2);                 /* Something else - error. */
+        }
+        if (ckstrcmp(e, "else", 4, 0)) { /* See if we have an ELSE */
+          return (-2);                   /* Something else - error. */
+        }
         debug(F010, "doif ELSE line 1", p, 0);
-        while (*p == SP)
-          p++;           /* Skip spaces */
+        while (*p == SP) {
+          p++; /* Skip spaces */
+        }
         if (*p != '{') { /* Brace ELSE part if necessary */
           ckmakmsg(tmpbuf, TMPBUFSIZ, "{", p, " }", NULL);
           p = tmpbuf;
@@ -11764,15 +12557,18 @@ int doif(int cx) {
         if (litcmd(&p, &lp, LINBUFSIZ - 2) < 0) {
           return (-2);
         }
-        while (*p == SP)
+        while (*p == SP) {
           p++; /* Strip trailing spaces */
-        if (*p)
+        }
+        if (*p) {
           return (-2); /* Should be nothing here. */
+        }
         debug(F010, "doif ELSE line 3", line, 0);
       }
     } else { /* At end, treat like an IF command */
-      if (!z)
-        line[0] = NUL;   /* Condition not true and no ELSE */
+      if (!z) {
+        line[0] = NUL; /* Condition not true and no ELSE */
+      }
       ifcmd[cmdlvl] = 1; /* Allow ELSE on next line */
       debug(F101, "IF condition", "", z);
     }
@@ -11792,10 +12588,12 @@ int doif(int cx) {
   case XXWHI: {      /* WHILE Command */
     p = cmdbuf;      /* Capture IF condition */
     ifcond[0] = NUL; /* from command buffer */
-    while (*p == SP)
+    while (*p == SP) {
       p++;
-    while (*p != SP)
+    }
+    while (*p != SP) {
       p++;
+    }
     ifcp = ifcond;
     ifcp += ckstrncpy(ifcp, "{ \\flit(if ( not ", IFCONDLEN);
     /*
@@ -11805,8 +12603,9 @@ int doif(int cx) {
     {
       extern char *cmbptr;
       if (cmbptr) {
-        while (p < cmbptr && *p != NUL)
+        while (p < cmbptr && *p != NUL) {
           *ifcp++ = *p++;
+        }
         p = " ) goto _..bot) } ";
         while ((*ifcp++ = *p++))
           ;
@@ -11818,8 +12617,9 @@ int doif(int cx) {
 
     debug(F110, "WHILE cmd", ifcond, 0);
 
-    if ((y = cmtxt("Object command", "", &s, NULL)) < 0)
+    if ((y = cmtxt("Object command", "", &s, NULL)) < 0) {
       return (y); /* Get object command. */
+    }
     p = s;
     lp = line;
     if (litcmd(&p, &lp, LINBUFSIZ - 2) < 0) { /* Quote object command */
@@ -11870,10 +12670,12 @@ int dotake(char *s) {
   int slen;
 
   debug(F110, "dotake", s, 0);
-  if (!s)
+  if (!s) {
     s = "";
-  if (!*s)
+  }
+  if (!*s) {
     return (success = 0);
+  }
   slen = strlen(s);
   debug(F101, "dotake len", "", slen);
 
@@ -11928,8 +12730,9 @@ int dotake(char *s) {
 #endif /* NOSPL */
   }
 #ifndef NOSPL
-  if (tra_cmd)
+  if (tra_cmd) {
     printf("[%d] +F: \"%s\"\n", cmdlvl, s);
+  }
 #endif /* NOSPL */
 #ifndef NOLOCAL
 #endif /* NOLOCAL */

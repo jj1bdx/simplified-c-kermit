@@ -48,8 +48,9 @@ void (*ck_signal(int sig, void (*func)(int)))(int) {
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART;
   sa.sa_handler = func;
-  if (sigaction(sig, &sa, &old) < 0)
+  if (sigaction(sig, &sa, &old) < 0) {
     return SIG_ERR;
+  }
   return old.sa_handler;
 }
 
@@ -86,8 +87,9 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
     (*dofunc)(NULL);
   }
   alarm(savalrm);
-  if (savhandler)
+  if (savhandler) {
     ck_signal(SIGALRM, savhandler);
+  }
   return rc;
 }
 
@@ -109,7 +111,8 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
     (*dofunc)(NULL);
   }
   alarm(savalrm);
-  if (savhandler)
+  if (savhandler) {
     ck_signal(SIGALRM, savhandler);
+  }
   return (rc);
 }

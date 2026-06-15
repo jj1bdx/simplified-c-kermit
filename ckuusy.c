@@ -245,11 +245,13 @@ struct urldata g_url = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 int urlparse(char *s, struct urldata *url) {
   char *p = NULL, *urlbuf = NULL;
 
-  if (!s || !url)
+  if (!s || !url) {
     return (0);
+  }
 
-  if (!*s)
+  if (!*s) {
     return (0);
+  }
 
   makestr(&urlbuf, s);
 
@@ -295,45 +297,54 @@ int urlparse(char *s, struct urldata *url) {
     }
     url->nopts = 0;
   }
-  p = urlbuf;             /* Was a service requested? */
-  while (*p && *p != ':') /* Look for colon */
+  p = urlbuf;               /* Was a service requested? */
+  while (*p && *p != ':') { /* Look for colon */
     p++;
-  if (*p == ':') { /* Have a colon */
-    *p++ = NUL;    /* Get service name or number */
-    if (*p == ':') /* a second colon */
-      *p++ = NUL;  /* get rid of that one too */
-    while (*p == '/')
-      *p++ = NUL;    /* and slashes */
+  }
+  if (*p == ':') {   /* Have a colon */
+    *p++ = NUL;      /* Get service name or number */
+    if (*p == ':') { /* a second colon */
+      *p++ = NUL;    /* get rid of that one too */
+    }
+    while (*p == '/') {
+      *p++ = NUL; /* and slashes */
+    }
     if (urlbuf[0]) { /* Anything left? */
       char *q = p, *r = p, *w = p;
       makestr(&url->svc, urlbuf);
 
-      while (*p != NUL && *p != '@') /* look for @ */
+      while (*p != NUL && *p != '@') { /* look for @ */
         p++;
+      }
       if (*p == '@') { /* Signifies user ID, maybe password */
         *p++ = NUL;
         url->hos = p;
-        while (*w != NUL && *w != ':')
+        while (*w != NUL && *w != ':') {
           w++;
-        if (*w == ':')
+        }
+        if (*w == ':') {
           *w++ = NUL;
+        }
         url->usr = r; /* Username */
-        if (*w)
+        if (*w) {
           url->psw = w; /* Password */
+        }
         q = p;
       } else { /* No username or password */
         p = q;
         url->hos = p;
       }
 
-      while (*p != NUL && *p != ':' && *p != '/') /* Port? */
+      while (*p != NUL && *p != ':' && *p != '/') { /* Port? */
         p++;
+      }
       if (*p == ':') { /* TCP port */
         *p++ = NUL;
         r = p;
         url->por = r;
-        while (*p != NUL && *p != '/')
+        while (*p != NUL && *p != '/') {
           p++;
+        }
         /* '/' is part of path, leave it until we can copy */
         if (*p == '/') {
           makestr(&url->pth, p); /* Path */
@@ -348,24 +359,27 @@ int urlparse(char *s, struct urldata *url) {
       }
     }
     /* Copy non-NULL result strings */
-    if (url->svc)
+    if (url->svc) {
       if (*url->svc) {
         p = url->svc;
         url->svc = NULL;
         makestr(&url->svc, p);
       }
-    if (url->hos)
+    }
+    if (url->hos) {
       if (*url->hos) {
         p = url->hos;
         url->hos = NULL;
         makestr(&url->hos, p);
       }
-    if (url->por)
+    }
+    if (url->por) {
       if (*url->por) {
         p = url->por;
         url->por = NULL;
         makestr(&url->por, p);
       }
+    }
     /*
       WARNING (Wed Oct  9 16:09:03 2002): We now allow the username and
       password to be empty strings.  These are treated differently from null
@@ -384,8 +398,9 @@ int urlparse(char *s, struct urldata *url) {
       makestr(&url->psw, p);
     }
     /* Save a copy of the full url if one was found. */
-    if (url->svc)
+    if (url->svc) {
       makestr(&url->sav, s);
+    }
     free(urlbuf);
     return (url->svc ? 1 : 0);
   }
@@ -466,15 +481,17 @@ int optact[128];   /* Action-option flag */
 
 void fatal2(char *msg1, char *msg2) {
   char buf[256];
-  if (!msg1)
+  if (!msg1) {
     msg1 = "";
-  if (!msg2)
+  }
+  if (!msg2) {
     msg2 = "";
+  }
   ckmakmsg(buf, 256, "\"", msg1, "\" - ", msg2);
 #ifndef NOICP
-  if (what == W_COMMAND)
+  if (what == W_COMMAND) {
     printf("%s\n", buf);
-  else
+  } else
 #endif /* NOICP */
     fatal((char *)buf);
 }
@@ -511,19 +528,24 @@ static int xx_ftp(char *host, char *port) {
   int use_tls = 0;
   char *p;
 
-  if (port)
-    if (!*port)
+  if (port) {
+    if (!*port) {
       port = NULL;
+    }
+  }
 
-  if (!host)
+  if (!host) {
     return (0);
-  if (!*host)
+  }
+  if (!*host) {
     return (0);
+  }
   debug(F111, "ftp xx_ftp host", ftp_host, haveftpuid);
   debug(F111, "ftp xx_ftp uidbuf 1", uidbuf, haveftpuid);
   ftp_cmdlin = 1; /* 1 = FTP started from command line */
-  if (nfils > 0)
+  if (nfils > 0) {
     ftp_cmdlin++; /* 2 = same plus file transfer */
+  }
 
 #ifndef NOURL
   /* debug(F111,"ftp xx_ftp g_url.usr",g_url.usr,g_url.usr); */
@@ -542,26 +564,29 @@ static int xx_ftp(char *host, char *port) {
     debug(F111, "ftp_logname", ftp_logname, haveftpuid);
   }
   if (!port) {
-    if ((p = ckstrchr(ftp_host, ':')))
+    if ((p = ckstrchr(ftp_host, ':'))) {
       *p++ = NUL;
+    }
     port = p;
   }
   if (!port) {
 #ifdef CK_URL
     if (haveurl) {
-      if (g_url.por)
+      if (g_url.por) {
         port = g_url.por;
-      else if (g_url.svc)
+      } else if (g_url.svc) {
         port = g_url.svc;
-      else
+      } else {
         port = "ftp";
+      }
     } else
 #endif /* CK_URL */
       port = "ftp";
   }
 
-  if (ftpopen(ftp_host, port, use_tls) < 1)
+  if (ftpopen(ftp_host, port, use_tls) < 1) {
     return (-1);
+  }
   debug(F111, "ftp xx_ftp action", ckctoa((char)ftp_action), nfils);
   if (nfils > 0) {
     switch (ftp_action) {
@@ -599,14 +624,15 @@ void usage() {
   conol("Usage: ");
   conol(xarg0);
   if (howcalled == I_AM_KERMIT || howcalled == I_AM_IKSD ||
-      howcalled == I_AM_SSHSUB)
+      howcalled == I_AM_SSHSUB) {
     conola(hlp1);
-  else if (howcalled == I_AM_TELNET)
+  } else if (howcalled == I_AM_TELNET) {
     conola(hlp2);
-  else if (howcalled == I_AM_RLOGIN)
+  } else if (howcalled == I_AM_RLOGIN) {
     conola(hlp3);
-  else if (howcalled == I_AM_SSH)
+  } else if (howcalled == I_AM_SSH) {
     conola(hlp4);
+  }
   if (howcalled == I_AM_KERMIT || howcalled == I_AM_IKSD ||
       howcalled == I_AM_SSHSUB) {
     int c;
@@ -614,8 +640,9 @@ void usage() {
     conoll("Complete listing of command-line options:");
     conoll("");
     for (c = 31; c < 128; c++) {
-      if (!opthlp[c])
+      if (!opthlp[c]) {
         continue;
+      }
       if (arghlp[c]) {
         printf(" -%c <arg>%s\n", (char)c,
                (optact[c] ? " (action option)" : ""));
@@ -681,26 +708,30 @@ int cmdlin() {
                      type == URL_HTTPS, rdns, 128, NULL) == 0);
       if (x) {
         if (!quiet) {
-          if (rdns[0])
+          if (rdns[0]) {
             printf("Connected to %s [%s]\r\n", g_url.hos, rdns);
-          else
+          } else {
             printf("Connected to %s\r\n", g_url.hos);
+          }
         }
-        if (g_url.pth)
+        if (g_url.pth) {
           zstrip(g_url.pth, &lfile);
-        else
+        } else {
           g_url.pth = "/";
+        }
 
-        if (!*lfile)
+        if (!*lfile) {
           lfile = "index.html";
+        }
 
         x = http_get(agent, NULL,                                 /* hdrlist */
                      g_url.usr, g_url.psw, 0, lfile, g_url.pth, 0 /* stdio */
         );
         x = (http_close() == 0);
       } else {
-        if (!quiet)
+        if (!quiet) {
           printf("?HTTP Connection failed.\r\n");
+        }
       }
       doexit(x ? GOOD_EXIT : BAD_EXIT, -1);
     } else
@@ -755,8 +786,9 @@ int cmdlin() {
               pswd = *xargv;
               break;
             case 'l':
-              if (http_action != HTTP_PUT)
+              if (http_action != HTTP_PUT) {
                 lpath = *xargv;
+              }
               break;
             case 'g':
               http_action = HTTP_GET;
@@ -783,9 +815,11 @@ int cmdlin() {
           host = *xargv;
           if (xargc > 1) {
             svc = *(xargv + 1);
-            if (svc)
-              if (*svc == '-' || !*svc)
+            if (svc) {
+              if (*svc == '-' || !*svc) {
                 svc = NULL;
+              }
+            }
             if (svc) {
               xargv++;
               xargc--;
@@ -793,52 +827,62 @@ int cmdlin() {
           }
         }
       }
-      if (!svc)
+      if (!svc) {
         svc = "";
-      if (!*svc)
+      }
+      if (!*svc) {
         svc = "http";
-      if (!host)
+      }
+      if (!host) {
         XFATAL("No http host given");
+      }
 
       /* Check action args before opening the connection */
       if (http_action) {
         if (http_action == HTTP_PUT) {
-          if (!lpath)
+          if (!lpath) {
             XFATAL("No local path for http PUT");
+          }
         }
-        if (!path)
+        if (!path) {
           XFATAL("No remote path for http action");
+        }
       }
       /* Now it's OK to open the connection */
       rdns[0] = NUL;
       x = (http_open(host, svc, !ckstrcmp("https", svc, -1, 0), rdns, 128,
                      NULL) == 0);
       if (!x) {
-        if (!quiet)
+        if (!quiet) {
           printf("?HTTP Connection failed.\r\n");
+        }
         doexit(BAD_EXIT, -1);
       }
       if (!quiet) {
-        if (rdns[0])
+        if (rdns[0]) {
           printf("Connected to %s [%s]\r\n", host, rdns);
-        else
+        } else {
           printf("Connected to %s\r\n", host);
+        }
       }
       if (http_action) {
         int pcpy = 0;
         if (http_action != HTTP_PUT) { /* Supply default */
           if (!lpath) {                /* local path... */
             zstrip(path, &lpath);
-            if (!lpath)
+            if (!lpath) {
               lpath = "";
-            if (!*lpath)
+            }
+            if (!*lpath) {
               lpath = "index.html";
+            }
           }
         }
         if (*path != '/') {
           char *p = (char *)malloc(strlen(path) + 2);
-          if (!p)
+          if (!p) {
             fatal("?Memory allocation error\n");
+          }
           *p = '/';
           strcpy(&p[1], path); /* safe */
           path = p;
@@ -860,8 +904,9 @@ int cmdlin() {
         }
         debug(F101, "cmdline http result", "", x);
         x = (http_close() == 0);
-        if (pcpy)
+        if (pcpy) {
           free(path);
+        }
         doexit(x ? GOOD_EXIT : BAD_EXIT, -1);
       }
       return (0);
@@ -872,9 +917,9 @@ int cmdlin() {
       if (howcalled == I_AM_FTP) { /* If I was called as FTP... */
     debug(F100, "ftp personality", "", 0);
 #ifdef CK_URL
-    if (haveurl)
+    if (haveurl) {
       doftparg('U');
-    else
+    } else
 #endif /* CK_URL */
     {
       while (--xargc > 0) { /* Go through command line words */
@@ -885,18 +930,21 @@ int cmdlin() {
           x = *(*xargv + 1); /* Get the option letter */
           xx = doftparg(x);
           if (xx < 0) {
-            if (what == W_COMMAND)
+            if (what == W_COMMAND) {
               return (0);
-            else
+            } else {
               doexit(BAD_EXIT, 1);
+            }
           }
         } else { /* No dash - must be hostname */
           makestr(&ftp_host, *xargv);
           if (xargc > 1) {
             port = *(xargv + 1);
-            if (port)
-              if (*port == '-' || !*port)
+            if (port) {
+              if (*port == '-' || !*port) {
                 port = NULL;
+              }
+            }
             if (port) {
               xargv++;
               xargc--;
@@ -912,26 +960,30 @@ int cmdlin() {
       int xx;
 #ifdef NODIAL
       xx = xx_ftp(ftp_host, port);
-      if (xx < 0 && (haveurl || ftp_cmdlin > 1))
+      if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
         doexit(BAD_EXIT, -1);
+      }
 #else
 #ifdef NOICP
       xx = xx_ftp(ftp_host, port);
-      if (xx < 0 && (haveurl || ftp_cmdlin > 1))
+      if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
         doexit(BAD_EXIT, -1);
+      }
 #else
       if (*ftp_host == '=') { /* Skip directory lookup */
         xx = xx_ftp(&ftp_host[1], port);
-        if (xx < 0 && (haveurl || ftp_cmdlin > 1))
+        if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
           doexit(BAD_EXIT, -1);
+        }
       } else { /* Want lookup */
         int i;
         nhcount = 0; /* Check network directory */
         debug(F101, "cmdlin nnetdir", "", nnetdir);
-        if (nnetdir > 0)   /* If there is a directory... */
+        if (nnetdir > 0) { /* If there is a directory... */
           lunet(ftp_host); /* Look up the name */
-        else               /* If no directory */
+        } else {           /* If no directory */
           nhcount = 0;     /* we didn't find anything there */
+        }
 #ifdef DEBUG
         if (deblog) {
           debug(F101, "cmdlin lunet nhcount", "", nhcount);
@@ -944,25 +996,30 @@ int cmdlin() {
 #endif /* DEBUG */
         if (nhcount == 0) {
           xx = xx_ftp(ftp_host, port);
-          if (xx < 0 && (haveurl || ftp_cmdlin > 1))
+          if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
             doexit(BAD_EXIT, -1);
+          }
         } else {
           for (i = 0; i < nhcount; i++) {
-            if (ckstrcmp(nh_p2[i], "tcp/ip", 6, 0))
+            if (ckstrcmp(nh_p2[i], "tcp/ip", 6, 0)) {
               continue;
+            }
             makestr(&ftp_host, nh_p[i]);
             debug(F110, "cmdlin calling xx_ftp", ftp_host, 0);
-            if (!quiet)
+            if (!quiet) {
               printf("Trying %s...\n", ftp_host);
-            if (xx_ftp(ftp_host, port) > -1)
+            }
+            if (xx_ftp(ftp_host, port) > -1) {
               break;
+            }
           }
         }
       }
 #endif /* NODIAL */
 #endif /* NOICP */
-      if (!ftpisconnected())
+      if (!ftpisconnected()) {
         doexit(BAD_EXIT, -1);
+      }
     }
     return (0);
   }
@@ -974,11 +1031,12 @@ int cmdlin() {
     while (--xargc > 0) { /* Go through command line words */
       xargv++;
       debug(F111, "cmdlin telnet xargv", *xargv, xargc);
-      if (**xargv == '=')
+      if (**xargv == '=') {
         return (0);
-      if (!strcmp(*xargv, "--")) /* getopt() conformance */
+      }
+      if (!strcmp(*xargv, "--")) { /* getopt() conformance */
         return (0);
-      else if (**xargv == '-') { /* Got an option (begins with dash) */
+      } else if (**xargv == '-') { /* Got an option (begins with dash) */
         int xx;
         x = *(*xargv + 1); /* Get the option letter */
         debug(F111, "cmdlin telnet args 1", *xargv, xargc);
@@ -987,9 +1045,9 @@ int cmdlin() {
         debug(F111, "cmdlin telnet args 2", *xargv, xargc);
         if (xx < 0) {
 #ifndef NOICP
-          if (what == W_COMMAND)
+          if (what == W_COMMAND) {
             return (0);
-          else
+          } else
 #endif /* NOICP */
           {
             doexit(BAD_EXIT, 1); /* Go handle option */
@@ -1003,10 +1061,11 @@ int cmdlin() {
 #ifndef NODIAL
         nhcount = 0; /* Check network directory */
         debug(F101, "cmdlin telnet nnetdir", "", nnetdir);
-        if (nnetdir > 0) /* If there is a directory... */
-          lunet(*xargv); /* Look up the name */
-        else             /* If no directory */
-          nhcount = 0;   /* we didn't find anything there */
+        if (nnetdir > 0) { /* If there is a directory... */
+          lunet(*xargv);   /* Look up the name */
+        } else {           /* If no directory */
+          nhcount = 0;     /* we didn't find anything there */
+        }
 #ifdef DEBUG
         if (deblog) {
           debug(F101, "cmdlin telnet lunet nhcount", "", nhcount);
@@ -1016,10 +1075,12 @@ int cmdlin() {
             debug(F110, "cmdlin telnet lunet nh_px[0][0]", nh_px[0][0], 0);
           }
         }
-#endif                               /* DEBUG */
-        if (nhcount > 0 && nh_p2[0]) /* If network type specified */
-          if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0)) /* it must be TCP/IP */
+#endif                                 /* DEBUG */
+        if (nhcount > 0 && nh_p2[0]) { /* If network type specified */
+          if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0)) { /* it must be TCP/IP */
             nhcount = 0;
+          }
+        }
         if (nhcount == 1) { /* Still OK, so make substitution */
           ckstrncpy(ttname, nh_p[0], TTNAMLEN + 1);
           debug(F110, "cmdlin telnet lunet substitution", ttname, 0);
@@ -1069,8 +1130,9 @@ int cmdlin() {
             int k;                              /* Yes */
             k = mlook(mactab, "on_open", nmac); /* Look this up */
             if (k >= 0) {                       /* If found, */
-              if (dodo(k, ttname, 0) > -1)      /* set it up, */
+              if (dodo(k, ttname, 0) > -1) {    /* set it up, */
                 parser(1);                      /* and execute it */
+              }
             }
           }
         }
@@ -1086,11 +1148,12 @@ int cmdlin() {
     while (--xargc > 0) {              /* Go through command line words */
       xargv++;
       debug(F111, "cmdlin rlogin xargv", *xargv, xargc);
-      if (**xargv == '=')
+      if (**xargv == '=') {
         return (0);
-      if (!strcmp(*xargv, "--")) /* getopt() conformance */
+      }
+      if (!strcmp(*xargv, "--")) { /* getopt() conformance */
         return (0);
-      else if (**xargv == '-') { /* Got an option (begins with dash) */
+      } else if (**xargv == '-') { /* Got an option (begins with dash) */
         int xx;
         x = *(*xargv + 1); /* Get the option letter */
         debug(F111, "cmdlin rlogin args 1", *xargv, xargc);
@@ -1099,9 +1162,9 @@ int cmdlin() {
         debug(F111, "cmdlin rlogin args 2", *xargv, xargc);
         if (xx < 0) {
 #ifndef NOICP
-          if (what == W_COMMAND)
+          if (what == W_COMMAND) {
             return (0);
-          else
+          } else
 #endif /* NOICP */
           {
             doexit(BAD_EXIT, 1); /* Go handle option */
@@ -1115,10 +1178,11 @@ int cmdlin() {
 #ifndef NODIAL
         nhcount = 0; /* Check network directory */
         debug(F101, "cmdlin rlogin nnetdir", "", nnetdir);
-        if (nnetdir > 0) /* If there is a directory... */
-          lunet(*xargv); /* Look up the name */
-        else             /* If no directory */
-          nhcount = 0;   /* we didn't find anything there */
+        if (nnetdir > 0) { /* If there is a directory... */
+          lunet(*xargv);   /* Look up the name */
+        } else {           /* If no directory */
+          nhcount = 0;     /* we didn't find anything there */
+        }
 #ifdef DEBUG
         if (deblog) {
           debug(F101, "cmdlin rlogin lunet nhcount", "", nhcount);
@@ -1128,10 +1192,12 @@ int cmdlin() {
             debug(F110, "cmdlin rlogin lunet nh_px[0][0]", nh_px[0][0], 0);
           }
         }
-#endif                               /* DEBUG */
-        if (nhcount > 0 && nh_p2[0]) /* If network type specified */
-          if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0)) /* it must be TCP/IP */
+#endif                                 /* DEBUG */
+        if (nhcount > 0 && nh_p2[0]) { /* If network type specified */
+          if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0)) { /* it must be TCP/IP */
             nhcount = 0;
+          }
+        }
         if (nhcount == 1) { /* Still OK, so make substitution */
           ckstrncpy(ttname, nh_p[0], TTNAMLEN + 1);
           debug(F110, "cmdlin rlogin lunet substitution", ttname, 0);
@@ -1169,8 +1235,9 @@ int cmdlin() {
             int k;                              /* Yes */
             k = mlook(mactab, "on_open", nmac); /* Look this up */
             if (k >= 0) {                       /* If found, */
-              if (dodo(k, ttname, 0) > -1)      /* set it up, */
+              if (dodo(k, ttname, 0) > -1) {    /* set it up, */
                 parser(1);                      /* and execute it */
+              }
             }
           }
         }
@@ -1199,10 +1266,12 @@ int cmdlin() {
       while (--xargc > 0) { /* Go through command line words */
         xargv++;
         debug(F111, "cmdlin ssh xargv", *xargv, xargc);
-        if (**xargv == '=')
+        if (**xargv == '=') {
           return (0);
-        if (!strcmp(*xargv, "--")) /* getopt() conformance */
+        }
+        if (!strcmp(*xargv, "--")) { /* getopt() conformance */
           return (0);
+        }
         /* Got an option (begins with dash) */
         else if (**xargv == '-') {
           int xx;
@@ -1213,9 +1282,9 @@ int cmdlin() {
           debug(F111, "cmdlin args 2", *xargv, xargc);
           if (xx < 0) {
 #ifndef NOICP
-            if (what == W_COMMAND)
+            if (what == W_COMMAND) {
               return (0);
-            else
+            } else
 #endif /* NOICP */
             {
               doexit(BAD_EXIT, 1); /* Go handle option */
@@ -1229,10 +1298,11 @@ int cmdlin() {
 #ifndef NODIAL
           nhcount = 0; /* Check network directory */
           debug(F101, "cmdlin nnetdir", "", nnetdir);
-          if (nnetdir > 0) /* If there is a directory... */
-            lunet(*xargv); /* Look up the name */
-          else             /* If no directory */
-            nhcount = 0;   /* we didn't find anything there */
+          if (nnetdir > 0) { /* If there is a directory... */
+            lunet(*xargv);   /* Look up the name */
+          } else {           /* If no directory */
+            nhcount = 0;     /* we didn't find anything there */
+          }
 #ifdef DEBUG
           if (deblog) {
             debug(F101, "cmdlin lunet nhcount", "", nhcount);
@@ -1245,9 +1315,11 @@ int cmdlin() {
 #endif /* DEBUG */
           /* If network type specified */
           /* it must be TCP/IP */
-          if (nhcount > 0 && nh_p2[0])
-            if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0))
+          if (nhcount > 0 && nh_p2[0]) {
+            if (ckstrcmp(nh_p2[0], "tcp/ip", 6, 0)) {
               nhcount = 0;
+            }
+          }
           if (nhcount == 1) { /* Still OK, so make substitution */
             ckstrncpy(ttname, nh_p[0], TTNAMLEN + 1);
             ssh_set_sparam(SSH_SPARAM_HST, ttname);
@@ -1293,8 +1365,9 @@ int cmdlin() {
         int k;                              /* Yes */
         k = mlook(mactab, "on_open", nmac); /* Look this up */
         if (k >= 0) {                       /* If found, */
-          if (dodo(k, ttname, 0) > -1)      /* set it up, */
+          if (dodo(k, ttname, 0) > -1) {    /* set it up, */
             parser(1);                      /* and execute it */
+          }
         }
       }
     }
@@ -1303,8 +1376,9 @@ int cmdlin() {
   }
 #endif /* SSHBUILTIN */
 
-  if (howcalled == I_AM_SSHSUB)
+  if (howcalled == I_AM_SSHSUB) {
     return (0);
+  }
 
   /*
     From here down: We were called as "kermit" or "iksd".
@@ -1320,8 +1394,9 @@ int cmdlin() {
       /* If we were started with a Kerbang script, the script */
       /* arguments were already picked up in prescan / cmdini() */
       /* and there is nothing here for us anyway. */
-      if (!strcmp(xargv[1], "+"))
+      if (!strcmp(xargv[1], "+")) {
         return (0);
+      }
 #endif /* KERBANG */
 
       if (cfilef) { /* Command file found in prescan() */
@@ -1340,11 +1415,12 @@ int cmdlin() {
   while (--xargc > 0) { /* Go through command line words */
     xargv++;
     debug(F111, "cmdlin xargv", *xargv, xargc);
-    if (**xargv == '=')
+    if (**xargv == '=') {
       return (0);
-    if (!strcmp(*xargv, "--")) /* getopt() conformance */
+    }
+    if (!strcmp(*xargv, "--")) { /* getopt() conformance */
       return (0);
-    else if (**xargv == '-') { /* Got an option (begins with dash) */
+    } else if (**xargv == '-') { /* Got an option (begins with dash) */
       int xx;
       x = *(*xargv + 1); /* Get the option letter */
       debug(F111, "cmdlin args 1", *xargv, xargc);
@@ -1353,9 +1429,9 @@ int cmdlin() {
       debug(F111, "cmdlin args 2", *xargv, xargc);
       if (xx < 0) {
 #ifndef NOICP
-        if (what == W_COMMAND)
+        if (what == W_COMMAND) {
           return (0);
-        else
+        } else
 #endif /* NOICP */
         {
           doexit(BAD_EXIT, 1); /* Go handle option */
@@ -1397,10 +1473,12 @@ int cmdlin() {
 #else
   if (inserver && what == 0) { /* Internet Kermit server checks */
     if (local || (action != 0 && action != 'x')) {
-      if (local)
+      if (local) {
         printf("local\r\n");
-      if (action)
+      }
+      if (action) {
         printf("action=%c\r\n", action);
+      }
       debug(F100, "cmdlin fatal 1", "", 0);
       XFATAL("No actions or connections allowed with -A");
     }
@@ -1427,8 +1505,9 @@ int cmdlin() {
         if (!zchdir(cmarg2)) { /* try to change to it */
           debug(F100, "cmdlin fatal 4", "", 0);
           XFATAL("can't change to '-a' directory");
-        } else
+        } else {
           cmarg2 = "";
+        }
       } else
 #endif /* CK_TMPDIR */
         if (zchko(cmarg2) < 0) {
@@ -1445,21 +1524,24 @@ int cmdlin() {
   }
   if ((action == 's') || (action == 'v') || (action == 'r') ||
       (action == 'x')) {
-    if (local)
+    if (local) {
       displa = 1;
+    }
     if (stdouf) {
       displa = 0;
       quiet = 1;
     }
   }
-  if (quiet)
+  if (quiet) {
     displa = 0; /* No display if quiet requested */
-#endif          /* NOXFER */
+  }
+#endif /* NOXFER */
 #ifdef DEBUG
-  if (action)
+  if (action) {
     debug(F000, "cmdlin returns action", "", action);
-  else
+  } else {
     debug(F101, "cmdlin returns action", "", action);
+  }
 #endif /* DEBUG */
 
   return (action); /* Then do any requested protocol */
@@ -1575,8 +1657,9 @@ static void inixopthlp() {
   }
   for (i = 0; i < nxargs; i++) { /* Then for each defined keyword */
     j = xargtab[i].kwval;        /* index by associated value */
-    if (j < 0 || j > XA_MAX)
+    if (j < 0 || j > XA_MAX) {
       continue;
+    }
     switch (j) {
 #ifdef CK_LOGIN
     case XA_ANON: /* "--anonymous" */
@@ -2015,8 +2098,9 @@ int doxarg(char **s, int pre) {
   int i, x, y, z, havearg = 0;
   char buf[XARGBUFL], c, *p;
 
-  if (nxargs < 1)
+  if (nxargs < 1) {
     return (-1);
+  }
 
   c = *(*s + 1); /* Hyphen or Plus sign */
 
@@ -2032,30 +2116,34 @@ int doxarg(char **s, int pre) {
       break;
     }
   }
-  if (i > XARGBUFL - 1)
+  if (i > XARGBUFL - 1) {
     return (-1);
+  }
   buf[i] = NUL;
 
   x = lookup(xargtab, buf, nxargs, &z); /* Lookup the option keyword */
 
-  if (x < 0)     /* On any kind of error */
+  if (x < 0) {   /* On any kind of error */
     return (-1); /* fail. */
+  }
 
   /* Handle prescan versus post-initialization file */
 
-  if (((xargtab[z].flgs & CM_PRE) || (c == '+')) && !pre)
+  if (((xargtab[z].flgs & CM_PRE) || (c == '+')) && !pre) {
     return (0);
-  else if (pre && !(xargtab[z].flgs & CM_PRE) && (c != '+'))
+  } else if (pre && !(xargtab[z].flgs & CM_PRE) && (c != '+')) {
     return (0);
+  }
 
   /* Ensure that argument is given if and only if required */
 
   p = havearg ? *s + i + 3 : NULL;
 
-  if ((xargtab[z].flgs & CM_ARG) && !havearg)
+  if ((xargtab[z].flgs & CM_ARG) && !havearg) {
     return (-1);
-  else if ((!(xargtab[z].flgs & CM_ARG)) && havearg)
+  } else if ((!(xargtab[z].flgs & CM_ARG)) && havearg) {
     return (-1);
+  }
 
   switch (x) { /* OK to process this option... */
 #ifdef CKSYSLOG
@@ -2063,27 +2151,34 @@ int doxarg(char **s, int pre) {
     y = 0;
     if (isdigit(*p)) {
       while (*p) {
-        if (*p < '0' || *p > '9')
+        if (*p < '0' || *p > '9') {
           return (-1);
+        }
         y = y * 10 + (*p++ - '0');
       }
     } else {
       y = lookup(oktab, p, noktab, &z);
-      if (y > 0)
+      if (y > 0) {
         y = SYSLG_DF; /* Yes = default logging level */
+      }
     }
 #ifndef SYSLOGLEVEL
     /* If specified on cc command line, user can't change it. */
-    if (!inserver)      /* Don't allow voluminous syslogging */
-      if (y > SYSLG_FA) /* by ordinary users. */
+    if (!inserver) {      /* Don't allow voluminous syslogging */
+      if (y > SYSLG_FA) { /* by ordinary users. */
         y = SYSLG_FA;
+      }
+    }
 #endif /* SYSLOGLEVEL */
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
 #ifdef DEBUG
-    if (y >= SYSLG_DB)
-      if (!deblog)
+    if (y >= SYSLG_DB) {
+      if (!deblog) {
         deblog = debopn("debug.log", 0);
+      }
+    }
 #endif /* DEBUG */
 #ifdef SYSLOGLEVEL
     /* If specified on cc command line, user can't change it. */
@@ -2098,15 +2193,17 @@ int doxarg(char **s, int pre) {
 #ifdef CKWTMP
   case XA_WTMP: /* IKS: wtmp log */
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     ckxwtmp = y;
     /* printf("ckxwtmp=%d\n",ckxwtmp); */
     break;
 
   case XA_WTFI: /* IKS: wtmp logfile */
-    if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
       p = tmpbuf;
+    }
     makestr(&wtmpfile, p);
     /* printf("wtmpfile=%s\n",wtmpfile); */
     break;
@@ -2115,8 +2212,9 @@ int doxarg(char **s, int pre) {
 #ifndef NOIKSD
   case XA_ANON: /* IKS: Anonymous login allowed */
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     ckxanon = y;
     /* printf("ckxanon=%d\n",ckxanon); */
     break;
@@ -2124,8 +2222,9 @@ int doxarg(char **s, int pre) {
 #ifdef UNIX
   case XA_PRIV: /* IKS: Priv'd login allowed */
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     ckxpriv = y;
     /* printf("ckxpriv=%d\n",ckxpriv); */
     break;
@@ -2137,8 +2236,9 @@ int doxarg(char **s, int pre) {
   case XA_PERM: /* IKS: Anonymous Upload Permissions */
     y = 0;
     while (*p) {
-      if (*p < '0' || *p > '7')
+      if (*p < '0' || *p > '7') {
         return (-1);
+      }
       y = y * 8 + (*p++ - '0');
     }
     ckxperms = y;
@@ -2147,25 +2247,31 @@ int doxarg(char **s, int pre) {
 #endif /* CK_PERMS */
 
   case XA_ANFI: /* Anonymous init file */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&anonfile, p);
     /* printf("anonfile=%s\n",anonfile); */
     break;
 
   case XA_USFI: /* IKS: Forbidden user file */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&userfile, p);
     /* printf("userfile=%s\n",userfile); */
     break;
 
   case XA_ROOT: /* IKS: Anonymous root */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&anonroot, p);
     /* printf("anonroot=%s\n",anonroot); */
     break;
@@ -2180,8 +2286,9 @@ int doxarg(char **s, int pre) {
 
   case XA_CDMS: /* CD messages */
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     srvcdmsg = y;
     /* printf("srvcdmsg=%d\n",srvcdmsg); */
     break;
@@ -2189,25 +2296,30 @@ int doxarg(char **s, int pre) {
 #ifndef NOXFER
   case XA_IKLG: /* Transfer log on/off */
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     xferlog = y;
     /* printf("xferlog=%d\n",xferlog); */
     break;
 
   case XA_IKFI: /* Transfer log file */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&xferfile, p);
     xferlog = 1;
     /* printf("xferfile=%s\n",xferfile); */
     break;
 
   case XA_BAFI: /* IKS: banner (greeting) file */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&bannerfile, p);
     /* printf("bannerfile=%s\n",bannerfile); */
     break;
@@ -2216,20 +2328,25 @@ int doxarg(char **s, int pre) {
 #ifndef NOHELP
   case XA_HELP: /* Help */
     /* printf("help\n"); */
-    for (i = 0; i <= XA_MAX; i++)
-      if (xopthlp[i])
+    for (i = 0; i <= XA_MAX; i++) {
+      if (xopthlp[i]) {
         printf("%s\n   %s\n\n", xopthlp[i], xarghlp[i]);
-    if (stayflg || what == W_COMMAND)
+      }
+    }
+    if (stayflg || what == W_COMMAND) {
       break;
-    else
+    } else {
       doexit(GOOD_EXIT, -1);
+    }
 #endif /* NOHELP */
 
 #ifndef NOHELP
   case XA_HEFI: /* IKS: custom help file */
-    if (!isabsolute(p))
-      if (zfnqfp(p, CKMAXPATH, tmpbuf))
+    if (!isabsolute(p)) {
+      if (zfnqfp(p, CKMAXPATH, tmpbuf)) {
         p = tmpbuf;
+      }
+    }
     makestr(&helpfile, p);
     /* printf("helpfile=%s\n",helpfile); */
     break;
@@ -2237,8 +2354,9 @@ int doxarg(char **s, int pre) {
 
 #ifdef CK_LOGIN
   case XA_TIMO:
-    if (!rdigits(p))
+    if (!rdigits(p)) {
       return (-1);
+    }
     logintimo = atoi(p);
     /* printf("logintimo=%d\n",p); */
     break;
@@ -2266,11 +2384,13 @@ int doxarg(char **s, int pre) {
       makestr(&dbdir, zz->fpath);
       makestr(&dbfile, zz->fpath);
       for (s = dbdir; *s; s++) {
-        if (ISDIRSEP(*s))
+        if (ISDIRSEP(*s)) {
           s2 = s + 1;
+        }
       }
-      if (s2)
+      if (s2) {
         *s2 = NUL;
+      }
       debug(F110, "XA_DBFI dbdir", dbdir, 0);
       debug(F110, "XA_DBFI dbfile", dbfile, 0);
       dbenabled = 1;
@@ -2280,8 +2400,9 @@ int doxarg(char **s, int pre) {
   case XA_DBAS: {
     extern int dbenabled;
     y = lookup(oktab, p, noktab, &z);
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
     dbenabled = y;
     break;
   }
@@ -2291,10 +2412,11 @@ int doxarg(char **s, int pre) {
     extern char *ck_s_ver;
     printf("%s", ck_s_ver);
     printf("\n");
-    if (stayflg || what == W_COMMAND)
+    if (stayflg || what == W_COMMAND) {
       break;
-    else
+    } else {
       doexit(GOOD_EXIT, -1);
+    }
   }
 #ifndef NOXFER
 #ifdef CK_PERMS
@@ -2338,8 +2460,9 @@ int doxarg(char **s, int pre) {
     extern int ntermc;
     x = lookup(ttcstab, p, ntermc, &z);
 #endif /* CKOUNI */
-    if (x < 0)
+    if (x < 0) {
       return (-1);
+    }
     setremcharset(z, 4 /* TT_GR_ALL (in ckuus7.c) */);
 #else  /* NOCSETS */
     return (-1);
@@ -2348,15 +2471,17 @@ int doxarg(char **s, int pre) {
   }
   case XA_ROWS: { /* Screen rows (height) */
     extern int tt_rows;
-    if (!rdigits(p))
+    if (!rdigits(p)) {
       return (-1);
+    }
     tt_rows = atoi(p);
     break;
   }
   case XA_COLS: { /* Screen columns (width) */
     extern int tt_cols;
-    if (!rdigits(p))
+    if (!rdigits(p)) {
       return (-1);
+    }
     tt_cols = atoi(p);
     break;
   }
@@ -2485,37 +2610,47 @@ int setiks() { /* SET IKS */
   char *s;
   char tmpbuf[CKMAXPATH + 1];
 
-  if ((y = cmkey(ikstab, nikstab, "", "", xxstring)) < 0)
+  if ((y = cmkey(ikstab, nikstab, "", "", xxstring)) < 0) {
     return (y);
+  }
 
 #ifdef CK_LOGIN
   if (y == IKS_ANON) {
-    if ((y = cmkey(iksantab, niksantab, "", "", xxstring)) < 0)
+    if ((y = cmkey(iksantab, niksantab, "", "", xxstring)) < 0) {
       return (y);
+    }
   }
 #endif /* CK_LOGIN */
 
   switch (y) {
 #ifdef CKSYSLOG
   case IKS_SYSL: /* IKS: Syslog level */
-    if ((z = cmkey(oktab, noktab, "", "", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
 #ifndef SYSLOGLEVEL
     /* If specified on cc command line, user can't change it. */
-    if (!inserver)      /* Don't allow voluminous syslogging */
-      if (y > SYSLG_FA) /* by ordinary users. */
+    if (!inserver) {      /* Don't allow voluminous syslogging */
+      if (y > SYSLG_FA) { /* by ordinary users. */
         y = SYSLG_FA;
+      }
+    }
 #endif /* SYSLOGLEVEL */
-    if (y < 0)
+    if (y < 0) {
       return (-1);
+    }
 #ifdef DEBUG
-    if (y >= SYSLG_DB)
-      if (!deblog)
+    if (y >= SYSLG_DB) {
+      if (!deblog) {
         deblog = debopn("debug.log", 0);
+      }
+    }
 #endif /* DEBUG */
 #ifdef SYSLOGLEVEL
     /* If specified on cc command line, user can't change it. */
@@ -2528,18 +2663,22 @@ int setiks() { /* SET IKS */
 
 #ifdef CK_LOGIN
   case IKS_ANLG:
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     ckxanon = z;
     break;
 #endif /* CK_LOGIN */
   case IKS_BAFI:
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
@@ -2549,126 +2688,160 @@ int setiks() { /* SET IKS */
       debug(F110, "bannerfile after zfnqfp()", tmpbuf, 0);
       s = tmpbuf;
     }
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
-    if (*s)
+    }
+    if (*s) {
       makestr(&bannerfile, s);
+    }
     break;
   case IKS_CDFI:
     if ((z = cmtxt("list of cd message file names", "READ.ME", &s, xxstring)) <
-        0)
+        0) {
       return (z);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     if (*s) {
       makelist(s, cdmsgfile, 16);
       makestr(&cdmsgstr, s);
     }
     break;
   case IKS_CDMS:
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     srvcdmsg = z;
     break;
   case IKS_HEFI:
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
-    if (zfnqfp(s, CKMAXPATH, tmpbuf))
+    if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
       s = tmpbuf;
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
-    if (*s)
+    }
+    if (*s) {
       makestr(&helpfile, s);
+    }
     break;
   case IKS_ANFI:
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
-    if (zfnqfp(s, CKMAXPATH, tmpbuf))
+    if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
       s = tmpbuf;
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
 #ifdef CK_LOGIN
-    if (*s)
+    if (*s) {
       makestr(&anonfile, s);
+    }
 #endif /* CK_LOGIN */
     break;
   case IKS_USFI:
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
-    if (zfnqfp(s, CKMAXPATH, tmpbuf))
+    if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
       s = tmpbuf;
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
 #ifdef CK_LOGIN
-    if (*s)
+    if (*s) {
       makestr(&userfile, s);
+    }
 #endif /* CK_LOGIN */
     break;
   case IKS_IKFI:
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
-    if (zfnqfp(s, CKMAXPATH, tmpbuf))
+    if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
       s = tmpbuf;
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     if (*s) {
       makestr(&xferfile, s);
       xferlog = 1;
     }
     break;
   case IKS_IKLG:
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     xferlog = z;
     break;
 
 #ifdef CK_LOGIN
 #ifdef CK_PERM
   case IKS_PERM:
-    if ((z = cmtxt("Octal file permssion code", "000", &s, xxstring)) < 0)
+    if ((z = cmtxt("Octal file permssion code", "000", &s, xxstring)) < 0) {
       return (z);
-    if (z < 0)
+    }
+    if (z < 0) {
       return (z);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     y = 0;
     while (*s) {
-      if (*s < '0' || *s > '7')
+      if (*s < '0' || *s > '7') {
         return (-9);
+      }
       y = y * 8 + (*s++ - '0');
     }
     ckxperms = y;
@@ -2676,76 +2849,96 @@ int setiks() { /* SET IKS */
 #endif /* CK_PERM */
 #ifdef UNIX
   case IKS_PRIV: /* IKS: Priv'd login allowed */
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     ckxpriv = z;
     break;
 #endif /* UNIX */
 
   case IKS_ROOT: /* IKS: Anonymous root */
     if ((z = cmdir("Name of disk and/or directory", "", &s, xxstring)) < 0) {
-      if (z != -3)
+      if (z != -3) {
         return (z);
+      }
     }
     if (*s) {
-      if (zfnqfp(s, CKMAXPATH, tmpbuf))
+      if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
         s = tmpbuf;
-    } else
+      }
+    } else {
       s = "";
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
-    if (*s)
+    }
+    if (*s) {
       makestr(&anonroot, s);
+    }
     /* printf("anonroot=%s\n",anonroot); */
     break;
 
   case IKS_TIMO:
     z = cmnum("login timeout, seconds", "0", 10, &x, xxstring);
-    if (z < 0)
+    if (z < 0) {
       return (z);
+    }
     if (x < 0 || x > 7200) {
       printf("?Value must be between 0 and 7200\r\n");
       return (-9);
     }
-    if ((z = cmcfm()) < 0)
+    if ((z = cmcfm()) < 0) {
       return (z);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     logintimo = x;
     break;
 
 #ifdef CKWTMP
   case IKS_WTMP: /* IKS: wtmp log */
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     ckxwtmp = z;
     break;
 
   case IKS_WTFI: /* IKS: wtmp logfile */
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
-    if (zfnqfp(s, CKMAXPATH, tmpbuf))
+    if (zfnqfp(s, CKMAXPATH, tmpbuf)) {
       s = tmpbuf;
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
-    if (*s)
+    }
+    if (*s) {
       makestr(&wtmpfile, s);
+    }
     break;
 #endif /* CKWTMP */
 #endif /* CK_LOGIN */
@@ -2754,66 +2947,83 @@ int setiks() { /* SET IKS */
     extern char *dbdir, *dbfile;
     extern int dbenabled;
     struct zfnfp *zz;
-    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0)
+    if ((z = cmifi("Filename", "", &s, &x, xxstring)) < 0) {
       return (z);
+    }
     if (x) {
       printf("?Wildcards not allowed\n");
       return (-9);
     }
     zz = zfnqfp(s, CKMAXPATH, tmpbuf);
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     if (zz) {
       makestr(&dbdir, zz->fpath);
       makestr(&dbfile, (char *)tmpbuf);
       dbenabled = 1;
-    } else
+    } else {
       return (success = 0);
+    }
     break;
   }
   case IKS_DBAS: {
     extern int dbenabled;
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     dbenabled = z;
     break;
   }
 #endif /* IKSDB */
 
   case IKS_INIT:
-    if ((z = cmtxt("Alternate init file specification", "", &s, xxstring)) < 0)
+    if ((z = cmtxt("Alternate init file specification", "", &s, xxstring)) <
+        0) {
       return (z);
-    if (z < 0)
+    }
+    if (z < 0) {
       return (z);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     ckstrncpy(kermrc, s, KERMRCL);
     rcflag = 1; /* Flag that this has been done */
     break;
 
   case IKS_NOIN:
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     noinit = z;
     break;
 
   case IKS_SRVR:
-    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0)
+    if ((z = cmkey(oktab, noktab, "", "no", xxstring)) < 0) {
       return (z);
-    if ((x = cmcfm()) < 0)
+    }
+    if ((x = cmcfm()) < 0) {
       return (x);
-    if (iksdcf)
+    }
+    if (iksdcf) {
       return (success = 0);
+    }
     arg_x = z;
     break;
 
@@ -2822,8 +3032,9 @@ int setiks() { /* SET IKS */
   }
   return (success = (inserver ? 1 : 0));
 #else  /* IKSDCONF */
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   return (success = 0);
 #endif /* IKSDCONF */
 }
@@ -2844,8 +3055,9 @@ int doarg(char x)
 
 #ifdef IKSD
   /* Internet Kermit Server set some way besides -A... */
-  if (inserver)
+  if (inserver) {
     dofast();
+  }
 #endif /* IKSD */
 
   xp = *xargv + 1; /* Pointer for bundled args */
@@ -2875,14 +3087,16 @@ int doarg(char x)
         XFATAL("No commands given for -C");
       }
       s = *xargv; /* Get the argument (must be quoted) */
-      if (!*s)    /* If empty quotes */
+      if (!*s) {  /* If empty quotes */
         s = NULL; /* ignore this option */
+      }
       if (s) {
         makestr(&clcmds, s); /* Make pokeable copy */
         s = clcmds;          /* Change tabs to spaces */
         while (*s) {
-          if (*s == '\t')
+          if (*s == '\t') {
             *s = ' ';
+          }
           s++;
         }
       }
@@ -2900,9 +3114,9 @@ int doarg(char x)
         XFATAL("missing delay value");
       }
       z = atoi(*xargv); /* Convert to number */
-      if (z > -1)       /* If in range */
+      if (z > -1) {     /* If in range */
         ckdelay = z;    /* set it */
-      else {
+      } else {
         XFATAL("bad delay value");
       }
       break;
@@ -2963,8 +3177,9 @@ int doarg(char x)
       if (action) {
         XFATAL("conflicting actions");
       }
-      if (x == 'O')
+      if (x == 'O') {
         justone = 1;
+      }
       xfinish = 1;
       action = 'x';
       break;
@@ -2998,8 +3213,9 @@ int doarg(char x)
 
     case 's': { /* send */
       int fil2snd, rc;
-      if (!recursive)
+      if (!recursive) {
         nolinks = 0; /* Follow links by default */
+      }
 
       if (action) {
         XFATAL("conflicting actions");
@@ -3021,10 +3237,11 @@ int doarg(char x)
           z = 1;
           pipesend = 1;
         } else
-#endif                                    /* PIPESEND */
-          if (**xargv == '-') {           /* Check for sending stdin */
-            if (strcmp(*xargv, "-") != 0) /* next option? */
+#endif                                      /* PIPESEND */
+          if (**xargv == '-') {             /* Check for sending stdin */
+            if (strcmp(*xargv, "-") != 0) { /* next option? */
               break;
+            }
             z++; /* "-" alone means send from stdin. */
 #ifdef RECURSIVE
           } else if (!strcmp(*xargv, ".")) {
@@ -3035,16 +3252,18 @@ int doarg(char x)
 #endif           /* RECURSIVE */
           } else /* Check if file exists */
             if ((rc = zchki(*xargv)) > -1 || (rc == -2)) {
-              if (rc != -2)
+              if (rc != -2) {
                 fil2snd = 1;
+              }
               nfils++; /* Bump file counter */
             } else if (iswild(*xargv) && nzxpand(*xargv, 0) > 0) {
               /* or contains wildcard characters matching real files */
               fil2snd = 1;
               nfils++;
             } else {
-              if (!failmsg)
+              if (!failmsg) {
                 failmsg = (char *)malloc(2000);
+              }
               if (failmsg) {
                 ckmakmsg(failmsg, 2000, "kermit -s ", *xargv, ": ",
                          ck_errstr());
@@ -3069,8 +3288,9 @@ int doarg(char x)
       if (nfils == 0) {    /* no file parameters were specified */
         if (is_a_tty(0)) { /* (used to be is_a_tty(1) - why?) */
           XFATAL("sending from terminal not allowed");
-        } else
+        } else {
           stdinf = 1;
+        }
       }
       debug(F101, "doarg s stdinf", "", stdinf);
       debug(F111, "doarg", *xargv, nfils);
@@ -3090,8 +3310,9 @@ int doarg(char x)
       if ((xargc == 0) || (**xargv == '-')) {
         XFATAL("missing filename for -g");
       }
-      if (x == 'G')
+      if (x == 'G') {
         stdouf = 1;
+      }
       cmarg = *xargv;
       action = 'r';
       break;
@@ -3110,9 +3331,9 @@ int doarg(char x)
     case 'h': /* help */
       usage();
 #ifndef NOICP
-      if (stayflg || what == W_COMMAND)
+      if (stayflg || what == W_COMMAND) {
         break;
-      else
+      } else
 #endif /* NOICP */
         doexit(GOOD_EXIT, -1);
 
@@ -3204,8 +3425,9 @@ int doarg(char x)
 #endif /* NETCONN */
       ckstrncpy(ttname, *xargv, TTNAMLEN + 1);
       local = (strcmp(ttname, CTTNAM) != 0);
-      if (local && strcmp(ttname, "0") == 0)
+      if (local && strcmp(ttname, "0") == 0) {
         local = 0;
+      }
       /*
         NOTE: We really do not need to call ttopen here, since it should be
         called again later, automatically, when we first try to condition the
@@ -3232,8 +3454,9 @@ int doarg(char x)
             int k;                              /* Yes */
             k = mlook(mactab, "on_open", nmac); /* Look this up */
             if (k >= 0) {                       /* If found, */
-              if (dodo(k, ttname, 0) > -1)      /* set it up, */
+              if (dodo(k, ttname, 0) > -1) {    /* set it up, */
                 parser(1);                      /* and execute it */
+              }
             }
           }
         }
@@ -3261,17 +3484,19 @@ int doarg(char x)
           if (*s) {
             *s++ = NUL;
             ckstrncpy(service, s, TMPBUFSIZ);
-          } else
+          } else {
             *service = NUL;
+          }
           s = line;
 #ifndef NODIAL
 #ifndef NOICP
           /* Look up in network directory */
           x = 0;
-          if (*s == '=') {   /* If number starts with = sign */
-            s++;             /* strip it */
-            while (*s == SP) /* and also any leading spaces */
+          if (*s == '=') {     /* If number starts with = sign */
+            s++;               /* strip it */
+            while (*s == SP) { /* and also any leading spaces */
               s++;
+            }
             ckstrncpy(line, s, LINBUFSIZ); /* Do this again. */
             nhcount = 0;
           } else if (!isdigit(line[0])) {
@@ -3280,11 +3505,12 @@ int doarg(char x)
               and it contained a SET NETWORK DIRECTORY command.
             */
             xx = 0;             /* Initialize this */
-            if (nnetdir > 0)    /* If there is a directory... */
+            if (nnetdir > 0) {  /* If there is a directory... */
               xx = lunet(line); /* Look up the name */
-            else                /* If no directory */
+            } else {            /* If no directory */
               nhcount = 0;      /* we didn't find anything there */
-            if (xx < 0) {       /* Lookup error: */
+            }
+            if (xx < 0) { /* Lookup error: */
               ckmakmsg(tmpbuf, TMPBUFSIZ,
                        "?Fatal network directory lookup error - ", line, "\n",
                        NULL);
@@ -3308,13 +3534,15 @@ int doarg(char x)
           if ((nhcount > 1) && !quiet && !backgrd) {
             printf("%d entr%s found for \"%s\"%s\n", nhcount,
                    (nhcount == 1) ? "y" : "ies", s, (nhcount > 0) ? ":" : ".");
-            for (i = 0; i < nhcount; i++)
+            for (i = 0; i < nhcount; i++) {
               printf("%3d. %s %-12s => %s\n", i + 1, n_name, nh_p2[i], nh_p[i]);
+            }
           }
-          if (nhcount == 0)
+          if (nhcount == 0) {
             n = 1;
-          else
+          } else {
             n = nhcount;
+          }
 #else
           n = 1;
           nhcount = 0;
@@ -3372,8 +3600,9 @@ int doarg(char x)
             int k;                              /* Yes */
             k = mlook(mactab, "on_open", nmac); /* Look this up */
             if (k >= 0) {                       /* If found, */
-              if (dodo(k, ttname, 0) > -1)      /* set it up, */
+              if (dodo(k, ttname, 0) > -1) {    /* set it up, */
                 parser(1);                      /* and execute it */
+              }
             }
           }
         }
@@ -3477,8 +3706,9 @@ int doarg(char x)
       z = atoi(*xargv); /* Convert to number */
       if (z > 10 && z <= maxrps) {
         rpsiz = urpsiz = z;
-        if (z > 94)
+        if (z > 94) {
           rpsiz = 94; /* Fallback if other Kermit can't */
+        }
       } else {
         XFATAL("Unsupported packet length");
       }
@@ -3495,8 +3725,9 @@ int doarg(char x)
       z = atoi(*xargv); /* Convert to number */
       if (z < 32) {     /* If in range */
         wslotr = z;     /* set it */
-        if (z > 1)
+        if (z > 1) {
           swcapr = 1; /* Set capas bit if windowing */
+        }
       } else {
         XFATAL("Unsupported packet length");
       }
@@ -3714,8 +3945,9 @@ int doarg(char x)
       fatal2(*xargv,
              "invalid command-line option, type \"kermit -h\" for help");
     }
-    if (!xp)
+    if (!xp) {
       break;
+    }
     x = *++xp; /* See if options are bundled */
   }
   return (0);
@@ -3877,8 +4109,9 @@ static int dotnarg(char x)
              "invalid command-line option, type \"telnet -h\" for help");
     }
 
-    if (!xp)
+    if (!xp) {
       break;
+    }
     x = *++xp; /* See if options are bundled */
   }
   return (0);
@@ -3958,8 +4191,9 @@ static int dorlgarg(char x)
              "invalid command-line option, type \"rlogin -h\" for help");
     }
 
-    if (!xp)
+    if (!xp) {
       break;
+    }
     x = *++xp; /* See if options are bundled */
   }
   return (0);
@@ -4040,8 +4274,9 @@ static int dossharg(char x)
       fatal2(*xargv, "invalid command-line option, type \"ssh -h\" for help");
     }
 
-    if (!xp)
+    if (!xp) {
       break;
+    }
     x = *++xp; /* See if options are bundled */
   }
   return (0);

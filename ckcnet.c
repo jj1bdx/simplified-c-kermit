@@ -394,8 +394,9 @@ int n;
 #ifdef NETLEBUF
 void le_init() { /* LocalEchoInit() */
   int i;
-  for (i = 0; i < LEBUFSIZ; i++)
+  for (i = 0; i < LEBUFSIZ; i++) {
     le_buf[i] = '\0';
+  }
   le_start = 0;
   le_end = 0;
   le_data = 0;
@@ -422,8 +423,9 @@ int le_putchar(CHAR ch)
     return (-1);
   }
   le_buf[le_end++] = ch;
-  if (le_end == LEBUFSIZ)
+  if (le_end == LEBUFSIZ) {
     le_end = 0;
+  }
   le_data = 1;
   return (0);
 }
@@ -434,8 +436,9 @@ int le_puts(CHAR *s, int n)
   int i = 0;
   CHAR *p = (CHAR *)"le_puts";
   ckhexdump(p, s, n);
-  for (i = 0; i < n; i++)
+  for (i = 0; i < n; i++) {
     rc = le_putchar((char)s[i]);
+  }
   debug(F101, "le_puts", "", rc);
   return (rc);
 }
@@ -446,8 +449,9 @@ int le_putstr(CHAR *s)
   int rc = 0;
   p = (CHAR *)"le_putstr";
   ckhexdump(p, s, (int)strlen((char *)s));
-  for (p = s; *p && !rc; p++)
+  for (p = s; *p && !rc; p++) {
     rc = le_putchar(*p);
+  }
   return (rc);
 }
 
@@ -459,8 +463,9 @@ int le_getchar(CHAR *pch)
     le_buf[le_start] = 0;
     le_start++;
 
-    if (le_start == LEBUFSIZ)
+    if (le_start == LEBUFSIZ) {
       le_start = 0;
+    }
 
     if (le_start == le_end) {
       le_data = 0;
@@ -544,8 +549,9 @@ int ttbufr(void);
 int ttbufr() { /* TT Buffer Read */
   int count;
 
-  if (ttnet != NET_TCPB) /* First make sure current net is */
-    return (-1);         /* TCP/IP; if not, do nothing. */
+  if (ttnet != NET_TCPB) { /* First make sure current net is */
+    return (-1);           /* TCP/IP; if not, do nothing. */
+  }
 
   if (ttibn > 0) {  /* Our internal buffer is not empty, */
     return (ttibn); /* so keep using it. */
@@ -564,10 +570,11 @@ int ttbufr() { /* TT Buffer Read */
   }
   if (count < 0) { /* Read error - connection closed */
     return (-2);
-  } else if (count > TTIBUFL) /* Too many to read */
+  } else if (count > TTIBUFL) { /* Too many to read */
     count = TTIBUFL;
-  else if (count == 0) /* None, so force blocking read */
+  } else if (count == 0) { /* None, so force blocking read */
     count = 1;
+  }
   debug(F101, "ttbufr count 1", "", count);
 
   /* This is for blocking reads */
@@ -576,8 +583,9 @@ int ttbufr() { /* TT Buffer Read */
   {
     int outofband = 0;
 #ifdef BELLSELECT
-    if (select(128, NULL, NULL, efds, 0) > 0 && FD_ISSET(ttyfd, efds))
+    if (select(128, NULL, NULL, efds, 0) > 0 && FD_ISSET(ttyfd, efds)) {
       outofband = 1;
+    }
 #else
 #ifdef BSDSELECT
     fd_set efds;
@@ -587,8 +595,9 @@ int ttbufr() { /* TT Buffer Read */
     tv.tv_sec = tv.tv_usec = 0L;
     debug(F100, "Out-of-Band BSDSELECT", "", 0);
     if (select(FD_SETSIZE, NULL, NULL, &efds, &tv) > 0 &&
-        FD_ISSET(ttyfd, &efds))
+        FD_ISSET(ttyfd, &efds)) {
       outofband = 1;
+    }
 #else /* !BSDSELECT */
 #ifdef IBMSELECT
     /* Is used by OS/2 ... */
@@ -597,8 +606,9 @@ int ttbufr() { /* TT Buffer Read */
     /* and timeval stuff since this is the only place where it is used. */
     CK_TTYFD_T socket = ttyfd;
     debug(F100, "Out-of-Band IBMSELECT", "", 0);
-    if ((select(&socket, 0, 0, 1, 0L) == 1) && (socket == ttyfd))
+    if ((select(&socket, 0, 0, 1, 0L) == 1) && (socket == ttyfd)) {
       outofband = 1;
+    }
 #else /* !IBMSELECT */
     /*
       If we can't use select(), then we use the regular alarm()/signal()
@@ -651,8 +661,9 @@ int ttbufr() { /* TT Buffer Read */
 #ifdef DEBUG
           /* Got some bytes. */
           debug(F101, "ttbufr count 2", "", count);
-          if (count > 0)
+          if (count > 0) {
             ttibuf[ttibp + ttibn] = '\0';
+          }
           debug(F111, "ttbufr ttibuf", ttibuf, ttibp);
 #endif /* DEBUG */
           return (ttibn); /* Return buffer count. */
@@ -674,8 +685,9 @@ int ttbufr() { /* TT Buffer Read */
     ttibn += count;
 #ifdef DEBUG
     debug(F101, "ttbufr count 2", "", count); /* Got some bytes. */
-    if (count > 0)
+    if (count > 0) {
       ttibuf[ttibp + ttibn] = '\0';
+    }
     debug(F111, "ttbufr ttibuf", &ttibuf[ttibp], ttibn);
 #endif /* DEBUG */
 
@@ -727,11 +739,13 @@ struct hostent *ck_copyhostent(struct hostent *h) {
   int i, cnt;
   char **pp;
 
-  if (h == NULL)
+  if (h == NULL) {
     return (NULL);
+  }
 
-  if (next == HOSTENTCNT)
+  if (next == HOSTENTCNT) {
     next = 0;
+  }
 
   if (hosts[next].h_name) {
     free(hosts[next].h_name);
@@ -767,8 +781,9 @@ struct hostent *ck_copyhostent(struct hostent *h) {
       makestr(&hosts[next].h_aliases[i], h->h_aliases[i]);
     }
     hosts[next].h_aliases[i] = NULL;
-  } else
+  } else {
     hosts[next].h_aliases = NULL;
+  }
 
   hosts[next].h_addrtype = h->h_addrtype;
   hosts[next].h_length = h->h_length;
@@ -785,8 +800,9 @@ struct hostent *ck_copyhostent(struct hostent *h) {
       bcopy(h->h_addr_list[i], hosts[next].h_addr_list[i], h->h_length);
     }
     hosts[next].h_addr_list[i] = NULL;
-  } else
+  } else {
     hosts[next].h_addr_list = NULL;
+  }
 #else
   bcopy(h->h_addr, &hosts[next].h_addr, h->h_length);
 #endif /* h_addr */
@@ -1211,14 +1227,16 @@ int timo {
   debug(F101, "tcpsocket_open nett", "", nett);
   *ipaddr = '\0';
 
-  if (nett != NET_TCPB)
+  if (nett != NET_TCPB) {
     return (-1); /* BSD socket support */
+  }
 
   netclos();                           /* Close any previous connection. */
   ckstrncpy(namecopy, name, NAMECPYL); /* Copy the hostname. */
   /* fdc's version from 4 Dec 2005 works ok */
-  if (ttnproto != NP_TCPRAW)
+  if (ttnproto != NP_TCPRAW) {
     ttnproto = NP_NONE; /* No protocol selected yet. */
+  }
   debug(F110, "tcpsocket_open namecopy", namecopy, 0);
 
   /* Assign the socket number to ttyfd and then fill in tcp structures */
@@ -1282,10 +1300,12 @@ int timo {
       )
         printf("%s connected on port %d\n", host->h_name,
                ntohs(saddr.sin_port));
-    } else if (!quiet)
+    } else if (!quiet) {
       printf("Failed\n");
-  } else if (!quiet)
+    }
+  } else if (!quiet) {
     printf("(OK)\n");
+  }
 
   if (tcp_rdns != SET_ON || !host) {
     ckstrncpy(name, ipaddr, 80);
@@ -1298,25 +1318,30 @@ int timo {
     )
       printf("%s connected on port %d\n", ipaddr, ntohs(saddr.sin_port));
   }
-  if (!quiet)
+  if (!quiet) {
     fflush(stdout);
+  }
   ttnet = nett; /* TCP/IP (sockets) network */
 
 #ifdef RLOGCODE
-  if (ntohs(saddr.sin_port) == 513)
+  if (ntohs(saddr.sin_port) == 513) {
     ttnproto = NP_LOGIN;
-  else
+  } else
 #endif /* RLOGCODE */
     /* Assume the service is TELNET. */
     /* fdc's code from 2005/12/04 */
-    if (ttnproto != NP_TCPRAW)
+    if (ttnproto != NP_TCPRAW) {
       ttnproto = NP_TELNET; /* Yes, set global flag. */
-  if (tn_ini() < 0)         /* Start/Reset TELNET negotiations */
-    if (ttchk() < 0)        /* Did it fail due to connect loss? */
+    }
+  if (tn_ini() < 0) {  /* Start/Reset TELNET negotiations */
+    if (ttchk() < 0) { /* Did it fail due to connect loss? */
       return (-1);
+    }
+  }
 
-  if (*lcl < 0)
+  if (*lcl < 0) {
     *lcl = 1; /* Local mode. */
+  }
 
   return (0); /* Done. */
 }
@@ -1357,8 +1382,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
   debug(F101, "tcpsrv_open nett", "", nett);
   *ipaddr = '\0';
 
-  if (nett != NET_TCPB)
+  if (nett != NET_TCPB) {
     return (-1); /* BSD socket support */
+  }
 
   netclos();                           /* Close any previous connection. */
   ckstrncpy(namecopy, name, NAMECPYL); /* Copy the hostname. */
@@ -1366,8 +1392,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
   debug(F110, "tcpsrv_open namecopy", namecopy, 0);
 
   p = namecopy; /* Was a service requested? */
-  while (*p != '\0' && *p != ':')
-    p++;           /* Look for colon */
+  while (*p != '\0' && *p != ':') {
+    p++; /* Look for colon */
+  }
   if (*p == ':') { /* Have a colon */
     *p++ = '\0';   /* Get service name or number */
   } else {         /* Otherwise use kermit */
@@ -1427,8 +1454,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
 #else
       saddr.sin_addr.s_addr = inet_addr(tcp_address);
 #endif /* INADDRX */
-    } else
+    } else {
       saddr.sin_addr.s_addr = INADDR_ANY;
+    }
 
     /* Get a file descriptor for the connection. */
 
@@ -1495,10 +1523,11 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
 
 #ifdef BSDSELECT
   tv.tv_sec = tv.tv_usec = 0L;
-  if (timo < 0)
+  if (timo < 0) {
     tv.tv_usec = (long)-timo * 10000L;
-  else
+  } else {
     tv.tv_sec = timo;
+  }
   debug(F101, "tcpsrv_open BSDSELECT", "", timo);
 #else
   debug(F101, "tcpsrv_open not BSDSELECT", "", timo);
@@ -1599,8 +1628,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
     service2 = getservbyname("telnet", "tcp");
     if (service2 && x == service2->s_port) {
       /* fdc 2005/12/04 */
-      if (ttnproto != NP_TCPRAW) /* Yes and if raw port not requested */
-        ttnproto = NP_TELNET;    /* set protocol to TELNET. */
+      if (ttnproto != NP_TCPRAW) { /* Yes and if raw port not requested */
+        ttnproto = NP_TELNET;      /* set protocol to TELNET. */
+      }
     }
     ckstrncpy(ipaddr, (char *)inet_ntoa(saddr.sin_addr), 20);
     if (tcp_rdns) {
@@ -1626,11 +1656,13 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
         )
           printf("%s connected on port %s\n", host->h_name, p);
       } else {
-        if (!quiet)
+        if (!quiet) {
           printf("Failed.\n");
+        }
       }
-    } else if (!quiet)
+    } else if (!quiet) {
       printf("(OK)\n");
+    }
 
     if (!tcp_rdns || !host) {
       ckstrncpy(name, ipaddr, 80);
@@ -1643,8 +1675,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
       )
         printf("%s connected on port %d\n", ipaddr, ntohs(saddr.sin_port));
     }
-    if (!quiet)
+    if (!quiet) {
       fflush(stdout);
+    }
 
     /* Find out our own IP address. */
     l_slen = sizeof(l_addr);
@@ -1655,7 +1688,7 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
       debug(F110, "getsockname", myipaddr, 0);
     }
 
-    if (tn_ini() < 0)    /* Start TELNET negotiations. */
+    if (tn_ini() < 0) {  /* Start TELNET negotiations. */
       if (ttchk() < 0) { /* Disconnected? */
         i = errno;       /* save error code */
 #ifdef TCPIPLIB
@@ -1671,9 +1704,11 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
         debug(F101, "tcpsrv_open accept errno", "", errno);
         return (-1);
       }
+    }
     debug(F101, "tcpsrv_open service", "", x);
-    if (*lcl < 0) /* Set local mode. */
+    if (*lcl < 0) { /* Set local mode. */
       *lcl = 1;
+    }
 
     return (0); /* Done. */
   } else {
@@ -1700,8 +1735,9 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
 char *ckname2addr(char *name) {
   struct hostent *host;
 
-  if (name == NULL || *name == '\0')
+  if (name == NULL || *name == '\0') {
     return ("");
+  }
 
   host = gethostbyname(name);
   if (host) {
@@ -1715,8 +1751,9 @@ char *ckaddr2name(char *addr) {
   struct hostent *host;
   struct in_addr sin_addr;
 
-  if (addr == NULL || *addr == '\0')
+  if (addr == NULL || *addr == '\0') {
     return ("");
+  }
 
   sin_addr.s_addr = inet_addr(addr);
   host = gethostbyaddr((char *)&sin_addr, 4, AF_INET);
@@ -1789,8 +1826,9 @@ char *ckgetfqhostname(char *name) {
   ckstrncpy(namebuf, name, 256);
   namebuf[255] = '\0';
   i = ckindex(":", namebuf, 0, 0, 0);
-  if (i)
+  if (i) {
     namebuf[i - 1] = '\0';
+  }
 
   bzero((char *)&r_addr, sizeof(r_addr));
 
@@ -1802,8 +1840,9 @@ char *ckgetfqhostname(char *name) {
 #ifdef HADDRLIST
 #ifdef h_addr
     /* This is for trying multiple IP addresses - see <netdb.h> */
-    if (!(host->h_addr_list))
+    if (!(host->h_addr_list)) {
       goto exit_func;
+    }
     bcopy(host->h_addr_list[0], (caddr_t)&r_addr.sin_addr, host->h_length);
 #else
     bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
@@ -1827,9 +1866,10 @@ exit_func:
 #endif /* h_addr */
 #endif /* HADDRLIST */
 
-  if (i > 0)
+  if (i > 0) {
     ckstrncat(namebuf, &name[i - 1],
               256 - strlen(namebuf) - strlen(&name[i - 1]));
+  }
   debug(F110, "ckgetfqhn()", namebuf, 0);
   return (namebuf);
 #endif /* NOCKGETFQHOST */
@@ -1837,18 +1877,21 @@ exit_func:
 
 void setnproto(char *p) {
   if (!isdigit(*p)) {
-    if (!strcmp("kermit", p))
+    if (!strcmp("kermit", p)) {
       ttnproto = NP_KERMIT;
-    else if (!strcmp("telnet", p))
+    } else if (!strcmp("telnet", p)) {
       ttnproto = NP_TELNET;
-    else if (!strcmp("http", p))
+    } else if (!strcmp("http", p)) {
       ttnproto = NP_TCPRAW;
+    }
 #ifdef RLOGCODE
-    else if (!strcmp("login", p))
+    else if (!strcmp("login", p)) {
       ttnproto = NP_RLOGIN;
+    }
 #endif /* RLOGCODE */
-    else
+    else {
       ttnproto = NP_NONE;
+    }
   } else {
     switch (atoi(p)) {
     case 23: /* Telnet */
@@ -1910,8 +1953,9 @@ static struct servent *ckgetservice(char *hostname, char *servicename, char *ip,
       }
 #endif /* BETADEBUG */
       sin = (struct sockaddr_in *)&dns_addrs[0];
-      if (ip && iplen > 0)
+      if (ip && iplen > 0) {
         ckstrncpy(ip, (char *)inet_ntoa(sin->sin_addr), iplen);
+      }
       service = &servrec;
       service->s_port = sin->sin_port;
 
@@ -2091,9 +2135,11 @@ int netopen(char *name, int *lcl, int nett) {
       }
     }
     ttnet = nett; /* AIX X.25 network */
-    if (lcl)
-      if (*lcl < 0)
+    if (lcl) {
+      if (*lcl < 0) {
         *lcl = 1; /* Local mode */
+      }
+    }
     return (0);
 
   } else /* Note that IBMX25 support can coexist with TCP/IP support. */
@@ -2101,8 +2147,9 @@ int netopen(char *name, int *lcl, int nett) {
 
     /*   Add support for other networks here. */
 
-    if (nett != NET_TCPB)
+    if (nett != NET_TCPB) {
       return (-1); /* BSD socket support */
+    }
 
 #ifdef TCPSOCKET
   netclos();                           /* Close any previous connection. */
@@ -2110,13 +2157,15 @@ int netopen(char *name, int *lcl, int nett) {
   debug(F110, "netopen namecopy", namecopy, 0);
 
 #ifndef NOLISTEN
-  if (name[0] == '*')
+  if (name[0] == '*') {
     return (tcpsrv_open(name, lcl, nett, 0));
+  }
 #endif /* NOLISTEN */
 
   p = namecopy; /* Was a service requested? */
-  while (*p != '\0' && *p != ':')
-    p++;           /* Look for colon */
+  while (*p != '\0' && *p != ':') {
+    p++; /* Look for colon */
+  }
   if (*p == ':') { /* Have a colon */
     debug(F110, "netopen name has colon", namecopy, 0);
     *p++ = '\0'; /* Get service name or number */
@@ -2135,13 +2184,16 @@ int netopen(char *name, int *lcl, int nett) {
      * C-Kermit 8.0 RELEASE.
      */
 
-    if (*p == ':') /* a second colon */
-      *p++ = '\0'; /* get rid of that one too */
-    while (*p == '/')
-      *p++ = '\0';       /* and slashes */
-    x = strlen(p);       /* Length of remainder */
-    if (p[x - 1] == '/') /* If there is a trailing slash */
-      p[x - 1] = '\0';   /* remove it. */
+    if (*p == ':') { /* a second colon */
+      *p++ = '\0';   /* get rid of that one too */
+    }
+    while (*p == '/') {
+      *p++ = '\0'; /* and slashes */
+    }
+    x = strlen(p);         /* Length of remainder */
+    if (p[x - 1] == '/') { /* If there is a trailing slash */
+      p[x - 1] = '\0';     /* remove it. */
+    }
     debug(F110, "netopen namecopy after stripping", namecopy, 0);
     debug(F110, "netopen p after stripping", p, 0);
     service = getservbyname(namecopy, "tcp");
@@ -2156,27 +2208,32 @@ int netopen(char *name, int *lcl, int nett) {
       extern char pwbuf[];
       extern int pwflg, pwcrypt;
 
-      if (ttnproto == NP_DEFAULT)
+      if (ttnproto == NP_DEFAULT) {
         setnproto(namecopy);
+      }
 
       /* Check for userid and possibly password */
-      while (*p != '\0' && *p != '@')
+      while (*p != '\0' && *p != '@') {
         p++; /* look for @ */
+      }
       if (*p == '@') {
         /* found username and perhaps password */
         debug(F110, "netopen namecopy found @", "", 0);
         *p = '\0';
         p++;
-        while (*w != '\0' && *w != ':')
+        while (*w != '\0' && *w != ':') {
           w++;
-        if (*w == ':')
+        }
+        if (*w == ':') {
           *w++ = '\0';
+        }
         /* r now points to username, save it and the password */
         debug(F110, "netopen namecopy username", r, 0);
         debug(F110, "netopen namecopy password", w, 0);
         uidfound = 1;
-        if (strcmp(uidbuf, r) || *w)
+        if (strcmp(uidbuf, r) || *w) {
           ckstrncpy(pwbuf, w, PWBUFL + 1);
+        }
         ckstrncpy(uidbuf, r, UIDBUFLEN);
         pwflg = 1;
         pwcrypt = 0;
@@ -2189,18 +2246,21 @@ int netopen(char *name, int *lcl, int nett) {
       debug(F110, "netopen x q", q, 0);
 
       /* Look for the port/service or a file/directory path */
-      while (*p != '\0' && *p != ':' && *p != '/')
+      while (*p != '\0' && *p != ':' && *p != '/') {
         p++;
+      }
       if (*p == ':') {
         debug(F110, "netopen found port", q, 0);
         *p++ = '\0'; /* Found a port name or number */
         r = p;
 
         /* Look for the end of port/service or a file/directory path */
-        while (*p != '\0' && *p != '/')
+        while (*p != '\0' && *p != '/') {
           p++;
-        if (*p == '/')
+        }
+        if (*p == '/') {
           *p++ = '\0';
+        }
 
         debug(F110, "netopen port", r, 0);
         ckstrncpy(tempservice, r, 80);
@@ -2217,8 +2277,9 @@ int netopen(char *name, int *lcl, int nett) {
         ckstrncpy(p, tempservice, NAMECPYL - x);
       } else {
         /* Handle a path if we found one */
-        if (*p == '/')
+        if (*p == '/') {
           *p++ = '\0';
+        }
         ckstrncpy(temppath, p, 256);
 
         /* We didn't find another port, but if q is a service */
@@ -2302,8 +2363,9 @@ int netopen(char *name, int *lcl, int nett) {
   debug(F110, "netopen service requested", p, 0);
 
   /* Use the service port to set the default protocol type if necessary */
-  if (ttnproto == NP_DEFAULT)
+  if (ttnproto == NP_DEFAULT) {
     setnproto(p);
+  }
 
   ckstrncpy(namecopy2, namecopy, NAMECPYL);
   service = ckgetservice(namecopy, p, namecopy, NAMECPYL);
@@ -2313,8 +2375,9 @@ int netopen(char *name, int *lcl, int nett) {
     errno = 0; /* (rather than mislead) */
     return (-1);
   } else {
-    if (!ckstrcmp(namecopy, namecopy2, -1, 0))
+    if (!ckstrcmp(namecopy, namecopy2, -1, 0)) {
       namecopy2[0] = '\0';
+    }
     ckstrncpy(svcbuf, ckuitoa(ntohs(service->s_port)), sizeof(svcbuf));
     debug(F110, "netopen service ok", svcbuf, 0);
   }
@@ -2350,8 +2413,9 @@ int netopen(char *name, int *lcl, int nett) {
     ckstrncpy(namecopy, tcp_http_proxy, NAMECPYL);
 
     p = namecopy; /* Was a service requested? */
-    while (*p != '\0' && *p != ':')
-      p++;           /* Look for colon */
+    while (*p != '\0' && *p != ':') {
+      p++; /* Look for colon */
+    }
     if (*p == ':') { /* Have a colon */
       debug(F110, "netopen name has colon", namecopy, 0);
       *p++ = '\0'; /* Get service name or number */
@@ -2442,8 +2506,9 @@ int netopen(char *name, int *lcl, int nett) {
 #ifdef HADDRLIST
 #ifdef h_addr
       /* This is for trying multiple IP addresses - see <netdb.h> */
-      if (!(host->h_addr_list))
+      if (!(host->h_addr_list)) {
         return (-1);
+      }
       bcopy(host->h_addr_list[0], (caddr_t)&r_addr.sin_addr, host->h_length);
 #else
       bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
@@ -2522,8 +2587,9 @@ int netopen(char *name, int *lcl, int nett) {
       static unsigned short lport = 1024; /* max reserved port */
 
       lport--; /* Make sure we do not reuse a port */
-      if (lport == 512)
+      if (lport == 512) {
         lport = 1023;
+      }
 
       sin.sin_family = AF_INET;
       if (tcp_address) {
@@ -2533,12 +2599,14 @@ int netopen(char *name, int *lcl, int nett) {
 #else
         sin.sin_addr.s_addr = inet_addr(tcp_address);
 #endif /* INADDRX */
-      } else
+      } else {
         sin.sin_addr.s_addr = INADDR_ANY;
+      }
       while (1) {
         sin.sin_port = htons(lport);
-        if (bind(ttyfd, (struct sockaddr *)&sin, sizeof(sin)) >= 0)
+        if (bind(ttyfd, (struct sockaddr *)&sin, sizeof(sin)) >= 0) {
           break;
+        }
         if (errno != EADDRINUSE) {
           debug(F101, "rlogin bind errno", "", errno);
           perror("rlogin bind");
@@ -2630,8 +2698,9 @@ int netopen(char *name, int *lcl, int nett) {
       ttnproto = NP_NONE;
       errno = i; /* And report this error */
       debug(F101, "netopen connect errno", "", errno);
-      if (!quiet)
+      if (!quiet) {
         perror("Failed");
+      }
       return (-1);
     }
     isconnect = 1;
@@ -2663,8 +2732,9 @@ int netopen(char *name, int *lcl, int nett) {
 
     ckstrncpy(namecopy, proxycopy, NAMECPYL);
     p = namecopy; /* Was a service requested? */
-    while (*p != '\0' && *p != ':')
+    while (*p != '\0' && *p != ':') {
       p++; /* Look for colon */
+    }
     *p = '\0';
   }
 #endif /* NOHTTP */
@@ -2681,8 +2751,9 @@ int netopen(char *name, int *lcl, int nett) {
   if (x == TELNET_PORT) {
     /* Yes, so if raw port not requested */
     /* fdc 2005/12/04 */
-    if (ttnproto != NP_TCPRAW && ttnproto != NP_NONE)
+    if (ttnproto != NP_TCPRAW && ttnproto != NP_NONE) {
       ttnproto = NP_TELNET; /* Select TELNET protocol. */
+    }
   }
 #ifdef RLOGCODE
   else if (x == RLOGIN_PORT) {
@@ -2691,8 +2762,9 @@ int netopen(char *name, int *lcl, int nett) {
 #endif /* RLOGCODE */
 #ifdef IKS_OPTION
   else if (x == KERMIT_PORT) { /* IKS uses Telnet protocol */
-    if (ttnproto == NP_NONE)
+    if (ttnproto == NP_NONE) {
       ttnproto = NP_KERMIT;
+    }
   }
 #endif /* IKS_OPTION */
 
@@ -2728,8 +2800,9 @@ int netopen(char *name, int *lcl, int nett) {
 */
 #ifdef RLOGCODE
 #ifdef TCPIPLIB
-  if (ttnproto == NP_RLOGIN)
+  if (ttnproto == NP_RLOGIN) {
     on = 0;
+  }
 #else  /* TCPIPLIB */
   if (ttnproto == NP_RLOGIN) {
     debug(F100, "Installing rlogoobh on SIGURG", "", 0);
@@ -2836,14 +2909,16 @@ int netopen(char *name, int *lcl, int nett) {
       if (!*s) { /* No name so substitute the address */
         debug(F100, "netopen host->h_name is empty", "", 0);
         s = inet_ntoa(r_addr.sin_addr); /* Convert address to string */
-        if (!s)                         /* Trust No 1 */
+        if (!s) {                       /* Trust No 1 */
           s = "";
+        }
         if (*s) { /* If it worked, use this string */
           ckstrncpy(ipaddr, s, 20);
         }
         s = ipaddr;     /* Otherwise stick with the IP */
-        if (!*s)        /* or failing that */
+        if (!*s) {      /* or failing that */
           s = namecopy; /* the name we were called with. */
+        }
       }
       if (*s) {                 /* Copying into our argument? */
         ckstrncpy(name, s, 80); /* Bad Bad Bad */
@@ -2870,13 +2945,16 @@ int netopen(char *name, int *lcl, int nett) {
 #endif /* BETADEBUG */
       }
     } else {
-      if (!quiet)
+      if (!quiet) {
         printf("Failed.\n");
+      }
     }
-  } else if (!quiet)
+  } else if (!quiet) {
     printf("(OK)\n");
-  if (!quiet)
+  }
+  if (!quiet) {
     fflush(stdout);
+  }
 
   /* This should already have been done but just in case */
   ckstrncpy(ipaddr, (char *)inet_ntoa(r_addr.sin_addr), 20);
@@ -2907,9 +2985,11 @@ int netopen(char *name, int *lcl, int nett) {
   debug(F110, "netopen ipaddr", ipaddr, 0);
   ckstrncpy(hostipaddr, ipaddr, 63);
 
-  if (lcl)
-    if (*lcl < 0) /* Local mode. */
+  if (lcl) {
+    if (*lcl < 0) { /* Local mode. */
       *lcl = 1;
+    }
+  }
 #endif /* TCPSOCKET */
   return (0); /* Done. */
 }
@@ -2925,15 +3005,18 @@ int netclos() {
   debug(F101, "netclos", "", ttyfd);
 
 #ifdef NETLEBUF
-  if (!tt_push_inited)
+  if (!tt_push_inited) {
     le_init();
+  }
 #endif /* NETLEBUF */
 
-  if (ttyfd == -1) /* Was open? */
-    return (0);    /* Wasn't. */
+  if (ttyfd == -1) { /* Was open? */
+    return (0);      /* Wasn't. */
+  }
 
-  if (close_in_progress)
+  if (close_in_progress) {
     return (0);
+  }
   close_in_progress = 1; /* Remember */
 
 #ifndef NOLOCAL
@@ -3036,11 +3119,13 @@ nettchk() { /* for reading from network */
 #ifdef NETLEBUF
   {
     int n = 0;
-    if (ttpush >= 0)
+    if (ttpush >= 0) {
       n++;
+    }
     n += le_inbuf();
-    if (n > 0)
+    if (n > 0) {
       return (n);
+    }
   }
 #endif /* NETLEBUF */
 
@@ -3214,10 +3299,12 @@ void donetinc(void *threadinfo)
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
   while (1) {
-    if (ttbufr() < 0) /* Keep trying to refill it. */
-      break;          /* Till we get an error. */
-    if (ttibn > 0)    /* Or we get a character. */
+    if (ttbufr() < 0) { /* Keep trying to refill it. */
+      break;            /* Till we get an error. */
+    }
+    if (ttibn > 0) { /* Or we get a character. */
       break;
+    }
   }
 }
 #endif /* TCPIPLIB */
@@ -3243,10 +3330,11 @@ int netxin(int n, CHAR *buf) {
   }
 
 #ifdef TCPIPLIB
-  if (ttibn == 0)
+  if (ttibn == 0) {
     if ((rc = ttbufr()) <= 0) {
       return (rc);
     }
+  }
 
   if (ttibn <= n) {
     len = ttibn;
@@ -3262,10 +3350,11 @@ int netxin(int n, CHAR *buf) {
 #else  /* TCPIPLIB */
   for (i = 0; i < n; i++) {
     if ((j = netinc(0)) < 0) {
-      if (j < -1)
+      if (j < -1) {
         return (j);
-      else
+      } else {
         break;
+      }
     }
     buf[i] = j;
   }
@@ -3319,11 +3408,12 @@ int netinc(int timo) {
     debug(F101, "netinc goes to net, timo", "", timo);
 #endif /* DEBUG */
 #ifndef LEBUF
-    if (timo == 0) {      /* Untimed case. */
-      while (1) {         /* Wait forever if necessary. */
-        if (ttbufr() < 0) /* Refill buffer. */
-          break;          /* Error, fail. */
-        if (ttibn > 0) {  /* Success. */
+    if (timo == 0) {        /* Untimed case. */
+      while (1) {           /* Wait forever if necessary. */
+        if (ttbufr() < 0) { /* Refill buffer. */
+          break;            /* Error, fail. */
+        }
+        if (ttibn > 0) { /* Success. */
           x = 0;
           break;
         }
@@ -3344,10 +3434,11 @@ int netinc(int timo) {
         FD_ZERO(&rfds);
         FD_SET(ttyfd, &rfds);
         tv.tv_sec = tv.tv_usec = 0L;
-        if (timo)
+        if (timo) {
           tv.tv_usec = (long)100000L;
-        else
+        } else {
           tv.tv_sec = 30;
+        }
         rc = select(FD_SETSIZE,
 #ifdef __DECC
 #ifdef INTSELECT
@@ -3463,15 +3554,17 @@ int netinc(int timo) {
       SOCKET socket = ttyfd;
       debug(F101, "netinc NTSELECT", "", timo);
       if (setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timo,
-                     sizeof(timo)) == NO_ERROR)
+                     sizeof(timo)) == NO_ERROR) {
         while (1) {
-          if (ttbufr() < 0) /* Keep trying to refill it. */
-            break;          /* Till we get an error. */
-          if (ttibn > 0) {  /* Or we get a character. */
+          if (ttbufr() < 0) { /* Keep trying to refill it. */
+            break;            /* Till we get an error. */
+          }
+          if (ttibn > 0) { /* Or we get a character. */
             x = 0;
             break;
           }
         }
+      }
 #else  /* WINSOCK */
       /*
         If we can't use select(), then we use the regular alarm()/signal()
@@ -3571,8 +3664,9 @@ nettol_retry:
     }
     if (!FD_ISSET(ttyfd, &wfds)) {
 #ifdef STREAMING
-      if (streaming)
+      if (streaming) {
         goto do_select;
+      }
 #endif /* STREAMING */
       debug(F111, "nettol", "!FD_ISSET", ttyfd);
       return (-1);
@@ -3619,8 +3713,9 @@ nettol_retry:
       debug(F111, "nettol socket_write", s, count);
       return (len); /* success - return total length */
     }
-  } else
+  } else {
     return (-2);
+  }
 #else
   debug(F100, "nettol TCPIPLIB not defined", "", 0);
   return (-2);
@@ -3679,8 +3774,9 @@ int nettoc(CHAR c)
     }
     if (!FD_ISSET(ttyfd, &wfds)) {
 #ifdef STREAMING
-      if (streaming)
+      if (streaming) {
         goto do_select;
+      }
 #endif /* STREAMING */
       debug(F111, "nettoc", "!FD_ISSET", ttyfd);
       return (-1);
@@ -3711,8 +3807,9 @@ int nettoc(CHAR c)
     }
     debug(F101, "nettoc socket_write", "", cc);
     return (0);
-  } else
+  } else {
     return (-2);
+  }
 #else
   return (-2);
 #endif /* TCPIPLIB */
@@ -3749,17 +3846,19 @@ int netflui() {
 #ifdef TNCODE
   if (ttnproto == NP_TELNET) {
     /* Netflui must process Telnet negotiations or get out of sync */
-    if ((n = nettchk()) <= 0)
+    if ((n = nettchk()) <= 0) {
       goto exit_flui;
+    }
     while (n-- > 0) {
       ch = netinc(1);
       if (ch == IAC) {
         extern int duplex; /* this really shouldn't be here but ... */
         int tx = tn_doop((CHAR)(ch & 0xff), duplex, netgetct);
-        if (tx == 1)
+        if (tx == 1) {
           duplex = 1;
-        else if (tx == 2)
+        } else if (tx == 2) {
           duplex = 0;
+        }
         n = nettchk();
       }
     }
@@ -3769,36 +3868,42 @@ int netflui() {
     ttibuf[ttibp + ttibn] = '\0';
     debug(F111, "netflui 1", ttibuf, ttibn);
     ttibn = ttibp = 0; /* Flush internal buffer *FIRST* */
-    if (ttyfd < 1)
+    if (ttyfd < 1) {
       goto exit_flui;
+    }
     if ((n = nettchk()) > 0) { /* Now see what's waiting on the net */
-      if (n > TTIBUFL)
-        n = TTIBUFL;                     /* and sponge it up */
+      if (n > TTIBUFL) {
+        n = TTIBUFL; /* and sponge it up */
+      }
       debug(F101, "netflui 2", "", n);   /* ... */
       n = socket_read(ttyfd, ttibuf, n); /* into our buffer */
-      if (n >= 0)
+      if (n >= 0) {
         ttibuf[n] = '\0';
+      }
       debug(F111, "netflui 3", ttibuf, n);
       ttibuf[0] = '\0';
     }
   }
 #else  /* !TCPIPLIB */
-  if (ttyfd < 1)
+  if (ttyfd < 1) {
     goto exit_flui;
+  }
 #ifdef TNCODE
   if (ttnproto == NP_TELNET) {
-    if ((n = ttchk()) <= 0)
+    if ((n = ttchk()) <= 0) {
       goto exit_flui;
+    }
     while (n-- >= 0) {
       /* Netflui must process Telnet negotiations or get out of sync */
       ch = ttinc(1);
       if (ch == IAC) {
         extern int duplex; /* this really shouldn't be here but ... */
         int tx = tn_doop((CHAR)(ch & 0xff), duplex, netgetct);
-        if (tx == 1)
+        if (tx == 1) {
           duplex = 1;
-        else if (tx == 2)
+        } else if (tx == 2) {
           duplex = 0;
+        }
         n = ttchk();
       }
     };
@@ -3942,8 +4047,9 @@ int getlocalipaddrs(char *buf, int bufsz, int index) {
       debug(F110, "getlocalipaddrs setting buf to", buf, 0);
 #endif /* HADDRLIST */
       return (0);
-    } else
+    } else {
       debug(F110, "getlocalipaddrs: gethostbyname() failed", localhost, 0);
+    }
   }
   return (-1);
 }
@@ -3956,12 +4062,15 @@ int rlog_naws(void) {
     unsigned short rows, cols, ypix, xpix;
   } nawsbuf;
 
-  if (ttnet != NET_TCPB)
+  if (ttnet != NET_TCPB) {
     return 0;
-  if (ttnproto != NP_RLOGIN)
+  }
+  if (ttnproto != NP_RLOGIN) {
     return 0;
-  if (!TELOPT_ME(TELOPT_NAWS))
+  }
+  if (!TELOPT_ME(TELOPT_NAWS)) {
     return 0;
+  }
 
   debug(F100, "rlogin Window Size sent", "", 0);
 
@@ -3972,8 +4081,9 @@ int rlog_naws(void) {
   nawsbuf.ypix = htons(0); /* y pixels */
 
   nawsbuf.xpix = htons(0); /* x pixels */
-  if (ttol((CHAR *)(&nawsbuf), sizeof(nawsbuf)) < 0)
+  if (ttol((CHAR *)(&nawsbuf), sizeof(nawsbuf)) < 0) {
     return (-1);
+  }
   return (0);
 }
 #endif /* CK_NAWS */
@@ -4032,16 +4142,17 @@ static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
   localuser[0] = '\0';
   {
     char *user = getenv("USER");
-    if (!user)
+    if (!user) {
       user = "";
+    }
     userlen = strlen(user);
     debug(F111, "rlogin getenv(USER)", user, userlen);
     ckstrncpy((char *)localuser, user, UIDBUFLEN);
     debug(F110, "rlog_ini localuser 1", localuser, 0);
   }
-  if (!localuser[0])
+  if (!localuser[0]) {
     strcpy((char *)localuser, "unknown");
-  else if (ck_lcname) {
+  } else if (ck_lcname) {
     cklower((char *)localuser);
     debug(F110, "rlog_ini localuser 2", localuser, 0);
   }
@@ -4057,8 +4168,9 @@ static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
     remoteuser[0] = '\0';
     debug(F110, "rlog_ini remoteuser 3", remoteuser, 0);
   }
-  if (ck_lcname)
+  if (ck_lcname) {
     cklower((char *)remoteuser);
+  }
   debug(F110, "rlog_ini remoteuser 4", remoteuser, 0);
 
   /* The command to issue is the terminal type and speed */
@@ -4072,18 +4184,21 @@ static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
     /* In the others, we just look at the TERM environment variable */
     {
       char *p = getenv("TERM");
-      if (p)
+      if (p) {
         ckstrncpy((char *)term_speed, p, TERMLEN);
-      else
+      } else {
         term_speed[0] = '\0';
+      }
     }
   }
   n = strlen((char *)term_speed);
-  if (n > 0) {                /* We have a terminal type */
-    if (!flag) {              /* If not user-specified */
-      for (i = 0; i < n; i++) /* then lowercase it.    */
-        if (isupper(term_speed[i]))
+  if (n > 0) {                  /* We have a terminal type */
+    if (!flag) {                /* If not user-specified */
+      for (i = 0; i < n; i++) { /* then lowercase it.    */
+        if (isupper(term_speed[i])) {
           term_speed[i] = tolower(term_speed[i]);
+        }
+      }
     }
     debug(F110, "rlog_ini term_speed 1", term_speed, 0);
 
@@ -4124,10 +4239,12 @@ static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
     ttoc(0); /* Send an initial NUL as wake-up */
     /* Send each variable with the trailing NUL */
     rc = ttol(localuser, strlen((char *)localuser) + 1);
-    if (rc > 0)
+    if (rc > 0) {
       rc = ttol(remoteuser, strlen((char *)remoteuser) + 1);
-    if (rc > 0)
+    }
+    if (rc > 0) {
       rc = ttol(term_speed, strlen((char *)term_speed) + 1);
+    }
 #endif /* RLOGOUTBUF */
 
     /* Now we are supposed to get back a single NUL as confirmation */
@@ -4158,8 +4275,9 @@ static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
 
 int rlog_ctrl(unsigned char *cp, int n) {
   if ((n >= 5) && (cp[2] == 'o') && (cp[3] == 'o')) {
-    if (rlog_oob(&cp[4], 1))
+    if (rlog_oob(&cp[4], 1)) {
       return (-5);
+    }
     return (5);
   } else if ((n >= 4) && (cp[2] == 'q') && (cp[3] == 'q')) {
     /* this is somewhat of a hack */
@@ -4178,8 +4296,9 @@ static int rlog_oob(CHAR *oobdata, int count) {
 
   for (i = 0; i < count; i++) {
     debug(F101, "rlogin out_of_band", "", oobdata[i]);
-    if (oobdata[i] & 0x01)
+    if (oobdata[i] & 0x01) {
       continue;
+    }
 
     if (oobdata[i] & 0x02) { /* Flush Buffered Data not yet displayed */
       debug(F101, "rlogin Flush Buffered Data command", "", oobdata[i]);
@@ -4190,10 +4309,11 @@ static int rlog_oob(CHAR *oobdata, int count) {
       case W_NOTHING:
       case W_CONNECT:
       case W_COMMAND:
-        if (rlog_inband)
+        if (rlog_inband) {
           flush = 1;
-        else
+        } else {
           ttflui();
+        }
         break;
       }
     }
@@ -4274,14 +4394,16 @@ int netbreak() {
       buf[0] = (CHAR)IAC;
       buf[1] = (CHAR)BREAK;
       buf[2] = (CHAR)0;
-      if (ttol(buf, 2) < 2)
+      if (ttol(buf, 2) < 2) {
         return (-1);
+      }
       if (tn_deb || debses || deblog) {
         extern char tn_msg[];
         ckmakmsg(tn_msg, TN_MSG_LEN, "TELNET SENT ", TELCMD(BREAK), NULL, NULL);
         debug(F101, tn_msg, "", BREAK);
-        if (debses || tn_deb)
+        if (debses || tn_deb) {
           tn_debug(tn_msg);
+        }
       }
       return (1);
 #else
@@ -4572,10 +4694,12 @@ int expected;         /* expected primitive type */
           /* data received. May be incomplete, even though
            * getmsg returned OK
            */
-          if (result->data_ind.DATA_xfer_flags & N_MORE_DATA_FLAG)
+          if (result->data_ind.DATA_xfer_flags & N_MORE_DATA_FLAG) {
             more |= MOREDATA;
-          if (result->data_ind.DATA_xfer_flags & N_RC_FLAG)
+          }
+          if (result->data_ind.DATA_xfer_flags & N_RC_FLAG) {
             printf("x25getmsg(): data packet wants ack\n");
+          }
         }
       } else if (packet_type == N_DISCON_IND) {
         printf("X25 diconnected\n");
@@ -4602,8 +4726,9 @@ int expected;         /* expected primitive type */
 
   /* return the file status to its original value, unless its still
    * set to -1, or one of the fcntl's failed */
-  if ((file_status >= 0) && fcntl(fd, F_SETFL, file_status) < 0)
+  if ((file_status >= 0) && fcntl(fd, F_SETFL, file_status) < 0) {
     rc = -1;
+  }
 
   /*
    * Verify that we received an expected primitive
@@ -4842,8 +4967,9 @@ ulong bind_flags;      /* 0, DEFAULT_LISTENER or TOKEN_REQUEST */
   *addtl_info++ = (char)0;           /* X.121 format */
   bcopy(addr, addtl_info, addr_len); /* include trailing null */
   addtl_info += addr_len;
-  if (cud_len > 0)
+  if (cud_len > 0) {
     bcopy(cud, addtl_info, cud_len);
+  }
   /*
    * Call putmsg() to put the bind request message on the stream
    */
@@ -4875,8 +5001,9 @@ ulong bind_flags;      /* 0, DEFAULT_LISTENER or TOKEN_REQUEST */
                         (N_npi_data_t *)NULL, 0, &get_flags, N_BIND_ACK);
 
   /* turn quantitive return code into a qualitative one */
-  if (rc > 0)
+  if (rc > 0) {
     rc = 0;
+  }
 
   /* if all went well, get the token from the acknowledgement packet */
   if ((bind_flags & TOKEN_REQUEST) && (rc >= 0)) {
@@ -5027,8 +5154,9 @@ char *cud;        /* call user data */
                  conncon_data, NPI_MAX_DATA, &get_flags, N_CONN_CON);
 
   /* turn quantitive return code into a qualitative one */
-  if (rc > 0)
+  if (rc > 0) {
     rc = 0;
+  }
 
   /* Free the space that we no longer need */
   if (connreq_ctl) {
@@ -6172,8 +6300,9 @@ time_t http_date(char *date)
     */
     char *dp;
     dp = (char *)cmcvtdate(ldate, 0); /* Convert to normal form */
-    if (!dp)
+    if (!dp) {
       return (0);
+    }
     t_tm = *cmdate2tm(dp, 1);
   }
 /*
@@ -6292,8 +6421,9 @@ static int http_mkarray(char **resp, int n, char array) {
   extern char **a_ptr[];
   extern int a_dim[];
 
-  if (!array || n <= 0)
+  if (!array || n <= 0) {
     return (0);
+  }
   if ((x = dclarray(array, n)) < 0) {
     printf("?Array declaration failure\n");
     return (-9);
@@ -6321,11 +6451,13 @@ int http_get_chunk_len() {
 
   while ((ch = http_inc(0)) >= 0 && i < 24) {
     buf[i] = ch;
-    if (buf[i] == ';') /* Find chunk-extension (if any) */
+    if (buf[i] == ';') { /* Find chunk-extension (if any) */
       j = i;
+    }
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
+      }
       buf[i] = '\0';
       break;
     }
@@ -6343,8 +6475,9 @@ int http_isconnected() { return (httpfd != -1); }
 char *http_host() { return (httpfd != -1 ? http_host_port : ""); }
 
 char *http_security() {
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return ("NULL");
+  }
   return ("NULL");
 }
 
@@ -6355,8 +6488,9 @@ int http_reopen() {
     char *p;
     makestr(&s, (char *)http_host_port);
     p = s;
-    while (*p != '\0' && *p != ':')
-      p++;           /* Look for colon */
+    while (*p != '\0' && *p != ':') {
+      p++; /* Look for colon */
+    }
     if (*p == ':') { /* Have a colon */
       *p++ = '\0';   /* Get service name or number */
     } else {
@@ -6402,8 +6536,9 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
 #endif /* INADDR_NONE */
 #endif /* INADDRX */
 
-  if (rdns_name == NULL || rdns_len < 0)
+  if (rdns_name == NULL || rdns_len < 0) {
     rdns_len = 0;
+  }
 
   *http_ip = '\0'; /* Initialize IP address string */
   namecopy[0] = '\0';
@@ -6414,18 +6549,22 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
     debug(F110, "http_open svcname", svcname, 0);
   }
 #endif /* DEBUG */
-  if (!hostname)
+  if (!hostname) {
     hostname = "";
-  if (!svcname)
+  }
+  if (!svcname) {
     svcname = "";
-  if (!*hostname || !*svcname)
+  }
+  if (!*hostname || !*svcname) {
     return (-1);
+  }
 
   service = ckgetservice(hostname, svcname, http_ip, 20);
 
   if (service == NULL) {
-    if (!quiet)
+    if (!quiet) {
       printf("?Invalid service: %s\r\n", svcname);
+    }
     return (-1);
   }
 
@@ -6454,8 +6593,9 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
     ckstrncpy(namecopy, tcp_http_proxy, NAMECPYL);
 
     p = namecopy; /* Was a service requested? */
-    while (*p != '\0' && *p != ':')
-      p++;           /* Look for colon */
+    while (*p != '\0' && *p != ':') {
+      p++; /* Look for colon */
+    }
     if (*p == ':') { /* Have a colon */
       debug(F110, "http_open name has colon", namecopy, 0);
       *p++ = '\0'; /* Get service name or number */
@@ -6476,8 +6616,9 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
      */
     ckstrncpy(namecopy, tcp_http_proxy, NAMECPYL);
     p = namecopy; /* Was a service requested? */
-    while (*p != '\0' && *p != ':')
-      p++;           /* Look for colon */
+    while (*p != '\0' && *p != ':') {
+      p++; /* Look for colon */
+    }
     if (*p == ':') { /* Have a colon */
       *p = '\0';     /* terminate string */
     }
@@ -6539,14 +6680,16 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
       dns = 1; /* Remember we performed dns lookup */
       r_addr.sin_family = host->h_addrtype;
       if (tcp_rdns && host->h_name && host->h_name[0] && (rdns_len > 0) &&
-          (tcp_http_proxy == NULL))
+          (tcp_http_proxy == NULL)) {
         ckmakmsg(rdns_name, rdns_len, host->h_name, ":", svcname, NULL);
+      }
 
 #ifdef HADDRLIST
 #ifdef h_addr
       /* This is for trying multiple IP addresses - see <netdb.h> */
-      if (!(host->h_addr_list))
+      if (!(host->h_addr_list)) {
         return (-1);
+      }
       bcopy(host->h_addr_list[0], (caddr_t)&r_addr.sin_addr, host->h_length);
 #else
       bcopy(host->h_addr, (caddr_t)&r_addr.sin_addr, host->h_length);
@@ -6671,8 +6814,9 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
       httpfd = -1;
       errno = i; /* And report this error */
       debug(F101, "http_open connect errno", "", errno);
-      if (!quiet)
+      if (!quiet) {
         perror("Failed");
+      }
       return (-1);
     }
     isconnect = 1;
@@ -6690,8 +6834,9 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
   /* connection to the actual host.                                  */
 
   if (tcp_http_proxy) {
-    if (!agent)
+    if (!agent) {
       agent = "C-Kermit";
+    }
 
     if (http_connect(
             httpfd, tcp_http_proxy_agent ? tcp_http_proxy_agent : agent, NULL,
@@ -6771,17 +6916,20 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
       if (!*s) { /* No name so substitute the address */
         debug(F100, "http_open host->h_name is empty", "", 0);
         s = inet_ntoa(r_addr.sin_addr); /* Convert address to string */
-        if (!s)                         /* Trust No 1 */
+        if (!s) {                       /* Trust No 1 */
           s = "";
+        }
         if (*s) { /* If it worked, use this string */
           ckstrncpy(http_ip, s, 20);
         }
         s = http_ip;          /* Otherwise stick with the IP */
-        if (!*s)              /* or failing that */
+        if (!*s) {            /* or failing that */
           s = http_host_port; /* the name we were called with. */
+        }
       }
-      if (*s) /* return the rdns name */
+      if (*s) { /* return the rdns name */
         ckmakmsg(rdns_name, rdns_len, s, ":", svcname, NULL);
+      }
 
       if (!quiet && *s
 #ifndef NOICP
@@ -6802,13 +6950,16 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
 #endif /* BETADEBUG */
       }
     } else {
-      if (!quiet)
+      if (!quiet) {
         printf("Failed.\n");
+      }
     }
-  } else if (!quiet)
+  } else if (!quiet) {
     printf("(OK)\n");
-  if (!quiet)
+  }
+  if (!quiet) {
     fflush(stdout);
+  }
 
   if (tcp_http_proxy) {
     /* Erase the IP address since we cannot reuse it */
@@ -6833,8 +6984,9 @@ int http_close(void) {
   http_bufp = 0;
 #endif /* HTTP_BUFFERING */
 
-  if (httpfd == -1) /* Was open? */
-    return (0);     /* Wasn't. */
+  if (httpfd == -1) { /* Was open? */
+    return (0);       /* Wasn't. */
+  }
 
   if (httpfd > -1) /* Was. */
   {
@@ -6900,8 +7052,9 @@ http_tol_retry:
     }
     if (!FD_ISSET(httpfd, &wfds)) {
 #ifdef STREAMING
-      if (streaming)
+      if (streaming) {
         goto do_select;
+      }
 #endif /* STREAMING */
       debug(F111, "http_tol", "!FD_ISSET", ttyfd);
       return (-1);
@@ -6969,8 +7122,9 @@ int http_inc(int timo) {
 
 #ifdef HTTP_BUFFERING
   /* Skip all the select() stuff if we have bytes buffered locally */
-  if (http_count > 0)
+  if (http_count > 0) {
     goto getfrombuffer;
+  }
 #endif /* HTTP_BUFFERING */
 
   {
@@ -6987,10 +7141,11 @@ int http_inc(int timo) {
       FD_ZERO(&rfds);
       FD_SET(httpfd, &rfds);
       tv.tv_sec = tv.tv_usec = 0L;
-      if (timo)
+      if (timo) {
         tv.tv_usec = (long)100000L;
-      else
+      } else {
         tv.tv_sec = 30;
+      }
       rc = select(FD_SETSIZE,
 #ifndef __DECC
                   (fd_set *)
@@ -7005,8 +7160,9 @@ int http_inc(int timo) {
         http_count = 0;
         http_bufp = 0;
 #endif /* HTTP_BUFFERING */
-        if (s_errno)
+        if (s_errno) {
           return (-1);
+        }
       }
       debug(F111, "http_inc", "select", rc);
       if (FD_ISSET(httpfd, &rfds)) {
@@ -7091,8 +7247,9 @@ getfrombuffer:
     x = nettchk();
     ttyfd = savefd;
     debug(F101, "http_inc nettchk", "", x);
-    if (x > HTTP_INBUFLEN)
+    if (x > HTTP_INBUFLEN) {
       x = HTTP_INBUFLEN;
+    }
 #ifdef TCPIPLIB
     x = socket_read(httpfd, http_inbuf, x);
 #else  /* Not TCPIPLIB */
@@ -7136,8 +7293,9 @@ void http_set_code_reply(char *msg) {
 
   http_code = atoi(buf);
 
-  while (*p == SP)
+  while (*p == SP) {
     p++;
+  }
 
   ckstrncpy(http_reply_str, p, HTTPBUFLEN);
 }
@@ -7179,15 +7337,18 @@ int http_get(char *agent, char **hdrlist, char *user, char *pwd, char array,
     debug(F110, "http_remote", remote, 0);
   }
 #endif /* DEBUG */
-  if (!remote)
+  if (!remote) {
     remote = "";
+  }
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
   len = 8; /* GET */
   len += strlen(HTTP_VERSION);
@@ -7195,13 +7356,15 @@ int http_get(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += (int)strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -7210,8 +7373,9 @@ int http_get(char *agent, char **hdrlist, char *user, char *pwd, char array,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd)); /* NOT PORTABLE */
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -7221,8 +7385,9 @@ int http_get(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 3; /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "GET %s %s\r\n", remote, HTTP_VERSION); /* safe */
   ckstrncat(request, "Host: ", len);
@@ -7269,19 +7434,23 @@ getreq:
   while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
     buf[i] = ch;
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
-      if (i < 1)
+      }
+      if (i < 1) {
         nullline = 1;
+      }
       buf[i] = '\0';
-      if (array && !nullline && hdcnt < HTTPHEADCNT)
+      if (array && !nullline && hdcnt < HTTPHEADCNT) {
         makestr(&headers[hdcnt++], buf);
+      }
       if (!ckstrcmp(buf, "HTTP", 4, 0)) {
         http_fnd = 1;
         j = ckindex(" ", buf, 0, 0, 0);
         p = &buf[j];
-        while (isspace(*p))
+        while (isspace(*p)) {
           p++;
+        }
         switch (p[0]) {
         case '1': /* Informational message */
           break;
@@ -7291,8 +7460,9 @@ getreq:
         case '4': /* Client failure */
         case '5': /* Server failure */
         default:  /* Unknown */
-          if (!quiet)
+          if (!quiet) {
             printf("Failure: Server reports %s\n", p);
+          }
           rc = -1;
           local = NULL;
         }
@@ -7304,13 +7474,15 @@ getreq:
         srv_t = http_date(&buf[4]);
 #endif /* CMDATE2TM */
       } else if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-        if (ckindex("close", buf, 11, 0, 0) != 0)
+        if (ckindex("close", buf, 11, 0, 0) != 0) {
           closecon = 1;
+        }
       } else if (!ckstrcmp(buf, "Content-Length:", 15, 0)) {
         len = atoi(&buf[16]);
       } else if (!ckstrcmp(buf, "Transfer-Encoding:", 18, 0)) {
-        if (ckindex("chunked", buf, 18, 0, 0) != 0)
+        if (ckindex("chunked", buf, 18, 0, 0) != 0) {
           chunked = 1;
+        }
         debug(F101, "http_get chunked", "", chunked);
       }
       i = 0;
@@ -7332,51 +7504,62 @@ getreq:
 
   /* Now we have the contents of the file */
   if (local && local[0]) {
-    if (zopeno(ZOFILE, local, NULL, NULL))
+    if (zopeno(ZOFILE, local, NULL, NULL)) {
       zfile = 1;
-    else
+    } else {
       rc = -1;
+    }
   }
 
   if (chunked) {
     while ((len = http_get_chunk_len()) > 0) {
       while (len && (ch = http_inc(0)) >= 0) {
         len--;
-        if (zfile)
+        if (zfile) {
           zchout(ZOFILE, (CHAR)ch);
-        if (stdio)
+        }
+        if (stdio) {
           conoc((CHAR)ch);
+        }
       }
-      if ((ch = http_inc(0)) != CK_CR)
+      if ((ch = http_inc(0)) != CK_CR) {
         break;
-      if ((ch = http_inc(0)) != LF)
+      }
+      if ((ch = http_inc(0)) != LF) {
         break;
+      }
     }
   } else {
     while (len && (ch = http_inc(0)) >= 0) {
       len--;
-      if (zfile)
+      if (zfile) {
         zchout(ZOFILE, (CHAR)ch);
-      if (stdio)
+      }
+      if (stdio) {
         conoc((CHAR)ch);
+      }
     }
   }
 
-  if (zfile)
+  if (zfile) {
     zclose(ZOFILE);
+  }
 
   if (chunked) { /* Parse Trailing Headers */
     nullline = 0;
     while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
       buf[i] = ch;
       if (buf[i] == 10) { /* found end of line */
-        if (i > 0 && buf[i - 1] == 13)
+        if (i > 0 && buf[i - 1] == 13) {
           i--;
-        if (i < 1)
+        }
+        if (i < 1) {
           nullline = 1;
+        }
         buf[i] = '\0';
-        if (array && !nullline && hdcnt < HTTPHEADCNT)
+        if (array && !nullline && hdcnt < HTTPHEADCNT) {
           makestr(&headers[hdcnt++], buf);
+        }
 #ifdef CMDATE2TM
         if (!ckstrcmp(buf, "Last-Modified", 13, 0)) {
           mod_t = http_date(&buf[15]);
@@ -7385,8 +7568,9 @@ getreq:
         }
 #endif /* CMDATE2TM */
         else if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         }
         i = 0;
       } else {
@@ -7414,15 +7598,18 @@ getreq:
   }
 
 getexit:
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
-  if (closecon)
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -7443,12 +7630,14 @@ int http_head(char *agent, char **hdrlist, char *user, char *pwd, char array,
   int closecon = 0;
   int first = 1;
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
   len = 9; /* HEAD */
   len += strlen(HTTP_VERSION);
@@ -7456,13 +7645,15 @@ int http_head(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -7471,8 +7662,9 @@ int http_head(char *agent, char **hdrlist, char *user, char *pwd, char array,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd)); /* NOT PORTABLE */
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -7482,8 +7674,9 @@ int http_head(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 3; /* blank line + null */
 
   request = (char *)malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "HEAD %s %s\r\n", remote, HTTP_VERSION);
   ckstrncat(request, "Host: ", len);
@@ -7537,19 +7730,23 @@ headreq:
   while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
     buf[i] = ch;
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
-      if (i < 1)
+      }
+      if (i < 1) {
         nullline = 1;
+      }
       buf[i] = '\0';
-      if (array && !nullline && hdcnt < HTTPHEADCNT)
+      if (array && !nullline && hdcnt < HTTPHEADCNT) {
         makestr(&headers[hdcnt++], buf);
+      }
       if (!ckstrcmp(buf, "HTTP", 4, 0)) {
         http_fnd = 1;
         j = ckindex(" ", buf, 0, 0, 0);
         p = &buf[j];
-        while (isspace(*p))
+        while (isspace(*p)) {
           p++;
+        }
         switch (p[0]) {
         case '1': /* Informational message */
           break;
@@ -7559,22 +7756,25 @@ headreq:
         case '4': /* Client failure */
         case '5': /* Server failure */
         default:  /* Unknown */
-          if (!quiet)
+          if (!quiet) {
             printf("Failure: Server reports %s\n", p);
+          }
           rc = -1;
         }
         http_set_code_reply(p);
       } else {
         if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         }
         if (local && local[0]) {
           zsout(ZOFILE, buf);
           zsout(ZOFILE, "\r\n");
         }
-        if (stdio)
+        if (stdio) {
           printf("%s\r\n", buf);
+        }
       }
       i = 0;
     } else {
@@ -7587,21 +7787,26 @@ headreq:
     http_reopen();
     goto headreq;
   }
-  if (http_fnd == 0)
+  if (http_fnd == 0) {
     rc = -1;
+  }
 
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
 headexit:
-  if (local && local[0])
+  if (local && local[0]) {
     zclose(ZOFILE);
-  if (closecon)
+  }
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -7624,12 +7829,14 @@ int http_index(char *agent, char **hdrlist, char *user, char *pwd, char array,
   int zfile = 0;
   int first = 1;
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
   len = 10; /* INDEX */
   len += strlen(HTTP_VERSION);
@@ -7637,13 +7844,15 @@ int http_index(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -7652,8 +7861,9 @@ int http_index(char *agent, char **hdrlist, char *user, char *pwd, char array,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd));
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -7663,8 +7873,9 @@ int http_index(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 3; /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "INDEX %s\r\n", HTTP_VERSION);
   ckstrncat(request, "Host: ", len);
@@ -7710,19 +7921,23 @@ indexreq:
   while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
     buf[i] = ch;
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
-      if (i < 1)
+      }
+      if (i < 1) {
         nullline = 1;
+      }
       buf[i] = '\0';
-      if (array && !nullline && hdcnt < HTTPHEADCNT)
+      if (array && !nullline && hdcnt < HTTPHEADCNT) {
         makestr(&headers[hdcnt++], buf);
+      }
       if (!ckstrcmp(buf, "HTTP", 4, 0)) {
         http_fnd = 1;
         j = ckindex(" ", buf, 0, 0, 0);
         p = &buf[j];
-        while (isspace(*p))
+        while (isspace(*p)) {
           p++;
+        }
         switch (p[0]) {
         case '1': /* Informational message */
           break;
@@ -7732,20 +7947,23 @@ indexreq:
         case '4': /* Client failure */
         case '5': /* Server failure */
         default:  /* Unknown */
-          if (!quiet)
+          if (!quiet) {
             printf("Failure: Server reports %s\n", p);
+          }
           rc = -1;
         }
         http_set_code_reply(p);
       } else if (!nullline) {
         if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         } else if (!ckstrcmp(buf, "Content-Length:", 15, 0)) {
           len = atoi(&buf[16]);
         } else if (!ckstrcmp(buf, "Transfer-Encoding:", 18, 0)) {
-          if (ckindex("chunked", buf, 18, 0, 0) != 0)
+          if (ckindex("chunked", buf, 18, 0, 0) != 0) {
             chunked = 1;
+          }
           debug(F101, "http_index chunked", "", chunked);
         }
         printf("%s\n", buf);
@@ -7770,54 +7988,66 @@ indexreq:
 
   /* Now we have the contents of the file */
   if (local && local[0]) {
-    if (zopeno(ZOFILE, local, NULL, NULL))
+    if (zopeno(ZOFILE, local, NULL, NULL)) {
       zfile = 1;
-    else
+    } else {
       rc = -1;
+    }
   }
 
   if (chunked) {
     while ((len = http_get_chunk_len()) > 0) {
       while (len && (ch = http_inc(0)) >= 0) {
         len--;
-        if (zfile)
+        if (zfile) {
           zchout(ZOFILE, (CHAR)ch);
-        if (stdio)
+        }
+        if (stdio) {
           conoc((CHAR)ch);
+        }
       }
-      if ((ch = http_inc(0)) != CK_CR)
+      if ((ch = http_inc(0)) != CK_CR) {
         break;
-      if ((ch = http_inc(0)) != LF)
+      }
+      if ((ch = http_inc(0)) != LF) {
         break;
+      }
     }
   } else {
     while (len && (ch = http_inc(0)) >= 0) {
       len--;
-      if (zfile)
+      if (zfile) {
         zchout(ZOFILE, (CHAR)ch);
-      if (stdio)
+      }
+      if (stdio) {
         conoc((CHAR)ch);
+      }
     }
   }
 
-  if (zfile)
+  if (zfile) {
     zclose(ZOFILE);
+  }
 
   if (chunked) { /* Parse Trailing Headers */
     nullline = 0;
     while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
       buf[i] = ch;
       if (buf[i] == 10) { /* found end of line */
-        if (i > 0 && buf[i - 1] == 13)
+        if (i > 0 && buf[i - 1] == 13) {
           i--;
-        if (i < 1)
+        }
+        if (i < 1) {
           nullline = 1;
+        }
         buf[i] = '\0';
-        if (array && !nullline && hdcnt < HTTPHEADCNT)
+        if (array && !nullline && hdcnt < HTTPHEADCNT) {
           makestr(&headers[hdcnt++], buf);
+        }
         if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         }
         i = 0;
       } else {
@@ -7828,15 +8058,18 @@ indexreq:
   rc = 0;
 
 indexexit:
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
-  if (closecon)
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -7860,24 +8093,31 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   int first = 1;
   int zfile = 0;
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
-  if (!mime)
+  }
+  if (!mime) {
     mime = "";
-  if (!remote)
+  }
+  if (!remote) {
     remote = "";
-  if (!local)
+  }
+  if (!local) {
     local = "";
-  if (!*local)
+  }
+  if (!*local) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
   filelen = zchki(local);
-  if (filelen < 0)
+  if (filelen < 0) {
     return (-1);
+  }
 
   /* Compute length of request header */
   len = 8; /* PUT */
@@ -7886,13 +8126,15 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -7901,8 +8143,9 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd));
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -7915,8 +8158,9 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   len += 3; /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "PUT %s %s\r\n", remote, HTTP_VERSION);
   ckstrncat(request, "Date: ", len);
@@ -8007,19 +8251,23 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
     while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
       buf[i] = ch;
       if (buf[i] == 10) { /* found end of line */
-        if (i > 0 && buf[i - 1] == 13)
+        if (i > 0 && buf[i - 1] == 13) {
           i--;
-        if (i < 1)
+        }
+        if (i < 1) {
           nullline = 1;
+        }
         buf[i] = '\0';
-        if (array && !nullline && hdcnt < HTTPHEADCNT)
+        if (array && !nullline && hdcnt < HTTPHEADCNT) {
           makestr(&headers[hdcnt++], buf);
+        }
         if (!ckstrcmp(buf, "HTTP", 4, 0)) {
           http_fnd = 1;
           j = ckindex(" ", buf, 0, 0, 0);
           p = &buf[j];
-          while (isspace(*p))
+          while (isspace(*p)) {
             p++;
+          }
           switch (p[0]) {
           case '1': /* Informational message */
             break;
@@ -8029,24 +8277,28 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
           case '4': /* Client failure */
           case '5': /* Server failure */
           default:  /* Unknown */
-            if (!quiet)
+            if (!quiet) {
               printf("Failure: Server reports %s\n", p);
+            }
             rc = -1;
           }
           http_set_code_reply(p);
         } else {
           if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-            if (ckindex("close", buf, 11, 0, 0) != 0)
+            if (ckindex("close", buf, 11, 0, 0) != 0) {
               closecon = 1;
+            }
           } else if (!ckstrcmp(buf, "Content-Length:", 15, 0)) {
             len = atoi(&buf[16]);
           } else if (!ckstrcmp(buf, "Transfer-Encoding:", 18, 0)) {
-            if (ckindex("chunked", buf, 18, 0, 0) != 0)
+            if (ckindex("chunked", buf, 18, 0, 0) != 0) {
               chunked = 1;
+            }
             debug(F101, "http_put chunked", "", chunked);
           }
-          if (stdio)
+          if (stdio) {
             printf("%s\n", buf);
+          }
         }
         i = 0;
       } else {
@@ -8067,54 +8319,66 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
 
     /* Any response data? */
     if (dest && dest[0]) {
-      if (zopeno(ZOFILE, dest, NULL, NULL))
+      if (zopeno(ZOFILE, dest, NULL, NULL)) {
         zfile = 1;
-      else
+      } else {
         rc = -1;
+      }
     }
 
     if (chunked) {
       while ((len = http_get_chunk_len()) > 0) {
         while (len && (ch = http_inc(0)) >= 0) {
           len--;
-          if (zfile)
+          if (zfile) {
             zchout(ZOFILE, (CHAR)ch);
-          if (stdio)
+          }
+          if (stdio) {
             conoc((CHAR)ch);
+          }
         }
-        if ((ch = http_inc(0)) != CK_CR)
+        if ((ch = http_inc(0)) != CK_CR) {
           break;
-        if ((ch = http_inc(0)) != LF)
+        }
+        if ((ch = http_inc(0)) != LF) {
           break;
+        }
       }
     } else {
       while (len && (ch = http_inc(0)) >= 0) {
         len--;
-        if (zfile)
+        if (zfile) {
           zchout(ZOFILE, (CHAR)ch);
-        if (stdio)
+        }
+        if (stdio) {
           conoc((CHAR)ch);
+        }
       }
     }
 
-    if (zfile)
+    if (zfile) {
       zclose(ZOFILE);
+    }
 
     if (chunked) { /* Parse Trailing Headers */
       nullline = 0;
       while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
         buf[i] = ch;
         if (buf[i] == 10) { /* found end of line */
-          if (i > 0 && buf[i - 1] == 13)
+          if (i > 0 && buf[i - 1] == 13) {
             i--;
-          if (i < 1)
+          }
+          if (i < 1) {
             nullline = 1;
+          }
           buf[i] = '\0';
-          if (array && !nullline && hdcnt < HTTPHEADCNT)
+          if (array && !nullline && hdcnt < HTTPHEADCNT) {
             makestr(&headers[hdcnt++], buf);
+          }
           if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-            if (ckindex("close", buf, 11, 0, 0) != 0)
+            if (ckindex("close", buf, 11, 0, 0) != 0) {
               closecon = 1;
+            }
           }
           i = 0;
         } else {
@@ -8127,15 +8391,18 @@ int http_put(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   }
 
 putexit:
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
-  if (closecon)
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -8157,12 +8424,14 @@ int http_delete(char *agent, char **hdrlist, char *user, char *pwd, char array,
   int chunked = 0;
   int first = 1;
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
 
   /* Compute length of request header */
@@ -8172,13 +8441,15 @@ int http_delete(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -8187,8 +8458,9 @@ int http_delete(char *agent, char **hdrlist, char *user, char *pwd, char array,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd));
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -8199,8 +8471,9 @@ int http_delete(char *agent, char **hdrlist, char *user, char *pwd, char array,
   len += 3; /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "DELETE %s %s\r\n", remote, HTTP_VERSION);
   ckstrncat(request, "Date: ", len);
@@ -8253,19 +8526,23 @@ delreq:
   while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
     buf[i] = ch;
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
-      if (i < 1)
+      }
+      if (i < 1) {
         nullline = 1;
+      }
       buf[i] = '\0';
-      if (array && !nullline && hdcnt < HTTPHEADCNT)
+      if (array && !nullline && hdcnt < HTTPHEADCNT) {
         makestr(&headers[hdcnt++], buf);
+      }
       if (!ckstrcmp(buf, "HTTP", 4, 0)) {
         http_fnd = 1;
         j = ckindex(" ", buf, 0, 0, 0);
         p = &buf[j];
-        while (isspace(*p))
+        while (isspace(*p)) {
           p++;
+        }
         switch (p[0]) {
         case '1': /* Informational message */
           break;
@@ -8275,20 +8552,23 @@ delreq:
         case '4': /* Client failure */
         case '5': /* Server failure */
         default:  /* Unknown */
-          if (!quiet)
+          if (!quiet) {
             printf("Failure: Server reports %s\n", p);
+          }
           rc = -1;
         }
         http_set_code_reply(p);
       } else {
         if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         } else if (!ckstrcmp(buf, "Content-Length:", 15, 0)) {
           len = atoi(&buf[16]);
         } else if (!ckstrcmp(buf, "Transfer-Encoding:", 18, 0)) {
-          if (ckindex("chunked", buf, 18, 0, 0) != 0)
+          if (ckindex("chunked", buf, 18, 0, 0) != 0) {
             chunked = 1;
+          }
           debug(F101, "http_delete chunked", "", chunked);
         }
         printf("%s\n", buf);
@@ -8317,10 +8597,12 @@ delreq:
         len--;
         conoc((CHAR)ch);
       }
-      if ((ch = http_inc(0)) != CK_CR)
+      if ((ch = http_inc(0)) != CK_CR) {
         break;
-      if ((ch = http_inc(0)) != LF)
+      }
+      if ((ch = http_inc(0)) != LF) {
         break;
+      }
     }
   } else {
     while (len && (ch = http_inc(0)) >= 0) {
@@ -8334,16 +8616,20 @@ delreq:
     while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
       buf[i] = ch;
       if (buf[i] == 10) { /* found end of line */
-        if (i > 0 && buf[i - 1] == 13)
+        if (i > 0 && buf[i - 1] == 13) {
           i--;
-        if (i < 1)
+        }
+        if (i < 1) {
           nullline = 1;
+        }
         buf[i] = '\0';
-        if (array && !nullline && hdcnt < HTTPHEADCNT)
+        if (array && !nullline && hdcnt < HTTPHEADCNT) {
           makestr(&headers[hdcnt++], buf);
+        }
         if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-          if (ckindex("close", buf, 11, 0, 0) != 0)
+          if (ckindex("close", buf, 11, 0, 0) != 0) {
             closecon = 1;
+          }
         }
         i = 0;
       } else {
@@ -8353,15 +8639,18 @@ delreq:
   }
 
 delexit:
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
-  if (closecon)
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -8385,16 +8674,19 @@ int http_post(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   int zfile = 0;
   int first = 1;
 
-  if (httpfd == -1)
+  if (httpfd == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
   filelen = zchki(local);
-  if (filelen < 0)
+  if (filelen < 0) {
     return (-1);
+  }
 
   /* Compute length of request header */
   len = 9; /* POST */
@@ -8403,13 +8695,15 @@ int http_post(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   len += 16;
 
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
   len += strlen(http_host_port) + 8;
 
-  if (agent)
+  if (agent) {
     len += 13 + strlen(agent);
+  }
   if (user) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -8418,8 +8712,9 @@ int http_post(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd));
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 24;
   }
@@ -8432,8 +8727,9 @@ int http_post(char *agent, char **hdrlist, char *mime, char *user, char *pwd,
   len += 3; /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "POST %s %s\r\n", remote, HTTP_VERSION);
   ckstrncat(request, "Date: ", len);
@@ -8492,8 +8788,9 @@ postopen:
         i = 0;
       }
     }
-    if (i > 0)
+    if (i > 0) {
       http_tol((CHAR *)buf, HTTPBUFLEN);
+    }
     zclose(ZIFILE);
 
     /* Process the response headers */
@@ -8504,19 +8801,23 @@ postopen:
     while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
       buf[i] = ch;
       if (buf[i] == 10) { /* found end of line */
-        if (i > 0 && buf[i - 1] == 13)
+        if (i > 0 && buf[i - 1] == 13) {
           i--;
-        if (i < 1)
+        }
+        if (i < 1) {
           nullline = 1;
+        }
         buf[i] = '\0';
-        if (array && !nullline && hdcnt < HTTPHEADCNT)
+        if (array && !nullline && hdcnt < HTTPHEADCNT) {
           makestr(&headers[hdcnt++], buf);
+        }
         if (!ckstrcmp(buf, "HTTP", 4, 0)) {
           http_fnd = 1;
           j = ckindex(" ", buf, 0, 0, 0);
           p = &buf[j];
-          while (isspace(*p))
+          while (isspace(*p)) {
             p++;
+          }
           switch (p[0]) {
           case '1': /* Informational message */
             break;
@@ -8526,24 +8827,28 @@ postopen:
           case '4': /* Client failure */
           case '5': /* Server failure */
           default:  /* Unknown */
-            if (!quiet)
+            if (!quiet) {
               printf("Failure: Server reports %s\n", p);
+            }
             rc = -1;
           }
           http_set_code_reply(p);
         } else {
           if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-            if (ckindex("close", buf, 11, 0, 0) != 0)
+            if (ckindex("close", buf, 11, 0, 0) != 0) {
               closecon = 1;
+            }
           } else if (!ckstrcmp(buf, "Content-Length:", 15, 0)) {
             len = atoi(&buf[16]);
           } else if (!ckstrcmp(buf, "Transfer-Encoding:", 18, 0)) {
-            if (ckindex("chunked", buf, 18, 0, 0) != 0)
+            if (ckindex("chunked", buf, 18, 0, 0) != 0) {
               chunked = 1;
+            }
             debug(F101, "http_post chunked", "", chunked);
           }
-          if (stdio)
+          if (stdio) {
             printf("%s\n", buf);
+          }
         }
         i = 0;
       } else {
@@ -8564,54 +8869,66 @@ postopen:
 
     /* Any response data? */
     if (dest && dest[0]) {
-      if (zopeno(ZOFILE, dest, NULL, NULL))
+      if (zopeno(ZOFILE, dest, NULL, NULL)) {
         zfile = 1;
-      else
+      } else {
         rc = -1;
+      }
     }
 
     if (chunked) {
       while ((len = http_get_chunk_len()) > 0) {
         while (len && (ch = http_inc(0)) >= 0) {
           len--;
-          if (zfile)
+          if (zfile) {
             zchout(ZOFILE, (CHAR)ch);
-          if (stdio)
+          }
+          if (stdio) {
             conoc((CHAR)ch);
+          }
         }
-        if ((ch = http_inc(0)) != CK_CR)
+        if ((ch = http_inc(0)) != CK_CR) {
           break;
-        if ((ch = http_inc(0)) != LF)
+        }
+        if ((ch = http_inc(0)) != LF) {
           break;
+        }
       }
     } else {
       while (len && (ch = http_inc(0)) >= 0) {
         len--;
-        if (zfile)
+        if (zfile) {
           zchout(ZOFILE, (CHAR)ch);
-        if (stdio)
+        }
+        if (stdio) {
           conoc((CHAR)ch);
+        }
       }
     }
 
-    if (zfile)
+    if (zfile) {
       zclose(ZOFILE);
+    }
 
     if (chunked) { /* Parse Trailing Headers */
       nullline = 0;
       while (!nullline && (ch = http_inc(0)) >= 0 && i < HTTPBUFLEN) {
         buf[i] = ch;
         if (buf[i] == 10) { /* found end of line */
-          if (i > 0 && buf[i - 1] == 13)
+          if (i > 0 && buf[i - 1] == 13) {
             i--;
-          if (i < 1)
+          }
+          if (i < 1) {
             nullline = 1;
+          }
           buf[i] = '\0';
-          if (array && !nullline && hdcnt < HTTPHEADCNT)
+          if (array && !nullline && hdcnt < HTTPHEADCNT) {
             makestr(&headers[hdcnt++], buf);
+          }
           if (!ckstrcmp(buf, "Connection:", 11, 0)) {
-            if (ckindex("close", buf, 11, 0, 0) != 0)
+            if (ckindex("close", buf, 11, 0, 0) != 0) {
               closecon = 1;
+            }
           }
           i = 0;
         } else {
@@ -8624,14 +8941,17 @@ postopen:
   }
 
 postexit:
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
-  if (closecon)
+  }
+  if (closecon) {
     http_close();
+  }
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -8652,12 +8972,14 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
 
   tcp_http_proxy_errno = 0;
 
-  if (socket == -1)
+  if (socket == -1) {
     return (-1);
+  }
 
   if (array) {
-    for (i = 0; i < HTTPHEADCNT; i++)
+    for (i = 0; i < HTTPHEADCNT; i++) {
       headers[i] = NULL;
+    }
   }
 
   /* Compute length of request header */
@@ -8668,11 +8990,13 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
   len += 16;
   len += strlen("Proxy-Connection: Keep-Alive\r\n");
   if (hdrlist) {
-    for (i = 0; hdrlist[i]; i++)
+    for (i = 0; hdrlist[i]; i++) {
       len += strlen(hdrlist[i]) + 2;
+    }
   }
-  if (agent && agent[0])
+  if (agent && agent[0]) {
     len += 13 + strlen(agent);
+  }
   if (user && user[0]) {
     if (!pwd) {
       readpass("Password: ", passwd, 64);
@@ -8681,8 +9005,9 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
     ckmakmsg(b64in, sizeof(b64in), user, ":", pwd, NULL);
     j = b8tob64(b64in, strlen(b64in), b64out, 256);
     memset(pwd, 0, strlen(pwd));
-    if (j < 0)
+    if (j < 0) {
       return (-1);
+    }
     b64out[j] = '\0';
     len += j + 72;
   }
@@ -8690,8 +9015,9 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
   len += 3;  /* blank line + null */
 
   request = malloc(len);
-  if (!request)
+  if (!request) {
     return (-1);
+  }
 
   sprintf(request, "CONNECT %s %s\r\n", host_port, HTTP_VERSION);
   ckstrncat(request, "Date: ", len);
@@ -8751,20 +9077,24 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
          i < HTTPBUFLEN) {
     buf[i] = ch;
     if (buf[i] == 10) { /* found end of line */
-      if (i > 0 && buf[i - 1] == 13)
+      if (i > 0 && buf[i - 1] == 13) {
         i--;
-      if (i < 1)
+      }
+      if (i < 1) {
         nullline = 1;
+      }
       buf[i] = '\0';
 
-      if (array && !nullline && hdcnt < HTTPHEADCNT)
+      if (array && !nullline && hdcnt < HTTPHEADCNT) {
         makestr(&headers[hdcnt++], buf);
+      }
       if (!ckstrcmp(buf, "HTTP", 4, 0)) {
         http_fnd = 1;
         j = ckindex(" ", buf, 0, 0, 0);
         p = &buf[j];
-        while (isspace(*p))
+        while (isspace(*p)) {
           p++;
+        }
         tcp_http_proxy_errno = atoi(p);
         switch (p[0]) {
         case '1': /* Informational message */
@@ -8776,8 +9106,9 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
         case '4': /* Client failure */
         case '5': /* Server failure */
         default:  /* Unknown */
-          if (!quiet)
+          if (!quiet) {
             printf("Failure: Server reports %s\n", p);
+          }
           rc = -1;
         }
         http_set_code_reply(p);
@@ -8789,11 +9120,13 @@ int http_connect(int socket, char *agent, char **hdrlist, char *user, char *pwd,
       i++;
     }
   }
-  if (http_fnd == 0)
+  if (http_fnd == 0) {
     rc = -1;
+  }
 
-  if (array)
+  if (array) {
     http_mkarray(headers, hdcnt, array);
+  }
 
 connexit:
   if (!connected) {
@@ -8806,8 +9139,9 @@ connexit:
 
   free(request);
   for (i = 0; i < hdcnt; i++) {
-    if (headers[i])
+    if (headers[i]) {
       free(headers[i]);
+    }
   }
   return (rc);
 }
@@ -8864,8 +9198,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
 
   nout = 0;
   addr = (struct sockaddr *)malloc(sizeof(struct sockaddr));
-  if (addr == NULL)
+  if (addr == NULL) {
     return 0;
+  }
 
   count = 1;
 
@@ -8880,8 +9215,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
    *
    */
   if (((int)strlen(service) + strlen(protocol) + strlen(host) + 5) >
-      MAX_DNS_NAMELEN)
+      MAX_DNS_NAMELEN) {
     goto dnsout;
+  }
 
   /* Realm names don't (normally) end with ".", but if the query
      doesn't end with "." and doesn't get an answer as is, the
@@ -8899,8 +9235,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
 
   size = res_search(query, C_IN, T_SRV, answer.bytes, sizeof(answer.bytes));
 
-  if (size < hdrsize)
+  if (size < hdrsize) {
     goto dnsout;
+  }
 
   /* We got a reply - See how many answers it contains. */
 
@@ -8918,8 +9255,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
    */
   while (numqueries--) {
     len = dn_expand(answer.bytes, answer.bytes + size, p, query, sizeof(query));
-    if (len < 0)
+    if (len < 0) {
       goto dnsout;
+    }
     INCR_CHECK(p, len + 4);
   }
 
@@ -8945,8 +9283,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
 
     /* First is the name; use dn_expand() to get the compressed size. */
     len = dn_expand(answer.bytes, answer.bytes + size, p, query, sizeof(query));
-    if (len < 0)
+    if (len < 0) {
       goto dnsout;
+    }
     INCR_CHECK(p, len);
 
     CHECK(p, 2); /* Query type */
@@ -8974,8 +9313,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
       port = NTOHSP(p, 2);
       len =
           dn_expand(answer.bytes, answer.bytes + size, p, query, sizeof(query));
-      if (len < 0)
+      if (len < 0) {
         goto dnsout;
+      }
       INCR_CHECK(p, len);
       /*
        * We got everything.  Insert it into our list, but make sure
@@ -8983,8 +9323,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
        * with the weight field
        */
       srv = (struct srv_dns_entry *)malloc(sizeof(struct srv_dns_entry));
-      if (srv == NULL)
+      if (srv == NULL) {
         goto dnsout;
+      }
 
       srv->priority = priority;
       srv->weight = weight;
@@ -8995,30 +9336,34 @@ int locate_srv_dns(char *host, char *service, char *protocol,
       if (head == NULL || head->priority > srv->priority) {
         srv->next = head;
         head = srv;
-      } else
+      } else {
         /*
          * Confusing.  Insert an entry into this spot only if:
          *  . The next person has a higher priority (lower
          *    priorities are preferred), or:
          *  . There is no next entry (we're at the end)
          */
-        for (entry = head; entry != NULL; entry = entry->next)
+        for (entry = head; entry != NULL; entry = entry->next) {
           if ((entry->next && entry->next->priority > srv->priority) ||
               entry->next == NULL) {
             srv->next = entry->next;
             entry->next = srv;
             break;
           }
-    } else
+        }
+      }
+    } else {
       INCR_CHECK(p, rdlen);
+    }
   }
 
   /*
    * Now we've got a linked list of entries sorted by priority.
    * Start looking up A records and returning addresses.
    */
-  if (head == NULL)
+  if (head == NULL) {
     goto dnsout;
+  }
 
   for (entry = head; entry != NULL; entry = entry->next) {
     hp = gethostbyname(entry->host);
@@ -9039,8 +9384,9 @@ int locate_srv_dns(char *host, char *service, char *protocol,
             count += 5;
             addr = (struct sockaddr *)realloc((char *)addr,
                                               sizeof(struct sockaddr) * count);
-            if (!addr)
+            if (!addr) {
               goto dnsout;
+            }
           }
         }
         break;
@@ -9059,12 +9405,14 @@ int locate_srv_dns(char *host, char *service, char *protocol,
   }
 
 dnsout:
-  if (srv)
+  if (srv) {
     free(srv);
+  }
 
   if (nout == 0) { /* No good servers */
-    if (addr)
+    if (addr) {
       free(addr);
+    }
     return 0;
   }
   *addr_pp = addr;
@@ -9103,8 +9451,9 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
   if (name == NULL || name[0] == '\0') {
     strcpy(host, prefix);
   } else {
-    if (strlen(prefix) + strlen(name) + 3 > MAX_DNS_NAMELEN)
+    if (strlen(prefix) + strlen(name) + 3 > MAX_DNS_NAMELEN) {
       return 0;
+    }
 
     /* Realm names don't (normally) end with ".", but if the query
        doesn't end with "." and doesn't get an answer as is, the
@@ -9121,8 +9470,9 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
   }
   size = res_search(host, C_IN, T_TXT, answer.bytes, sizeof(answer.bytes));
 
-  if (size < 0)
+  if (size < 0) {
     return 0;
+  }
 
   p = answer.bytes;
 
@@ -9139,8 +9489,9 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
 
   while (numqueries--) {
     len = dn_expand(answer.bytes, answer.bytes + size, p, host, sizeof(host));
-    if (len < 0)
+    if (len < 0) {
       return 0;
+    }
     INCR_CHECK(p, len + 4); /* Name plus type plus class */
   }
 
@@ -9153,8 +9504,9 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
 
     /* First the name; use dn_expand to get the compressed size */
     len = dn_expand(answer.bytes, answer.bytes + size, p, host, sizeof(host));
-    if (len < 0)
+    if (len < 0) {
       return 0;
+    }
     INCR_CHECK(p, len);
 
     /* Next is the query type */
@@ -9170,8 +9522,9 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
     CHECK(p, 2);
     rdlen = NTOHSP(p, 2);
 
-    if (p + rdlen > answer.bytes + size)
+    if (p + rdlen > answer.bytes + size) {
       return 0;
+    }
 
     /*
      * If this is a TXT record, return the string.  Note that the
@@ -9181,16 +9534,19 @@ int locate_txt_rr(char *prefix, char *name, char **retstr) {
 
     if (class == C_IN && type == T_TXT) {
       len = *p++;
-      if (p + len > answer.bytes + size)
+      if (p + len > answer.bytes + size) {
         return 0;
+      }
       *retstr = malloc(len + 1);
-      if (*retstr == NULL)
+      if (*retstr == NULL) {
         return ENOMEM;
+      }
       strncpy(*retstr, (char *)p, len);
       (*retstr)[len] = '\0';
       /* Avoid a common error. */
-      if ((*retstr)[len - 1] == '.')
+      if ((*retstr)[len - 1] == '.') {
         (*retstr)[len - 1] = '\0';
+      }
       return 1;
     }
   }

@@ -3296,8 +3296,9 @@ CHAR xl1as(CHAR c) { /* xl1as */ /* Latin-1 to US ASCII... */
     if (c == 255) { /* Dutch umlaut-y */
       zmstuff('j'); /* becomes ij */
       return ('i');
-    } else
+    } else {
       return (yl1as[c]); /* all others by the book */
+    }
 
   case L_GERMAN:
     switch (c) { /* German, special rules. */
@@ -3454,17 +3455,19 @@ xw1as(CHAR c) { /* xw1as */
   case 0x9F:
     return ('Y'); /* Latin Capital Letter Y Diaeresis */
   default:
-    if (c > 0x80 && c < 0xa0)
+    if (c > 0x80 && c < 0xa0) {
       return ('?');
-    else
+    } else {
       return (yl1as[c]);
+    }
   }
 }
 
 CHAR            /* CP1252 to Latin-1 */
 xw1l1(CHAR c) { /* xw1l1 */
-  if (c == 0x95)
+  if (c == 0x95) {
     return (0xb7); /* Middle dot */
+  }
   return ((c < 160) ? xw1as(c) : c);
 }
 
@@ -3475,14 +3478,16 @@ xl1ge(CHAR c) { /* xl1ge */
 
 CHAR            /* German to Latin-1 */
 xgel1(CHAR c) { /* xgel1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (ygel1[c]);
 }
 
 CHAR xgeas(CHAR c) { /* xgeas */ /* German ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91: /* umlaut-A -> Ae */
     zmstuff('e');
@@ -3511,15 +3516,17 @@ CHAR xgeas(CHAR c) { /* xgeas */ /* German ISO 646 to ASCII */
 }
 
 CHAR xl1w1(CHAR c) { /* xl1w1 */ /* Latin-1 to CP1252 (Windows L1) */
-  if (c > 127 && c < 160)
+  if (c > 127 && c < 160) {
     return (UNK);
-  else
+  } else {
     return (c);
+  }
 }
 
 CHAR xduas(CHAR c) { /* xduas */ /* Dutch ISO 646 to US ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return (UNK); /* 3/4 */
@@ -3544,8 +3551,9 @@ CHAR xduas(CHAR c) { /* xduas */ /* Dutch ISO 646 to US ASCII */
 }
 
 CHAR xfias(CHAR c) { /* xfias */ /* Finnish ISO 646 to US ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91: /* A-diaeresis */
     zmstuff('e');
@@ -3581,8 +3589,9 @@ CHAR xfias(CHAR c) { /* xfias */ /* Finnish ISO 646 to US ASCII */
 }
 
 CHAR xfras(CHAR c) { /* xfras */ /* French ISO 646 to US ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return (97); /* a grave */
@@ -3606,8 +3615,9 @@ CHAR xfras(CHAR c) { /* xfras */ /* French ISO 646 to US ASCII */
 }
 
 CHAR xfcas(CHAR c) { /* xfcas */ /* French Canadian ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return ('a'); /* a grave */
@@ -3635,8 +3645,9 @@ CHAR xfcas(CHAR c) { /* xfcas */ /* French Canadian ISO 646 to ASCII */
 }
 
 CHAR xitas(CHAR c) { /* xitas */ /* Italian ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91:
     return (UNK); /* degree */
@@ -3674,8 +3685,9 @@ CHAR xneas(CHAR c) { /* xneas */        /* NeXT to ASCII */
 }
 
 CHAR xnoas(CHAR c) { /* xnoas */ /* Norge/Danish ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91:
     zmstuff('E'); /* AE digraph */
@@ -3699,8 +3711,9 @@ CHAR xnoas(CHAR c) { /* xnoas */ /* Norge/Danish ISO 646 to ASCII */
 }
 
 CHAR xpoas(CHAR c) { /* xpoas */ /* Portuguese ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91:
     return ('A'); /* A tilde */
@@ -3720,8 +3733,9 @@ CHAR xpoas(CHAR c) { /* xpoas */ /* Portuguese ISO 646 to ASCII */
 }
 
 CHAR xspas(CHAR c) { /* xspas */ /* Spanish ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 91:
     return (33); /* Inverted exclamation */
@@ -3741,8 +3755,9 @@ CHAR xspas(CHAR c) { /* xspas */ /* Spanish ISO 646 to ASCII */
 }
 
 CHAR xswas(CHAR c) { /* xswas */ /* Swedish ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return ('E'); /* E acute */
@@ -3780,8 +3795,9 @@ CHAR xswas(CHAR c) { /* xswas */ /* Swedish ISO 646 to ASCII */
 }
 
 CHAR xchas(CHAR c) { /* xchas */ /* Swiss ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 35:
     return ('u'); /* u grave */
@@ -3816,8 +3832,9 @@ CHAR xchas(CHAR c) { /* xchas */ /* Swiss ISO 646 to ASCII */
 }
 
 CHAR xhuas(CHAR c) { /* xhuas */ /* Hungarian ISO 646 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return ('A'); /* A acute */
@@ -3871,14 +3888,16 @@ CHAR xdgas(CHAR c) { /*  xdgas */ /* Data General to ASCII */
     if (langs[language].id == L_FRENCH) { /* OE digraph */
       zmstuff('E');
       return ('O');
-    } else
+    } else {
       return ('O');
+    }
   case 247:
     if (langs[language].id == L_FRENCH) { /* oe digraph */
       zmstuff('e');
       return ('o');
-    } else
+    } else {
       return ('o');
+    }
   case 175:
   case 179:
   case 220:
@@ -3912,19 +3931,22 @@ CHAR xr8as(CHAR c) { /*  xr8as */ /* Hewlett Packard Roman8 to ASCII */
 }
 
 CHAR xukl1(CHAR c) { /* xukl1 */ /* UK ASCII to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c == 35)
+  }
+  if (c == 35) {
     return (163);
-  else
+  } else {
     return (c);
+  }
 }
 
 CHAR xl1uk(CHAR c) { /* xl1uk */ /* Latin-1 to UK ASCII */
-  if (c == 163)
+  if (c == 163) {
     return (35);
-  else
+  } else {
     return (yl1as[c]);
+  }
 }
 
 CHAR            /* Latin-1 to French ISO 646 */
@@ -3934,8 +3956,9 @@ xl1fr(CHAR c) { /* xl1fr */
 
 CHAR            /* French ISO 646 to Latin-1 */
 xfrl1(CHAR c) { /* xfrl1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yfrl1[c]);
 }
 
@@ -3945,14 +3968,16 @@ xl1du(CHAR c) { /* xl1du */
 }
 
 CHAR xdul1(CHAR c) { /* xdul1 */ /* Dutch ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (ydul1[c]);
 }
 
 CHAR xfil1(CHAR c) { /* xfil1 */ /* Finnish ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yfil1[c]);
 }
 
@@ -3961,8 +3986,9 @@ CHAR xl1fi(CHAR c) { /* xl1fi */ /* Latin-1 to Finnish ISO 646 */
 }
 
 CHAR xfcl1(CHAR c) { /* xfcl1 */ /* French Canadian ISO646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yfcl1[c]);
 }
 
@@ -3971,8 +3997,9 @@ CHAR xl1fc(CHAR c) { /* xl1fc */ /* Latin-1 to French Canadian ISO646 */
 }
 
 CHAR xitl1(CHAR c) { /* xitl1 */ /* Italian ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yitl1[c]);
 }
 
@@ -4026,8 +4053,9 @@ CHAR xl9ne(CHAR c) { /* xl9ne */ /* Latin-9 to NeXT */
 }
 
 CHAR xnol1(CHAR c) { /* xnol1 */ /* Norway/Denmark ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (ynol1[c]);
 }
 
@@ -4036,8 +4064,9 @@ CHAR xl1no(CHAR c) { /* xl1no */ /* Latin-1 to Norway/Denmark ISO 646 */
 }
 
 CHAR xpol1(CHAR c) { /* xpol1 */ /* Portuguese ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (ypol1[c]);
 }
 
@@ -4046,8 +4075,9 @@ CHAR xl1po(CHAR c) { /* xl1po */ /* Latin-1 to Portuguese ISO 646 */
 }
 
 CHAR xspl1(CHAR c) { /* xspl1 */ /* Spanish ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yspl1[c]);
 }
 
@@ -4056,8 +4086,9 @@ CHAR xl1sp(CHAR c) { /* xl1sp */ /* Latin-1 to Spanish ISO 646 */
 }
 
 CHAR xswl1(CHAR c) { /* xswl1 */ /* Swedish ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yswl1[c]);
 }
 
@@ -4066,8 +4097,9 @@ CHAR xl1sw(CHAR c) { /* xl1sw */ /* Latin-1 to Swedish ISO 646 */
 }
 
 CHAR xchl1(CHAR c) { /* xchl1 */ /* Swiss ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (ychl1[c]);
 }
 
@@ -4076,8 +4108,9 @@ CHAR xl1ch(CHAR c) { /* xl1ch */ /* Latin-1 to Swiss ISO 646 */
 }
 
 CHAR xhul1(CHAR c) { /* xhul1 */ /* Hungarian ISO 646 to Latin-1 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yhul1[c]);
 }
 
@@ -4103,10 +4136,11 @@ CHAR xl9dm(CHAR c) { /* xl9dm */ /* Latin-9 to DEC MCS */
 }
 
 CHAR xl9w1(CHAR c) { /* xl9w1 */ /* Latin-9 to CP1252 */
-  if (c < 128)
+  if (c < 128) {
     return (c);
-  else if (c < 160)
+  } else if (c < 160) {
     return ('?');
+  }
   switch (c) {
   case 0xa4:
     return (0x80); /* Euro */
@@ -4189,8 +4223,9 @@ CHAR zl1as(CHAR c) { /* zl1as */
     if (c == 255) { /* Dutch umlaut-y */
       zdstuff('j'); /* becomes ij */
       return ('i');
-    } else
+    } else {
       return (yl1as[c]); /* all others by the book */
+    }
 
   case L_GERMAN:
     switch (c) { /* German, special rules. */
@@ -4333,10 +4368,11 @@ xl2l1(CHAR c) { /* xll2l1 */
 }
 
 CHAR xl2w1(CHAR c) { /* xl2w1 */ /* Latin-2 to CP1252 (Windows L1) */
-  if (c > 127 && c < 160)
+  if (c > 127 && c < 160) {
     return (UNK);
-  else
+  } else {
     return (yl2l1[c]);
+  }
 }
 
 CHAR            /* Latin-1 to Latin-2 */
@@ -4430,12 +4466,13 @@ x1250l1(CHAR c) {             /* xl1250l1 */
   return (yl2l1[y1250l2[c]]); /* CP1250 -> Latin-2 -> Latin-1 */
 }
 
-CHAR                  /* CP1250 to Latin-9 */
-x1250l9(CHAR c) {     /* x1250l9 */
-  if (c == (CHAR)128) /* Euro */
+CHAR                    /* CP1250 to Latin-9 */
+x1250l9(CHAR c) {       /* x1250l9 */
+  if (c == (CHAR)128) { /* Euro */
     return ((CHAR)164);
-  else
+  } else {
     return (xl2l9(y1250l2[c])); /* CP1250 -> Latin-2 -> Latin-9 */
+  }
 }
 
 CHAR                        /* Latin-1 to CP852 */
@@ -4448,12 +4485,13 @@ xl11250(CHAR c) {             /* xll11250 */
   return (yl21250[yl1l2[c]]); /* Latin-1 -> Latin-2 -> CP1250 */
 }
 
-CHAR                  /* Latin-9 to CP1250 */
-xl91250(CHAR c) {     /* xll91250 */
-  if (c == (CHAR)164) /* Euro */
+CHAR                    /* Latin-9 to CP1250 */
+xl91250(CHAR c) {       /* xll91250 */
+  if (c == (CHAR)164) { /* Euro */
     return ((CHAR)128);
-  else
+  } else {
     return (yl21250[xl9l2(c)]); /* Latin-9 -> Latin-2 -> CP1250 */
+  }
 }
 
 CHAR                        /* Latin-9 to Mazovia */
@@ -4603,8 +4641,9 @@ xl2ge(CHAR c) { /* xll2ge */
 
 CHAR            /* German to Latin-2 */
 xgel2(CHAR c) { /* xlgel2 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 64:
     return (167); /* Paragraph sign */
@@ -4657,8 +4696,9 @@ xl2hu(CHAR c) { /* xll2hu */
 
 CHAR            /* Hungarian to Latin-2 */
 xhul2(CHAR c) { /* xlhul2 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   switch (c) {
   case 36:
     return (164); /* Currency symbol */
@@ -4760,8 +4800,9 @@ CHAR xl2r8(CHAR c) {
 /* This one can also be used for ELOT 927, Hebrew 7, etc */
 
 CHAR xassk(CHAR c) { /* xassk */ /* ASCII to Short KOI */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return ((c > 95) ? (c - 32) : c); /* Fold columns 6-7 to 4-5 */
 }
 
@@ -4801,8 +4842,9 @@ xlckr(CHAR c) { /* xlckr */
   case 0xf1:
     return (0xa3); /* io */
   default:
-    if (c > 0x7f && c < 0xc0)
+    if (c > 0x7f && c < 0xc0) {
       return (UNK);
+    }
     return (ylck8[c]);
   }
 }
@@ -4831,8 +4873,9 @@ xlcku(CHAR c) { /* xlcku */
   case 0xa3:
     return (0xbd); /* Ukrainian Ghe with upturn */
   default:
-    if (c > 0x7f && c < 0xc0)
+    if (c > 0x7f && c < 0xc0) {
       return (UNK);
+    }
     return (ylck8[c]);
   }
 }
@@ -4842,10 +4885,11 @@ CHAR xlcsk(CHAR c) { /* xlcsk */ /* Latin/Cyrillic to Short KOI */
 }
 
 CHAR xlcas(CHAR c) { /* xlcas */ /* Latin/Cyrillic to ASCII */
-  if (langs[language].id == L_RUSSIAN)
+  if (langs[language].id == L_RUSSIAN) {
     return (ylcsk[c]);
-  else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR                        /* CP866 */
@@ -4875,12 +4919,13 @@ xk8lc(CHAR c) { /* xk8lc */
 
 CHAR            /* KOI8-R to Latin/Cyrillic */
 xkrlc(CHAR c) { /* xkrlc */
-  if (c == 0xb3)
+  if (c == 0xb3) {
     return (0xa1);
-  else if (c == 0xa3)
+  } else if (c == 0xa3) {
     return (0xf1);
-  else if (c > 0x7f && c < 0xc0)
+  } else if (c > 0x7f && c < 0xc0) {
     return (UNK);
+  }
   return (yk8lc[c]);
 }
 
@@ -4909,8 +4954,9 @@ xkulc(CHAR c) { /* xkulc */
     return (0xa3); /* Ukrainian Ghe with upturn */
   /* Note substitution of Gje for Ghe-Upturn, which is not in 8859-5 */
   default:
-    if (c > 0x7f && c < 0xc0)
+    if (c > 0x7f && c < 0xc0) {
       return (UNK);
+    }
     return (yk8lc[c]);
   }
 }
@@ -4922,32 +4968,36 @@ CHAR xskcy(CHAR c) { /* xskcy */ /* Short KOI to Latin/Cyrillic */
 CHAR xascy(CHAR c) { /* xascy */         /* ASCII to Latin/Cyrillic */
   if (langs[language].id == L_RUSSIAN) { /* If LANGUAGE == RUSSIAN  */
     return (yskcy[c & 0x7f]);            /* treat ASCII as Short KOI */
-  } else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR xacas(CHAR c) { /* xacas */ /* CP866 to ASCII */
   if (langs[language].id == L_RUSSIAN) {
     c = yaclc[c];      /* First to Latin/Cyrillic */
     return (ylcsk[c]); /* Then to Short KOI */
-  } else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR x55as(CHAR c) { /* x55as */ /* CP855 to ASCII */
   if (langs[language].id == L_RUSSIAN) {
     c = y55lc[c];      /* First to Latin/Cyrillic */
     return (ylcsk[c]); /* Then to Short KOI */
-  } else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR x1251as(CHAR c) { /* x1251as */ /* CP81251 to ASCII */
   if (langs[language].id == L_RUSSIAN) {
     c = y1251lc[c];    /* First to Latin/Cyrillic */
     return (ylcsk[c]); /* Then to Short KOI */
-  } else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR xskas(CHAR c) { /* xskas */ /* Short KOI to ASCII */
@@ -4958,8 +5008,9 @@ CHAR xk8as(CHAR c) { /* xk8as */ /* Old KOI-8 Cyrillic to ASCII */
   if (langs[language].id == L_RUSSIAN) {
     c = yk8lc[c];      /* First to Latin/Cyrillic */
     return (ylcsk[c]); /* Then to Short KOI */
-  } else
+  } else {
     return ((c > 127) ? '?' : c);
+  }
 }
 
 CHAR xl1sk(CHAR c) { /* xl1sk */ /* Latin-1 to Short KOI */
@@ -4972,50 +5023,59 @@ CHAR xw1lc(CHAR c) { /* xw1lc */ /* CP1252 to Latin/Cyrillic */
 }
 
 CHAR xaslc(CHAR c) { /* xaslc */ /* ASCII to Latin/Cyrillic */
-  if (langs[language].id == L_RUSSIAN)
+  if (langs[language].id == L_RUSSIAN) {
     return (yskcy[c & 0x7f]);
-  else
+  } else {
     return (c & 0x7f);
+  }
 }
 
 CHAR xasac(CHAR c) { /* xasac */ /* ASCII to CP866 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   if (langs[language].id == L_RUSSIAN) { /* Use Short KOI */
     c = xskcy(c);                        /* Translate to Latin/Cyrillic */
     return (ylcac[c]);                   /* Then to CP866 */
-  } else
+  } else {
     return (c & 0x7f);
+  }
 }
 
 CHAR xas55(CHAR c) { /* xas55 */ /* ASCII to CP855 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   if (langs[language].id == L_RUSSIAN) { /* Use Short KOI */
     c = xskcy(c);                        /* Translate to Latin/Cyrillic */
     return (ylc55[c]);                   /* Then to CP866 */
-  } else
+  } else {
     return (c & 0x7f);
+  }
 }
 
 CHAR xas1251(CHAR c) { /* xas1251 */ /* ASCII to CP81251 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   if (langs[language].id == L_RUSSIAN) { /* Use Short KOI */
     c = xskcy(c);                        /* Translate to Latin/Cyrillic */
     return (ylc1251[c]);                 /* Then to CP866 */
-  } else
+  } else {
     return (c & 0x7f);
+  }
 }
 
 CHAR xask8(CHAR c) { /* xask8 */ /* ASCII to KOI-8 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   if (langs[language].id == L_RUSSIAN) { /* Use Short KOI */
     c = xskcy(c);                        /* Translate to Latin/Cyrillic */
     return (ylck8[c]);                   /* Then to KOI-8 */
-  } else
+  } else {
     return (c & 0x7f);
+  }
 }
 #else /* No Cyrillic */
 #define xacas NULL
@@ -5057,14 +5117,17 @@ CHAR xask8(CHAR c) { /* xask8 */ /* ASCII to KOI-8 */
 #ifdef HEBREW
 
 CHAR xash7(CHAR c) { /* xash7 */ /* ASCII to Hebrew-7 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c == 96)
+  }
+  if (c == 96) {
     return ('?');
-  if (c > 96 && c < 123)
+  }
+  if (c > 96 && c < 123) {
     return (c - 32);
-  else
+  } else {
     return (c);
+  }
 }
 
 CHAR xl1h7(CHAR c) { /* xl1h7 */ /* Latin-1 to Hebrew-7 */
@@ -5097,10 +5160,11 @@ CHAR xw1lh(CHAR c) { /* xw1lh */ /* CP1252 to Latin/Hebrew */
   case 247:
     return (186); /* Divide */
   default:
-    if (c < 160)
+    if (c < 160) {
       return (xw1as(c));
-    else
+    } else {
       return ((c > 190) ? xl1as(c) : c);
+    }
   }
 }
 
@@ -5134,8 +5198,9 @@ CHAR xlhl1(CHAR c) { /* xlhl1 */ /* Latin/Hebrew to Latin-1 */
 }
 
 CHAR xlhw1(CHAR c) { /* xlhw1 */ /* Latin/Hebrew to CP1252 */
-  if (c > 127 && c < 160)
+  if (c > 127 && c < 160) {
     return ('?');
+  }
   switch (c) {
   case 170:
     return (215);
@@ -5159,8 +5224,9 @@ CHAR xlhh7(CHAR c) { /* xlhh7 */ /* Latin/Hebrew to Hebrew-7 */
 }
 
 CHAR xh7as(CHAR c) { /* xh7as */ /* Hebrew-7 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return ((c > 95 && c < 123) ? '?' : c);
 }
 
@@ -5177,8 +5243,9 @@ CHAR x62l1(CHAR c) { /* x62l1 */ /* CP862 to Latin-1 */
 }
 
 CHAR xh7lh(CHAR c) { /* xh7lh */ /* Hebrew-7 to Latin/Hebrew */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return (yh7lh[c]);
 }
 
@@ -5209,12 +5276,14 @@ CHAR xh7lh(CHAR c) { /* xh7lh */ /* Hebrew-7 to Latin/Hebrew */
 #ifdef GREEK
 
 CHAR xaseg(CHAR c) { /* xaseg */ /* ASCII to ELOT 927 */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
-  if (c > 96 && c < 123)
+  }
+  if (c > 96 && c < 123) {
     return (c - 32);
-  else
+  } else {
     return (c);
+  }
 }
 
 CHAR xl1eg(CHAR c) { /* xl1ge */ /* Latin-1 to ELOT 927 */
@@ -5222,17 +5291,19 @@ CHAR xl1eg(CHAR c) { /* xl1ge */ /* Latin-1 to ELOT 927 */
 }
 
 CHAR xl2lg(CHAR c) { /* xl2lg */ /* Latin-1 to Latin/Greek */
-  if (c < 160)
+  if (c < 160) {
     return (c);
-  else if (c == 160 || c == 168 || c == 173 || c == 174)
+  } else if (c == 160 || c == 168 || c == 173 || c == 174) {
     return (c);
-  else
+  } else {
     return ('?');
+  }
 }
 
 CHAR xl1lg(CHAR c) { /* xl1lg */ /* Latin-1 to Latin/Greek */
-  if (c < 160)
+  if (c < 160) {
     return (c);
+  }
   switch (c) {
   case 160: /* Themselves */
   case 164:
@@ -5281,15 +5352,17 @@ CHAR xlgas(CHAR c) { /* xlgas */ /* Latin/Greek to ASCII */
 }
 
 CHAR xlgl1(CHAR c) { /* xlgl1 */ /* Latin/Greek to Latin-1 */
-  if (c == 236)
+  if (c == 236) {
     return (181);
-  else
+  } else {
     return (xl1lg(c));
+  }
 }
 
 CHAR xlgw1(CHAR c) { /* xlgw1 */ /* Latin/Greek to Latin-1 */
-  if (c > 127 && c < 160)
+  if (c > 127 && c < 160) {
     return ('?');
+  }
   return (xlgl1(c));
 }
 
@@ -5304,8 +5377,9 @@ CHAR xlgeg(CHAR c) { /* xlgeg */ /* Latin/Greek to ELOT 927 */
 }
 
 CHAR xegas(CHAR c) { /* xegas */ /* ELOT 927 to ASCII */
-  if (c & 0x80)
+  if (c & 0x80) {
     return (UNK);
+  }
   return ((c > 96 && c < 123) ? '?' : c);
 }
 
@@ -5417,8 +5491,9 @@ static int jpnxkt(int a, int obuf[]) {
       break;
     }
   } else {
-    if (fcharset == FC_JEUC)
+    if (fcharset == FC_JEUC) {
       obuf[r++] = 0x8e;
+    }
     obuf[r++] = (a | 0x80);
   }
   return (r);
@@ -5433,17 +5508,20 @@ static int jpnxkn(int ibuf[], int obuf[]) {
   c2 = ibuf[1] & 0x7f;
 
   if (fcharset == FC_SHJIS) {
-    if (c1 & 1)
+    if (c1 & 1) {
       c2 += 0x1f;
-    else
+    } else {
       c2 += 0x7d;
+    }
 
-    if (c2 >= 0x7f)
+    if (c2 >= 0x7f) {
       c2++;
+    }
 
     c1 = ((c1 - 0x21) >> 1) + 0x81;
-    if (c1 > 0x9f)
+    if (c1 > 0x9f) {
       c1 += 0x40;
+    }
 
     obuf[0] = c1;
     obuf[1] = c2;
@@ -5490,9 +5568,11 @@ int xkanjz(int (*fn)(char)) { /* xkanjz */
     c = 'A';                 /* Dummy Roman character */
     r = jpnxas(c, obuf) - 1; /* -1 removes Dummy character */
     if (r > 0) {
-      for (i = 0; i < r; i++)
-        if (((*fn)((char)obuf[i])) < 0)
+      for (i = 0; i < r; i++) {
+        if (((*fn)((char)obuf[i])) < 0) {
           return (-1);
+        }
+      }
     }
   }
   return (0);
@@ -5537,9 +5617,11 @@ int xkanji(int a, int (*fn)(char)) { /* xkanji */
     }
   }
   if (r > 0) {
-    for (i = 0; i < r; i++)
-      if (((*fn)((char)obuf[i])) < 0)
+    for (i = 0; i < r; i++) {
+      if (((*fn)((char)obuf[i])) < 0) {
         return (-1);
+      }
+    }
     jpnlst = state;
     jpncnt = 0;
   }
@@ -5573,14 +5655,16 @@ int getj7() { /* Reads JIS-7 returns next EUC byte */
   if (jpnpnd > 0) {                 /* If something is pending */
     x = (unsigned)jpnpbf[jpnpnt++]; /* Get it */
     jpnpnd--;
-    if (jpnpnd < 0)
+    if (jpnpnd < 0) {
       jpnpnd = 0;
+    }
     return ((unsigned)x);
   }
   jpnpnt = 0;
 
-  if ((x = zminchar()) < 0)
+  if ((x = zminchar()) < 0) {
     return (x);
+  }
   while (jpnpnd == 0) {             /* While something is pending... */
     if ((x > 0x20) && (x < 0x7f)) { /* 7-bit graphic character */
       switch (jpnstz) {
@@ -5590,8 +5674,9 @@ int getj7() { /* Reads JIS-7 returns next EUC byte */
         break;
       case 2:                          /* Kanji */
         jpnpbf[jpnpnd++] = (x | 0x80); /* Get another byte */
-        if ((x = zminchar()) < 0)
+        if ((x = zminchar()) < 0) {
           return (x);
+        }
         jpnpbf[jpnpnd++] = (x | 0x80);
         break;
       default: /* ASCII / JIS Roman */
@@ -5600,41 +5685,49 @@ int getj7() { /* Reads JIS-7 returns next EUC byte */
       }
     } else if (x == 0x0e) { /* ^N = SO */
       jpnstz = 1;           /* Katakana */
-      if ((x = zminchar()) < 0)
+      if ((x = zminchar()) < 0) {
         return (x);
+      }
     } else if (x == 0x0f) { /* ^O = SI */
       jpnstz = 0;           /* ASCII / JIS Roman */
-      if ((x = zminchar()) < 0)
+      if ((x = zminchar()) < 0) {
         return (x);
+      }
     } else if (x == 0x1b) { /* Escape */
       jpnpbf[jpnpnd++] = x; /* Save in buffer */
-      if ((x = zminchar()) < 0)
+      if ((x = zminchar()) < 0) {
         return (x);
+      }
       jpnpbf[jpnpnd++] = x; /* Save in buffer */
       if (x == '$') {       /* <ESC>$ */
-        if ((x = zminchar()) < 0)
+        if ((x = zminchar()) < 0) {
           return (x);
+        }
         jpnpbf[jpnpnd++] = x;
         if ((x == '@') || (x == 'B')) { /* Kanji */
           jpnstz = 2;
           jpnpnt = jpnpnd = 0;
-          if ((x = zminchar()) < 0)
+          if ((x = zminchar()) < 0) {
             return (x);
+          }
         }
       } else if (x == '(') { /* <ESC>( == 94-byte single-byte set */
-        if ((x = zminchar()) < 0)
+        if ((x = zminchar()) < 0) {
           return (x);
+        }
         jpnpbf[jpnpnd++] = x;
         if ((x == 'B') || (x == 'J')) { /* ASCII or JIS Roman */
           jpnstz = 0;                   /* Set state */
           jpnpnt = jpnpnd = 0;          /* Reset pointers */
-          if ((x = zminchar()) < 0)
+          if ((x = zminchar()) < 0) {
             return (x);
+          }
         }
       } else if (x == 0x1b) { /* <ESC><ESC> */
         jpnpnt = jpnpnd = 0;  /* Reset pointers, stay in state */
-        if ((x = zminchar()) < 0)
+        if ((x = zminchar()) < 0) {
           return (x);
+        }
       }
     } else { /* Not <ESC> - just save it */
       jpnpbf[jpnpnd++] = x;
@@ -5656,15 +5749,18 @@ eu_to_sj(USHORT eu) /* EUC-JP to Shift-JIS */
   c1 = (jcode.x_char[byteorder] & 0x7f);
   c2 = (jcode.x_char[1 - byteorder] & 0x7f);
 
-  if (c1 & 1)
+  if (c1 & 1) {
     c2 += 0x1f;
-  else
+  } else {
     c2 += 0x7d;
-  if (c2 >= 0x7f)
+  }
+  if (c2 >= 0x7f) {
     c2++;
+  }
   c1 = ((c1 - 0x21) >> 1) + 0x81;
-  if (c1 > 0x9f)
+  if (c1 > 0x9f) {
     c1 += 0x40;
+  }
 
   scode.x_char[byteorder] = c1;
   scode.x_char[1 - byteorder] = c2;
@@ -5683,13 +5779,15 @@ sj_to_eu(USHORT sj) /* Shift-JIS to EUC-JP */
 
   if (((c0 >= 0x81) && (c0 <= 0x9f)) || /* High order byte has 8th bit set */
       ((c0 >= 0xe0) && (c0 <= 0xfc))) { /* Kanji */
-    if (c0 <= 0x9f)                     /* Two bytes in */
+    if (c0 <= 0x9f) {                   /* Two bytes in */
       c0 -= 0x71;                       /* Do the shifting... */
-    else
+    } else {
       c0 -= 0xb1;
+    }
     c0 = c0 * 2 + 1;
-    if (c1 > 0x7f)
+    if (c1 > 0x7f) {
       c1 -= 1;
+    }
     if (c1 >= 0x9e) {
       c1 -= 0x7d;
       c0 += 1;
@@ -5736,15 +5834,18 @@ int zkanji(int (*fn)(void)) { /* zkanji */
     if (((a >= 0x81) && (a <= 0x9f)) ||
         ((a >= 0xe0) && (a <= 0xfc))) { /* 2-byte Kanji code */
       sc[0] = a;
-      if ((sc[1] = (*fn)()) < 0) /* Get second byte */
+      if ((sc[1] = (*fn)()) < 0) { /* Get second byte */
         return (sc[1]);
-      if (sc[0] <= 0x9f)
+      }
+      if (sc[0] <= 0x9f) {
         sc[0] -= 0x71;
-      else
+      } else {
         sc[0] -= 0xb1;
+      }
       sc[0] = sc[0] * 2 + 1;
-      if (sc[1] > 0x7f)
+      if (sc[1] > 0x7f) {
         sc[1]--;
+      }
       if (sc[1] >= 0x9e) {
         sc[1] -= 0x7d;
         sc[0]++;
@@ -5769,8 +5870,9 @@ int zkanji(int (*fn)(void)) { /* zkanji */
       return (a);
     }
     jpnpnt = 0;
-    if ((a = (*fn)()) < 0)
+    if ((a = (*fn)()) < 0) {
       return (a);
+    }
     while (jpnpnd == 0) {
       if ((a > 0x20) && (a < 0x7f)) {
         switch (jpnstz) {
@@ -5780,8 +5882,9 @@ int zkanji(int (*fn)(void)) { /* zkanji */
           break;
         case 2:
           jpnpbf[jpnpnd++] = (a | 0x80); /* Kanji */
-          if ((a = (*fn)()) < 0)
+          if ((a = (*fn)()) < 0) {
             return (a);
+          }
           jpnpbf[jpnpnd++] = (a | 0x80);
           break;
         default:
@@ -5790,41 +5893,49 @@ int zkanji(int (*fn)(void)) { /* zkanji */
         }
       } else if (a == 0x0e) {
         jpnstz = 1;
-        if ((a = (*fn)()) < 0)
+        if ((a = (*fn)()) < 0) {
           return (a);
+        }
       } else if (a == 0x0f) {
         jpnstz = 0;
-        if ((a = (*fn)()) < 0)
+        if ((a = (*fn)()) < 0) {
           return (a);
+        }
       } else if (a == 0x1b) {
         jpnpbf[jpnpnd++] = a; /* Escape */
-        if ((a = (*fn)()) < 0)
+        if ((a = (*fn)()) < 0) {
           return (a);
+        }
         jpnpbf[jpnpnd++] = a;
         if (a == '$') {
-          if ((a = (*fn)()) < 0)
+          if ((a = (*fn)()) < 0) {
             return (a);
+          }
           jpnpbf[jpnpnd++] = a;
           if ((a == '@') || (a == 'B')) {
             jpnstz = 2;
             jpnpnt = jpnpnd = 0;
-            if ((a = (*fn)()) < 0)
+            if ((a = (*fn)()) < 0) {
               return (a);
+            }
           }
         } else if (a == '(') {
-          if ((a = (*fn)()) < 0)
+          if ((a = (*fn)()) < 0) {
             return (a);
+          }
           jpnpbf[jpnpnd++] = a;
           if ((a == 'B') || (a == 'J')) {
             jpnstz = 0;
             jpnpnt = jpnpnd = 0;
-            if ((a = (*fn)()) < 0)
+            if ((a = (*fn)()) < 0) {
               return (a);
+            }
           }
         } else if (a == 0x1b) {
           jpnpnt = jpnpnd = 0;
-          if ((a = (*fn)()) < 0)
+          if ((a = (*fn)()) < 0) {
             return (a);
+          }
         }
       } else {
         jpnpbf[jpnpnd++] = a;
@@ -5867,8 +5978,9 @@ CHAR xl258(CHAR c) { /* xl258 */ /* Latin-2 to CP858... */ return (c); }
 #endif /* LATIN2 */
 
 CHAR zl9as(CHAR c) { /* zl9as */ /* Latin-9 to US ASCII... */
-  if (c < (CHAR)0x80)
+  if (c < (CHAR)0x80) {
     return (c); /* Save a function call */
+  }
   switch (c) {
   case 0xa4:
     return (UNK); /* Euro */
@@ -5891,8 +6003,9 @@ CHAR zl9as(CHAR c) { /* zl9as */ /* Latin-9 to US ASCII... */
 
 CHAR xl9as(CHAR);
 CHAR xl9as(CHAR c) { /* xl9as */ /* Latin-9 to US ASCII... */
-  if (c < (CHAR)0x80)
+  if (c < (CHAR)0x80) {
     return (c); /* Save a function call */
+  }
   switch (c) {
   case 0xa4:
     return (UNK); /* Euro */
@@ -5950,8 +6063,9 @@ xw1l9(CHAR c) { /* xw1l9 */
 
 #ifdef LATIN2
 CHAR xl9l2(CHAR c) { /* xl9l2 */ /* Latin-9 to Latin-2... */
-  if (c < (CHAR)0x80)
+  if (c < (CHAR)0x80) {
     return (c); /* Save a function call */
+  }
   switch (c) {
   case 0xa4:
     return (UNK); /* Euro */
@@ -5978,50 +6092,55 @@ CHAR xl9l2(CHAR c) { /* xl9l2 */ /* Latin-9 to Latin-2... */
 #endif /* LATIN2 */
 
 CHAR xl958(CHAR c) { /* xl958 */ /* Latin-9 to CP858... */
-  if (c == 0xa4)                 /* Euro Symbol */
+  if (c == 0xa4) {               /* Euro Symbol */
     return ((CHAR)0xd5);
-  else if (c == 0x9e) /* This was currency symbol */
+  } else if (c == 0x9e) { /* This was currency symbol */
     return ((CHAR)0xcf);
+  }
   c = yl185[c];
   return (c);
 }
 
 CHAR x58as(CHAR c) { /* x58as */ /* CP858 to US ASCII... */
-  if (c == 0xd5)                 /* Euro rather than dotless i */
+  if (c == 0xd5) {               /* Euro rather than dotless i */
     return (UNK);
-  else
+  } else {
     return (x85as(c)); /* The rest is like CP850 */
+  }
 }
 
 CHAR x58l1(CHAR c) { /* x58l1 */ /* CP858 to Latin-1... */
-  if (c == 0xd5)                 /* Euro rather than dotless i */
+  if (c == 0xd5) {               /* Euro rather than dotless i */
     return ((CHAR)0xa4);         /* Return currency symbol */
-  else if (c == 0xcf)            /* This keeps it invertible */
+  } else if (c == 0xcf) {        /* This keeps it invertible */
     return ((CHAR)0x9e);
-  else
+  } else {
     return (x85l1(c));
+  }
 }
 
 #ifdef LATIN2
 CHAR x58l2(CHAR c) { /* x58l2 */ /* CP858 to Latin-2... */
-  if (c == 0xd5)                 /* Euro rather than dotless i */
+  if (c == 0xd5) {               /* Euro rather than dotless i */
     return ((CHAR)0xa4);         /* Return currency symbol */
-  else if (c == 0xcf)            /* This keeps it invertible */
+  } else if (c == 0xcf) {        /* This keeps it invertible */
     return ((CHAR)0x9e);         /* (if it ever was...) */
-  else                           /* Otherwise like CP850 */
+  } else {                       /* Otherwise like CP850 */
     return (x85l2(c));
+  }
 }
 #else
 #define x58l2 NULL
 #endif /* LATIN2 */
 
 CHAR x58l9(CHAR c) { /* x58l9 */ /* CP-858 to Latin-9... */
-  if (c == 0xd5)                 /* Euro rather than dotless i */
+  if (c == 0xd5) {               /* Euro rather than dotless i */
     return ((CHAR)0xa4);         /* Return currency symbol */
-  else if (c == 0xcf)            /* This keeps it invertible */
+  } else if (c == 0xcf) {        /* This keeps it invertible */
     return ((CHAR)0x9e);         /* (if it ever was...) */
-  else                           /* Otherwise like CP850 */
+  } else {                       /* Otherwise like CP850 */
     return (x85l1(c));           /* to Latin-1 */
+  }
 }
 
 /* End Euro functions */
@@ -7179,15 +7298,18 @@ int nxls = (sizeof(xls) / sizeof(CHAR *));
 */
 int cs_is_nrc(int x) {
 #ifdef UNICODE
-  if (x == TX_J201R || x == TX_DECSPEC || x == TX_DECTECH || txrinfo[x] == NULL)
+  if (x == TX_J201R || x == TX_DECSPEC || x == TX_DECTECH ||
+      txrinfo[x] == NULL) {
     return (0);
-  else
+  } else {
     return (txrinfo[x]->flags & X2U_STD && txrinfo[x]->size == 94);
+  }
 #else  /* UNICODE */
-  if ((cs_size(x) == 94))
+  if ((cs_size(x) == 94)) {
     return (1);
-  else
+  } else {
     return (0);
+  }
 #endif /* UNICODE */
 }
 
@@ -7200,12 +7322,13 @@ int cs_is_nrc(int x) {
 */
 int cs_is_std(int x) {
 #ifdef UNICODE
-  if (!txrinfo[x]) /* Even more safety */
+  if (!txrinfo[x]) { /* Even more safety */
     return (0);
-  else if (txrinfo[x]->size == 128) /* Just for safety */
+  } else if (txrinfo[x]->size == 128) { /* Just for safety */
     return (0);
-  else
+  } else {
     return (txrinfo[x]->flags & X2U_STD); /* Only this should be needed */
+  }
 #else
   switch (x) {
   case FC_CP437: /* Code pages use C1 graphics */
@@ -7226,8 +7349,9 @@ int cs_is_std(int x) {
 
 int cs_size(int x) {
 #ifdef UNICODE
-  if (!txrinfo[x])
+  if (!txrinfo[x]) {
     return (128);
+  }
   return (txrinfo[x]->size);
 #else
   switch (x) {
@@ -7409,12 +7533,15 @@ void initcsets() { /* Routine to reset or initialize */
   int i;           /* character-set associations. */
 
 #ifdef UNICODE
-  if (ucsorder < 0) /* For creating UCS-2 files. */
+  if (ucsorder < 0) { /* For creating UCS-2 files. */
     ucsorder = byteorder;
-  if (ucsorder < 0)
+  }
+  if (ucsorder < 0) {
     ucsorder = 0;
-  if (fileorder < 0) /* For reading UCS-2 files. */
+  }
+  if (fileorder < 0) { /* For reading UCS-2 files. */
     fileorder = ucsorder;
+  }
 #endif /* UNICODE */
 
   debug(F101, "initcsets nxls", "", nxls);
@@ -7423,10 +7550,12 @@ void initcsets() { /* Routine to reset or initialize */
   debug(F101, "initcsets TERM LOCAL CSET", "", tcsl);
   debug(F101, "initcsets TERM REMOTE CSET", "", tcsr);
 
-  for (i = 0; i <= MAXFCSETS; i++) /* First clear them all... */
+  for (i = 0; i <= MAXFCSETS; i++) { /* First clear them all... */
     afcset[i] = -1;
-  for (i = 0; i <= MAXTCSETS; i++)
+  }
+  for (i = 0; i <= MAXTCSETS; i++) {
     axcset[i] = -1;
+  }
 
   /* Now set specific defaults for incoming files */
 

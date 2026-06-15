@@ -5258,8 +5258,9 @@ int doxopts() {
             xxstring);
   if (y == -3) {
     printf("\n");
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
     for (i = 0; i <= XA_MAX; i++) {
       if (xopthlp[i]) {
         printf("%s\n", xopthlp[i]);
@@ -5267,18 +5268,21 @@ int doxopts() {
         printf("\n");
         n += 3;
         if (n > (cmd_rows - 6)) {
-          if (!askmore())
+          if (!askmore()) {
             return (0);
-          else
+          } else {
             n = 0;
+          }
         }
       }
     }
     return (1);
-  } else if (y < 0)
+  } else if (y < 0) {
     return (y);
-  if ((x = cmcfm()) < 0)
+  }
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   printf("\n%s\n", xopthlp[y]);
   printf("   %s\n\n", xarghlp[y]);
   return (1);
@@ -5292,14 +5296,16 @@ int dohopts() {
   extern int optact[];
   if ((x = cmtxt("A command-line option character,\n\
 or the word ALL, or carriage return for an overview",
-                 "", &s, xxstring)) < 0)
+                 "", &s, xxstring)) < 0) {
     return (x);
-  if (!*s)
+  }
+  if (!*s) {
     msg = 1;
-  else if (!strcmp(s, "all") || (!strcmp(s, "ALL")))
+  } else if (!strcmp(s, "all") || (!strcmp(s, "ALL"))) {
     all = 1;
-  else if (*s == '-') /* Be tolerant of leading hyphen */
+  } else if (*s == '-') { /* Be tolerant of leading hyphen */
     s++;
+  }
   if (!all && (int)strlen(s) > 1) {
     printf("?A single character, please, or carriage to list them all.\n");
     return (-9);
@@ -5310,8 +5316,9 @@ or the word ALL, or carriage return for an overview",
   } else {
     y = *s;
     z = (y == 0) ? 127 : y;
-    if (y == 0)
+    if (y == 0) {
       y = 33;
+    }
   }
 #ifdef CK_TTGWSIZ
   /* Check whether window size changed */
@@ -5326,10 +5333,11 @@ or the word ALL, or carriage return for an overview",
   for (i = 0, n = 1; msg != 0 && *cmdlhlp[i]; i++) {
     printf("%s\n", cmdlhlp[i]);
     if (++n > (cmd_rows - 3)) {
-      if (!askmore())
+      if (!askmore()) {
         return (0);
-      else
+      } else {
         n = 0;
+      }
     }
   }
   if (all) {
@@ -5337,8 +5345,9 @@ or the word ALL, or carriage return for an overview",
     n += 2;
   }
   for (i = y; msg == 0 && i <= z; i++) {
-    if (!opthlp[i])
+    if (!opthlp[i]) {
       continue;
+    }
     if (arghlp[i]) { /* Option with arg */
       printf(" -%c <arg>%s\n", (char)i, (optact[i] ? " (action option)" : ""));
 
@@ -5361,33 +5370,37 @@ or the word ALL, or carriage return for an overview",
     }
     n += x;
     if (n > (cmd_rows - x - 1)) {
-      if (!askmore())
+      if (!askmore()) {
         return (0);
-      else
+      } else {
         n = 0;
+      }
     }
   }
   if (all) { /* Jeff, Jan 2003 */
     printf("\n");
     if (++n >= cmd_rows) {
-      if (!askmore())
+      if (!askmore()) {
         return (0);
-      else
+      } else {
         n = 0;
+      }
     }
     printf("The following extended options are available:\n");
     if (++n >= cmd_rows) {
-      if (!askmore())
+      if (!askmore()) {
         return (0);
-      else
+      } else {
         n = 0;
+      }
     }
     printf("\n");
     if (++n >= cmd_rows) {
-      if (!askmore())
+      if (!askmore()) {
         return (0);
-      else
+      } else {
         n = 0;
+      }
     }
     for (i = 0; i <= XA_MAX; i++) {
       if (xopthlp[i]) {
@@ -5396,10 +5409,11 @@ or the word ALL, or carriage return for an overview",
         printf("\n");
         n += 3;
         if (n > (cmd_rows - 4)) {
-          if (!askmore())
+          if (!askmore()) {
             return (0);
-          else
+          } else {
             n = 0;
+          }
         }
       }
     }
@@ -5672,14 +5686,17 @@ static int dohfile(int cx) {
     /* Get subcommand */
     if ((cx = cmkey(fctab, nfctab, "Operation", "", xxstring)) < 0) {
       if (cx == -3) {
-        if ((x = cmcfm()) < 0)
+        if ((x = cmcfm()) < 0) {
           return (x);
+        }
         cx = XXFILE;
-      } else
+      } else {
         return (cx);
+      }
     }
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
     switch (cx) {
     case FIL_CLS:
       cx = XXF_CL;
@@ -5752,28 +5769,31 @@ int dohlp(int xx) {
   };
 
 #ifdef NOHELP
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   printf("\n%s, Copyright (C) 1985, %s,", versio, ck_cryear);
 #ifndef NOIKSD
-  if (inserver)
+  if (inserver) {
     return (hmsga(tophlpi));
-  else
+  } else
 #endif /* IKSD */
     return (hmsga(tophlp));
 
 #else /* help is available */
 
-  if (helpfile)
+  if (helpfile) {
     return (dotype(helpfile, xaskmore, 0, 0, NULL, 0, NULL, 0, 0, NULL, 0));
+  }
 
 #ifdef CKCHANNELIO
-  if (xx == XXFILE)
+  if (xx == XXFILE) {
     return (dohfile(xx));
-  else if (xx == XXF_RE || xx == XXF_WR || xx == XXF_OP || xx == XXF_CL ||
-           xx == XXF_SE || xx == XXF_RW || xx == XXF_FL || xx == XXF_LI ||
-           xx == XXF_ST || xx == XXF_CO)
+  } else if (xx == XXF_RE || xx == XXF_WR || xx == XXF_OP || xx == XXF_CL ||
+             xx == XXF_SE || xx == XXF_RW || xx == XXF_FL || xx == XXF_LI ||
+             xx == XXF_ST || xx == XXF_CO) {
     return (dohfile(xx));
+  }
 #endif /* CKCHANNELIO */
 
   switch (xx) {
@@ -5875,9 +5895,11 @@ Example: COMMENT - this is a comment.\n\
 
   case XXDEF: /* DEFINE */
 #ifndef NOSPL
-    if (hlptok) /* What they actually typed... */
-      if (hlptok[0] == '.')
+    if (hlptok) { /* What they actually typed... */
+      if (hlptok[0] == '.') {
         return (hmsga(hxxdot));
+      }
+    }
 #endif /* NOSPL */
     return (hmsga(hxxdef));
 
@@ -6084,8 +6106,9 @@ Hang up the phone or network connection."));
       doesn't do any harm, because the first call to cmcfm() sets cmflgs to 1,
       making the second call return immediately.
     */
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
 
     if (helpfile) {
       printf("\n%s, Copyright (C) 1985, %s,\n\
@@ -6285,12 +6308,14 @@ sent successfully is deleted after it is sent."));
 #ifndef NOPUSH
   case XXSHE:
     if (nopush) {
-      if ((x = cmcfm()) < 0)
+      if ((x = cmcfm()) < 0) {
         return (x);
+      }
       printf("Sorry, help not available for \"%s\"\n", cmdbuf);
       break;
-    } else
+    } else {
       return (hmsga(hxxshe));
+    }
 #ifdef CK_REDIR
   case XXFUN:
     return (hmsg("Syntax: REDIRECT command\n\
@@ -6522,8 +6547,9 @@ Equivalent to GET /COMMAND; see HELP GET for details."));
     if (y == -1) { /* Reparse needed */
       return (y);
     } else if (y == -3) {
-      if ((x = cmcfm()) < 0) /* For recall buffer... */
+      if ((x = cmcfm()) < 0) { /* For recall buffer... */
         return (x);
+      }
       return (dohfunc(y)); /* -3 gives general message */
     }
     if (y < 0) { /* Something given but didn't match */
@@ -6537,8 +6563,9 @@ Equivalent to GET /COMMAND; see HELP GET for details."));
       }
       /* Chop off leading "\\f" or "\f" or "f" */
       p = atmbuf;
-      if (*p == CMDQ) /* Allow for \\f... */
+      if (*p == CMDQ) { /* Allow for \\f... */
         p++;
+      }
       if (*p == CMDQ && (*(p + 1) == 'f' || *(p + 1) == 'F')) { /* or \f */
         p += 2;
       } else if (*p == 'f' || *p == 'F') { /* or just f */
@@ -6550,11 +6577,13 @@ Equivalent to GET /COMMAND; see HELP GET for details."));
       printf("?No such function - \"%s\"\n", atmbuf);
       return (-9);
     }
-    x = cmgbrk();              /* Find out how user terminated */
-    if (x == LF || x == CK_CR) /* if with CR or LF */
-      cmflgs = 1;              /* restore cmflgs to say so */
-    if ((x = cmcfm()) < 0)     /* And THEN confirm so command will */
-      return (x);              /* get into recall buffer. */
+    x = cmgbrk();                /* Find out how user terminated */
+    if (x == LF || x == CK_CR) { /* if with CR or LF */
+      cmflgs = 1;                /* restore cmflgs to say so */
+    }
+    if ((x = cmcfm()) < 0) { /* And THEN confirm so command will */
+      return (x);            /* get into recall buffer. */
+    }
     return (dohfunc(y));
 #endif /* NOSPL */
 
@@ -6822,15 +6851,19 @@ command, given at the prompt, logs you out and closes your session."));
 
   default: {
     char *s;
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
     s = cmdbuf + (int)strlen(cmdbuf) - 1;
-    while (s >= cmdbuf && *s == SP)
+    while (s >= cmdbuf && *s == SP) {
       *s-- = NUL;
-    while (s >= cmdbuf && *s != SP)
+    }
+    while (s >= cmdbuf && *s != SP) {
       s--;
-    while (*s == SP)
+    }
+    while (*s == SP) {
       s++;
+    }
     printf("Sorry, help not available for \"%s\"\n", s);
     break;
   }
@@ -6844,8 +6877,9 @@ command, given at the prompt, logs you out and closes your session."));
 
 int hmsg(char *s) {
   int x;
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   printf("\n%s\n\n", s);
   return (0);
 }
@@ -6856,8 +6890,9 @@ int              /* Print an array of lines, */
 hmsga(char *s[]) /* cheap version. */
 {
   int i;
-  if ((i = cmcfm()) < 0)
+  if ((i = cmcfm()) < 0) {
     return (i);
+  }
   printf("\n");             /* Start off with a blank line */
   for (i = 0; *s[i]; i++) { /* Print each line. */
     printf("%s\n", s[i]);
@@ -6873,8 +6908,9 @@ hmsga(char *s[]) /* cheap version. */
 {
   extern int hmtopline; /* (This should be a parameter...) */
   int x, y, i, j, k, n;
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
 
 #ifdef CK_TTGWSIZ
   /* Check whether window size changed */
@@ -6892,9 +6928,11 @@ hmsga(char *s[]) /* cheap version. */
     printf("%s\n", s[i]); /* Print a line. */
     y = (int)strlen(s[i]);
     k = 1;
-    for (j = 0; j < y; j++) /* See how many newlines were */
-      if (s[i][j] == '\n')
+    for (j = 0; j < y; j++) { /* See how many newlines were */
+      if (s[i][j] == '\n') {
         k++; /* in the string... */
+      }
+    }
     n += k;
     if (n > (cmd_rows - 3) && *s[i + 1]) { /* After a screenful, give them */
       if (!askmore()) {                    /* a "more?" prompt. */
@@ -8365,20 +8403,25 @@ static char *hsetiks[] = {
 int dohset(int xx) {
   int x;
 
-  if (xx == -3)
+  if (xx == -3) {
     return (hmsga(hmhset));
-  if (xx < 0)
+  }
+  if (xx < 0) {
     return (xx);
+  }
 
 #ifdef NEWFTP
-  if (xx == XYFTPX)
+  if (xx == XYFTPX) {
     return (dosetftphlp());
-  if (xx == XYGPR)
+  }
+  if (xx == XYGPR) {
     return (hmsga(hmxygpr));
+  }
 #endif /* NEWFTP */
 
-  if ((x = cmcfm()) < 0)
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   switch (xx) {
 #ifndef NOIKSD
   case XYIKS:
@@ -8934,8 +8977,9 @@ int dohfunc(int xx) {
   if (xx == -3) {
     return (hmsga(hmxxfunc));
   }
-  if (xx == FN_WORD) /* Long help message */
+  if (xx == FN_WORD) { /* Long help message */
     return (hmsga(hmfword));
+  }
 
   printf("\n");
   switch (xx) {
@@ -10068,12 +10112,15 @@ static char *hrset[] = {
 
 int dohrmt(int xx) {
   int x;
-  if (xx == -3)
+  if (xx == -3) {
     return (hmsga(hmhrmt));
-  if (xx < 0)
+  }
+  if (xx < 0) {
     return (xx);
-  if ((x = cmcfm()) < 0)
+  }
+  if ((x = cmcfm()) < 0) {
     return (x);
+  }
   switch (xx) {
 
   case XZCPY:
@@ -10272,8 +10319,9 @@ int dohrmt(int xx) {
 #endif /* NEWFTP */
 
   default:
-    if ((x = cmcfm()) < 0)
+    if ((x = cmcfm()) < 0) {
       return (x);
+    }
     printf("?Sorry, no help available - \"%s\"\n", cmdbuf);
     return (-9);
   }

@@ -751,8 +751,9 @@ static MDMINF DIGITEL = /* Digitel DT-22 CCITT variant used in Brazil */
                           Attempts to adhere strictly to the V.25bis specification do not produce
                           good                     results in real life.  The modem for which this
                           code was developed:                     (a)                     ignores
-                          parity; (b) sometimes                     terminates responses with LF CR instead                     of CR                     LF;
-                          (c)                     has a Hayes-like escape sequence; (d) supports a hangup
+                          parity; (b) sometimes                     terminates responses with LF CR
+                          instead                     of CR                     LF;                     (c)                     has a
+                          Hayes-like escape sequence; (d) supports a hangup
                           ("HUP")                     command.  Information from Fernando Cabral in
                           Brasilia.
                         */
@@ -4135,17 +4136,19 @@ static void dologdial(char *s) {
   int x, m, n;
   extern char cxlogbuf[], uidbuf[], myhost[];
 
-  if (!s)
+  if (!s) {
     s = "";
+  }
   if ((x = strlen(s)) > 0) { /* Replace spaces by underscores */
     r = (char *)malloc(x + 1);
     if (r) {
       int i;
       for (i = 0; i <= x; i++) {
-        if (s[i] != 0 && s[i] <= SP)
+        if (s[i] != 0 && s[i] <= SP) {
           r[i] = '_';
-        else
+        } else {
           r[i] = s[i];
+        }
       }
       s = r;
     }
@@ -4169,10 +4172,12 @@ static void dologdial(char *s) {
     sprintf(p, " %s %s T=DIAL H=%s D=%s N=%s O=%s ", /* safe (prechecked) */
             uidbuf, ckgetpid(), myhost, ttname, s, buf2);
     debug(F110, "dologdial cxlogbuf", cxlogbuf, 0);
-  } else
+  } else {
     sprintf(p, "LOGDIAL BUFFER OVERFLOW");
-  if (r)
+  }
+  if (r) {
     free(r);
+  }
 }
 #endif /* CKLOGDIAL */
 
@@ -4218,8 +4223,9 @@ static int ddinc(int n) {
   while (!done) {
     c = ttinc(n);
     /* debug(F000,"ddinc","",c); */
-    if (c < 0)
+    if (c < 0) {
       return (c);
+    }
     if ((c == IAC) && network && IS_TELNET()) {
       switch (tn_doop((CHAR)(c & 0xff), duplex, ttinc)) {
       case 2:
@@ -4230,8 +4236,9 @@ static int ddinc(int n) {
       default:
         continue;
       }
-    } else
+    } else {
       done = 1;
+    }
   }
   return (c & 0xff);
 #else  /* TNCODE */
@@ -4252,15 +4259,17 @@ static void ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
     ttoc(*s);
 #ifdef TCPSOCKET
     if (*s == CK_CR && network && IS_TELNET()) {
-      if (!TELOPT_ME(TELOPT_BINARY) && tn_nlm != TNL_CR)
+      if (!TELOPT_ME(TELOPT_BINARY) && tn_nlm != TNL_CR) {
         ttoc((char)((tn_nlm == TNL_CRLF) ? LF : NUL));
-      else if (TELOPT_ME(TELOPT_BINARY) &&
-               (tn_b_nlm == TNL_CRLF || tn_b_nlm == TNL_CRNUL))
+      } else if (TELOPT_ME(TELOPT_BINARY) &&
+                 (tn_b_nlm == TNL_CRLF || tn_b_nlm == TNL_CRNUL)) {
         ttoc((char)((tn_b_nlm == TNL_CRLF) ? LF : NUL));
+      }
     }
 #endif /* TCPSOCKET */
-    if (millisec > 0)
+    if (millisec > 0) {
       msleep(millisec);
+    }
   }
 }
 
@@ -4278,10 +4287,12 @@ static void waitfor(char *s) {
       x = (CHAR)(ddinc(0) & 0177);
       debug(F000, "dial waitfor got", "", x);
       if (dialdpy) {
-        if (x != LF)
+        if (x != LF) {
           conoc(x);
-        if (x == CK_CR)
+        }
+        if (x == CK_CR) {
           conoc(LF);
+        }
       }
     } while (x != c);
   }
@@ -4293,10 +4304,13 @@ static int didweget(char *s, char *r) /* Looks in string s for response r */
   int i;
   debug(F110, "didweget", r, 0);
   debug(F110, " in", s, 0);
-  for (i = (int)strlen(s) - lr; i >= 0; i--)
-    if (s[i] == r[0])
-      if (!strncmp(s + i, r, lr))
+  for (i = (int)strlen(s) - lr; i >= 0; i--) {
+    if (s[i] == r[0]) {
+      if (!strncmp(s + i, r, lr)) {
         return (1);
+      }
+    }
+  }
   return (0);
 }
 
@@ -4320,8 +4334,9 @@ static void dreset() {
 static void spdchg(long s)
 /* spdchg */ {
   int s2;
-  if (!mdmspd)            /* If modem interface speed locked, */
-    return;               /*  don't do this. */
+  if (!mdmspd) { /* If modem interface speed locked, */
+    return;      /*  don't do this. */
+  }
   if (speed != s) {       /* Speeds differ? */
     s2 = s / 10L;         /* Convert to cps expressed as int */
     if (ttsspd(s2) < 0) { /* Change speed. */
@@ -4339,10 +4354,12 @@ static void spdchg(long s)
 */
 static void dialoc(char c) { /* dialoc */ /* Dial Output Character */
   if (dialdpy) {
-    if (c != LF)
+    if (c != LF) {
       conoc(c); /* Don't echo LF */
-    if (c == CK_CR)
+    }
+    if (c == CK_CR) {
       conoc(LF); /* Echo CR as CRLF */
+    }
   }
 }
 
@@ -4353,14 +4370,18 @@ char *getdm(int x) /* Return dial modifier */
   int m;
   int ishayes = 0;
   m = mdmtyp;
-  if (m < 1)
-    if (mdmsav > -1)
+  if (m < 1) {
+    if (mdmsav > -1) {
       m = mdmsav;
-  if (m < 1)
+    }
+  }
+  if (m < 1) {
     return ("");
+  }
 #ifndef MINIDIAL
-  if (m == n_TAPI)
+  if (m == n_TAPI) {
     m = n_HAYES;
+  }
 #endif /* MINIDIAL */
   mp = modemp[m];
   ishayes = (dialcapas ? dialcapas : mp->capas) & CKD_AT;
@@ -4420,10 +4441,11 @@ getdialenv() {
     int i;
     xwords(p, (MAXDDIR - 2), dialdir, 0);
     for (i = 0; i < (MAXDDIR - 1); i++) {
-      if (!dialdir[i + 1])
+      if (!dialdir[i + 1]) {
         break;
-      else
+      } else {
         dialdir[i] = dialdir[i + 1];
+      }
     }
     ndialdir = i;
   }
@@ -4434,7 +4456,7 @@ getdialenv() {
 
 #ifndef NOICP
   p = getenv("K_DIAL_METHOD"); /* Local dial method */
-  if (p)
+  if (p) {
     if (*p) {
       extern struct keytab dial_m[];
       extern int ndial_m;
@@ -4449,6 +4471,7 @@ getdialenv() {
         }
       }
     }
+  }
 #endif /* NOICP */
 
   p = NULL;
@@ -4457,10 +4480,11 @@ getdialenv() {
     int i;
     xwords(p, 7, dialtfc, 0);
     for (i = 0; i < 8; i++) {
-      if (!dialtfc[i + 1])
+      if (!dialtfc[i + 1]) {
         break;
-      else
+      } else {
         dialtfc[i] = dialtfc[i + 1];
+      }
     }
     ntollfree = i;
     free(p);
@@ -4470,28 +4494,33 @@ getdialenv() {
     dialpucc[i] = NULL;
   }
   for (i = 0; i < MAXTPCC; i++) { /* Init Tone country list */
-    if (tonecc[i])
+    if (tonecc[i]) {
       makestr(&(dialtocc[i]), tonecc[i]);
-    else
+    } else {
       break;
+    }
   }
   ndialtocc = i;
   for (i = 0; i < MAXTPCC; i++) { /* Init Pulse country list */
-    if (pulsecc[i])
+    if (pulsecc[i]) {
       makestr(&(dialpucc[i]), pulsecc[i]);
-    else
+    } else {
       break;
+    }
   }
   ndialpucc = i;
 
   if (diallcc) {                 /* Have country code */
     if (!strcmp(diallcc, "1")) { /* If it's 1 */
-      if (!dialldp)              /* Set these prefixes... */
+      if (!dialldp) {            /* Set these prefixes... */
         makestr(&dialldp, "1");
-      if (!dialtfp)
+      }
+      if (!dialtfp) {
         makestr(&dialtfp, "1");
-      if (!dialixp)
+      }
+      if (!dialixp) {
         makestr(&dialixp, "011");
+      }
       if (ntollfree == 0) { /* Toll-free area codes */
         if ((dialtfc[0] = malloc(4))) {
           ckstrncpy(dialtfc[0], "800", 4); /* 1970-something */
@@ -4512,22 +4541,26 @@ getdialenv() {
       }
     } else if (!strcmp(diallcc, "358") &&
                ((int)strcmp(zzndate(), "19961011") > 0)) { /* Finland */
-      if (!dialldp) /* Long-distance prefix */
+      if (!dialldp) { /* Long-distance prefix */
         makestr(&dialldp, "9");
-      if (!dialixp) /* International dialing prefix */
+      }
+      if (!dialixp) { /* International dialing prefix */
         makestr(&dialixp, "990");
+      }
     } else { /* Not NANP or Finland */
-      if (!dialldp)
+      if (!dialldp) {
         makestr(&dialldp, "0");
-      if (!dialixp)
+      }
+      if (!dialixp) {
         makestr(&dialixp, "00");
+      }
     }
   }
   xmakestr(&diallac, getenv("K_AREACODE"));
   xmakestr(&dialpxo, getenv("K_PBX_OCP"));
   xmakestr(&dialpxi, getenv("K_PBX_ICP"));
   p = getenv("K_PBX_XCH");
-  if (p)
+  if (p) {
     if (*p) {
       char *s = NULL;
       char *pp[MAXPBXEXCH + 2];
@@ -4535,14 +4568,16 @@ getdialenv() {
       if (s) {
         xwords(s, MAXPBXEXCH + 1, pp, 0); /* Note: pp[] is 1-based. */
         for (i = 0; i <= MAXPBXEXCH; i++) {
-          if (!pp[i + 1])
+          if (!pp[i + 1]) {
             break;
+          }
           makestr(&(dialpxx[i]), pp[i + 1]);
           ndialpxx++;
         }
         makestr(&s, NULL); /* Free poked copy */
       }
     }
+  }
 }
 
 static int dialfail(int x) {
@@ -4556,21 +4591,24 @@ static int dialfail(int x) {
   if (dialdpy) { /* If showing progress */
     debug(F100, "dial display is on", "", 0);
     p = ck_time(); /* get current time; */
-    if (*p)
+    if (*p) {
       printf("%s: ", p);
+    }
   }
   switch (fail_code) { /* Type of failure */
   case F_TIME:         /* Timeout */
-    if (dial_what == DW_INIT)
+    if (dial_what == DW_INIT) {
       printf("Timed out while trying to initialize modem.\n");
-    else if (dial_what == DW_DIAL)
+    } else if (dial_what == DW_DIAL) {
       printf("%s interval expired.\n",
              func_code == 0 ? "DIAL TIMEOUT" : "ANSWER timeout");
-    else
+    } else {
       printf("Timeout.\n");
+    }
     fflush(stdout);
-    if (mdmcapas & CKD_AT)
+    if (mdmcapas & CKD_AT) {
       ttoc('\015'); /* Send CR to interrupt dialing */
+    }
     /* Some Hayes modems don't fail with BUSY on busy lines */
     dialsta = DIA_TIMO;
     debug(F110, "dial", "timeout", 0);
@@ -4583,8 +4621,9 @@ static int dialfail(int x) {
     interrupted = 1;
 #endif /* NOXFER */
     debug(F111, "dial", "interrupted", mdmcapas & CKD_AT);
-    if (mdmcapas & CKD_AT)
+    if (mdmcapas & CKD_AT) {
       ttoc('\015'); /* Send CR to interrupt dialing */
+    }
     dialsta = DIA_INTR;
     break;
 
@@ -4592,17 +4631,21 @@ static int dialfail(int x) {
     debug(F110, "dialfail()", "lbuf", 0);
     if (strlen(lbuf) > 0) { /* was (lbuf && *lbuf)  */
       printf(" \"");
-      for (s = lbuf; *s; s++)
-        if (isprint(*s))
+      for (s = lbuf; *s; s++) {
+        if (isprint(*s)) {
           putchar(*s); /* Display printable reason */
+        }
+      }
       printf("\"");
-    } else
+    } else {
       printf(func_code == 0 ? " Call not completed."
                             : " Call did not come in.");
+    }
     printf("\n");
     debug(F110, "dial", lbuf, 0);
-    if (dialsta < 0)
+    if (dialsta < 0) {
       dialsta = DIA_UNSP;
+    }
     break;
 
   case F_MINIT: /* Failure to initialize modem */
@@ -4615,23 +4658,27 @@ static int dialfail(int x) {
     printf("unknown\n");
     debug(F110, "dial", "unknown", 0);
     fflush(stdout);
-    if (mdmcapas & CKD_AT)
+    if (mdmcapas & CKD_AT) {
       ttoc('\015'); /* Send CR to interrupt dialing */
+    }
     dialsta = DIA_INTR;
   }
 
 #ifdef DYNAMIC
-  if (rbuf)
+  if (rbuf) {
     free(rbuf);
+  }
   rbuf = NULL;
-  if (fbuf)
+  if (fbuf) {
     free(fbuf);
+  }
   fbuf = NULL;
 #endif /* DYNAMIC */
 
-  if (dialsta < 0)
+  if (dialsta < 0) {
     dialsta = DIA_UERR; /* Set failure code */
-  return (0);           /* Return zero (important) */
+  }
+  return (0); /* Return zero (important) */
 }
 
 /*  C K D I A L	 --  Dial up the remote system */
@@ -4663,11 +4710,13 @@ static void _dodial(void *threadinfo)
     printf("DIAL command + phone number too long!\n");
     dreset();
 #ifdef DYNAMIC
-    if (rbuf)
+    if (rbuf) {
       free(rbuf);
+    }
     rbuf = NULL;
-    if (fbuf)
+    if (fbuf) {
       free(fbuf);
+    }
     fbuf = NULL;
 #endif      /* DYNAMIC */
     return; /* No conversation with modem to complete dialing */
@@ -4691,8 +4740,9 @@ static void _dodial(void *threadinfo)
         s[3] != 't' && s[3] != 'p') {
       char xbuf[200];
       c = (dialmth == XYDM_T) ? 'T' : 'P';
-      if (islower(s[0]))
+      if (islower(s[0])) {
         c = tolower(c);
+      }
       if ((int)strlen(telnbr) < 199) {
         sprintf(xbuf, "%c%s", c, telnbr);
         makestr(&xnum, xbuf);
@@ -4712,8 +4762,9 @@ static void _dodial(void *threadinfo)
     if (dialhup() < 0) { /* Hangup first */
       debug(F100, "_dodial dialhup failed", "", 0);
 #ifndef MINIDIAL
-      if (mdmcapas & CKD_TB)                /* Telebits might need a BREAK */
-        ttsndb();                           /*  first. */
+      if (mdmcapas & CKD_TB) { /* Telebits might need a BREAK */
+        ttsndb();              /*  first. */
+      }
 #endif                                      /* MINIDIAL */
       if (dialhng && dialsta != DIA_PART) { /* If hangup failed, */
         ttclos(0);                          /* close and reopen the device. */
@@ -4722,11 +4773,13 @@ static void _dodial(void *threadinfo)
           printf("Try 'set line %s' again.\n", ttname);
           dialsta = DIA_HANG;
 #ifdef DYNAMIC
-          if (rbuf)
+          if (rbuf) {
             free(rbuf);
+          }
           rbuf = NULL;
-          if (fbuf)
+          if (fbuf) {
             free(fbuf);
+          }
           fbuf = NULL;
 #endif /* DYNAMIC */
           dreset();
@@ -4738,8 +4791,9 @@ static void _dodial(void *threadinfo)
   }
 #ifndef MINIDIAL
   /* Don't start talking to Rolm too soon */
-  if (mymdmtyp == n_ROLM && dialsta != DIA_PART)
+  if (mymdmtyp == n_ROLM && dialsta != DIA_PART) {
     msleep(500);
+  }
 #endif /* MINIDIAL */
 
   if (dialsta != DIA_PART /* Some initial setups. */
@@ -4751,9 +4805,11 @@ static void _dodial(void *threadinfo)
     dial_what = DW_INIT; /* What I'm Doing Now   */
     if (dialdpy) {       /* If showing progress, */
       p = ck_time();     /* get timestamp.   */
-      if (!inited)
-        if (*p)
+      if (!inited) {
+        if (*p) {
           printf(" Initializing: %s...\n", p);
+        }
+      }
     }
   }
 #ifndef MINIDIAL
@@ -4770,10 +4826,12 @@ static void _dodial(void *threadinfo)
           speed = ttgspd();
         }
       } else {
-        if (dialsta == DIA_PART)
+        if (dialsta == DIA_PART) {
           cktapihangup();
-        if (!fail_code)
+        }
+        if (!fail_code) {
           fail_code = F_MODEM;
+        }
         dialsta = DIA_TAPI;
       }
       break;
@@ -4823,15 +4881,17 @@ static void _dodial(void *threadinfo)
 
     if ((mdmcapas & CKD_AT) && dialsta != DIA_PART) {
 
-      if (dialpace > -1) /* Set intercharacter pacing */
+      if (dialpace > -1) { /* Set intercharacter pacing */
         wr = dialpace;
-      else
+      } else {
         wr = mp->wake_rate;
+      }
 
-      if (dialini) /* Get wakeup/init string */
+      if (dialini) { /* Get wakeup/init string */
         ws = dialini;
-      else
+      } else {
         ws = mp->wake_str;
+      }
 
       /* First get the modem's attention and enable result codes */
 
@@ -4840,24 +4900,28 @@ static void _dodial(void *threadinfo)
           ttoc('\015'); /* AT must go first for speed */
           msleep(wr);   /* detection. */
         }
-        if (mymdmtyp == n_GENERIC)  /* Force word result codes */
-          ttslow("ATQ0V1\015", wr); /* for generic modem type */
-        else
+        if (mymdmtyp == n_GENERIC) { /* Force word result codes */
+          ttslow("ATQ0V1\015", wr);  /* for generic modem type */
+        } else {
           ttslow("ATQ0\015", wr);
+        }
         mdmstat = getok(tries < 2 ? 2 : tries, 1); /* Get response */
-        if (mdmstat > 0)
+        if (mdmstat > 0) {
           break; /* OK - done */
+        }
         if (dialdpy && tries > 0) {
           printf("\r\n No response from modem");
           if (tries == 4) {
             printf(".\r\n");
             dialsta = DIA_NRSP;
 #ifdef DYNAMIC
-            if (rbuf)
+            if (rbuf) {
               free(rbuf);
+            }
             rbuf = NULL;
-            if (fbuf)
+            if (fbuf) {
               free(fbuf);
+            }
             fbuf = NULL;
 #endif              /* DYNAMIC */
             return; /* return failure */
@@ -4941,11 +5005,13 @@ static void _dodial(void *threadinfo)
         for (tries = 4; tries > 0; tries--) { /* Send the command */
           ttslow(flocmd, wr);
           mdmstat = getok(5, 1);
-          if (mdmstat > 0)
+          if (mdmstat > 0) {
             break;
-          if (dialdpy && tries > 1)
+          }
+          if (dialdpy && tries > 1) {
             printf(" No response from modem, retrying%s...\n",
                    (tries < 4) ? " again" : "");
+          }
         }
 
 #ifdef CK_TTSETFLOW
@@ -4968,19 +5034,23 @@ static void _dodial(void *threadinfo)
       ttflui(); /* Clear out stuff from modem setup */
       msleep(250);
 
-      if (!ws)
+      if (!ws) {
         goto xdialec; /* No init string */
-      if (!*ws)
+      }
+      if (!*ws) {
         goto xdialec;
+      }
 
       for (tries = 4; tries > 0; tries--) { /* Send init string */
         ttslow(ws, wr);
         mdmstat = getok(4, 1); /* Get response */
-        if (mdmstat > 0)
+        if (mdmstat > 0) {
           break;
-        if (dialdpy && tries > 1)
+        }
+        if (dialdpy && tries > 1) {
           printf(" No response from modem, retrying%s...\n",
                  (tries < 4) ? " again" : "");
+        }
       }
       debug(F101, "_dodial wake_str mdmstat", "", mdmstat);
 
@@ -5002,16 +5072,18 @@ static void _dodial(void *threadinfo)
       if (ws && (int)strlen(ws) > 0) {
         debug(F111, "_dodial default, wake string", ws, wr);
         ttslow(ws, wr);
-      } else
+      } else {
         debug(F100, "_dodial no wake_str", "", 0);
+      }
       if (mp->wake_prompt && (int)strlen(mp->wake_prompt) > 0) {
         debug(F110, "_dodial default, waiting for wake_prompt", mp->wake_prompt,
               0);
         alarm(10);
         waitfor(mp->wake_prompt);
         alarm(0);
-      } else
+      } else {
         debug(F100, "_dodial no wake_prompt", "", 0);
+      }
     }
 
   /* Handle error correction, data compression, and flow control... */
@@ -5062,8 +5134,9 @@ xdialec:
 
     /* Enable/disable data compression */
 
-    if (x > 0)
+    if (x > 0) {
       x = 0;
+    }
     if (dialdc) {
       if (x < 0 || !dialec) {
         printf(
@@ -5090,8 +5163,9 @@ xdialec:
     }
     if (x && xx_ok) { /* Look for OK response */
       x = (*xx_ok)(5, 1);
-      if (x < 0)
+      if (x < 0) {
         printf("WARNING - Trouble enabling compression\n");
+      }
     }
   }
 
@@ -5103,10 +5177,11 @@ xdialec:
     switch (mymdmtyp) {
 
     case n_MICROCOM: /* Microcoms in SX mode */
-      if (dialksp)
+      if (dialksp) {
         sprintf(tbcmdbuf, "APM1;KMC%d\015", stchr); /* safe */
-      else
+      } else {
         sprintf(tbcmdbuf, "APM0\015"); /* safe */
+      }
       ttslow(tbcmdbuf, MICROCOM.wake_rate);
       alarm(3);
       waitfor(mp->wake_prompt);
@@ -5156,10 +5231,11 @@ xdialec:
       !dialspon && !dialspoff && !dialvol1 && !dialvol2 && !dialvol3) {
     /* AT command set and commands have not been customized */
     /* so combine speaker and volume commands. */
-    if (mdmspk)
+    if (mdmspk) {
       sprintf(lbuf, "ATM1L%d%c", mdmvol, 13); /* safe */
-    else
-      sprintf(lbuf, "ATM0%c", 13);  /* safe */
+    } else {
+      sprintf(lbuf, "ATM0%c", 13); /* safe */
+    }
     ttslow(lbuf, wr);               /* Send command */
     getok(5, 1);                    /* Get but ignore response */
   } else if (dialsta != DIA_PART) { /* Customized or not AT commands */
@@ -5191,8 +5267,9 @@ xdialec:
       }
     }
     if (x) {
-      if (xx_ok) /* Get response */
+      if (xx_ok) { /* Get response */
         x = (*xx_ok)(5, 1);
+      }
       if (x && mdmspk) {  /* Good response and speaker on? */
         switch (mdmvol) { /* Yes, send volume command. */
         case 0:
@@ -5208,12 +5285,14 @@ xdialec:
         default:
           s = NULL;
         }
-        if (s)
+        if (s) {
           if (*s) { /* Send volume command. */
             ttslow(s, wr);
-            if (xx_ok) /* Get response but ignore it */
+            if (xx_ok) { /* Get response but ignore it */
               (*xx_ok)(5, 1);
+            }
           }
+        }
       }
     }
   }
@@ -5224,49 +5303,58 @@ xdialec:
   if (dialmth && dialsta != DIA_PART) { /* If dialing method specified... */
     char *s = "";                       /* Do it here... */
 
-    if (dialmth == XYDM_T && dialtone) /* Tone */
+    if (dialmth == XYDM_T && dialtone) { /* Tone */
       s = dialtone;
-    else if (dialmth == XYDM_P && dialpulse) /* Pulse */
+    } else if (dialmth == XYDM_P && dialpulse) { /* Pulse */
       s = dialpulse;
-    if (s)
+    }
+    if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok)        /* Get modem's response */
+        if (xx_ok) {      /* Get modem's response */
           (*xx_ok)(5, 1); /* (but ignore it...) */
+        }
       }
+    }
   }
 #endif /* CK_ATDT */
 
   if (dialidt) { /* Ignore dialtone? */
     char *s = "";
     s = dialx3 ? dialx3 : mp->ignoredt;
-    if (s)
+    if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok)        /* Get modem's response */
+        if (xx_ok) {      /* Get modem's response */
           (*xx_ok)(5, 1); /* (but ignore it...) */
+        }
       }
+    }
   }
   {
     char *s = ""; /* Last-minute init string? */
     s = dialini2 ? dialini2 : mp->ini2;
-    if (s)
+    if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok)        /* Get modem's response */
+        if (xx_ok) {      /* Get modem's response */
           (*xx_ok)(5, 1); /* (but ignore it...) */
+        }
       }
+    }
   }
   if (func_code == 1) { /* ANSWER (not DIAL) */
     char *s;
     s = dialaaon ? dialaaon : mp->aa_on_str;
-    if (!s)
+    if (!s) {
       s = "";
+    }
     if (*s) {
       /* Here we would handle caller ID */
       ttslow(s, (dialpace > -1) ? wr : mp->dial_rate);
-      if (xx_ok)        /* Get modem's response */
+      if (xx_ok) {      /* Get modem's response */
         (*xx_ok)(5, 1); /* (but ignore it...) */
+      }
     } else {
       printf(
           "WARNING - I don't know how to enable autoanswer for this modem.\n");
@@ -5279,12 +5367,14 @@ xdialec:
     if (dialsta != DIA_PART) { /* Last dial was not partial */
 
       char *s = "";
-      if (s)
+      if (s) {
         if (*s) {
           ttslow(s, (dialpace > -1) ? wr : mp->dial_rate);
-          if (xx_ok)        /* Get modem's response */
+          if (xx_ok) {      /* Get modem's response */
             (*xx_ok)(5, 1); /* (but ignore it...) */
+          }
         }
+      }
 
       /* Put modem into dialing mode, if the modem requires it. */
 
@@ -5303,19 +5393,22 @@ xdialec:
     }
     /* AT-Command-Set non-Generic modem */
     if (mdmcapas & CKD_AT && mymdmtyp != n_GENERIC && dialsta != DIA_PART) {
-      if (mdmwait > 255) /* If larger than maximum, */
-        mdmwait = 255;   /* make it maximum. */
+      if (mdmwait > 255) { /* If larger than maximum, */
+        mdmwait = 255;     /* make it maximum. */
+      }
       if (dialesc > 0 && /* Modem escape character is set */
           dialmhu > 0) { /* Hangup method is modem command */
         int x = dialesc;
-        if (dialesc < 0 || dialesc > 127)
+        if (dialesc < 0 || dialesc > 127) {
           x = 128;
+        }
         sprintf(lbuf, "ATS2=%dS7=%d\015", dialesc ? x : mp->esc_char,
                 mdmwait); /* safe */
-      } else
+      } else {
         sprintf(lbuf, "ATS7=%d%c", mdmwait, 13); /* safe */
-      ttslow(lbuf, wr);                          /* Set it. */
-      mdmstat = getok(5, 1);                     /* Get response from modem */
+      }
+      ttslow(lbuf, wr);      /* Set it. */
+      mdmstat = getok(5, 1); /* Get response from modem */
       /* If it gets an error, go ahead anyway */
       debug(F101, "_dodial S7 mdmstat", "", mdmstat);
     }
@@ -5323,10 +5416,11 @@ xdialec:
     inited = 1; /* Remember modem is initialized */
 
   REDIAL:
-    if ((int)strlen(dcmd) + (int)strlen(xnum) > LBUFL)
+    if ((int)strlen(dcmd) + (int)strlen(xnum) > LBUFL) {
       ckstrncpy(lbuf, "NUMBER TOO LONG!", LBUFL);
-    else
+    } else {
       sprintf(lbuf, dcmd, xnum); /* safe (prechecked) */
+    }
     debug(F110, "dialing", lbuf, 0);
     /* Send the dialing string */
     ttslow(lbuf, dialpace > -1 ? wr : mp->dial_rate);
@@ -5335,8 +5429,9 @@ xdialec:
     dial_what = DW_DIAL; /* and our state, too. */
     if (dialdpy) {       /* If showing progress */
       p = ck_time();     /* get current time; */
-      if (*p)
+      if (*p) {
         printf(" Dialing: %s...\n", p);
+      }
     }
     alarm(waitct); /* This much time allowed. */
     debug(F101, "_dodial waitct", "", waitct);
@@ -5388,11 +5483,13 @@ xdialec:
       while (y-- > -1) {
         x = ttchk();
         if (x > 0) {
-          if (x > LBUFL)
+          if (x > LBUFL) {
             x = LBUFL;
+          }
           x = ttxin(x, (CHAR *)lbuf);
-          if ((x > 0) && dialdpy)
+          if ((x > 0) && dialdpy) {
             conol(lbuf);
+          }
         } else if (network
 #ifdef TN_COMPORT
                    && !istncomport()
@@ -5401,18 +5498,21 @@ xdialec:
           inited = 0;
           dialsta = DIA_IO; /* Call it an I/O error */
 #ifdef DYNAMIC
-          if (rbuf)
+          if (rbuf) {
             free(rbuf);
+          }
           rbuf = NULL;
-          if (fbuf)
+          if (fbuf) {
             free(fbuf);
+          }
           fbuf = NULL;
 #endif /* DYNAMIC */
           return;
         }
         x = ttgmdm(); /* Try to read modem signals */
-        if (x < 0)
-          break;               /* Can't, fail. */
+        if (x < 0) {
+          break; /* Can't, fail. */
+        }
         if (x & BM_DCD) {      /* Got signals OK.  Carrier present? */
           mdmstat = CONNECTED; /* Yes, done. */
           break;
@@ -5425,10 +5525,11 @@ xdialec:
     for (n = -1; n < LBUFL - 1;) { /* Accumulate modem response */
       int xx;
       c2 = (char)(xx = ddinc(0)); /* Read a character, blocking */
-      if (xx < 1)                 /* Ignore NULs and errors */
+      if (xx < 1) {               /* Ignore NULs and errors */
         continue;                 /* (Timeout will handle errors) */
-      else                        /* Real character, keep it */
+      } else {                    /* Real character, keep it */
         lbuf[++n] = (char)(c2 & 0177);
+      }
       dialoc(lbuf[n]);          /* Maybe echo it  */
       if (mdmcapas & CKD_V25) { /* V.25bis dialing... */
                                 /*
@@ -5437,25 +5538,30 @@ xdialec:
                                   LFCR.
                                 */
         if (mymdmtyp == n_CCITT) {
-          if (n < 3)
+          if (n < 3) {
             continue;
-          if ((lbuf[n] == CK_CR) && (lbuf[n - 1] == LF))
+          }
+          if ((lbuf[n] == CK_CR) && (lbuf[n - 1] == LF)) {
             break;
-          if ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR))
+          }
+          if ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR)) {
             break;
+          }
         }
 #ifndef MINIDIAL
         else if (mymdmtyp == n_DIGITEL) {
           if (((lbuf[n] == CK_CR) && (lbuf[n - 1] == LF)) ||
-              ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR)))
+              ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR))) {
             break;
-          else
+          } else {
             continue;
+          }
         }
 #endif         /* MINIDIAL */
       } else { /* All others, break on CR or LF */
-        if (lbuf[n] == CK_CR || lbuf[n] == LF)
+        if (lbuf[n] == CK_CR || lbuf[n] == LF) {
           break;
+        }
       }
     }
     lbuf[++n] = '\0'; /* Terminate response from modem */
@@ -5467,10 +5573,11 @@ xdialec:
       int x; /* Strip junk from end */
       x = (int)strlen(modemmsg) - 1;
       while (x > -1) {
-        if (modemmsg[x] < (char)33)
+        if (modemmsg[x] < (char)33) {
           modemmsg[x] = NUL;
-        else
+        } else {
           break;
+        }
         x--;
       }
     }
@@ -5496,8 +5603,9 @@ xdialec:
             lbuf[++n] = c2 = (char)(ddinc(0) & 0177);
             dialoc(lbuf[n]);
             if (((lbuf[n] == CK_CR) && (lbuf[n - 1] == LF)) ||
-                ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR)))
+                ((lbuf[n] == LF) && (lbuf[n - 1] == CK_CR))) {
               break;
+            }
           }
           mdmstat = CONNECTED; /* Assume we're connected */
           if (dialdpy && carrier != CAR_OFF) {
@@ -5507,8 +5615,9 @@ xdialec:
               for (i = 0; i < 5; i++) {
                 debug(F100, "TN Com Port DCD wait...", "", 0);
                 if ((n = ttgmdm()) >= 0) {
-                  if ((n & BM_DCD))
+                  if ((n & BM_DCD)) {
                     break;
+                  }
                   msleep(500);
                   tnc_wait((CHAR *)"_dodial waiting for DCD", 1);
                 }
@@ -5517,8 +5626,9 @@ xdialec:
 #endif                    /* TN_COMPORT */
               sleep(1);   /* Wait a second */
             n = ttgmdm(); /* Try to read modem signals */
-            if ((n > -1) && ((n & BM_DCD) == 0))
+            if ((n > -1) && ((n & BM_DCD) == 0)) {
               printf("WARNING - no carrier\n");
+            }
           }
         }
 #endif /* MINIDIAL */
@@ -5583,8 +5693,9 @@ xdialec:
 #endif /* MINIDIAL */
         continue;
 #ifndef MINIDIAL
-      else /* Digitel: If no error, connect. */
+      else { /* Digitel: If no error, connect. */
         mdmstat = CONNECTED;
+      }
 #endif /* MINIDIAL */
       break;
 
@@ -5665,10 +5776,12 @@ xdialec:
         c = (char)(ddinc(0) & 0177);
         dialoc(c);
         debug(F000, "dial df03 got", "", c);
-        if (c == 'A')
+        if (c == 'A') {
           mdmstat = CONNECTED;
-        if (c == 'B')
+        }
+        if (c == 'B') {
           mdmstat = D_FAILED;
+        }
         break;
 
       case n_DF100: /* DF100 has short response codes */
@@ -5727,10 +5840,11 @@ xdialec:
         break;
 
       case n_GDC:
-        if (didweget(lbuf, "ON LINE"))
+        if (didweget(lbuf, "ON LINE")) {
           mdmstat = CONNECTED;
-        else if (didweget(lbuf, "NO CONNECT"))
+        } else if (didweget(lbuf, "NO CONNECT")) {
           mdmstat = D_FAILED;
+        }
         break;
 
       case n_PENRIL:
@@ -5746,19 +5860,20 @@ xdialec:
         break;
 
       case n_RACAL:
-        if (didweget(lbuf, "ON LINE"))
+        if (didweget(lbuf, "ON LINE")) {
           mdmstat = CONNECTED;
-        else if (didweget(lbuf, "FAILED CALL"))
+        } else if (didweget(lbuf, "FAILED CALL")) {
           mdmstat = D_FAILED;
+        }
         break;
 #endif /* OLDMODEMS */
 
       case n_ROLM:
-        if (didweget(lbuf, "CALLING"))
+        if (didweget(lbuf, "CALLING")) {
           mdmstat = 0;
-        else if (didweget(lbuf, "COMPLETE"))
+        } else if (didweget(lbuf, "COMPLETE")) {
           mdmstat = CONNECTED;
-        else if (didweget(lbuf, "FAILED") || didweget(lbuf, "ABANDONDED")) {
+        } else if (didweget(lbuf, "FAILED") || didweget(lbuf, "ABANDONDED")) {
           mdmstat = D_FAILED;
           dialsta = DIA_NOCA;
         } else if (didweget(lbuf, "NOT AVAILABLE") ||
@@ -5791,9 +5906,9 @@ xdialec:
         break;
 
       case n_CONCORD:
-        if (didweget(lbuf, "INITIATING"))
+        if (didweget(lbuf, "INITIATING")) {
           mdmstat = CONNECTED;
-        else if (didweget(lbuf, "BUSY")) {
+        } else if (didweget(lbuf, "BUSY")) {
           mdmstat = D_FAILED;
           dialsta = DIA_BUSY;
         } else if (didweget(lbuf, "CALL FAILED")) {
@@ -5872,14 +5987,16 @@ xdialec:
             msleep(500);
             tnc_wait((CHAR *)"_dodial waiting for DCD", 1);
             if ((x = ttgmdm()) >= 0) {
-              if ((x & BM_DCD))
+              if ((x & BM_DCD)) {
                 break;
+              }
             }
           }
         }
 #endif /* TN_COMPORT */
-        if (!(x & BM_DCD))
+        if (!(x & BM_DCD)) {
           printf("WARNING: Carrier seems to have dropped...\n");
+        }
       }
     }
   }
@@ -5900,11 +6017,13 @@ xdialec:
 #endif /* CKLOGDIAL */
 
 #ifdef DYNAMIC
-  if (rbuf)
+  if (rbuf) {
     free(rbuf);
+  }
   rbuf = NULL;
-  if (fbuf)
+  if (fbuf) {
     free(fbuf);
+  }
   fbuf = NULL;
 #endif /* DYNAMIC */
   dialsta = (mdmstat == D_PARTIAL) ? DIA_PART : DIA_OK;
@@ -5961,16 +6080,21 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
 
   if (fc == 1) { /* ANSWER command? */
     /* Reset caller ID strings */
-    if (callid_date)
+    if (callid_date) {
       makestr(&callid_date, NULL);
-    if (callid_time)
+    }
+    if (callid_time) {
       makestr(&callid_time, NULL);
-    if (callid_name)
+    }
+    if (callid_name) {
       makestr(&callid_name, NULL);
-    if (callid_nmbr)
+    }
+    if (callid_nmbr) {
       makestr(&callid_nmbr, NULL);
-    if (callid_mesg)
+    }
+    if (callid_mesg) {
       makestr(&callid_mesg, NULL);
+    }
   }
 
 #ifdef CK_TAPI_X
@@ -5985,8 +6109,9 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
 #endif /* CK_TAPI */
     mymdmtyp = mdmtyp;
   if (mymdmtyp < 0) { /* Whoa, network dialing... */
-    if (mdmsav > -1)
+    if (mdmsav > -1) {
       mymdmtyp = mdmsav;
+    }
   }
   if (mymdmtyp < 0) {
     printf("Invalid modem type %d - internal error.\n", mymdmtyp);
@@ -6058,14 +6183,16 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       printf("%s", mmsg);
       dialsta = DIA_IE;
       return 0;
-    } else
+    } else {
       debug(F101, "DIAL rbuf malloc ok", "", RBUFL + 1);
+    }
   }
   if (!(fbuf = malloc(FULLNUML + 1))) { /* Allocate input line buffer */
     printf("%s", mmsg);
     dialsta = DIA_IE;
-    if (rbuf)
+    if (rbuf) {
       free(rbuf);
+    }
     rbuf = NULL;
     return 0;
   }
@@ -6083,11 +6210,13 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
     perror(errmsg);
     dialsta = DIA_OPEN;
 #ifdef DYNAMIC
-    if (rbuf)
+    if (rbuf) {
       free(rbuf);
+    }
     rbuf = NULL;
-    if (fbuf)
+    if (fbuf) {
       free(fbuf);
+    }
     fbuf = NULL;
 #endif /* DYNAMIC */
     return 0;
@@ -6106,18 +6235,21 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       ttclos(0); /* If ttpkt fails do all this... */
       if (ttopen(ttname, &local, mymdmtyp, 0) < 0) {
         erp = errmsg;
-        if ((int)strlen(ttname) < (ERMSGL - 18)) /* safe, checked */
+        if ((int)strlen(ttname) < (ERMSGL - 18)) { /* safe, checked */
           sprintf(erp, "Sorry, can't reopen %s", ttname);
-        else
+        } else {
           sprintf(erp, "Sorry, can't reopen device");
+        }
         perror(errmsg);
         dialsta = DIA_OPEN;
 #ifdef DYNAMIC
-        if (rbuf)
+        if (rbuf) {
           free(rbuf);
+        }
         rbuf = NULL;
-        if (fbuf)
+        if (fbuf) {
           free(fbuf);
+        }
         fbuf = NULL;
 #endif /* DYNAMIC */
         return 0;
@@ -6135,11 +6267,13 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         printf("Try 'set line %s' again\n", ttname);
         dialsta = DIA_OPEN;
 #ifdef DYNAMIC
-        if (rbuf)
+        if (rbuf) {
           free(rbuf);
+        }
         rbuf = NULL;
-        if (fbuf)
+        if (fbuf) {
           free(fbuf);
+        }
         fbuf = NULL;
 #endif /* DYNAMIC */
         return 0;
@@ -6151,10 +6285,11 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
 
   /* Modem's escape sequence... */
 
-  if (dialesc < 0 || dialesc > 127)
+  if (dialesc < 0 || dialesc > 127) {
     c = NUL;
-  else
+  } else {
     c = (char)(dialesc ? dialesc : mp->esc_char);
+  }
   mdmcapas = dialcapas ? dialcapas : mp->capas;
 
   xx_ok = mp->ok_fn; /* Pointer to response reader */
@@ -6165,15 +6300,18 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
     escbuf[2] = c;
     escbuf[3] = NUL;
     /* In case this modem type is user-defined */
-    if (!xx_ok)
+    if (!xx_ok) {
       xx_ok = getok;
+    }
   } else { /* Other */
     escbuf[0] = c;
     escbuf[1] = NUL;
     /* In case user-defined */
-    if (mdmcapas & CKD_V25)
-      if (!xx_ok)
+    if (mdmcapas & CKD_V25) {
+      if (!xx_ok) {
         xx_ok = getok;
+      }
+    }
   }
 
   /* Partial dialing */
@@ -6220,11 +6358,12 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         /* dialtone + completion wait times */
         waitct += mp->dial_time;
         for (s = telnbr; *s; s++) {
-          for (p = mp->pause_chars; *p; p++)
+          for (p = mp->pause_chars; *p; p++) {
             if (*s == *p) {
               waitct += mp->pause_time;
               break;
             }
+          }
         }
 #ifdef CK_TAPI
       }
@@ -6250,8 +6389,9 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       /* Addtl wait slop can be defined at compile time */
       waitct += XWAITCT;
 #endif /* XWAITCT */
-      if (waitct < 60 + mdmwaitd)
+      if (waitct < 60 + mdmwaitd) {
         waitct = 60 + mdmwaitd;
+      }
     }
     if (mdmcapas & CKD_AT) { /* AT command-set modems */
       mdmwait = waitct;      /* S7 timeout = what user asked for */
@@ -6262,28 +6402,31 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
   }
   debug(F101, "ckdial waitct B", "", waitct);
   if (fc == 1) { /* ANSWER */
-    if (mdmwait <= 0)
+    if (mdmwait <= 0) {
       mdmwait = 60; /* Always wait 60 seconds. */
+    }
   }
   if (!quiet && !backgrd) { /* Print information messages. */
-    if (fc == 1)
+    if (fc == 1) {
       printf(" Waiting for phone call...\n");
-    else
+    } else {
       printf(" %srying: %s...\n", x1 > 0 ? "Ret" : "T", telnbr);
+    }
     if (x1 == 0 && x2 == 0 && dialsta != DIA_PART) {
       if (network) {
         printf(" Via modem server: %s, modem: %s\n", ttname, gmdmtyp());
       } else {
 #ifdef CK_TAPI
-        if (tttapi && !tapipass)
+        if (tttapi && !tapipass) {
           printf(" Device: %s, modem: %s", ttname, "TAPI");
-        else
+        } else
 #endif /* CK_TAPI */
           printf(" Device: %s, modem: %s", ttname, gmdmtyp());
-        if (speed > -1L)
+        if (speed > -1L) {
           printf(", speed: %ld\n", speed);
-        else
+        } else {
           printf(", speed: (unknown)\n");
+        }
       }
       spdmax = dialmax > 0L ? dialmax : mp->max_speed;
 
@@ -6304,10 +6447,11 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       }
 #endif /* NOHINTS */
       printf(" %s timeout: ", fc == 0 ? "Dial" : "Answer");
-      if (waitct > 0)
+      if (waitct > 0) {
         printf("%d seconds\n", mdmwait);
-      else
+      } else {
         printf(" (none)\n");
+      }
       printf(
 #ifdef UNIX
           " To cancel: type your interrupt character (normally Ctrl-C).\n"
@@ -6387,25 +6531,29 @@ static void dook(void *threadinfo)
     debug(F111, "Modem_Response(Microcom)", MICROCOM.wake_prompt, okstatus);
     okstatus = 1;
     return;
-#endif                          /* MINIDIAL */
-  } else {                      /* Hayes & friends, start here... */
-    okstatus = 0;               /* No status yet. */
-    for (x = 0; x < RBUFL; x++) /* Initialize response buffer */
-      rbuf[x] = SP;             /*  to all spaces */
-    rbuf[RBUFL] = NUL;          /* and terminate with NUL. */
-    while (okstatus == 0) {     /* While no status... */
-      x = ddinc(okn);           /* Read a character */
-      if (x < 0) {              /* I/O error */
+#endif                            /* MINIDIAL */
+  } else {                        /* Hayes & friends, start here... */
+    okstatus = 0;                 /* No status yet. */
+    for (x = 0; x < RBUFL; x++) { /* Initialize response buffer */
+      rbuf[x] = SP;               /*  to all spaces */
+    }
+    rbuf[RBUFL] = NUL;      /* and terminate with NUL. */
+    while (okstatus == 0) { /* While no status... */
+      x = ddinc(okn);       /* Read a character */
+      if (x < 0) {          /* I/O error */
         okstatus = -1;
         return;
       }
       c = (char)(x & 0x7f); /* Get low order 7 bits */
-      if (!c)               /* Don't deposit NULs */
+      if (!c) {             /* Don't deposit NULs */
         continue;           /* or else didweget() won't work */
-      if (dialdpy)
-        conoc((char)c);               /* Echo it if requested */
-      for (i = 0; i < RBUFL - 1; i++) /* Rotate buffer */
+      }
+      if (dialdpy) {
+        conoc((char)c); /* Echo it if requested */
+      }
+      for (i = 0; i < RBUFL - 1; i++) { /* Rotate buffer */
         rbuf[i] = rbuf[i + 1];
+      }
       rbuf[RBUFL - 1] = c;         /* Deposit character at end */
       switch (c) {                 /* Interpret it. */
       case CK_CR:                  /* Got a carriage return. */
@@ -6421,9 +6569,9 @@ static void dook(void *threadinfo)
 #ifndef MINIDIAL
           /* Or Telebit model number 964! */
           if (mymdmtyp == n_TELEBIT && isdigit(rbuf[RBUFL - 3]) &&
-              isdigit(rbuf[RBUFL - 4]))
+              isdigit(rbuf[RBUFL - 4])) {
             break;
-          else
+          } else
 #endif /* MINIDIAL */
             if (!okstrict || rbuf[RBUFL - 3] == CK_CR ||
                 rbuf[RBUFL - 3] == SP) {
@@ -6433,8 +6581,9 @@ static void dook(void *threadinfo)
           debug(F111, "Modem_Response(Hayes)", "4", okstatus);
           break;
         }
-        if (dialdpy && nonverbal) /* If numeric results, */
-          conoc(LF);              /* echo a linefeed too. */
+        if (dialdpy && nonverbal) { /* If numeric results, */
+          conoc(LF);                /* echo a linefeed too. */
+        }
         break;
       case LF: /* Got a linefeed. */
         /*
@@ -6460,14 +6609,16 @@ static void dook(void *threadinfo)
       /* Check whether modem echoes its commands... */
       case 't':                                    /* Got little t */
         if (!strcmp(rbuf + RBUFL - 3, "\015at") || /* See if it's "at" */
-            !strcmp(rbuf + RBUFL - 3, " at"))
+            !strcmp(rbuf + RBUFL - 3, " at")) {
           mdmecho = 1;
+        }
         /* debug(F111,"MDMECHO-t",rbuf+RBUFL-2,mdmecho); */
         break;
       case 'T':                                    /* Got Big T */
         if (!strcmp(rbuf + RBUFL - 3, "\015AT") || /* See if it's "AT" */
-            !strcmp(rbuf + RBUFL - 3, " AT"))
+            !strcmp(rbuf + RBUFL - 3, " AT")) {
           mdmecho = 1;
+        }
         /* debug(F111,"MDMECHO-T",rbuf+RBUFL-3,mdmecho); */
         break;
       default: /* Other characters, accumulate. */
@@ -6578,28 +6729,32 @@ static void gethrn() {
       c = (char)(ddinc(0) & 0x7f);
       debug(F000, "SPONGE", "", c);
       dialoc(c);
-      if (c == CK_CR)
+      if (c == CK_CR) {
         break;
+      }
     }
   }
-  while (mdmstat == 0) {        /* Read response */
-    for (i = 0; i < NBUFL; i++) /* Clear the buffer */
+  while (mdmstat == 0) {          /* Read response */
+    for (i = 0; i < NBUFL; i++) { /* Clear the buffer */
       nbuf[i] = '\0';
+    }
     i = 0;                       /* Reset the buffer pointer. */
     c = (char)(ddinc(0) & 0177); /* Get first digit of response. */
                                  /* using an untimed, blocking read. */
     debug(F000, "RESPONSE-A", "", c);
-    dialoc(c);       /* Echo it if requested. */
-    if (!isdigit(c)) /* If not a digit, keep looking. */
+    dialoc(c);         /* Echo it if requested. */
+    if (!isdigit(c)) { /* If not a digit, keep looking. */
       continue;
+    }
     nbuf[i++] = c;                /* Got first digit, save it. */
     while (c != CK_CR && i < 8) { /* Read chars up to CR */
       x = ddinc(0) & 0177;        /* Get a character. */
       c = (char)x;                /* Got it OK. */
       debug(F000, "RESPONSE-C", "", c);
-      if (c != CK_CR)  /* If it's not a carriage return, */
-        nbuf[i++] = c; /*  save it. */
-      dialoc(c);       /* Echo it. */
+      if (c != CK_CR) { /* If it's not a carriage return, */
+        nbuf[i++] = c;  /*  save it. */
+      }
+      dialoc(c); /* Echo it. */
     }
     nbuf[i] = '\0'; /* Done, terminate the buffer. */
     debug(F110, "dial hayesnv lbuf", lbuf, 0);
@@ -6608,15 +6763,17 @@ static void gethrn() {
        Separate any non-numeric suffix from the numeric
        result code with a null.
     */
-    for (j = i - 1; (j > -1) && !isdigit(nbuf[j]); j--)
+    for (j = i - 1; (j > -1) && !isdigit(nbuf[j]); j--) {
       nbuf[j + 1] = nbuf[j];
+    }
     j++;
     nbuf[j++] = '\0';
     debug(F110, "dial hayesnv numeric", nbuf, 0);
     debug(F111, "dial hayesnv suffix ", nbuf + j, j);
     /* Probably phone number echoing. */
-    if ((int)strlen(nbuf) > 3)
+    if ((int)strlen(nbuf) > 3) {
       continue;
+    }
 
     /* Now read and interpret the results... */
 
@@ -6629,20 +6786,23 @@ static void gethrn() {
       mdmstat = CONNECTED; /* Could be any speed */
       break;
     case 2: /* RING */
-      if (dialdpy)
+      if (dialdpy) {
         printf("\r\n Local phone is ringing!\r\n");
+      }
       mdmstat = D_FAILED;
       dialsta = DIA_RING;
       break;
     case 3: /* NO CARRIER */
-      if (dialdpy)
+      if (dialdpy) {
         printf("\r\n No Carrier.\r\n");
+      }
       mdmstat = D_FAILED;
       dialsta = DIA_NOCA;
       break;
     case 4: /* ERROR */
-      if (dialdpy)
+      if (dialdpy) {
         printf("\r\n Modem Command Error.\r\n");
+      }
       mdmstat = D_FAILED;
       dialsta = DIA_ERR;
       break;
@@ -6652,29 +6812,32 @@ static void gethrn() {
       break;
     case 6: /* NO DIALTONE */
 #ifndef MINIDIAL
-      if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 49 && dialdpy)
+      if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 49 && dialdpy) {
         printf("\r\n Dial Locked.\r\n"); /* Germany */
-      else
+      } else
 #endif /* MINIDIAL */
-        if (dialdpy)
+        if (dialdpy) {
           printf("\r\n No Dialtone.\r\n");
+        }
       mdmstat = D_FAILED;
       dialsta = DIA_NODT;
       break;
     case 7: /* BUSY */
-      if (dialdpy)
+      if (dialdpy) {
         printf("\r\n Busy.\r\n");
+      }
       mdmstat = D_FAILED;
       dialsta = DIA_BUSY;
       break;
     case 8: /* NO ANSWER */
 #ifndef MINIDIAL
-      if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 41 && dialdpy)
+      if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 41 && dialdpy) {
         printf("\r\n Dial Locked.\r\n"); /* Switzerland */
-      else
+      } else
 #endif /* MINIDIAL */
-        if (dialdpy)
+        if (dialdpy) {
           printf("\r\n No Answer.\r\n");
+        }
       mdmstat = D_FAILED;
       dialsta = DIA_NOAN;
       break;
@@ -6698,8 +6861,9 @@ static void gethrn() {
 
     case 11:
       if (mymdmtyp == n_USR) {
-        if (dialdpy)
+        if (dialdpy) {
           printf(" Ringing...\r\n");
+        }
       } else {
         spdchg(4800L); /* CONNECT 4800 */
         mdmstat = CONNECTED;
@@ -6707,8 +6871,9 @@ static void gethrn() {
       break;
     case 12:
       if (mymdmtyp == n_USR) {
-        if (dialdpy)
+        if (dialdpy) {
           printf("\r\n Answered by voice.\r\n");
+        }
         mdmstat = D_FAILED;
         dialsta = DIA_VOIC;
       } else if (mymdmtyp == n_KEEPINTOUCH) {
@@ -6721,118 +6886,130 @@ static void gethrn() {
       break;
     case 13:
       if (mymdmtyp == n_ATT1900 || mymdmtyp == n_ATT1910) {
-        if (dialdpy)
+        if (dialdpy) {
           printf(" Wait...\r\n");
+        }
         break;
-      } else if (mymdmtyp == n_USR || mymdmtyp == n_USRX2)
+      } else if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
         spdchg(9600L);
-      else if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
-               mymdmtyp == n_XJACK)
+      } else if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
+                 mymdmtyp == n_XJACK) {
         spdchg(7200L);
-      else if (mymdmtyp != n_MICROLINK)
+      } else if (mymdmtyp != n_MICROLINK) {
         spdchg(14400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 14:
-      if (is_rockwell || is_supra || mymdmtyp == n_XJACK)
+      if (is_rockwell || is_supra || mymdmtyp == n_XJACK) {
         spdchg(12000L);
-      else if (mymdmtyp == n_DATAPORT || mymdmtyp == n_MICROLINK)
+      } else if (mymdmtyp == n_DATAPORT || mymdmtyp == n_MICROLINK) {
         spdchg(14400L);
-      else if (mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_KEEPINTOUCH) {
         spdchg(9600L);
-      else if (mymdmtyp != n_USR && mymdmtyp != n_ZOLTRIX)
+      } else if (mymdmtyp != n_USR && mymdmtyp != n_ZOLTRIX) {
         spdchg(19200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 15:
       if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
-          mymdmtyp == n_XJACK)
+          mymdmtyp == n_XJACK) {
         spdchg(14400L);
-      else if (mymdmtyp == n_USR)
+      } else if (mymdmtyp == n_USR) {
         spdchg(1200L);
-      else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL)
+      } else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL) {
         spdchg(7200L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(19200L);
-      else
+      } else {
         spdchg(38400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 16:
       if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
-          mymdmtyp == n_XJACK)
+          mymdmtyp == n_XJACK) {
         spdchg(19200L);
-      else if (mymdmtyp == n_USR)
+      } else if (mymdmtyp == n_USR) {
         spdchg(2400L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(7200L);
-      else if (mymdmtyp != n_ZYXEL && mymdmtyp != n_INTEL) /* 12000 */
+      } else if (mymdmtyp != n_ZYXEL && mymdmtyp != n_INTEL) { /* 12000 */
         spdchg(57600L);
+      }
       mdmstat = CONNECTED;
       break;
     case 17:
-      if (mymdmtyp != n_DATAPORT || mymdmtyp == n_XJACK) /* 16800 */
+      if (mymdmtyp != n_DATAPORT || mymdmtyp == n_XJACK) { /* 16800 */
         spdchg(38400L);
-      else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL)
+      } else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL) {
         spdchg(14400L);
-      else if (mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_KEEPINTOUCH) {
         spdchg(14400L);
-      else if (mymdmtyp == n_USR)
+      } else if (mymdmtyp == n_USR) {
         spdchg(9600L);
+      }
       mdmstat = CONNECTED;
       break;
     case 18:
       if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
-          mymdmtyp == n_XJACK || mymdmtyp == n_MHZATT || mymdmtyp == n_LUCENT)
+          mymdmtyp == n_XJACK || mymdmtyp == n_MHZATT || mymdmtyp == n_LUCENT) {
         spdchg(57600L);
-      else if (mymdmtyp == n_INTEL)
+      } else if (mymdmtyp == n_INTEL) {
         spdchg(19200L);
-      else if (mymdmtyp == n_USR || mymdmtyp == n_USRX2)
+      } else if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
         spdchg(4800L);
+      }
       mdmstat = CONNECTED;
       break;
     case 19:
-      if (mymdmtyp == n_DATAPORT)
+      if (mymdmtyp == n_DATAPORT) {
         spdchg(300L);
-      else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL)
+      } else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL) {
         spdchg(38400L);
-      else
+      } else {
         spdchg(115200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 20:
-      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2)
+      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
         spdchg(7200L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(2400L);
-      else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL)
+      } else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL) {
         spdchg(57600L);
-      else
+      } else {
         spdchg(300L);
+      }
       mdmstat = CONNECTED;
       break;
     case 21:
-      if (mymdmtyp == n_DATAPORT)
+      if (mymdmtyp == n_DATAPORT) {
         spdchg(4800L);
+      }
       mdmstat = CONNECTED;
       break;
     case 22:
-      if (is_rockwell || is_supra || mymdmtyp == n_XJACK)
+      if (is_rockwell || is_supra || mymdmtyp == n_XJACK) {
         spdchg(8880L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(9600L);
-      else if (mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_KEEPINTOUCH) {
         spdchg(300L);
-      else if (!is_hayeshispd)
+      } else if (!is_hayeshispd) {
         spdchg(1200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 23:
       if (is_hayeshispd || is_supra || mymdmtyp == n_MULTI ||
-          mymdmtyp == n_XJACK)
+          mymdmtyp == n_XJACK) {
         spdchg(8880L);
-      else if (mymdmtyp != n_DATAPORT && !is_rockwell) /* 12000 */
+      } else if (mymdmtyp != n_DATAPORT && !is_rockwell) { /* 12000 */
         spdchg(2400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 24:
@@ -6840,55 +7017,61 @@ static void gethrn() {
         mdmstat = D_FAILED;
         dialsta = DIA_DELA; /* Delayed */
         break;
-      } else if (is_hayeshispd || mymdmtyp == n_LUCENT)
+      } else if (is_hayeshispd || mymdmtyp == n_LUCENT) {
         spdchg(7200L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(14400L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(1200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 25:
-      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2)
+      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
         spdchg(14400L);
-      else if (mymdmtyp == n_LUCENT)
+      } else if (mymdmtyp == n_LUCENT) {
         spdchg(12000L);
-      else if (is_motorola)
+      } else if (is_motorola) {
         spdchg(9600L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(2400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 26:
-      if (mymdmtyp == n_DATAPORT)
+      if (mymdmtyp == n_DATAPORT) {
         spdchg(19200L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(4800L);
+      }
       mdmstat = CONNECTED;
       break;
     case 27:
-      if (mymdmtyp == n_DATAPORT)
+      if (mymdmtyp == n_DATAPORT) {
         spdchg(38400L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(7200L);
-      else if (mymdmtyp == n_MHZATT)
+      } else if (mymdmtyp == n_MHZATT) {
         spdchg(8880L);
+      }
       mdmstat = CONNECTED;
       break;
     case 28:
-      if (mymdmtyp == n_DATAPORT)
+      if (mymdmtyp == n_DATAPORT) {
         spdchg(7200L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(9600L);
-      else if (mymdmtyp == n_MHZATT || mymdmtyp == n_LUCENT)
+      } else if (mymdmtyp == n_MHZATT || mymdmtyp == n_LUCENT) {
         spdchg(38400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 29:
-      if (is_motorola)
+      if (is_motorola) {
         spdchg(4800L);
-      else if (mymdmtyp == n_DATAPORT)
+      } else if (mymdmtyp == n_DATAPORT) {
         spdchg(19200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 30:
@@ -6956,8 +7139,9 @@ static void gethrn() {
       } else if (mymdmtyp == n_MICROLINK) {
         spdchg(7200L);
         mdmstat = CONNECTED;
-      } else if (mymdmtyp == n_ZOLTRIX || mymdmtyp == n_XJACK) /* DATA */
+      } else if (mymdmtyp == n_ZOLTRIX || mymdmtyp == n_XJACK) { /* DATA */
         mdmstat = CONNECTED;
+      }
       break;
     case 36:
       if (mymdmtyp == n_UCOM_AT) {
@@ -7031,8 +7215,9 @@ static void gethrn() {
       if (mymdmtyp == n_UCOM_AT) {
         spdchg(57600L);
         mdmstat = CONNECTED;
-      } else if (mymdmtyp == n_USRX2)
+      } else if (mymdmtyp == n_USRX2) {
         mdmstat = CONNECTED; /* 168000 */
+      }
       break;
     case 44:
       if (is_rockwell) {
@@ -7059,42 +7244,47 @@ static void gethrn() {
       }
       break;
     case 46:
-      if (is_rockwell)
+      if (is_rockwell) {
         spdchg(1200L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(4800L);
-      else
+      } else {
         spdchg(8880L); /* 75/1200 split speed */
+      }
       mdmstat = CONNECTED;
       break;
     case 47:
-      if (is_rockwell)
+      if (is_rockwell) {
         spdchg(2400L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(7200L);
-      else
+      } else {
         printf("CONNECT 1200/75 - Not supported by C-Kermit\r\n");
+      }
       mdmstat = CONNECTED;
       break;
     case 48:
-      if (is_rockwell)
+      if (is_rockwell) {
         spdchg(4800L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(9600L);
-      else
+      } else {
         spdchg(7200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 49:
-      if (is_rockwell)
+      if (is_rockwell) {
         spdchg(7200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 50: /* CONNECT FAST */
-      if (is_rockwell)
+      if (is_rockwell) {
         spdchg(9600L);
-      else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH)
+      } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(14400L);
+      }
       mdmstat = CONNECTED;
       break;
     case 51:
@@ -7104,14 +7294,18 @@ static void gethrn() {
       }
       break;
     case 52: /* RRING */
-      if (mymdmtyp == n_TELEBIT)
-        if (dialdpy)
+      if (mymdmtyp == n_TELEBIT) {
+        if (dialdpy) {
           printf(" Ringing...\r\n");
+        }
+      }
       break;
     case 53: /* DIALING */
-      if (mymdmtyp == n_TELEBIT)
-        if (dialdpy)
+      if (mymdmtyp == n_TELEBIT) {
+        if (dialdpy) {
           printf(" Dialing...\r\n");
+        }
+      }
       break;
     case 54:
       if (is_rockwell) {
@@ -7121,8 +7315,9 @@ static void gethrn() {
         spdchg(1200L);
         mdmstat = CONNECTED;
       } else if (mymdmtyp == n_TELEBIT) {
-        if (dialdpy)
+        if (dialdpy) {
           printf("\r\n No Prompttone.\r\n");
+        }
         mdmstat = D_FAILED;
         dialsta = DIA_NODT;
       }
@@ -7152,8 +7347,9 @@ static void gethrn() {
       }
       break;
     case 59:
-      if (mymdmtyp == n_INTEL) /* 12000 */
+      if (mymdmtyp == n_INTEL) { /* 12000 */
         mdmstat = CONNECTED;
+      }
       break;
     case 60:
       if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
@@ -7195,8 +7391,9 @@ static void gethrn() {
       }
       break;
     case 69:
-      if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) /* 12000 */
+      if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) { /* 12000 */
         mdmstat = CONNECTED;
+      }
       break;
     case 70:
       if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
@@ -7210,19 +7407,22 @@ static void gethrn() {
         mdmstat = CONNECTED;
         break;
       } /* else fall thru */
-      if (mymdmtyp == n_TELEBIT) /* Early models only */
+      if (mymdmtyp == n_TELEBIT) { /* Early models only */
         mdmstat = CONNECTED;
+      }
       break;
     case 85:
-      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2)
+      if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
         spdchg(19200L);
+      }
       mdmstat = CONNECTED;
       break;
     case 91:  /* 21600 */
     case 99:  /* 24000 */
     case 103: /* 26400 */
-      if (mymdmtyp == n_USRX2)
+      if (mymdmtyp == n_USRX2) {
         mdmstat = CONNECTED;
+      }
       break;
     case 107:
       if (mymdmtyp == n_USR || mymdmtyp == n_USRX2) {
@@ -7232,8 +7432,9 @@ static void gethrn() {
       break;
     case 151: /* 312000 */
     case 155: /* 336000 */
-      if (mymdmtyp == n_USRX2)
+      if (mymdmtyp == n_USRX2) {
         mdmstat = CONNECTED;
+      }
       break;
 
 #endif /* MINIDIAL */
@@ -7241,21 +7442,25 @@ static void gethrn() {
 #ifndef MINIDIAL
       if (mymdmtyp == n_USR || mymdmtyp == n_USRX2 || is_hayeshispd ||
           is_rockwell)
-#endif              /* MINIDIAL */
-        if (i > 12) /* There are hundreds of them... */
+#endif                /* MINIDIAL */
+        if (i > 12) { /* There are hundreds of them... */
           mdmstat = CONNECTED;
+        }
       break;
     }
   }
   if (mdmstat == CONNECTED && nbuf[j] != '\0') {
     if (dialdpy) {
       printf("\r\n");
-      if (nbuf[j] == 'R')
+      if (nbuf[j] == 'R') {
         printf(" RELIABLE");
-      if (nbuf[j] == 'L')
+      }
+      if (nbuf[j] == 'L') {
         printf(" LAPM");
-      if (nbuf[j + 1] == 'C')
+      }
+      if (nbuf[j + 1] == 'C') {
         printf(" COMPRESSED");
+      }
       printf("\r\n");
     }
     ckstrncpy(lbuf, nbuf, LBUFL); /* (for messages...) */
@@ -7269,15 +7474,17 @@ gethrw() {
 
   if (mdmspd && !network) {
     s = lbuf;
-    while (*s != '\0' && *s != 'C')
+    while (*s != '\0' && *s != 'C') {
       s++;
+    }
     cptr = (*s == 'C') ? s : NULL;
     conspd = 0L;
     if ((cptr != NULL) && !strncmp(cptr, "CONNECT ", 8)) {
-      if ((int)strlen(cptr) < 9)     /* Just CONNECT, */
-        conspd = 300L;               /* use 300 bps */
-      else if (isdigit(*(cptr + 8))) /* not CONNECT FAST */
-        conspd = atol(cptr + 8);     /* CONNECT nnnn */
+      if ((int)strlen(cptr) < 9) {       /* Just CONNECT, */
+        conspd = 300L;                   /* use 300 bps */
+      } else if (isdigit(*(cptr + 8))) { /* not CONNECT FAST */
+        conspd = atol(cptr + 8);         /* CONNECT nnnn */
+      }
       if (conspd != speed) {
         if ((conspd / 10L) > 0) {
           if (ttsspd((int)(conspd / 10L)) < 0) {
@@ -7285,8 +7492,9 @@ gethrw() {
           } else {
             speed = conspd;
             mdmstat = CONNECTED;
-            if (!quiet && !backgrd)
+            if (!quiet && !backgrd) {
               printf(" Speed changed to %ld\r\n", conspd);
+            }
           }
         }
       } /* Expanded to handle any conceivable speed */
@@ -7296,8 +7504,9 @@ gethrw() {
   if (mymdmtyp == n_TELEBIT) {
     if (didweget(lbuf, "CONNECT FAST/KERM")) {
       mdmstat = CONNECTED;
-      if (dialdpy)
+      if (dialdpy) {
         printf("FAST/KERM ");
+      }
       return;
     }
   }
@@ -7414,35 +7623,41 @@ int dialhup() {
     debug(F101, "dialhup mdmhup", "", x);
     if (x > 0) { /* If it worked, */
       dialsta = DIA_HUP;
-      if (dialdpy)
+      if (dialdpy) {
         printf(" Modem hangup OK\r\n"); /* fine. */
-    } else if (network                  /* If we're telnetted to */
+      }
+    } else if (network /* If we're telnetted to */
 #ifdef TN_COMPORT
                && !istncomport() /* (without RFC 2217)    */
 #endif                           /* TN_COMPORT */
     ) {
       dialsta = DIA_HANG;
-      if (dialdpy) /* a modem server, just print a msg */
+      if (dialdpy) { /* a modem server, just print a msg */
         printf(" WARNING - modem hangup failed\r\n"); /* don't hangup! */
+      }
       return (0);
     } else {        /* Otherwise */
       x = tthang(); /* Tell the OS to turn off DTR. */
       if (x > 0) {  /* Yes, tell results from tthang() */
         dialsta = DIA_HUP;
-        if (dialdpy)
+        if (dialdpy) {
           printf(" Hangup OK\r\n");
+        }
       } else if (x == 0) {
-        if (dialdpy)
+        if (dialdpy) {
           printf(" Hangup skipped\r\n");
+        }
       } else {
         dialsta = DIA_HANG;
-        if (dialdpy)
+        if (dialdpy) {
           perror(" Hangup error");
+        }
       }
       ttflui();
     }
-  } else if (dialdpy)
+  } else if (dialdpy) {
     printf(" Hangup skipped\r\n"); /* DIAL HANGUP OFF */
+  }
   return (x);
 }
 
@@ -7471,45 +7686,54 @@ int mdmhup() {
   debug(F101, "mdmhup dialmhu", "", dialmhu); /* MODEM-HANGUP METHOD */
   debug(F101, "mdmhup local", "", local);
 
-  if (dialmhu == 0 || local == 0) /* If DIAL MODEM-HANGUP is OFF, */
-    return (0);                   /*  or not in local mode, fail. */
+  if (dialmhu == 0 || local == 0) { /* If DIAL MODEM-HANGUP is OFF, */
+    return (0);                     /*  or not in local mode, fail. */
+  }
 
   debug(F101, "mdmhup dialsta", "", dialsta);
   debug(F101, "mdmhup mdmset", "", mdmset);
 
-  if (dialsta != DIA_OK && !mdmset) /* It's not a dialed connection */
+  if (dialsta != DIA_OK && !mdmset) { /* It's not a dialed connection */
     return (0);
+  }
 
 #ifdef CK_TAPI
-  if (tttapi && !tapipass) /* Don't hangup if using TAPI */
+  if (tttapi && !tapipass) { /* Don't hangup if using TAPI */
     return (0);
+  }
 #endif /* CK_TAPI */
 
   debug(F101, "mdmhup dialesc", "", dialesc);
-  if (dialesc < 0)
+  if (dialesc < 0) {
     return (0); /* No modem escape-character, fail. */
+  }
 
   savcarr = ttcarr;
   ttcarr = CAR_OFF;
   x = ttchk();
   ttcarr = savcarr;
   debug(F101, "mdmhup ttchk", "", x);
-  if (x < 0) /* There appears to be no connection */
+  if (x < 0) { /* There appears to be no connection */
     return (0);
+  }
   x = 0;
 
   debug(F111, "mdmhup network", ttname, network);
   debug(F101, "mdmhup mymdmtyp", "", mymdmtyp);
   debug(F101, "mdmhup mdmtyp", "", mdmtyp);
   /* In case of HANGUP before DIAL */
-  if (network && mdmtyp < 1) /* SET HOST but no subsequent */
-    return (0);              /* SET MODEM TYPE... */
-  if (mymdmtyp == 0 && mdmtyp > 0)
+  if (network && mdmtyp < 1) { /* SET HOST but no subsequent */
+    return (0);                /* SET MODEM TYPE... */
+  }
+  if (mymdmtyp == 0 && mdmtyp > 0) {
     mymdmtyp = mdmtyp;
-  if (mymdmtyp < 1) /* Not using a modem */
+  }
+  if (mymdmtyp < 1) { /* Not using a modem */
     return (0);
-  if (mymdmtyp > 0) /* An actual modem... */
+  }
+  if (mymdmtyp > 0) { /* An actual modem... */
     mp = modemp[mymdmtyp];
+  }
   if (!mp) { /* Get pointer to its MDMINF struct */
     debug(F100, "mdmhup no MDMINF", "", 0);
     return (0);
@@ -7518,24 +7742,28 @@ int mdmhup() {
   xx_ok = mp->ok_fn; /* Pointer to response reader */
 
   s = dialhcmd ? dialhcmd : mp->hup_str; /* Get hangup command */
-  if (!s)
+  if (!s) {
     s = "";
+  }
   debug(F110, "mdmhup hup_str", s, 0);
-  if (!*s)
+  if (!*s) {
     return (0); /* If none, fail. */
+  }
 
-  if (ttpkt(speed, FLO_DIAL, parity) < 0) /* Condition line for dialing */
+  if (ttpkt(speed, FLO_DIAL, parity) < 0) { /* Condition line for dialing */
     return (-1);
+  }
 
   xparity = parity; /* Set PARITY to NONE temporarily */
   parity = 0;
 
   /* In case they gave a SET MODEM ESCAPE command recently... */
 
-  if (dialesc < 0 || dialesc > 127)
+  if (dialesc < 0 || dialesc > 127) {
     c = NUL;
-  else
+  } else {
     c = (char)(dialesc ? dialesc : mp->esc_char);
+  }
 
   if (mdmcapas & CKD_AT) { /* Hayes compatible */
     escbuf[0] = c;
@@ -7549,8 +7777,9 @@ int mdmhup() {
   debug(F110, "mdmhup escbuf", escbuf, 0);
   if (escbuf[0]) { /* Have escape sequence? */
     debug(F101, "mdmhup esc_time", 0, mp->esc_time);
-    if (mp->esc_time)       /* If we have a guard time */
+    if (mp->esc_time) {     /* If we have a guard time */
       msleep(mp->esc_time); /* Pause for guard time */
+    }
     debug(F100, "mdmhup pause 1 OK", "", 0);
 
 #ifdef NETCONN     /* Send modem's escape sequence */
@@ -7568,10 +7797,11 @@ int mdmhup() {
     }
 #endif /* NETCONN */
 
-    if (mp->esc_time) /* Pause for guard time again */
+    if (mp->esc_time) { /* Pause for guard time again */
       msleep(mp->esc_time);
-    else
+    } else {
       msleep(500); /* Wait half a sec for echoes. */
+    }
     debug(F100, "mdmhup pause 1 OK", "", 0);
   }
   ttslow(s, wr); /* Now Send hangup string */

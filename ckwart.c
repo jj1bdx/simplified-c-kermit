@@ -238,16 +238,19 @@ void initial(FILE *infp, FILE *outfp)
   while ((c = getc(infp)) != EOF) {
     if (c == '%') {
       rdword(infp, wordbuf);
-      if (strcmp(wordbuf, "states") == 0)
+      if (strcmp(wordbuf, "states") == 0) {
         rdstates(infp, outfp);
-      else if (strcmp(wordbuf, "%") == 0)
+      } else if (strcmp(wordbuf, "%") == 0) {
         return;
-      else
+      } else {
         fprintf(outfp, "%%%s", wordbuf);
-    } else
+      }
+    } else {
       putc(c, outfp);
-    if (c == '\n')
+    }
+    if (c == '\n') {
       lines++;
+    }
   }
 }
 
@@ -256,9 +259,11 @@ void initial(FILE *infp, FILE *outfp)
  */
 int isin(char *s, int c)
 /* isin */ {
-  for (; *s != '\0'; s++)
-    if (*s == (char)c)
+  for (; *s != '\0'; s++) {
+    if (*s == (char)c) {
       return (1);
+    }
+  }
   return (0);
 }
 int isword(int c)
@@ -273,8 +278,9 @@ int isword(int c)
 void rdword(FILE *fp, char *buf)
 /* rdword */ {
   int len = 0, c;
-  while (isword(c = getc(fp)) && ++len < MAXWORD)
+  while (isword(c = getc(fp)) && ++len < MAXWORD) {
     *buf++ = (char)c;
+  }
   *buf++ = '\0'; /* tie off word */
   ungetc(c, fp); /* put break char back */
 }
@@ -287,8 +293,9 @@ void rdstates(FILE *fp, FILE *ofp)
   int c;
   char wordbuf[MAXWORD];
   while ((c = getc(fp)) != EOF && c != '\n') {
-    if (isspace(c) || c == C_L)
-      continue;                /* skip whitespace */
+    if (isspace(c) || c == C_L) {
+      continue; /* skip whitespace */
+    }
     ungetc(c, fp);             /* put char back */
     rdword(fp, wordbuf);       /* read the whole word */
     enter(wordbuf, ++nstates); /* put into symbol tbl */
@@ -305,8 +312,9 @@ trans newtrans(void)
   trans new;
   int i;
   new = (trans)malloc(sizeof(struct transx));
-  for (i = 0; i < SBYTES; i++)
+  for (i = 0; i < SBYTES; i++) {
     new->states[i] = 0;
+  }
   new->anyst = 0;
   new->nxt = NULL;
   return (new);
@@ -320,30 +328,33 @@ trans rdrules(FILE *fp, FILE *out)
   trans head, cur, prev;
   int curtok;
   head = cur = prev = NULL;
-  while ((curtok = gettoken(fp)) != SEP)
+  while ((curtok = gettoken(fp)) != SEP) {
 
     switch (curtok) {
     case LBRACK:
-      if (cur == NULL)
+      if (cur == NULL) {
         cur = newtrans();
-      else
+      } else {
         fatal("duplicate state list");
+      }
       statelist(fp, cur); /* set states */
       continue;           /* prepare to read char */
 
     case WORD:
-      if ((int)strlen(tokval) != 1)
+      if ((int)strlen(tokval) != 1) {
         fatal("multiple chars in state");
+      }
       if (cur == NULL) {
         cur = newtrans();
         cur->anyst = 1;
       }
       cur->actno = ++nacts;
       cur->inchr = (char)(tokval[0] - 32);
-      if (head == NULL)
+      if (head == NULL) {
         head = cur;
-      else
+      } else {
         prev->nxt = cur;
+      }
       prev = cur;
       cur = NULL;
       copyact(fp, out, nacts);
@@ -351,6 +362,7 @@ trans rdrules(FILE *fp, FILE *out)
     default:
       fatal("bad input format");
     }
+  }
   return (head);
 }
 
@@ -363,10 +375,12 @@ void statelist(FILE *fp, trans t)
   int curtok, sval;
   curtok = COMMA;
   while (curtok != RBRACK) {
-    if (curtok != COMMA)
+    if (curtok != COMMA) {
       fatal("missing comma");
-    if ((curtok = gettoken(fp)) != WORD)
+    }
+    if ((curtok = gettoken(fp)) != WORD) {
       fatal("missing state name");
+    }
     if ((sval = lkup(tokval)) == -1) {
       fprintf(stderr, "state %s undefined\n", tokval);
       fatal("undefined state");
@@ -384,23 +398,27 @@ void copyact(FILE *inp, FILE *outp, int actno)
 /* copyact */ {
   int c, bcnt;
   fprintf(outp, "case %d:\n", actno);
-  while (c = getc(inp), (isspace(c) || c == C_L))
-    if (c == '\n')
+  while (c = getc(inp), (isspace(c) || c == C_L)) {
+    if (c == '\n') {
       lines++;
+    }
+  }
   if (c == '{') {
     bcnt = 1;
     fputs("    {", outp);
     while (bcnt > 0 && (c = getc(inp)) != EOF) {
-      if (c == '{')
+      if (c == '{') {
         bcnt++;
-      else if (c == '}')
+      } else if (c == '}') {
         bcnt--;
-      else if (c == '\n')
+      } else if (c == '\n') {
         lines++;
+      }
       putc(c, outp);
     }
-    if (bcnt > 0)
+    if (bcnt > 0) {
       fatal("action doesn't end");
+    }
   } else {
     while (c != '\n' && c != EOF) {
       putc(c, outp);
@@ -419,9 +437,11 @@ void copyact(FILE *inp, FILE *outp, int actno)
 int faction(trans hd, int state, int chr)
 /* faction */ {
   while (hd != NULL) {
-    if (hd->anyst || teststate(state, hd))
-      if (hd->inchr == ('.' - 32) || hd->inchr == (char)chr)
+    if (hd->anyst || teststate(state, hd)) {
+      if (hd->inchr == ('.' - 32) || hd->inchr == (char)chr) {
         return (hd->actno);
+      }
+    }
     hd = hd->nxt;
   }
   return (-1);
@@ -433,8 +453,9 @@ int faction(trans hd, int state, int chr)
  */
 void emptytbl(void) {
   int i;
-  for (i = 0; i < nstates * 96; i++)
+  for (i = 0; i < nstates * 96; i++) {
     tbl[i] = -1;
+  }
 }
 
 /*
@@ -460,8 +481,9 @@ void warray(FILE *fp, char *nam, int cont[], int siz, char *typ)
   fprintf(fp, "%s %s[] = {\n", typ, nam);
   for (i = 0; i < siz - 1;) {
     fprintf(fp, " %2d,", cont[i]);
-    if ((++i % 16) == 0)
+    if ((++i % 16) == 0) {
       putc('\n', fp);
+    }
   }
   fprintf(fp, "%2d\n};\n", cont[siz - 1]);
 }
@@ -482,23 +504,27 @@ main(int argc, char **argv) {
       fprintf(stderr, "Can't open %s\n", argv[1]);
       fatal("unreadable input file");
     }
-  } else
+  } else {
     infile = stdin;
+  }
 
   if (argc > 2) {
     if ((outfile = fopen(argv[2], "w")) == NULL) {
       fprintf(stderr, "Can't write to %s\n", argv[2]);
       fatal("bad output file");
     }
-  } else
+  } else {
     outfile = stdout;
+  }
 
   clrhash();                       /* empty hash table */
   head = rdinput(infile, outfile); /* read input file */
   emptytbl();                      /* empty our tables */
-  for (state = 0; state <= nstates; state++)
-    for (c = 1; c < 96; c++)                        /* find actions, */
+  for (state = 0; state <= nstates; state++) {
+    for (c = 1; c < 96; c++) {                      /* find actions, */
       addaction(faction(head, state, c), state, c); /* add to tbl */
+    }
+  }
   writetbl(outfile);
   copyrest(infile, outfile);
   printf("%d states, %d actions\n", nstates, nacts);
@@ -515,30 +541,38 @@ void fatal(char *msg) {
 
 void prolog(FILE *outfp) {
   int c;
-  while ((c = *txt1++) != '\0')
+  while ((c = *txt1++) != '\0') {
     putc(c, outfp);
-  while ((c = *fname++) != '\0')
+  }
+  while ((c = *fname++) != '\0') {
     putc(c, outfp);
-  while ((c = *txt2++) != '\0')
+  }
+  while ((c = *txt2++) != '\0') {
     putc(c, outfp);
-  while ((c = *tbl_type++) != '\0')
+  }
+  while ((c = *tbl_type++) != '\0') {
     putc(c, outfp);
-  while ((c = *txt2a++) != '\0')
+  }
+  while ((c = *txt2a++) != '\0') {
     putc(c, outfp);
-  while ((c = *txt2b++) != '\0')
+  }
+  while ((c = *txt2b++) != '\0') {
     putc(c, outfp);
+  }
 }
 
 void epilogue(FILE *outfp) {
   int c;
-  while ((c = *txt3++) != '\0')
+  while ((c = *txt3++) != '\0') {
     putc(c, outfp);
+  }
 }
 
 void copyrest(FILE *in, FILE *out) {
   int c;
-  while ((c = getc(in)) != EOF)
+  while ((c = getc(in)) != EOF) {
     putc(c, out);
+  }
 }
 
 /*
@@ -550,15 +584,17 @@ int gettoken(FILE *fp) {
   while (1) { /* loop if reading comments... */
     do {
       c = getc(fp);
-      if (c == '\n')
+      if (c == '\n') {
         lines++;
+      }
     } while ((isspace(c) || c == C_L)); /* skip whitespace */
     switch (c) {
     case EOF:
       return (SEP);
     case '%':
-      if ((c = getc(fp)) == '%')
+      if ((c = getc(fp)) == '%') {
         return (SEP);
+      }
       tokval[0] = '%';
       tokval[1] = (char)c;
       rdword(fp, tokval + 2);
@@ -583,8 +619,9 @@ int gettoken(FILE *fp) {
         ungetc(c, fp);
         rdword(fp, tokval);
         return (WORD);
-      } else
+      } else {
         fatal("Invalid character in input");
+      }
     }
   }
 }
@@ -597,12 +634,14 @@ void rdcmnt(FILE *fp) {
   int c, star, prcnt;
   prcnt = star = 0; /* no star seen yet */
   while (!((c = getc(fp)) == '/' && star)) {
-    if (c == EOF || (prcnt && c == '%'))
+    if (c == EOF || (prcnt && c == '%')) {
       fatal("Unterminated comment");
+    }
     prcnt = (c == '%');
     star = (c == '*');
-    if (c == '\n')
+    if (c == '\n') {
       lines++;
+    }
   }
 }
 
@@ -630,8 +669,9 @@ struct sym {
  */
 void clrhash() {
   int i;
-  for (i = 0; i < HASHSIZE; i++)
+  for (i = 0; i < HASHSIZE; i++) {
     htab[i] = NULL;
+  }
 }
 
 /*
@@ -640,11 +680,13 @@ void clrhash() {
  */
 int hash(char *name) {
   int sum;
-  for (sum = 0; *name != '\0'; name++)
+  for (sum = 0; *name != '\0'; name++) {
     sum += (sum + *name);
+  }
   sum %= HASHSIZE; /* take sum mod hashsize */
-  if (sum < 0)
+  if (sum < 0) {
     sum += HASHSIZE; /* disallow negative hash value */
+  }
   return (sum);
 }
 
@@ -684,8 +726,10 @@ void enter(char *name, int svalue) {
  */
 int lkup(char *name) {
   struct sym *cur;
-  for (cur = htab[hash(name)]; cur != NULL; cur = cur->hnxt)
-    if (strcmp(cur->name, name) == 0)
+  for (cur = htab[hash(name)]; cur != NULL; cur = cur->hnxt) {
+    if (strcmp(cur->name, name) == 0) {
       return (cur->val);
+    }
+  }
   return (-1);
 }
