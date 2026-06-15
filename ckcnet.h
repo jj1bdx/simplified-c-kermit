@@ -631,12 +631,9 @@ SORRY_RLOGIN_REQUIRES_TTGWSIZ_see_ckcplm
 #define IPPORT_ECHO 7
 #endif /* IPPORT_ECHO */
 
-            void ini_kerb(void); /* Kerberos initialization routine */
-int doauth(int);                 /* AUTHENTICATE action routine */
-
 #ifdef CK_DNS_SRV
-int locate_srv_dns(char *host, char *service, char *protocol,
-                   struct sockaddr **addr_pp, int *naddrs);
+    int locate_srv_dns(char *host, char *service, char *protocol,
+                       struct sockaddr **addr_pp, int *naddrs);
 #endif /* CK_DNS_SRV */
 
 #ifndef NOHTTP
