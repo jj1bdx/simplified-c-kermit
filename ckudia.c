@@ -398,20 +398,20 @@ static MDMINF *mp;
 static CHAR escbuf[6];
 static long mdmcapas;
 
-_PROTOTYP(static VOID dreset, (void));
-_PROTOTYP(static int(*xx_ok), (int, int));
-_PROTOTYP(static int ddinc, (int));
-_PROTOTYP(int dialhup, (void));
-_PROTOTYP(int getok, (int, int));
-_PROTOTYP(char *ck_time, (void));
-_PROTOTYP(static VOID ttslow, (char *, int));
-_PROTOTYP(static VOID waitfor, (char *));
-_PROTOTYP(static VOID dialoc, (char));
-_PROTOTYP(static int didweget, (char *, char *));
-_PROTOTYP(static VOID spdchg, (long));
-_PROTOTYP(static int dialfail, (int));
-_PROTOTYP(static VOID gethrw, (void));
-_PROTOTYP(static VOID gethrn, (void));
+static VOID dreset(void);
+static int(*xx_ok)(int, int);
+static int ddinc(int);
+int dialhup(void);
+int getok(int, int);
+char *ck_time(void);
+static VOID ttslow(char *, int);
+static VOID waitfor(char *);
+static VOID dialoc(char);
+static int didweget(char *, char *);
+static VOID spdchg(long);
+static int dialfail(int);
+static VOID gethrw(void);
+static VOID gethrn(void);
 
 int dialudt = n_UDEF; /* Number of user-defined type */
 

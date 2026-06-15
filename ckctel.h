@@ -93,7 +93,7 @@
 #endif              /* LAST_TN_CMD */
 #define SYNCH 0xf2  /* 242 - for telfunc calls */
 
-_PROTOTYP(char *tel_unk, (int)); /* "UNKNOWN-%u" string. */
+char *tel_unk(int); /* "UNKNOWN-%u" string. */
 
 #ifdef TELCMDS
 char *telcmds[] = {"EOF", "SUSP", "ABORT", "EOR", "SE",   "NOP", "DMARK",
@@ -354,9 +354,9 @@ extern char *telcmds[];
    ((x) == TELOPT_IBM_SAK))
 #define TELOPT(x) (TELOPT_OK(x) ? telopts[TELOPT_INDEX(x)] : tel_unk(x))
 #else /* TELOPT_MACRO */
-_PROTOTYP(int telopt_index, (int));
-_PROTOTYP(int telopt_ok, (int));
-_PROTOTYP(char *telopt, (int)); /* Type match telopts[], below. */
+int telopt_index(int);
+int telopt_ok(int);
+char *telopt(int); /* Type match telopts[], below. */
 
 #define TELOPT_INDEX(x) telopt_index(x)
 #define TELOPT_OK(x) telopt_ok(x)
@@ -558,8 +558,8 @@ extern char *telopt_modes[];
 #define TELOPT_MODE(x)                                                         \
   (TELOPT_MODE_OK(x) ? telopt_modes[(x) - TN_NG_RF] : tel_unk(x))
 #else /* TELOPT_MACRO */
-_PROTOTYP(int telopt_mode_ok, (int));
-_PROTOTYP(char *telopt_mode, (int)); /* Type match telopt_modes[], above. */
+int telopt_mode_ok(int);
+char *telopt_mode(int); /* Type match telopt_modes[], above. */
 
 #define TELOPT_MODE_OK(x) telopt_mode_ok(x)
 #define TELOPT_MODE(x) telopt_mode(x)
@@ -957,32 +957,32 @@ extern char *enctype_names[];
 
 /* Telnet protocol functions defined in C-Kermit */
 
-_PROTOTYP(int tn_ini, (void)); /* Telnet protocol support */
-_PROTOTYP(int tn_reset, (void));
-_PROTOTYP(int tn_set_modes, (void));
-_PROTOTYP(int tn_sopt, (int, int));
-_PROTOTYP(int tn_doop, (CHAR, int, int (*)(int)));
-_PROTOTYP(int tn_sttyp, (void));
-_PROTOTYP(int tn_snenv, (CHAR *, int));
-_PROTOTYP(int tn_rnenv, (CHAR *, int));
-_PROTOTYP(int tn_wait, (char *));
-_PROTOTYP(int tn_push, (void));
-_PROTOTYP(int tnsndbrk, (void));
-_PROTOTYP(VOID tn_debug, (char *));
-_PROTOTYP(int tn_hex, (CHAR *, int, CHAR *, int));
-_PROTOTYP(unsigned char *tn_get_display, (void));
+int tn_ini(void); /* Telnet protocol support */
+int tn_reset(void);
+int tn_set_modes(void);
+int tn_sopt(int, int);
+int tn_doop(CHAR, int, int (*)(int));
+int tn_sttyp(void);
+int tn_snenv(CHAR *, int);
+int tn_rnenv(CHAR *, int);
+int tn_wait(char *);
+int tn_push(void);
+int tnsndbrk(void);
+VOID tn_debug(char *);
+int tn_hex(CHAR *, int, CHAR *, int);
+unsigned char *tn_get_display(void);
 #ifdef IKS_OPTION
-_PROTOTYP(int tn_siks, (int));
-_PROTOTYP(int iks_wait, (int, int));
+int tn_siks(int);
+int iks_wait(int, int);
 #endif /* IKS_OPTION */
 #ifdef CK_NAWS
-_PROTOTYP(int tn_snaws, (void));
+int tn_snaws(void);
 #endif /* CK_NAWS */
 #ifdef CK_XDISPLOC
-_PROTOTYP(int tn_sxdisploc, (void));
+int tn_sxdisploc(void);
 #endif /* CK_XDISPLOC */
 #ifdef CK_SNDLOC
-_PROTOTYP(int tn_sndloc, (void));
+int tn_sndloc(void);
 #endif /* CK_SNDLOC */
 
 /*
@@ -1014,8 +1014,7 @@ _PROTOTYP(int tn_sndloc, (void));
 #ifdef CK_FWDX_PARSE_DISPN
 /* This function is used for SSH X11 forwarding which works
  * whether or not Telnet X11 forwarding is supported. */
-_PROTOTYP(int fwdx_parse_displayname,
-          (char *, int *, char **, int *, int *, char **));
+int fwdx_parse_displayname(char *, int *, char **, int *, int *, char **);
 #endif /* FWDX_PARSE_DISPN */
 
 #ifdef TN_COMPORT
@@ -1144,47 +1143,47 @@ extern char *tnc_names[];
 #define TNC_NAME(x)                                                            \
   (TNC_NAME_OK(x) ? tnc_names[(x) >= 100 ? (x) - 100 : (x)] : tel_unk(x))
 
-_PROTOTYP(int tnc_init, (void));
-_PROTOTYP(int tnc_wait, (CHAR *, int));
-_PROTOTYP(int tnc_tn_sb, (CHAR *, int));
-_PROTOTYP(CONST char *tnc_get_signature, (void));
-_PROTOTYP(int tnc_send_signature, (char *));
-_PROTOTYP(int tnc_set_baud, (long));
-_PROTOTYP(int tnc_get_baud, (void));
-_PROTOTYP(int tnc_set_datasize, (int));
-_PROTOTYP(int tnc_get_datasize, (void));
-_PROTOTYP(int tnc_set_parity, (int));
-_PROTOTYP(int tnc_get_parity, (void));
-_PROTOTYP(int tnc_set_stopsize, (int));
-_PROTOTYP(int tnc_get_stopsize, (void));
-_PROTOTYP(int tnc_set_oflow, (int));
-_PROTOTYP(int tnc_get_oflow, (void));
-_PROTOTYP(int tnc_set_iflow, (int));
-_PROTOTYP(int tnc_get_iflow, (void));
-_PROTOTYP(int tnc_set_break_state, (int));
-_PROTOTYP(int tnc_get_break_state, (void));
-_PROTOTYP(int tnc_set_dtr_state, (int));
-_PROTOTYP(int tnc_get_dtr_state, (void));
-_PROTOTYP(int tnc_set_rts_state, (int));
-_PROTOTYP(int tnc_get_rts_state, (void));
-_PROTOTYP(int tnc_set_ls_mask, (int));
-_PROTOTYP(int tnc_get_ls_mask, (void));
-_PROTOTYP(int tnc_get_ls, (void));
-_PROTOTYP(int tnc_set_ms_mask, (int));
-_PROTOTYP(int tnc_get_ms_mask, (void));
-_PROTOTYP(int tnc_get_ms, (void));
-_PROTOTYP(int tnc_send_purge_data, (int));
-_PROTOTYP(int tnc_flow_suspended, (void));
-_PROTOTYP(int tnc_suspend_flow, (void));
-_PROTOTYP(int tnc_resume_flow, (void));
+int tnc_init(void);
+int tnc_wait(CHAR *, int);
+int tnc_tn_sb(CHAR *, int);
+CONST char *tnc_get_signature(void);
+int tnc_send_signature(char *);
+int tnc_set_baud(long);
+int tnc_get_baud(void);
+int tnc_set_datasize(int);
+int tnc_get_datasize(void);
+int tnc_set_parity(int);
+int tnc_get_parity(void);
+int tnc_set_stopsize(int);
+int tnc_get_stopsize(void);
+int tnc_set_oflow(int);
+int tnc_get_oflow(void);
+int tnc_set_iflow(int);
+int tnc_get_iflow(void);
+int tnc_set_break_state(int);
+int tnc_get_break_state(void);
+int tnc_set_dtr_state(int);
+int tnc_get_dtr_state(void);
+int tnc_set_rts_state(int);
+int tnc_get_rts_state(void);
+int tnc_set_ls_mask(int);
+int tnc_get_ls_mask(void);
+int tnc_get_ls(void);
+int tnc_set_ms_mask(int);
+int tnc_get_ms_mask(void);
+int tnc_get_ms(void);
+int tnc_send_purge_data(int);
+int tnc_flow_suspended(void);
+int tnc_suspend_flow(void);
+int tnc_resume_flow(void);
 
 /* The following methods are to be called by ck?tio.c routines */
-_PROTOTYP(int tnsetflow, (int));
-_PROTOTYP(int tnsettings, (int, int));
-_PROTOTYP(int tngmdm, (void));
-_PROTOTYP(int tnsndb, (long));
-_PROTOTYP(int istncomport, (void));
-_PROTOTYP(int tn_sndcomport, (void));
+int tnsetflow(int);
+int tnsettings(int, int);
+int tngmdm(void);
+int tnsndb(long);
+int istncomport(void);
+int tn_sndcomport(void);
 #endif /* TN_COMPORT */
 
 #ifndef CKCTEL_C                 /* These are declared in ckctel.c */

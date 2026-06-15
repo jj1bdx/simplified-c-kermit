@@ -498,24 +498,24 @@ struct ssh_pf { /* SSH port forwarding */
 #define FX_NYI -99  /* Feature not implemented yet */
 #define FX_UNK -999 /* Unknown error */
 
-_PROTOTYP(int z_open, (char *, int));
-_PROTOTYP(int z_close, (int));
-_PROTOTYP(int z_out, (int, char *, int, int));
-_PROTOTYP(int z_in, (int, char *, int, int, int));
-_PROTOTYP(int z_flush, (int));
-_PROTOTYP(int z_seek, (int, CK_OFF_T));
-_PROTOTYP(int z_line, (int, CK_OFF_T));
-_PROTOTYP(int z_getmode, (int));
-_PROTOTYP(int z_getfnum, (int));
-_PROTOTYP(CK_OFF_T z_getpos, (int));
-_PROTOTYP(CK_OFF_T z_getline, (int));
-_PROTOTYP(CK_OFF_T z_count, (int, int));
-_PROTOTYP(char *z_getname, (int));
-_PROTOTYP(char *ckferror, (int));
+int z_open(char *, int);
+int z_close(int);
+int z_out(int, char *, int, int);
+int z_in(int, char *, int, int, int);
+int z_flush(int);
+int z_seek(int, CK_OFF_T);
+int z_line(int, CK_OFF_T);
+int z_getmode(int);
+int z_getfnum(int);
+CK_OFF_T z_getpos(int);
+CK_OFF_T z_getline(int);
+CK_OFF_T z_count(int, int);
+char *z_getname(int);
+char *ckferror(int);
 #endif /* CKCHANNELIO */
 
-_PROTOTYP(int scanfile, (char *, int *, int));
-_PROTOTYP(int scanstring, (char *));
+int scanfile(char *, int *, int);
+int scanstring(char *);
 
 /*  Buffered file i/o ...  */
 /* In VMS, allow for longest possible RMS record */
@@ -567,7 +567,7 @@ extern char **sndarray;
 #define xxscreen(a, b, c, d)
 #define ckscreen(a, b, c, d)
 #else
-_PROTOTYP(VOID ckscreen, (int, char, CK_OFF_T, char *));
+VOID ckscreen(int, char, CK_OFF_T, char *);
 #define xxscreen(a, b, c, d)                                                   \
   if (local && !backgrd && fdispla != XYFD_N)                                  \
   ckscreen((int)a, (char)b, (CK_OFF_T)c, (char *)d)
@@ -772,7 +772,7 @@ MDMINF { /* Structure for modem-specific information */
   long max_speed;     /* Maximum interface speed */
   long capas;         /* Capability bits */
   /* function to read modem's response string to a non-dialing command */
-  _PROTOTYP(int(*ok_fn), (int, int));
+  int (*ok_fn)(int, int);
 };
 #endif /* NODIAL */
 
@@ -1040,195 +1040,195 @@ struct iksdbfld {
   int len; /* Length (bytes) */
   int typ; /* Data type */
 };
-_PROTOTYP(int dbinit, (void));
-_PROTOTYP(int initslot, (int));
-_PROTOTYP(int getslot, (void));
-_PROTOTYP(int freeslot, (int));
-_PROTOTYP(int updslot, (int));
-_PROTOTYP(int slotstate, (int, char *, char *, char *));
-_PROTOTYP(int slotdir, (char *, char *));
+int dbinit(void);
+int initslot(int);
+int getslot(void);
+int freeslot(int);
+int updslot(int);
+int slotstate(int, char *, char *, char *);
+int slotdir(char *, char *);
 #endif /* IKSDB */
 #endif /* NOIKSD */
 
 /* ANSI forward declarations for protocol-related functions. */
 
-_PROTOTYP(int input, (void));
-_PROTOTYP(int inibufs, (int, int));
+int input(void);
+int inibufs(int, int);
 /* _PROTOTYP( int makebuf, (int, int, CHAR [], struct pktinfo *) ); */
-_PROTOTYP(int mksbuf, (int));
-_PROTOTYP(int mkrbuf, (int));
-_PROTOTYP(int spack, (char, int, int, CHAR *));
-_PROTOTYP(VOID proto, (void));
-_PROTOTYP(int rpack, (void));
-_PROTOTYP(int ack, (void));
-_PROTOTYP(int nack, (int));
-_PROTOTYP(int ackn, (int));
-_PROTOTYP(int ack1, (CHAR *));
-_PROTOTYP(int ackns, (int, CHAR *));
+int mksbuf(int);
+int mkrbuf(int);
+int spack(char, int, int, CHAR *);
+VOID proto(void);
+int rpack(void);
+int ack(void);
+int nack(int);
+int ackn(int);
+int ack1(CHAR *);
+int ackns(int, CHAR *);
 #ifdef STREAMING
-_PROTOTYP(int fastack, (void));
+int fastack(void);
 #endif /* STREAMING */
-_PROTOTYP(int resend, (int));
-_PROTOTYP(int errpkt, (CHAR *));
-_PROTOTYP(VOID logpkt, (char, int, CHAR *, int));
-_PROTOTYP(CHAR dopar, (CHAR));
-_PROTOTYP(int chk1, (CHAR *, int));
-_PROTOTYP(unsigned int chk2, (CHAR *, int));
-_PROTOTYP(unsigned int chk3, (CHAR *, int));
-_PROTOTYP(int sipkt, (char));
-_PROTOTYP(int sopkt, (void));
-_PROTOTYP(int sinit, (void));
-_PROTOTYP(VOID rinit, (CHAR *));
-_PROTOTYP(int spar, (CHAR *));
-_PROTOTYP(int rcvfil, (char *));
-_PROTOTYP(CHAR *rpar, (void));
-_PROTOTYP(int gnfile, (void));
-_PROTOTYP(int getsbuf, (int));
-_PROTOTYP(int getrbuf, (void));
-_PROTOTYP(int freesbuf, (int));
-_PROTOTYP(int freerbuf, (int));
-_PROTOTYP(int dumpsbuf, (void));
-_PROTOTYP(int dumprbuf, (void));
-_PROTOTYP(VOID freerpkt, (int));
-_PROTOTYP(int chkwin, (int, int, int));
-_PROTOTYP(int rsattr, (CHAR *));
-_PROTOTYP(char *getreason, (char *));
-_PROTOTYP(int scmd, (char, CHAR *));
-_PROTOTYP(int encstr, (CHAR *));
-_PROTOTYP(int decode, (CHAR *, int (*)(char), int));
-_PROTOTYP(int bdecode, (CHAR *, int (*)(char)));
-_PROTOTYP(int fnparse, (char *));
-_PROTOTYP(int syscmd, (char *, char *));
-_PROTOTYP(int cwd, (char *));
-_PROTOTYP(int remset, (char *));
-_PROTOTYP(int initattr, (struct zattr *));
-_PROTOTYP(int gattr, (CHAR *, struct zattr *));
-_PROTOTYP(int adebu, (char *, struct zattr *));
-_PROTOTYP(int canned, (CHAR *));
-_PROTOTYP(int opent, (struct zattr *));
-_PROTOTYP(int ckopenx, (struct zattr *));
-_PROTOTYP(int opena, (char *, struct zattr *));
-_PROTOTYP(int openi, (char *));
-_PROTOTYP(int openo, (char *, struct zattr *, struct filinfo *));
-_PROTOTYP(int openc, (int, char *));
-_PROTOTYP(int reof, (char *, struct zattr *));
-_PROTOTYP(VOID reot, (void));
-_PROTOTYP(int sfile, (int));
-_PROTOTYP(int sattr, (int, int));
-_PROTOTYP(int sdata, (void));
-_PROTOTYP(int seof, (int));
-_PROTOTYP(int sxeof, (int));
-_PROTOTYP(int seot, (void));
-_PROTOTYP(int window, (int));
-_PROTOTYP(int clsif, (void));
-_PROTOTYP(int clsof, (int));
-_PROTOTYP(CHAR setgen, (char, char *, char *, char *));
-_PROTOTYP(int getpkt, (int, int));
-_PROTOTYP(int maxdata, (void));
-_PROTOTYP(int putsrv, (char));
-_PROTOTYP(int puttrm, (char));
-_PROTOTYP(int putque, (char));
-_PROTOTYP(int putfil, (char));
-_PROTOTYP(int putmfil, (char));
-_PROTOTYP(int zputfil, (char));
-_PROTOTYP(VOID zdstuff, (CHAR));
-_PROTOTYP(int tinit, (int));
-_PROTOTYP(VOID pktinit, (void));
-_PROTOTYP(VOID resetc, (void));
-_PROTOTYP(VOID xsinit, (void));
-_PROTOTYP(int adjpkl, (int, int, int));
-_PROTOTYP(int chktimo, (int, int));
-_PROTOTYP(int nxtpkt, (void));
-_PROTOTYP(VOID rcalcpsz, (void));
-_PROTOTYP(int srinit, (int, int, int));
-_PROTOTYP(VOID tstats, (void));
-_PROTOTYP(VOID fstats, (void));
-_PROTOTYP(VOID intmsg, (long));
-_PROTOTYP(VOID ermsg, (char *));
-_PROTOTYP(int chkint, (void));
-_PROTOTYP(VOID sdebu, (int));
-_PROTOTYP(VOID rdebu, (CHAR *, int));
-_PROTOTYP(char *dbchr, (int));
-_PROTOTYP(SIGTYP stptrap, (int));
-_PROTOTYP(SIGTYP trap, (int));
-_PROTOTYP(char *ck_errstr, (void));
+int resend(int);
+int errpkt(CHAR *);
+VOID logpkt(char, int, CHAR *, int);
+CHAR dopar(CHAR);
+int chk1(CHAR *, int);
+unsigned int chk2(CHAR *, int);
+unsigned int chk3(CHAR *, int);
+int sipkt(char);
+int sopkt(void);
+int sinit(void);
+VOID rinit(CHAR *);
+int spar(CHAR *);
+int rcvfil(char *);
+CHAR *rpar(void);
+int gnfile(void);
+int getsbuf(int);
+int getrbuf(void);
+int freesbuf(int);
+int freerbuf(int);
+int dumpsbuf(void);
+int dumprbuf(void);
+VOID freerpkt(int);
+int chkwin(int, int, int);
+int rsattr(CHAR *);
+char *getreason(char *);
+int scmd(char, CHAR *);
+int encstr(CHAR *);
+int decode(CHAR *, int (*)(char), int);
+int bdecode(CHAR *, int (*)(char));
+int fnparse(char *);
+int syscmd(char *, char *);
+int cwd(char *);
+int remset(char *);
+int initattr(struct zattr *);
+int gattr(CHAR *, struct zattr *);
+int adebu(char *, struct zattr *);
+int canned(CHAR *);
+int opent(struct zattr *);
+int ckopenx(struct zattr *);
+int opena(char *, struct zattr *);
+int openi(char *);
+int openo(char *, struct zattr *, struct filinfo *);
+int openc(int, char *);
+int reof(char *, struct zattr *);
+VOID reot(void);
+int sfile(int);
+int sattr(int, int);
+int sdata(void);
+int seof(int);
+int sxeof(int);
+int seot(void);
+int window(int);
+int clsif(void);
+int clsof(int);
+CHAR setgen(char, char *, char *, char *);
+int getpkt(int, int);
+int maxdata(void);
+int putsrv(char);
+int puttrm(char);
+int putque(char);
+int putfil(char);
+int putmfil(char);
+int zputfil(char);
+VOID zdstuff(CHAR);
+int tinit(int);
+VOID pktinit(void);
+VOID resetc(void);
+VOID xsinit(void);
+int adjpkl(int, int, int);
+int chktimo(int, int);
+int nxtpkt(void);
+VOID rcalcpsz(void);
+int srinit(int, int, int);
+VOID tstats(void);
+VOID fstats(void);
+VOID intmsg(long);
+VOID ermsg(char *);
+int chkint(void);
+VOID sdebu(int);
+VOID rdebu(CHAR *, int);
+char *dbchr(int);
+SIGTYP stptrap(int);
+SIGTYP trap(int);
+char *ck_errstr(void);
 #ifndef NOXFER
-_PROTOTYP(int agnbyte, (void));
+int agnbyte(void);
 #endif /* NOXFER */
-_PROTOTYP(int xgnbyte, (int, int, int (*)(void)));
-_PROTOTYP(int xpnbyte, (int, int, int, int (*)(char)));
+int xgnbyte(int, int, int (*)(void));
+int xpnbyte(int, int, int, int (*)(char));
 
 /* User interface functions needed by main program, etc. */
 
-_PROTOTYP(int doconect, (int, int));
-_PROTOTYP(VOID setflow, (void));
-_PROTOTYP(VOID prescan, (int));
-_PROTOTYP(VOID setint, (void));
-_PROTOTYP(VOID doinit, (void));
-_PROTOTYP(VOID dofast, (void));
-_PROTOTYP(VOID cmdini, (void));
-_PROTOTYP(int dotake, (char *));
-_PROTOTYP(int cmdlin, (void));
-_PROTOTYP(int conect, (void));
-_PROTOTYP(int ckcputc, (int));
-_PROTOTYP(int mdmhup, (void));
-_PROTOTYP(VOID herald, (void));
-_PROTOTYP(VOID fixcmd, (void));
-_PROTOTYP(int doarg, (char));
-_PROTOTYP(int doxarg, (char **, int));
-_PROTOTYP(VOID usage, (void));
-_PROTOTYP(VOID doclean, (int));
-_PROTOTYP(int sndhlp, (void));
-_PROTOTYP(int sndstatus, (void));
-_PROTOTYP(int sndstring, (char *));
-_PROTOTYP(VOID ckhost, (char *, int));
-_PROTOTYP(int gettcs, (int, int));
-_PROTOTYP(VOID getdialenv, (void));
-_PROTOTYP(VOID setprefix, (int));
-_PROTOTYP(VOID initpat, (void));
-_PROTOTYP(VOID initcsets, (void));
+int doconect(int, int);
+VOID setflow(void);
+VOID prescan(int);
+VOID setint(void);
+VOID doinit(void);
+VOID dofast(void);
+VOID cmdini(void);
+int dotake(char *);
+int cmdlin(void);
+int conect(void);
+int ckcputc(int);
+int mdmhup(void);
+VOID herald(void);
+VOID fixcmd(void);
+int doarg(char);
+int doxarg(char **, int);
+VOID usage(void);
+VOID doclean(int);
+int sndhlp(void);
+int sndstatus(void);
+int sndstring(char *);
+VOID ckhost(char *, int);
+int gettcs(int, int);
+VOID getdialenv(void);
+VOID setprefix(int);
+VOID initpat(void);
+VOID initcsets(void);
 #ifdef CK_TIMERS
-_PROTOTYP(VOID rttinit, (void));
-_PROTOTYP(int getrtt, (int, int));
+VOID rttinit(void);
+int getrtt(int, int);
 #endif /* CK_TIMERS */
 
-_PROTOTYP(int is_a_tty, (int));
-_PROTOTYP(int snddir, (char *));
-_PROTOTYP(int snddel, (char *));
-_PROTOTYP(int sndtype, (char *));
-_PROTOTYP(int dooutput, (char *, int));
-_PROTOTYP(int isabsolute, (char *));
-_PROTOTYP(VOID whoarewe, (void));
-_PROTOTYP(int ckmkdir, (int, char *, char **, int, int));
-_PROTOTYP(int autoexitchk, (CHAR));
-_PROTOTYP(VOID fcps, (void));
-_PROTOTYP(VOID logchar, (char));
-_PROTOTYP(VOID logstr, (char *, int));
+int is_a_tty(int);
+int snddir(char *);
+int snddel(char *);
+int sndtype(char *);
+int dooutput(char *, int);
+int isabsolute(char *);
+VOID whoarewe(void);
+int ckmkdir(int, char *, char **, int, int);
+int autoexitchk(CHAR);
+VOID fcps(void);
+VOID logchar(char);
+VOID logstr(char *, int);
 
-_PROTOTYP(VOID dologend, (void));
+VOID dologend(void);
 #ifdef NOLOCAL
 #define dologshow()
 #else
-_PROTOTYP(long dologshow, (int));
+long dologshow(int);
 #endif /* NOLOCAL */
 
 #ifdef NODISPLAY
 #define fxdinit(a)
 #else
-_PROTOTYP(VOID fxdinit, (int));
+VOID fxdinit(int);
 #endif /* NODISPLAY */
 
-_PROTOTYP(int fileselect, (char *, char *, char *, char *, char *, CK_OFF_T,
-                           CK_OFF_T, int, int, char **));
-_PROTOTYP(char *whoami, (void));
-_PROTOTYP(int shoesc, (int));
+int fileselect(char *, char *, char *, char *, char *, CK_OFF_T, CK_OFF_T, int,
+               int, char **);
+char *whoami(void);
+int shoesc(int);
 
 #ifdef CK_APC
-_PROTOTYP(int chkspkt, (char *));
-_PROTOTYP(int kstart, (CHAR));
-_PROTOTYP(VOID autodown, (int));
+int chkspkt(char *);
+int kstart(CHAR);
+VOID autodown(int);
 #ifdef CK_XYZ
-_PROTOTYP(int zstart, (CHAR));
+int zstart(CHAR);
 #endif /* CK_XYZ */
 #endif /* CK_APC */
 
@@ -1243,10 +1243,10 @@ struct txtbox {
 };
 
 #define DEFAULT_UQ_TIMEOUT 0
-_PROTOTYP(int uq_ok, (char *, char *, int, char **, int));
-_PROTOTYP(int uq_txt, (char *, char *, int, char **, char *, int, char *, int));
-_PROTOTYP(int uq_mtxt, (char *, char **, int, struct txtbox[]));
-_PROTOTYP(int uq_file, (char *, char *, int, char **, char *, char *, int));
+int uq_ok(char *, char *, int, char **, int);
+int uq_txt(char *, char *, int, char **, char *, int, char *, int);
+int uq_mtxt(char *, char **, int, struct txtbox[]);
+int uq_file(char *, char *, int, char **, char *, char *, int);
 
 #ifdef CK_URL
 struct urlopt {

@@ -2330,265 +2330,263 @@ struct stringint { /* String and (wide) integer */
 
 /* ANSI-C prototypes for user interface functions */
 
-_PROTOTYP(VOID newerrmsg, (char *));
-_PROTOTYP(int isinternalmacro, (int));
+VOID newerrmsg(char *);
+int isinternalmacro(int);
 
 #ifdef UNIX
-_PROTOTYP(int doputenv, (char *, char *));
+int doputenv(char *, char *);
 #endif /* UNIX */
 
-_PROTOTYP(int chkaes, (char, int));
+int chkaes(char, int);
 
 #ifndef NOICP
-_PROTOTYP(int matchname, (char *, int, int));
-_PROTOTYP(int ck_cls, (void));
-_PROTOTYP(int ck_cleol, (void));
-_PROTOTYP(int ck_curpos, (int, int));
-_PROTOTYP(int cmdsrc, (void));
-_PROTOTYP(int parser, (int));
-_PROTOTYP(int chkvar, (char *));
-_PROTOTYP(int zzstring, (char *, char **, int *));
+int matchname(char *, int, int);
+int ck_cls(void);
+int ck_cleol(void);
+int ck_curpos(int, int);
+int cmdsrc(void);
+int parser(int);
+int chkvar(char *);
+int zzstring(char *, char **, int *);
 #ifndef NOFRILLS
-_PROTOTYP(int yystring, (char *, char **));
+int yystring(char *, char **);
 #endif /* NOFRILLS */
-_PROTOTYP(int getncm, (char *, int));
-_PROTOTYP(int getnct, (char *, int, FILE *, int));
+int getncm(char *, int);
+int getnct(char *, int, FILE *, int);
 #endif /* NOICP */
-_PROTOTYP(VOID bgchk, (void));
-_PROTOTYP(char *nvlook, (char *));
-_PROTOTYP(int xarray, (char *));
-_PROTOTYP(int arraynam, (char *, int *, int *));
-_PROTOTYP(int arraybounds, (char *, int *, int *));
-_PROTOTYP(int boundspair, (char *, char *, int *, int *, char *));
-_PROTOTYP(int arrayitoa, (int));
-_PROTOTYP(int arrayatoi, (int));
-_PROTOTYP(char *bldlen, (char *, char *));
-_PROTOTYP(int chkarray, (int, int));
-_PROTOTYP(int dclarray, (char, int));
-_PROTOTYP(int pusharray, (int, int));
-_PROTOTYP(int parsevar, (char *, int *, int *));
-_PROTOTYP(int macini, (void));
-_PROTOTYP(VOID initmac, (void));
-_PROTOTYP(int delmac, (char *, int));
-_PROTOTYP(int addmac, (char *, char *));
-_PROTOTYP(int domac, (char *, char *, int));
-_PROTOTYP(int addmmac, (char *, char *[]));
-_PROTOTYP(int dobug, (void));
-_PROTOTYP(int docd, (int));
-_PROTOTYP(int doclslog, (int));
-_PROTOTYP(int docmd, (int));
-_PROTOTYP(int dodir, (int));
-_PROTOTYP(int dodo, (int, char *, int));
-_PROTOTYP(int doenable, (int, int));
-_PROTOTYP(int dogoto, (char *, int));
-_PROTOTYP(int dogta, (int));
-_PROTOTYP(int dohlp, (int));
-_PROTOTYP(int doincr, (int));
-_PROTOTYP(int dohrmt, (int));
-_PROTOTYP(int doif, (int));
-_PROTOTYP(int doinput, (int, char *[], int[], int, int));
-_PROTOTYP(int doreinp, (int, char *, int));
-_PROTOTYP(int dolog, (int));
-_PROTOTYP(int dologin, (char *));
-_PROTOTYP(int doopen, (void));
-_PROTOTYP(int doprm, (int, int));
-_PROTOTYP(int doreturn, (char *));
-_PROTOTYP(int dormt, (int));
-_PROTOTYP(int dosort, (void));
-_PROTOTYP(int dostat, (int));
-_PROTOTYP(int dostop, (void));
-_PROTOTYP(int dotype,
-          (char *, int, int, int, char *, int, char *, int, int, char *, int));
-_PROTOTYP(int transmit, (char *, char, int, int, int));
-_PROTOTYP(int xlate, (char *, char *, int, int));
-_PROTOTYP(int litcmd, (char **, char **, int));
-_PROTOTYP(int incvar, (char *, CK_OFF_T, int));
-_PROTOTYP(int ckdial, (char *, int, int, int, int));
-_PROTOTYP(int hmsg, (char *));
-_PROTOTYP(int hmsga, (char *[]));
-_PROTOTYP(int prtopt, (int *, char *));
-_PROTOTYP(CHAR rfilop, (char *, char));
-_PROTOTYP(int setcc, (char *, int *));
-_PROTOTYP(int setnum, (int *, int, int, int));
-_PROTOTYP(int seton, (int *));
-_PROTOTYP(int setonaut, (int *));
-_PROTOTYP(VOID shmdmlin, (void));
-_PROTOTYP(VOID slrestor, (void));
-_PROTOTYP(VOID initmdm, (int));
-_PROTOTYP(char *showoff, (int));
-_PROTOTYP(char *showooa, (int));
-_PROTOTYP(char *showstring, (char *));
-_PROTOTYP(int pktopn, (char *, int));
-_PROTOTYP(int traopn, (char *, int));
-_PROTOTYP(int sesopn, (char *, int));
-_PROTOTYP(int debopn, (char *, int));
-_PROTOTYP(int diaopn, (char *, int, int));
-_PROTOTYP(int prepop, (void));
-_PROTOTYP(int popclvl, (void));
-_PROTOTYP(int varval, (char *, CK_OFF_T *));
-_PROTOTYP(char *evala, (char *));
-_PROTOTYP(char *evalx, (char *));
-_PROTOTYP(int setalarm, (long));
-_PROTOTYP(int setat, (int));
-_PROTOTYP(int setinp, (void));
-_PROTOTYP(VOID dolognet, (void));
-_PROTOTYP(VOID dologline, (void));
-_PROTOTYP(int setlin, (int, int, int));
-_PROTOTYP(int setmodem, (void));
-_PROTOTYP(int setfil, (int));
-_PROTOTYP(char *homepath, (void));
+VOID bgchk(void);
+char *nvlook(char *);
+int xarray(char *);
+int arraynam(char *, int *, int *);
+int arraybounds(char *, int *, int *);
+int boundspair(char *, char *, int *, int *, char *);
+int arrayitoa(int);
+int arrayatoi(int);
+char *bldlen(char *, char *);
+int chkarray(int, int);
+int dclarray(char, int);
+int pusharray(int, int);
+int parsevar(char *, int *, int *);
+int macini(void);
+VOID initmac(void);
+int delmac(char *, int);
+int addmac(char *, char *);
+int domac(char *, char *, int);
+int addmmac(char *, char *[]);
+int dobug(void);
+int docd(int);
+int doclslog(int);
+int docmd(int);
+int dodir(int);
+int dodo(int, char *, int);
+int doenable(int, int);
+int dogoto(char *, int);
+int dogta(int);
+int dohlp(int);
+int doincr(int);
+int dohrmt(int);
+int doif(int);
+int doinput(int, char *[], int[], int, int);
+int doreinp(int, char *, int);
+int dolog(int);
+int dologin(char *);
+int doopen(void);
+int doprm(int, int);
+int doreturn(char *);
+int dormt(int);
+int dosort(void);
+int dostat(int);
+int dostop(void);
+int dotype(char *, int, int, int, char *, int, char *, int, int, char *, int);
+int transmit(char *, char, int, int, int);
+int xlate(char *, char *, int, int);
+int litcmd(char **, char **, int);
+int incvar(char *, CK_OFF_T, int);
+int ckdial(char *, int, int, int, int);
+int hmsg(char *);
+int hmsga(char *[]);
+int prtopt(int *, char *);
+CHAR rfilop(char *, char);
+int setcc(char *, int *);
+int setnum(int *, int, int, int);
+int seton(int *);
+int setonaut(int *);
+VOID shmdmlin(void);
+VOID slrestor(void);
+VOID initmdm(int);
+char *showoff(int);
+char *showooa(int);
+char *showstring(char *);
+int pktopn(char *, int);
+int traopn(char *, int);
+int sesopn(char *, int);
+int debopn(char *, int);
+int diaopn(char *, int, int);
+int prepop(void);
+int popclvl(void);
+int varval(char *, CK_OFF_T *);
+char *evala(char *);
+char *evalx(char *);
+int setalarm(long);
+int setat(int);
+int setinp(void);
+VOID dolognet(void);
+VOID dologline(void);
+int setlin(int, int, int);
+int setmodem(void);
+int setfil(int);
+char *homepath(void);
 #ifdef LOCUS
-_PROTOTYP(VOID setlocus, (int, int));
-_PROTOTYP(VOID setautolocus, (int));
+VOID setlocus(int, int);
+VOID setautolocus(int);
 #endif /* LOCUS */
-_PROTOTYP(int setbell, (void));
-_PROTOTYP(VOID setcmask, (int));
-_PROTOTYP(VOID setautodl, (int, int));
-_PROTOTYP(VOID setdebses, (int));
-_PROTOTYP(VOID setseslog, (int));
-_PROTOTYP(VOID setaprint, (int));
-_PROTOTYP(int settrm, (void));
-_PROTOTYP(int settrmtyp, (void));
-_PROTOTYP(int setsr, (int, int));
-_PROTOTYP(int setxmit, (void));
-_PROTOTYP(int dosetkey, (void));
-_PROTOTYP(int dochk, (void));
-_PROTOTYP(int ludial, (char *, int));
-_PROTOTYP(char *getdnum, (int));
-_PROTOTYP(VOID getnetenv, (void));
-_PROTOTYP(int getyesno, (char *, int));
-_PROTOTYP(VOID xwords, (char *, int, char *[], int));
-_PROTOTYP(int xlookup, (struct keytab[], char *, int, int *));
-_PROTOTYP(char *rlookup, (struct keytab[], int, int));
-_PROTOTYP(int hupok, (int));
-_PROTOTYP(char *zzndate, (void));
-_PROTOTYP(char *zjdate, (char *));
-_PROTOTYP(char *jzdate, (char *));
-_PROTOTYP(char *ckdate, (void));
-_PROTOTYP(char *chk_ac, (int, char[]));
-_PROTOTYP(char *gmdmtyp, (void));
-_PROTOTYP(char *gfmode, (int, int));
-_PROTOTYP(int setdest, (void));
-_PROTOTYP(VOID ndinit, (void));
-_PROTOTYP(int doswitch, (void));
-_PROTOTYP(int dolocal, (void));
-_PROTOTYP(long tod2sec, (char *));
-_PROTOTYP(int lunet, (char *));
-_PROTOTYP(int doxdis, (int));
-_PROTOTYP(int dosave, (int));
-_PROTOTYP(int doxsend, (int));
-_PROTOTYP(int doxget, (int));
-_PROTOTYP(int doxconn, (int));
-_PROTOTYP(int clsconnx, (int));
-_PROTOTYP(VOID ftreset, (void));
-_PROTOTYP(long mjd, (char *));
-_PROTOTYP(char *mjd2date, (long));
-_PROTOTYP(char *ckgetpid, (void));
+int setbell(void);
+VOID setcmask(int);
+VOID setautodl(int, int);
+VOID setdebses(int);
+VOID setseslog(int);
+VOID setaprint(int);
+int settrm(void);
+int settrmtyp(void);
+int setsr(int, int);
+int setxmit(void);
+int dosetkey(void);
+int dochk(void);
+int ludial(char *, int);
+char *getdnum(int);
+VOID getnetenv(void);
+int getyesno(char *, int);
+VOID xwords(char *, int, char *[], int);
+int xlookup(struct keytab[], char *, int, int *);
+char *rlookup(struct keytab[], int, int);
+int hupok(int);
+char *zzndate(void);
+char *zjdate(char *);
+char *jzdate(char *);
+char *ckdate(void);
+char *chk_ac(int, char[]);
+char *gmdmtyp(void);
+char *gfmode(int, int);
+int setdest(void);
+VOID ndinit(void);
+int doswitch(void);
+int dolocal(void);
+long tod2sec(char *);
+int lunet(char *);
+int doxdis(int);
+int dosave(int);
+int doxsend(int);
+int doxget(int);
+int doxconn(int);
+int clsconnx(int);
+VOID ftreset(void);
+long mjd(char *);
+char *mjd2date(long);
+char *ckgetpid(void);
 
-_PROTOTYP(int dogrep, (void));
+int dogrep(void);
 
 #ifndef NOFTP
 #ifndef SYSFTP
-_PROTOTYP(int doxftp, (void));
-_PROTOTYP(int doftphlp, (void));
-_PROTOTYP(int dosetftp, (void));
-_PROTOTYP(int dosetftphlp, (void));
-_PROTOTYP(int shoftp, (int));
+int doxftp(void);
+int doftphlp(void);
+int dosetftp(void);
+int dosetftphlp(void);
+int shoftp(int);
 #endif /* SYSFTP */
 #endif /* NOFTP */
 
-_PROTOTYP(VOID cmhistory, (void));
-_PROTOTYP(char *getdcset, (void));
-_PROTOTYP(char *ttgtpn, (void));
+VOID cmhistory(void);
+char *getdcset(void);
+char *ttgtpn(void);
 
 #ifndef NOSHOW
-_PROTOTYP(int doshow, (int));
-_PROTOTYP(int shotcp, (int));
-_PROTOTYP(VOID shopar, (void));
-_PROTOTYP(VOID shofil, (void));
-_PROTOTYP(VOID shoparp, (void));
-_PROTOTYP(int shoatt, (void));
-_PROTOTYP(VOID shover, (void));
-_PROTOTYP(VOID shoctl, (void));
-_PROTOTYP(VOID shodbl, (void));
+int doshow(int);
+int shotcp(int);
+VOID shopar(void);
+VOID shofil(void);
+VOID shoparp(void);
+int shoatt(void);
+VOID shover(void);
+VOID shoctl(void);
+VOID shodbl(void);
 #ifndef NOSPL
-_PROTOTYP(int shomac, (char *, char *));
-_PROTOTYP(int doshift, (int));
+int shomac(char *, char *);
+int doshift(int);
 #endif /* NOSPL */
 #ifndef NOCSETS
-_PROTOTYP(VOID shocharset, (void));
-_PROTOTYP(VOID shoparl, (void));
-_PROTOTYP(VOID shotcs, (int, int));
+VOID shocharset(void);
+VOID shoparl(void);
+VOID shotcs(int, int);
 #endif /* NOCSETS */
 #ifndef NOLOCAL
-_PROTOTYP(VOID shoparc, (void));
-_PROTOTYP(int shomodem, (void));
+VOID shoparc(void);
+int shomodem(void);
 #ifndef NODIAL
-_PROTOTYP(VOID shods, (char *));
-_PROTOTYP(VOID shodial, (void));
-_PROTOTYP(int doshodial, (void));
+VOID shods(char *);
+VOID shodial(void);
+int doshodial(void);
 #endif /* NODIAL */
 #ifndef NONET
-_PROTOTYP(int shonet, (void));
-_PROTOTYP(int shotopt, (int));
-_PROTOTYP(int shotel, (int));
+int shonet(void);
+int shotopt(int);
+int shotel(int);
 #endif /* NONET */
-_PROTOTYP(VOID shomdm, (void));
+VOID shomdm(void);
 #endif /* NOLOCAL */
-_PROTOTYP(VOID shokeycode, (int));
-_PROTOTYP(VOID showassoc, (void));
-_PROTOTYP(VOID showdiropts, (void));
-_PROTOTYP(VOID showdelopts, (void));
-_PROTOTYP(VOID showtypopts, (void));
-_PROTOTYP(VOID showpurgopts, (void));
-_PROTOTYP(VOID shoflow, (void));
-_PROTOTYP(VOID shoxfer, (void));
+VOID shokeycode(int);
+VOID showassoc(void);
+VOID showdiropts(void);
+VOID showdelopts(void);
+VOID showtypopts(void);
+VOID showpurgopts(void);
+VOID shoflow(void);
+VOID shoxfer(void);
 #ifdef ANYSSH
-_PROTOTYP(VOID shossh, (void));
+VOID shossh(void);
 #endif /* ANYSSH */
 #endif /* NOSHOW */
 
-_PROTOTYP(VOID shostrdef, (CHAR *));
+VOID shostrdef(CHAR *);
 
 #ifndef NOSPL
-_PROTOTYP(int addlocal, (char *));
+int addlocal(char *);
 #endif /* NOSPL */
 
-_PROTOTYP(int setdelopts, (void));
+int setdelopts(void);
 
 #ifdef FNFLOAT
-_PROTOTYP(VOID initfloat, (void));
+VOID initfloat(void);
 #endif /* FNFLOAT */
 
 #ifdef CKCHANNELIO
-_PROTOTYP(int dofile, (int));
+int dofile(int);
 #endif /* CKCHANNELIO */
 
 #ifdef CKROOT
-_PROTOTYP(int dochroot, (void));
+int dochroot(void);
 #endif /* CKROOT */
 
 #ifdef NEWFTP
-_PROTOTYP(int doftpusr, (void));
-_PROTOTYP(int doftpput, (int, int));
-_PROTOTYP(int doftpget, (int, int));
-_PROTOTYP(int doftprmt, (int, int));
-_PROTOTYP(int ftpopen, (char *, char *, int));
-_PROTOTYP(int cmdlinget, (int));
-_PROTOTYP(int cmdlinput, (int));
-_PROTOTYP(int doftparg, (char));
-_PROTOTYP(int doftpacct, (void));
-_PROTOTYP(int doftpsite, (void));
-_PROTOTYP(int dosetftppsv, (void));
-_PROTOTYP(int ftpbye, (void));
+int doftpusr(void);
+int doftpput(int, int);
+int doftpget(int, int);
+int doftprmt(int, int);
+int ftpopen(char *, char *, int);
+int cmdlinget(int);
+int cmdlinput(int);
+int doftparg(char);
+int doftpacct(void);
+int doftpsite(void);
+int dosetftppsv(void);
+int ftpbye(void);
 #endif /* NEWFTP */
 
-_PROTOTYP(int cx_net,
-          (int net, int protocol, char *xhost, char *svc, char *username,
+int cx_net(int net, int protocol, char *xhost, char *svc, char *username,
            char *password, char *command, int param1, int param2, int param3,
-           int cx, int sx, int flag, int gui));
-_PROTOTYP(int cx_serial, (char *device, int cx, int sx, int shr, int flag,
-                          int gui, int special));
+           int cx, int sx, int flag, int gui);
+int cx_serial(char *device, int cx, int sx, int shr, int flag, int gui,
+              int special);
 
 #endif /* CKUUSR_H */
 

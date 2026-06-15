@@ -688,24 +688,6 @@ extern int errno; /* fdc 1 November 2022 */
 #endif /* _POSIX_SOURCE */
 #endif /* POSIX */
 
-/*
-  ANSI C?  That is, do we have function prototypes, new-style
-  function declarations, and parameter type checking and coercion?
-*/
-
-#ifdef __STDC__ /* __STDC__ means ANSI C */
-#endif          /* __STDC__ */
-/*
-  _PROTOTYP() is used for forward declarations of functions so we can have
-  parameter and return value type checking if the compiler offers it.
-  __STDC__ should be defined by the compiler only if function prototypes are
-  allowed.  Otherwise, we get old-style forward declarations.  Our own private
-  CK_ANSIC symbol tells whether we use ANSI C prototypes.  To force use of
-  ANSI prototypes, include -DCK_ANSIC on the cc command line.  To disable the
-  use of ANSI prototypes, include -DNOANSI.
-*/
-#define _PROTOTYP(func, parms) func parms
-
 #ifdef NOLOGIN /* NOLOGIN implies NOIKSD */
 #ifndef NOIKSD
 #define NOIKSD
@@ -770,9 +752,9 @@ extern int errno; /* fdc 1 November 2022 */
 #ifdef CKXPRINTF
 #define printf ckxprintf
 #define fprintf ckxfprintf
-_PROTOTYP(int ckxprintf, (const char *, ...));
-_PROTOTYP(int ckxperror, (const char *));
-_PROTOTYP(int ckxfprintf, (FILE *, const char *, ...));
+int ckxprintf(const char *, ...);
+int ckxperror(const char *);
+int ckxfprintf(FILE *, const char *, ...);
 #ifdef putchar
 #undef putchar
 #endif /* putchar */
@@ -1776,7 +1758,7 @@ extern long ztmsec, ztusec; /* Fraction of sec of current time */
 #endif /* NONETCMD */
 
 #ifdef CK_REDIR
-_PROTOTYP(int ttruncmd, (char *));
+int ttruncmd(char *);
 #endif /* CK_REDIR */
 
 /* Use built-in DIRECTORY command */
@@ -2093,7 +2075,7 @@ typedef struct fd_set {
 
 #ifdef TTSPDLIST
 
-_PROTOTYP(long *ttspdlist, (void));
+long *ttspdlist(void);
 
 #else /* TTSPDLIST not defined */
 /*
@@ -2343,7 +2325,7 @@ _PROTOTYP(long *ttspdlist, (void));
 #endif /* CK_TTSETFLOW */
 
 #ifdef CK_TTSETFLOW
-_PROTOTYP(int ttsetflow, (int));
+int ttsetflow(int);
 #endif /* CK_TTSETFLOW */
 /*
  Systems where we can expand tilde at the beginning of file or directory names
@@ -2761,11 +2743,11 @@ struct zfnfp {
 /* Debugging included.  Declare debug log flag in main program only. */
 extern int tralog, tlogfmt;
 #endif /* CKCMAI */
-_PROTOTYP(VOID dotlog, (int, char *, char *, CK_OFF_T));
+VOID dotlog(int, char *, char *, CK_OFF_T);
 #define tlog(a, b, c, d)                                                       \
   if (tralog && tlogfmt)                                                       \
   dotlog(a, b, c, (CK_OFF_T)d)
-_PROTOTYP(VOID doxlog, (int, char *, CK_OFF_T, int, int, char *));
+VOID doxlog(int, char *, CK_OFF_T, int, int, char *);
 #endif /* TLOG */
 
 #ifndef DEBUG
@@ -2774,8 +2756,8 @@ _PROTOTYP(VOID doxlog, (int, char *, CK_OFF_T, int, int, char *));
 #define ckhexdump(a, b, c)
 /* Now define the debug() macro. */
 #else /* DEBUG */
-_PROTOTYP(int dodebug, (int, char *, char *, CK_OFF_T));
-_PROTOTYP(int dohexdump, (CHAR *, CHAR *, int));
+int dodebug(int, char *, char *, CK_OFF_T);
+int dohexdump(CHAR *, CHAR *, int);
 #ifdef IFDEBUG
 /* Use this form to avoid function calls: */
 #define debug(a, b, c, d)                                                      \
@@ -2922,116 +2904,116 @@ typedef int WAIT_T;
 
 #ifndef CKVFIO_C
 /* For some reason, this does not agree with DEC C */
-_PROTOTYP(int zkself, (void));
+int zkself(void);
 #endif /* CKVFIO_C */
-_PROTOTYP(int zopeni, (int, char *));
-_PROTOTYP(int zopeno, (int, char *, struct zattr *, struct filinfo *));
-_PROTOTYP(int zclose, (int));
-_PROTOTYP(int zchin, (int, int *));
-_PROTOTYP(int zxin, (int, char *, int));
-_PROTOTYP(int zsinl, (int, char *, int));
-_PROTOTYP(int zinfill, (void));
-_PROTOTYP(int zsout, (int, char *));
-_PROTOTYP(int zsoutl, (int, char *));
-_PROTOTYP(int zsoutx, (int, char *, int));
-_PROTOTYP(int zchout, (int, char));
-_PROTOTYP(int zoutdump, (void));
-_PROTOTYP(int zsyscmd, (char *));
-_PROTOTYP(int zshcmd, (char *));
+int zopeni(int, char *);
+int zopeno(int, char *, struct zattr *, struct filinfo *);
+int zclose(int);
+int zchin(int, int *);
+int zxin(int, char *, int);
+int zsinl(int, char *, int);
+int zinfill(void);
+int zsout(int, char *);
+int zsoutl(int, char *);
+int zsoutx(int, char *, int);
+int zchout(int, char);
+int zoutdump(void);
+int zsyscmd(char *);
+int zshcmd(char *);
 #ifdef UNIX
-_PROTOTYP(int zsetfil, (int, int));
+int zsetfil(int, int);
 #endif /* UNIX */
-_PROTOTYP(int zchkpid, (unsigned long));
+int zchkpid(unsigned long);
 #ifdef CKEXEC
-_PROTOTYP(VOID z_exec, (char *, char **, int));
+VOID z_exec(char *, char **, int);
 #endif /* CKEXEC */
-_PROTOTYP(int chkfn, (int));
-_PROTOTYP(CK_OFF_T zchki, (char *));
-_PROTOTYP(CK_OFF_T zgetfs, (char *));
-_PROTOTYP(int iswild, (char *));
-_PROTOTYP(int isdir, (char *));
-_PROTOTYP(int zchko, (char *));
-_PROTOTYP(int zdelet, (char *));
-_PROTOTYP(VOID zrtol, (char *, char *));
-_PROTOTYP(VOID zltor, (char *, char *));
-_PROTOTYP(VOID zstrip, (char *, char **));
-_PROTOTYP(int zchdir, (char *));
-_PROTOTYP(char *zhome, (void));
-_PROTOTYP(char *zgtdir, (void));
-_PROTOTYP(int zxcmd, (int, char *));
-_PROTOTYP(int zclosf, (int));
+int chkfn(int);
+CK_OFF_T zchki(char *);
+CK_OFF_T zgetfs(char *);
+int iswild(char *);
+int isdir(char *);
+int zchko(char *);
+int zdelet(char *);
+VOID zrtol(char *, char *);
+VOID zltor(char *, char *);
+VOID zstrip(char *, char **);
+int zchdir(char *);
+char *zhome(void);
+char *zgtdir(void);
+int zxcmd(int, char *);
+int zclosf(int);
 #ifdef NZXPAND
-_PROTOTYP(int nzxpand, (char *, int));
+int nzxpand(char *, int);
 #else  /* NZXPAND */
-_PROTOTYP(int zxpand, (char *));
+int zxpand(char *);
 #endif /* NZXPAND */
-_PROTOTYP(int znext, (char *));
+int znext(char *);
 #ifdef ZXREWIND
-_PROTOTYP(int zxrewind, (void));
+int zxrewind(void);
 #endif /* ZXREWIND */
-_PROTOTYP(int zchkspa, (char *, CK_OFF_T));
-_PROTOTYP(VOID znewn, (char *, char **));
-_PROTOTYP(int zrename, (char *, char *));
-_PROTOTYP(int zcopy, (char *, char *));
-_PROTOTYP(int zsattr, (struct zattr *));
-_PROTOTYP(int zfree, (char *));
-_PROTOTYP(char *zfcdat, (char *));
-_PROTOTYP(int zstime, (char *, struct zattr *, int));
+int zchkspa(char *, CK_OFF_T);
+VOID znewn(char *, char **);
+int zrename(char *, char *);
+int zcopy(char *, char *);
+int zsattr(struct zattr *);
+int zfree(char *);
+char *zfcdat(char *);
+int zstime(char *, struct zattr *, int);
 #ifdef CK_PERMS
-_PROTOTYP(char *zgperm, (char *));
-_PROTOTYP(char *ziperm, (char *));
+char *zgperm(char *);
+char *ziperm(char *);
 #else  /* CK_PERMS */
 #endif /* CK_PERMS */
-_PROTOTYP(int zmail, (char *, char *));
-_PROTOTYP(int zprint, (char *, char *));
-_PROTOTYP(char *tilde_expand, (char *));
-_PROTOTYP(int zmkdir, (char *));
-_PROTOTYP(int zfseek, (CK_OFF_T));
+int zmail(char *, char *);
+int zprint(char *, char *);
+char *tilde_expand(char *);
+int zmkdir(char *);
+int zfseek(CK_OFF_T);
 #ifdef ZFNQFP
-_PROTOTYP(struct zfnfp *zfnqfp, (char *, int, char *));
+struct zfnfp *zfnqfp(char *, int, char *);
 #else
 #define zfnqfp(a, b, c) ckstrncpy(c, a, b)
 #endif /* ZFNQFP */
-_PROTOTYP(int zvuser, (char *));
-_PROTOTYP(int zvpass, (char *));
-_PROTOTYP(VOID zvlogout, (void));
+int zvuser(char *);
+int zvpass(char *);
+VOID zvlogout(void);
 
 /* Functions from system-dependent terminal i/o module */
 
-_PROTOTYP(int ttopen, (char *, int *, int, int)); /* tty functions */
-_PROTOTYP(int ttclos, (int));
-_PROTOTYP(int tthang, (void));
-_PROTOTYP(int ttres, (void));
-_PROTOTYP(int ttpkt, (long, int, int));
-_PROTOTYP(int ttvt, (long, int));
-_PROTOTYP(int ttsspd, (int));
-_PROTOTYP(long ttgspd, (void));
-_PROTOTYP(int ttflui, (void));
-_PROTOTYP(int ttfluo, (void));
-_PROTOTYP(int ttpushback, (CHAR *, int));
-_PROTOTYP(int ttpeek, (void));
-_PROTOTYP(int ttgwsiz, (void));
-_PROTOTYP(int ttchk, (void));
-_PROTOTYP(int ttxin, (int, CHAR *));
-_PROTOTYP(int ttxout, (CHAR *, int));
-_PROTOTYP(int ttol, (CHAR *, int));
-_PROTOTYP(int ttoc, (char));
-_PROTOTYP(int ttinc, (int));
-_PROTOTYP(int ttscarr, (int));
-_PROTOTYP(int ttgmdm, (void));
-_PROTOTYP(int ttsndb, (void));
-_PROTOTYP(int ttsndlb, (void));
+int ttopen(char *, int *, int, int); /* tty functions */
+int ttclos(int);
+int tthang(void);
+int ttres(void);
+int ttpkt(long, int, int);
+int ttvt(long, int);
+int ttsspd(int);
+long ttgspd(void);
+int ttflui(void);
+int ttfluo(void);
+int ttpushback(CHAR *, int);
+int ttpeek(void);
+int ttgwsiz(void);
+int ttchk(void);
+int ttxin(int, CHAR *);
+int ttxout(CHAR *, int);
+int ttol(CHAR *, int);
+int ttoc(char);
+int ttinc(int);
+int ttscarr(int);
+int ttgmdm(void);
+int ttsndb(void);
+int ttsndlb(void);
 #ifdef UNIX
-_PROTOTYP(char *ttglckdir, (void));
+char *ttglckdir(void);
 #endif /* UNIX */
 #ifdef PARSENSE
 #ifdef UNIX
-_PROTOTYP(int ttinl, (CHAR *, int, int, CHAR, CHAR, int));
+int ttinl(CHAR *, int, int, CHAR, CHAR, int);
 #else
-_PROTOTYP(int ttinl, (CHAR *, int, int, CHAR, CHAR));
+int ttinl(CHAR *, int, int, CHAR, CHAR);
 #endif /* UNIX */
 #else  /* ! PARSENSE */
-_PROTOTYP(int ttinl, (CHAR *, int, int, CHAR));
+int ttinl(CHAR *, int, int, CHAR);
 #endif /* PARSENSE */
 
 /* XYZMODEM support */
@@ -3065,47 +3047,47 @@ _PROTOTYP(int ttinl, (CHAR *, int, int, CHAR));
 
 /* Console functions */
 
-_PROTOTYP(int congm, (void));
-_PROTOTYP(VOID conint, (SIGTYP (*)(int), SIGTYP (*)(int)));
-_PROTOTYP(VOID connoi, (void));
-_PROTOTYP(int concb, (char));
+int congm(void);
+VOID conint(SIGTYP (*)(int), SIGTYP (*)(int));
+VOID connoi(void);
+int concb(char);
 #ifdef CONGSPD
-_PROTOTYP(long congspd, (void));
+long congspd(void);
 #endif /* CONGSPD */
-_PROTOTYP(int conbin, (char));
-_PROTOTYP(int conres, (void));
-_PROTOTYP(int conoc, (char));
-_PROTOTYP(int conxo, (int, char *));
-_PROTOTYP(int conol, (char *));
-_PROTOTYP(int conola, (char *[]));
-_PROTOTYP(int conoll, (char *));
-_PROTOTYP(int conchk, (void));
-_PROTOTYP(int coninc, (int));
-_PROTOTYP(char *conkbg, (void));
-_PROTOTYP(int psuspend, (int));
-_PROTOTYP(int priv_ini, (void));
-_PROTOTYP(int priv_on, (void));
-_PROTOTYP(int priv_off, (void));
-_PROTOTYP(int priv_can, (void));
-_PROTOTYP(int priv_chk, (void));
-_PROTOTYP(int priv_opn, (char *, int));
+int conbin(char);
+int conres(void);
+int conoc(char);
+int conxo(int, char *);
+int conol(char *);
+int conola(char *[]);
+int conoll(char *);
+int conchk(void);
+int coninc(int);
+char *conkbg(void);
+int psuspend(int);
+int priv_ini(void);
+int priv_on(void);
+int priv_off(void);
+int priv_can(void);
+int priv_chk(void);
+int priv_opn(char *, int);
 
-_PROTOTYP(int sysinit, (void)); /* Misc Kermit functions */
-_PROTOTYP(int syscleanup, (void));
-_PROTOTYP(int msleep, (int));
-_PROTOTYP(VOID rtimer, (void));
-_PROTOTYP(int gtimer, (void));
+int sysinit(void); /* Misc Kermit functions */
+int syscleanup(void);
+int msleep(int);
+VOID rtimer(void);
+int gtimer(void);
 #ifdef GFTIMER
-_PROTOTYP(VOID rftimer, (void));
-_PROTOTYP(CKFLOAT gftimer, (void));
+VOID rftimer(void);
+CKFLOAT gftimer(void);
 #endif /* GFTIMER */
-_PROTOTYP(VOID ttimoff, (void));
-_PROTOTYP(VOID ztime, (char **));
-_PROTOTYP(int parchk, (CHAR *, CHAR, int));
-_PROTOTYP(VOID doexit, (int, int));
-_PROTOTYP(int askmore, (void));
-_PROTOTYP(VOID fatal, (char *));
-_PROTOTYP(VOID fatal2, (char *, char *));
+VOID ttimoff(void);
+VOID ztime(char **);
+int parchk(CHAR *, CHAR, int);
+VOID doexit(int, int);
+int askmore(void);
+VOID fatal(char *);
+VOID fatal2(char *, char *);
 
 /* Key mapping support */
 
@@ -3115,7 +3097,7 @@ _PROTOTYP(VOID fatal2, (char *, char *));
 #endif /* NOSETKEY */
 #endif /* NOICP */
 
-_PROTOTYP(int congks, (int));
+int congks(int);
 #ifndef NOSETKEY
 /*
   Catch-all for systems where we don't know how to read keyboard scan
@@ -3506,8 +3488,8 @@ extern int _flsbuf(char c, FILE *stream);
 #endif /* NZLTOR */
 
 #ifdef NZLTOR
-_PROTOTYP(VOID nzltor, (char *, char *, int, int, int));
-_PROTOTYP(VOID nzrtol, (char *, char *, int, int, int));
+VOID nzltor(char *, char *, int, int, int);
+VOID nzrtol(char *, char *, int, int, int);
 #endif /* NZLTOR */
 
 /* Implementations with a zrmdir() function */
@@ -3520,7 +3502,7 @@ _PROTOTYP(VOID nzrtol, (char *, char *, int, int, int));
 #endif /* ZRMDIR */
 
 #ifdef ZRMDIR
-_PROTOTYP(int zrmdir, (char *));
+int zrmdir(char *);
 #endif /* ZRMDIR */
 
 #ifndef FILECASE
@@ -3658,13 +3640,13 @@ extern int filecase;
 #endif /* GETUSERSHELL */
 #endif /* NOGETUSERSHELL */
 #endif /* UNIX */
-_PROTOTYP(int ckxlogin, (CHAR *, CHAR *, CHAR *, int));
-_PROTOTYP(int ckxlogout, (VOID));
+int ckxlogin(CHAR *, CHAR *, CHAR *, int);
+int ckxlogout(VOID);
 #endif /* CK_LOGIN */
 
 #ifndef NOZLOCALTIME /* zlocaltime() available. */
 #define ZLOCALTIME
-_PROTOTYP(char *zlocaltime, (char *));
+char *zlocaltime(char *);
 #endif /* NOZLOCALTIME */
 
 #ifdef CKSYSLOG           /* Syslogging levels */
@@ -3681,7 +3663,7 @@ _PROTOTYP(char *zlocaltime, (char *));
 #define SYSLGMAX 9        /* Highest level */
 #define SYSLG_DF SYSLG_FA /* Default level */
 /* Logging function */
-_PROTOTYP(VOID cksyslog, (int, int, char *, char *, char *));
+VOID cksyslog(int, int, char *, char *, char *);
 #endif /* CKSYSLOG */
 #ifndef CKCMAI
 extern int ckxlogging, ckxsyslog, ikdbopen;
@@ -3701,28 +3683,28 @@ struct keytab { /* Keyword table */
 #endif /* CK_KEYTAB */
 
 #ifdef UNIX
-_PROTOTYP(int isalink, (char *));
+int isalink(char *);
 #endif /* UNIX */
 
 #ifdef NETPTY
-_PROTOTYP(int do_pty, (int *, char *, int));
-_PROTOTYP(VOID end_pty, (void));
+int do_pty(int *, char *, int);
+VOID end_pty(void);
 #endif /* NETPTY */
 
 #ifdef CKROOT
-_PROTOTYP(int zsetroot, (char *));
-_PROTOTYP(char *zgetroot, (void));
-_PROTOTYP(int zinroot, (char *));
+int zsetroot(char *);
+char *zgetroot(void);
+int zinroot(char *);
 #endif /* CKROOT */
 
 /* Local Echo Buffer prototypes */
-_PROTOTYP(VOID le_init, (void));
-_PROTOTYP(VOID le_clean, (void));
-_PROTOTYP(int le_inbuf, (void));
-_PROTOTYP(int le_putstr, (CHAR *));
-_PROTOTYP(int le_puts, (CHAR *, int));
-_PROTOTYP(int le_putchar, (CHAR));
-_PROTOTYP(int le_getchar, (CHAR *));
+VOID le_init(void);
+VOID le_clean(void);
+int le_inbuf(void);
+int le_putstr(CHAR *);
+int le_puts(CHAR *, int);
+int le_putchar(CHAR);
+int le_getchar(CHAR *);
 
 /* #ifndef NOHTTP */
 #ifndef NOCMDATE2TM
@@ -3743,7 +3725,7 @@ _PROTOTYP(int le_getchar, (CHAR *));
 #endif /* NOLOCALE */
 
 #ifdef CMDATE2TM
-_PROTOTYP(struct tm *cmdate2tm, (char *, int));
+struct tm *cmdate2tm(char *, int);
 #endif       /* CMDATE2TM */
 /* #endif */ /* NOHTTP */
 
@@ -3757,9 +3739,9 @@ _PROTOTYP(struct tm *cmdate2tm, (char *, int));
 #endif /* NOSETTIME */
 
 #ifdef NEWFTP
-_PROTOTYP(int ftpisconnected, (void));
-_PROTOTYP(int ftpisloggedin, (void));
-_PROTOTYP(int ftpissecure, (void));
+int ftpisconnected(void);
+int ftpisloggedin(void);
+int ftpissecure(void);
 #endif /* NEWFTP */
 
 /*
@@ -3849,8 +3831,8 @@ _PROTOTYP(int ftpissecure, (void));
 #endif /* NETCONN */
 #endif /* NOTCPIP */
 
-_PROTOTYP(int readpass, (char *, char *, int));
-_PROTOTYP(int readtext, (char *, char *, int));
+int readpass(char *, char *, int);
+int readtext(char *, char *, int);
 
 /*
  * On Windows, ttyfd is frequently used to hold HANDLEs which are a kind of

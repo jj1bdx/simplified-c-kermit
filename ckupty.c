@@ -424,7 +424,7 @@ VOID set_termbuf(int fd) /* Only make the necessary changes. */
 
 VOID ptyint_vhangup() {
 #ifdef CK_VHANGUP
-  _PROTOTYP(int vhangup, (void));
+  int vhangup(void);
 #ifdef CK_POSIX_SIG
   struct sigaction sa;
   /* Initialize "sa" structure. */

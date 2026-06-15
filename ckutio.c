@@ -852,7 +852,7 @@ static int fdin, fdout;        /* File descriptors for pipe */
 static FILE *ttout = NULL;     /* File pointer for output pipe */
 #ifdef DCLFDOPEN
 /* fdopen() needs declaring because it's not declared in <stdio.h> */
-_PROTOTYP(FILE *fdopen, (int, char *));
+FILE *fdopen(int, char *);
 #endif /* DCLFDOPEN */
 #endif /* NETCMD */
 
@@ -948,30 +948,30 @@ static char lockname[DEVNAMLEN + 1]; /* Ditto, the part after "/dev/". */
 /* ANSI-style prototypes for internal functions. */
 /* Functions used outside this module are prototyped in ckcker.h. */
 
-_PROTOTYP(SIGTYP timerh, (int));
-_PROTOTYP(SIGTYP cctrap, (int));
-_PROTOTYP(SIGTYP esctrp, (int));
-_PROTOTYP(int do_open, (char *));
-_PROTOTYP(static int in_chk, (int, int));
-_PROTOTYP(static int ttrpid, (char *));
-_PROTOTYP(static int ttchkpid, (char *));
-_PROTOTYP(static int ttlock, (char *));
-_PROTOTYP(static int ttunlck, (void));
-_PROTOTYP(static VOID sigchld_handler, (int));
-_PROTOTYP(int mygetbuf, (void));
-_PROTOTYP(int myfillbuf, (void));
-_PROTOTYP(VOID conbgt, (int));
+SIGTYP timerh(int);
+SIGTYP cctrap(int);
+SIGTYP esctrp(int);
+int do_open(char *);
+static int in_chk(int, int);
+static int ttrpid(char *);
+static int ttchkpid(char *);
+static int ttlock(char *);
+static int ttunlck(void);
+static VOID sigchld_handler(int);
+int mygetbuf(void);
+int myfillbuf(void);
+VOID conbgt(int);
 #ifdef ACUCNTRL
-_PROTOTYP(VOID acucntrl, (char *, char *));
+VOID acucntrl(char *, char *);
 #endif /* ACUCNTRL */
 
 #ifdef BSD44ORPOSIX
-_PROTOTYP(int carrctl, (struct termios *, int));
+int carrctl(struct termios *, int);
 #else
 #ifdef ATTSV
-_PROTOTYP(int carrctl, (struct termio *, int));
+int carrctl(struct termio *, int);
 #else
-_PROTOTYP(int carrctl, (struct sgttyb *, int));
+int carrctl(struct sgttyb *, int);
 #endif /* ATTSV */
 #endif /* BSD44ORPOSIX */
 
@@ -1184,7 +1184,7 @@ int ttgwsiz() {
 }
 
 #ifdef RLOGCODE
-_PROTOTYP(int rlog_naws, (void));
+int rlog_naws(void);
 #endif /* RLOGCODE */
 
 #ifndef NOSIGWINCH
@@ -9771,12 +9771,12 @@ int psuspend(int flag) {
 
 #ifndef _POSIX_SOURCE
 #ifndef NOGETID_PROTOS
-_PROTOTYP(UID_T getuid, (void));
-_PROTOTYP(UID_T geteuid, (void));
-_PROTOTYP(UID_T getreuid, (void));
-_PROTOTYP(UID_T getgid, (void));
-_PROTOTYP(UID_T getegid, (void));
-_PROTOTYP(UID_T getregid, (void));
+UID_T getuid(void);
+UID_T geteuid(void);
+UID_T getreuid(void);
+UID_T getgid(void);
+UID_T getegid(void);
+UID_T getregid(void);
 #endif /* NOGETID_PROTOS */
 #endif /* _POSIX_SOURCE */
 
@@ -11529,7 +11529,7 @@ int ckxprintf(const char *format, ...)
 
 #ifdef perror
 #undef perror
-_PROTOTYP(char *ck_errstr, (VOID));
+char *ck_errstr(VOID);
 int ckxperror(const char *str)
 /* ckxperror */ {
   char *errstr = ck_errstr();

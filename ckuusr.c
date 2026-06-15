@@ -109,8 +109,8 @@ int didsetlin = 0;
 
 #ifdef NEWFTP
 extern int ftpget, ftpisopen(), doftpres();
-_PROTOTYP(int doftptyp, (int));
-_PROTOTYP(VOID doftpglobaltype, (int));
+int doftptyp(int);
+VOID doftpglobaltype(int);
 #endif /* NEWFTP */
 
 #include "ckcfnp.h" /* Prototypes (must be last) */
@@ -3156,44 +3156,44 @@ int settypopts() { /* Set TYPE option defaults */
   return (success = 1);
 }
 
-_PROTOTYP(char *getbasename, (char *));
+char *getbasename(char *);
 
 /* Forward declarations of functions local to this module */
 
 #ifdef UNIX
-_PROTOTYP(int douchmod, (void));
+int douchmod(void);
 #endif /* UNIX */
 #ifdef CKPURGE
-_PROTOTYP(int dopurge, (void));
+int dopurge(void);
 #endif /* CKPURGE */
 #ifndef NOSPL
-_PROTOTYP(int doundef, (int));
-_PROTOTYP(int doask, (int));
-_PROTOTYP(int dodef, (int));
-_PROTOTYP(int doelse, (void));
-_PROTOTYP(int dofor, (void));
+int doundef(int);
+int doask(int);
+int dodef(int);
+int doelse(void);
+int dofor(void);
 #endif /* NOSPL  */
 #ifndef NODIAL
-_PROTOTYP(int dodial, (int));
+int dodial(int);
 #endif /* NODIAL */
-_PROTOTYP(int dodel, (void));
-_PROTOTYP(int dopaus, (int));
+int dodel(void);
+int dopaus(int);
 #ifndef NOPUSH
 #ifdef TCPSOCKET
-_PROTOTYP(int doping, (void));
-_PROTOTYP(int doftp, (void));
+int doping(void);
+int doftp(void);
 #endif /* TCPSOCKET */
 #endif /* NOPUSH */
 #ifndef NORENAME
 #ifndef NOFRILLS
-_PROTOTYP(int dorenam, (void));
+int dorenam(void);
 #endif /* NOFRILLS */
 #endif /* NORENAME */
 #ifdef ZCOPY
-_PROTOTYP(int docopy, (void));
+int docopy(void);
 #endif /* ZCOPY */
 #ifdef CK_REXX
-_PROTOTYP(int dorexx, (void));
+int dorexx(void);
 #endif /* CK_REXX */
 
 #ifdef TNCODE
@@ -4964,7 +4964,7 @@ int doxconn(int cx) {
     methods work, so (and this is quite a hack)...
   */
   if (!ckstrcmp("ssh ", ttname, 4, 0)) { /* Previous "host" was "ssh blah" */
-    _PROTOTYP(int redossh, (void));
+    int redossh(void);
     extern int ttyfd;
     if (ttyfd < 0) { /* And connection is no longer open */
       int xx;
@@ -11253,7 +11253,7 @@ int docmd(int cx) {
 
 #ifndef NOCSETS
   if (cx == XXXLA) { /* TRANSLATE file's charset */
-    _PROTOTYP(int doxlate, (void));
+    int doxlate(void);
     return (doxlate());
   }
 #endif /* NOCSETS */
@@ -11291,7 +11291,7 @@ int docmd(int cx) {
   }
 
   if (cx == XXCPR) { /* COPYRIGHT or LICENSE */
-    _PROTOTYP(int hmsgaa, (char *[], char *));
+    int hmsgaa(char *[], char *);
     extern char *ck_cryear;
     if ((y = cmcfm()) < 0)
       return (y);

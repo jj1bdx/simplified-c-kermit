@@ -92,12 +92,12 @@
 #endif /* HAVE_VHANGUP */
 
 /* Internal functions */
-_PROTOTYP(long ptyint_void_association, (void));
-_PROTOTYP(long ptyint_open_ctty, (char *, int *));
-_PROTOTYP(VOID ptyint_vhangup, (void));
+long ptyint_void_association(void);
+long ptyint_open_ctty(char *, int *);
+VOID ptyint_vhangup(void);
 
 #ifdef WANT_UTMP
-_PROTOTYP(long ptyint_update_wtmp, (struct utmp *, char *, char *));
+long ptyint_update_wtmp(struct utmp *, char *, char *);
 #endif /* WANT_UTMP */
 
 #define __PTY_INT_H__
@@ -114,16 +114,16 @@ _PROTOTYP(long ptyint_update_wtmp, (struct utmp *, char *, char *));
 #define PTY_UTMP_USERNAME_VALID (0x2)
 #endif /* WANT_UTMP */
 
-_PROTOTYP(long pty_init, (void));
-_PROTOTYP(long pty_getpty, (int *, char *, int));
-_PROTOTYP(long pty_open_slave, (char *, int *, int));
-_PROTOTYP(long pty_open_ctty, (char *, int *, int));
-_PROTOTYP(long pty_initialize_slave, (int));
+long pty_init(void);
+long pty_getpty(int *, char *, int);
+long pty_open_slave(char *, int *, int);
+long pty_open_ctty(char *, int *, int);
+long pty_initialize_slave(int);
 #ifdef WANT_UTMP
-_PROTOTYP(long pty_update_utmp, (int, int, char *, char *, char *, int));
-_PROTOTYP(long pty_logwtmp, (char *, char *, char *));
+long pty_update_utmp(int, int, char *, char *, char *, int);
+long pty_logwtmp(char *, char *, char *);
 #endif /* WANT_UTMP */
-_PROTOTYP(long pty_cleanup, (char *, int, int));
+long pty_cleanup(char *, int, int);
 
 #define PTY_GETPTY_STREAMS (44806912L)
 #define PTY_GETPTY_FSTAT (44806913L)

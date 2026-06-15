@@ -54,10 +54,9 @@ typedef ckjmpbuf ckjptr;
 #endif /* CK_POSIX_SIG */
 #endif /* JBNOTARRAY */
 
-_PROTOTYP(int cc_execute, (ckjptr, ck_sigfunc, ck_sigfunc));
-_PROTOTYP(int alrm_execute,
-          (ckjptr, int timo, ck_sighand handler, ck_sigfunc, ck_sigfunc));
-_PROTOTYP(int cc_alrm_execute,
-          (ckjptr, int timo, ck_sighand handler, ck_sigfunc, ck_sigfunc));
+int cc_execute(ckjptr, ck_sigfunc, ck_sigfunc);
+int alrm_execute(ckjptr, int timo, ck_sighand handler, ck_sigfunc, ck_sigfunc);
+int cc_alrm_execute(ckjptr, int timo, ck_sighand handler, ck_sigfunc,
+                    ck_sigfunc);
 
 /* End of ckusig.h */

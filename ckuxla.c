@@ -98,30 +98,30 @@ extern USHORT (*xl_fcu[MAXFCSETS + 1])(CHAR); /* FCS to Unicode */
 
 /* Bureaucracy section */
 
-_PROTOTYP(CHAR xnel1, (CHAR c)); /* NeXT to Latin-1 */
-_PROTOTYP(CHAR xl143, (CHAR c)); /* Latin-1 to IBM CP437 */
-_PROTOTYP(CHAR xl1as, (CHAR c)); /* Latin-1 to US ASCII */
-_PROTOTYP(CHAR zl1as, (CHAR c)); /* Latin-1 to US ASCII */
+CHAR xnel1(CHAR c); /* NeXT to Latin-1 */
+CHAR xl143(CHAR c); /* Latin-1 to IBM CP437 */
+CHAR xl1as(CHAR c); /* Latin-1 to US ASCII */
+CHAR zl1as(CHAR c); /* Latin-1 to US ASCII */
 
 #ifdef CYRILLIC
-_PROTOTYP(CHAR xassk, (CHAR c)); /* ASCII to Short KOI */
-_PROTOTYP(CHAR xskcy, (CHAR c)); /* Short KOI to Latin/Cyrillic */
+CHAR xassk(CHAR c); /* ASCII to Short KOI */
+CHAR xskcy(CHAR c); /* Short KOI to Latin/Cyrillic */
 #endif                           /* CYRILLIC */
 
 #ifdef LATIN2
-_PROTOTYP(CHAR xnel2, (CHAR c)); /* NeXT to Latin-2 */
-_PROTOTYP(CHAR xl243, (CHAR c)); /* Latin-2 to IBM CP437 */
-_PROTOTYP(CHAR xl2as, (CHAR c)); /* Latin-2 to US ASCII */
-_PROTOTYP(CHAR zl2as, (CHAR c)); /* Latin-2 to US ASCII */
-_PROTOTYP(CHAR xl2r8, (CHAR c)); /* Latin-2 to HP */
-_PROTOTYP(CHAR xl2l9, (CHAR c)); /* Latin-2 to Latin-9 */
-_PROTOTYP(CHAR xl9l2, (CHAR c)); /* Latin-9 to Latin-2 */
-_PROTOTYP(CHAR xl2mz, (CHAR c)); /* Latin-2 to Mazovia */
-_PROTOTYP(CHAR xmzl2, (CHAR c)); /* Mazovia to Latin-2 */
-_PROTOTYP(CHAR xl1mz, (CHAR c)); /* Latin-1 to Mazovia */
-_PROTOTYP(CHAR xmzl1, (CHAR c)); /* Mazovia to Latin-1 */
-_PROTOTYP(CHAR xmzl9, (CHAR c)); /* Latin-9 to Mazovia */
-_PROTOTYP(CHAR xl9mz, (CHAR c)); /* Mazovia to Latin-9 */
+CHAR xnel2(CHAR c); /* NeXT to Latin-2 */
+CHAR xl243(CHAR c); /* Latin-2 to IBM CP437 */
+CHAR xl2as(CHAR c); /* Latin-2 to US ASCII */
+CHAR zl2as(CHAR c); /* Latin-2 to US ASCII */
+CHAR xl2r8(CHAR c); /* Latin-2 to HP */
+CHAR xl2l9(CHAR c); /* Latin-2 to Latin-9 */
+CHAR xl9l2(CHAR c); /* Latin-9 to Latin-2 */
+CHAR xl2mz(CHAR c); /* Latin-2 to Mazovia */
+CHAR xmzl2(CHAR c); /* Mazovia to Latin-2 */
+CHAR xl1mz(CHAR c); /* Latin-1 to Mazovia */
+CHAR xmzl1(CHAR c); /* Mazovia to Latin-1 */
+CHAR xmzl9(CHAR c); /* Latin-9 to Mazovia */
+CHAR xl9mz(CHAR c); /* Mazovia to Latin-9 */
 #endif                           /* LATIN2 */
 
 /* Transfer character-set info */
@@ -5859,7 +5859,7 @@ CHAR xl2l9(CHAR c) { /* xl2l9 */ /* Latin-2 to Latin-9... */
   }
 }
 
-_PROTOTYP(CHAR xl258, (CHAR));
+CHAR xl258(CHAR);
 CHAR xl258(CHAR c) { /* xl258 */ /* Latin-2 to CP858... */ return (c); }
 #else
 #define xl2l9 NULL
@@ -5889,7 +5889,7 @@ CHAR zl9as(CHAR c) { /* zl9as */ /* Latin-9 to US ASCII... */
   }
 }
 
-_PROTOTYP(CHAR xl9as, (CHAR));
+CHAR xl9as(CHAR);
 CHAR xl9as(CHAR c) { /* xl9as */ /* Latin-9 to US ASCII... */
   if (c < (CHAR)0x80)
     return (c); /* Save a function call */
@@ -6041,14 +6041,14 @@ CHAR x58l9(CHAR c) { /* x58l9 */ /* CP-858 to Latin-9... */
 
 /* Pointers to byte-for-byte translation functions */
 
-_PROTOTYP(CHAR(*rx), (CHAR));
-_PROTOTYP(CHAR(*sx), (CHAR));
+CHAR(*rx)(CHAR);
+CHAR(*sx)(CHAR);
 
 #ifdef UNICODE
-_PROTOTYP(int(*xut), (USHORT));  /* Translation function UCS to TCS */
-_PROTOTYP(int(*xuf), (USHORT));  /* Translation function UCS to FCS */
-_PROTOTYP(USHORT(*xtu), (CHAR)); /* Translation function TCS to UCS */
-_PROTOTYP(USHORT(*xfu), (CHAR)); /* Translation function FCS to UCS */
+int(*xut)(USHORT);  /* Translation function UCS to TCS */
+int(*xuf)(USHORT);  /* Translation function UCS to FCS */
+USHORT(*xtu)(CHAR); /* Translation function TCS to UCS */
+USHORT(*xfu)(CHAR); /* Translation function FCS to UCS */
 #endif                           /* UNICODE */
 
 CHAR (*xlr[MAXTCSETS + 1][MAXFCSETS + 1])(CHAR) = {

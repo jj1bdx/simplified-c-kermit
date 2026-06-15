@@ -212,18 +212,18 @@ extern USHORT (*xl_u[MAXTXSETS + 1])(CHAR); /* Blah-to-Unicode functions */
 extern int (*xl_tx[MAXTXSETS + 1])(USHORT); /* Unicode-to-Blah functions */
 extern struct x_to_unicode *txrinfo[MAXTXSETS + 1];
 
-_PROTOTYP(int ck_isunicode, (void));
+int ck_isunicode(void);
 
-_PROTOTYP(int utf8_to_ucs2, (CHAR, USHORT **));
-_PROTOTYP(int ucs2_to_utf8, (USHORT, CHAR **));
-_PROTOTYP(int tx_cpsub, (USHORT));
-_PROTOTYP(int u_to_b, (CHAR));
-_PROTOTYP(int u_to_b2, (void));
-_PROTOTYP(int b_to_u, (CHAR, CHAR *, int, int));
+int utf8_to_ucs2(CHAR, USHORT **);
+int ucs2_to_utf8(USHORT, CHAR **);
+int tx_cpsub(USHORT);
+int u_to_b(CHAR);
+int u_to_b2(void);
+int b_to_u(CHAR, CHAR *, int, int);
 
 #ifdef KANJI
-_PROTOTYP(USHORT sj_to_un, (USHORT)); /* Shift-JIS to Unicode */
-_PROTOTYP(USHORT un_to_sj, (USHORT)); /* Unicode to Shift-JIS */
-#endif                                /* KANJI */
+USHORT sj_to_un(USHORT); /* Shift-JIS to Unicode */
+USHORT un_to_sj(USHORT); /* Unicode to Shift-JIS */
+#endif                   /* KANJI */
 
 #endif /* CKOUNI_H */

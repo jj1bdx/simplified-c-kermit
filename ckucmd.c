@@ -51,12 +51,12 @@ int cmdmsk = 255; /* 31 Dec 2000 (was 127) */
 
 #undef CKUCMD_C
 
-_PROTOTYP(int nlookup, (struct keytab[], char *, int, int *));
-_PROTOTYP(int unhex, (char));
-_PROTOTYP(static VOID cmdclrscn, (void));
+int nlookup(struct keytab[], char *, int, int *);
+int unhex(char);
+static VOID cmdclrscn(void);
 
 #ifdef CKLEARN
-_PROTOTYP(VOID learncmd, (char *));
+VOID learncmd(char *);
 #endif /* CKLEARN */
 
 static char *moname[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -75,7 +75,7 @@ struct keytab cmonths[] = {
 #ifndef NOICP /* The rest only if interactive command parsing selected */
 
 #ifndef NOSPL
-_PROTOTYP(int chkvar, (char *));
+int chkvar(char *);
 extern int askflag, echostars;
 #endif /* NOSPL */
 
@@ -292,13 +292,13 @@ extern int cmd_cols, cmd_rows, local, quiet;
 #define IAC 255
 #endif /* TNCODE */
 
-_PROTOTYP(static int gtword, (int));
-_PROTOTYP(static int addbuf, (char *));
-_PROTOTYP(static int setatm, (char *, int));
-_PROTOTYP(static VOID cmdnewl, (char));
-_PROTOTYP(static VOID cmdchardel, (void));
-_PROTOTYP(static VOID cmdecho, (char, int));
-_PROTOTYP(static int test, (int, int));
+static int gtword(int);
+static int addbuf(char *);
+static int setatm(char *, int);
+static VOID cmdnewl(char);
+static VOID cmdchardel(void);
+static VOID cmdecho(char, int);
+static int test(int, int);
 
 extern char *dftty;
 
@@ -4990,7 +4990,7 @@ char *shuffledate(char *p, int opt) {
 #ifdef HAVE_LOCALE
 #define MONTHBUFLEN 32
   char monthbuf[MONTHBUFLEN];
-  _PROTOTYP(char *locale_monthname, (int, int));
+  char *locale_monthname(int, int);
   extern int nolocale;
 #endif /* HAVE_LOCALE */
   int notime = 0;

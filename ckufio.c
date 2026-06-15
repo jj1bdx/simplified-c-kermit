@@ -365,10 +365,10 @@ static int ckrootset = 0;
 int ckrooterr = 0;
 #endif /* CKROOT */
 
-_PROTOTYP(VOID ignorsigs, (void));
-_PROTOTYP(VOID restorsigs, (void));
+VOID ignorsigs(void);
+VOID restorsigs(void);
 #ifdef SELECT
-_PROTOTYP(int ttwait, (int, int)); /* ckutio.c */
+int ttwait(int, int); /* ckutio.c */
 #endif                             /* SELECT */
 
 /*
@@ -381,12 +381,12 @@ _PROTOTYP(int ttwait, (int, int)); /* ckutio.c */
 #ifndef SVR4
 /* POSIX <pwd.h> already gave prototypes for these. */
 #ifdef DCGPWNAM
-_PROTOTYP(struct passwd *getpwnam, (const char *));
+struct passwd *getpwnam(const char *);
 #else
-_PROTOTYP(struct passwd *getpwnam, (char *));
+struct passwd *getpwnam(char *);
 #endif /* DCGPWNAM */
-_PROTOTYP(struct passwd *getpwuid, (PWID_T));
-_PROTOTYP(struct passwd *getpwent, (void));
+struct passwd *getpwuid(PWID_T);
+struct passwd *getpwent(void);
 #endif /* SVR4 */
 #endif /* _POSIX_SOURCE */
 #endif /* NDGPWNAM */
@@ -613,12 +613,12 @@ static int ssplen = SSPACE; /* Length of string space buffer */
 
 #ifdef DCLFDOPEN
 /* fdopen() needs declaring because it's not declared in <stdio.h> */
-_PROTOTYP(FILE *fdopen, (int, char *));
+FILE *fdopen(int, char *);
 #endif /* DCLFDOPEN */
 
 #ifdef DCLPOPEN
 /* popen() needs declaring because it's not declared in <stdio.h> */
-_PROTOTYP(FILE *popen, (char *, char *));
+FILE *popen(char *, char *);
 #endif /* DCLPOPEN */
 
 extern int nopush;
@@ -635,16 +635,16 @@ struct path {
   struct path *fwd;         /* forward ptr */
 };
 #ifndef NOPUSH
-_PROTOTYP(int shxpand, (char *, char *[], int));
+int shxpand(char *, char *[], int);
 #endif /* NOPUSH */
-_PROTOTYP(static int fgen, (char *, char *[], int));
-_PROTOTYP(static VOID traverse, (struct path *, char *, char *));
-_PROTOTYP(static VOID addresult, (char *, int));
-_PROTOTYP(char *whoami, (void));
-_PROTOTYP(UID_T real_uid, (void));
-_PROTOTYP(static struct path *splitpath, (char *p));
-_PROTOTYP(char *zdtstr, (time_t));
-_PROTOTYP(time_t zstrdt, (char *, int));
+static int fgen(char *, char *[], int);
+static VOID traverse(struct path *, char *, char *);
+static VOID addresult(char *, int);
+char *whoami(void);
+UID_T real_uid(void);
+static struct path *splitpath(char *p);
+char *zdtstr(time_t);
+time_t zstrdt(char *, int);
 
 /* Some systems define these symbols in include files, others don't... */
 
@@ -2493,7 +2493,7 @@ VOID nzltor(char *name, char *name2, int fncnv, int fnspath,
 #ifndef NOCSETS
   extern int fcharset, /* tcharset, */ language;
   int langsv;
-  _PROTOTYP(CHAR(*sxo), (CHAR)) = NULL; /* Translation functions */
+  CHAR(*sxo)(CHAR) = NULL; /* Translation functions */
   extern CHAR (*xls[MAXTCSETS + 1][MAXFCSETS + 1])(CHAR);
   langsv = language;
   language = L_USASCII;
@@ -2588,7 +2588,7 @@ VOID nzltor(char *name, char *name2, int fncnv, int fnspath,
 int zchdir(char *dirnam) {
   char *hd, *sp;
 #ifdef IKSDB
-  _PROTOTYP(int slotdir, (char *, char *));
+  int slotdir(char *, char *);
 #endif /* IKSDB */
 #ifndef NOSPL
   extern struct mtab *mactab; /* Main macro table */
@@ -2708,7 +2708,7 @@ char *zgtdir() {
 #else
 #ifdef BSD44
 #ifdef DCLGETCWD
-  _PROTOTYP(char *getcwd, (char *, SIZE_T));
+  char *getcwd(char *, SIZE_T);
 #endif /* DCLGETCWD */
   debug(F101, "zgtdir BSD44 CWDBL", "", CWDBL);
   s = getcwd(buf, CWDBL);
@@ -2718,7 +2718,7 @@ char *zgtdir() {
 #else
 #ifdef SVORPOSIX
 #ifdef DCLGETCWD
-  _PROTOTYP(char *getcwd, (char *, SIZE_T));
+  char *getcwd(char *, SIZE_T);
 #endif /* DCLGETCWD */
   debug(F101, "zgtdir SVORPOSIX CWDBL", "", CWDBL);
   s = getcwd(buf, CWDBL);
@@ -5819,7 +5819,7 @@ char *whoami() {
   char loginname[UIDBUFLEN + 1], envname[256]; /* temp storage */
   char *c;
   struct passwd *p;
-  _PROTOTYP(extern char *getlogin, (void));
+  extern char *getlogin(void);
 
   debug(F111, "whoami ruid A", realname, ruid);
 
@@ -6888,7 +6888,7 @@ int defumask = CMASK; /* Default umask value */
  * shell as returned by getusershell().  Disallow anyone mentioned in the file
  * _PATH_FTPUSERS to allow people such as root and uucp to be avoided.
  */
-_PROTOTYP(static int checkuser, (char *));
+static int checkuser(char *);
 
 char zvuname[64] = {NUL, NUL};
 char zvhome[CKMAXPATH + 1] = {NUL, NUL};
@@ -6910,10 +6910,10 @@ int zvuser(char *name) {
   int x;
   char *shell;
 #ifdef GETUSERSHELL
-  _PROTOTYP(char *getusershell, (void));
+  char *getusershell(void);
 #endif /* GETUSERSHELL */
 #ifndef NODCLENDUSERSHELL
-  _PROTOTYP(VOID endusershell, (void));
+  VOID endusershell(void);
 #endif /* NODCLENDUSERSHELL */
 
 #ifdef CK_PAM
@@ -7215,7 +7215,7 @@ int
 zvpass( char *p )
 {
 #ifndef NODCLINITGROUPS
-  _PROTOTYP(int initgroups, (const char *, gid_t));
+  int initgroups(const char *, gid_t);
 #endif /* NODCLINITGROUPS */
 
   char *xpasswd, *salt;

@@ -81,14 +81,14 @@ struct timeval {
 
 #ifdef NEWFTP
 #endif /* NEWFTP */
-_PROTOTYP(VOID ttflux, (void));
-_PROTOTYP(VOID doesc, (char));
-_PROTOTYP(int hconne, (void));
+VOID ttflux(void);
+VOID doesc(char);
+int hconne(void);
 #ifndef NOSHOW
-_PROTOTYP(VOID shomdm, (void));
+VOID shomdm(void);
 #endif /* NOSHOW */
-_PROTOTYP(static int kbget, (void));
-_PROTOTYP(static int ckcputf, (void));
+static int kbget(void);
+static int ckcputf(void);
 
 /* External variables */
 

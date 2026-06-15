@@ -243,27 +243,27 @@ struct langinfo {
 
 #ifdef KANJI
 #define UNKSJIS 0x817f
-_PROTOTYP(USHORT eu_to_sj, (USHORT)); /* EUC-JP to Shift-JIS  */
-_PROTOTYP(USHORT sj_to_eu, (USHORT)); /* Shift-JIS to EUC-JP  */
-_PROTOTYP(int xkanjf, (void));
-_PROTOTYP(int xkanji, (int, int (*)(char)));
-_PROTOTYP(int xkanjz, (int (*)(char)));
-_PROTOTYP(int zkanjf, (void));
-_PROTOTYP(int zkanji, (int (*)(void))); /* Kanji function prototypes */
-_PROTOTYP(int zkanjz, (void));
-_PROTOTYP(VOID j7init, (void)); /* Initialize JIS-7 parser */
-_PROTOTYP(int getj7, (void));   /* Get next JIS-7 character */
+USHORT eu_to_sj(USHORT); /* EUC-JP to Shift-JIS  */
+USHORT sj_to_eu(USHORT); /* Shift-JIS to EUC-JP  */
+int xkanjf(void);
+int xkanji(int, int (*)(char));
+int xkanjz(int (*)(char));
+int zkanjf(void);
+int zkanji(int (*)(void)); /* Kanji function prototypes */
+int zkanjz(void);
+VOID j7init(void); /* Initialize JIS-7 parser */
+int getj7(void);   /* Get next JIS-7 character */
 #endif /* KANJI */
 
 #ifndef NOLOCAL
-_PROTOTYP(int cs_size, (int));
-_PROTOTYP(int cs_is_std, (int));
-_PROTOTYP(int cs_is_nrc, (int));
-_PROTOTYP(VOID setremcharset, (int, int));
-_PROTOTYP(VOID setlclcharset, (int));
+int cs_size(int);
+int cs_is_std(int);
+int cs_is_nrc(int);
+VOID setremcharset(int, int);
+VOID setlclcharset(int);
 #endif /* NOLOCAL */
 
-_PROTOTYP(VOID setxlatype, (int, int));
+VOID setxlatype(int, int);
 
 #endif /* NOCSETS */
 #endif /* CKCXLA_H */

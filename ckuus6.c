@@ -590,9 +590,9 @@ int niot = (sizeof(iotab) / sizeof(struct keytab));
 
 /* Variables and prototypes */
 
-_PROTOTYP(static int doymdir, (int));
-_PROTOTYP(static int renameone, (char *, char *, int, int, int, int, int, int,
-                                 int, int, int, int, int));
+static int doymdir(int);
+static int renameone(char *, char *, int, int, int, int, int, int,
+                     int, int, int, int, int);
 
 #ifdef NETCONN
 extern int nnetdir; /* How many network directories */
@@ -631,8 +631,8 @@ struct keytab availtab[] = {/* Available authentication types */
 int availtabn = sizeof(availtab) / sizeof(struct keytab) - 1;
 
 #ifndef NODIAL
-_PROTOTYP(static int ddcvt, (char *, FILE *, int));
-_PROTOTYP(char *getdname, (void));
+static int ddcvt(char *, FILE *, int);
+char *getdname(void);
 
 static int partial = 0; /* For partial dial */
 static char *dscopy = NULL;
@@ -3326,7 +3326,7 @@ tytrap(int foo) /* TYPE interrupt trap */
   SIGRETURN;
 }
 
-_PROTOTYP(char *cvtstring, (char *, int, int));
+char *cvtstring(char *, int, int);
 
 int dotype(char *file, int paging, int first, int head, char *pat, int width,
            char *prefix, int incs, int outcs, char *outfile, int z) {
@@ -7031,7 +7031,7 @@ xdelete:
 #endif /* NOFRILLS */
 
 #ifndef NOSPL /* The ELSE command */
-_PROTOTYP(VOID pushqcmd, (char *));
+VOID pushqcmd(char *);
 
 int doelse() {
   if (!ifcmd[cmdlvl]) {
@@ -7788,7 +7788,7 @@ int dopaus(int cx) {
 }
 #endif /* NOSPL */
 
-_PROTOTYP(int zcmpfn, (char *, char *));
+int zcmpfn(char *, char *);
 
 #ifndef NOFRILLS
 

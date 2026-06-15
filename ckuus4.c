@@ -235,25 +235,25 @@ extern char apcbuf[];
 
 extern char evalbuf[]; /* EVALUATE result */
 extern char uidbuf[], pwbuf[], prmbuf[];
-_PROTOTYP(static char *fneval, (char *, char *[], int, char *));
-_PROTOTYP(static VOID myflsh, (void));
-_PROTOTYP(static char *getip, (char *));
-_PROTOTYP(int delta2sec, (char *, long *));
+static char *fneval(char *, char *[], int, char *);
+static VOID myflsh(void);
+static char *getip(char *);
+int delta2sec(char *, long *);
 
 #ifdef NEWFTP
-_PROTOTYP(char *ftp_cpl_mode, (void));
-_PROTOTYP(char *ftp_dpl_mode, (void));
-_PROTOTYP(char *ftp_authtype, (void));
+char *ftp_cpl_mode(void);
+char *ftp_dpl_mode(void);
+char *ftp_authtype(void);
 #endif /* NEWFTP */
 
 #ifndef NOHTTP
-_PROTOTYP(char *http_host, (void));
-_PROTOTYP(int http_isconnected, (void));
-_PROTOTYP(char *http_security, (void));
+char *http_host(void);
+int http_isconnected(void);
+char *http_security(void);
 #endif /* NOHTTP */
 
 #ifndef NOSEXP
-_PROTOTYP(char *dosexp, (char *));
+char *dosexp(char *);
 int fsexpflag = 0;
 #endif /* NOSEXP */
 
@@ -2493,10 +2493,10 @@ xmitexit: /* General exit point */
 
 #ifndef NOCSETS
 
-_PROTOTYP(CHAR(*sxx), (CHAR)); /* Local translation function */
-_PROTOTYP(CHAR(*rxx), (CHAR)); /* Local translation function */
-_PROTOTYP(CHAR zl1as, (CHAR)); /* Latin-1 to ascii */
-_PROTOTYP(CHAR xl1as, (CHAR)); /* ditto */
+CHAR(*sxx)(CHAR); /* Local translation function */
+CHAR(*rxx)(CHAR); /* Local translation function */
+CHAR zl1as(CHAR); /* Latin-1 to ascii */
+CHAR xl1as(CHAR); /* ditto */
 
 /*  X L A T E  --  Translate a local file from one character set to another */
 
@@ -5649,7 +5649,7 @@ VOID shoparp() { /* Protocol */
 #else
 #ifndef NOPUSH
   if (protocol != PROTO_K) {
-    _PROTOTYP(VOID shoextern, (void));
+    VOID shoextern(void);
     printf("\nExecuted by external commands:\n\n");
     s = ptab[protocol].p_b_scmd;
     if (!s)
@@ -11743,7 +11743,7 @@ fneval(char *fn, char *argp[], int argn, char *xp) {
     ckstrncpy(fnval, bp[0], FNVALL);
 #else
 #ifndef NOUNICODE
-    _PROTOTYP(char *cvtstring, (char *, int, int));
+    char *cvtstring(char *, int, int);
     char *string, *cset1, *cset2;
     int id1, id2;
 #endif /* NOUNICODE */
@@ -11918,7 +11918,7 @@ fneval(char *fn, char *argp[], int argn, char *xp) {
   /*  \fdayname() - Returns locale-dependent day name string - 2013/07/23 */
 
   if (cx == FN_DAYNAME) {
-    _PROTOTYP(char *locale_dayname, (int, int));
+    char *locale_dayname(int, int);
     char *s1, *s2;
     char buf[3];
     int fc = 0, day = 999;
@@ -11973,7 +11973,7 @@ fneval(char *fn, char *argp[], int argn, char *xp) {
   /* \fmonthname() - Returns locale-dependent month name string 2013/07/24 */
 
   if (cx == FN_MONNAME) {
-    _PROTOTYP(char *locale_monthname, (int, int));
+    char *locale_monthname(int, int);
     char *s1, *s2;
     char buf[3];
     int fc = 0, month = 999;

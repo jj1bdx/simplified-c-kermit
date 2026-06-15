@@ -64,12 +64,12 @@ extern int remfile;
 
 /* (move these prototypes to the appropriate .h files...) */
 
-_PROTOTYP(static int bgetpkt, (int));
+static int bgetpkt(int);
 #ifndef NOCSETS
-_PROTOTYP(int lookup, (struct keytab[], char *, int, int *));
+int lookup(struct keytab[], char *, int, int *);
 #endif /* NOCSETS */
 #ifndef NOSPL
-_PROTOTYP(int zzstring, (char *, char **, int *));
+int zzstring(char *, char **, int *);
 #endif /* NOSPL */
 
 #include "ckucmd.h"
@@ -170,9 +170,9 @@ extern struct filelist *filehead, *filenext;
 extern int addlist;
 #endif /* NOMSEND */
 
-_PROTOTYP(int lslook, (unsigned int b)); /* Locking Shift Lookahead */
-_PROTOTYP(int szeof, (CHAR * s));
-_PROTOTYP(VOID fnlist, (void));
+int lslook(unsigned int b); /* Locking Shift Lookahead */
+int szeof(CHAR * s);
+VOID fnlist(void);
 #endif /* NOXFER */
 
 extern CK_OFF_T ffc;
@@ -189,7 +189,7 @@ extern int r_cset, s_cset, afcset[];
 extern int ucsorder, fileorder;
 #endif /* UNICODE */
 
-_PROTOTYP(CHAR ident, (CHAR)); /* Identity translation function */
+CHAR ident(CHAR); /* Identity translation function */
 
 /* Arrays of and pointers to character translation functions */
 
@@ -1772,7 +1772,7 @@ static int xlaptr = 0;
 */
 int xgnbyte(int tcs, int fcs, int (*fn)(void))
 /* xgnbyte */ {
-  _PROTOTYP(int(*xx), (USHORT)) = NULL;
+  int(*xx)(USHORT) = NULL;
   int haveuc = 0; /* Flag for have Unicode character */
 #ifdef KANJI
   int havesj = 0; /* Have Shift-JIS character */

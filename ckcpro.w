@@ -58,11 +58,11 @@ int kactive = 0;			/* Kermit protocol is active */
 %states ipkt rfile rattr rdpkt ssinit ssfile ssattr ssdata sseof sseot
 %states serve generic get rgen ssopkt ropkt
 
-_PROTOTYP(static VOID xxproto,(void));
-_PROTOTYP(static VOID wheremsg,(void));
-_PROTOTYP(int wart,(void));
-_PROTOTYP(static int sgetinit,(int,int));
-_PROTOTYP(int sndspace,(int));
+static VOID xxproto(void);
+static VOID wheremsg(void);
+int wart(void);
+static int sgetinit(int,int);
+int sndspace(int);
 
 /* External C-Kermit variable declarations */
   extern char *versio, *srvtxt, *cmarg, *cmarg2, **cmlist, *rf_err;
@@ -117,11 +117,11 @@ streamon() {
 #endif /* STREAMING */
 
 #ifndef NOSPL
-_PROTOTYP( int addmac, (char *, char *) );
-_PROTOTYP( int zzstring, (char *, char **, int *) );
+int addmac(char *, char *);
+int zzstring(char *, char **, int *);
 #endif /* NOSPL */
 #ifndef NOICP
-_PROTOTYP( int cmdsrc, (void) );
+int cmdsrc(void);
 #endif /* NOICP */
 
 #ifndef NOSERVER
@@ -3030,7 +3030,7 @@ xxproto() {
     long lx;
 #ifdef CK_XYZ
 #ifdef XYZ_INTERNAL
-_PROTOTYP( int pxyz, (int) );
+int pxyz(int);
 #endif /* XYZ_INTERNAL */
 #endif /* CK_XYZ */
 

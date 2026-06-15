@@ -32,7 +32,7 @@ char *connv = "CONNECT Command for UNIX:fork(), 10.0.119, 13 May 2023";
 
 #ifndef NOLOCAL
 
-_PROTOTYP(static VOID concld, (void));
+static VOID concld(void);
 
 #include <signal.h> /* Signals */
 
@@ -55,17 +55,17 @@ _PROTOTYP(static VOID concld, (void));
 
 /* Internal function prototypes */
 
-_PROTOTYP(VOID ttflux, (void));
-_PROTOTYP(VOID doesc, (char));
-_PROTOTYP(VOID logchar, (char));
-_PROTOTYP(int hconne, (void));
+VOID ttflux(void);
+VOID doesc(char);
+VOID logchar(char);
+int hconne(void);
 #ifndef NOSHOW
-_PROTOTYP(VOID shomdm, (void));
+VOID shomdm(void);
 #endif /* NOSHOW */
-_PROTOTYP(static int kbget, (void));
-_PROTOTYP(static int pipemsg, (int));
-_PROTOTYP(static int ckcputf, (void));
-_PROTOTYP(static VOID ck_sndmsg, (void));
+static int kbget(void);
+static int pipemsg(int);
+static int ckcputf(void);
+static VOID ck_sndmsg(void);
 /*
   For inter-fork signaling.  Normally we use SIGUSR1, except on SCO, where
   we use SIGUSR2 because SIGUSR1 is used by the system.  You can define

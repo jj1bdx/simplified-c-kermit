@@ -174,7 +174,7 @@ extern CK_OFF_T fsize, ffc, tfc, sendstart, calibrate;
 CK_OFF_T rs_len;
 
 #ifndef NOCSETS
-_PROTOTYP(VOID setxlate, (void));
+VOID setxlate(void);
 extern int tcharset, fcharset;
 extern int ntcsets, xlatype, xfrxla;
 extern struct csinfo tcsinfo[], fcsinfo[];

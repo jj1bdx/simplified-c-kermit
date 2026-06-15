@@ -50,23 +50,23 @@ int inited = 0;
 #define M_SIZE_T int
 #endif /* M_SIZE_T */
 
-_PROTOTYP(void free, (void *));
-_PROTOTYP(void *malloc, (size_t));
-_PROTOTYP(void *realloc, (void *, size_t));
+void free(void *);
+void *malloc(size_t);
+void *realloc(void *, size_t);
 
-_PROTOTYP(VOID m_insert, (char *));
-_PROTOTYP(int m_delete, (char *));
+VOID m_insert(char *);
+int m_delete(char *);
 
-_PROTOTYP(char *dmalloc, (int));
-_PROTOTYP(char *dcalloc, (int, int));
-_PROTOTYP(char *drealloc, (char *, int));
+char *dmalloc(int);
+char *dcalloc(int, int);
+char *drealloc(char *, int);
 
-_PROTOTYP(char *set_range_check, (char *, int));
-_PROTOTYP(char *check_range, (char *));
-_PROTOTYP(static char *maybe_check_range, (char *));
+char *set_range_check(char *, int);
+char *check_range(char *);
+static char *maybe_check_range(char *);
 
-_PROTOTYP(static VOID maybe_quit, (char *));
-_PROTOTYP(static int ask, (char *));
+static VOID maybe_quit(char *);
+static int ask(char *);
 
 #ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))

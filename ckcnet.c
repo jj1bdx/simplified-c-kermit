@@ -206,16 +206,15 @@ int tcp_rdns = /* Reverse DNS lookup */
 int tcp_dns_srv = SET_OFF;
 #endif /* CK_DNS_SRV */
 
-_PROTOTYP(char *cmcvtdate, (char *, int));
+char *cmcvtdate(char *, int);
 
 #ifdef RLOGCODE
-_PROTOTYP(int rlog_ctrl, (CHAR *, int));
-_PROTOTYP(static int rlog_oob, (CHAR *, int));
+int rlog_ctrl(CHAR *, int);
+static int rlog_oob(CHAR *, int);
 #ifndef TCPIPLIB
-_PROTOTYP(static SIGTYP rlogoobh, (int));
+static SIGTYP rlogoobh(int);
 #endif /* TCPIPLIB */
-_PROTOTYP(static int rlog_ini,
-          (CHAR *, int, struct sockaddr_in *, struct sockaddr_in *));
+static int rlog_ini(CHAR *, int, struct sockaddr_in *, struct sockaddr_in *);
 int rlog_mode = RL_COOKED;
 int rlog_stopped = 0;
 int rlog_inband = 0;
@@ -249,7 +248,7 @@ int x25_state = X25_CLOSED; /* Default state */
 
 #ifdef CK_NAWS /* Negotiate About Window Size */
 #ifdef RLOGCODE
-_PROTOTYP(int rlog_naws, (void));
+int rlog_naws(void);
 #endif /* RLOGCODE */
 #endif /* CK_NAWS */
 
@@ -482,8 +481,8 @@ int tcpsrfd = -1;
 #define INADDR_ANY 0
 #endif /* INADDR_ANY */
 
-_PROTOTYP(int ttbufr, (VOID));
-_PROTOTYP(int tcpsrv_open, (char *, int *, int, int));
+int ttbufr(VOID);
+int tcpsrv_open(char *, int *, int, int);
 
 static unsigned short tcpsrv_port = 0;
 
@@ -540,7 +539,7 @@ static /* These are used in CKVTIO.C */
   returns number of bytes read, and sets global ttibn to that number and
   ttibp (the buffer pointer) to zero.
 */
-_PROTOTYP(int ttbufr, (VOID));
+int ttbufr(VOID);
 int ttbufr() { /* TT Buffer Read */
   int count;
 
@@ -6272,7 +6271,7 @@ char *http_now() {
 }
 
 /* from ckuusr.h, which this module normally doesn't include */
-_PROTOTYP(int dclarray, (char, int));
+int dclarray(char, int);
 /*
   Assign http response pairs to given array.
   For best results, response pairs should contain no spaces.

@@ -148,24 +148,24 @@
 
 /* Basic network function prototypes, common to all. */
 
-_PROTOTYP(int netopen, (char *, int *, int));
-_PROTOTYP(int netclos, (void));
-_PROTOTYP(int netflui, (void));
-_PROTOTYP(int nettchk, (void));
-_PROTOTYP(int netxchk, (int));
-_PROTOTYP(int netbreak, (void));
-_PROTOTYP(int netinc, (int));
-_PROTOTYP(int netxin, (int, CHAR *));
-_PROTOTYP(int nettol, (CHAR *, int));
-_PROTOTYP(int nettoc, (CHAR));
-_PROTOTYP(int net_read, (int fd, register char *buf, register int len));
-_PROTOTYP(int net_write, (int fd, register const char *buf, int len));
-_PROTOTYP(int rlog_ctrl, (unsigned char *cp, int n));
-_PROTOTYP(int locate_txt_rr, (char *prefix, char *name, char **retstr));
+int netopen(char *, int *, int);
+int netclos(void);
+int netflui(void);
+int nettchk(void);
+int netxchk(int);
+int netbreak(void);
+int netinc(int);
+int netxin(int, CHAR *);
+int nettol(CHAR *, int);
+int nettoc(CHAR);
+int net_read(int fd, register char *buf, register int len);
+int net_write(int fd, register const char *buf, int len);
+int rlog_ctrl(unsigned char *cp, int n);
+int locate_txt_rr(char *prefix, char *name, char **retstr);
 
 #ifdef TCPSOCKET
-_PROTOTYP(int gettcpport, (void));
-_PROTOTYP(int gettcpport, (void));
+int gettcpport(void);
+int gettcpport(void);
 #endif /* TCPSOCKET */
 
 /*
@@ -294,36 +294,36 @@ extern int x25serverfd;
 
 /* (riehm: this list of functions isn't quite right for AIX) */
 
-_PROTOTYP(int shopad, (int));
-_PROTOTYP(int shox25, (int));
-_PROTOTYP(VOID initpad, (void));
-_PROTOTYP(VOID setpad, (CHAR *, int));
-_PROTOTYP(VOID readpad, (CHAR *, int, CHAR *));
-_PROTOTYP(int qbitpkt, (CHAR *, int));
-_PROTOTYP(VOID setqbit, (void));
-_PROTOTYP(VOID resetqbit, (void));
-_PROTOTYP(VOID breakact, (void));
-_PROTOTYP(int pkx121, (char *, CHAR *));
-_PROTOTYP(SIGTYP x25oobh, (int));
-_PROTOTYP(int x25diag, (void));
-_PROTOTYP(int x25intr, (char));
-_PROTOTYP(int x25reset, (char, char));
-_PROTOTYP(int x25clear, (void));
-_PROTOTYP(int x25stat, (void));
-_PROTOTYP(int x25in, (int, CHAR *));
-_PROTOTYP(int setpadp, (void));
-_PROTOTYP(int setx25, (void));
-_PROTOTYP(int x25xin, (int, CHAR *));
-_PROTOTYP(int x25inl, (CHAR *, int, int, CHAR));
+int shopad(int);
+int shox25(int);
+VOID initpad(void);
+VOID setpad(CHAR *, int);
+VOID readpad(CHAR *, int, CHAR *);
+int qbitpkt(CHAR *, int);
+VOID setqbit(void);
+VOID resetqbit(void);
+VOID breakact(void);
+int pkx121(char *, CHAR *);
+SIGTYP x25oobh(int);
+int x25diag(void);
+int x25intr(char);
+int x25reset(char, char);
+int x25clear(void);
+int x25stat(void);
+int x25in(int, CHAR *);
+int setpadp(void);
+int setx25(void);
+int x25xin(int, CHAR *);
+int x25inl(CHAR *, int, int, CHAR);
 
 #ifdef IBMX25
 /* setup x25 */
-_PROTOTYP(ulong x25bind, (int, char *, char *, int, int, int, ulong));
-_PROTOTYP(int x25call, (int, char *, char *)); /* connect to remote */
-_PROTOTYP(int x25unbind, (int));               /* disconnect */
-_PROTOTYP(char *x25prim, (int));               /* display primitives */
-_PROTOTYP(int x25local_nua, (char *));         /* find local NUA */
-#endif                                         /* IBMX25 */
+ulong x25bind(int, char *, char *, int, int, int, ulong);
+int x25call(int, char *, char *); /* connect to remote */
+int x25unbind(int);               /* disconnect */
+char *x25prim(int);               /* display primitives */
+int x25local_nua(char *);         /* find local NUA */
+#endif                            /* IBMX25 */
 
 #endif /* ANYX25 */
 
@@ -574,35 +574,35 @@ extern int sstelnet;
 #endif /* NOTCPOPTS */
 
 /* This function is declared even when TCPSOCKET is not available */
-_PROTOTYP(char *ckgetpeer, (VOID));
+char *ckgetpeer(VOID);
 
 #ifdef TCPSOCKET
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
-_PROTOTYP(int no_delay, (int, int));
+int no_delay(int, int);
 #endif /* TCP_NODELAY */
 #ifdef SO_KEEPALIVE
-_PROTOTYP(int keepalive, (int, int));
+int keepalive(int, int);
 #endif /* SO_KEEPALIVE */
 #ifdef SO_LINGER
-_PROTOTYP(int ck_linger, (int, int, int));
+int ck_linger(int, int, int);
 #endif /* SO_LINGER */
 #ifdef SO_SNDBUF
-_PROTOTYP(int sendbuf, (int, int));
+int sendbuf(int, int);
 #endif /* SO_SNDBUF */
 #ifdef SO_RCVBUF
-_PROTOTYP(int recvbuf, (int, int));
+int recvbuf(int, int);
 #endif /* SO_RCVBUF */
 #ifdef SO_DONTROUTE
-_PROTOTYP(int dontroute, (int, int));
+int dontroute(int, int);
 #endif /* SO_DONTROUTE */
 #endif /* SOL_SOCKET */
-_PROTOTYP(int getlocalipaddr, (VOID));
-_PROTOTYP(int getlocalipaddrs, (char *, int, int));
-_PROTOTYP(char *ckgetfqhostname, (char *));
-_PROTOTYP(struct hostent *ck_copyhostent, (struct hostent *));
-_PROTOTYP(char *ckname2addr, (char *));
-_PROTOTYP(char *ckaddr2name, (char *));
+int getlocalipaddr(VOID);
+int getlocalipaddrs(char *, int, int);
+char *ckgetfqhostname(char *);
+struct hostent *ck_copyhostent(struct hostent *);
+char *ckname2addr(char *);
+char *ckaddr2name(char *);
 
 /* AIX */
 
@@ -631,33 +631,29 @@ SORRY_RLOGIN_REQUIRES_TTGWSIZ_see_ckcplm
 #define IPPORT_ECHO 7
 #endif /* IPPORT_ECHO */
 
-        _PROTOTYP(VOID ini_kerb, (void)); /* Kerberos initialization routine */
-_PROTOTYP(int doauth, (int));             /* AUTHENTICATE action routine */
+            VOID ini_kerb(void); /* Kerberos initialization routine */
+int doauth(int);                 /* AUTHENTICATE action routine */
 
 #ifdef CK_DNS_SRV
-_PROTOTYP(int locate_srv_dns, (char *host, char *service, char *protocol,
-                               struct sockaddr **addr_pp, int *naddrs));
+int locate_srv_dns(char *host, char *service, char *protocol,
+                   struct sockaddr **addr_pp, int *naddrs);
 #endif /* CK_DNS_SRV */
 
 #ifndef NOHTTP
-_PROTOTYP(int http_open, (char *, char *, int, char *, int, char *));
-_PROTOTYP(int http_reopen, (VOID));
-_PROTOTYP(int http_close, (VOID));
-_PROTOTYP(int http_get,
-          (char *, char **, char *, char *, char, char *, char *, int));
-_PROTOTYP(int http_head,
-          (char *, char **, char *, char *, char, char *, char *, int));
-_PROTOTYP(int http_put, (char *, char **, char *, char *, char *, char, char *,
-                         char *, char *, int));
-_PROTOTYP(int http_delete, (char *, char **, char *, char *, char, char *));
-_PROTOTYP(int http_connect,
-          (int, char *, char **, char *, char *, char, char *));
-_PROTOTYP(int http_post, (char *, char **, char *, char *, char *, char, char *,
-                          char *, char *, int));
-_PROTOTYP(int http_index,
-          (char *, char **, char *, char *, char, char *, char *, int));
-_PROTOTYP(int http_inc, (int));
-_PROTOTYP(int http_isconnected, (void));
+int http_open(char *, char *, int, char *, int, char *);
+int http_reopen(VOID);
+int http_close(VOID);
+int http_get(char *, char **, char *, char *, char, char *, char *, int);
+int http_head(char *, char **, char *, char *, char, char *, char *, int);
+int http_put(char *, char **, char *, char *, char *, char, char *, char *,
+             char *, int);
+int http_delete(char *, char **, char *, char *, char, char *);
+int http_connect(int, char *, char **, char *, char *, char, char *);
+int http_post(char *, char **, char *, char *, char *, char, char *, char *,
+              char *, int);
+int http_index(char *, char **, char *, char *, char, char *, char *, int);
+int http_inc(int);
+int http_isconnected(void);
 
 extern char *tcp_http_proxy;      /* Name[:port] of http proxy server */
 extern int tcp_http_proxy_errno;  /* Return value from server */

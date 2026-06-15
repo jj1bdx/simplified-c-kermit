@@ -16,60 +16,59 @@ struct stringarray {
   int a_size;
 };
 
-_PROTOTYP(int ckstrncpy, (char *, const char *, int));
-_PROTOTYP(int ckstrncat, (char *, const char *, int));
+int ckstrncpy(char *, const char *, int);
+int ckstrncat(char *, const char *, int);
 
-_PROTOTYP(int ckmakmsg, (char *, int, char *, char *, char *, char *));
-_PROTOTYP(int ckmakxmsg,
-          (char *, int, char *, char *, char *, char *, char *, char *, char *,
-           char *, char *, char *, char *, char *));
+int ckmakmsg(char *, int, char *, char *, char *, char *);
+int ckmakxmsg(char *, int, char *, char *, char *, char *, char *, char *,
+              char *, char *, char *, char *, char *, char *);
 
-_PROTOTYP(char *ckstrpbrk, (char *, char *));
-_PROTOTYP(char *ckstrstr, (char *, char *));
-_PROTOTYP(char *chartostr, (int));
-_PROTOTYP(int cklower, (char *));
-_PROTOTYP(int ckupper, (char *));
-_PROTOTYP(int ckindex, (char *, char *, int, int, int));
-_PROTOTYP(char *ckctoa, (char));
-_PROTOTYP(char *ckctox, (CHAR, int));
-_PROTOTYP(char *ckitoa, (int));
-_PROTOTYP(char *ckuitoa, (unsigned int));
-_PROTOTYP(char *ckltoa, (long));
-_PROTOTYP(char *ckultoa, (unsigned long));
-_PROTOTYP(char *ckfstoa, (CK_OFF_T));
-_PROTOTYP(CK_OFF_T ckatofs, (char *));
-_PROTOTYP(char *ckitox, (int));
-_PROTOTYP(char *ckltox, (long));
-_PROTOTYP(int ispattern, (char *));
-_PROTOTYP(int ckmatch, (char *, char *, int, int));
-_PROTOTYP(VOID ckmemcpy, (char *, char *, int));
-_PROTOTYP(char *ckstrchr, (char *, char));
-_PROTOTYP(char *ckstrrchr, (char *, char));
-_PROTOTYP(int ckrchar, (char *));
-_PROTOTYP(int ckstrcmp, (char *, char *, int, int));
+char *ckstrpbrk(char *, char *);
+char *ckstrstr(char *, char *);
+char *chartostr(int);
+int cklower(char *);
+int ckupper(char *);
+int ckindex(char *, char *, int, int, int);
+char *ckctoa(char);
+char *ckctox(CHAR, int);
+char *ckitoa(int);
+char *ckuitoa(unsigned int);
+char *ckltoa(long);
+char *ckultoa(unsigned long);
+char *ckfstoa(CK_OFF_T);
+CK_OFF_T ckatofs(char *);
+char *ckitox(int);
+char *ckltox(long);
+int ispattern(char *);
+int ckmatch(char *, char *, int, int);
+VOID ckmemcpy(char *, char *, int);
+char *ckstrchr(char *, char);
+char *ckstrrchr(char *, char);
+int ckrchar(char *);
+int ckstrcmp(char *, char *, int, int);
 #define xxstrcmp(a, b, c) ckstrcmp(a, b, c, 0)
-_PROTOTYP(int ckstrpre, (char *, char *));
-_PROTOTYP(VOID sh_sort, (char **, char **, int, int, int, int));
-_PROTOTYP(char *brstrip, (char *));
-_PROTOTYP(char *fnstrip, (char *));
-_PROTOTYP(int dquote, (char *, int, int));
-_PROTOTYP(int untabify, (char *, char *, int));
-_PROTOTYP(VOID makelist, (char *, char *[], int));
-_PROTOTYP(VOID makestr, (char **, const char *));
-_PROTOTYP(VOID xmakestr, (char **, const char *));
-_PROTOTYP(int chknum, (char *));
-_PROTOTYP(int rdigits, (char *));
-_PROTOTYP(char *ckradix, (char *, int, int));
+int ckstrpre(char *, char *);
+VOID sh_sort(char **, char **, int, int, int, int);
+char *brstrip(char *);
+char *fnstrip(char *);
+int dquote(char *, int, int);
+int untabify(char *, char *, int);
+VOID makelist(char *, char *[], int);
+VOID makestr(char **, const char *);
+VOID xmakestr(char **, const char *);
+int chknum(char *);
+int rdigits(char *);
+char *ckradix(char *, int, int);
 
 /* Base-64 conversion needed for script programming and HTTP */
 
 #ifndef NOB64
-_PROTOTYP(int b8tob64, (char *, int, char *, int));
-_PROTOTYP(int b64tob8, (char *, int, char *, int));
+int b8tob64(char *, int, char *, int);
+int b64tob8(char *, int, char *, int);
 #endif /* NOB64 */
 
 #ifdef CKFLOAT
-_PROTOTYP(int isfloat, (char *, int));
+int isfloat(char *, int);
 #ifndef CKCLIB_C
 #ifndef CKWART_C
 extern CKFLOAT floatval;
@@ -77,15 +76,15 @@ extern CKFLOAT floatval;
 #endif /* CKCLIB_C */
 #endif /* CKFLOAT */
 
-_PROTOTYP(char *parnam, (char));
-_PROTOTYP(char *hhmmss, (long));
+char *parnam(char);
+char *hhmmss(long);
 
-_PROTOTYP(VOID lset, (char *, char *, int, int));
-_PROTOTYP(VOID rset, (char *, char *, int, int));
-_PROTOTYP(char *ulongtohex, (unsigned long, int));
-_PROTOTYP(long hextoulong, (char *, int));
-_PROTOTYP(struct stringarray *cksplit,
-          (int, int, char *, char *, char *, int, int, int, int));
+VOID lset(char *, char *, int, int);
+VOID rset(char *, char *, int, int);
+char *ulongtohex(unsigned long, int);
+long hextoulong(char *, int);
+struct stringarray *cksplit(int, int, char *, char *, char *, int, int, int,
+                            int);
 
-_PROTOTYP(int ckhexbytetoint, (char *));
+int ckhexbytetoint(char *);
 #endif /* CKCLIB_H */

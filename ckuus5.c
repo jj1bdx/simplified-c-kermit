@@ -143,7 +143,7 @@ extern char browsurl[];
 
 #ifndef NOFRILLS
 #ifndef NORENAME
-_PROTOTYP(VOID shorename, (void));
+VOID shorename(void);
 #endif /* NORENAME */
 #endif /* NOFRILLS */
 
@@ -168,21 +168,21 @@ struct localvar *localhead[CMDSTKL];
 struct localvar *localtail = NULL;
 struct localvar *localnext = NULL;
 
-_PROTOTYP(VOID shosexp, (void));
-_PROTOTYP(static VOID shoinput, (void));
-_PROTOTYP(static char gettok, (void));
-_PROTOTYP(static VOID factor, (void));
-_PROTOTYP(static VOID term, (void));
-_PROTOTYP(static VOID termp, (void));
-_PROTOTYP(static VOID exprp, (void));
-_PROTOTYP(static VOID expr, (void));
-_PROTOTYP(static VOID simple, (void));
-_PROTOTYP(static VOID simpler, (void));
-_PROTOTYP(static VOID simplest, (void));
-_PROTOTYP(static CK_OFF_T xparse, (void));
+VOID shosexp(void);
+static VOID shoinput(void);
+static char gettok(void);
+static VOID factor(void);
+static VOID term(void);
+static VOID termp(void);
+static VOID exprp(void);
+static VOID expr(void);
+static VOID simple(void);
+static VOID simpler(void);
+static VOID simplest(void);
+static CK_OFF_T xparse(void);
 #endif /* NOSPL */
 #ifndef NOSHOW
-_PROTOTYP(int sho_iks, (void));
+int sho_iks(void);
 #endif /* NOSHOW */
 
 #ifdef NOSPL
@@ -276,8 +276,8 @@ extern struct keytab mdmtab[];
 
 extern int network, nettype, ttnproto;
 
-_PROTOTYP(VOID shotrm, (void));
-_PROTOTYP(int shofea, (void));
+VOID shotrm(void);
+int shofea(void);
 
 extern int tt_rows, tt_cols;
 extern int cmd_rows, cmd_cols;
@@ -328,7 +328,7 @@ extern struct keytab cmdtab[];
 KEY *keymap;
 #define mapkey(x) keymap[x]
 MACRO *macrotab;
-_PROTOTYP(VOID shostrdef, (CHAR *));
+VOID shostrdef(CHAR *);
 #endif /* NOSETKEY */
 
 extern int cmdlvl;
@@ -635,10 +635,10 @@ static int nkcdtab = (sizeof(kcdtab) / sizeof(struct keytab));
 #endif /* NOSPL */
 
 #ifndef NOSPL
-_PROTOTYP(VOID freelocal, (int));
-_PROTOTYP(static CK_OFF_T expon, (CK_OFF_T, CK_OFF_T));
-_PROTOTYP(static CK_OFF_T gcd, (CK_OFF_T, CK_OFF_T));
-_PROTOTYP(static CK_OFF_T fact, (CK_OFF_T));
+VOID freelocal(int);
+static CK_OFF_T expon(CK_OFF_T, CK_OFF_T);
+static CK_OFF_T gcd(CK_OFF_T, CK_OFF_T);
+static CK_OFF_T fact(CK_OFF_T);
 
 int        /* Initialize macro data structures. */
 macini() { /* Allocate mactab and preset the first element. */
@@ -2672,8 +2672,8 @@ int parser(int m) {
 static int obn;               /* Buffer offset (high water mark) */
 static char obuf[OBSIZE + 1]; /* OUTPUT buffer. */
 static char *obp;             /* Pointer to output buffer. */
-_PROTOTYP(static int oboc, (char));
-_PROTOTYP(static int xxout, (char *, int));
+static int oboc(char);
+static int xxout(char *, int);
 
 static int xxout(char *obuf, int obsize)
 /* xxout */ { /* OUTPUT command's output function */
@@ -4601,7 +4601,7 @@ VOID shmdmlin() { /* Briefly show modem & line */
 #ifndef MINIDIAL
 #ifdef OLDTBCODE
   extern int tbmodel;
-  _PROTOTYP(char *gtbmodel, (void));
+  char *gtbmodel(void);
 #endif /* OLDTBCODE */
 #endif /* MINIDIAL */
 #endif /* NODIAL */

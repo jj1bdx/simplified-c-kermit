@@ -43,11 +43,11 @@ char *loginv = "Script Command, 10.0.033, 15 Apr 2023";
 #include "ckcsig.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */
 
-_PROTOTYP(VOID flushi, (void));
-_PROTOTYP(static VOID myflsh, (void));
-_PROTOTYP(static int sequenc, (void));
-_PROTOTYP(static VOID recvseq, (void));
-_PROTOTYP(static int outseq, (void));
+VOID flushi(void);
+static VOID myflsh(void);
+static int sequenc(void);
+static VOID recvseq(void);
+static int outseq(void);
 
 extern int sessft;
 extern int local, flow, seslog, mdmtyp, msgflg, duplex, backgrd, secho, quiet;

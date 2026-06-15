@@ -72,7 +72,7 @@ char browsurl[4096] = {NUL, NUL};
 
 #ifndef NOFRILLS
 #ifndef NORENAME
-_PROTOTYP(int setrename, (void));
+int setrename(void);
 #endif /* NORENAME */
 #endif /* NOFRILLS */
 
@@ -144,7 +144,7 @@ int DeleteStartupFile = 0;
 extern int cmdlvl; /* Overall command level */
 
 #ifndef NOSPL
-_PROTOTYP(static int parsdir, (int));
+static int parsdir(int);
 char prmbuf[PWBUFL + 1] = {NUL, NUL};
 int fndiags = 1; /* Function diagnostics on/off */
 int fnerror = 1; /* Function error treatment */
@@ -614,9 +614,9 @@ int nnetdir = 0; /* on DIAL code -- fix later... */
 char *netdir[MAXDDIR + 2];
 #endif /* NETCONN */
 
-_PROTOTYP(static int setdial, (int));
-_PROTOTYP(static int setdcd, (void));
-_PROTOTYP(static int cklogin, (void));
+static int setdial(int);
+static int setdcd(void);
+static int cklogin(void);
 
 #ifndef MINIDIAL
 #ifdef OLDTBCODE
@@ -628,7 +628,7 @@ extern MDMINF *modemp[];       /* Pointers to modem info structs */
 extern struct keytab mdmtab[]; /* Modem types (in module ckudia.c) */
 extern int nmdm;               /* Number of them */
 
-_PROTOTYP(static int dialstr, (char **, char *));
+static int dialstr(char **, char *);
 
 extern int dialhng, dialtmo, dialksp, dialdpy, dialmhu, dialec, dialdc;
 extern int dialrtr, dialint, dialudt, dialsrt, dialrstr, mdmwaitd;
@@ -2747,7 +2747,7 @@ x_uq_file:
 #ifdef CK_PERMS
 #ifdef UNIX
 
-_PROTOTYP(int zsetperm, (char *, int));
+int zsetperm(char *, int);
 
 /* CHMOD command for UNIX only */
 
@@ -6600,8 +6600,8 @@ static int nxtprotab = (sizeof(extprotab) / sizeof(struct keytab));
 
 #define XPCMDLEN 71
 
-_PROTOTYP(static int protofield, (char *, char *, char *));
-_PROTOTYP(static int setproto, (void));
+static int protofield(char *, char *, char *);
+static int setproto(void);
 
 static int protofield(char *current, char *help, char *px) {
   char *s, tmpbuf[XPCMDLEN + 1];

@@ -1319,44 +1319,43 @@ static int nftptyp = (sizeof(ftptyp) / sizeof(struct keytab)) - 1;
 
 /* Prototypes */
 
-_PROTOTYP(int remtxt, (char **));
-_PROTOTYP(char *gskreason, (int));
-_PROTOTYP(static int ftpclose, (void));
-_PROTOTYP(static int zzsend, (int, CHAR));
-_PROTOTYP(static int getreply, (int, int, int, int, int));
-_PROTOTYP(static int radix_encode, (CHAR[], CHAR[], int, int *, int));
-_PROTOTYP(static int setpbsz, (unsigned int));
-_PROTOTYP(static int recvrequest,
-          (char *, char *, char *, char *, int, int, char *, int, int, int));
-_PROTOTYP(static int ftpcmd, (char *, char *, int, int, int));
-_PROTOTYP(static int ftp_user, (char *, char *, char *));
-_PROTOTYP(static int ftp_login, (char *));
-_PROTOTYP(static int ftp_reset, (void));
-_PROTOTYP(static int ftp_rename, (char *, char *));
-_PROTOTYP(static int ftp_umask, (char *));
-_PROTOTYP(static int secure_flush, (int));
-_PROTOTYP(static int secure_write, (int, CHAR *, unsigned int));
-_PROTOTYP(static int scommand, (char *));
-_PROTOTYP(static int secure_putbuf, (int, CHAR *, unsigned int));
-_PROTOTYP(static int secure_getc, (int, int));
-_PROTOTYP(static int secure_getbyte, (int, int));
-_PROTOTYP(static int secure_read, (int, char *, int));
-_PROTOTYP(static int initconn, (void));
-_PROTOTYP(static int dataconn, (char *));
-_PROTOTYP(static int setprotbuf, (unsigned int));
-_PROTOTYP(static int sendrequest, (char *, char *, char *, int, int, int, int));
+int remtxt(char **);
+char *gskreason(int);
+static int ftpclose(void);
+static int zzsend(int, CHAR);
+static int getreply(int, int, int, int, int);
+static int radix_encode(CHAR[], CHAR[], int, int *, int);
+static int setpbsz(unsigned int);
+static int recvrequest(char *, char *, char *, char *, int, int, char *, int, int, int);
+static int ftpcmd(char *, char *, int, int, int);
+static int ftp_user(char *, char *, char *);
+static int ftp_login(char *);
+static int ftp_reset(void);
+static int ftp_rename(char *, char *);
+static int ftp_umask(char *);
+static int secure_flush(int);
+static int secure_write(int, CHAR *, unsigned int);
+static int scommand(char *);
+static int secure_putbuf(int, CHAR *, unsigned int);
+static int secure_getc(int, int);
+static int secure_getbyte(int, int);
+static int secure_read(int, char *, int);
+static int initconn(void);
+static int dataconn(char *);
+static int setprotbuf(unsigned int);
+static int sendrequest(char *, char *, char *, int, int, int, int);
 
-_PROTOTYP(static char *radix_error, (int));
-_PROTOTYP(static char *ftp_hookup, (char *, int, int));
-_PROTOTYP(static CHAR *remote_files, (int, CHAR *, CHAR *, int));
+static char *radix_error(int);
+static char *ftp_hookup(char *, int, int);
+static CHAR *remote_files(int, CHAR *, CHAR *, int);
 
-_PROTOTYP(static VOID mlsreset, (void));
-_PROTOTYP(static VOID secure_error, (char *fmt, ...));
-_PROTOTYP(static VOID lostpeer, (void));
-_PROTOTYP(static VOID cancel_remote, (int));
-_PROTOTYP(static VOID changetype, (int, int));
+static VOID mlsreset(void);
+static VOID secure_error(char *fmt, ...);
+static VOID lostpeer(void);
+static VOID cancel_remote(int);
+static VOID changetype(int, int);
 
-_PROTOTYP(static sigtype cmdcancel, (int));
+static sigtype cmdcancel(int);
 
 /*  D O F T P A R G  --  Do an FTP command-line argument.  */
 

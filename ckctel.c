@@ -64,7 +64,7 @@ int sstelnet = 0; /* Do server-side Telnet negotiation */
 
 #ifdef CK_NAWS /* Negotiate About Window Size */
 #ifdef RLOGCODE
-_PROTOTYP(int rlog_naws, (void));
+int rlog_naws(void);
 #endif /* RLOGCODE */
 #endif /* CK_NAWS */
 
@@ -2703,7 +2703,7 @@ static char cols_buf[16] = {0, 0}; /* COLUMNS Enviornment variable */
 static char term_buf[64] = {0, 0}; /* TERM Environment variable */
 
 #ifdef CK_CURSES
-_PROTOTYP(int tgetent, (char *, char *));
+int tgetent(char *, char *);
 extern char *trmbuf; /* Real curses */
 #endif               /* CK_CURSES */
 

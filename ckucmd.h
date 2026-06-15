@@ -193,75 +193,70 @@ extern struct OFDB cmresult;
 
 /* Function prototypes */
 
-_PROTOTYP(int xxesc, (char **));
-_PROTOTYP(int cmrini, (int));
-_PROTOTYP(VOID cmsetp, (char *));
-_PROTOTYP(VOID cmsavp, (char[], int));
-_PROTOTYP(char *cmgetp, (void));
-_PROTOTYP(VOID prompt, (xx_strp));
-_PROTOTYP(VOID pushcmd, (char *));
-_PROTOTYP(VOID cmres, (void));
-_PROTOTYP(VOID cmini, (int));
-_PROTOTYP(int cmgbrk, (void));
-_PROTOTYP(int cmgkwflgs, (void));
-_PROTOTYP(int cmpush, (void));
-_PROTOTYP(int cmpop, (void));
-_PROTOTYP(VOID untab, (char *));
-_PROTOTYP(int cmnum, (char *, char *, int, int *, xx_strp));
-_PROTOTYP(int cmnumw, (char *, char *, int, CK_OFF_T *, xx_strp));
-_PROTOTYP(int cmofi, (char *, char *, char **, xx_strp));
-_PROTOTYP(int cmifi, (char *, char *, char **, int *, xx_strp));
-_PROTOTYP(int cmiofi, (char *, char *, char **, int *, xx_strp));
-_PROTOTYP(int cmifip, (char *, char *, char **, int *, int, char *, xx_strp));
-_PROTOTYP(int cmifi2,
-          (char *, char *, char **, int *, int, char *, xx_strp, int));
-_PROTOTYP(int cmdir, (char *, char *, char **, xx_strp));
-_PROTOTYP(int cmdirp, (char *, char *, char **, char *, xx_strp));
-_PROTOTYP(int cmfld, (char *, char *, char **, xx_strp));
-_PROTOTYP(int cmtxt, (char *, char *, char **, xx_strp));
-_PROTOTYP(int cmkey, (struct keytab[], int, char *, char *, xx_strp));
-_PROTOTYP(int cmkeyx, (struct keytab[], int, char *, char *, xx_strp));
-_PROTOTYP(int cmkey2,
-          (struct keytab[], int, char *, char *, char *, xx_strp, int));
-_PROTOTYP(int cmswi, (struct keytab[], int, char *, char *, xx_strp));
-_PROTOTYP(int cmdate, (char *, char *, char **, int, xx_strp));
-_PROTOTYP(char *cmpeek, (void));
-_PROTOTYP(int cmfdb, (struct FDB *));
-_PROTOTYP(VOID cmfdbi, (struct FDB *, int, char *, char *, char *, int, int,
-                        xx_strp, struct keytab *, struct FDB *));
-_PROTOTYP(int chktok, (char *));
-_PROTOTYP(int cmcfm, (void));
-_PROTOTYP(int lookup, (struct keytab[], char *, int, int *));
-_PROTOTYP(VOID kwdhelp,
-          (struct keytab[], int, char *, char *, char *, int, int));
-_PROTOTYP(int ungword, (void));
-_PROTOTYP(VOID unungw, (void));
-_PROTOTYP(int cmdsquo, (int));
-_PROTOTYP(int cmdgquo, (void));
-_PROTOTYP(char *ckcvtdate, (char *, int));
-_PROTOTYP(int cmdgetc, (int));
+int xxesc(char **);
+int cmrini(int);
+VOID cmsetp(char *);
+VOID cmsavp(char[], int);
+char *cmgetp(void);
+VOID prompt(xx_strp);
+VOID pushcmd(char *);
+VOID cmres(void);
+VOID cmini(int);
+int cmgbrk(void);
+int cmgkwflgs(void);
+int cmpush(void);
+int cmpop(void);
+VOID untab(char *);
+int cmnum(char *, char *, int, int *, xx_strp);
+int cmnumw(char *, char *, int, CK_OFF_T *, xx_strp);
+int cmofi(char *, char *, char **, xx_strp);
+int cmifi(char *, char *, char **, int *, xx_strp);
+int cmiofi(char *, char *, char **, int *, xx_strp);
+int cmifip(char *, char *, char **, int *, int, char *, xx_strp);
+int cmifi2(char *, char *, char **, int *, int, char *, xx_strp, int);
+int cmdir(char *, char *, char **, xx_strp);
+int cmdirp(char *, char *, char **, char *, xx_strp);
+int cmfld(char *, char *, char **, xx_strp);
+int cmtxt(char *, char *, char **, xx_strp);
+int cmkey(struct keytab[], int, char *, char *, xx_strp);
+int cmkeyx(struct keytab[], int, char *, char *, xx_strp);
+int cmkey2(struct keytab[], int, char *, char *, char *, xx_strp, int);
+int cmswi(struct keytab[], int, char *, char *, xx_strp);
+int cmdate(char *, char *, char **, int, xx_strp);
+char *cmpeek(void);
+int cmfdb(struct FDB *);
+VOID cmfdbi(struct FDB *, int, char *, char *, char *, int, int, xx_strp,
+            struct keytab *, struct FDB *);
+int chktok(char *);
+int cmcfm(void);
+int lookup(struct keytab[], char *, int, int *);
+VOID kwdhelp(struct keytab[], int, char *, char *, char *, int, int);
+int ungword(void);
+VOID unungw(void);
+int cmdsquo(int);
+int cmdgquo(void);
+char *ckcvtdate(char *, int);
+int cmdgetc(int);
 #ifndef NOARROWKEYS
-_PROTOTYP(int cmdconchk, (void));
+int cmdconchk(void);
 #endif /* NOARROWKEYS */
 
 #ifdef CK_RECALL
-_PROTOTYP(char *cmgetcmd, (char *));
-_PROTOTYP(VOID addcmd, (char *));
-_PROTOTYP(VOID cmaddnext, (void));
+char *cmgetcmd(char *);
+VOID addcmd(char *);
+VOID cmaddnext(void);
 #endif /* CK_RECALL */
-_PROTOTYP(char *cmcvtdate, (char *, int));
-_PROTOTYP(char *cmdiffdate, (char *, char *));
-_PROTOTYP(char *cmdelta,
-          (int, int, int, int, int, int, int, int, int, int, int, int, int));
-_PROTOTYP(char *shuffledate, (char *, int));
-_PROTOTYP(int filhelp, (int, char *, char *, int, int));
-_PROTOTYP(int xfilhelp,
-          (int, char *, char *, int, int, int, char *, char *, char *, char *,
-           CK_OFF_T, CK_OFF_T, int, int, char **));
-_PROTOTYP(int delta2sec, (char *, long *));
+char *cmcvtdate(char *, int);
+char *cmdiffdate(char *, char *);
+char *cmdelta(int, int, int, int, int, int, int, int, int, int, int, int, int);
+char *shuffledate(char *, int);
+int filhelp(int, char *, char *, int, int);
+int xfilhelp(int, char *, char *, int, int, int, char *, char *, char *, char *,
+             CK_OFF_T, CK_OFF_T, int, int, char **);
+int delta2sec(char *, long *);
 
 #ifdef DCMDBUF
-_PROTOTYP(int cmsetup, (void));
+int cmsetup(void);
 #endif /* DCMDBUF */
 
 #endif /* CKUCMD_H */

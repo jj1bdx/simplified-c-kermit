@@ -91,11 +91,11 @@ char *tgoto(const char *, int, int);
 
 extern xx_strp xxstring;
 
-_PROTOTYP(char *ckgetpeer, (VOID));
-_PROTOTYP(int getlocalipaddr, (void));
-_PROTOTYP(int istncomport, (void));
+char *ckgetpeer(VOID);
+int getlocalipaddr(void);
+int istncomport(void);
 #ifndef NOCKGETFQHOST
-_PROTOTYP(char *ckgetfqhostname, (char *));
+char *ckgetfqhostname(char *);
 #endif /* NOCKGETFQHOST */
 #ifndef NETCONN
 /*
@@ -145,12 +145,12 @@ extern int tapipass;
 
 #ifdef DCLFDOPEN
 /* fdopen() needs declaring because it's not declared in <stdio.h> */
-_PROTOTYP(FILE *fdopen, (int, char *));
+FILE *fdopen(int, char *);
 #endif /* DCLFDOPEN */
 
 #ifdef DCLPOPEN
 /* popen() needs declaring because it's not declared in <stdio.h> */
-_PROTOTYP(FILE *popen, (char *, char *));
+FILE *popen(char *, char *);
 #endif /* DCLPOPEN */
 
 int tt_crd = 0;      /* Carriage return display */
@@ -189,7 +189,7 @@ char fspec[CKMAXPATH + 4];
 int fspeclen = CKMAXPATH;
 #endif /* NOMSEND */
 
-_PROTOTYP(int getslot, ());
+int getslot();
 
 char *rfspec = NULL;   /* Received filespec: local */
 char *prfspec = NULL;  /* Preliminary rfspec */
@@ -268,7 +268,7 @@ extern int streaming, streamok;
 
 /* Used internally */
 
-_PROTOTYP(VOID screenc, (int, char, CK_OFF_T, char *));
+VOID screenc(int, char, CK_OFF_T, char *);
 
 #ifdef CK_CURSES
 #ifndef DYNAMIC
@@ -277,9 +277,9 @@ char *trmbuf = xtrmbuf;
 #else
 char *trmbuf = NULL;
 #endif /* DYNAMIC */
-_PROTOTYP(static VOID dpyinit, (void));
-_PROTOTYP(static long shocps, (int, CK_OFF_T, CK_OFF_T));
-_PROTOTYP(static CK_OFF_T shoetl, (CK_OFF_T, long, CK_OFF_T, CK_OFF_T));
+static VOID dpyinit(void);
+static long shocps(int, CK_OFF_T, CK_OFF_T);
+static CK_OFF_T shoetl(CK_OFF_T, long, CK_OFF_T, CK_OFF_T);
 #endif /* CK_CURSES */
 
 static int ft_win = 0; /* Fullscreen file transfer display window is active */
@@ -761,7 +761,7 @@ char *ck_errstr() {
 #ifdef USE_STRERROR
 #ifndef CK_ANSILIBS
   /* Should have been declared in <string.h> */
-  _PROTOTYP(char *strerror, (int));
+  char *strerror(int);
 #endif /* CK_ANSILIBS */
 #ifdef CKROOT
   if (ckrooterr)
@@ -3548,7 +3548,7 @@ VOID ckscreen(int f, char c, CK_OFF_T n, char *s)
 #ifdef UNIX
 #ifndef NOJC
   int obg;
-  _PROTOTYP(VOID conbgt, (int));
+  VOID conbgt(int);
 #endif /* NOJC */
 #endif /* UNIX */
   int ftp = 0;
@@ -4968,7 +4968,7 @@ static int endwin() { return (0); }
  * Now, some stuff we need to do:
  */
 
-_PROTOTYP(int move, (int, int));
+int move(int, int);
 int move(row, col)
 int row, col;
 {

@@ -1237,21 +1237,21 @@ int ckxsyslog = SYSLG_DF; /* Default logging level */
 
 #ifndef NOHELP
 #ifndef NOCMDL
-_PROTOTYP(VOID iniopthlp, (void)); /* Command-line help initializer */
+VOID iniopthlp(void); /* Command-line help initializer */
 #endif                             /* NOCMDL */
 #endif                             /* NOHELP */
 
-_PROTOTYP(VOID initfloat, (void)); /* Floating-point initializer */
+VOID initfloat(void); /* Floating-point initializer */
 
-_PROTOTYP(VOID makever, (void));
-_PROTOTYP(VOID getexedir, (void));
-_PROTOTYP(int putnothing, (char));
+VOID makever(void);
+VOID getexedir(void);
+int putnothing(char);
 
 #ifdef IKSD
-_PROTOTYP(VOID doiksdinit, (void));
-_PROTOTYP(VOID iksdinit, (void));
-_PROTOTYP(VOID doiklog, (void));
-_PROTOTYP(int dbinit, (void));
+VOID doiksdinit(void);
+VOID iksdinit(void);
+VOID doiklog(void);
+int dbinit(void);
 #endif /* IKSD */
 
 /* Variables passed from command parser to protocol module */
@@ -1259,7 +1259,7 @@ _PROTOTYP(int dbinit, (void));
 #ifndef NOSPL
 #ifndef NOICP
 #ifdef CK_APC
-_PROTOTYP(VOID apconect, (void));
+VOID apconect(void);
 #endif               /* CK_APC */
 #endif               /* NOICP */
 #endif               /* NOSPL */
@@ -1378,7 +1378,7 @@ int zofblock = 1;
 int seslimit = 0;
 #endif /* SESLIMIT */
 
-_PROTOTYP(int getiobs, (VOID));
+int getiobs(VOID);
 
 /*  M A I N  --  C-Kermit main program  */
 
@@ -2331,7 +2331,7 @@ MAINNAME(int argc, char **argv) {
   debug(F111, "ckcmai myname", myname, howcalled);
   { /* Get home directory path */
     char *h;
-    _PROTOTYP(char *homedir, (void));
+    char *homedir(void);
     h = homepath();
     if (h)
       ckstrncpy(homedirpath, h, CKMAXPATH);

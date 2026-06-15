@@ -4885,12 +4885,12 @@ static char *hxtopt[] = {
 
 /*  D O H L P  --  Give a help message  */
 
-_PROTOTYP(int dohset, (int));
+int dohset(int);
 #ifndef NOCMDL
-_PROTOTYP(int dohopts, (void));
+int dohopts(void);
 #endif /* NOCMDL */
 #ifndef NOSPL
-_PROTOTYP(int dohfunc, (int));
+int dohfunc(int);
 extern struct keytab fnctab[];
 extern int nfuncs;
 #endif /* NOSPL */

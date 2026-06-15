@@ -239,7 +239,7 @@ extern int nnets;
 extern int dirline;
 extern int nnetdir; /* Network services directory */
 extern char *netdir[];
-_PROTOTYP(VOID ndreset, (void));
+VOID ndreset(void);
 char *nh_p[MAXDNUMS + 1];     /* Network directory entry pointers */
 char *nh_p2[MAXDNUMS + 1];    /* Network directory entry nettype */
 char *nh_px[4][MAXDNUMS + 1]; /* Network-specific stuff... */
@@ -249,9 +249,9 @@ int ndinited = 0;
 char *n_name = NULL; /* Network name pointer */
 #endif               /* NETCONN */
 
-_PROTOTYP(int remtxt, (char **));
-_PROTOTYP(VOID rmsg, (void));
-_PROTOTYP(static int remcfm, (void));
+int remtxt(char **);
+VOID rmsg(void);
+static int remcfm(void);
 
 extern int nopush;
 
@@ -324,7 +324,7 @@ static struct keytab tcprawtab[] = {/* SET HOST options */
 static int ntcpraw = (sizeof(tcprawtab) / sizeof(struct keytab)) - 1;
 
 #ifdef RLOGCODE
-_PROTOTYP(int rlog_naws, (void));
+int rlog_naws(void);
 #endif /* RLOGCODE */
 #endif /* TCPSOCKET */
 
@@ -523,7 +523,7 @@ extern int inpcas[];
 #endif /* NOSPL */
 
 #ifdef CK_CURSES
-_PROTOTYP(int tgetent, (char *, char *));
+int tgetent(char *, char *);
 #endif /* CK_CURSES */
 
 #ifndef NOXMIT
