@@ -22,9 +22,9 @@
   * Use SSH for interactive Kermit sessions
 * Removed unusable/dead makefile targets
 * Removed non-ANSI / K&R code
-* Applied clang-format in a limited basis
-  * Disabled `InsertBraces` - enabling breaks the code
-  * Disabled `SortIncludes` - enabling breaks the macro definition code
+* Removed unusable files
+* Streamlined include files 
+* Applied clang-format with the flags InsertBraces and SortIncludes enabled
 
 ## License
 
