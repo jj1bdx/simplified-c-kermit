@@ -6089,8 +6089,8 @@ int zshcmd(char *s) {
     if (pid == (PID_T)-1)
       return (-1); /* fork() failed? */
 
-    istat = signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */
-    qstat = signal(SIGQUIT, SIG_IGN); /* interrupts itself... */
+    istat = ck_signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */
+    qstat = ck_signal(SIGQUIT, SIG_IGN); /* interrupts itself... */
 
     debug(F110, "zshcmd parent waiting for child", s, 0);
 #ifdef CK_CHILD
@@ -6099,8 +6099,8 @@ int zshcmd(char *s) {
     while (((wstat = wait((WAIT_T *)0)) != pid) && (wstat != -1))
 #endif /* CK_CHILD */
       ;                    /* Wait for fork */
-    signal(SIGINT, istat); /* Restore interrupts */
-    signal(SIGQUIT, qstat);
+    ck_signal(SIGINT, istat); /* Restore interrupts */
+    ck_signal(SIGQUIT, qstat);
 #ifdef CK_CHILD
     pexitstat = (child & 0xff) ? child : child >> 8;
     debug(F101, "zshcmd exit status", "", pexitstat);

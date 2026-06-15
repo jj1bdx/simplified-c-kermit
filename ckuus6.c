@@ -3438,7 +3438,7 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   /*  printf("%s: %d\n","DOTYPE tlevel AFTER open:",tlevel); */
 
   errno = 0;
-  oldsig = signal(SIGINT, tytrap); /* Save current interrupt trap. */
+  oldsig = ck_signal(SIGINT, tytrap); /* Save current interrupt trap. */
   /* debug(F111,"type SIGINT trap set",ckitoa(errno),oldsig); */
 
   if (paging > -1) /* More-prompting */
@@ -3689,7 +3689,7 @@ xdotype:
   /* Come here when finished or on SIGINT */
 
 xxdotype:
-  signal(SIGINT, oldsig); /* Put old signal action back. */
+  ck_signal(SIGINT, oldsig); /* Put old signal action back. */
   if (tailing && tail) {
     for (i = 0; i < head; i++) { /* Free each line. */
       if (tail[i])

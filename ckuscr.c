@@ -455,7 +455,7 @@ int dologin(char *cmdstr) {
     return (0);
   }
   /* Save initial timer interrupt value */
-  savealm = signal(SIGALRM, SIG_IGN);
+  savealm = ck_signal(SIGALRM, SIG_IGN);
 
   flushi(); /* Flush stale input */
 
@@ -489,14 +489,14 @@ int dologin(char *cmdstr) {
       if (outseq())
         goto failret; /* If any */
   }
-  signal(SIGALRM, savealm);
+  ck_signal(SIGALRM, savealm);
   if (scr_echo)
     printf("Script successful.\n");
   tlog(F100, "Script successful.", "", 0L);
   return (1);
 
 failret:
-  signal(SIGALRM, savealm);
+  ck_signal(SIGALRM, savealm);
   if (scr_echo)
     printf("Sorry, script failed\n");
   tlog(F100, "Script failed", "", 0L);

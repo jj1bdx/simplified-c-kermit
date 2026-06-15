@@ -1287,7 +1287,7 @@ void sighup(int foo) /* SIGHUP handler */
   signals before exec(), which is the purpose of restorsigs().
 */
 static void ignorsigs() {             /* Ignore these signals */
-  savquit = signal(SIGQUIT, SIG_IGN); /* Ignore Quit signal */
+  savquit = ck_signal(SIGQUIT, SIG_IGN); /* Ignore Quit signal */
 
 #ifdef SIGDANGER                          /* Ignore danger signals */
                                           /*
@@ -1299,29 +1299,29 @@ static void ignorsigs() {             /* Ignore these signals */
                                             since we are not always in control of the screen -- e.g. during remote-mode
                                             file transfer.
                                           */
-  savdanger = signal(SIGDANGER, SIG_IGN); /* e.g. in AIX */
+  savdanger = ck_signal(SIGDANGER, SIG_IGN); /* e.g. in AIX */
 #endif                                    /* SIGDANGER */
 #ifdef SIGPIPE
   /*
     This one comes when a TCP/IP connection is broken by the remote.
     We prefer to catch this situation by examining error codes from write().
   */
-  savpipe = signal(SIGPIPE, SIG_IGN);
-#endif                                /* SIGPIPE */
-  savusr1 = signal(SIGUSR1, SIG_IGN); /* Ignore user-defined signals */
-  savusr2 = signal(SIGUSR2, SIG_IGN);
+  savpipe = ck_signal(SIGPIPE, SIG_IGN);
+#endif                                   /* SIGPIPE */
+  savusr1 = ck_signal(SIGUSR1, SIG_IGN); /* Ignore user-defined signals */
+  savusr2 = ck_signal(SIGUSR2, SIG_IGN);
 }
 
 void restorsigs() {               /* Restore these signals */
-  (void)signal(SIGQUIT, savquit); /* (used in ckufio.c) */
+  (void)ck_signal(SIGQUIT, savquit); /* (used in ckufio.c) */
 #ifdef SIGDANGER
-  (void)signal(SIGDANGER, savdanger);
+  (void)ck_signal(SIGDANGER, savdanger);
 #endif /* SIGDANGER */
 #ifdef SIGPIPE
-  (void)signal(SIGPIPE, savpipe);
+  (void)ck_signal(SIGPIPE, savpipe);
 #endif /* SIGPIPE */
-  (void)signal(SIGUSR1, savusr1);
-  (void)signal(SIGUSR2, savusr2);
+  (void)ck_signal(SIGUSR1, savusr1);
+  (void)ck_signal(SIGUSR2, savusr2);
 }
 
 int sysinit() {
@@ -1370,7 +1370,7 @@ int sysinit() {
   and so we'd better not suspend ourselves.
 */
 #ifdef SIGTSTP
-  jchdlr = signal(SIGTSTP, SIG_IGN);
+  jchdlr = ck_signal(SIGTSTP, SIG_IGN);
   if (jchdlr == SIG_IGN) {
     jcshell = 0;
     debug(F100, "sysinit jchdlr: SIG_IGN", "", 0);
@@ -1381,7 +1381,7 @@ int sysinit() {
     debug(F100, "sysinit jchdlr: other", "", 0);
     jcshell = 3;
   }
-  (void)signal(SIGTSTP, jchdlr); /* Put it back... */
+  (void)ck_signal(SIGTSTP, jchdlr); /* Put it back... */
 #endif                           /* SIGTSTP */
 #endif                           /* NOJC */
 
@@ -1842,7 +1842,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   /* Here we have to open a serial device of the given name. */
 
   netconn = 0;                   /* So it's not a network connection */
-  occt = signal(SIGINT, cctrap); /* Set Control-C trap, save old one */
+  occt = ck_signal(SIGINT, cctrap); /* Set Control-C trap, save old one */
   sigint_ign = 0;
 
   tvtflg = 0; /* Flag for use by ttvt(). */
@@ -1898,7 +1898,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   debug(F101, "ttopen xlocal", "", xlocal);
   if (timo > 0) {
     int xx;
-    saval = signal(SIGALRM, timerh); /* Timed, set up timer. */
+    saval = ck_signal(SIGALRM, timerh); /* Timed, set up timer. */
     xx = alarm(timo);                /* Timed open() */
     debug(F101, "ttopen alarm", "", xx);
     if (
@@ -1931,7 +1931,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                                 /* and priv_off() here... */
 #endif                          /* ACUNTRL */
 
-    signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
+    ck_signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
     if (errno == EACCES) { /* Device is protected against user */
       debug(F110, "ttopen EACCESS", ttname, 0); /* Return -4 */
       return (-4);
@@ -1946,7 +1946,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
     close(ttyfd);
     ttyfd = -1;
     wasclosed = 1;
-    signal(SIGINT, occt);
+    ck_signal(SIGINT, occt);
     return (-1);
   }
 
@@ -2004,7 +2004,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
       close(ttyfd); /* Close the device. */
       ttyfd = -1;   /* Erase its file descriptor. */
       wasclosed = 1;
-      signal(SIGINT, occt); /* Put old SIGINT back. */
+      ck_signal(SIGINT, occt); /* Put old SIGINT back. */
       sigint_ign = (occt == SIG_IGN) ? 1 : 0;
       if (xx == -2) { /* If lockfile says device in use, */
 #ifndef NOUUCP
@@ -2125,7 +2125,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   ttotmo = 0; /* Flag no timeout */
   if (timo > 0) {
     int xx;
-    saval = signal(SIGALRM, timerh); /* Timed, set up timer. */
+    saval = ck_signal(SIGALRM, timerh); /* Timed, set up timer. */
     xx = alarm(timo);                /* Timed open() */
     debug(F101, "ttopen alarm", "", xx);
     if (
@@ -2169,7 +2169,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                               /* and priv_off() here... */
 #endif /* ACUNTRL */
 
-    signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
+    ck_signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
     if (errno == EACCES) { /* Device is protected against user */
       debug(F110, "ttopen EACCESS", fnam, 0); /* Return -4 */
       return (-4);
@@ -2187,7 +2187,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
     close(ttyfd);
     ttyfd = -1;
     wasclosed = 1;
-    signal(SIGINT, occt);
+    ck_signal(SIGINT, occt);
     return (-1);
   }
 
@@ -2431,7 +2431,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   debug(F101, "ttopen ttyfd", "", ttyfd);
   debug(F101, "ttopen *lcl", "", *lcl);
   debug(F111, "ttopen lock file", flfnam, lkf);
-  signal(SIGINT, occt);
+  ck_signal(SIGINT, occt);
   sigint_ign = (occt == SIG_IGN) ? 1 : 0;
   gotsigs = 0;
   return (0);
@@ -2577,7 +2577,7 @@ int ttclos(int foo) /* Arg req'd for signal() prototype */
       || ttyfd > 0
 #endif /* NOFDZERO */
   ) {
-    saval = signal(SIGALRM, xtimerh); /* Enable timer interrupt. */
+    saval = ck_signal(SIGALRM, xtimerh); /* Enable timer interrupt. */
     xx = alarm(8);                    /* Allow 8 seconds. */
     debug(F101, "ttclos alarm", "", xx);
     if (
@@ -6901,7 +6901,7 @@ void conbgt(int flag) {
 
     void (*osigint)(int);
 
-    osigint = signal(SIGINT, SIG_IGN); /* What is SIGINT set to? */
+    osigint = ck_signal(SIGINT, SIG_IGN); /* What is SIGINT set to? */
     sigint_ign = 1;
     x = (osigint == SIG_IGN) ? 1 : 0; /* SIG_IGN? */
     /* debug(F101,"conbgt osigint","",osigint); */
@@ -7089,7 +7089,7 @@ int tty;
 
   lseek(m, (long)(nl[1].n_value), 0);
   read(m, &xproc, sizeof(xproc));
-  saval = signal(SIGALRM, catch);
+  saval = ck_signal(SIGALRM, catch);
   if ((pid = fork()) == 0) {
     while (1)
       read(tty, &c, 1);
@@ -7687,7 +7687,7 @@ int ttoc(char c)
 
   c &= 0xff;
   /* debug(F101,"ttoc","",(CHAR) c); */
-  saval = signal(SIGALRM, timerh); /* Enable timer interrupt */
+  saval = ck_signal(SIGALRM, timerh); /* Enable timer interrupt */
   xx = alarm(TTOC_TMO);            /* for this many seconds. */
   if (xx < 0)
     xx = 0; /* Save old alarm value. */
@@ -7859,7 +7859,7 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
     timo = 0; /* Safety */
   if (timo) { /* Don't time out if timo == 0 */
     int xx;
-    saval = signal(SIGALRM, timerh); /* Enable timer interrupt */
+    saval = ck_signal(SIGALRM, timerh); /* Enable timer interrupt */
     xx = alarm(timo);                /* Set it. */
     debug(F101, "ttinl alarm", "", xx);
   }
@@ -8282,7 +8282,7 @@ int ttinc(int timo) {
   } else { /* Timed read */
 
     int oldalarm;
-    saval = signal(SIGALRM, timerh); /* Set up handler, save old one. */
+    saval = ck_signal(SIGALRM, timerh); /* Set up handler, save old one. */
     oldalarm = alarm(timo);          /* Set alarm, save old one. */
     if (
 #ifdef CK_POSIX_SIG
@@ -9406,7 +9406,7 @@ int coninc(int timo) {
 
   /* Timed read... */
 
-  saval = signal(SIGALRM, timerh); /* Set up timeout handler. */
+  saval = ck_signal(SIGALRM, timerh); /* Set up timeout handler. */
   xx = alarm(timo);                /* Set the alarm. */
   debug(F101, "coninc alarm set", "", timo);
   if (
@@ -10149,7 +10149,7 @@ void ttimoff() { /* Turn off any timer interrupts */
   /* xx = */ alarm(0);
   /* debug(F101,"ttimoff alarm","",xx); */
   if (saval) {              /* Restore any previous */
-    signal(SIGALRM, saval); /* alarm handler. */
+    ck_signal(SIGALRM, saval); /* alarm handler. */
     /* debug(F101,"ttimoff alarm restoring saval","",saval); */
     saval = NULL;
   } else {
@@ -10520,7 +10520,7 @@ static void sigchld_handler(int sig) {
   have_pty = 0; /* We don't have a pty */
 #ifdef DEBUG
   if (save_sigchld) {
-    (void)signal(SIGCHLD, save_sigchld);
+    (void)ck_signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   if (deblog) {
@@ -10650,7 +10650,7 @@ int ttptycmd(char *s) {
   pty_make_raw(masterfd);
 
   have_pty = 1;                                    /* We have an open pty */
-  save_sigchld = signal(SIGCHLD, sigchld_handler); /* Catch fork quit */
+  save_sigchld = ck_signal(SIGCHLD, sigchld_handler); /* Catch fork quit */
 
   pty_fork_pid = fork(); /* Make fork for external protocol */
   debug(F101, "ttptycmd pty_fork_pid", "", pty_fork_pid);
@@ -11170,7 +11170,7 @@ int ttptycmd(char *s) {
     set to, namely 1 (success) if the pty fork seemed to terminate, 0 otherwise.
   */
   if (save_sigchld) { /* Restore this if we changed it */
-    (void)signal(SIGCHLD, save_sigchld);
+    (void)ck_signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   msleep(500);
@@ -11255,8 +11255,8 @@ external protocols over secure connections not supported in this OS.\n");
     void (*istat)(int), (*qstat)(int);
     if (pid == (PID_T)-1) /* fork() failed? */
       return (0);
-    istat = signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */
-    qstat = signal(SIGQUIT, SIG_IGN); /* interrupts itself... */
+    istat = ck_signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */
+    qstat = ck_signal(SIGQUIT, SIG_IGN); /* interrupts itself... */
 
     while (1) {
       wstat = wait(&statusp);
@@ -11268,8 +11268,8 @@ external protocols over secure connections not supported in this OS.\n");
     pexitstat = (statusp & 0xff) ? statusp : statusp >> 8;
     debug(F101, "ttruncmd wait statusp", "", statusp);
     debug(F101, "ttruncmd wait pexitstat", "", pexitstat);
-    signal(SIGINT, istat); /* Restore interrupts */
-    signal(SIGQUIT, qstat);
+    ck_signal(SIGINT, istat); /* Restore interrupts */
+    ck_signal(SIGQUIT, qstat);
   }
   concb((char)escchr); /* Restore console to CBREAK mode */
   return (statusp == 0 ? 1 : 0);

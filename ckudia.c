@@ -4304,8 +4304,8 @@ static int didweget(char *s, char *r) /* Looks in string s for response r */
 static void dreset() {
   debug(F100, "dreset resetting alarm and signal handlers", "", 0);
   alarm(0);
-  signal(SIGALRM, savalrm); /* restore alarm handler */
-  signal(SIGINT, savint);   /* restore interrupt handler */
+  ck_signal(SIGALRM, savalrm); /* restore alarm handler */
+  ck_signal(SIGINT, savint);   /* restore interrupt handler */
   debug(F100, "dreset alarm and signal handlers reset", "", 0);
 }
 
@@ -5289,15 +5289,15 @@ xdialec:
 
       if (mp->dmode_str && *(mp->dmode_str)) {
         ttslow(mp->dmode_str, (dialpace > -1) ? wr : mp->dial_rate);
-        savalrm = signal(SIGALRM, dialtime);
+        savalrm = ck_signal(SIGALRM, dialtime);
         alarm(10);
         /* Wait for prompt, if any expected */
         if (mp->dmode_prompt && *(mp->dmode_prompt)) {
           waitfor(mp->dmode_prompt);
           msleep(300);
         }
-        alarm(0);                 /* Turn off alarm on dialing prompts */
-        signal(SIGALRM, savalrm); /* Restore alarm */
+        alarm(0);                    /* Turn off alarm on dialing prompts */
+        ck_signal(SIGALRM, savalrm); /* Restore alarm */
       }
     }
     /* AT-Command-Set non-Generic modem */
@@ -6320,10 +6320,10 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
   debug(F101, "ckdial timeout", "", waitct);
 
   /* Set timer and interrupt handlers. */
-  savint = signal(SIGINT, dialint); /* And terminal interrupt handler. */
+  savint = ck_signal(SIGINT, dialint); /* And terminal interrupt handler. */
   cc_alrm_execute(ckjaddr(sjbuf), 0, dialtime, _dodial, faildial);
 
-  signal(SIGINT, savint);
+  ck_signal(SIGINT, savint);
   if (dialsta == DIA_PART || dialsta == DIA_OK) {
     /* This is needed, e.g., for Telnet modem servers */
     if (reliable != SET_OFF || !setreliable) {

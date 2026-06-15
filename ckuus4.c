@@ -2077,7 +2077,7 @@ int transmit(char *s, char t, int xlate, int binary, int xxecho)
 #endif /* NOCSETS */
 
   i = 0;                           /* Beginning of buffer. */
-  oldsig = signal(SIGINT, trtrap); /* Save current interrupt trap. */
+  oldsig = ck_signal(SIGINT, trtrap); /* Save current interrupt trap. */
   tr_int = 0;                      /* Have not been interrupted (yet). */
   rc = 1;                          /* Return code presumed good. */
 
@@ -2479,7 +2479,7 @@ xmitexit: /* General exit point */
     }
   }
 
-  signal(SIGINT, oldsig); /* Put old signal action back. */
+  ck_signal(SIGINT, oldsig); /* Put old signal action back. */
   zclose(ZIFILE);         /* Close file, */
 #ifndef NOCSETS
   language = langsv; /* restore language, */
@@ -2529,7 +2529,7 @@ int xlate(char *fin, char *fout, int csin, int csout) {
     printf("?Can't open output file %s\n", fout);
     return (0);
   }
-  oldsig = signal(SIGINT, trtrap); /* Save current interrupt trap. */
+  oldsig = ck_signal(SIGINT, trtrap); /* Save current interrupt trap. */
 
   scrnflg = (filecode == ZCTERM); /* Set output function */
   if (scrnflg)
@@ -2656,7 +2656,7 @@ int xlate(char *fin, char *fout, int csin, int csout) {
 
 xxlate: /* Common exit point */
 
-  signal(SIGINT, oldsig); /* Put old signal action back. */
+  ck_signal(SIGINT, oldsig); /* Put old signal action back. */
   tr_int = 0;
   if (z < 0) {
     if (z == -1)

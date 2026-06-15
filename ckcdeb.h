@@ -775,6 +775,13 @@ int ckxfprintf(FILE *, const char *, ...);
 void (*ckntsignal(int type, void (*)(int)))(int);
 #endif /* CKNTSIG */
 
+/*
+  signal()-compatible wrapper implemented with sigaction() (in ckusig.c), used
+  at the save/restore call sites in place of signal() for deterministic
+  cross-platform (Linux, macOS, BSD) semantics.  Returns the previous handler.
+*/
+void (*ck_signal(int type, void (*)(int)))(int);
+
 /* We want all characters to be unsigned if the compiler supports it */
 
 #ifdef V7

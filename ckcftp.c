@@ -8494,7 +8494,7 @@ static int ftpcmd(char *cmd, char *arg, int lcs, int rcs, int vbm) {
     return (0);
   }
   havesigint = 0;
-  oldintr = signal(SIGINT, cmdcancel);
+  oldintr = ck_signal(SIGINT, cmdcancel);
 
 #ifndef NOCSETS
   if (*arg &&           /* If an arg was given */
@@ -8542,7 +8542,7 @@ static int ftpcmd(char *cmd, char *arg, int lcs, int rcs, int vbm) {
 #endif /* DEBUG */
 
   if (scommand(s) == 0) { /* Send it. */
-    signal(SIGINT, oldintr);
+    ck_signal(SIGINT, oldintr);
     return (0);
   }
   cpend = 1;
@@ -8570,7 +8570,7 @@ static int ftpcmd(char *cmd, char *arg, int lcs, int rcs, int vbm) {
   if (q > -1)
     quiet = q;
 
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   return (r);
 }
 
@@ -9079,7 +9079,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
   if (reply_parse)
     reply_ptr = reply_buf;
   havesigint = 0;
-  oldintr = signal(SIGINT, cmdcancel);
+  oldintr = ck_signal(SIGINT, cmdcancel);
   for (count = 0;; count++) {
     obuf[0] = '\0';
     dig = n = ftpcode = i = 0;
@@ -9113,7 +9113,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
       dig++;
       if (c == EOF) {
         if (expecteof) {
-          signal(SIGINT, oldintr);
+          ck_signal(SIGINT, oldintr);
           ftpcode = 221;
           debug(F101, "ftp getreply EOF", "", ftpcode);
           return (0);
@@ -9125,7 +9125,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
           printf("Service not available, connection closed by server\n");
           fflush(stdout);
         }
-        signal(SIGINT, oldintr);
+        ck_signal(SIGINT, oldintr);
         ftpcode = 421;
         debug(F101, "ftp getreply EOF", "", ftpcode);
         return (4);
@@ -9214,7 +9214,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
           xgnbp = r; /* Set up strgetc() */
           while ((c0 = xgnbyte(FC_UCS2, rcs, strgetc)) > -1) {
             if (xpnbyte(c0, TC_UCS2, lcs, NULL) < 0) { /* (xprintc) */
-              signal(SIGINT, oldintr);
+              ck_signal(SIGINT, oldintr);
               return (-1);
             }
           }
@@ -9236,7 +9236,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
       }
     }
     if (auth_type && !ibuf[0] && n != '6') {
-      signal(SIGINT, oldintr);
+      ck_signal(SIGINT, oldintr);
       return (getreply(expecteof, lcs, rcs, vbm, auth));
     }
     ibuf[0] = obuf[i] = '\0';
@@ -9293,7 +9293,7 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
     *cp = '\0';
     if (n != '1')
       cpend = 0;
-    signal(SIGINT, oldintr);
+    ck_signal(SIGINT, oldintr);
     if (ftpcode == 421 || originalcode == 421) {
       lostpeer();
       if (!xquiet && !ftp_deb)
@@ -9460,10 +9460,10 @@ static void doftpsend(void *threadinfo) {
 
     if (y != 0) {
 #endif /* NOHTTP */
-      signal(SIGINT, ftpsnd.oldintr);
+      ck_signal(SIGINT, ftpsnd.oldintr);
 #ifdef SIGPIPE
       if (ftpsnd.oldintp)
-        signal(SIGPIPE, ftpsnd.oldintp);
+        ck_signal(SIGPIPE, ftpsnd.oldintp);
 #endif /* SIGPIPE */
       ftpcode = -1;
       zclose(ZIFILE);
@@ -9499,10 +9499,10 @@ static void failftpsend(void *threadinfo) {
     globaldin = -1;
   }
   if (ftpsnd.oldintr)
-    signal(SIGINT, ftpsnd.oldintr);
+    ck_signal(SIGINT, ftpsnd.oldintr);
 #ifdef SIGPIPE
   if (ftpsnd.oldintp)
-    signal(SIGPIPE, ftpsnd.oldintp);
+    ck_signal(SIGPIPE, ftpsnd.oldintp);
 #endif /* SIGPIPE */
   ftpcode = -1;
   /* TEST ME IN K95 */
@@ -9532,10 +9532,10 @@ static void failftpsend2(void *threadinfo) {
   if (sndfilter)
     pipesend = 0;
 #endif /* PIPESEND */
-  signal(SIGINT, ftpsnd.oldintr);
+  ck_signal(SIGINT, ftpsnd.oldintr);
 #ifdef SIGPIPE
   if (ftpsnd.oldintp)
-    signal(SIGPIPE, ftpsnd.oldintp);
+    ck_signal(SIGPIPE, ftpsnd.oldintp);
 #endif /* SIGPIPE */
   if (!cpend) {
     ftpcode = -1;
@@ -9673,10 +9673,10 @@ static void doftpsend2(void *threadinfo) {
     }
   }
   if (x != REPLY_PRELIM) {
-    signal(SIGINT, ftpsnd.oldintr);
+    ck_signal(SIGINT, ftpsnd.oldintr);
 #ifdef SIGPIPE
     if (ftpsnd.oldintp)
-      signal(SIGPIPE, ftpsnd.oldintp);
+      ck_signal(SIGPIPE, ftpsnd.oldintp);
 #endif /* SIGPIPE */
     debug(F101, "doftpsend2 not REPLY_PRELIM", "", x);
     zclose(ZIFILE);
@@ -9703,7 +9703,7 @@ static void doftpsend2(void *threadinfo) {
 #endif       /* GFTIMER */
 
 #ifdef SIGPIPE
-  ftpsnd.oldintp = signal(SIGPIPE, SIG_IGN);
+  ftpsnd.oldintp = ck_signal(SIGPIPE, SIG_IGN);
 #endif /* SIGPIPE */
   debug(F101, "doftpsend2 curtype", "", curtype);
   switch (curtype) {
@@ -9787,10 +9787,10 @@ static void doftpsend2(void *threadinfo) {
   close(dout);
 #endif /* TCPIPLIB */
   ftpsnd.reply = getreply(0, ftpsnd.incs, ftpsnd.outcs, ftp_vbm, 0);
-  signal(SIGINT, ftpsnd.oldintr); /* Put back interrupts */
+  ck_signal(SIGINT, ftpsnd.oldintr); /* Put back interrupts */
 #ifdef SIGPIPE
   if (ftpsnd.oldintp)
-    signal(SIGPIPE, ftpsnd.oldintp);
+    ck_signal(SIGPIPE, ftpsnd.oldintp);
 #endif /* SIGPIPE */
   if (ftpsnd.reply == REPLY_TRANSIENT || ftpsnd.reply == REPLY_ERROR) {
     debug(F101, "doftpsend2 ftpsnd.reply", "", ftpsnd.reply);
@@ -9876,7 +9876,7 @@ static int sendrequest(char *cmd, char *local, char *remote, int xlate,
   ftpsnd.cmd = cmd;
   ftpsnd.local = local;
   ftpsnd.remote = remote;
-  ftpsnd.oldintr = signal(SIGINT, cancelsend);
+  ftpsnd.oldintr = ck_signal(SIGINT, cancelsend);
   havesigint = 0;
 
   if (cc_execute(ckjaddr(sendcancel), doftpsend, failftpsend) < 0)
@@ -9966,7 +9966,7 @@ static void failftprecv(void *threadinfo) {
     globaldin = -1;
   }
   if (ftprecv.oldintr)
-    signal(SIGINT, ftprecv.oldintr);
+    ck_signal(SIGINT, ftprecv.oldintr);
   ftpcode = -1;
   ftprecvret = -1;
 
@@ -9996,7 +9996,7 @@ static void doftprecv(void *threadinfo) {
     if (x < 0) {
       if ((!dpyactive || ftp_deb))
         fprintf(stderr, "Temporary file %s: %s\n", ftprecv.local, ck_errstr());
-      signal(SIGINT, ftprecv.oldintr);
+      ck_signal(SIGINT, ftprecv.oldintr);
       ftpcode = -2;
       ftprecvret = -1;
       return;
@@ -10004,7 +10004,7 @@ static void doftprecv(void *threadinfo) {
   }
   changetype((!ftprecv.is_retr) ? FTT_ASC : ftp_typ, 0);
   if (initconn()) { /* Initialize the data connection */
-    signal(SIGINT, ftprecv.oldintr);
+    ck_signal(SIGINT, ftprecv.oldintr);
     ftpcode = -1;
     ftprecvret = -3;
     return;
@@ -10027,12 +10027,12 @@ static void failftprecv2(void *threadinfo) {
 #endif /* GFTIMER */
 #ifdef SIGPIPE
   if (ftprecv.oldintp)
-    signal(SIGPIPE, ftprecv.oldintr);
+    ck_signal(SIGPIPE, ftprecv.oldintr);
 #endif /* SIGPIPE */
   signal(SIGINT, SIG_IGN);
   if (!cpend) {
     ftpcode = -1;
-    signal(SIGINT, ftprecv.oldintr);
+    ck_signal(SIGINT, ftprecv.oldintr);
     ftprecvret = -1;
     return;
   }
@@ -10087,7 +10087,7 @@ static void failftprecv2(void *threadinfo) {
     close(ftprecv.din);
 #endif /* TCPIPLIB */
   }
-  signal(SIGINT, ftprecv.oldintr);
+  ck_signal(SIGINT, ftprecv.oldintr);
   ftprecvret = -1;
 
   if (havesigint) {
@@ -10143,7 +10143,7 @@ static void doftprecv2(void *threadinfo) {
 
   if (ftpcmd(ftprecv.cmd, ftprecv.remote, ftprecv.fcs, ftprecv.rcs, ftp_vbm) !=
       REPLY_PRELIM) {
-    signal(SIGINT, ftprecv.oldintr); /* Bad reply, fail. */
+    ck_signal(SIGINT, ftprecv.oldintr); /* Bad reply, fail. */
     ftprecvret = -1;                 /* ftpcode is set by ftpcmd() */
     return;
   }
@@ -10423,10 +10423,10 @@ Please confirm output file specification or supply an alternative:";
       }
     }
   }
-  signal(SIGINT, ftprecv.oldintr);
+  ck_signal(SIGINT, ftprecv.oldintr);
 #ifdef SIGPIPE
   if (ftprecv.oldintp)
-    signal(SIGPIPE, ftprecv.oldintp);
+    ck_signal(SIGPIPE, ftprecv.oldintp);
 #endif /* SIGPIPE */
   stop = gmstimer();
 #ifdef GFTIMER
@@ -10549,7 +10549,7 @@ static int recvrequest(char *cmd, char *local, char *remote, char *lmode,
   ftpcode = 0;
 
   havesigint = 0;
-  ftprecv.oldintr = signal(SIGINT, cancelrecv);
+  ftprecv.oldintr = ck_signal(SIGINT, cancelrecv);
   if (cc_execute(ckjaddr(recvcancel), doftprecv, failftprecv) < 0)
     return -1;
 
@@ -10929,7 +10929,7 @@ static void pswitch(flag) int flag;
   struct comvars *ip, *op;
 
   cancelfile = 0;
-  oldintr = signal(SIGINT, pscancel);
+  oldintr = ck_signal(SIGINT, pscancel);
   if (flag) {
     if (proxy)
       return;
@@ -10996,7 +10996,7 @@ static void pswitch(flag) int flag;
     ftp_cpl = FPL_CLR;
   if (!ftp_dpl)
     ftp_dpl = FPL_CLR;
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   if (cancelfile) {
     cancelfile = 0;
     debug(F101, "pswitch cancelfile B", "", cancelfile);
@@ -11056,9 +11056,9 @@ int unique;
   /* Replace with calls to cc_execute() */
   if (setjmp(ptcancel))
     goto cancel;
-  oldintr = signal(SIGINT, cancelpt);
+  oldintr = ck_signal(SIGINT, cancelpt);
   if (ftpcmd(cmd, remote, -1, -1, ftp_vbm) != PRELIM) {
-    signal(SIGINT, oldintr);
+    ck_signal(SIGINT, oldintr);
     pswitch(1);
     return;
   }
@@ -11071,7 +11071,7 @@ int unique;
   getreply(0, -1, -1, ftp_vbm, 0);
   pswitch(0);
   getreply(0, -1, -1, ftp_vbm, 0);
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   pswitch(1);
   ptflag = 0;
   return;
@@ -11092,7 +11092,7 @@ cancel:
     pswitch(1);
     if (ptabflg)
       ftpcode = -1;
-    signal(SIGINT, oldintr);
+    ck_signal(SIGINT, oldintr);
     return;
   }
   if (cpend)
@@ -11106,7 +11106,7 @@ cancel:
       pswitch(1);
       if (ptabflg)
         ftpcode = -1;
-      signal(SIGINT, oldintr);
+      ck_signal(SIGINT, oldintr);
       return;
     }
   }
@@ -11145,7 +11145,7 @@ cancel:
   pswitch(1);
   if (ptabflg)
     ftpcode = -1;
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
 }
 #endif /* FTP_PROXY */
 
@@ -12935,7 +12935,7 @@ char **argv;
   }
   mname = argv[0];
   mflag = 1;
-  oldintr = signal(SIGINT, mcancel);
+  oldintr = ck_signal(SIGINT, mcancel);
 
   /* Replace with calls to cc_execute() */
   setjmp(jcancel);
@@ -12984,7 +12984,7 @@ char **argv;
         }
       }
     }
-    signal(SIGINT, oldintr);
+    ck_signal(SIGINT, oldintr);
     mflag = 0;
     return;
   }
@@ -13034,7 +13034,7 @@ char **argv;
       free((char *)gargs);
     }
   }
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   mflag = 0;
 }
 
@@ -13056,7 +13056,7 @@ char **argv;
   }
   mname = argv[0];
   mflag = 1;
-  oldintr = signal(SIGINT, mcancel);
+  oldintr = ck_signal(SIGINT, mcancel);
   /* Replace with calls to cc_execute() */
   setjmp(jcancel);
   while ((cp = remglob(argv, proxy)) != NULL) {
@@ -13095,7 +13095,7 @@ char **argv;
       }
     }
   }
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   mflag = 0;
   return (rc);
 }
@@ -13117,7 +13117,7 @@ char **argv;
   }
   mname = argv[0];
   mflag = 1;
-  oldintr = signal(SIGINT, mcancel);
+  oldintr = ck_signal(SIGINT, mcancel);
   /* Replace with calls to cc_execute() */
   setjmp(jcancel);
   while ((cp = remglob(argv, 0)) != NULL) {
@@ -13137,7 +13137,7 @@ char **argv;
       }
     }
   }
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   mflag = 0;
   return (rc);
 }
@@ -13171,7 +13171,7 @@ char **argv;
   cmd = argv[0][1] == 'l' ? "NLST" : "LIST";
   mname = argv[0];
   mflag = 1;
-  oldintr = signal(SIGINT, mcancel);
+  oldintr = ck_signal(SIGINT, mcancel);
   /* Replace with calls to cc_execute() */
   setjmp(jcancel);
   for (i = 1; mflag && i < argc - 1; ++i) {
@@ -13186,7 +13186,7 @@ char **argv;
       interactive = ointer;
     }
   }
-  signal(SIGINT, oldintr);
+  ck_signal(SIGINT, oldintr);
   mflag = 0;
   return (rc);
 }

@@ -29,6 +29,29 @@ char *ckusigv = "Signal support, 10.0.100, 23 Sep 2022";
 extern ckjmpbuf cmjbuf;
 #endif /* NOCCTRAP */
 
+/*
+  ck_signal() -- a signal()-compatible wrapper implemented with sigaction().
+
+  Installs func as the handler for sig and returns the previous handler (or
+  SIG_ERR on failure), just like signal().  Using sigaction() gives
+  deterministic, identical semantics on every platform this tree supports
+  (Linux, macOS, *BSD), whereas signal()'s behavior historically varied
+  (System V one-shot reset vs. BSD persistent).  SA_RESTART plus an empty
+  mask reproduces the BSD/glibc/macOS signal() semantics the code already
+  relies on, so this is a behavior-preserving drop-in.  The returned value is
+  a plain void(*)(int), so existing tests against SIG_IGN/SIG_DFL and the
+  saved-pointer comparisons throughout the tree keep working unchanged.
+*/
+void (*ck_signal(int sig, void (*func)(int)))(int) {
+  struct sigaction sa, old;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_RESTART;
+  sa.sa_handler = func;
+  if (sigaction(sig, &sa, &old) < 0)
+    return SIG_ERR;
+  return old.sa_handler;
+}
+
 #ifndef NOCCTRAP
 int cc_execute(ckjptr(sj_buf), ck_sigfunc dofunc, ck_sigfunc failfunc)
 /* cc_execute */ {
@@ -53,7 +76,7 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   void (*savhandler)(int);
 
   savalrm = alarm(timo);
-  savhandler = signal(SIGALRM, handler);
+  savhandler = ck_signal(SIGALRM, handler);
 
   if (cksetjmp(ckjdref(sj_buf))) {
     (*failfunc)(NULL);
@@ -63,7 +86,7 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   }
   alarm(savalrm);
   if (savhandler)
-    signal(SIGALRM, savhandler);
+    ck_signal(SIGALRM, savhandler);
   return rc;
 }
 
@@ -76,7 +99,7 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   int savalrm = 0;
   void (*savhandler)(int);
   savalrm = alarm(timo);
-  savhandler = signal(SIGALRM, handler);
+  savhandler = ck_signal(SIGALRM, handler);
 
   if (cksetjmp(ckjdref(sj_buf))) {
     (*failfunc)(NULL);
@@ -86,6 +109,6 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   }
   alarm(savalrm);
   if (savhandler)
-    signal(SIGALRM, savhandler);
+    ck_signal(SIGALRM, savhandler);
   return (rc);
 }
