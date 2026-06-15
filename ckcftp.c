@@ -1325,7 +1325,8 @@ static int zzsend(int, CHAR);
 static int getreply(int, int, int, int, int);
 static int radix_encode(CHAR[], CHAR[], int, int *, int);
 static int setpbsz(unsigned int);
-static int recvrequest(char *, char *, char *, char *, int, int, char *, int, int, int);
+static int recvrequest(char *, char *, char *, char *, int, int, char *, int,
+                       int, int);
 static int ftpcmd(char *, char *, int, int, int);
 static int ftp_user(char *, char *, char *);
 static int ftp_login(char *);
@@ -4703,7 +4704,7 @@ doput:
     if (!ap) {
       x = -2;
       goto xputx;
-    }                           /* (shouldn't happen) */
+    } /* (shouldn't happen) */
     if (range[0] == -1)         /* If low end of range not specified */
       range[0] = 1;             /* default to 1 */
     if (range[1] == -1)         /* If high not specified */
@@ -6353,9 +6354,10 @@ int doftpget(int cx, int who) /* who == 1 for ftp, 0 for kermit */
         if (!recursive) { /* [M]GET /RECURSIVE? */
                           /*
                             We did not ask for a recursive listing, but the server is sending us
-                            one                 anyway (as wu-ftpd is wont to do).  We get here if the current
-                            filename                 includes a path segment beyond any path segment we asked
-                            for in our                 non-recursive [M]GET command.  We MUST skip this file.
+                            one                 anyway (as wu-ftpd is wont to do).  We get here
+                            if the current                 filename                 includes a path segment
+                            beyond any path segment we asked                 for in our                 non-recursive [M]GET
+                            command.  We MUST skip this file.
                           */
           debug(F111, "ftp get skipping because of path", s, 0);
           continue;
@@ -10893,14 +10895,12 @@ static int dataconn(char *lmode) {
 }
 
 #ifdef FTP_PROXY
-static void pscancel(sig)
-int sig;
+static void pscancel(sig) int sig;
 {
   cancelfile++;
 }
 
-static void pswitch(flag)
-int flag;
+static void pswitch(flag) int flag;
 {
   extern int proxy;
   static struct comvars {

@@ -106,7 +106,7 @@ CHAR zl1as(CHAR c); /* Latin-1 to US ASCII */
 #ifdef CYRILLIC
 CHAR xassk(CHAR c); /* ASCII to Short KOI */
 CHAR xskcy(CHAR c); /* Short KOI to Latin/Cyrillic */
-#endif                           /* CYRILLIC */
+#endif              /* CYRILLIC */
 
 #ifdef LATIN2
 CHAR xnel2(CHAR c); /* NeXT to Latin-2 */
@@ -122,7 +122,7 @@ CHAR xl1mz(CHAR c); /* Latin-1 to Mazovia */
 CHAR xmzl1(CHAR c); /* Mazovia to Latin-1 */
 CHAR xmzl9(CHAR c); /* Latin-9 to Mazovia */
 CHAR xl9mz(CHAR c); /* Mazovia to Latin-9 */
-#endif                           /* LATIN2 */
+#endif              /* LATIN2 */
 
 /* Transfer character-set info */
 
@@ -6041,15 +6041,15 @@ CHAR x58l9(CHAR c) { /* x58l9 */ /* CP-858 to Latin-9... */
 
 /* Pointers to byte-for-byte translation functions */
 
-CHAR(*rx)(CHAR);
-CHAR(*sx)(CHAR);
+CHAR (*rx)(CHAR);
+CHAR (*sx)(CHAR);
 
 #ifdef UNICODE
-int(*xut)(USHORT);  /* Translation function UCS to TCS */
-int(*xuf)(USHORT);  /* Translation function UCS to FCS */
-USHORT(*xtu)(CHAR); /* Translation function TCS to UCS */
-USHORT(*xfu)(CHAR); /* Translation function FCS to UCS */
-#endif                           /* UNICODE */
+int (*xut)(USHORT);  /* Translation function UCS to TCS */
+int (*xuf)(USHORT);  /* Translation function UCS to FCS */
+USHORT (*xtu)(CHAR); /* Translation function TCS to UCS */
+USHORT (*xfu)(CHAR); /* Translation function FCS to UCS */
+#endif               /* UNICODE */
 
 CHAR (*xlr[MAXTCSETS + 1][MAXFCSETS + 1])(CHAR) = {
     NULL,     /* 0,0 transparent to us ascii */

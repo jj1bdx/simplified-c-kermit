@@ -399,7 +399,7 @@ static CHAR escbuf[6];
 static long mdmcapas;
 
 static void dreset(void);
-static int(*xx_ok)(int, int);
+static int (*xx_ok)(int, int);
 static int ddinc(int);
 int dialhup(void);
 int getok(int, int);
@@ -748,10 +748,12 @@ static MDMINF ATTDTDM = /* AT&T Digital Terminal Data Module  */
 static MDMINF DIGITEL = /* Digitel DT-22 CCITT variant used in Brazil */
                         /*
                           Attempts to adhere strictly to the V.25bis specification do not produce
-                          good                     results in real life.  The modem for which this code was developed:
-                          (a)                     ignores parity; (b) sometimes terminates responses with LF CR instead
-                          of CR                     LF; (c) has a Hayes-like escape sequence; (d) supports a hangup
-                          ("HUP")                     command.  Information from Fernando Cabral in Brasilia.
+                          good                     results in real life.  The modem for which this
+                          code was developed:                     (a)                     ignores parity; (b) sometimes
+                          terminates responses with LF CR instead                     of CR                     LF; (c)
+                          has a Hayes-like escape sequence; (d) supports a hangup
+                          ("HUP")                     command.  Information from Fernando Cabral in
+                          Brasilia.
                         */
     {
         "Digitel DT-22 CCITT dialer", "", /* pulse command */
@@ -2661,13 +2663,13 @@ static MDMINF MICROCOM = /* Microcom modems in native SX mode */
         3,                    /* pause_time */
                               /*
                                 The following sets 8 bits, no parity, BREAK passthru, and SE0 disables
-                                the                       escape character, which is a single character with no guard time,
-                                totally                       unsafe, so we have no choice but to disable it.  Especially
-                                since, by                       default, it is Ctrl-A, which is Kermit's packet-start
-                                character.  We would                       change it to something else, which would enable
-                                "mdmhup()", but the user                       wouldn't know about it.  Very bad.  Note: SE1
-                                sets it to Ctrl-A, SE2                       sets it to Ctrl-B, etc (1..31 allowed).  Also
-                                SE/Q sets it to "Q".
+                                the                       escape character, which is a single
+                                character with no guard time,                       totally                       unsafe, so
+                                we have no choice but to disable it.  Especially                       since, by                       default, it
+                                is Ctrl-A, which is Kermit's packet-start                       character.  We would                       change
+                                it to something else, which would enable                       "mdmhup()", but the user
+                                wouldn't know about it.  Very bad.  Note: SE1                       sets it to Ctrl-A, SE2
+                                sets it to Ctrl-B, etc (1..31 allowed).  Also                       SE/Q sets it to "Q".
                               */
         "SE0;S1P4;SBRK5\015", /* wake_str */
         100,                  /* wake_rate */
@@ -4666,7 +4668,7 @@ static void _dodial(void *threadinfo)
     if (fbuf)
       free(fbuf);
     fbuf = NULL;
-#endif         /* DYNAMIC */
+#endif      /* DYNAMIC */
     return; /* No conversation with modem to complete dialing */
   }
   makestr(&xnum, telnbr);
@@ -4856,7 +4858,7 @@ static void _dodial(void *threadinfo)
             if (fbuf)
               free(fbuf);
             fbuf = NULL;
-#endif                 /* DYNAMIC */
+#endif              /* DYNAMIC */
             return; /* return failure */
           }
           printf(", retrying%s...\r\n", (tries > 1) ? " again" : "");
@@ -5430,7 +5432,8 @@ xdialec:
       if (mdmcapas & CKD_V25) { /* V.25bis dialing... */
                                 /*
                                   This assumes that V.25bis indications are all at least 3 characters
-                                  long                         and are terminated by either CRLF or LFCR.
+                                  long                         and are terminated by either CRLF or
+                                  LFCR.
                                 */
         if (mymdmtyp == n_CCITT) {
           if (n < 3)

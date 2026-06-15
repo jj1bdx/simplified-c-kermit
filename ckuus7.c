@@ -2465,7 +2465,7 @@ int doputenv(char *s1, char *s2) {
   }
   ckmakmsg(t, TMPBUFSIZ, s1, "=", s2, NULL);
   debug(F111, "doputenv", t, nputenvs);
-  (void) makestr(&(putenvs[nputenvs]), t); /* Make a safe permananent copy */
+  (void)makestr(&(putenvs[nputenvs]), t); /* Make a safe permananent copy */
   if (!putenvs[nputenvs]) {
     printf("?PUTENV - memory allocation failure\n");
     return (-9);

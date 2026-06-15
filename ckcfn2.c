@@ -801,11 +801,12 @@ int input() {
 #endif                             /* CK_TIMERS */
                                    /*
                                      NOTE: The following statement frees the buffer of the ACK we just
-                                     got.                          But the upper layers still need the data, like if it's the ACK
-                                     to an I,                          S, F, D, Z, or just about any kind of packet.  So for now,
-                                     freerbuf()                          deallocates the buffer, but does not erase the data or
-                                     destroy the pointer                          to it.  There's no other single place where
-                                     these receive buffers can be                          correctly freed (?) ...
+                                     got.                          But the upper layers still need the
+                                     data, like if it's the ACK                          to an I,                          S, F,
+                                     D, Z, or just about any kind of packet.  So for now,                          freerbuf()
+                                     deallocates the buffer, but does not erase the data or                          destroy the
+                                     pointer                          to it.  There's no other single
+                                     place where                          these receive buffers can be                          correctly freed (?) ...
                                    */
           freerpkt(rsn);           /* Free the ACK's buffer */
           freesbuf(rsn);           /* *** Free the sent packet's buffer */
@@ -1640,9 +1641,10 @@ void rcalcpsz(void) {
                                                     /*
                                                       If the packet number is 0, and we're at the beginning of a protocol
                                                       operation (spackets < 63), then we have to resend the ACK to an I or
-                                                      S                                           packet, complete with parameters in the data field.  So we take a
-                                                      chance and                                           send a copy of the parameters in an ACK packet with block
-                                                      check type 1.                                           (Or 3 if SET BLOCK 5.)
+                                                      S                                           packet, complete with
+                                                      parameters in the data field.  So we take a                                           chance and                                           send a copy
+                                                      of the parameters in an ACK packet with block                                           check type 1.                                           (Or 3 if
+                                                      SET BLOCK 5.)
                                                     */
           if (bctf) { /* Force Type 3 on all packets? */
             x = spack('Y', 0, (int)strlen((char *)myinit), (CHAR *)myinit);
@@ -1665,13 +1667,13 @@ void rcalcpsz(void) {
         } else { /* Not the first packet */
                  /*
                    It's not the first packet of the protocol operation.  It's some
-                   other packet        that we have already ACK'd and forgotten about.  So we
-                   take a chance and        send an empty ACK using the current block-check
-                   type.  Usually this will        work out OK (like when acking Data
-                   packets), and no great harm will be done        if it was some other kind
-                   of packet (F, etc).  If we are requesting an        interruption of the
-                   file transfer, the flags are still set, so we'll catch        up on the
-                   next packet.
+                   other packet        that we have already ACK'd and forgotten about.
+                   So we        take a chance and        send an empty ACK using the current
+                   block-check        type.  Usually this will        work out OK (like when
+                   acking Data        packets), and no great harm will be done        if it
+                   was some other kind        of packet (F, etc).  If we are requesting an
+                   interruption of the        file transfer, the flags are still set, so we'll
+                   catch        up on the        next packet.
                  */
           x = spack('Y', n, 0, (CHAR *)"");
           if (x < 0)

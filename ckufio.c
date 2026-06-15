@@ -369,7 +369,7 @@ void ignorsigs(void);
 void restorsigs(void);
 #ifdef SELECT
 int ttwait(int, int); /* ckutio.c */
-#endif                             /* SELECT */
+#endif                /* SELECT */
 
 /*
   Change argument to "(const char *)" if this causes trouble.
@@ -895,8 +895,7 @@ void logwtmp(const char *line, const char *name, const char *host)
     n = SYSLG_xx values defined in ckcdeb.h
     s1, s2, s3: strings.
 */
-void cksyslog(n, m, s1, s2, s3)
-int n, m;
+void cksyslog(n, m, s1, s2, s3) int n, m;
 char *s1, *s2, *s3;
 {
   int level;
@@ -1294,7 +1293,7 @@ int zclose(int n) {
       char *s, *p;
       extern char ttname[];
       if (!iklogopen)
-        (void) doiklog(); /* Open log if necessary */
+        (void)doiklog(); /* Open log if necessary */
       debug(F101, "zclose iklogopen", "", iklogopen);
       if (iklogopen) {
         int len;
@@ -2493,7 +2492,7 @@ void nzltor(char *name, char *name2, int fncnv, int fnspath,
 #ifndef NOCSETS
   extern int fcharset, /* tcharset, */ language;
   int langsv;
-  CHAR(*sxo)(CHAR) = NULL; /* Translation functions */
+  CHAR (*sxo)(CHAR) = NULL; /* Translation functions */
   extern CHAR (*xls[MAXTCSETS + 1][MAXFCSETS + 1])(CHAR);
   langsv = language;
   language = L_USASCII;
@@ -4833,13 +4832,14 @@ zsperms:
                 /*
                   NOTE: If we are inheriting permissions from a previous file, and the
                   previous file was a directory, this would turn the new file into a
-                  directory             too, but it's not, so we try to unset the right bit.  Luckily,
-                  this code             will probably never be executed since the upper level modules do
-                  not allow             reception of a file that has the same name as a directory.
+                  directory             too, but it's not, so we try to unset the right bit.
+                  Luckily,             this code             will probably never be executed since the
+                  upper level modules do             not allow             reception of a file that has
+                  the same name as a directory.
             
                   NOTE 2: We change the permissions *before* we change the modification
-                  time,             otherwise changing the permissions would set the mod time to the
-                  present             time.
+                  time,             otherwise changing the permissions would set the mod
+                  time to the             present             time.
                 */
     {
       int x;
@@ -5675,12 +5675,13 @@ blah:
       if (            /* If it's not a directory... */
                       /*
                         The problem here is that segisdir is apparently not set
-                        appropriately.             If I leave in the !segisdir test, then "dir
-                        /recursive blah" (where blah is             a directory name) misses some
-                        regular files because sometimes segisdir             is set and sometimes it's
-                        not.  But if I comment it out, then             "dir <star>/<star>.txt lists
-                        every file in * and does not even open up the             subdirectories.
-                        However, "dir /rec <star>/<star>.txt" works right.
+                        appropriately.             If I leave in the !segisdir test, then
+                        "dir             /recursive blah" (where blah is             a directory name)
+                        misses some             regular files because sometimes segisdir             is
+                        set and sometimes it's             not.  But if I comment it out, then             "dir
+                        <star>/<star>.txt lists             every file in * and does not even open up
+                        the             subdirectories.             However, "dir /rec
+                        <star>/<star>.txt" works right.
                       */
           mresult &&  /* Matched */
           !itsadir && /* sofar is not a directory */
@@ -6083,7 +6084,7 @@ int zshcmd(char *s) {
 #ifdef CK_CHILD
     int child; /* Child's exit status */
 #endif /* CK_CHILD */
-    void (*istat)(), (*qstat)();
+    void (*istat)(int), (*qstat)(int);
 
     if (pid == (PID_T)-1)
       return (-1); /* fork() failed? */
@@ -7008,7 +7009,7 @@ int zvuser(char *name) {
     }
     debug(F100, "zvuser endusershell 1", "", 0);
 #ifndef NODCLENDUSERSHELL
-    (void) endusershell();
+    (void)endusershell();
 #else
     endusershell();
 #endif /* NODCLENDUSERSHELL */
@@ -7115,7 +7116,7 @@ static int checkuser(char *name) {
       }
       line[0] = '\0';
     }
-    (void) fclose(fd);
+    (void)fclose(fd);
   }
   debug(F110, "checkuser OK", name, 0);
   return (0);
@@ -7158,7 +7159,7 @@ kpass(name, p) char *name, *p;
   ckstrncat(tkt_file, "_ftpdXXXXXX", 20);
   krb_set_tkt_string(mktemp(tkt_file));
 
-  (void) ckstrncpy(instance, krb_get_phost(hostname), sizeof(instance));
+  (void)ckstrncpy(instance, krb_get_phost(hostname), sizeof(instance));
 
   if ((hp = gethostbyname(instance)) == NULL)
     return (0);
@@ -7435,7 +7436,7 @@ zvpass( char *p )
 #endif /* NOPUTENV */
   /* homdir = (char *)zvhome; */
   ckstrncpy((char *)uidbuf, (char *)zvuname, 64);
-  (void) umask(defumask);
+  (void)umask(defumask);
 #ifdef IKSDB
   if (ikdbopen) {
     char *p2;

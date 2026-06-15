@@ -1238,8 +1238,8 @@ int ckxsyslog = SYSLG_DF; /* Default logging level */
 #ifndef NOHELP
 #ifndef NOCMDL
 void iniopthlp(void); /* Command-line help initializer */
-#endif                             /* NOCMDL */
-#endif                             /* NOHELP */
+#endif                /* NOCMDL */
+#endif                /* NOHELP */
 
 void initfloat(void); /* Floating-point initializer */
 
@@ -2554,8 +2554,8 @@ MAINNAME(int argc, char **argv) {
       iksdcf = 1;  /* IKSD c.f. has been processed */
     }
     if (!iklogopen)
-      (void) doiklog(); /* Open Kermit-specific log */
-#endif                  /* IKSD */
+      (void)doiklog(); /* Open Kermit-specific log */
+#endif                 /* IKSD */
 
 #ifdef UNIX
     setbuf(stdout, NULL);             /* Don't buffer the output */

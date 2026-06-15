@@ -50,7 +50,7 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
 
   int rc = 0;
   int savalrm = 0;
-  void(*savhandler)(int);
+  void (*savhandler)(int);
 
   savalrm = alarm(timo);
   savhandler = signal(SIGALRM, handler);
@@ -74,7 +74,7 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
 
   int rc = 0;
   int savalrm = 0;
-  void(*savhandler)(int);
+  void (*savhandler)(int);
   savalrm = alarm(timo);
   savhandler = signal(SIGALRM, handler);
 

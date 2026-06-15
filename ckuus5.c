@@ -2213,7 +2213,7 @@ int parser(int m) {
     if (errno != 0)
 #endif /* UNIX */
     {
-      (void) ckstrncpy(tmpbuf, ck_errstr(), TMPBUFSIZ);
+      (void)ckstrncpy(tmpbuf, ck_errstr(), TMPBUFSIZ);
       printf(" Most recent local error: \"%s\"\n", tmpbuf);
     }
     printf("Also:\n");
@@ -3546,7 +3546,7 @@ static char evalmacrobuf[TMPBUFSIZ];
 void evalmacroarg(char **p) {
   char *s = evalmacrobuf;
   int t = TMPBUFSIZ;
-  (void) zzstring(*p, &s, &t);
+  (void)zzstring(*p, &s, &t);
   *p = evalmacrobuf;
 }
 
@@ -4590,7 +4590,7 @@ void shotrm() {
 #endif /* NOTRIGGER */
   printf("\n");
 
-  (void) shoesc(escape);
+  (void)shoesc(escape);
 #ifndef NOCSETS
   shotcs(tcsl, tcsr); /* Show terminal character sets */
 #endif                /* NOCSETS */
@@ -6284,7 +6284,7 @@ int doshow(int x) {
   }
 #ifndef NOCSETS
   case SHASSOC:
-    (void) showassoc();
+    (void)showassoc();
     break;
 #endif /* NOCSETS */
 
@@ -6308,53 +6308,53 @@ int doshow(int x) {
   case SHOPTS:
     optlines = 0;
 #ifndef NOFRILLS
-    (void) showdelopts();
+    (void)showdelopts();
 #endif /* NOFRILLS */
 #ifdef DOMYDIR
-    (void) showdiropts();
+    (void)showdiropts();
 #endif /* DOMYDIR */
 #ifdef CKPURGE
-    (void) showpurgopts();
+    (void)showpurgopts();
 #endif /* CKPURGE */
-    (void) showtypopts();
+    (void)showtypopts();
     break;
 
 #ifndef NOLOCAL
   case SHOFLO:
-    (void) shoflow();
+    (void)shoflow();
     break;
 #endif /* NOLOCAL */
 
 #ifndef NOXFER
   case SHOXFER:
-    (void) shoxfer();
+    (void)shoxfer();
     break;
 #endif /* NOXFER */
 
 #ifdef CK_RECALL
   case SHHISTORY:
-    (void) cmhistory();
+    (void)cmhistory();
     break;
 #endif /* CK_RECALL */
 
 #ifndef NOSEXP
 #ifndef NOSPL
   case SHSEXP:
-    (void) shosexp();
+    (void)shosexp();
     break;
 #endif /* NOSPL */
 #endif /* NOSEXP */
 
 #ifdef ANYSSH
   case SHOSSH:
-    (void) shossh();
+    (void)shossh();
     break;
 #endif /* ANYSSH */
 
 #ifndef NOFRILLS
 #ifndef NORENAME
   case SHOREN:
-    (void) shorename();
+    (void)shorename();
     break;
 #endif /* NORENAME */
 #endif /* NOFRILLS */

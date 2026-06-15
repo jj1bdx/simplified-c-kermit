@@ -122,8 +122,7 @@ int size;
   return (cp);
 }
 
-void dfree(cp)
-char *cp;
+void dfree(cp) char *cp;
 {
   if (cp == NULL)
     maybe_quit("Freeing NULL pointer");
@@ -231,8 +230,7 @@ char *cp;
 char *m_used[BUCKETS];
 char *m_used2[BUCKETS];
 
-void m_insert(cp)
-register char *cp;
+void m_insert(cp) register char *cp;
 {
   register int i;
 
@@ -247,8 +245,7 @@ register char *cp;
   disabled++;
 }
 
-static void m_insert2(cp)
-register char *cp;
+static void m_insert2(cp) register char *cp;
 {
   register int i;
 
@@ -333,8 +330,7 @@ void m_checkranges() {
       check_range(m_used[i]);
 }
 
-static void maybe_quit(str)
-char *str;
+static void maybe_quit(str) char *str;
 {
   debug(F100, "mdebug maybe_quit", "", 0);
   if (memdebug == 0)

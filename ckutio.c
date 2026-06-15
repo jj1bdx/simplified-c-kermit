@@ -786,25 +786,25 @@ static int gotsigs = 0;
 
 static time_t tcount = (time_t)0; /* Elapsed time counter */
 
-static void (*saval)() = NULL;   /* For saving alarm() handler */
-static void (*savquit)() = NULL; /* and other signal handlers */
+static void (*saval)(int) = NULL;   /* For saving alarm() handler */
+static void (*savquit)(int) = NULL; /* and other signal handlers */
 #ifdef SIGUSR1
-static void (*savusr1)() = NULL;
+static void (*savusr1)(int) = NULL;
 #endif /* SIGUSR1 */
 #ifdef SIGUSR2
-static void (*savusr2)() = NULL;
+static void (*savusr2)(int) = NULL;
 #endif /* SIGUSR2 */
 #ifdef SIGPIPE
-static void (*savpipe)() = NULL;
+static void (*savpipe)(int) = NULL;
 #endif /* SIGPIPE */
 #ifdef SIGDANGER
-static void (*savdanger)() = NULL;
+static void (*savdanger)(int) = NULL;
 #endif /* SIGDANGER */
 
 #ifndef NOJC
-static void (*jchdlr)() = NULL; /* For checking suspend handler */
-#endif                            /* NOJC */
-static int jcshell = -1;          /* And flag for result */
+static void (*jchdlr)(int) = NULL; /* For checking suspend handler */
+#endif                             /* NOJC */
+static int jcshell = -1;           /* And flag for result */
 
 /*
   BREAKNULS is defined for systems that simulate sending a BREAK signal
@@ -991,8 +991,7 @@ static char *xxlast(char *s, char c)
 /* Timeout handler for communication line input functions */
 
 /*ARGSUSED*/
-void
-timerh(int foo) {
+void timerh(int foo) {
   ttimoff();
 #ifdef CK_POSIX_SIG
   siglongjmp(sjbuf, 1);
@@ -1002,8 +1001,7 @@ timerh(int foo) {
 }
 
 /*ARGSUSED*/
-void
-xtimerh(int foo) {
+void xtimerh(int foo) {
 /* Like timerh() but does not reset the timer itself */
 #ifdef CK_POSIX_SIG
   siglongjmp(sjbuf, 1);
@@ -1014,12 +1012,11 @@ xtimerh(int foo) {
 
 /* Control-C trap for communication line input functions */
 
-int cc_int;       /* Flag */
-void (*occt)(); /* For saving old SIGINT handler */
+int cc_int;        /* Flag */
+void (*occt)(int); /* For saving old SIGINT handler */
 
 /*ARGSUSED*/
-void
-cctrap(int foo) /* Needs arg for ANSI C */
+void cctrap(int foo) /* Needs arg for ANSI C */
 {
   cc_int = 1; /* signal() prototype. */
   return;
@@ -1189,8 +1186,7 @@ int rlog_naws(void);
 
 #ifndef NOSIGWINCH
 #ifdef SIGWINCH
-void
-winchh(int foo) /* SIGWINCH handler */
+void winchh(int foo) /* SIGWINCH handler */
 {
   int x = 0;
 #ifdef CK_TTYFD
@@ -1266,8 +1262,7 @@ winchh(int foo) /* SIGWINCH handler */
 #endif /* SIGWINCH */
 #endif /* NOSIGWINCH */
 
-void
-sighup(int foo) /* SIGHUP handler */
+void sighup(int foo) /* SIGHUP handler */
 {
   backgrd = 1;
   debug(F100, "***************", "", 0);
@@ -1317,16 +1312,16 @@ static void ignorsigs() {             /* Ignore these signals */
   savusr2 = signal(SIGUSR2, SIG_IGN);
 }
 
-void restorsigs() {                /* Restore these signals */
-  (void) signal(SIGQUIT, savquit); /* (used in ckufio.c) */
+void restorsigs() {               /* Restore these signals */
+  (void)signal(SIGQUIT, savquit); /* (used in ckufio.c) */
 #ifdef SIGDANGER
-  (void) signal(SIGDANGER, savdanger);
+  (void)signal(SIGDANGER, savdanger);
 #endif /* SIGDANGER */
 #ifdef SIGPIPE
-  (void) signal(SIGPIPE, savpipe);
+  (void)signal(SIGPIPE, savpipe);
 #endif /* SIGPIPE */
-  (void) signal(SIGUSR1, savusr1);
-  (void) signal(SIGUSR2, savusr2);
+  (void)signal(SIGUSR1, savusr1);
+  (void)signal(SIGUSR2, savusr2);
 }
 
 int sysinit() {
@@ -1386,14 +1381,14 @@ int sysinit() {
     debug(F100, "sysinit jchdlr: other", "", 0);
     jcshell = 3;
   }
-  (void) signal(SIGTSTP, jchdlr); /* Put it back... */
-#endif                            /* SIGTSTP */
-#endif                            /* NOJC */
+  (void)signal(SIGTSTP, jchdlr); /* Put it back... */
+#endif                           /* SIGTSTP */
+#endif                           /* NOJC */
 
   conbgt(0); /* See if we're in the background */
   congm();   /* Get console modes */
 
-  (void) signal(SIGALRM, SIG_IGN); /* Ignore alarms */
+  (void)signal(SIGALRM, SIG_IGN); /* Ignore alarms */
 
   ignorsigs(); /* Ignore some other signals */
 
@@ -2028,10 +2023,10 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
           p = malloc(x); /* Print a directory listing. */
                          /*
                            Note: priv_on() won't help here, because we do not pass privs along
-                           to                to inferior processes, in this case ls.  So if the real user does
-                           not have                directory-listing access to the lockfile directory, this
-                           will result in                something like "not found".  That's why we try this
-                           only as a last resort.
+                           to                to inferior processes, in this case ls.  So if the
+                           real user does                not have                directory-listing access to
+                           the lockfile directory, this                will result in                something
+                           like "not found".  That's why we try this                only as a last resort.
                          */
           if (p) {       /* If we got the space... */
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
@@ -2100,10 +2095,10 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
           p = malloc(x); /* Print a directory listing. */
                          /*
                            Note: priv_on() won't help here, because we do not pass privs along
-                           to                to inferior processes, in this case ls.  So if the real user does
-                           not have                directory-listing access to the lockfile directory, this
-                           will result in                something like "not found".  That's why we try this
-                           only as a last resort.
+                           to                to inferior processes, in this case ls.  So if the
+                           real user does                not have                directory-listing access to
+                           the lockfile directory, this                will result in                something
+                           like "not found".  That's why we try this                only as a last resort.
                          */
           if (p) {       /* If we got the space... */
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
@@ -3951,8 +3946,7 @@ static int ttunlck() { /* Remove UUCP lockfile(s). */
 */
 #ifndef NOUUCP
 #ifdef ACUCNTRL
-void acucntrl(flag, ttname)
-char *flag, *ttname;
+void acucntrl(flag, ttname) char *flag, *ttname;
 {
   char x[DEVNAMLEN + 32], *device, *devname;
 
@@ -6723,8 +6717,7 @@ int ttfluo() { /* Flush output buffer */
 #ifndef RDCHK
 
 #ifdef SVORPOSIX
-void
-esctrp(foo) int foo;
+void esctrp(foo) int foo;
 {                           /* trap console escapes (^\) */
   signal(SIGQUIT, SIG_IGN); /* ignore until trapped */
   conesc = 1;
@@ -6733,8 +6726,7 @@ esctrp(foo) int foo;
 #endif /* SVORPOSIX */
 
 #ifdef V7
-void
-esctrp(foo) int foo;
+void esctrp(foo) int foo;
 {                           /* trap console escapes (^\) */
   signal(SIGQUIT, SIG_IGN); /* ignore until trapped */
   conesc = 1;
@@ -6907,7 +6899,7 @@ void conbgt(int flag) {
   */
   if (x < 0 && !flag && !sigint_ign) { /* Didn't get good results above... */
 
-    void (*osigint)();
+    void (*osigint)(int);
 
     osigint = signal(SIGINT, SIG_IGN); /* What is SIGINT set to? */
     sigint_ign = 1;
@@ -7144,8 +7136,7 @@ iout:
 
 /*  More V7-support functions...  */
 
-static void err(s)
-char *s;
+static void err(s) char *s;
 {
   char buf[200];
 
@@ -7163,8 +7154,7 @@ static void catch (foo) int foo;
 
 #define BSPEED B150
 
-void genbrk(fn, msec)
-int fn, msec;
+void genbrk(fn, msec) int fn, msec;
 {
   struct sgttyb ttbuf;
   int ret, sospeed, x, y;
@@ -8106,7 +8096,7 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
 #ifndef PARSENSE
         debug(F101, "ttinl got eol", "", eol); /* (or turn) */
         dest[i] = '\0';                        /* Yes, terminate the string, */
-        /* debug(F101,"ttinl i","",i); */
+                                               /* debug(F101,"ttinl i","",i); */
 
 #else /* PARSENSE */
 
@@ -8718,9 +8708,9 @@ static struct timeval tzero;
 
 void rftimer() {
 #ifdef GTODONEARG /* Account for Mot's definition */
-  (void) gettimeofday(&tzero);
+  (void)gettimeofday(&tzero);
 #else
-  (void) gettimeofday(&tzero, (struct timezone *)0);
+  (void)gettimeofday(&tzero, (struct timezone *)0);
 #endif /* GTODONEARG */
 }
 
@@ -8732,9 +8722,9 @@ gftimer() {
   char fpbuf[64];
 #endif            /* DEBUG */
 #ifdef GTODONEARG /* Account for Mot's definition */
-  (void) gettimeofday(&tnow);
+  (void)gettimeofday(&tnow);
 #else
-  (void) gettimeofday(&tnow, (struct timezone *)0);
+  (void)gettimeofday(&tnow, (struct timezone *)0);
 #endif /* GTODONEARG */
 
   tdelta.tv_sec = tnow.tv_sec - tzero.tv_sec;
@@ -10524,13 +10514,13 @@ static int pty_get_status(int fd, PID_T pid) {
 */
 static int have_pty = 0; /* Do we have a pty? */
 
-static void (*save_sigchld)() = NULL; /* For catching SIGCHLD */
+static void (*save_sigchld)(int) = NULL; /* For catching SIGCHLD */
 
 static void sigchld_handler(int sig) {
   have_pty = 0; /* We don't have a pty */
 #ifdef DEBUG
   if (save_sigchld) {
-    (void) signal(SIGCHLD, save_sigchld);
+    (void)signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   if (deblog) {
@@ -11180,7 +11170,7 @@ int ttptycmd(char *s) {
     set to, namely 1 (success) if the pty fork seemed to terminate, 0 otherwise.
   */
   if (save_sigchld) { /* Restore this if we changed it */
-    (void) signal(SIGCHLD, save_sigchld);
+    (void)signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   msleep(500);
@@ -11262,7 +11252,7 @@ external protocols over secure connections not supported in this OS.\n");
     debug(F101, "ttruncmd system", s, x);
     _exit(x ? BAD_EXIT : 0);
   } else {
-    void (*istat)(), (*qstat)();
+    void (*istat)(int), (*qstat)(int);
     if (pid == (PID_T)-1) /* fork() failed? */
       return (0);
     istat = signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */

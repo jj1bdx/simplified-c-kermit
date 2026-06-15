@@ -56,7 +56,7 @@ static int xx_ftp(char *, char *);
   Let's see if we can live without it - fdc, Fri Apr 14 14:35:16 2023
 */
 static void cl_int(int);
-#endif                     /* USE_CL_INT */
+#endif /* USE_CL_INT */
 static int pmsg(char *);
 static int fmsg(char *);
 #ifdef TNCODE
@@ -491,8 +491,7 @@ static void
 #ifdef CK_ANSI
 cl_int(int dummy) /* Command-line interrupt handler */
 #else             /* CK_ANSI */
-cl_int(dummy)
-int dummy;
+    cl_int(dummy) int dummy;
 #endif            /* CK_ANSI */
 {
   doexit(BAD_EXIT, 1);
@@ -1242,7 +1241,7 @@ int cmdlin() {
               debug(F110, "cmdlin lunet nh_px[0][0]", nh_px[0][0], 0);
             }
           }
-#endif    /* DEBUG */
+#endif /* DEBUG */
           /* If network type specified */
           /* it must be TCP/IP */
           if (nhcount > 0 && nh_p2[0])
@@ -1253,8 +1252,8 @@ int cmdlin() {
             ssh_set_sparam(SSH_SPARAM_HST, ttname);
             debug(F110, "cmdlin lunet substitution", ttname, 0);
           }
-#endif    /* NODIAL */
-#endif    /* NOICP */
+#endif /* NODIAL */
+#endif /* NOICP */
           /* Service from command line? */
           if (--xargc > 0 && !haveurl) {
             xargv++;

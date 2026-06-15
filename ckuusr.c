@@ -4646,7 +4646,7 @@ sendend: /* Common successful exit */
     if (!ap) {
       x = -2;
       goto xsendx;
-    }                           /* (shouldn't happen) */
+    } /* (shouldn't happen) */
     if (range[0] == -1)         /* If low end of range not specified */
       range[0] = 1;             /* default to 1 */
     if (range[1] == -1)         /* If high not specified */
@@ -12103,7 +12103,7 @@ int docmd(int cx) {
     if (s)
       if (s == (char *)0)
         s = NULL;
-    (void) makestr(&s1, s);
+    (void)makestr(&s1, s);
     if (s && !s1) {
       printf("?PUTENV - memory allocation failure\n");
       return (-9);
@@ -12113,10 +12113,10 @@ int docmd(int cx) {
     if (s)
       if (s == (char *)0)
         s = NULL;
-    (void) makestr(&s2, s);
+    (void)makestr(&s2, s);
     success = doputenv(s1, s2);
-    (void) makestr(&s1, NULL);
-    (void) makestr(&s2, NULL);
+    (void)makestr(&s1, NULL);
+    (void)makestr(&s2, NULL);
     return (success);
   }
 #endif /* NOPUTENV */

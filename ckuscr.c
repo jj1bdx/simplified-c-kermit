@@ -383,8 +383,7 @@ static void dooseq(void *threadinfo) {
   return;
 }
 
-void
-failoseq(void *threadinfo)
+void failoseq(void *threadinfo)
 /* failoseq */ {
   oseqret = -1; /* else -- alarm rang */
   return;
@@ -407,7 +406,7 @@ static int outseq() {
 /*  L O G I N  --  (historical misnomer) Execute the SCRIPT command */
 
 int dologin(char *cmdstr) {
-  void (*savealm)(); /* Save incoming alarm function */
+  void (*savealm)(int); /* Save incoming alarm function */
   char *e;
 
   s = cmdstr; /* Make global to this module */

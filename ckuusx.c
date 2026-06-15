@@ -2528,8 +2528,7 @@ int askmore() {
 
 /*  T R A P  --  Terminal interrupt handler */
 
-void
-trap(int sig)
+void trap(int sig)
 /* trap */ {
   extern int b_save, f_save;
 #ifndef NOICP
@@ -2713,8 +2712,7 @@ char *ck_time() {
 
 /*  S T P T R A P -- Handle SIGTSTP (suspend) signals */
 
-void
-stptrap(int sig)
+void stptrap(int sig)
 /* stptrap */ {
 
 #ifndef NOJC
@@ -4867,8 +4865,7 @@ static int notermcap = 0;
 #endif /* NOTERMCAP */
 
 #ifndef NODISPLAY
-void
-fxdinit(int xdispla) {
+void fxdinit(int xdispla) {
   char *s;
   int x, dummy;
 

@@ -1072,8 +1072,7 @@ static char *findinpath(char *arg) {
 
 static int tr_int; /* Flag if TRANSMIT interrupted */
 
-void
-trtrap(int foo) /* TRANSMIT interrupt trap */
+void trtrap(int foo) /* TRANSMIT interrupt trap */
 /* trtrap */ {
 #ifdef __EMX__
   signal(SIGINT, SIG_ACK);
@@ -1919,7 +1918,7 @@ static CHAR xbbuf[XBBUFSIZ + 4];
 int transmit(char *s, char t, int xlate, int binary, int xxecho)
 /* transmit */ {
   int count = 0;
-  void (*oldsig)();
+  void (*oldsig)(int);
   int eof = 0;          /* End of File flag */
   int eol = 0;          /* End of Line flag */
   int rc = 1;           /* Return code. 0=fail, 1=succeed. */
@@ -2493,10 +2492,10 @@ xmitexit: /* General exit point */
 
 #ifndef NOCSETS
 
-CHAR(*sxx)(CHAR); /* Local translation function */
-CHAR(*rxx)(CHAR); /* Local translation function */
-CHAR zl1as(CHAR); /* Latin-1 to ascii */
-CHAR xl1as(CHAR); /* ditto */
+CHAR (*sxx)(CHAR); /* Local translation function */
+CHAR (*rxx)(CHAR); /* Local translation function */
+CHAR zl1as(CHAR);  /* Latin-1 to ascii */
+CHAR xl1as(CHAR);  /* ditto */
 
 /*  X L A T E  --  Translate a local file from one character set to another */
 
@@ -2507,7 +2506,7 @@ CHAR xl1as(CHAR); /* ditto */
 */
 
 int xlate(char *fin, char *fout, int csin, int csout) {
-  void (*oldsig)();
+  void (*oldsig)(int);
   int (*fn)(char); /* Output function pointer */
   extern int xlatype;
   int filecode; /* Code for output file */
@@ -2994,9 +2993,9 @@ int traopn(char *s, int disp) {
 
   if (tlogfmt == 2) { /* FTP format is special... */
     void doiklog();
-    if (!disp)            /* Append? */
-      if (zchki(s) > -1)  /* No - does file exist? */
-        (void) zdelet(s); /* Yes - delete it. */
+    if (!disp)           /* Append? */
+      if (zchki(s) > -1) /* No - does file exist? */
+        (void)zdelet(s); /* Yes - delete it. */
     xferlog = 1;
     ckstrncpy(trafil, s, CKMAXPATH);
     makestr(&xferfile, s);
@@ -5675,7 +5674,7 @@ void shoparp() { /* Protocol */
     if (!s)
       s = "";
     printf(" Autoreceive command (text):   %s\n", *s ? s : "(none)");
-    (void) shoextern();
+    (void)shoextern();
   }
 #endif /* NOPUSH */
 #endif /* XYZ_INTERNAL */
@@ -13902,7 +13901,7 @@ int zzstring(char *s, char **s2, int *n) {
 #endif                    /* NOSPL */
   depth++;                /* Sink to a new depth */
   if (depth > XXDEPLIM) { /* Too deep? */
-    (void) newerrmsg("Definition is circular or too deep");
+    (void)newerrmsg("Definition is circular or too deep");
     debug(F111, "zzstring", "Definition is circular or too deep", XXDEPLIM);
     depth = 0;
     *new = NUL;

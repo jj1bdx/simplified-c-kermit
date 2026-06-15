@@ -341,8 +341,7 @@ static int tn_wait_idx = 0;
 static int tn_wait_tmo = TN_TIMEOUT;
 
 #ifdef CKSPINNER
-void prtwait(state)
-int state;
+void prtwait(state) int state;
 {
   switch (state % 4) {
   case 0:

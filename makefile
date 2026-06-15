@@ -966,7 +966,7 @@ linuxa:
 	@echo 'IMPORTANT: Read the comments in the linux section of the'
 	@echo 'makefile if you have trouble.'
 	$(MAKE) xermit KTARGET=$${KTARGET:-$(@)} "CC=$(CC)" "CC2=$(CC)" \
-	"CFLAGS = -std=gnu17 -O -DLINUX -pipe -funsigned-char -DFNFLOAT -DCK_POSIX_SIG \
+	"CFLAGS = -O -DLINUX -pipe -funsigned-char -DFNFLOAT -DCK_POSIX_SIG \
 	-DCK_NEWTERM -DTCPSOCKET -DLINUXFSSTND -DNOCOTFMC -DPOSIX \
 	-DUSE_STRERROR $(KFLAGS)" "LNKFLAGS = $(LNKFLAGS)" \
 	"LIBS = $(LIBS) -lm"

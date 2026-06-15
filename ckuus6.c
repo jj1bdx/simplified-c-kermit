@@ -591,8 +591,8 @@ int niot = (sizeof(iotab) / sizeof(struct keytab));
 /* Variables and prototypes */
 
 static int doymdir(int);
-static int renameone(char *, char *, int, int, int, int, int, int,
-                     int, int, int, int, int);
+static int renameone(char *, char *, int, int, int, int, int, int, int, int,
+                     int, int, int);
 
 #ifdef NETCONN
 extern int nnetdir; /* How many network directories */
@@ -3205,11 +3205,12 @@ typegetline(int incs, int outcs, char *buf, int n) {
     mp = mbuf; /* Reset working buffer pointer */
                /*
                  Here we call xgnbyte() in a loop, having it return UCS-2 bytes.  In K95,
-                 we            use UCS-2 directly.  Elsewhere, we feed the UCS-2 bytes into xpnbyte()
-                 to            convert them to the desired target character set.  But since we are
-                 using            UCS-2, we have several sources for confusion: (1) xgnbyte() might
-                 return in            LE or BE byte order, with no explicit indication of what the
-                 order is; but            (2) xpnbyte() wants BE; but (3) Windows wants LE.
+                 we            use UCS-2 directly.  Elsewhere, we feed the UCS-2 bytes into
+                 xpnbyte()            to            convert them to the desired target character set.
+                 But since we are            using            UCS-2, we have several sources for
+                 confusion: (1) xgnbyte() might            return in            LE or BE byte order,
+                 with no explicit indication of what the            order is; but            (2)
+                 xpnbyte() wants BE; but (3) Windows wants LE.
                */
     while (1) {
       if (typ_int) /* Quit if interrupted */
@@ -3315,8 +3316,7 @@ dointerpret:
   return (x < 0 ? -1 : len);
 }
 
-void
-tytrap(int foo) /* TYPE interrupt trap */
+void tytrap(int foo) /* TYPE interrupt trap */
 /* tytrap */ {
 #ifdef __EMX__
   signal(SIGINT, SIG_ACK);
@@ -3344,7 +3344,7 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   extern int ucsbom;
 #endif /* UNICODE */
 
-  void (*oldsig)();
+  void (*oldsig)(int);
 
   if (!file)
     file = "";
@@ -4163,7 +4163,7 @@ int dogrep() {
           int len = 0; /* WHAT IS LEN FOR? */
           debug(F100, "GREP adding line to macro", "", 0);
           len = ckstrncat(macrodef, line, CKMAXPATH);
-          (void) ckstrncat(macrodef, "\n", CKMAXPATH);
+          (void)ckstrncat(macrodef, "\n", CKMAXPATH);
           continue;
         }
 #endif /* NOSPL */
@@ -5656,7 +5656,7 @@ again:
         while (*p++) {
           if (ISDIRSEP(*p))
             p2 = p;
-        }          /* Just the name */
+        } /* Just the name */
         if (!p2) { /* name had no slashes in it */
           p2 = name;
           ckstrncat(tmpfile, STRDIRSEP, CKMAXPATH);
@@ -5684,7 +5684,7 @@ again:
         while (*p++) {
           if (ISDIRSEP(*p))
             p2 = p;
-        }          /* Just the name */
+        } /* Just the name */
         if (!p2) { /* name had no slashes in it */
           p2 = name;
           ckstrncat(backupfile, STRDIRSEP, CKMAXPATH);
@@ -8738,14 +8738,14 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         case 1: /* Anchored at beginning */
           if (!ckstrcmp(bp[1], bp[0], len1, honorcase)) {
             x = ckstrncpy(new, bp[2], size);
-            (void) ckstrncpy(new + x, bp[0] + len1, size - x);
+            (void)ckstrncpy(new + x, bp[0] + len1, size - x);
             replaced = 1;
           }
           break;
         case 2: /* Anchored at end */
           if (!ckstrcmp(bp[1], bp[0] + y, len1, honorcase)) {
             x = ckstrncpy(new, bp[0], y + 1);
-            (void) ckstrncpy(new + y, bp[2], size - x);
+            (void)ckstrncpy(new + y, bp[2], size - x);
             replaced = 1;
           }
           break;
@@ -8765,19 +8765,19 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         occur = 0 - occur;
         s0 = (char *)malloc(len0 + 1); /* Reverse original string */
         if (s0) {
-          (void) gnirts(bp[0], s0, len0 + 1);
+          (void)gnirts(bp[0], s0, len0 + 1);
           bp[0] = s0;
         } else
           return (0);
         s1 = (char *)malloc(len1 + 1); /* Reverse target string */
         if (s1) {
-          (void) gnirts(bp[1], s1, len1 + 1);
+          (void)gnirts(bp[1], s1, len1 + 1);
           bp[1] = s1;
         } else
           return (0);
         s2 = (char *)malloc(len2 + 1); /* Reverse replacement string */
         if (s2) {
-          (void) gnirts(bp[2], s2, len2 + 1);
+          (void)gnirts(bp[2], s2, len2 + 1);
           bp[2] = s2;
         } else
           return (0);
@@ -8816,7 +8816,7 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         debug(F110, "RENAMEONE new1", new, 0);
         x = (int)strlen(new); /* Unreverse the result */
         if ((p = (char *)malloc(x + 2))) {
-          (void) gnirts(new, p, x + 2);
+          (void)gnirts(new, p, x + 2);
           debug(F110, "RENAMEONE new2", new, 0);
           ckstrncpy(new, p, x + 2);
           free(p);
@@ -8846,9 +8846,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
     }
     if (all || flag < 3) {          /* Not skipping or not mixed case */
       if (casing == 1 && flag != 1) /* Change case to lower */
-        (void) cklower(new);
+        (void)cklower(new);
       else if (casing == 2 && flag != 2) /* Change case to upper */
-        (void) ckupper(new);
+        (void)ckupper(new);
     }
   }
   if (*destdir && !arg2isfile) { /* Moving without renaming */

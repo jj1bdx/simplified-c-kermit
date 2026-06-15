@@ -1511,7 +1511,7 @@ int conect() {
 
 #ifndef NOCSETS
       if (inesc[1] == ES_NORMAL) { /* If not inside escape seq.. */
-        /* Translate character sets */
+                                   /* Translate character sets */
 #ifdef UNICODE
         int x;
         if (unicode == 1) { /* Remote is UTF-8 */

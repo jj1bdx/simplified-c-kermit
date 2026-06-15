@@ -171,7 +171,7 @@ extern int addlist;
 #endif /* NOMSEND */
 
 int lslook(unsigned int b); /* Locking Shift Lookahead */
-int szeof(CHAR * s);
+int szeof(CHAR *s);
 void fnlist(void);
 #endif /* NOXFER */
 
@@ -1637,7 +1637,7 @@ static int bgetpkt(int bufmax) {
     }
     if (xxcq) {
       *dp++ = myctlq;
-    }           /* Control prefix */
+    } /* Control prefix */
     *dp++ = rt; /* Finally, the character itself */
     rt = rnext; /* Next character is now current. */
 
@@ -1772,7 +1772,7 @@ static int xlaptr = 0;
 */
 int xgnbyte(int tcs, int fcs, int (*fn)(void))
 /* xgnbyte */ {
-  int(*xx)(USHORT) = NULL;
+  int (*xx)(USHORT) = NULL;
   int haveuc = 0; /* Flag for have Unicode character */
 #ifdef KANJI
   int havesj = 0; /* Have Shift-JIS character */
@@ -2705,7 +2705,7 @@ int getpkt(int bufmax, int xlate) /* Fill one packet buffer */
     if (xxls) {
       *dp++ = myctlq;
       *dp++ = xxls;
-    }          /* Locking shift */
+    } /* Locking shift */
     odp2 = dp; /* (Save this place) */
     if (xxdl) {
       *dp++ = myctlq;
@@ -2720,7 +2720,7 @@ int getpkt(int bufmax, int xlate) /* Fill one packet buffer */
     } /* Single shift */
     if (xxcq) {
       *dp++ = myctlq;
-    }           /* Control prefix */
+    } /* Control prefix */
     *dp++ = rt; /* Finally, the character itself */
 
     if (rpt == 1) { /* Exactly two copies? */
@@ -4708,7 +4708,8 @@ int spar(CHAR *s) /* Set parameters */
     t = s[9];                    /* Get its contents. */
                                  /*
                                    If I'm sending files, then I'm reading these parameters from an ACK, and
-                                   so                              this character must agree with what I sent.
+                                   so                              this character must agree with what I
+                                   sent.
                                  */
     if (rptena) {                /* If enabled ... */
       if ((char)rcvtyp == 'Y') { /* Sending files, reading ACK. */

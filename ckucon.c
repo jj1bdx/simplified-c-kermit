@@ -467,8 +467,7 @@ static jmp_buf sig_env;
 #endif /* CK_POSIX_SIG */
 
 static void /* CK_FORK_SIG handling in child ... */
-forkint(foo)
-int foo;
+    forkint(foo) int foo;
 {
   /* It is important to disable CK_FORK_SIG before longjmp */
   signal(CK_FORK_SIG, SIG_IGN); /* Set to ignore CK_FORK_SIG */
@@ -511,8 +510,7 @@ static jmp_buf con_env;
   It reads a function code from the pipe that connects the two forks,
   then reads additional data from the pipe, then handles it.
 */
-static void pipeint(arg)
-int arg;
+static void pipeint(arg) int arg;
 { /* Dummy argument */
   int code, cx, x, i /* , n */;
 
@@ -894,7 +892,7 @@ static void concld() {
                        /* NOTREACHED */
 #ifndef IBMX25
         }
-#endif  /* IBMX25 */
+#endif /* IBMX25 */
         /* pause(); <--- SHOULD BE OBSOLETE NOW! */
         /* BECAUSE pause() is done inside of ck_sndmsg() */
       }
@@ -1412,7 +1410,8 @@ int conect() {
                                   are cases where a timer is left active and then goes off, taking a longjmp
                                   to nowhere after the program's stack has changed.  In any case, this is
                                   safe because the CONNECT module uses no timer of any kind, and no other
-                                  timer                               should be armed while Kermit is in CONNECT mode.
+                                  timer                               should be armed while Kermit is in
+                                  CONNECT mode.
                                 */
   ttimoff();                    /* Turn off any timer interrupts */
 
@@ -1775,9 +1774,10 @@ int conect() {
                empty its input buffers by reading all available characters and either
                echoing them on the terminal screen or saving them for future use in the
                parent.  The latter case happens during APC processing - see the code
-               around          CEV_APC occurrences to see how the child passes its ibuf etc to
-               parent via          xpipe, for preservation until the next entry to this module, to
-               ensure that          no characters are lost between CONNECT sessions.
+               around          CEV_APC occurrences to see how the child passes its ibuf
+               etc to          parent via          xpipe, for preservation until the next entry to
+               this module, to          ensure that          no characters are lost between
+               CONNECT sessions.
              */
 
     /*
@@ -1843,9 +1843,9 @@ int conect() {
          communication  path: the connection from the keyboard to C-Kermit, and
          from C-Kermit to  the remote computer.  The treatment of the 8th bit of
          keyboard characters  is governed by SET COMMAND BYTESIZE (cmdmsk).  The
-         treatment of the 8th bit  of characters sent to the remote is governed by
-         SET TERMINAL BYTESIZE  (cmask).   This distinction was introduced in edit
-         5A(164).
+         treatment of the 8th bit  of characters sent to the remote is governed
+         by  SET TERMINAL BYTESIZE  (cmask).   This distinction was introduced in
+         edit  5A(164).
        */
       while (active) {
 #ifndef NOSETKEY
@@ -2269,7 +2269,7 @@ void doesc(char c)
     case 'r': /* Reset the X.25 virtual circuit */
     case '\022':
       if (network && (nettype == NET_SX25 || nettype == NET_IX25))
-        (void) x25reset(0, 0);
+        (void)x25reset(0, 0);
       conol("\r\n");
       return;
 #endif /* ANYX25 */
