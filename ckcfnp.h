@@ -6,7 +6,13 @@
 
   Prototypes for functions that previously were not prototyped.
   Used only for ANSI-C builds in which __STDC__ is defined.
-  ckcfnp.h must be included in each C source file as the LAST #include.
+  ckcfnp.h was historically included as the LAST #include in each C source
+  file, because it references types and symbols defined in other headers.
+  That ordering is no longer required: as of the 2023 updates noted below it
+  self-includes its own dependencies (ckcdeb.h, ckcker.h, ckucmd.h, ckuusr.h,
+  all guarded against multiple inclusion), so it is self-contained regardless
+  of include position.  This matters because clang-format's SortIncludes
+  (enabled 2026-06-15) may sort it ahead of those headers at the include site.
   Prototype format: return-type function-name ( arguments );
   If no arguments, "void" appears in the parentheses, e.g. "( void )".
   If one argument, its type appears, e.g. "( int )".
