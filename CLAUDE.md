@@ -57,6 +57,12 @@ make wart
 make ckcpro.c
 ```
 
+### Editor tooling: clangd / clang-format
+
+`.clangd` and `.clang-tidy` (both git-tracked) configure clangd for editors such as Helix. There is no `compile_commands.json`/`bear`: every `.c`/`.h` lives in one flat directory and compiles with identical flags, so `.clangd`'s `CompileFlags.Add` covers the whole tree. **Keep it in sync with the `linux` target's `CFLAGS`** — it mirrors that target's `-std=gnu17 -funsigned-char` plus the platform `-D` defines (`-DLINUX -DFNFLOAT -DCK_POSIX_SIG -DCK_NEWTERM -DTCPSOCKET -DLINUXFSSTND -DNOCOTFMC -DPOSIX -DUSE_STRERROR`) so clangd evaluates the live `#ifdef` branches. It deliberately omits `-Wall`/`-Wextra` (the build uses neither, and they only produced unused-variable/sign-compare lint noise on this old code) and the codegen-only `-O`/`-pipe`. `.clang-tidy` pins clang-tidy to `-*,clang-diagnostic-*` so it adds no lint beyond the compiler's own diagnostics. These files are editor-only — the makefile references neither, so they cannot affect the build. (Note: `clangd --check`'s "N errors" count is its internal refactoring self-tests, not code diagnostics.)
+
+`.clang-format` also exists; see the `ckuver.h` note above for the byte-identical reformatting workflow (verify reformatting via `SOURCE_DATE_EPOCH`-fixed rebuilds; keep `InsertBraces: false`).
+
 ## Code conventions
 
 The code is intentionally written in a conservative, highly portable C style (the project predates and deliberately avoids autoconf and modern toolchain assumptions). It now assumes an ANSI/ISO C compiler — `CK_ANSIC` is treated as always defined and the K&R fallback paths have been removed (see above) — but otherwise keeps the original portable idiom. Match the existing style: feature selection via `#ifdef` blocks keyed off platform/feature macros, `/* */` comments, conservative C constructs. `ckcdeb.h` is the master header included everywhere (platform definitions, debug macros); `ckcker.h` holds Kermit protocol symbols.
