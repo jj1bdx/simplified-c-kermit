@@ -592,10 +592,10 @@ static sig_t oldintr;
 
 /* Prototypes for static functions defined in ckcftp.c */
 
-static VOID cancel_remote(int);
-static VOID changetype(int, int);
-static VOID dbtime(char *, struct tm *);
-static VOID ftscreen(int, char, CK_OFF_T, char *);
+static void cancel_remote(int);
+static void changetype(int, int);
+static void dbtime(char *, struct tm *);
+static void ftscreen(int, char, CK_OFF_T, char *);
 static char *ftp_hookup(char *, int, int);
 static char *radix_error(int);
 static char *strval(char *, char *);
@@ -614,7 +614,7 @@ static int getfile(char *, char *, int, int, char *, int, int, int);
 static int getreply(int, int, int, int, int);
 static int ispathsep(int);
 static int looping_read(int, register char *, register int);
-static int looping_write(int, register CONST char *, int);
+static int looping_write(int, register const char *, int);
 static int openftp(char *, int);
 static int putfile(int, char *, char *, int, int, char *, char *, char *, int,
                    int, int, int, int, int, int);
@@ -1349,11 +1349,11 @@ static char *radix_error(int);
 static char *ftp_hookup(char *, int, int);
 static CHAR *remote_files(int, CHAR *, CHAR *, int);
 
-static VOID mlsreset(void);
-static VOID secure_error(char *fmt, ...);
-static VOID lostpeer(void);
-static VOID cancel_remote(int);
-static VOID changetype(int, int);
+static void mlsreset(void);
+static void secure_error(char *fmt, ...);
+static void lostpeer(void);
+static void cancel_remote(int);
+static void changetype(int, int);
 
 static sigtype cmdcancel(int);
 
@@ -1401,7 +1401,7 @@ char ftplogbuf[CXLOGBUFL] = {NUL, NUL}; /* Connection Log */
 int ftplogactive = 0;
 long ftplogprev = 0L;
 
-VOID ftplogend() {
+void ftplogend() {
   extern int dialog;
   extern char diafil[];
   long d1, d2, t1, t2;
@@ -1450,7 +1450,7 @@ VOID ftplogend() {
   }
 }
 
-VOID dologftp() {
+void dologftp() {
   ftplogend(); /* Previous session not closed out? */
   ftplogprev = 0L;
   ftplogactive = 1; /* Record is active */
@@ -1708,7 +1708,7 @@ int ftpisloggedin() { return (connected ? loggedin : 0); }
 
 int ftpissecure() { return ((ftp_dpl == FPL_CLR && !ssl_ftp_proxy) ? 0 : 1); }
 
-static VOID ftscreen(int n, char c, CK_OFF_T z, char *s) {
+static void ftscreen(int n, char c, CK_OFF_T z, char *s) {
   if (displa && fdispla && !backgrd && !quiet && !out2screen) {
     if (!dpyactive) {
       ckscreen(SCR_PT, 'S', (CK_OFF_T)0, "");
@@ -2125,7 +2125,7 @@ xopenftp:
   return (rc);
 }
 
-VOID /* 12 Aug 2007 */
+void /* 12 Aug 2007 */
 doftpglobaltype(int x) {
   ftp_xfermode = XMODE_M; /* Set manual FTP transfer mode */
   ftp_typ = x;            /* Used by top-level BINARY and */
@@ -2648,7 +2648,7 @@ xcwd:
 
 #ifdef DOUPDATE
 #ifdef DEBUG
-static VOID dbtime(char *s, struct tm *xx) /* Write struct tm to debug log */
+static void dbtime(char *s, struct tm *xx) /* Write struct tm to debug log */
 {
   if (deblog) {
     debug(F111, "ftp year ", s, xx->tm_year);
@@ -2704,7 +2704,7 @@ static int tmcompare(struct tm *xx, struct tm *yy) {
 #endif /* DOUPDATE */
 
 #ifndef HAVE_TIMEGM             /* For platforms that do not have timegm() */
-static CONST int MONTHDAYS[] = {/* Number of days in each month. */
+static const int MONTHDAYS[] = {/* Number of days in each month. */
                                 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 /* Macro for whether a given year is a leap year. */
@@ -8573,7 +8573,7 @@ static int ftpcmd(char *cmd, char *arg, int lcs, int rcs, int vbm) {
   return (r);
 }
 
-static VOID lostpeer() {
+static void lostpeer() {
   debug(F100, "lostpeer", "", 0);
   if (connected) {
     if (csocket != -1) {
@@ -8919,7 +8919,7 @@ static struct keytab ftyptab[] = {{"CDIR", FTYP_CDIR, 0},
                                   {"PDIR", FTYP_PDIR, 0}};
 static int nftyptab = (sizeof(ftyptab) / sizeof(struct keytab));
 
-static VOID parsefeat(char *s) /* Parse a FEATURE response */
+static void parsefeat(char *s) /* Parse a FEATURE response */
 {
   char kwbuf[8];
   int i, x;
@@ -9356,7 +9356,7 @@ static sigtype cancelsend(int sig) {
   longjmp(sendcancel, 1);
 }
 
-static VOID secure_error(char *fmt, ...) {
+static void secure_error(char *fmt, ...) {
   va_list ap;
 
   va_start(ap, fmt);
@@ -9370,7 +9370,7 @@ static VOID secure_error(char *fmt, ...) {
  * without changing our notion of the type for data transfers.
  * Used to change to and from ascii for listings.
  */
-static VOID changetype(int newtype, int show) {
+static void changetype(int newtype, int show) {
   int rc;
   char *s;
 
@@ -9397,7 +9397,7 @@ static VOID changetype(int newtype, int show) {
 
 /* PUT a file.  Returns -1 on error, 0 on success, 1 if file skipped */
 
-static VOID doftpsend(void *threadinfo) {
+static void doftpsend(void *threadinfo) {
 #ifdef CK_LOGIN
 #ifdef IKSD
 #endif /* IKSD */
@@ -9475,7 +9475,7 @@ static VOID doftpsend(void *threadinfo) {
   ftpsndret = 0;
 }
 
-static VOID failftpsend(void *threadinfo) {
+static void failftpsend(void *threadinfo) {
 #ifdef CK_LOGIN
 #ifdef IKSD
 #endif /* IKSD */
@@ -9515,7 +9515,7 @@ static VOID failftpsend(void *threadinfo) {
   }
 }
 
-static VOID failftpsend2(void *threadinfo) {
+static void failftpsend2(void *threadinfo) {
 #ifdef CK_LOGIN
 #ifdef IKSD
 #endif /* IKSD */
@@ -9578,7 +9578,7 @@ static VOID failftpsend2(void *threadinfo) {
   }
 }
 
-static VOID doftpsend2(void *threadinfo) {
+static void doftpsend2(void *threadinfo) {
   register int c, d = 0;
   int n, x, notafile, unique = 0;
   char *buf, *bufp;
@@ -9942,7 +9942,7 @@ static struct xx_ftprecv ftprecv;
 
 static int ftprecvret = 0;
 
-static VOID failftprecv(VOID *threadinfo) {
+static void failftprecv(void *threadinfo) {
 
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -9981,7 +9981,7 @@ static VOID failftprecv(VOID *threadinfo) {
   return;
 }
 
-static VOID doftprecv(VOID *threadinfo) {
+static void doftprecv(void *threadinfo) {
 #ifdef CK_LOGIN
 #ifdef IKSD
 #endif /* IKSD */
@@ -10012,7 +10012,7 @@ static VOID doftprecv(VOID *threadinfo) {
   ftprecvret = 0;
 }
 
-static VOID failftprecv2(VOID *threadinfo) {
+static void failftprecv2(void *threadinfo) {
 #ifdef CK_LOGIN
 #ifdef IKSD
 #endif /* IKSD */
@@ -10099,7 +10099,7 @@ static VOID failftprecv2(VOID *threadinfo) {
   }
 }
 
-static VOID doftprecv2(VOID *threadinfo) {
+static void doftprecv2(void *threadinfo) {
   register int c, d;
   CK_OFF_T bytes = (CK_OFF_T)0;
   int bare_lfs = 0;
@@ -10900,7 +10900,7 @@ int sig;
   cancelfile++;
 }
 
-static VOID pswitch(flag)
+static void pswitch(flag)
 int flag;
 {
   extern int proxy;
@@ -11150,7 +11150,7 @@ cancel:
 }
 #endif /* FTP_PROXY */
 
-static VOID cancel_remote(int din) {
+static void cancel_remote(int din) {
   CHAR buf[FTP_BUFSIZ];
   int x, nfnd;
 #ifdef BSDSELECT
@@ -11535,7 +11535,7 @@ bad:
   return ((char *)0);
 }
 
-static VOID ftp_init() {
+static void ftp_init() {
   int i, n;
 
   /* The purpose of the initial REST 0 is not clear, but other FTP */
@@ -11932,7 +11932,7 @@ static int mlsdepth = 0; /* Temp file stack depth */
 static FILE *tmpfilptr[MLSDEPTH + 1] = {NULL, NULL}; /* Temp file pointers */
 static char *tmpfilnam[MLSDEPTH + 1] = {NULL, NULL}; /* Temp file names */
 
-static VOID mlsreset() { /* Reset MGET temp-file stack */
+static void mlsreset() { /* Reset MGET temp-file stack */
   int i;
   for (i = 0; i <= mlsdepth; i++) {
     if (tmpfilptr[i]) {
@@ -12300,7 +12300,7 @@ typedef long ftp_int32;
 #ifndef looping_write
 #define ftp_int32 int
 #define ftp_uint32 unsigned int
-static int looping_write(int fd, register CONST char *buf, int len) {
+static int looping_write(int fd, register const char *buf, int len) {
   int cc;
   register int wrlen = len;
   do {

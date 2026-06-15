@@ -205,7 +205,7 @@ extern int tcp_keepalive;
 #endif /* NETCONN */
 
 /* static function prototypes - fdc 30 November 2022 */
-static VOID evalerr(char *);
+static void evalerr(char *);
 static char *fneval(char *, char *[], int, char *);
 static char *dokwval(char *, char *);
 static char *findinpath(char *);
@@ -236,7 +236,7 @@ extern char apcbuf[];
 extern char evalbuf[]; /* EVALUATE result */
 extern char uidbuf[], pwbuf[], prmbuf[];
 static char *fneval(char *, char *[], int, char *);
-static VOID myflsh(void);
+static void myflsh(void);
 static char *getip(char *);
 int delta2sec(char *, long *);
 
@@ -989,7 +989,7 @@ struct keytab disptb[] = {/* Log file disposition */
 char math_pi[] = "3.1415926535897932384626433832795";
 char math_e[] = "2.7182818284590452353602874713527";
 
-VOID initfloat() {
+void initfloat() {
   char *buf = NULL;
   int i, x, y;
   /*
@@ -1084,7 +1084,7 @@ trtrap(int foo) /* TRANSMIT interrupt trap */
 #endif /* NOICP */
 
 #ifdef UNIX
-VOID getexedir() {
+void getexedir() {
   extern char *xarg0;
   long xx;
   /*
@@ -1180,7 +1180,7 @@ static int x_prescan = 0;
   problems & confusion, so I commented out the second call.  This issue might
   need to be revisited.)
 */
-VOID prescan(int dummy) /* Arg is ignored. */
+void prescan(int dummy) /* Arg is ignored. */
 {
   extern int howcalled;
   int yargc;
@@ -2993,10 +2993,10 @@ int traopn(char *s, int disp) {
   zclose(ZTFILE);
 
   if (tlogfmt == 2) { /* FTP format is special... */
-    VOID doiklog();
+    void doiklog();
     if (!disp)            /* Append? */
       if (zchki(s) > -1)  /* No - does file exist? */
-        (VOID) zdelet(s); /* Yes - delete it. */
+        (void) zdelet(s); /* Yes - delete it. */
     xferlog = 1;
     ckstrncpy(trafil, s, CKMAXPATH);
     makestr(&xferfile, s);
@@ -3339,7 +3339,7 @@ char *shoxm(void) {
 }
 
 #ifndef NOXFER
-VOID /* SHOW TRANSFER */
+void /* SHOW TRANSFER */
 shoxfer() {
   extern int docrc, usepipes, xfrxla, whereflg;
   extern char *xfrmsg;
@@ -3396,7 +3396,7 @@ shoxfer() {
 }
 #endif /* NOXFER */
 
-VOID shoflow() {
+void shoflow() {
   int i, x;
   extern int cxflow[], cxtype, ncxname, nfloname, autoflow;
   extern char *cxname[];
@@ -3579,7 +3579,7 @@ int n;
 #endif /* IBMX25 */
 #endif /* ANYX25 */
 
-VOID shoparc() {
+void shoparc() {
   extern int reliable, stopbits, clsondisc;
   char *s;
   long zz;
@@ -4778,12 +4778,12 @@ int shonet() {
 #endif /* NONET */
 
 #ifndef NODIAL
-VOID shodial() {
+void shodial() {
   if (mdmtyp >= 0 || local != 0)
     doshodial();
 }
 
-VOID shods(char *s) /* Show a dial-related string */
+void shods(char *s) /* Show a dial-related string */
 {
   char c;
   if (s == NULL || !(*s)) { /* Empty? */
@@ -5095,7 +5095,7 @@ static char *pathval(int x) {
   }
 }
 
-VOID shofil() {
+void shofil() {
   char *s;
   int i = 0, n = 1;
   extern char *ifdnam[];
@@ -5464,7 +5464,7 @@ VOID shofil() {
 }
 
 #ifndef NOXFER
-VOID shoparp() { /* Protocol */
+void shoparp() { /* Protocol */
   extern int docrc, skipbup;
   char *s;
 
@@ -5649,7 +5649,7 @@ VOID shoparp() { /* Protocol */
 #else
 #ifndef NOPUSH
   if (protocol != PROTO_K) {
-    VOID shoextern(void);
+    void shoextern(void);
     printf("\nExecuted by external commands:\n\n");
     s = ptab[protocol].p_b_scmd;
     if (!s)
@@ -5675,7 +5675,7 @@ VOID shoparp() { /* Protocol */
     if (!s)
       s = "";
     printf(" Autoreceive command (text):   %s\n", *s ? s : "(none)");
-    (VOID) shoextern();
+    (void) shoextern();
   }
 #endif /* NOPUSH */
 #endif /* XYZ_INTERNAL */
@@ -5689,14 +5689,14 @@ VOID shoparp() { /* Protocol */
 extern int s_cset, r_cset, axcset[], afcset[];
 extern struct keytab xfrmtab[];
 
-VOID shoparl() {
+void shoparl() {
   printf("\nLanguage-specific translation rules: %s\n",
          language == L_USASCII ? "none" : langs[language].description);
   shocharset();
   printf("\n\n");
 }
 
-VOID shocharset() {
+void shocharset() {
   int x;
 
 #ifndef NOXFER
@@ -5737,7 +5737,7 @@ VOID shocharset() {
            "selections.)\n");
 }
 
-VOID showassoc() {
+void showassoc() {
   int i, k, n = 4;
   char *s;
   printf("\nFor incoming files:\n\n");
@@ -5800,7 +5800,7 @@ VOID showassoc() {
 }
 #endif /* NOCSETS */
 
-VOID shopar() {
+void shopar() {
   printf("Show what?  (Type \"show ?\" for a list of possibilities.)\n");
 }
 #endif /* NOSHOW */
@@ -6055,7 +6055,7 @@ static int sescnt = 0;        /* Number of characters buffered */
 
 extern int debses; /* TERMINAL DEBUG ON/OFF */
 
-static VOID /* Flush INPUT echoing */
+static void /* Flush INPUT echoing */
 myflsh() {  /* and session log output. */
   if (concnt > 0) {
     if (debses) { /* Terminal debugging? */
@@ -7335,7 +7335,7 @@ char *fpformat(CKFLOAT fpresult, int places, int round) {
 }
 #endif /* CKFLOAT */
 
-static VOID evalerr(char *fn) {
+static void evalerr(char *fn) {
   if (fndiags) {
     if (divbyzero)
       ckmakmsg(fnval, FNVALL, "<ERROR:DIVIDE_BY_ZERO:\\f", fn, "()>", NULL);
@@ -13902,7 +13902,7 @@ int zzstring(char *s, char **s2, int *n) {
 #endif                    /* NOSPL */
   depth++;                /* Sink to a new depth */
   if (depth > XXDEPLIM) { /* Too deep? */
-    (VOID) newerrmsg("Definition is circular or too deep");
+    (void) newerrmsg("Definition is circular or too deep");
     debug(F111, "zzstring", "Definition is circular or too deep", XXDEPLIM);
     depth = 0;
     *new = NUL;

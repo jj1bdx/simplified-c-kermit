@@ -4163,7 +4163,7 @@ int dogrep() {
           int len = 0; /* WHAT IS LEN FOR? */
           debug(F100, "GREP adding line to macro", "", 0);
           len = ckstrncat(macrodef, line, CKMAXPATH);
-          (VOID) ckstrncat(macrodef, "\n", CKMAXPATH);
+          (void) ckstrncat(macrodef, "\n", CKMAXPATH);
           continue;
         }
 #endif /* NOSPL */
@@ -4319,7 +4319,7 @@ static char **dirlist = NULL;
 static int ndirlist = 0;
 
 /* This is part of a hack to allow multiple file specifications */
-static VOID freedirlist() {
+static void freedirlist() {
   if (dirlist) {
     int i;
     for (i = 0; i < ndirlist; i++) {
@@ -4504,7 +4504,7 @@ static char *dirmsg = NULL;
 static int dirmsglen = 0;
 
 #ifndef NOSHOW
-VOID showdiropts() {
+void showdiropts() {
   int x = 0;
   extern int optlines;
   prtopt(&optlines, "DIRECTORY");
@@ -6382,7 +6382,7 @@ static int del_pag = -1;
 static int del_ask = 0;
 
 #ifndef NOSHOW
-VOID showdelopts() {
+void showdelopts() {
   int x = 0;
   extern int optlines;
   prtopt(&optlines, "");
@@ -7031,7 +7031,7 @@ xdelete:
 #endif /* NOFRILLS */
 
 #ifndef NOSPL /* The ELSE command */
-VOID pushqcmd(char *);
+void pushqcmd(char *);
 
 int doelse() {
   if (!ifcmd[cmdlvl]) {
@@ -8738,14 +8738,14 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         case 1: /* Anchored at beginning */
           if (!ckstrcmp(bp[1], bp[0], len1, honorcase)) {
             x = ckstrncpy(new, bp[2], size);
-            (VOID) ckstrncpy(new + x, bp[0] + len1, size - x);
+            (void) ckstrncpy(new + x, bp[0] + len1, size - x);
             replaced = 1;
           }
           break;
         case 2: /* Anchored at end */
           if (!ckstrcmp(bp[1], bp[0] + y, len1, honorcase)) {
             x = ckstrncpy(new, bp[0], y + 1);
-            (VOID) ckstrncpy(new + y, bp[2], size - x);
+            (void) ckstrncpy(new + y, bp[2], size - x);
             replaced = 1;
           }
           break;
@@ -8765,19 +8765,19 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         occur = 0 - occur;
         s0 = (char *)malloc(len0 + 1); /* Reverse original string */
         if (s0) {
-          (VOID) gnirts(bp[0], s0, len0 + 1);
+          (void) gnirts(bp[0], s0, len0 + 1);
           bp[0] = s0;
         } else
           return (0);
         s1 = (char *)malloc(len1 + 1); /* Reverse target string */
         if (s1) {
-          (VOID) gnirts(bp[1], s1, len1 + 1);
+          (void) gnirts(bp[1], s1, len1 + 1);
           bp[1] = s1;
         } else
           return (0);
         s2 = (char *)malloc(len2 + 1); /* Reverse replacement string */
         if (s2) {
-          (VOID) gnirts(bp[2], s2, len2 + 1);
+          (void) gnirts(bp[2], s2, len2 + 1);
           bp[2] = s2;
         } else
           return (0);
@@ -8816,7 +8816,7 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
         debug(F110, "RENAMEONE new1", new, 0);
         x = (int)strlen(new); /* Unreverse the result */
         if ((p = (char *)malloc(x + 2))) {
-          (VOID) gnirts(new, p, x + 2);
+          (void) gnirts(new, p, x + 2);
           debug(F110, "RENAMEONE new2", new, 0);
           ckstrncpy(new, p, x + 2);
           free(p);
@@ -8846,9 +8846,9 @@ static int renameone(char *old, char *new, int replacing, int casing, int all,
     }
     if (all || flag < 3) {          /* Not skipping or not mixed case */
       if (casing == 1 && flag != 1) /* Change case to lower */
-        (VOID) cklower(new);
+        (void) cklower(new);
       else if (casing == 2 && flag != 2) /* Change case to upper */
-        (VOID) ckupper(new);
+        (void) ckupper(new);
     }
   }
   if (*destdir && !arg2isfile) { /* Moving without renaming */

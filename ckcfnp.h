@@ -47,8 +47,8 @@ MAINTYPE MAINNAME(int argc, char **argv);
 /* PROTOTYPES ADDED 11-14 April 2023... */
 
 int hasnopath(char *);
-VOID puschcmd(char *);
-VOID newerrmsg(char *);
+void puschcmd(char *);
+void newerrmsg(char *);
 char *getdm(int);
 
 /* PROTOTYPES ADDED 26 March 2023... */

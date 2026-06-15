@@ -829,7 +829,7 @@ int untabify(char *s1, char *s2, int max) {
   and is therefore freed.  Do NOT call this function with an uninitialized
   array, or with an array that has had any static elements assigned to it.
 */
-VOID makelist(char *s, char *list[], int len) {
+void makelist(char *s, char *list[], int len) {
   int i, n, q, bc = 0;
   char *p = NULL, *s2 = NULL;
   debug(F110, "makelist s", s, 0);
@@ -944,7 +944,7 @@ VOID makelist(char *s, char *list[], int len) {
 */
 int makestrlen = 0;
 
-VOID makestr(char **p, const char *s)
+void makestr(char **p, const char *s)
 /* makestr */ {
   int x = 0;
   char *q = NULL;
@@ -1005,7 +1005,7 @@ VOID makestr(char **p, const char *s)
 
 /*  X M A K E S T R  --  Non-destructive makestr() if s is NULL.  */
 
-VOID xmakestr(char **p, const char *s)
+void xmakestr(char **p, const char *s)
 /* xmakestr */ {
   if (s)
     makestr(p, s);
@@ -1017,7 +1017,7 @@ VOID xmakestr(char **p, const char *s)
 /* Copies n bytes from s to p, allowing for overlap. */
 /* For use when real memcpy() not available. */
 
-VOID ckmemcpy(char *p, char *s, int n) {
+void ckmemcpy(char *p, char *s, int n) {
   char *q = NULL;
   register int i;
   int x;
@@ -2014,7 +2014,7 @@ ckround(CKFLOAT fpnum, int places, char *obuf, int obuflen)
    in which case memory violations are possible, but C offers no defense
    against this, so no way to gracefully return an error code.
 */
-VOID sh_sort(char **s, char **p, int n, int k, int r, int c) {
+void sh_sort(char **s, char **p, int n, int k, int r, int c) {
   int m, i, j, x;
   char *t, *t1, *t2, *u = NULL;
 #ifdef CKFLOAT
@@ -2432,7 +2432,7 @@ hhmmss(long x)
    The intended of this routine is for filling in fixed-length record fields.
 */
 
-VOID lset(char *p, char *s, int n, int c) {
+void lset(char *p, char *s, int n, int c) {
   int x;
 #ifndef USE_MEMCPY
   int i;
@@ -2456,7 +2456,7 @@ VOID lset(char *p, char *s, int n, int c) {
 
 /* R S E T  --  Right-adjust s in p, left padding to length n with char c */
 
-VOID rset(char *p, char *s, int n, int c) {
+void rset(char *p, char *s, int n, int c) {
   int x;
 #ifndef USE_MEMCPY
   int i;

@@ -111,9 +111,9 @@ The remaining steps are in this module:
 #include "ckcsig.h" /* C-Kermit signal processing */
 
 /* static function prototypes - fdc 30 November 2022 */
-static VOID dologdial(char *);
-static VOID ttslow(char *, int);
-static VOID waitfor(char *);
+static void dologdial(char *);
+static void ttslow(char *, int);
+static void waitfor(char *);
 static int ddinc(int);
 static int dialfail(int);
 
@@ -398,20 +398,20 @@ static MDMINF *mp;
 static CHAR escbuf[6];
 static long mdmcapas;
 
-static VOID dreset(void);
+static void dreset(void);
 static int(*xx_ok)(int, int);
 static int ddinc(int);
 int dialhup(void);
 int getok(int, int);
 char *ck_time(void);
-static VOID ttslow(char *, int);
-static VOID waitfor(char *);
-static VOID dialoc(char);
+static void ttslow(char *, int);
+static void waitfor(char *);
+static void dialoc(char);
 static int didweget(char *, char *);
-static VOID spdchg(long);
+static void spdchg(long);
 static int dialfail(int);
-static VOID gethrw(void);
-static VOID gethrn(void);
+static void gethrw(void);
+static void gethrn(void);
 
 int dialudt = n_UDEF; /* Number of user-defined type */
 
@@ -4126,7 +4126,7 @@ static SIGTYP (*savalrm)(int); /* For saving alarm handler */
 static SIGTYP (*savint)(int);  /* For saving interrupt handler */
 
 #ifdef CKLOGDIAL
-static VOID dologdial(char *s) {
+static void dologdial(char *s) {
   char buf2[16];
   char *r = NULL;
   int x, m, n;
@@ -4236,7 +4236,7 @@ static int ddinc(int n) {
 #endif /* TNCODE */
 }
 
-static VOID ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
+static void ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
 {
 #ifdef TCPSOCKET
   extern int tn_nlm, tn_b_nlm;
@@ -4268,7 +4268,7 @@ static VOID ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
  * be received "in between".  This merely guarantees that the characters
  * ARE received, and in the order specified.
  */
-static VOID waitfor(char *s) {
+static void waitfor(char *s) {
   CHAR c, x;
   while ((c = *s++)) { /* while more characters remain... */
     do {               /* wait for the character */
@@ -4299,7 +4299,7 @@ static int didweget(char *s, char *r) /* Looks in string s for response r */
 
 /* R E S E T -- Reset alarms, etc. on exit. */
 
-static VOID dreset() {
+static void dreset() {
   debug(F100, "dreset resetting alarm and signal handlers", "", 0);
   alarm(0);
   signal(SIGALRM, savalrm); /* restore alarm handler */
@@ -4314,7 +4314,7 @@ static VOID dreset() {
   speed is not locked (i.e. DIAL SPEED-MATCHING is not ON), then change the
   device speed to the one given.
 */
-static VOID spdchg(long s)
+static void spdchg(long s)
 /* spdchg */ {
   int s2;
   if (!mdmspd)            /* If modem interface speed locked, */
@@ -4334,7 +4334,7 @@ static VOID spdchg(long s)
   Display all characters received from modem dialer through this routine,
   for consistent handling of carriage returns and linefeeds.
 */
-static VOID dialoc(char c) { /* dialoc */ /* Dial Output Character */
+static void dialoc(char c) { /* dialoc */ /* Dial Output Character */
   if (dialdpy) {
     if (c != LF)
       conoc(c); /* Don't echo LF */
@@ -4389,7 +4389,7 @@ char *getdm(int x) /* Return dial modifier */
 }
 #endif /* NOSPL */
 
-static VOID getdialmth() {
+static void getdialmth() {
   if (dialmauto && diallcc) {         /* If DIAL METHOD AUTO... */
     int i;                            /* and we know our area code... */
     for (i = 0; i < ndialtocc; i++) { /* First check Tone countries list */
@@ -4407,7 +4407,7 @@ static VOID getdialmth() {
   }
 }
 
-VOID /* Get dialing defaults from environment */
+void /* Get dialing defaults from environment */
 getdialenv() {
   char *p = NULL;
   int i, x;
@@ -6511,7 +6511,7 @@ int getok(int n, int strict) {
 
 /*  G E T H R N  --  Get Hayes Result Numeric  */
 
-static VOID gethrn() {
+static void gethrn() {
   char c;
   int x;
 /*
@@ -7258,7 +7258,7 @@ static VOID gethrn() {
   }
 }
 
-static VOID /* Get Hayes Result in Word mode */
+static void /* Get Hayes Result in Word mode */
 gethrw() {
   char *cptr, *s;
   long conspd;

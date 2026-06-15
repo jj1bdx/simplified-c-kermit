@@ -195,18 +195,18 @@ extern struct OFDB cmresult;
 
 int xxesc(char **);
 int cmrini(int);
-VOID cmsetp(char *);
-VOID cmsavp(char[], int);
+void cmsetp(char *);
+void cmsavp(char[], int);
 char *cmgetp(void);
-VOID prompt(xx_strp);
-VOID pushcmd(char *);
-VOID cmres(void);
-VOID cmini(int);
+void prompt(xx_strp);
+void pushcmd(char *);
+void cmres(void);
+void cmini(int);
 int cmgbrk(void);
 int cmgkwflgs(void);
 int cmpush(void);
 int cmpop(void);
-VOID untab(char *);
+void untab(char *);
 int cmnum(char *, char *, int, int *, xx_strp);
 int cmnumw(char *, char *, int, CK_OFF_T *, xx_strp);
 int cmofi(char *, char *, char **, xx_strp);
@@ -225,14 +225,14 @@ int cmswi(struct keytab[], int, char *, char *, xx_strp);
 int cmdate(char *, char *, char **, int, xx_strp);
 char *cmpeek(void);
 int cmfdb(struct FDB *);
-VOID cmfdbi(struct FDB *, int, char *, char *, char *, int, int, xx_strp,
+void cmfdbi(struct FDB *, int, char *, char *, char *, int, int, xx_strp,
             struct keytab *, struct FDB *);
 int chktok(char *);
 int cmcfm(void);
 int lookup(struct keytab[], char *, int, int *);
-VOID kwdhelp(struct keytab[], int, char *, char *, char *, int, int);
+void kwdhelp(struct keytab[], int, char *, char *, char *, int, int);
 int ungword(void);
-VOID unungw(void);
+void unungw(void);
 int cmdsquo(int);
 int cmdgquo(void);
 char *ckcvtdate(char *, int);
@@ -243,8 +243,8 @@ int cmdconchk(void);
 
 #ifdef CK_RECALL
 char *cmgetcmd(char *);
-VOID addcmd(char *);
-VOID cmaddnext(void);
+void addcmd(char *);
+void cmaddnext(void);
 #endif /* CK_RECALL */
 char *cmcvtdate(char *, int);
 char *cmdiffdate(char *, char *);

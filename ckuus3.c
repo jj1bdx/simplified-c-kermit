@@ -3171,7 +3171,7 @@ static char **sxresult = NULL; /* Result stack */
 
 /*  s h o s e x p  --  Show S-Expression info  */
 
-VOID shosexp() {
+void shosexp() {
   printf("\n");
   printf(" sexpression echo-result: %s\n", showooa(sexpecho));
   printf(" sexpression depth-limit: %d\n", sexpmaxdep);
@@ -4564,7 +4564,7 @@ static long cx_prev = 0L;     /* Elapsed time of previous session */
 #endif /* CKLOGDIAL */
 #endif /* NOLOCAL */
 
-VOID dologend() { /* Write record to connection log */
+void dologend() { /* Write record to connection log */
 #ifdef LOCUS
   extern int locus, autolocus;
 #endif /* LOCUS */
@@ -4816,7 +4816,7 @@ long dologshow(int fc) /* SHOW (current) CONNECTION */
   return (t2 > -1L ? t2 : 0L);
 }
 
-VOID dologline() {
+void dologline() {
   char *p;
   int n, m = 0;
 
@@ -4844,7 +4844,7 @@ VOID dologline() {
 }
 
 #ifdef NETCONN
-VOID dolognet() {
+void dolognet() {
   char *p, *s = "NET", *uu = uidbuf;
   char *port = "";
   int n, m, tcp = 0;
@@ -4931,7 +4931,7 @@ static int dialstr(char **p, char *msg) {
   return (success = 1);
 }
 
-VOID initmdm(int x) {
+void initmdm(int x) {
   MDMINF *p;
   int m;
 
@@ -6638,7 +6638,7 @@ static int setproto() { /* Select a file transfer protocol */
     'initproto'", referring to an invocation of it in this routine.  This
     extern statement silences the warning.  - fdc 6 May 2023
   */
-  extern VOID initproto(int, char *, char *, char *, char *, char *, char *,
+  extern void initproto(int, char *, char *, char *, char *, char *, char *,
                         char *);
 
 #ifdef XYZ_INTERNAL
@@ -6785,7 +6785,7 @@ int exp_handler = 0; /* These are exported */
 int exp_timo = DEF_EXP_TIMO;
 int exp_stderr = SET_AUTO;
 
-VOID shoextern() { /* Invoked by SHOW PROTOCOL */
+void shoextern() { /* Invoked by SHOW PROTOCOL */
   printf("\n External-protocol handler:         %s\n",
          exp_handler ? (exp_handler == 1 ? "pty" : "system") : "automatic");
   printf(" External-protocol timeout:         %d (sec)\n", exp_timo);
@@ -7604,7 +7604,7 @@ static struct keytab sftptab[] = {{
 static int nsftptab = (sizeof(sftptab) / sizeof(struct keytab)) - 1;
 #endif /* SFTP_BUILTIN */
 
-VOID shossh() {
+void shossh() {
 #ifdef SSHBUILTIN
   int i, n = 0, ssh_ver; /* ADD askmore()! */
 
@@ -8626,10 +8626,10 @@ static int dosetsftp() {
 }
 #endif /* SFTP_BUILTIN */
 
-VOID setexitwarn(int x) { xitwarn = x; }
+void setexitwarn(int x) { xitwarn = x; }
 
 #ifndef NOLOCAL
-VOID setdebses(int x) { debses = x; }
+void setdebses(int x) { debses = x; }
 #endif /* NOLOCAL */
 
 /*  D O P R M  --  Set a parameter.  */
@@ -11987,7 +11987,7 @@ int hupok(int x) /* Returns 1 if OK, 0 if not OK */
 }
 
 #ifndef NOSHOW
-VOID shoctl() { /* SHOW CONTROL-PREFIXING */
+void shoctl() { /* SHOW CONTROL-PREFIXING */
 #ifdef CK_SPEED
   int i;
   printf("\ncontrol quote = %d, applied to (0 = unprefixed, 1 = prefixed):\n\n",
@@ -12012,7 +12012,7 @@ VOID shoctl() { /* SHOW CONTROL-PREFIXING */
 }
 
 #ifndef NOXFER
-VOID shodbl() { /* SHOW DOUBLE/IGNORE */
+void shodbl() { /* SHOW DOUBLE/IGNORE */
 #ifdef CKXXCHAR
   int i, n = 0;
   printf("\nSET SEND DOUBLE characters:\n");
@@ -12082,5 +12082,5 @@ int dorexx() {
 #endif /* CK_REXX */
 #endif /* NOPUSH */
 #else  /* NOICP */
-VOID dologend() { /* Dummy write record to connection log */ }
+void dologend() { /* Dummy write record to connection log */ }
 #endif /* NOICP */

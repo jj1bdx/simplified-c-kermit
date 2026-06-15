@@ -1,10 +1,10 @@
 /* Prototypes for static functions defined in ckcftp.c */
 
-static VOID bytswap(int *, int *);
-static VOID cancel_remote(int);
-static VOID changetype(int, int);
-static VOID dbtime(char *, struct tm *);
-static VOID ftscreen(int, char, CK_OFF_T, char *);
+static void bytswap(int *, int *);
+static void cancel_remote(int);
+static void changetype(int, int);
+static void dbtime(char *, struct tm *);
+static void ftscreen(int, char, CK_OFF_T, char *);
 static char *ftp_hookup(char *, int, int);
 static char *radix_error(int);
 static char *shopl(int);
@@ -26,7 +26,7 @@ static int getfile(char *, char *, int, int, char *, int, int, int);
 static int getreply(int, int, int, int, int);
 static int ispathsep(int);
 static int looping_read(int, register char *, register int);
-static int looping_write(int, register CONST char *, int);
+static int looping_write(int, register const char *, int);
 static int openftp(char *, int);
 static int putfile(int, char *, char *, int, int, char *, char *, char *, int,
                    int, int, int, int, int, int);

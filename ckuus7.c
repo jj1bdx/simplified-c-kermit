@@ -153,7 +153,7 @@ int sl_tn_saved = 0;
 extern int tn_wait_flg;
 #endif /* TNCODE */
 
-VOID slrestor(void) {
+void slrestor(void) {
   if (sl_uid_saved) {
     ckstrncpy(uidbuf, sl_uidbuf, UIDBUFLEN);
     sl_uid_saved = 0;
@@ -239,7 +239,7 @@ extern int nnets;
 extern int dirline;
 extern int nnetdir; /* Network services directory */
 extern char *netdir[];
-VOID ndreset(void);
+void ndreset(void);
 char *nh_p[MAXDNUMS + 1];     /* Network directory entry pointers */
 char *nh_p2[MAXDNUMS + 1];    /* Network directory entry nettype */
 char *nh_px[4][MAXDNUMS + 1]; /* Network-specific stuff... */
@@ -250,7 +250,7 @@ char *n_name = NULL; /* Network name pointer */
 #endif               /* NETCONN */
 
 int remtxt(char **);
-VOID rmsg(void);
+void rmsg(void);
 static int remcfm(void);
 
 extern int nopush;
@@ -1309,7 +1309,7 @@ static int pu_page = 0;
 #endif /* CK_TTGWSIZ */
 
 #ifndef NOSHOW
-VOID showpurgopts() { /* SHOW PURGE command options */
+void showpurgopts() { /* SHOW PURGE command options */
   int x = 0;
   extern int optlines;
   prtopt(&optlines, "PURGE");
@@ -2465,7 +2465,7 @@ int doputenv(char *s1, char *s2) {
   }
   ckmakmsg(t, TMPBUFSIZ, s1, "=", s2, NULL);
   debug(F111, "doputenv", t, nputenvs);
-  (VOID) makestr(&(putenvs[nputenvs]), t); /* Make a safe permananent copy */
+  (void) makestr(&(putenvs[nputenvs]), t); /* Make a safe permananent copy */
   if (!putenvs[nputenvs]) {
     printf("?PUTENV - memory allocation failure\n");
     return (-9);
@@ -2573,12 +2573,12 @@ char *getiact() {
 #endif /* CKTIDLE */
 
 #ifndef NOCSETS
-VOID setlclcharset(int x) {
+void setlclcharset(int x) {
   int i;
   tcsl = y; /* Local character set */
 }
 
-VOID setremcharset(int x, int z) {
+void setremcharset(int x, int z) {
   int i;
 
 #ifdef UNICODE
@@ -2594,7 +2594,7 @@ VOID setremcharset(int x, int z) {
 }
 #endif /* NOCSETS */
 
-VOID setcmask(int x) {
+void setcmask(int x) {
   if (x == 7) {
     cmask = 0177;
   } else if (x == 8) {
@@ -2604,7 +2604,7 @@ VOID setcmask(int x) {
 }
 
 #ifdef CK_AUTODL
-VOID setautodl(int x, int y) {
+void setautodl(int x, int y) {
   autodl = x;
   adl_ask = y;
 }
@@ -3592,7 +3592,7 @@ or text lines during transmission",
 #ifndef NOXFER
 /*  D O R M T  --  Do a remote command  */
 
-VOID rmsg() {
+void rmsg() {
   if (pflag && !quiet && fdispla != XYFD_N)
     printf(
 #ifdef CK_NEED_SIG
@@ -4863,7 +4863,7 @@ int setinp() {
 #endif /* NOSPL */
 
 #ifdef NETCONN
-VOID ndreset() {
+void ndreset() {
 #ifndef NODIAL /* This depends on DIAL... */
   int i = 0, j = 0;
   if (!ndinited) /* Don't free garbage... */
@@ -4884,7 +4884,7 @@ VOID ndreset() {
 #endif /* NODIAL */
 }
 
-VOID ndinit() { /* Net directory pointers */
+void ndinit() { /* Net directory pointers */
 #ifndef NODIAL  /* This depends on DIAL... */
   int i, j;
   if (ndinited++) /* Don't do this more than once. */
@@ -4903,7 +4903,7 @@ VOID ndinit() { /* Net directory pointers */
 
 #ifndef NODIAL
 #ifdef NETCONN
-VOID /* Get net defaults from environment */
+void /* Get net defaults from environment */
 getnetenv() {
   char *p = NULL;
 

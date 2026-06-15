@@ -58,8 +58,8 @@ int kactive = 0;			/* Kermit protocol is active */
 %states ipkt rfile rattr rdpkt ssinit ssfile ssattr ssdata sseof sseot
 %states serve generic get rgen ssopkt ropkt
 
-static VOID xxproto(void);
-static VOID wheremsg(void);
+static void xxproto(void);
+static void wheremsg(void);
 int wart(void);
 static int sgetinit(int,int);
 int sndspace(int);
@@ -102,7 +102,7 @@ int fackbug = 0;
 #ifdef STREAMING
 extern int streaming, streamok;
 
-static VOID
+static void
 streamon() {
     if (streamok) {
 	debug(F100,"streamon","",0);
@@ -202,7 +202,7 @@ static int p_save = -1;
 
 int whereflg = 1;			/* Unset with SET XFER REPORT */
 
-static VOID
+static void
 wheremsg() {
     extern int quiet;
     extern long filrej;
@@ -268,7 +268,7 @@ wheremsg() {
     }
 }
 
-static VOID
+static void
 rdebug() {
     if (server)
       debug(F111,"RESUME","server=1",justone);
@@ -2815,7 +2815,7 @@ int f_ctlp = 0;				/* Control-character prefix table */
   that saves any items that might be changed automatically by protocol
   negotiations and then restores them upon exit from protocol mode.
 */
-VOID
+void
 proto() {
     extern int b_save, f_save, c_save, ss_save, slostart, reliable, urclear;
 #ifndef NOCSETS
@@ -3024,7 +3024,7 @@ proto() {
 #endif /* NOLOCAL */
 }
 
-static VOID
+static void
 xxproto() {
     int x;
     long lx;
@@ -3578,7 +3578,7 @@ sgetinit(int reget, int xget)
 
 #include "ckcdeb.h"
 
-VOID
+void
 proto() {
     extern int success;
     success = 0;

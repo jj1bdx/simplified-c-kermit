@@ -251,7 +251,7 @@ int xkanjz(int (*)(char));
 int zkanjf(void);
 int zkanji(int (*)(void)); /* Kanji function prototypes */
 int zkanjz(void);
-VOID j7init(void); /* Initialize JIS-7 parser */
+void j7init(void); /* Initialize JIS-7 parser */
 int getj7(void);   /* Get next JIS-7 character */
 #endif /* KANJI */
 
@@ -259,11 +259,11 @@ int getj7(void);   /* Get next JIS-7 character */
 int cs_size(int);
 int cs_is_std(int);
 int cs_is_nrc(int);
-VOID setremcharset(int, int);
-VOID setlclcharset(int);
+void setremcharset(int, int);
+void setlclcharset(int);
 #endif /* NOLOCAL */
 
-VOID setxlatype(int, int);
+void setxlatype(int, int);
 
 #endif /* NOCSETS */
 #endif /* CKCXLA_H */

@@ -22961,8 +22961,8 @@ int utf8_to_ucs2(CHAR ch, USHORT **ucs2) {
 
 int ucs2_to_utf8(USHORT ucs2, CHAR **utf8) {
   static CHAR utf8return[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  register CONST ULONG byteMask = 0xBF;
-  register CONST ULONG byteMark = 0x80;
+  register const ULONG byteMask = 0xBF;
+  register const ULONG byteMark = 0x80;
   int utf8len = 0;
   int i = 0;
 

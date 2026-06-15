@@ -172,7 +172,7 @@ extern int addlist;
 
 int lslook(unsigned int b); /* Locking Shift Lookahead */
 int szeof(CHAR * s);
-VOID fnlist(void);
+void fnlist(void);
 #endif /* NOXFER */
 
 extern CK_OFF_T ffc;
@@ -511,7 +511,7 @@ static CHAR *xdbuf; /* Global version of decode()'s buffer pointer */
 
 /* Function for pushing a character onto decode()'s input stream. */
 
-VOID zdstuff(CHAR c)
+void zdstuff(CHAR c)
 /* zdstuff */ {
   xdbuf--;    /* Back up the pointer. */
   *xdbuf = c; /* Stuff the character. */
@@ -1374,14 +1374,14 @@ int decode(CHAR *buf, int (*fn)(char), int xlate)
   mechanism works for both Unicode and Kanji.
 */
 #ifdef KANJI
-int kgetf(VOID) {
+int kgetf(void) {
   if (funcstr)
     return ((*funcptr)());
   else
     return (zminchar());
 }
 
-int kgetm(VOID) {
+int kgetm(void) {
   int x;
   if ((x = *memptr++))
     return (x);
@@ -1668,7 +1668,7 @@ static int bgetpkt(int bufmax) {
 }
 #endif /* CKTUNING */
 
-VOID dofilcrc(int c) /* Accumulate file crc */
+void dofilcrc(int c) /* Accumulate file crc */
 {
   long z;
   z = crc16 ^ (long)c;
@@ -2891,7 +2891,7 @@ int tinit(int flag) {
   return (0);
 }
 
-VOID pktinit() { /* Initialize packet sequence */
+void pktinit() { /* Initialize packet sequence */
   pktnum = 0;    /* number & window low. */
   winlo = 0;
   debug(F101, "pktinit winlo", "", winlo);
@@ -2899,7 +2899,7 @@ VOID pktinit() { /* Initialize packet sequence */
 
 /*  R I N I T  --  Respond to S or I packet  */
 
-VOID rinit(CHAR *d) {
+void rinit(CHAR *d) {
   char *tp = NULL;
   ztime(&tp);
   tlog(F110, "Transaction begins", tp, 0L); /* Make transaction log entry */
@@ -2914,7 +2914,7 @@ VOID rinit(CHAR *d) {
 
 /*  R E S E T C  --  Reset per-transaction character counters */
 
-VOID resetc() {
+void resetc() {
   rptn = 0;                          /* Repeat counts */
   fsecs = flci = flco = (CK_OFF_T)0; /* File chars in and out */
 #ifdef GFTIMER
@@ -2946,7 +2946,7 @@ char cmargbuf[CKMAXPATH + 1];
 #endif /* DYNAMIC */
 char *cmargp[2];
 
-VOID fnlist() {
+void fnlist() {
   if (!calibrate)
     sndsrc = (nfils < 0) ? -1 : nfils; /* Source for filenames */
 #ifdef DYNAMIC
@@ -3099,7 +3099,7 @@ int sipkt(char c) /* Send S or I packet. */
   This retransmits the S packet and frees the receive buffer for the ACK.
   This special case is necessary because packet number zero is being re-used.
 */
-VOID xsinit() {
+void xsinit() {
   int k;
   k = rseqtbl[0];
   debug(F101, "xsinit k", "", k);
@@ -3734,7 +3734,7 @@ int reof(char *f, struct zattr *yy) {
 
 /*  R E O T  --  Receive End Of Transaction  */
 
-VOID reot() {
+void reot() {
   cxseen = czseen = discard = 0; /* Reset interruption flags */
   tstats();                      /* Finalize transfer statistics */
 }
@@ -6422,7 +6422,7 @@ int adjpkl(int pktlen, int slots, int bufsiz) {
 
 /* Set transfer mode and file naming based on comparison of system types */
 
-VOID whoarewe() {
+void whoarewe() {
 #ifndef NOICP
   extern int g_xfermode;
 #endif /* NOICP */

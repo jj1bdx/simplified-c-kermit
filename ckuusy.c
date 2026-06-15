@@ -463,7 +463,7 @@ char *opthlp[128]; /* Option help */
 char *arghlp[128]; /* Argument for option */
 int optact[128];   /* Action-option flag */
 
-VOID fatal2(char *msg1, char *msg2) {
+void fatal2(char *msg1, char *msg2) {
   char buf[256];
   if (!msg1)
     msg1 = "";
@@ -596,7 +596,7 @@ static char *http_hlp[] = {
 
 /*  U S A G E */
 
-VOID usage() {
+void usage() {
   conol("Usage: ");
   conol(xarg0);
   if (howcalled == I_AM_KERMIT || howcalled == I_AM_IKSD ||
@@ -1568,7 +1568,7 @@ static int noktab = sizeof(oktab) / sizeof(struct keytab);
 char *xopthlp[XA_MAX + 1]; /* Extended option help */
 char *xarghlp[XA_MAX + 1]; /* Extended argument for option */
 
-static VOID inixopthlp() {
+static void inixopthlp() {
   int i, j;
   for (i = 0; i <= XA_MAX; i++) { /* Initialize all to null */
     xopthlp[i] = NULL;
@@ -1728,7 +1728,7 @@ static VOID inixopthlp() {
   }
 }
 
-VOID iniopthlp() {
+void iniopthlp() {
   int i;
   for (i = 0; i < 128; i++) {
     optact[i] = 0;

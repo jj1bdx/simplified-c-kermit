@@ -94,7 +94,7 @@
 /* Internal functions */
 long ptyint_void_association(void);
 long ptyint_open_ctty(char *, int *);
-VOID ptyint_vhangup(void);
+void ptyint_vhangup(void);
 
 #ifdef WANT_UTMP
 long ptyint_update_wtmp(struct utmp *, char *, char *);

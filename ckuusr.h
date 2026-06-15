@@ -2330,7 +2330,7 @@ struct stringint { /* String and (wide) integer */
 
 /* ANSI-C prototypes for user interface functions */
 
-VOID newerrmsg(char *);
+void newerrmsg(char *);
 int isinternalmacro(int);
 
 #ifdef UNIX
@@ -2354,7 +2354,7 @@ int yystring(char *, char **);
 int getncm(char *, int);
 int getnct(char *, int, FILE *, int);
 #endif /* NOICP */
-VOID bgchk(void);
+void bgchk(void);
 char *nvlook(char *);
 int xarray(char *);
 int arraynam(char *, int *, int *);
@@ -2368,7 +2368,7 @@ int dclarray(char, int);
 int pusharray(int, int);
 int parsevar(char *, int *, int *);
 int macini(void);
-VOID initmac(void);
+void initmac(void);
 int delmac(char *, int);
 int addmac(char *, char *);
 int domac(char *, char *, int);
@@ -2411,9 +2411,9 @@ int setcc(char *, int *);
 int setnum(int *, int, int, int);
 int seton(int *);
 int setonaut(int *);
-VOID shmdmlin(void);
-VOID slrestor(void);
-VOID initmdm(int);
+void shmdmlin(void);
+void slrestor(void);
+void initmdm(int);
 char *showoff(int);
 char *showooa(int);
 char *showstring(char *);
@@ -2430,22 +2430,22 @@ char *evalx(char *);
 int setalarm(long);
 int setat(int);
 int setinp(void);
-VOID dolognet(void);
-VOID dologline(void);
+void dolognet(void);
+void dologline(void);
 int setlin(int, int, int);
 int setmodem(void);
 int setfil(int);
 char *homepath(void);
 #ifdef LOCUS
-VOID setlocus(int, int);
-VOID setautolocus(int);
+void setlocus(int, int);
+void setautolocus(int);
 #endif /* LOCUS */
 int setbell(void);
-VOID setcmask(int);
-VOID setautodl(int, int);
-VOID setdebses(int);
-VOID setseslog(int);
-VOID setaprint(int);
+void setcmask(int);
+void setautodl(int, int);
+void setdebses(int);
+void setseslog(int);
+void setaprint(int);
 int settrm(void);
 int settrmtyp(void);
 int setsr(int, int);
@@ -2454,9 +2454,9 @@ int dosetkey(void);
 int dochk(void);
 int ludial(char *, int);
 char *getdnum(int);
-VOID getnetenv(void);
+void getnetenv(void);
 int getyesno(char *, int);
-VOID xwords(char *, int, char *[], int);
+void xwords(char *, int, char *[], int);
 int xlookup(struct keytab[], char *, int, int *);
 char *rlookup(struct keytab[], int, int);
 int hupok(int);
@@ -2468,7 +2468,7 @@ char *chk_ac(int, char[]);
 char *gmdmtyp(void);
 char *gfmode(int, int);
 int setdest(void);
-VOID ndinit(void);
+void ndinit(void);
 int doswitch(void);
 int dolocal(void);
 long tod2sec(char *);
@@ -2479,7 +2479,7 @@ int doxsend(int);
 int doxget(int);
 int doxconn(int);
 int clsconnx(int);
-VOID ftreset(void);
+void ftreset(void);
 long mjd(char *);
 char *mjd2date(long);
 char *ckgetpid(void);
@@ -2496,35 +2496,35 @@ int shoftp(int);
 #endif /* SYSFTP */
 #endif /* NOFTP */
 
-VOID cmhistory(void);
+void cmhistory(void);
 char *getdcset(void);
 char *ttgtpn(void);
 
 #ifndef NOSHOW
 int doshow(int);
 int shotcp(int);
-VOID shopar(void);
-VOID shofil(void);
-VOID shoparp(void);
+void shopar(void);
+void shofil(void);
+void shoparp(void);
 int shoatt(void);
-VOID shover(void);
-VOID shoctl(void);
-VOID shodbl(void);
+void shover(void);
+void shoctl(void);
+void shodbl(void);
 #ifndef NOSPL
 int shomac(char *, char *);
 int doshift(int);
 #endif /* NOSPL */
 #ifndef NOCSETS
-VOID shocharset(void);
-VOID shoparl(void);
-VOID shotcs(int, int);
+void shocharset(void);
+void shoparl(void);
+void shotcs(int, int);
 #endif /* NOCSETS */
 #ifndef NOLOCAL
-VOID shoparc(void);
+void shoparc(void);
 int shomodem(void);
 #ifndef NODIAL
-VOID shods(char *);
-VOID shodial(void);
+void shods(char *);
+void shodial(void);
 int doshodial(void);
 #endif /* NODIAL */
 #ifndef NONET
@@ -2532,22 +2532,22 @@ int shonet(void);
 int shotopt(int);
 int shotel(int);
 #endif /* NONET */
-VOID shomdm(void);
+void shomdm(void);
 #endif /* NOLOCAL */
-VOID shokeycode(int);
-VOID showassoc(void);
-VOID showdiropts(void);
-VOID showdelopts(void);
-VOID showtypopts(void);
-VOID showpurgopts(void);
-VOID shoflow(void);
-VOID shoxfer(void);
+void shokeycode(int);
+void showassoc(void);
+void showdiropts(void);
+void showdelopts(void);
+void showtypopts(void);
+void showpurgopts(void);
+void shoflow(void);
+void shoxfer(void);
 #ifdef ANYSSH
-VOID shossh(void);
+void shossh(void);
 #endif /* ANYSSH */
 #endif /* NOSHOW */
 
-VOID shostrdef(CHAR *);
+void shostrdef(CHAR *);
 
 #ifndef NOSPL
 int addlocal(char *);
@@ -2556,7 +2556,7 @@ int addlocal(char *);
 int setdelopts(void);
 
 #ifdef FNFLOAT
-VOID initfloat(void);
+void initfloat(void);
 #endif /* FNFLOAT */
 
 #ifdef CKCHANNELIO

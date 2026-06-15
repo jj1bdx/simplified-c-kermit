@@ -897,7 +897,7 @@ int iks_retry = 3;     /* 3 attempts at login */
 #endif                 /* IKSD */
 
 #ifdef CKSYSLOG
-extern VOID zsyslog();
+extern void zsyslog();
 extern int ckxlogging, ckxsyslog;
 #endif /* CKSYSLOG */
 
@@ -1237,20 +1237,20 @@ int ckxsyslog = SYSLG_DF; /* Default logging level */
 
 #ifndef NOHELP
 #ifndef NOCMDL
-VOID iniopthlp(void); /* Command-line help initializer */
+void iniopthlp(void); /* Command-line help initializer */
 #endif                             /* NOCMDL */
 #endif                             /* NOHELP */
 
-VOID initfloat(void); /* Floating-point initializer */
+void initfloat(void); /* Floating-point initializer */
 
-VOID makever(void);
-VOID getexedir(void);
+void makever(void);
+void getexedir(void);
 int putnothing(char);
 
 #ifdef IKSD
-VOID doiksdinit(void);
-VOID iksdinit(void);
-VOID doiklog(void);
+void doiksdinit(void);
+void iksdinit(void);
+void doiklog(void);
 int dbinit(void);
 #endif /* IKSD */
 
@@ -1259,7 +1259,7 @@ int dbinit(void);
 #ifndef NOSPL
 #ifndef NOICP
 #ifdef CK_APC
-VOID apconect(void);
+void apconect(void);
 #endif               /* CK_APC */
 #endif               /* NOICP */
 #endif               /* NOSPL */
@@ -1378,7 +1378,7 @@ int zofblock = 1;
 int seslimit = 0;
 #endif /* SESLIMIT */
 
-int getiobs(VOID);
+int getiobs(void);
 
 /*  M A I N  --  C-Kermit main program  */
 
@@ -1538,7 +1538,7 @@ void initflow(void)
 #ifndef NOXFER
 /* Initialize file transfer protocols */
 
-VOID initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
+void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
                char *sndtstr, char *rcvbstr, char *rcvtstr)
 /* initproto */ {
 
@@ -1608,7 +1608,7 @@ VOID initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
 #endif /* NOXFER */
 
 #ifndef NOCMDL
-VOID docmdline(void *threadinfo) {
+void docmdline(void *threadinfo) {
 #ifdef CK_LOGIN
 #endif        /* CK_LOGIN */
   proto();    /* Take any requested action, then */
@@ -1783,7 +1783,7 @@ void ikslogin(void) {
 #endif /* IKSD */
 }
 
-VOID failcmdline(void *foo) {
+void failcmdline(void *foo) {
 #ifndef NOLOCAL
   if (cnflg)
     doconect(0, 0); /* connect again if requested. */
@@ -1794,7 +1794,7 @@ VOID failcmdline(void *foo) {
 #endif /* NOCMDL */
 
 #ifndef NOICP
-VOID dotakeini(void *threadinfo) /* Execute init file. */
+void dotakeini(void *threadinfo) /* Execute init file. */
 /* dotakeini */ {
 #ifdef CK_LOGIN
 #endif      /* CK_LOGIN */
@@ -1815,7 +1815,7 @@ VOID dotakeini(void *threadinfo) /* Execute init file. */
   return;
 }
 
-VOID failtakeini(void *threadinfo)
+void failtakeini(void *threadinfo)
 /* failtakeini */ {
   fixcmd();
   if (!cfilef) {
@@ -1826,7 +1826,7 @@ command-line processing.");
   doexit(BAD_EXIT, -1); /* Exit with bad status. */
 }
 
-VOID doicp(void *threadinfo)
+void doicp(void *threadinfo)
 /* doicp */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -1858,7 +1858,7 @@ VOID doicp(void *threadinfo)
   }
 }
 
-VOID failicp(void *threadinfo) {
+void failicp(void *threadinfo) {
   fixcmd(); /* Pop command stacks, etc. */
   clcmds = NULL;
   debug(F100, "ckcmai got interrupt", "", 0);
@@ -1866,7 +1866,7 @@ VOID failicp(void *threadinfo) {
 #endif /* NOICP */
 
 #ifndef NOICP
-VOID docmdfile(void *threadinfo) /* Execute application file */
+void docmdfile(void *threadinfo) /* Execute application file */
 /* docmdfile */ {
 #ifdef CK_LOGIN
 #ifdef IKSD
@@ -1888,7 +1888,7 @@ VOID docmdfile(void *threadinfo) /* Execute application file */
   return;
 }
 
-VOID failcmdfile(void *threadinfo)
+void failcmdfile(void *threadinfo)
 /* failcmdfile */ {
   fixcmd();
   if (!cfilef) {
@@ -2074,7 +2074,7 @@ int bigendian = 1;
 #ifndef NOTCPIP
 #ifndef NOCMDL
 #ifndef NOURL
-VOID dourl(void) {
+void dourl(void) {
   int rc = 0;
   char *port = NULL;
   extern int ttnproto;
@@ -2554,7 +2554,7 @@ MAINNAME(int argc, char **argv) {
       iksdcf = 1;  /* IKSD c.f. has been processed */
     }
     if (!iklogopen)
-      (VOID) doiklog(); /* Open Kermit-specific log */
+      (void) doiklog(); /* Open Kermit-specific log */
 #endif                  /* IKSD */
 
 #ifdef UNIX

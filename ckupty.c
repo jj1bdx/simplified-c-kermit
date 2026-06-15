@@ -321,7 +321,7 @@ int pty_master_fd = -1;  /* pty master file descriptor */
   copy_termbuf() hands in a new "termbuf" to write to the kernel, and
   set_termbuf() writes the structure into the kernel.
 */
-VOID init_termbuf(int fd) {
+void init_termbuf(int fd) {
   int ttyfd;
   int rc = 0;
 
@@ -372,7 +372,7 @@ VOID init_termbuf(int fd) {
 }
 
 #ifdef TIOCPKT_IOCTL
-VOID copy_termbuf(char *cp, int len) {
+void copy_termbuf(char *cp, int len) {
   if (len > sizeof(termbuf))
     len = sizeof(termbuf);
   memcpy((char *)&termbuf, cp, len);
@@ -380,7 +380,7 @@ VOID copy_termbuf(char *cp, int len) {
 }
 #endif /* TIOCPKT_IOCTL */
 
-VOID set_termbuf(int fd) /* Only make the necessary changes. */
+void set_termbuf(int fd) /* Only make the necessary changes. */
 {
   int x;
   int ttyfd;
@@ -422,7 +422,7 @@ VOID set_termbuf(int fd) /* Only make the necessary changes. */
 }
 /* termbuf routines (end) */
 
-VOID ptyint_vhangup() {
+void ptyint_vhangup() {
 #ifdef CK_VHANGUP
   int vhangup(void);
 #ifdef CK_POSIX_SIG
@@ -1536,7 +1536,7 @@ int fd;
 }
 #endif /* HAVE_PTYTRAP */
 
-VOID exec_cmd(char *s) {
+void exec_cmd(char *s) {
   struct stringarray *q;
   char **args = NULL;
 
@@ -1693,7 +1693,7 @@ int do_pty(int *fd, char *cmd, int fc) {
   return (getpid());
 } /* end of do_pty() */
 
-VOID end_pty() {
+void end_pty() {
   msg = 0; /* Message counter */
   debug(F101, "end_pty pty_fork_pid", "", pty_fork_pid);
   if (Xline[0] && pty_fork_pid >= 0) {

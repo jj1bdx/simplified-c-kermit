@@ -567,7 +567,7 @@ extern char **sndarray;
 #define xxscreen(a, b, c, d)
 #define ckscreen(a, b, c, d)
 #else
-VOID ckscreen(int, char, CK_OFF_T, char *);
+void ckscreen(int, char, CK_OFF_T, char *);
 #define xxscreen(a, b, c, d)                                                   \
   if (local && !backgrd && fdispla != XYFD_N)                                  \
   ckscreen((int)a, (char)b, (CK_OFF_T)c, (char *)d)
@@ -1058,7 +1058,7 @@ int inibufs(int, int);
 int mksbuf(int);
 int mkrbuf(int);
 int spack(char, int, int, CHAR *);
-VOID proto(void);
+void proto(void);
 int rpack(void);
 int ack(void);
 int nack(int);
@@ -1070,7 +1070,7 @@ int fastack(void);
 #endif /* STREAMING */
 int resend(int);
 int errpkt(CHAR *);
-VOID logpkt(char, int, CHAR *, int);
+void logpkt(char, int, CHAR *, int);
 CHAR dopar(CHAR);
 int chk1(CHAR *, int);
 unsigned int chk2(CHAR *, int);
@@ -1078,7 +1078,7 @@ unsigned int chk3(CHAR *, int);
 int sipkt(char);
 int sopkt(void);
 int sinit(void);
-VOID rinit(CHAR *);
+void rinit(CHAR *);
 int spar(CHAR *);
 int rcvfil(char *);
 CHAR *rpar(void);
@@ -1089,7 +1089,7 @@ int freesbuf(int);
 int freerbuf(int);
 int dumpsbuf(void);
 int dumprbuf(void);
-VOID freerpkt(int);
+void freerpkt(int);
 int chkwin(int, int, int);
 int rsattr(CHAR *);
 char *getreason(char *);
@@ -1112,7 +1112,7 @@ int openi(char *);
 int openo(char *, struct zattr *, struct filinfo *);
 int openc(int, char *);
 int reof(char *, struct zattr *);
-VOID reot(void);
+void reot(void);
 int sfile(int);
 int sattr(int, int);
 int sdata(void);
@@ -1131,23 +1131,23 @@ int putque(char);
 int putfil(char);
 int putmfil(char);
 int zputfil(char);
-VOID zdstuff(CHAR);
+void zdstuff(CHAR);
 int tinit(int);
-VOID pktinit(void);
-VOID resetc(void);
-VOID xsinit(void);
+void pktinit(void);
+void resetc(void);
+void xsinit(void);
 int adjpkl(int, int, int);
 int chktimo(int, int);
 int nxtpkt(void);
-VOID rcalcpsz(void);
+void rcalcpsz(void);
 int srinit(int, int, int);
-VOID tstats(void);
-VOID fstats(void);
-VOID intmsg(long);
-VOID ermsg(char *);
+void tstats(void);
+void fstats(void);
+void intmsg(long);
+void ermsg(char *);
 int chkint(void);
-VOID sdebu(int);
-VOID rdebu(CHAR *, int);
+void sdebu(int);
+void rdebu(CHAR *, int);
 char *dbchr(int);
 SIGTYP stptrap(int);
 SIGTYP trap(int);
@@ -1161,34 +1161,34 @@ int xpnbyte(int, int, int, int (*)(char));
 /* User interface functions needed by main program, etc. */
 
 int doconect(int, int);
-VOID setflow(void);
-VOID prescan(int);
-VOID setint(void);
-VOID doinit(void);
-VOID dofast(void);
-VOID cmdini(void);
+void setflow(void);
+void prescan(int);
+void setint(void);
+void doinit(void);
+void dofast(void);
+void cmdini(void);
 int dotake(char *);
 int cmdlin(void);
 int conect(void);
 int ckcputc(int);
 int mdmhup(void);
-VOID herald(void);
-VOID fixcmd(void);
+void herald(void);
+void fixcmd(void);
 int doarg(char);
 int doxarg(char **, int);
-VOID usage(void);
-VOID doclean(int);
+void usage(void);
+void doclean(int);
 int sndhlp(void);
 int sndstatus(void);
 int sndstring(char *);
-VOID ckhost(char *, int);
+void ckhost(char *, int);
 int gettcs(int, int);
-VOID getdialenv(void);
-VOID setprefix(int);
-VOID initpat(void);
-VOID initcsets(void);
+void getdialenv(void);
+void setprefix(int);
+void initpat(void);
+void initcsets(void);
 #ifdef CK_TIMERS
-VOID rttinit(void);
+void rttinit(void);
 int getrtt(int, int);
 #endif /* CK_TIMERS */
 
@@ -1198,14 +1198,14 @@ int snddel(char *);
 int sndtype(char *);
 int dooutput(char *, int);
 int isabsolute(char *);
-VOID whoarewe(void);
+void whoarewe(void);
 int ckmkdir(int, char *, char **, int, int);
 int autoexitchk(CHAR);
-VOID fcps(void);
-VOID logchar(char);
-VOID logstr(char *, int);
+void fcps(void);
+void logchar(char);
+void logstr(char *, int);
 
-VOID dologend(void);
+void dologend(void);
 #ifdef NOLOCAL
 #define dologshow()
 #else
@@ -1215,7 +1215,7 @@ long dologshow(int);
 #ifdef NODISPLAY
 #define fxdinit(a)
 #else
-VOID fxdinit(int);
+void fxdinit(int);
 #endif /* NODISPLAY */
 
 int fileselect(char *, char *, char *, char *, char *, CK_OFF_T, CK_OFF_T, int,
@@ -1226,7 +1226,7 @@ int shoesc(int);
 #ifdef CK_APC
 int chkspkt(char *);
 int kstart(CHAR);
-VOID autodown(int);
+void autodown(int);
 #ifdef CK_XYZ
 int zstart(CHAR);
 #endif /* CK_XYZ */

@@ -43,10 +43,10 @@ char *loginv = "Script Command, 10.0.033, 15 Apr 2023";
 #include "ckcsig.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */
 
-VOID flushi(void);
-static VOID myflsh(void);
+void flushi(void);
+static void myflsh(void);
 static int sequenc(void);
-static VOID recvseq(void);
+static void recvseq(void);
 static int outseq(void);
 
 extern int sessft;
@@ -193,7 +193,7 @@ static int concnt = 0;        /* number of characters buffered */
 static CHAR sesbuf[MAXBURST]; /* buffer to hold output for session log */
 static int sescnt = 0;        /* number of characters buffered */
 
-static VOID myflsh() {
+static void myflsh() {
   if (concnt > 0) {
     conxo(concnt, (char *)conbuf);
     concnt = 0;
@@ -283,7 +283,7 @@ static SIGTYP failrseq(void *threadinfo)
   Receive sequence -- see if expected response comes,
   return success (or failure) in got_it.
 */
-static VOID recvseq() {
+static void recvseq() {
   char *e, got[7], trace[SBUFL];
   int i, l;
 
@@ -506,7 +506,7 @@ failret:
 
 /*  F L U S H I  --  Flush, but log, SCRIPT input buffer  */
 
-VOID flushi() {
+void flushi() {
   int n, x;
   if (seslog      /* Logging session? */
       || scr_echo /* Or console echoing? */

@@ -41,21 +41,21 @@ char *ckitox(int);
 char *ckltox(long);
 int ispattern(char *);
 int ckmatch(char *, char *, int, int);
-VOID ckmemcpy(char *, char *, int);
+void ckmemcpy(char *, char *, int);
 char *ckstrchr(char *, char);
 char *ckstrrchr(char *, char);
 int ckrchar(char *);
 int ckstrcmp(char *, char *, int, int);
 #define xxstrcmp(a, b, c) ckstrcmp(a, b, c, 0)
 int ckstrpre(char *, char *);
-VOID sh_sort(char **, char **, int, int, int, int);
+void sh_sort(char **, char **, int, int, int, int);
 char *brstrip(char *);
 char *fnstrip(char *);
 int dquote(char *, int, int);
 int untabify(char *, char *, int);
-VOID makelist(char *, char *[], int);
-VOID makestr(char **, const char *);
-VOID xmakestr(char **, const char *);
+void makelist(char *, char *[], int);
+void makestr(char **, const char *);
+void xmakestr(char **, const char *);
 int chknum(char *);
 int rdigits(char *);
 char *ckradix(char *, int, int);
@@ -79,8 +79,8 @@ extern CKFLOAT floatval;
 char *parnam(char);
 char *hhmmss(long);
 
-VOID lset(char *, char *, int, int);
-VOID rset(char *, char *, int, int);
+void lset(char *, char *, int, int);
+void rset(char *, char *, int, int);
 char *ulongtohex(unsigned long, int);
 long hextoulong(char *, int);
 struct stringarray *cksplit(int, int, char *, char *, char *, int, int, int,

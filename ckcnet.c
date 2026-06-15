@@ -391,7 +391,7 @@ int n;
 #else /* NETCONN is defined (much of this module...) */
 
 #ifdef NETLEBUF
-VOID le_init() { /* LocalEchoInit() */
+void le_init() { /* LocalEchoInit() */
   int i;
   for (i = 0; i < LEBUFSIZ; i++)
     le_buf[i] = '\0';
@@ -401,7 +401,7 @@ VOID le_init() { /* LocalEchoInit() */
   tt_push_inited = 1;
 }
 
-VOID le_clean() { /* LocalEchoCleanup() */
+void le_clean() { /* LocalEchoCleanup() */
   le_init();
   return;
 }
@@ -481,7 +481,7 @@ int tcpsrfd = -1;
 #define INADDR_ANY 0
 #endif /* INADDR_ANY */
 
-int ttbufr(VOID);
+int ttbufr(void);
 int tcpsrv_open(char *, int *, int, int);
 
 static unsigned short tcpsrv_port = 0;
@@ -539,7 +539,7 @@ static /* These are used in CKVTIO.C */
   returns number of bytes read, and sets global ttibn to that number and
   ttibp (the buffer pointer) to zero.
 */
-int ttbufr(VOID);
+int ttbufr(void);
 int ttbufr() { /* TT Buffer Read */
   int count;
 
@@ -1834,7 +1834,7 @@ exit_func:
 #endif /* NOCKGETFQHOST */
 }
 
-VOID setnproto(char *p) {
+void setnproto(char *p) {
   if (!isdigit(*p)) {
     if (!strcmp("kermit", p))
       ttnproto = NP_KERMIT;
@@ -3199,7 +3199,7 @@ nettchk_return:
   */
 }
 
-VOID nettout(int i) /* Catch the alarm interrupts */
+void nettout(int i) /* Catch the alarm interrupts */
 {
   debug(F100, "nettout caught timeout", "", 0);
   ttimoff();
@@ -3208,7 +3208,7 @@ VOID nettout(int i) /* Catch the alarm interrupts */
 
 #ifdef TCPIPLIB
 
-VOID donetinc(void *threadinfo)
+void donetinc(void *threadinfo)
 /* donetinc */ {
 #ifdef CK_LOGIN
 #endif /* CK_LOGIN */
@@ -3221,7 +3221,7 @@ VOID donetinc(void *threadinfo)
 }
 #endif /* TCPIPLIB */
 
-VOID failnetinc(void *threadinfo)
+void failnetinc(void *threadinfo)
 /* failnetinc */ {
   ; /* Nothing to do on an error */
 }
@@ -6823,7 +6823,7 @@ int http_open(char *hostname, char *svcname, int use_ssl, char *rdns_name,
   return (0); /* Done. */
 }
 
-int http_close(VOID) {
+int http_close(void) {
   int x = 0;
   debug(F101, "http_close", "", httpfd);
 

@@ -341,7 +341,7 @@ static int tn_wait_idx = 0;
 static int tn_wait_tmo = TN_TIMEOUT;
 
 #ifdef CKSPINNER
-VOID prtwait(state)
+void prtwait(state)
 int state;
 {
   switch (state % 4) {
@@ -1425,7 +1425,7 @@ int tn_set_modes() {
 
 /* Send Delayed Subnegotiations */
 
-VOID tn_sdsb() {
+void tn_sdsb() {
   /* if (!IS_TELNET()) return; */
 
   if (TELOPT_SB(TELOPT_TTYPE).term.need_to_send) {
@@ -1908,7 +1908,7 @@ int tn_hex(CHAR *buf, int buflen, CHAR *data, int datalen) {
   return (strlen((char *)buf));
 }
 
-VOID tn_debug(char *s) {
+void tn_debug(char *s) {
 #ifdef NOLOCAL
   return;
 #else  /* NOLOCAL */
@@ -4148,7 +4148,7 @@ int tnc_init(void)
 int tn_sndcomport(void)
 /* tn_sndcomport */ {
   int baud, datasize, parity, stopsize, oflow, iflow;
-  CONST char *signature;
+  const char *signature;
 
   /* if (!IS_TELNET()) return(0); */
 
@@ -4525,7 +4525,7 @@ int tnc_tn_sb(CHAR *sb, int len)
   return (0);
 }
 
-CONST char *tnc_get_signature(void)
+const char *tnc_get_signature(void)
 /* tnc_get_signature */ {
   /* send IAC SB COM-PORT SIGNATURE IAC SE */
   /* wait for response */

@@ -143,7 +143,7 @@ extern char browsurl[];
 
 #ifndef NOFRILLS
 #ifndef NORENAME
-VOID shorename(void);
+void shorename(void);
 #endif /* NORENAME */
 #endif /* NOFRILLS */
 
@@ -168,17 +168,17 @@ struct localvar *localhead[CMDSTKL];
 struct localvar *localtail = NULL;
 struct localvar *localnext = NULL;
 
-VOID shosexp(void);
-static VOID shoinput(void);
+void shosexp(void);
+static void shoinput(void);
 static char gettok(void);
-static VOID factor(void);
-static VOID term(void);
-static VOID termp(void);
-static VOID exprp(void);
-static VOID expr(void);
-static VOID simple(void);
-static VOID simpler(void);
-static VOID simplest(void);
+static void factor(void);
+static void term(void);
+static void termp(void);
+static void exprp(void);
+static void expr(void);
+static void simple(void);
+static void simpler(void);
+static void simplest(void);
 static CK_OFF_T xparse(void);
 #endif /* NOSPL */
 #ifndef NOSHOW
@@ -276,7 +276,7 @@ extern struct keytab mdmtab[];
 
 extern int network, nettype, ttnproto;
 
-VOID shotrm(void);
+void shotrm(void);
 int shofea(void);
 
 extern int tt_rows, tt_cols;
@@ -328,7 +328,7 @@ extern struct keytab cmdtab[];
 KEY *keymap;
 #define mapkey(x) keymap[x]
 MACRO *macrotab;
-VOID shostrdef(CHAR *);
+void shostrdef(CHAR *);
 #endif /* NOSETKEY */
 
 extern int cmdlvl;
@@ -635,7 +635,7 @@ static int nkcdtab = (sizeof(kcdtab) / sizeof(struct keytab));
 #endif /* NOSPL */
 
 #ifndef NOSPL
-VOID freelocal(int);
+void freelocal(int);
 static CK_OFF_T expon(CK_OFF_T, CK_OFF_T);
 static CK_OFF_T gcd(CK_OFF_T, CK_OFF_T);
 static CK_OFF_T fact(CK_OFF_T);
@@ -721,7 +721,7 @@ int luidx[LUCACHE];
 struct keytab *lutab[LUCACHE];
 #endif /* USE_LUCACHE */
 
-static VOID luinit() { /* Initialize lookup() cache */
+static void luinit() { /* Initialize lookup() cache */
   int x, y;
 
 #ifdef USE_LUCACHE
@@ -861,7 +861,7 @@ static VOID luinit() { /* Initialize lookup() cache */
 #endif /* USE_LUCACHE */
 }
 
-VOID cmdini() {
+void cmdini() {
   int i = 0, x = 0, y = 0, z = 0, skip = 0;
   char *p;
 #ifdef TTSPDLIST
@@ -1279,7 +1279,7 @@ VOID cmdini() {
   cmdinited = 1;
 }
 
-VOID doinit() {
+void doinit() {
 #ifdef CKROOT
   extern int ckrooterr;
 #endif /* CKROOT */
@@ -1426,7 +1426,7 @@ VOID doinit() {
   }
 }
 
-VOID doiksdinit() {
+void doiksdinit() {
 
   if (!cmdinited)
     cmdini();
@@ -1928,7 +1928,7 @@ int getnct(char *s, int n, FILE *f, int flag) {
   return (0); /* Return success */
 }
 
-VOID shostack() { /* Dump the command stack */
+void shostack() { /* Dump the command stack */
   int i;
   char *p;
 #ifndef NOSPL
@@ -2213,7 +2213,7 @@ int parser(int m) {
     if (errno != 0)
 #endif /* UNIX */
     {
-      (VOID) ckstrncpy(tmpbuf, ck_errstr(), TMPBUFSIZ);
+      (void) ckstrncpy(tmpbuf, ck_errstr(), TMPBUFSIZ);
       printf(" Most recent local error: \"%s\"\n", tmpbuf);
     }
     printf("Also:\n");
@@ -2728,7 +2728,7 @@ static int oboc(char c)
 
 /*  Routines for handling local variables -- also see popclvl().  */
 
-VOID freelocal(int m) /* Free local variables */
+void freelocal(int m) /* Free local variables */
 {
   struct localvar *v, *tv; /* at macro level m... */
   debug(F101, "freelocal level", "", m);
@@ -3160,7 +3160,7 @@ outerr: /* OUTPUT command error handler */
 
 /* Display version herald */
 
-VOID herald() {
+void herald() {
   extern char myherald[];
   extern char *cdmsgfile[];
   extern int srvcdmsg;
@@ -3543,10 +3543,10 @@ int addmmac(char *nam, char *s[]) /* Add a multiline macro definition */
 
 static char evalmacrobuf[TMPBUFSIZ];
 
-VOID evalmacroarg(char **p) {
+void evalmacroarg(char **p) {
   char *s = evalmacrobuf;
   int t = TMPBUFSIZ;
-  (VOID) zzstring(*p, &s, &t);
+  (void) zzstring(*p, &s, &t);
   *p = evalmacrobuf;
 }
 
@@ -3956,7 +3956,7 @@ int delmac(char *nam, int exact) /* Delete the named macro */
   return (xdelmac(x));
 }
 
-VOID initmac() { /* Init macro & variable tables */
+void initmac() { /* Init macro & variable tables */
   int i, j, x;
 
   nmac = 0;                       /* No macros */
@@ -4315,7 +4315,7 @@ char *showooa(int x) {
 
 #ifndef NOSETKEY
 
-VOID shokeycode(int c) {
+void shokeycode(int c) {
   KEY ch;
   CHAR *s;
   int km;
@@ -4377,7 +4377,7 @@ VOID shokeycode(int c) {
 }
 #endif /* NOSETKEY */
 
-VOID shostrdef(CHAR *s) {
+void shostrdef(CHAR *s) {
   CHAR ch;
   if (!s)
     s = (CHAR *)"";
@@ -4397,7 +4397,7 @@ VOID shostrdef(CHAR *s) {
 #define xxdiff(v, sys) strncmp(v, sys, strlen(sys))
 
 #ifndef NOSHOW
-VOID shover() {
+void shover() {
   extern char *ck_patch, *cklibv;
   printf("\nVersions:\n %s\n", versio);
   printf(" Numeric: %ld\n", vernum);
@@ -4456,10 +4456,10 @@ VOID shover() {
 }
 
 #ifdef CK_LABELED
-VOID sholbl() {}
+void sholbl() {}
 #endif /* CK_LABELED */
 
-VOID shotcs(int csl, int csr) /* Show terminal character set */
+void shotcs(int csl, int csr) /* Show terminal character set */
 {
 #ifndef NOCSETS
   char *s;
@@ -4513,7 +4513,7 @@ VOID shotcs(int csl, int csr) /* Show terminal character set */
 #endif /* NOLOCAL */
 
 #ifndef NOLOCAL
-VOID shotrm() {
+void shotrm() {
   char *s;
   extern char *getiact();
   extern int tt_print, adl_err, adl_ask;
@@ -4590,13 +4590,13 @@ VOID shotrm() {
 #endif /* NOTRIGGER */
   printf("\n");
 
-  (VOID) shoesc(escape);
+  (void) shoesc(escape);
 #ifndef NOCSETS
   shotcs(tcsl, tcsr); /* Show terminal character sets */
 #endif                /* NOCSETS */
 }
 
-VOID shmdmlin() { /* Briefly show modem & line */
+void shmdmlin() { /* Briefly show modem & line */
 #ifndef NODIAL
 #ifndef MINIDIAL
 #ifdef OLDTBCODE
@@ -4773,7 +4773,7 @@ void shotapi(int option) {
 #endif /* NOLOCAL */
 
 #ifdef PATTERNS
-static VOID shopat() {
+static void shopat() {
   extern char *binpatterns[], *txtpatterns[];
   extern int patterns, filepeek;
   char **p, *s;
@@ -4834,12 +4834,12 @@ static VOID shopat() {
 #endif /* PATTERNS */
 
 #ifndef NOSPL
-static VOID shooutput() {
+static void shooutput() {
   printf(" Output pacing:          %d (milliseconds)\n", pacing);
   printf(" Output special-escapes: %s\n", showoff(outesc));
 }
 
-static VOID shoinput() {
+static void shoinput() {
 #ifdef CKFLOAT
   extern char *inpscale;
 #endif /* CKFLOAT */
@@ -6284,7 +6284,7 @@ int doshow(int x) {
   }
 #ifndef NOCSETS
   case SHASSOC:
-    (VOID) showassoc();
+    (void) showassoc();
     break;
 #endif /* NOCSETS */
 
@@ -6308,53 +6308,53 @@ int doshow(int x) {
   case SHOPTS:
     optlines = 0;
 #ifndef NOFRILLS
-    (VOID) showdelopts();
+    (void) showdelopts();
 #endif /* NOFRILLS */
 #ifdef DOMYDIR
-    (VOID) showdiropts();
+    (void) showdiropts();
 #endif /* DOMYDIR */
 #ifdef CKPURGE
-    (VOID) showpurgopts();
+    (void) showpurgopts();
 #endif /* CKPURGE */
-    (VOID) showtypopts();
+    (void) showtypopts();
     break;
 
 #ifndef NOLOCAL
   case SHOFLO:
-    (VOID) shoflow();
+    (void) shoflow();
     break;
 #endif /* NOLOCAL */
 
 #ifndef NOXFER
   case SHOXFER:
-    (VOID) shoxfer();
+    (void) shoxfer();
     break;
 #endif /* NOXFER */
 
 #ifdef CK_RECALL
   case SHHISTORY:
-    (VOID) cmhistory();
+    (void) cmhistory();
     break;
 #endif /* CK_RECALL */
 
 #ifndef NOSEXP
 #ifndef NOSPL
   case SHSEXP:
-    (VOID) shosexp();
+    (void) shosexp();
     break;
 #endif /* NOSPL */
 #endif /* NOSEXP */
 
 #ifdef ANYSSH
   case SHOSSH:
-    (VOID) shossh();
+    (void) shossh();
     break;
 #endif /* ANYSSH */
 
 #ifndef NOFRILLS
 #ifndef NORENAME
   case SHOREN:
-    (VOID) shorename();
+    (void) shorename();
     break;
 #endif /* NORENAME */
 #endif /* NOFRILLS */
@@ -6677,7 +6677,7 @@ static CK_OFF_T expon(CK_OFF_T x, CK_OFF_T y)
  * factor ::= simple | simple ^ factor
  *
  */
-static VOID factor() {
+static void factor() {
   CK_OFF_T oldval;
   simple();
   if (curtok == '^') {
@@ -6692,7 +6692,7 @@ static VOID factor() {
  * termp ::= NULL | {*,/,%,&} factor termp
  *
  */
-static VOID termp() {
+static void termp() {
   while (curtok == '*' || curtok == '/' || curtok == '%' || curtok == '&') {
     CK_OFF_T oldval;
     char op;
@@ -6734,7 +6734,7 @@ static CK_OFF_T fact(CK_OFF_T x)
  * term ::= factor termp
  *
  */
-static VOID term() {
+static void term() {
   factor();
   termp();
 }
@@ -6777,7 +6777,7 @@ static CK_OFF_T gcd(CK_OFF_T x, CK_OFF_T y)
  * exprp ::= NULL | {+,-,|,...} term exprp
  *
  */
-static VOID exprp() {
+static void exprp() {
   while (windex("+-|<>#@", curtok) != NULL) {
     CK_OFF_T oldval;
     char op;
@@ -6815,7 +6815,7 @@ static VOID exprp() {
  * expr ::= term exprp
  *
  */
-static VOID expr() {
+static void expr() {
   term();
   exprp();
 }
@@ -6857,7 +6857,7 @@ char *evala(char *s) {
  * simplest ::= NUMBER | ( expr )
  *
  */
-static VOID simplest() {
+static void simplest() {
   char *p;
   p = cp;
   if (curtok == NUMBER)
@@ -6884,7 +6884,7 @@ static VOID simplest() {
  * simpler ::= simplest | simplest !
  *
  */
-static VOID simpler() {
+static void simpler() {
   simplest();
   if (curtok == '!') {
     curtok = gettok();
@@ -6897,7 +6897,7 @@ static VOID simpler() {
  *
  */
 
-static VOID simple() {
+static void simple() {
   if (curtok == '-' || curtok == '~' || curtok == '!' || curtok == '+') {
     int op = curtok;
     curtok = gettok(); /* skip over - sign */
@@ -7704,7 +7704,7 @@ int litcmd(char **src, char **dest, int n) {
          there are lots of words left, so the last field contains the
          remainder of the string.
 */
-VOID xwords(char *s, int max, char *list[], int flag) {
+void xwords(char *s, int max, char *list[], int flag) {
   char *p;
   int b, i, k, q, y, z;
   int macro = 0;
@@ -8120,7 +8120,7 @@ gocd:
 
 static int on_ctrlc = 0;
 
-VOID fixcmd() { /* Fix command parser after interruption */
+void fixcmd() { /* Fix command parser after interruption */
 #ifndef NOSPL
 #ifndef NOONCTRLC
   if (nmac) {                    /* Any macros defined? */
@@ -8207,7 +8207,7 @@ int prtopt(int *lines, char *s) /* Print an option */
   return (1);
 }
 
-static VOID initoptlist() {
+static void initoptlist() {
   int i;
   if (noptlist > 0)
     return;

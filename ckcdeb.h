@@ -522,7 +522,7 @@
 
 #ifdef MAINISVOID
 /* This is a leftover from original Macintosh */
-typedef VOID MAINTYPE;
+typedef void MAINTYPE;
 #else
 typedef int MAINTYPE;
 /* if any other types are needed add them here */
@@ -771,31 +771,6 @@ int ckxfprintf(FILE *, const char *, ...);
 */
 
 /* Signal handling */
-
-/*
-  void type, normally available only in ANSI compilers.
-  The HP-UX exception (for its "bundled" non-ANSI C compiler)
-  is known to be valid back to HP-UX 6.5.
-  Adjustments might be needed for earlier HP-UX versions.
-*/
-#ifndef VOID /* Used throughout all C-Kermit */
-#define VOID void
-#endif /* VOID */
-/*
-  Exactly the same as VOID but for use in contexts where the VOID symbol
-  conflicts some header-file definition.  This is needed for the section
-  of ckuusx.c that provides C-Kermit's curses interface, roughly the
-  second half of ckuusx.c.
-*/
-#ifndef CKVOID
-#define CKVOID void
-#endif /* CKVOID */
-
-/* Const type */
-
-#ifndef CONST
-#define CONST const
-#endif /* CONST */
 
 /* Signal type */
 
@@ -2743,11 +2718,11 @@ struct zfnfp {
 /* Debugging included.  Declare debug log flag in main program only. */
 extern int tralog, tlogfmt;
 #endif /* CKCMAI */
-VOID dotlog(int, char *, char *, CK_OFF_T);
+void dotlog(int, char *, char *, CK_OFF_T);
 #define tlog(a, b, c, d)                                                       \
   if (tralog && tlogfmt)                                                       \
   dotlog(a, b, c, (CK_OFF_T)d)
-VOID doxlog(int, char *, CK_OFF_T, int, int, char *);
+void doxlog(int, char *, CK_OFF_T, int, int, char *);
 #endif /* TLOG */
 
 #ifndef DEBUG
@@ -2925,7 +2900,7 @@ int zsetfil(int, int);
 #endif /* UNIX */
 int zchkpid(unsigned long);
 #ifdef CKEXEC
-VOID z_exec(char *, char **, int);
+void z_exec(char *, char **, int);
 #endif /* CKEXEC */
 int chkfn(int);
 CK_OFF_T zchki(char *);
@@ -2934,9 +2909,9 @@ int iswild(char *);
 int isdir(char *);
 int zchko(char *);
 int zdelet(char *);
-VOID zrtol(char *, char *);
-VOID zltor(char *, char *);
-VOID zstrip(char *, char **);
+void zrtol(char *, char *);
+void zltor(char *, char *);
+void zstrip(char *, char **);
 int zchdir(char *);
 char *zhome(void);
 char *zgtdir(void);
@@ -2952,7 +2927,7 @@ int znext(char *);
 int zxrewind(void);
 #endif /* ZXREWIND */
 int zchkspa(char *, CK_OFF_T);
-VOID znewn(char *, char **);
+void znewn(char *, char **);
 int zrename(char *, char *);
 int zcopy(char *, char *);
 int zsattr(struct zattr *);
@@ -2976,7 +2951,7 @@ struct zfnfp *zfnqfp(char *, int, char *);
 #endif /* ZFNQFP */
 int zvuser(char *);
 int zvpass(char *);
-VOID zvlogout(void);
+void zvlogout(void);
 
 /* Functions from system-dependent terminal i/o module */
 
@@ -3048,8 +3023,8 @@ int ttinl(CHAR *, int, int, CHAR);
 /* Console functions */
 
 int congm(void);
-VOID conint(SIGTYP (*)(int), SIGTYP (*)(int));
-VOID connoi(void);
+void conint(SIGTYP (*)(int), SIGTYP (*)(int));
+void connoi(void);
 int concb(char);
 #ifdef CONGSPD
 long congspd(void);
@@ -3075,19 +3050,19 @@ int priv_opn(char *, int);
 int sysinit(void); /* Misc Kermit functions */
 int syscleanup(void);
 int msleep(int);
-VOID rtimer(void);
+void rtimer(void);
 int gtimer(void);
 #ifdef GFTIMER
-VOID rftimer(void);
+void rftimer(void);
 CKFLOAT gftimer(void);
 #endif /* GFTIMER */
-VOID ttimoff(void);
-VOID ztime(char **);
+void ttimoff(void);
+void ztime(char **);
 int parchk(CHAR *, CHAR, int);
-VOID doexit(int, int);
+void doexit(int, int);
 int askmore(void);
-VOID fatal(char *);
-VOID fatal2(char *, char *);
+void fatal(char *);
+void fatal2(char *, char *);
 
 /* Key mapping support */
 
@@ -3488,8 +3463,8 @@ extern int _flsbuf(char c, FILE *stream);
 #endif /* NZLTOR */
 
 #ifdef NZLTOR
-VOID nzltor(char *, char *, int, int, int);
-VOID nzrtol(char *, char *, int, int, int);
+void nzltor(char *, char *, int, int, int);
+void nzrtol(char *, char *, int, int, int);
 #endif /* NZLTOR */
 
 /* Implementations with a zrmdir() function */
@@ -3641,7 +3616,7 @@ extern int filecase;
 #endif /* NOGETUSERSHELL */
 #endif /* UNIX */
 int ckxlogin(CHAR *, CHAR *, CHAR *, int);
-int ckxlogout(VOID);
+int ckxlogout(void);
 #endif /* CK_LOGIN */
 
 #ifndef NOZLOCALTIME /* zlocaltime() available. */
@@ -3663,7 +3638,7 @@ char *zlocaltime(char *);
 #define SYSLGMAX 9        /* Highest level */
 #define SYSLG_DF SYSLG_FA /* Default level */
 /* Logging function */
-VOID cksyslog(int, int, char *, char *, char *);
+void cksyslog(int, int, char *, char *, char *);
 #endif /* CKSYSLOG */
 #ifndef CKCMAI
 extern int ckxlogging, ckxsyslog, ikdbopen;
@@ -3688,7 +3663,7 @@ int isalink(char *);
 
 #ifdef NETPTY
 int do_pty(int *, char *, int);
-VOID end_pty(void);
+void end_pty(void);
 #endif /* NETPTY */
 
 #ifdef CKROOT
@@ -3698,8 +3673,8 @@ int zinroot(char *);
 #endif /* CKROOT */
 
 /* Local Echo Buffer prototypes */
-VOID le_init(void);
-VOID le_clean(void);
+void le_init(void);
+void le_clean(void);
 int le_inbuf(void);
 int le_putstr(CHAR *);
 int le_puts(CHAR *, int);

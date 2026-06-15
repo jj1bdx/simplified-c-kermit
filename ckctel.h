@@ -968,7 +968,7 @@ int tn_rnenv(CHAR *, int);
 int tn_wait(char *);
 int tn_push(void);
 int tnsndbrk(void);
-VOID tn_debug(char *);
+void tn_debug(char *);
 int tn_hex(CHAR *, int, CHAR *, int);
 unsigned char *tn_get_display(void);
 #ifdef IKS_OPTION
@@ -1146,7 +1146,7 @@ extern char *tnc_names[];
 int tnc_init(void);
 int tnc_wait(CHAR *, int);
 int tnc_tn_sb(CHAR *, int);
-CONST char *tnc_get_signature(void);
+const char *tnc_get_signature(void);
 int tnc_send_signature(char *);
 int tnc_set_baud(long);
 int tnc_get_baud(void);

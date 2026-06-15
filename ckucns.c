@@ -81,11 +81,11 @@ struct timeval {
 
 #ifdef NEWFTP
 #endif /* NEWFTP */
-VOID ttflux(void);
-VOID doesc(char);
+void ttflux(void);
+void doesc(char);
 int hconne(void);
 #ifndef NOSHOW
-VOID shomdm(void);
+void shomdm(void);
 #endif /* NOSHOW */
 static int kbget(void);
 static int ckcputf(void);
@@ -375,7 +375,7 @@ static char escbuf[ESCBUFLEN + 1] = {NUL, NUL};
 static int escbufc = 0;
 static int dontprint = 0;
 
-VOID printon() { /* Turn printing on */
+void printon() { /* Turn printing on */
   int x, pp;
   char *p;
   extern int printpipe, noprinter;
@@ -418,7 +418,7 @@ VOID printon() { /* Turn printing on */
   printing = 1;
 }
 
-VOID printoff() { /* Turn printing off */
+void printoff() { /* Turn printing off */
   int x;
   extern int noprinter;
   if (noprinter) {
@@ -647,7 +647,7 @@ int chkaes(char c, int src)
 }
 #endif /* NOESCSEQ */
 
-VOID LOGCHAR(char c)
+void LOGCHAR(char c)
 /* LOGCHAR */ { /* Log character c to session log */
   /* but skip over escape sequences if session log is text */
   if (escseq) {
@@ -805,7 +805,7 @@ kbget() {
 }
 
 #ifdef CKLEARN
-static VOID learnchar(int c) /* Learned script keyboard character */
+static void learnchar(int c) /* Learned script keyboard character */
 {
   int cc;
   char xbuf[8];
@@ -2175,7 +2175,7 @@ int hconne() {
 
 /*  D O E S C  --  Process an escape character argument  */
 
-VOID doesc(char c)
+void doesc(char c)
 /* doesc */ {
   CHAR d;
 

@@ -107,7 +107,7 @@
 #define MAXFCSETS 49 /* Highest file character set number */
 
 #ifdef UNICODE
-VOID initxlate(int, int);
+void initxlate(int, int);
 #endif /* UNICODE */
 
 #endif /* CKUXLA_H */

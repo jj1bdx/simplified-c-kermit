@@ -54,7 +54,7 @@ void free(void *);
 void *malloc(size_t);
 void *realloc(void *, size_t);
 
-VOID m_insert(char *);
+void m_insert(char *);
 int m_delete(char *);
 
 char *dmalloc(int);
@@ -65,7 +65,7 @@ char *set_range_check(char *, int);
 char *check_range(char *);
 static char *maybe_check_range(char *);
 
-static VOID maybe_quit(char *);
+static void maybe_quit(char *);
 static int ask(char *);
 
 #ifndef min
@@ -122,7 +122,7 @@ int size;
   return (cp);
 }
 
-VOID dfree(cp)
+void dfree(cp)
 char *cp;
 {
   if (cp == NULL)
@@ -231,7 +231,7 @@ char *cp;
 char *m_used[BUCKETS];
 char *m_used2[BUCKETS];
 
-VOID m_insert(cp)
+void m_insert(cp)
 register char *cp;
 {
   register int i;
@@ -247,7 +247,7 @@ register char *cp;
   disabled++;
 }
 
-static VOID m_insert2(cp)
+static void m_insert2(cp)
 register char *cp;
 {
   register int i;
@@ -284,7 +284,7 @@ register char *cp;
   return (0);
 }
 
-VOID m_init() {
+void m_init() {
   register int i;
 
   inited = 1;
@@ -294,7 +294,7 @@ VOID m_init() {
     m_used[i] = 0;
 }
 
-VOID m_done() {
+void m_done() {
   register int i, j = 0;
 
   if (disabled)
@@ -325,7 +325,7 @@ VOID m_done() {
     maybe_quit("Unfree'ed malloc buffers");
 }
 
-VOID m_checkranges() {
+void m_checkranges() {
   int i;
 
   for (i = 0; i < BUCKETS; i++)
@@ -333,7 +333,7 @@ VOID m_checkranges() {
       check_range(m_used[i]);
 }
 
-static VOID maybe_quit(str)
+static void maybe_quit(str)
 char *str;
 {
   debug(F100, "mdebug maybe_quit", "", 0);

@@ -957,12 +957,12 @@ static int ttrpid(char *);
 static int ttchkpid(char *);
 static int ttlock(char *);
 static int ttunlck(void);
-static VOID sigchld_handler(int);
+static void sigchld_handler(int);
 int mygetbuf(void);
 int myfillbuf(void);
-VOID conbgt(int);
+void conbgt(int);
 #ifdef ACUCNTRL
-VOID acucntrl(char *, char *);
+void acucntrl(char *, char *);
 #endif /* ACUCNTRL */
 
 #ifdef BSD44ORPOSIX
@@ -1061,7 +1061,7 @@ static int xttgwsiz() {
 }
 
 #ifdef TTLEBUF
-VOID le_init() { /* LocalEchoInit() */
+void le_init() { /* LocalEchoInit() */
   int i;
   for (i = 0; i < LEBUFSIZ; i++)
     le_buf[i] = '\0';
@@ -1070,7 +1070,7 @@ VOID le_init() { /* LocalEchoInit() */
   le_data = 0;
 }
 
-VOID le_clean() { /* LocalEchoCleanup() */
+void le_clean() { /* LocalEchoCleanup() */
   le_init();
   return;
 }
@@ -1291,7 +1291,7 @@ sighup(int foo) /* SIGHUP handler */
   ignored, it remains ignored across exec(), so we have to restore these
   signals before exec(), which is the purpose of restorsigs().
 */
-static VOID ignorsigs() {             /* Ignore these signals */
+static void ignorsigs() {             /* Ignore these signals */
   savquit = signal(SIGQUIT, SIG_IGN); /* Ignore Quit signal */
 
 #ifdef SIGDANGER                          /* Ignore danger signals */
@@ -1317,16 +1317,16 @@ static VOID ignorsigs() {             /* Ignore these signals */
   savusr2 = signal(SIGUSR2, SIG_IGN);
 }
 
-VOID restorsigs() {                /* Restore these signals */
-  (VOID) signal(SIGQUIT, savquit); /* (used in ckufio.c) */
+void restorsigs() {                /* Restore these signals */
+  (void) signal(SIGQUIT, savquit); /* (used in ckufio.c) */
 #ifdef SIGDANGER
-  (VOID) signal(SIGDANGER, savdanger);
+  (void) signal(SIGDANGER, savdanger);
 #endif /* SIGDANGER */
 #ifdef SIGPIPE
-  (VOID) signal(SIGPIPE, savpipe);
+  (void) signal(SIGPIPE, savpipe);
 #endif /* SIGPIPE */
-  (VOID) signal(SIGUSR1, savusr1);
-  (VOID) signal(SIGUSR2, savusr2);
+  (void) signal(SIGUSR1, savusr1);
+  (void) signal(SIGUSR2, savusr2);
 }
 
 int sysinit() {
@@ -1386,14 +1386,14 @@ int sysinit() {
     debug(F100, "sysinit jchdlr: other", "", 0);
     jcshell = 3;
   }
-  (VOID) signal(SIGTSTP, jchdlr); /* Put it back... */
+  (void) signal(SIGTSTP, jchdlr); /* Put it back... */
 #endif                            /* SIGTSTP */
 #endif                            /* NOJC */
 
   conbgt(0); /* See if we're in the background */
   congm();   /* Get console modes */
 
-  (VOID) signal(SIGALRM, SIG_IGN); /* Ignore alarms */
+  (void) signal(SIGALRM, SIG_IGN); /* Ignore alarms */
 
   ignorsigs(); /* Ignore some other signals */
 
@@ -3951,7 +3951,7 @@ static int ttunlck() { /* Remove UUCP lockfile(s). */
 */
 #ifndef NOUUCP
 #ifdef ACUCNTRL
-VOID acucntrl(flag, ttname)
+void acucntrl(flag, ttname)
 char *flag, *ttname;
 {
   char x[DEVNAMLEN + 32], *device, *devname;
@@ -6237,7 +6237,7 @@ int ttpeek() {
  *
  * As of 02/2007 myunrd() is used by ttinl().
  */
-VOID myunrd(CHAR ch) {
+void myunrd(CHAR ch) {
   if (my_item >= 0) {
     mybuf[my_item--] = ch;
     ++my_count;
@@ -6766,7 +6766,7 @@ static int jc = 0; /* 0 = no job control */
   and to 0 if we seem to be in the foreground.  conbgt() is highly prone to
   misbehavior.
 */
-VOID conbgt(int flag) {
+void conbgt(int flag) {
   int x = -1, /* process group or SIGINT test */
       y = 0;  /* isatty() test */
   /*
@@ -6944,7 +6944,7 @@ VOID conbgt(int flag) {
   Second arg is pointer to function to handle SIGTSTP (suspend).
 */
 
-VOID /* Set terminal interrupt traps. */
+void /* Set terminal interrupt traps. */
 conint(SIGTYP (*f)(int), SIGTYP (*s)(int))
 /* conint */ {
 
@@ -7027,7 +7027,7 @@ conint(SIGTYP (*f)(int), SIGTYP (*s)(int))
 
 /*  C O N N O I  --  Reset console terminal interrupts */
 
-VOID connoi() { /* Console-no-interrupts */
+void connoi() { /* Console-no-interrupts */
 
   debug(F101, "connoi conistate", "", conistate);
 #ifdef SIGTSTP
@@ -7144,7 +7144,7 @@ iout:
 
 /*  More V7-support functions...  */
 
-static VOID err(s)
+static void err(s)
 char *s;
 {
   char buf[200];
@@ -7154,7 +7154,7 @@ char *s;
   doexit(1, -1);
 }
 
-static VOID catch (foo) int foo;
+static void catch (foo) int foo;
 {
   longjmp(jjbuf, -1);
 }
@@ -7163,7 +7163,7 @@ static VOID catch (foo) int foo;
 
 #define BSPEED B150
 
-VOID genbrk(fn, msec)
+void genbrk(fn, msec)
 int fn, msec;
 {
   struct sgttyb ttbuf;
@@ -8698,7 +8698,7 @@ int msleep(int m) {
 
 /*  R T I M E R --  Reset elapsed time counter  */
 
-VOID rtimer() { tcount = time((time_t *)0); }
+void rtimer() { tcount = time((time_t *)0); }
 
 /*  G T I M E R --  Get current value of elapsed time counter in seconds  */
 
@@ -8716,11 +8716,11 @@ int gtimer() {
 */
 static struct timeval tzero;
 
-VOID rftimer() {
+void rftimer() {
 #ifdef GTODONEARG /* Account for Mot's definition */
-  (VOID) gettimeofday(&tzero);
+  (void) gettimeofday(&tzero);
 #else
-  (VOID) gettimeofday(&tzero, (struct timezone *)0);
+  (void) gettimeofday(&tzero, (struct timezone *)0);
 #endif /* GTODONEARG */
 }
 
@@ -8732,9 +8732,9 @@ gftimer() {
   char fpbuf[64];
 #endif            /* DEBUG */
 #ifdef GTODONEARG /* Account for Mot's definition */
-  (VOID) gettimeofday(&tnow);
+  (void) gettimeofday(&tnow);
 #else
-  (VOID) gettimeofday(&tnow, (struct timezone *)0);
+  (void) gettimeofday(&tnow, (struct timezone *)0);
 #endif /* GTODONEARG */
 
   tdelta.tv_sec = tnow.tv_sec - tzero.tv_sec;
@@ -8767,7 +8767,7 @@ gftimer() {
 */
 static char asctmbuf[64];
 
-VOID ztime(char **s) {
+void ztime(char **s) {
 #ifdef GFTIMER
   /*
     The gettimeofday() method, which also sets ztmsec and ztusec, works for
@@ -8920,7 +8920,7 @@ int congm() {
   return (1);
 }
 
-static VOID congetbuf(int x) {
+static void congetbuf(int x) {
   int n;
   n = CONBUFSIZ - (conbufp - conbuf); /* How much room left in buffer? */
   if (x > n) {
@@ -10146,7 +10146,7 @@ int priv_chk() {
 UID_T
 real_uid() { return (realuid); }
 
-VOID ttimoff() { /* Turn off any timer interrupts */
+void ttimoff() { /* Turn off any timer interrupts */
                  /* int xx; */
                  /*
                    As of 5A(183), we set SIGALRM to SIG_IGN (to ignore alarms) rather than to
@@ -10216,7 +10216,7 @@ extern int exp_handler, exp_stderr, exp_timo;
 #endif /* USE_CKUPTY_C */
 #endif /* HAVE_OPENPTY */
 
-VOID pty_make_raw(int fd) {
+void pty_make_raw(int fd) {
   int x = -23, i;
 
 #ifdef BSD44ORPOSIX /* POSIX */
@@ -10526,11 +10526,11 @@ static int have_pty = 0; /* Do we have a pty? */
 
 static SIGTYP (*save_sigchld)() = NULL; /* For catching SIGCHLD */
 
-static VOID sigchld_handler(int sig) {
+static void sigchld_handler(int sig) {
   have_pty = 0; /* We don't have a pty */
 #ifdef DEBUG
   if (save_sigchld) {
-    (VOID) signal(SIGCHLD, save_sigchld);
+    (void) signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   if (deblog) {
@@ -11180,7 +11180,7 @@ int ttptycmd(char *s) {
     set to, namely 1 (success) if the pty fork seemed to terminate, 0 otherwise.
   */
   if (save_sigchld) { /* Restore this if we changed it */
-    (VOID) signal(SIGCHLD, save_sigchld);
+    (void) signal(SIGCHLD, save_sigchld);
     save_sigchld = NULL;
   }
   msleep(500);
@@ -11529,7 +11529,7 @@ int ckxprintf(const char *format, ...)
 
 #ifdef perror
 #undef perror
-char *ck_errstr(VOID);
+char *ck_errstr(void);
 int ckxperror(const char *str)
 /* ckxperror */ {
   char *errstr = ck_errstr();

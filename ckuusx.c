@@ -91,7 +91,7 @@ char *tgoto(const char *, int, int);
 
 extern xx_strp xxstring;
 
-char *ckgetpeer(VOID);
+char *ckgetpeer(void);
 int getlocalipaddr(void);
 int istncomport(void);
 #ifndef NOCKGETFQHOST
@@ -268,7 +268,7 @@ extern int streaming, streamok;
 
 /* Used internally */
 
-VOID screenc(int, char, CK_OFF_T, char *);
+void screenc(int, char, CK_OFF_T, char *);
 
 #ifdef CK_CURSES
 #ifndef DYNAMIC
@@ -277,7 +277,7 @@ char *trmbuf = xtrmbuf;
 #else
 char *trmbuf = NULL;
 #endif /* DYNAMIC */
-static VOID dpyinit(void);
+static void dpyinit(void);
 static long shocps(int, CK_OFF_T, CK_OFF_T);
 static CK_OFF_T shoetl(CK_OFF_T, long, CK_OFF_T, CK_OFF_T);
 #endif /* CK_CURSES */
@@ -475,7 +475,7 @@ extern char *sndfilter, *rcvfilter;
 #endif /* PIPESEND */
 extern char **sndarray;
 
-VOID ftreset() {
+void ftreset() {
 #ifndef NOICP
   int i;
   extern char *filefile;
@@ -962,7 +962,7 @@ static char *binp[SYS_MAX][FTPATTERNS] = {
   Set up default pattern lists so they can be freed and re-malloc'd.
   Each pattern list must terminated by a null element.
 */
-VOID initpat() {
+void initpat() {
   int i;
   for (i = 0; i < FTPATTERNS; i++) {
     txtpatterns[i] = NULL;
@@ -1937,7 +1937,7 @@ int fileselect(char *f, char *sa, char *sb, char *sna, char *snb,
 #ifdef TCPSOCKET
 #endif /* TCPSOCKET */
 
-VOID setflow() {
+void setflow() {
   extern int flow, autoflow, mdmtyp, cxtype, cxflow[];
 #ifndef NODIAL
   extern int dialfc;
@@ -2038,7 +2038,7 @@ int autoexitchk(CHAR c)
 #ifndef NOSHOW
 /*  S H O M D M  --  Show modem signals  */
 
-VOID shomdm() {
+void shomdm() {
   /*
     Note use of "\r\n" to make sure this report prints right, even when
     called during CONNECT mode.
@@ -2087,7 +2087,7 @@ VOID shomdm() {
 #ifndef NOXFER
 /*  S D E B U  -- Record spar results in debugging log  */
 
-VOID sdebu(int len) {
+void sdebu(int len) {
   debug(F111, "spar: data", (char *)rdatap, len);
   debug(F101, " spsiz ", "", spsiz);
   debug(F101, " timint", "", timint);
@@ -2109,7 +2109,7 @@ VOID sdebu(int len) {
 }
 /*  R D E B U -- Debugging display of rpar() values  */
 
-VOID rdebu(CHAR *d, int len) {
+void rdebu(CHAR *d, int len) {
   debug(F111, "rpar: data", d, len);
   debug(F101, " rpsiz ", "", xunchar(d[0]));
   debug(F101, " rtimo ", "", rtimo);
@@ -2137,7 +2137,7 @@ VOID rdebu(CHAR *d, int len) {
 
 /*  F A T A L  --  Fatal error message */
 
-VOID fatal(char *msg) {
+void fatal(char *msg) {
   extern int initflg;
   static int initing = 0;
   if (!msg)
@@ -2340,7 +2340,7 @@ dbchr(int c) {
 extern char uidbuf[], *clienthost;
 #endif /* CKSYSLOG */
 
-VOID ckhost(char *vvbuf, int vvlen) {
+void ckhost(char *vvbuf, int vvlen) {
 #ifndef NOPUSH
   extern int nopush;
 #ifndef NOSERVER
@@ -2777,7 +2777,7 @@ stptrap(int sig)
    s1,s2 - String arguments 0 and 1.
    n     - Long, argument 2.
 */
-VOID dotlog(int f, char *s1, char *s2, CK_OFF_T n)
+void dotlog(int f, char *s1, char *s2, CK_OFF_T n)
 /* dotlog */ {
   static char s[TBUFL];
   extern int tlogfmt;
@@ -2886,7 +2886,7 @@ VOID dotlog(int f, char *s1, char *s2, CK_OFF_T n)
   The default separator is comma.
   If a field contains the separator, it is enclosed in doublequotes.
 */
-VOID doxlog(int x, char *fn, CK_OFF_T fs, int fm, int status, char *msg)
+void doxlog(int x, char *fn, CK_OFF_T fs, int fm, int status, char *msg)
 /* doxlog */ {
   extern int tlogsep;
   char sep[2];
@@ -3224,7 +3224,7 @@ int chkint() {
 
 /*  I N T M S G  --  Issue message about terminal interrupts  */
 
-VOID intmsg(long n)
+void intmsg(long n)
 /* intmsg */ {
 #ifdef CK_NEED_SIG
   char buf[80];
@@ -3276,7 +3276,7 @@ static CK_OFF_T oldffc = 0L;
 static CK_OFF_T dots = 0L;
 static int hpos = 0;
 
-static VOID /* Initialize Serial or CRT display */
+static void /* Initialize Serial or CRT display */
 dpyinit() {
   int m = 0, n = 0;
   char *s = "";
@@ -3391,7 +3391,7 @@ dpyinit() {
   c = completion code: 0 means transfer in progress, nonzero means it's done.
   Show the file transfer progress counter and perhaps verbose packet type.
 */
-VOID showpkt(char c)
+void showpkt(char c)
 /* showpkt */ {
 
 #ifndef GFTIMER
@@ -3541,14 +3541,14 @@ VOID showpkt(char c)
     XYFD_B = BRIEF:      Like SERIAL but only filename & completion status.
     XYFD_G = GUI;        Windows GUI, same behavior as FULLSCREEN
 */
-VOID ckscreen(int f, char c, CK_OFF_T n, char *s)
+void ckscreen(int f, char c, CK_OFF_T n, char *s)
 /* screen */ {
   char buf[80];
   int len; /* Length of string */
 #ifdef UNIX
 #ifndef NOJC
   int obg;
-  VOID conbgt(int);
+  void conbgt(int);
 #endif /* NOJC */
 #endif /* UNIX */
   int ftp = 0;
@@ -3979,7 +3979,7 @@ VOID ckscreen(int f, char c, CK_OFF_T n, char *s)
 
 /* Should be used only for printing the message text from an Error packet. */
 
-VOID ermsg(char *msg) /* Print error message */
+void ermsg(char *msg) /* Print error message */
 {
   debug(F110, "ermsg", msg, 0);
   if (local)
@@ -3988,9 +3988,9 @@ VOID ermsg(char *msg) /* Print error message */
 }
 #endif /* NOXFER */
 
-VOID setseslog(int x) { seslog = x; }
+void setseslog(int x) { seslog = x; }
 
-VOID doclean(int fc) /* General cleanup */
+void doclean(int fc) /* General cleanup */
 {
   extern int ttyfd;
   extern int keep;
@@ -4177,7 +4177,7 @@ VOID doclean(int fc) /* General cleanup */
   If second arg is -1, take 1st arg literally.
   If second arg is not -1, work it into the exit code.
 */
-VOID doexit(int exitstat, int code) {
+void doexit(int exitstat, int code) {
   extern int x_logged, quitting;
 
   int i;
@@ -4276,7 +4276,7 @@ VOID doexit(int exitstat, int code) {
   exit(exitstat); /* Exit from C-Kermit */
 }
 
-VOID bgchk() {     /* Check background status */
+void bgchk() {     /* Check background status */
   if (bgset < 0) { /* They didn't type SET BACKGROUND */
     pflag = !backgrd;
   } else { /* Otherwise SET BACKGROUND value */
@@ -4296,7 +4296,7 @@ VOID bgchk() {     /* Check background status */
 
 /* Set console interrupts */
 
-VOID setint() { /* According to SET COMMAND INTERRUP */
+void setint() { /* According to SET COMMAND INTERRUP */
   int x = 0;
   if (cmdint)
     x |= 1;
@@ -4703,7 +4703,7 @@ xdebug:
 
 int tsstate = 0;
 
-VOID logchar(char c)
+void logchar(char c)
 /* logchar */ { /* Log character c to session log */
   extern int slognul;
   int oktolog = 0;
@@ -4760,7 +4760,7 @@ xlogchar:
 #endif /* NOLOCAL */
 }
 
-VOID logstr(char *s, int len) /* Log string to session log */
+void logstr(char *s, int len) /* Log string to session log */
 {
 #ifndef NOLOCAL
   int n = 0;
@@ -4814,10 +4814,6 @@ int ck_repaint() {
 
 /* Avoid conficts with curses.h */
 
-#ifndef MYCURSES
-#undef VOID /* This was defined in ckcdeb.h */
-#endif      /* MYCURSES */
-
 #undef BS /* These were defined in ckcasc.h */
 #undef CR
 #undef NL
@@ -4860,9 +4856,7 @@ int ck_repaint() {
 
 #ifdef CK_CURSES
 #ifndef MYCURSES
-static
-    /* Can't use VOID because of curses.h */
-    void ck_termset(int);
+static void ck_termset(int);
 #endif /* MYCURSES */
 #endif /* CK_CURSES */
 
@@ -4873,7 +4867,7 @@ static int notermcap = 0;
 #endif /* NOTERMCAP */
 
 #ifndef NODISPLAY
-CKVOID
+void
 fxdinit(int xdispla) {
   char *s;
   int x, dummy;

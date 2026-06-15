@@ -1557,7 +1557,7 @@ int nlng = (sizeof(lngtab) / sizeof(struct keytab)) - 1; /* how many */
   set to a 7-bit set.  Accented letters are mapped to unaccented
   equivalents, C1 control characters are all translated to "?", etc.
 */
-CONST CHAR yl1as[] = {
+const CHAR yl1as[] = {
     /* ISO 8859-1 Latin Alphabet 1 to US ASCII */
     /*  Source character    Description               => Translation */
     /*  Dec row/col Set                                           */
@@ -1827,7 +1827,7 @@ CONST CHAR yl1as[] = {
   following tables corresponds to a column of ISO 8859-1.
 */
 
-CONST CHAR yl185[] =
+const CHAR yl185[] =
     {/* ISO 8859-1 Latin Alphabet 1 (Latin-1) to IBM Code Page 850 */
      /*
        This is based on IBM's official invertible translation.  Reference: IBM
@@ -1855,7 +1855,7 @@ CONST CHAR yl185[] =
      208, 164, 149, 162, 147, 228, 148, 246, 155, 151, 163, 150, 129, 236, 231,
      152};
 
-CONST CHAR y85l1[] =
+const CHAR y85l1[] =
     {/* IBM Code Page 850 to Latin-1 */
      /*
        This is from IBM CDRA page 153.  It is the inverse of yl185[].
@@ -1882,7 +1882,7 @@ CONST CHAR y85l1[] =
      160};
 
 /* This is an invertible mapping, approved by HP in January 1994. */
-CONST CHAR yl1r8[] =
+const CHAR yl1r8[] =
     {/* ISO Latin-1 to HP Roman8, Invertible */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -1903,7 +1903,7 @@ CONST CHAR yl1r8[] =
      228, 183, 202, 198, 194, 234, 206, 255, 214, 203, 199, 195, 207, 178, 241,
      239};
 
-CONST CHAR yr8l1[] =
+const CHAR yr8l1[] =
     {/* HP Roman8 to ISO Latin-1, Invertible */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -1924,7 +1924,7 @@ CONST CHAR yr8l1[] =
      222, 254, 183, 181, 182, 190, 185, 188, 189, 170, 186, 171, 215, 187, 177,
      247};
 
-CONST CHAR yl143[] =
+const CHAR yl143[] =
     {/* Latin-1 to IBM Code Page 437 */
      /*
        Although the IBM CDRA does not include an official translation between
@@ -1953,7 +1953,7 @@ CONST CHAR yl143[] =
      208, 164, 149, 162, 147, 228, 148, 246, 189, 151, 163, 150, 129, 236, 231,
      152};
 
-CONST CHAR y43l1[] =
+const CHAR y43l1[] =
     {/* IBM Code Page 437 to Latin-1 */
      /*
        This table is the inverse of yl143[].
@@ -1977,7 +1977,7 @@ CONST CHAR y43l1[] =
      173, 177, 143, 190, 182, 167, 247, 184, 176, 168, 183, 185, 179, 178, 142,
      160};
 
-CONST CHAR yl1aq[] =
+const CHAR yl1aq[] =
     {/* Latin-1 to Extended Mac Latin (based on Apple QuickDraw) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -1998,7 +1998,7 @@ CONST CHAR yl1aq[] =
      221, 150, 152, 151, 153, 155, 154, 214, 191, 157, 156, 158, 159, 224, 223,
      216};
 
-CONST CHAR yl1du[] =
+const CHAR yl1du[] =
     {/* Latin-1 to Dutch ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2019,7 +2019,7 @@ CONST CHAR yl1du[] =
      UNK, 110, 111, 111, 111, 111, 111, 47,  111, 117, 117, 117, 117, 121, UNK,
      91};
 
-CONST CHAR yl1fi[] =
+const CHAR yl1fi[] =
     {/* Latin-1 to Finnish ISO NRC (*not* ISO 646) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2040,7 +2040,7 @@ CONST CHAR yl1fi[] =
      UNK, 110, 111, 111, 111, 111, 124, 47,  111, 117, 117, 117, 126, 121, UNK,
      121};
 
-CONST CHAR yl1fr[] =
+const CHAR yl1fr[] =
     {/* Latin-1 to French ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2061,7 +2061,7 @@ CONST CHAR yl1fr[] =
      UNK, 110, 111, 111, 111, 111, 111, 47,  111, 124, 117, 117, 117, 121, UNK,
      121};
 
-CONST CHAR yl1fc[] =
+const CHAR yl1fc[] =
     {/* Latin-1 to French-Canadian ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2082,7 +2082,7 @@ CONST CHAR yl1fc[] =
      UNK, 110, 111, 111, 96,  111, 111, 47,  111, 124, 117, 126, 117, 121, UNK,
      121};
 
-CONST CHAR yl1ge[] =
+const CHAR yl1ge[] =
     {/* Latin-1 to German ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2103,7 +2103,7 @@ CONST CHAR yl1ge[] =
      UNK, 110, 111, 111, 111, 111, 124, 47,  111, 117, 117, 117, 125, 121, UNK,
      121};
 
-CONST CHAR yl1hu[] =
+const CHAR yl1hu[] =
     {/* Latin-1 to Hungarian ISO-646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2124,7 +2124,7 @@ CONST CHAR yl1hu[] =
      UNK, 110, 111, 111, 111, 111, 124, 47,  111, 117, 117, 117, 125, 121, UNK,
      121};
 
-CONST CHAR yl1it[] =
+const CHAR yl1it[] =
     {/* Latin-1 to Italian ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2145,7 +2145,7 @@ CONST CHAR yl1it[] =
      UNK, 110, 124, 111, 111, 111, 111, 47,  111, 96,  117, 117, 117, 121, UNK,
      121};
 
-CONST CHAR yl1ne[] =
+const CHAR yl1ne[] =
     {/* Latin-1 to NeXT */
      /* NEED TO MAKE THIS ONE INVERTIBLE, LIKE CP850 */
      /*
@@ -2174,7 +2174,7 @@ CONST CHAR yl1ne[] =
      230, 231, 236, 237, 238, 239, 240, 159, 249, 242, 243, 244, 246, 247, 252,
      253};
 
-CONST CHAR yl1no[] =
+const CHAR yl1no[] =
     {/* Latin-1 to Norwegian/Danish ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2195,7 +2195,7 @@ CONST CHAR yl1no[] =
      UNK, 110, 111, 111, 111, 111, 111, 47,  124, 117, 117, 117, 117, 121, UNK,
      121};
 
-CONST CHAR yl1po[] =
+const CHAR yl1po[] =
     {/* Latin-1 to Portuguese ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2216,7 +2216,7 @@ CONST CHAR yl1po[] =
      UNK, 110, 111, 111, 111, 125, 111, 47,  111, 117, 117, 117, 117, 121, UNK,
      121};
 
-CONST CHAR yl1sp[] =
+const CHAR yl1sp[] =
     {/* Latin-1 to Spanish ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2237,7 +2237,7 @@ CONST CHAR yl1sp[] =
      UNK, 124, 111, 111, 111, 111, 111, 47,  111, 117, 117, 117, 117, 121, UNK,
      121};
 
-CONST CHAR yl1sw[] =
+const CHAR yl1sw[] =
     {/* Latin-1 to Swedish ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2258,7 +2258,7 @@ CONST CHAR yl1sw[] =
      UNK, 110, 111, 111, 111, 111, 124, 47,  111, 117, 117, 117, 126, 121, UNK,
      121};
 
-CONST CHAR yl1ch[] =
+const CHAR yl1ch[] =
     {/* Latin-1 to Swiss ISO 646 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2279,7 +2279,7 @@ CONST CHAR yl1ch[] =
      UNK, 110, 111, 111, 96,  111, 124, 47,  111, 35,  117, 126, 125, 121, UNK,
      121};
 
-CONST CHAR yl1dm[] =
+const CHAR yl1dm[] =
     {/* Latin-1 to DEC Multinational Character Set */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2300,7 +2300,7 @@ CONST CHAR yl1dm[] =
      UNK, 241, 242, 243, 244, 245, 246, 47,  248, 249, 250, 251, 252, UNK, UNK,
      253};
 
-CONST CHAR yl1dg[] =
+const CHAR yl1dg[] =
     {/* Latin-1 to Data General International Character Set */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2324,7 +2324,7 @@ CONST CHAR yl1dg[] =
 /* Local file character sets to ISO Latin Alphabet 1 */
 
 #ifdef NOTUSED
-CONST CHAR yasl1[] = {/* ASCII to Latin-1 */
+const CHAR yasl1[] = {/* ASCII to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2339,7 +2339,7 @@ CONST CHAR yasl1[] = {/* ASCII to Latin-1 */
                       121, 122, 123, 124, 125, 126, 127};
 #endif /* NOTUSED */
 
-CONST CHAR yaql1[] =
+const CHAR yaql1[] =
     {/* Extended Mac Latin (based on Apple Quickdraw) to Latin-1 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2360,7 +2360,7 @@ CONST CHAR yaql1[] =
      150, 210, 218, 219, 217, 151, 152, 153, 175, 154, 155, 156, 184, 157, 158,
      159};
 
-CONST CHAR ydul1[] = {/* Dutch ISO 646 to Latin-1 */
+const CHAR ydul1[] = {/* Dutch ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2374,7 +2374,7 @@ CONST CHAR ydul1[] = {/* Dutch ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 168, 164, 188, 39,  127};
 
-CONST CHAR yfil1[] = {/* Finnish NRC (*not* ISO-646) to Latin-1 */
+const CHAR yfil1[] = {/* Finnish NRC (*not* ISO-646) to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2388,7 +2388,7 @@ CONST CHAR yfil1[] = {/* Finnish NRC (*not* ISO-646) to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 228, 246, 229, 252, 127};
 
-CONST CHAR yfrl1[] = {/* French ISO 646 to Latin-1 */
+const CHAR yfrl1[] = {/* French ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2402,7 +2402,7 @@ CONST CHAR yfrl1[] = {/* French ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 233, 249, 232, 168, 127};
 
-CONST CHAR yfcl1[] = {/* French-Canadian ISO 646 to Latin-1 */
+const CHAR yfcl1[] = {/* French-Canadian ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2416,7 +2416,7 @@ CONST CHAR yfcl1[] = {/* French-Canadian ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 233, 249, 232, 251, 127};
 
-CONST CHAR ygel1[] = {/* German ISO 646 to Latin-1 */
+const CHAR ygel1[] = {/* German ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2430,7 +2430,7 @@ CONST CHAR ygel1[] = {/* German ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 228, 246, 252, 223, 127};
 
-CONST CHAR yitl1[] = {/* Italian ISO 646 to Latin-1 */
+const CHAR yitl1[] = {/* Italian ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2444,7 +2444,7 @@ CONST CHAR yitl1[] = {/* Italian ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 224, 242, 232, 236, 127};
 
-CONST CHAR ynel1[] =
+const CHAR ynel1[] =
     {/* NeXT to Latin-1 */
      /* NEED TO MAKE THIS ONE INVERTIBLE */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
@@ -2466,7 +2466,7 @@ CONST CHAR ynel1[] =
      246, 230, 249, 250, 251, UNK, 252, 253, UNK, 248, UNK, 223, 254, 255, UNK,
      UNK};
 
-CONST CHAR ynol1[] = {/* Norwegian/Danish ISO 646 to Latin-1 */
+const CHAR ynol1[] = {/* Norwegian/Danish ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2480,7 +2480,7 @@ CONST CHAR ynol1[] = {/* Norwegian/Danish ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 230, 248, 229, 126, 127};
 
-CONST CHAR ypol1[] = {/* Portuguese ISO 646 to Latin-1 */
+const CHAR ypol1[] = {/* Portuguese ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2494,7 +2494,7 @@ CONST CHAR ypol1[] = {/* Portuguese ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 227, 231, 245, 126, 127};
 
-CONST CHAR yspl1[] = {/* Spanish ISO 646 to Latin-1 */
+const CHAR yspl1[] = {/* Spanish ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2508,7 +2508,7 @@ CONST CHAR yspl1[] = {/* Spanish ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 176, 241, 231, 126, 127};
 
-CONST CHAR yswl1[] = {/* Swedish ISO 646 to Latin-1 */
+const CHAR yswl1[] = {/* Swedish ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2522,7 +2522,7 @@ CONST CHAR yswl1[] = {/* Swedish ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 228, 246, 229, 252, 127};
 
-CONST CHAR ychl1[] = {/* Swiss ISO 646 to Latin-1 */
+const CHAR ychl1[] = {/* Swiss ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2536,7 +2536,7 @@ CONST CHAR ychl1[] = {/* Swiss ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 228, 246, 252, 251, 127};
 
-CONST CHAR yhul1[] = {/* Hungarian ISO 646 to Latin-1 */
+const CHAR yhul1[] = {/* Hungarian ISO 646 to Latin-1 */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2550,7 +2550,7 @@ CONST CHAR yhul1[] = {/* Hungarian ISO 646 to Latin-1 */
                       110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
                       121, 122, 233, 246, 252, 34,  127};
 
-CONST CHAR ydml1[] =
+const CHAR ydml1[] =
     {/* DEC Multinational Character Set to Latin-1 */
      /* Note: This is a null translation */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
@@ -2572,7 +2572,7 @@ CONST CHAR ydml1[] =
      240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
      255};
 
-CONST CHAR ydgl1[] =
+const CHAR ydgl1[] =
     {/* Data General International to Latin-1 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2596,7 +2596,7 @@ CONST CHAR ydgl1[] =
 /* Translation tables for Cyrillic character sets */
 
 #ifdef CYRILLIC
-CONST CHAR ylcac[] =
+const CHAR ylcac[] =
     {/* Latin/Cyrillic to CP866 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  208, 209, 22,  23,  24,  25,  26,  27,  28,  29,
@@ -2617,7 +2617,7 @@ CONST CHAR ylcac[] =
      252, 241, 164, 163, 243, 115, 105, 245, 106, 171, 173, 231, 170, 21,  247,
      167};
 
-CONST CHAR ylc55[] =
+const CHAR ylc55[] =
     {/* Latin/Cyrillic to CP855 (inverse of y55lc) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2638,7 +2638,7 @@ CONST CHAR ylc55[] =
      239, 132, 128, 130, 134, 136, 138, 140, 142, 144, 146, 148, 150, 253, 152,
      154};
 
-CONST CHAR ylc1251[] =
+const CHAR ylc1251[] =
     {/* Latin/Cyrillic to CP1251 (inverse of y1251lc) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2659,7 +2659,7 @@ CONST CHAR ylc1251[] =
      185, 184, 144, 131, 186, 190, 179, 191, 188, 154, 156, 158, 157, 167, 162,
      159};
 
-CONST CHAR ylcbu[] =
+const CHAR ylcbu[] =
     {/* Latin/Cyrillic to Bulgarian PC Code Page */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2680,7 +2680,7 @@ CONST CHAR ylcbu[] =
      240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 214, 253,
      254};
 
-CONST CHAR ylck8[] =
+const CHAR ylck8[] =
     {/* Latin/Cyrillic to Old KOI-8 Cyrillic */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2701,7 +2701,7 @@ CONST CHAR ylck8[] =
      UNK, 197, UNK, UNK, UNK, 115, 105, 105, 106, UNK, UNK, UNK, 203, UNK, 213,
      UNK};
 
-CONST CHAR yaclc[] =
+const CHAR yaclc[] =
     {/* CP866 to Latin/Cyrillic */
      /* NEED TO MAKE THIS ONE INVERTIBLE */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
@@ -2723,7 +2723,7 @@ CONST CHAR yaclc[] =
      161, 241, 164, 244, 167, 247, 174, 254, UNK, UNK, UNK, UNK, 240, UNK, UNK,
      UNK};
 
-CONST CHAR y55lc[] =
+const CHAR y55lc[] =
     {/* CP855 to Latin/Cyrillic (inverse of ylc55) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2744,7 +2744,7 @@ CONST CHAR y55lc[] =
      173, 235, 203, 215, 183, 232, 200, 237, 205, 233, 201, 231, 199, 253, 159,
      160};
 
-CONST CHAR y1251lc[] =
+const CHAR y1251lc[] =
     {/* CP1251 to Latin/Cyrillic (inverse of ylc1251) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2765,7 +2765,7 @@ CONST CHAR y1251lc[] =
      224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238,
      239};
 
-CONST CHAR ybulc[] =
+const CHAR ybulc[] =
     {/* Bulgarian PC Code Page to Latin/Cyrillic */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2786,7 +2786,7 @@ CONST CHAR ybulc[] =
      240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 254, 255,
      128};
 
-CONST CHAR yk8lc[] =
+const CHAR yk8lc[] =
     {/* Old KOI-8 Cyrillic to Latin/Cyrillic */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2807,7 +2807,7 @@ CONST CHAR yk8lc[] =
      191, 207, 192, 193, 194, 195, 182, 178, 204, 203, 183, 200, 205, 201, 199,
      127};
 
-CONST CHAR ylcsk[] =
+const CHAR ylcsk[] =
     {/* Latin/Cyrillic to Short KOI */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2828,7 +2828,7 @@ CONST CHAR ylcsk[] =
      UNK, 101, UNK, UNK, UNK, 83,  73,  73,  74,  UNK, UNK, UNK, 107, UNK, 117,
      UNK};
 
-CONST CHAR yskcy[] = {/* Short KOI to Latin/Cyrillic */
+const CHAR yskcy[] = {/* Short KOI to Latin/Cyrillic */
                       0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
                       11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,
                       22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,
@@ -2847,7 +2847,7 @@ CONST CHAR yskcy[] = {/* Short KOI to Latin/Cyrillic */
 
 /* Latin-2 tables */
 
-CONST CHAR yl252[] =
+const CHAR yl252[] =
     {/* Latin-2 to Code Page 852 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2868,7 +2868,7 @@ CONST CHAR yl252[] =
      208, 228, 229, 162, 147, 139, 148, 246, 253, 133, 163, 251, 129, 236, 238,
      250};
 
-CONST CHAR y52l2[] =
+const CHAR y52l2[] =
     {/* Code Page 852 to Latin-2 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2889,7 +2889,7 @@ CONST CHAR y52l2[] =
      158, 189, 178, 183, 162, 167, 247, 184, 176, 168, 255, 251, 216, 248, 159,
      160};
 
-CONST CHAR yl21250[] =
+const CHAR yl21250[] =
     {/* Latin-2 to Code Page 1250 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2910,7 +2910,7 @@ CONST CHAR yl21250[] =
      240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
      255};
 
-CONST CHAR y1250l2[] =
+const CHAR y1250l2[] =
     {/* Code Page 1250 to Latin-2 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2931,7 +2931,7 @@ CONST CHAR y1250l2[] =
      240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
      255};
 
-CONST CHAR yl2mz[] =
+const CHAR yl2mz[] =
     {/* Latin-2 to Mazovia (NOT invertible) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2952,7 +2952,7 @@ CONST CHAR yl2mz[] =
      100, 164, 110, 162, 147, 148, 148, 246, 114, 117, 117, 129, 129, 121, 116,
      249};
 
-CONST CHAR ymzl2[] =
+const CHAR ymzl2[] =
     {/* Mazovia to Latin-2 (NOT INVERTIBLE) */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2973,7 +2973,7 @@ CONST CHAR ymzl2[] =
      UNK, UNK, UNK, UNK, UNK, UNK, 247, UNK, 176, 255, 215, UNK, UNK, UNK, UNK,
      160};
 
-CONST CHAR yl2l1[] =
+const CHAR yl2l1[] =
     {/* Latin-2 to Latin-1 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -2994,7 +2994,7 @@ CONST CHAR yl2l1[] =
      240, 'n', 'n', 243, 244, 'o', 246, 247, 'r', 'u', 250, 'u', 252, 253, 't',
      '.'};
 
-CONST CHAR yl1l2[] =
+const CHAR yl1l2[] =
     {/* Latin-1 to Latin-2 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3015,7 +3015,7 @@ CONST CHAR yl1l2[] =
      240, 'n', 'o', 243, 244, 'o', 246, 247, 'o', 'u', 250, 'u', 252, 253, UNK,
      'y'};
 
-CONST CHAR yl2as[] =
+const CHAR yl2as[] =
     {/* Latin-2 to ASCII */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3041,7 +3041,7 @@ CONST CHAR yl2as[] =
 /*
   8-bit Tables providing invertible translation between Latin/Hebrew and CP862.
 */
-CONST CHAR y62lh[] =
+const CHAR y62lh[] =
     {/* PC Code Page 862 to ISO 8859-8 Latin/Hebrew */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3062,7 +3062,7 @@ CONST CHAR y62lh[] =
      218, 177, 219, 220, 221, 222, 186, 251, 176, 183, 252, 253, 254, 178, 255,
      160};
 
-CONST CHAR ylh62[] =
+const CHAR ylh62[] =
     {/* ISO 8859-8 Latin/Hebrew to PC Code Page 862 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3085,7 +3085,7 @@ CONST CHAR ylh62[] =
 /*
   7-bit table providing readable translation from DEC Hebrew-7 to CP862.
 */
-CONST CHAR yh762[] = {
+const CHAR yh762[] = {
     0,   1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,  12,  13,  14,  15,
     16,  17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,  28,  29,  30,  31,
     32,  33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,  44,  45,  46,  47,
@@ -3097,7 +3097,7 @@ CONST CHAR yh762[] = {
 /*
   8-bit table providing readable translation from CP862 to Hebrew-7.
 */
-CONST CHAR y62h7[] =
+const CHAR y62h7[] =
     {/* PC Code Page 862 to Hebrew-7 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3120,7 +3120,7 @@ CONST CHAR y62h7[] =
 /*
   7-bit table providing readable translation from Hebrew-7 to ISO Latin/Hebrew.
 */
-CONST CHAR yh7lh[] = {
+const CHAR yh7lh[] = {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
     15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
     30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -3133,7 +3133,7 @@ CONST CHAR yh7lh[] = {
 /*
   8-bit table providing readable translation from ISO Latin/Hebrew to Hebrew-7.
 */
-CONST CHAR ylhh7[] =
+const CHAR ylhh7[] =
     {/* Latin/Hebrew to Hebrew-7 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3159,7 +3159,7 @@ CONST CHAR ylhh7[] =
 /*
   8-bit Tables providing invertible translation between Latin/Greek and CP869.
 */
-CONST CHAR ylg69[] =
+const CHAR ylg69[] =
     {/* ISO 8859-7 Latin/Greek to PC Code Page 869 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3180,7 +3180,7 @@ CONST CHAR ylg69[] =
      234, 235, 237, 236, 238, 242, 243, 244, 246, 250, 160, 251, 162, 163, 253,
      133};
 
-CONST CHAR y69lg[] =
+const CHAR y69lg[] =
     {/* PC Code Page 869 to ISO 8859-7 Latin/Greek */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3203,7 +3203,7 @@ CONST CHAR y69lg[] =
 /*
   7-bit table providing readable translation from ELOT 927 to CP869.
 */
-CONST CHAR yeg69[] = {
+const CHAR yeg69[] = {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
     15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
     30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -3216,7 +3216,7 @@ CONST CHAR yeg69[] = {
 /*
   8-bit table providing readable translation from CP869 to ELOT 927.
 */
-CONST CHAR y69eg[] =
+const CHAR y69eg[] =
     {/* PC Code Page 869 to ELOT 927 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -3241,7 +3241,7 @@ CONST CHAR y69eg[] =
 /*
   7-bit table providing readable translation from ELOT 927 to ISO Latin/Greek.
 */
-CONST CHAR yeglg[] = {
+const CHAR yeglg[] = {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
     15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
     30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -3254,7 +3254,7 @@ CONST CHAR yeglg[] = {
 /*
   8-bit table providing readable translation from ISO Latin/Greek to ELOT 927.
 */
-CONST CHAR ylgeg[] =
+const CHAR ylgeg[] =
     {/* Latin/Greek to ELOT 927 */
      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
      15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -5561,7 +5561,7 @@ static int jpnpbf[8]; /* pending buffer */
 /* There is some duplication here between the old and new JIS-7 parsers */
 /* to be cleaned up later... */
 
-VOID j7init() { /* Initialize JIS-7 parser */
+void j7init() { /* Initialize JIS-7 parser */
   jpnstz = 0;
   jpnpnd = 0;
   jpnpnt = 0;
@@ -7314,7 +7314,7 @@ int cs_size(int x) {
     xuf = UCS to FCS
     xut = UCS to TCS
 */
-VOID setxlatype(int tcs, int fcs) {
+void setxlatype(int tcs, int fcs) {
 #ifdef UNICODE
   xfu = NULL; /* Unicode <-> TCS/FCS functions */
   xtu = NULL;
@@ -7374,7 +7374,7 @@ VOID setxlatype(int tcs, int fcs) {
 /* Set up translation between two file character sets with UCS intermediate */
 
 #ifdef UNICODE
-VOID initxlate(int csin, int csout) {
+void initxlate(int csin, int csout) {
   xfu = NULL;
   xtu = NULL;
   xuf = NULL;
@@ -7405,7 +7405,7 @@ VOID initxlate(int csin, int csout) {
 
 int csetsinited = 0;
 
-VOID initcsets() { /* Routine to reset or initialize */
+void initcsets() { /* Routine to reset or initialize */
   int i;           /* character-set associations. */
 
 #ifdef UNICODE

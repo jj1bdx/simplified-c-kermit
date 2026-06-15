@@ -32,7 +32,7 @@ char *connv = "CONNECT Command for UNIX:fork(), 10.0.119, 13 May 2023";
 
 #ifndef NOLOCAL
 
-static VOID concld(void);
+static void concld(void);
 
 #include <signal.h> /* Signals */
 
@@ -55,17 +55,17 @@ static VOID concld(void);
 
 /* Internal function prototypes */
 
-VOID ttflux(void);
-VOID doesc(char);
-VOID logchar(char);
+void ttflux(void);
+void doesc(char);
+void logchar(char);
 int hconne(void);
 #ifndef NOSHOW
-VOID shomdm(void);
+void shomdm(void);
 #endif /* NOSHOW */
 static int kbget(void);
 static int pipemsg(int);
 static int ckcputf(void);
-static VOID ck_sndmsg(void);
+static void ck_sndmsg(void);
 /*
   For inter-fork signaling.  Normally we use SIGUSR1, except on SCO, where
   we use SIGUSR2 because SIGUSR1 is used by the system.  You can define
@@ -478,7 +478,7 @@ int foo;
   /* NOTREACHED */
 }
 
-static VOID ck_sndmsg() { /* Executed by child only ... */
+static void ck_sndmsg() { /* Executed by child only ... */
   debug(F100, "CONNECT ck_sndmsg, active", "", active);
   if (
 #ifdef CK_POSIX_SIG
@@ -820,7 +820,7 @@ kbget() {
 
 /*  C O N C L D --  Interactive terminal connection child function */
 
-static VOID concld() {
+static void concld() {
   int n;      /* General purpose counter */
   int i;      /* For loops... */
   int c = -1; /* c is a character, but must be signed
@@ -2186,7 +2186,7 @@ int hconne() {
 
 /*  D O E S C  --  Process an escape character argument  */
 
-VOID doesc(char c)
+void doesc(char c)
 /* doesc */ {
   CHAR d;
 
@@ -2269,7 +2269,7 @@ VOID doesc(char c)
     case 'r': /* Reset the X.25 virtual circuit */
     case '\022':
       if (network && (nettype == NET_SX25 || nettype == NET_IX25))
-        (VOID) x25reset(0, 0);
+        (void) x25reset(0, 0);
       conol("\r\n");
       return;
 #endif /* ANYX25 */

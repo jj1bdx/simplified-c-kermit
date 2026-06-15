@@ -191,7 +191,7 @@ long crctb[16] = {0L,       010611L,  021422L,  031233L,  043044L,  053655L,
 
 /*  R T T I N I T  --  Initialize timers at start of transaction  */
 
-VOID rttinit() { /* Initialize round-trip timing */
+void rttinit() { /* Initialize round-trip timing */
   int i;
 
   if (timint == 0)
@@ -1587,7 +1587,7 @@ int nack(int n) {
  If the present resizing method causes problems, think about this one a little
  more.
 */
-VOID rcalcpsz(void) {
+void rcalcpsz(void) {
   {
     /* New way */
     debug(F101, "rcalcpsiz numerrs", "", numerrs);
@@ -2234,7 +2234,7 @@ VOID rcalcpsz(void) {
 #ifdef CK_APC
   /*  A U T O D O W N  */
 
-  VOID autodown(int ch)
+  void autodown(int ch)
   /* autodown */ {
 
     /* The Kermit and Zmodem Auto-download calls go here */
@@ -2815,7 +2815,7 @@ VOID rcalcpsz(void) {
     Example:
     s-00-01-^A9 S~/ @-#Y3~^>J)0___J"U1@C
   */
-  VOID logpkt(char c, int n, CHAR *s, int len)
+  void logpkt(char c, int n, CHAR *s, int len)
   /* logpkt */ {
     char plog[20];
     if (!s)
@@ -2865,7 +2865,7 @@ VOID rcalcpsz(void) {
 
   /*  T S T A T S  --  Record statistics in transaction log  */
 
-  VOID tstats() {
+  void tstats() {
     char *tp = NULL;
 #ifdef GFTIMER
     CKFLOAT xx; /* Elapsed time divisor */
@@ -2941,7 +2941,7 @@ VOID rcalcpsz(void) {
 
   /*  F S T A T S  --  Record file statistics in transaction log  */
 
-  VOID fcps() {
+  void fcps() {
 #ifdef GFTIMER
     double xx;
     fpxfsecs = gftimer() - fpfsecs;
@@ -2969,7 +2969,7 @@ VOID rcalcpsz(void) {
 #endif /* GFTIMER */
   }
 
-  VOID fstats() {
+  void fstats() {
     tfc += ffc;
 #ifdef DEBUG
     if (deblog) {

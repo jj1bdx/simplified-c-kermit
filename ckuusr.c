@@ -110,13 +110,13 @@ int didsetlin = 0;
 #ifdef NEWFTP
 extern int ftpget, ftpisopen(), doftpres();
 int doftptyp(int);
-VOID doftpglobaltype(int);
+void doftpglobaltype(int);
 #endif /* NEWFTP */
 
 #include "ckcfnp.h" /* Prototypes (must be last) */
 
 /* Prototypes for static functions - fdc 30 November 2022 */
-static VOID doend(int);
+static void doend(int);
 static int dodcl(int);
 static int addsend(int);
 static int clrarray(int);
@@ -3079,7 +3079,7 @@ static int ntracetab = sizeof(tracetab) / sizeof(struct keytab);
 #endif /* NOSPL */
 
 #ifndef NOSHOW
-VOID showtypopts() {
+void showtypopts() {
   printf(" TYPE ");
   if (typ_page > -1) {
     prtopt(&optlines, typ_page ? "/PAGE" : "/NOPAGE");
@@ -3096,7 +3096,7 @@ VOID showtypopts() {
 #ifdef LOCUS
 /* isauto == 1 if locus is being switched automatically */
 
-VOID setlocus(int x, int isauto) {
+void setlocus(int x, int isauto) {
   extern int quitting;
   if (x)
     x = 1;
@@ -3111,7 +3111,7 @@ VOID setlocus(int x, int isauto) {
   locus = x;
 }
 
-VOID setautolocus(int x) { autolocus = x; }
+void setautolocus(int x) { autolocus = x; }
 #endif /* LOCUS */
 
 int settypopts() { /* Set TYPE option defaults */
@@ -3352,7 +3352,7 @@ int doping() { /* PING command */
 #endif /* NOPUSH */
 #endif /* TCPSOCKET */
 
-static VOID doend(int x) {
+static void doend(int x) {
 #ifndef NOSPL
   /* Pop from all FOR/WHILE/XIF/SWITCH's */
   debug(F101, "doend maclvl 1", "", maclvl);
@@ -4790,7 +4790,7 @@ static char *g_tt_trigger[TRIGGERS];
 
 static struct stringint pv[CONN_MAX + 1];
 
-VOID resconn() {
+void resconn() {
   int i;
 
 #ifdef CK_TRIGGER
@@ -6930,7 +6930,7 @@ static int doprompt() {
 }
 
 #ifdef CKLEARN
-VOID learncmd(char *s) /* Record commands in learned script */
+void learncmd(char *s) /* Record commands in learned script */
 {
   char buf[64];
   int i, k;
@@ -7093,7 +7093,7 @@ int isinternalmacro(int x) /* Test if macro is internally defined */
 #define ERRMSGBUFSIZ 320
 static char errmsgbuf[ERRMSGBUFSIZ] = {'\0'};
 
-VOID newerrmsg(char *s) {
+void newerrmsg(char *s) {
   char *tmperrbuf[ERRMSGBUFSIZ];
 
   extern char lasttakeline[];
@@ -12103,7 +12103,7 @@ int docmd(int cx) {
     if (s)
       if (s == (char *)0)
         s = NULL;
-    (VOID) makestr(&s1, s);
+    (void) makestr(&s1, s);
     if (s && !s1) {
       printf("?PUTENV - memory allocation failure\n");
       return (-9);
@@ -12113,10 +12113,10 @@ int docmd(int cx) {
     if (s)
       if (s == (char *)0)
         s = NULL;
-    (VOID) makestr(&s2, s);
+    (void) makestr(&s2, s);
     success = doputenv(s1, s2);
-    (VOID) makestr(&s1, NULL);
-    (VOID) makestr(&s2, NULL);
+    (void) makestr(&s1, NULL);
+    (void) makestr(&s2, NULL);
     return (success);
   }
 #endif /* NOPUTENV */

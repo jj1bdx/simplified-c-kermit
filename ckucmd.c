@@ -53,10 +53,10 @@ int cmdmsk = 255; /* 31 Dec 2000 (was 127) */
 
 int nlookup(struct keytab[], char *, int, int *);
 int unhex(char);
-static VOID cmdclrscn(void);
+static void cmdclrscn(void);
 
 #ifdef CKLEARN
-VOID learncmd(char *);
+void learncmd(char *);
 #endif /* CKLEARN */
 
 static char *moname[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -295,9 +295,9 @@ extern int cmd_cols, cmd_rows, local, quiet;
 static int gtword(int);
 static int addbuf(char *);
 static int setatm(char *, int);
-static VOID cmdnewl(char);
-static VOID cmdchardel(void);
-static VOID cmdecho(char, int);
+static void cmdnewl(char);
+static void cmdchardel(void);
+static void cmdecho(char, int);
 static int test(int, int);
 
 extern char *dftty;
@@ -378,7 +378,7 @@ static int test(int x, int m) {
   Does "more?" prompting at end of screen.
   Uses global cmd_rows and cmd_cols for screen size.
 */
-VOID kwdhelp(struct keytab s[], int n, char *pat, char *pre, char *post,
+void kwdhelp(struct keytab s[], int n, char *pat, char *pre, char *post,
              int off, int xhlp)
 /* kwdhelp */ {
 
@@ -734,7 +734,7 @@ int cmsetup() {
 
 /*  C M S E T P  --  Set the program prompt.  */
 
-VOID cmsetp(char *s) {
+void cmsetp(char *s) {
   if (!s)
     s = "";
   ckstrncpy(cmprxx, s, PROMPTL);
@@ -743,7 +743,7 @@ VOID cmsetp(char *s) {
 
 /*  C M S A V P  --  Save a copy of the current prompt.  */
 
-VOID cmsavp(char s[], int n)
+void cmsavp(char s[], int n)
 /* cmsavp */ {
   if (psetf) /* But not if no prompt is set. */
     ckstrncpy(s, cmprxx, n);
@@ -757,7 +757,7 @@ int cmgkwflgs() { return (cmkwflgs); }
 
 /*  P R O M P T  --  Issue the program prompt.  */
 
-VOID prompt(xx_strp f) {
+void prompt(xx_strp f) {
   char *sx, *sy;
   int n;
 
@@ -792,7 +792,7 @@ VOID prompt(xx_strp f) {
 }
 
 #ifndef NOSPL
-VOID pushcmd(char *s) /* For use with IF command. */
+void pushcmd(char *s) /* For use with IF command. */
 {
   if (!s)
     s = np;
@@ -801,7 +801,7 @@ VOID pushcmd(char *s) /* For use with IF command. */
   debug(F110, "pushcmd savbuf", savbuf, 0);
 }
 
-VOID pushqcmd(char *s) /* For use with ELSE command. */
+void pushqcmd(char *s) /* For use with ELSE command. */
 {
   char c, *p = savbuf; /* Dest */
   if (!s)
@@ -828,7 +828,7 @@ VOID pushqcmd(char *s) /* For use with ELSE command. */
 
 /*  C M R E S  --  Reset pointers to beginning of command buffer.  */
 
-VOID cmres() {
+void cmres() {
   inword = 0; /* We're not in a word */
   cc = 0;     /* Character count is zero */
 
@@ -850,7 +850,7 @@ The argument specifies who is to echo the user's typein --
   1 means the cmd package echoes
   0 somebody else (system, front end, terminal) echoes
 */
-VOID cmini(int d) {
+void cmini(int d) {
 /* cmini */
 #ifdef DCMDBUF
   if (!atmbuf)
@@ -1130,7 +1130,7 @@ int cmpop() { /* Restore the command environment */
 #endif /* NOSPL */
 
 /* Convert tabs to spaces, one for one */
-VOID untab(char *s) {
+void untab(char *s) {
   /* untab */
   while (*s) {
     if (*s == HT)
@@ -5297,7 +5297,7 @@ int cmrini(int n) {
 
 /*  C M A D D N E X T  --  Force addition of next command */
 
-VOID cmaddnext() {
+void cmaddnext() {
   if (on_recall && in_recall) { /* Even if it doesn't come */
     force_add = 1;              /* from the keyboard */
     newcmd = 1;
@@ -5321,7 +5321,7 @@ char *cmgetcmd(char *s) {
 
 /*  A D D C M D  --  Add a command to the recall buffer  */
 
-VOID addcmd(char *s) {
+void addcmd(char *s) {
   int len = 0, nq = 0;
   char *p;
 #ifdef CKLEARN
@@ -5405,7 +5405,7 @@ VOID addcmd(char *s) {
 
 /* C M H I S T O R Y */
 
-VOID cmhistory() {
+void cmhistory() {
   int i, lc = 1;
   for (i = 0; i <= current; i++) {
     printf(" %s\n", recall[i]);
@@ -5512,7 +5512,7 @@ struct OFDB cmresult = {
     (CK_OFF_T)0 /* Wide result */
 };
 
-VOID cmfdbi(struct FDB *p, /* Initialize an FDB */
+void cmfdbi(struct FDB *p, /* Initialize an FDB */
             int fc, char *s1, char *s2, char *s3, int n1, int n2, xx_strp f,
             struct keytab *k, struct FDB *nxt) {
   p->fcode = fc;
@@ -5780,7 +5780,7 @@ int ungword() { /* Unget a word */
 
 /* Un-un-get word.  Undo ungword() if it has been done. */
 
-VOID unungw() {
+void unungw() {
   debug(F010, "unungw atmbuf", atmbuf, 0);
   if (ungw) {
     ungw = 0;
@@ -6966,9 +6966,9 @@ int cmdconchk() {
 }
 /* #endif */ /* USE_ARROWKEYS */
 
-static VOID cmdclrscn() { /* Clear the screen */ ck_cls(); }
+static void cmdclrscn() { /* Clear the screen */ ck_cls(); }
 
-static VOID /* What to echo at end of command */
+static void /* What to echo at end of command */
 cmdnewl(char c)
 /* cmdnewl */ {
 
@@ -6986,7 +6986,7 @@ cmdnewl(char c)
 #endif /* BSD44 */
 }
 
-static VOID cmdchardel() { /* Erase a character from the screen */
+static void cmdchardel() { /* Erase a character from the screen */
 #ifndef NOSPL
   if (!echostars)
 #endif /* NOSPL */
@@ -6995,7 +6995,7 @@ static VOID cmdchardel() { /* Erase a character from the screen */
   printf("\b \b");
 }
 
-static VOID cmdecho(char c, int quote) { /* cmdecho */
+static void cmdecho(char c, int quote) { /* cmdecho */
 #ifdef NOSPL
   if (!dpx)
     return;

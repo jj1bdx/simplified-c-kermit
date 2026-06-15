@@ -174,7 +174,7 @@ extern CK_OFF_T fsize, ffc, tfc, sendstart, calibrate;
 CK_OFF_T rs_len;
 
 #ifndef NOCSETS
-VOID setxlate(void);
+void setxlate(void);
 extern int tcharset, fcharset;
 extern int ntcsets, xlatype, xfrxla;
 extern struct csinfo tcsinfo[], fcsinfo[];
@@ -240,7 +240,7 @@ int bigrbsiz = RBSIZ;
 
 /* FUNCTIONS */
 
-VOID dofast() {
+void dofast() {
   long maxbufsiz = RBSIZ; /* Configuration parameters */
   int maxpktsiz = MAXSP;
   extern int spsizf, /* For bug in IRIX Telnet server */
@@ -632,7 +632,7 @@ int freerbuf(int i) /* Release receive-buffer slot "i". */
 /* This is like freerbuf, except it's called with a packet sequence number */
 /* rather than a packet buffer index. */
 
-VOID freerpkt(int seq) {
+void freerpkt(int seq) {
   int k;
   debug(F101, "freerpkt seq", "", seq);
   k = rseqtbl[seq];

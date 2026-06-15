@@ -106,32 +106,32 @@ typedef struct transx *trans;
 
 typedef int WMAINTYPE;
 WMAINTYPE main(int argc, char **argv);
-VOID fatal(char *msg);
-VOID setwstate(int state, trans t);
+void fatal(char *msg);
+void setwstate(int state, trans t);
 int teststate(int, trans);
 trans rdinput(FILE *, FILE *);
-VOID initial(FILE *, FILE *);
+void initial(FILE *, FILE *);
 int isin(char *, int);
 int isword(int);
-VOID rdword(FILE *, char *);
-VOID rdstates(FILE *, FILE *);
+void rdword(FILE *, char *);
+void rdstates(FILE *, FILE *);
 trans newtrans(void);
 trans rdrules(FILE *, FILE *);
-VOID statelist(FILE *, trans);
-VOID copyact(FILE *, FILE *, int);
+void statelist(FILE *, trans);
+void copyact(FILE *, FILE *, int);
 int faction(trans, int, int);
-VOID emptytbl(void);
-VOID addaction(int, int, int);
-VOID writetbl(FILE *);
-VOID warray(FILE *, char *, int[], int, char *);
-VOID prolog(FILE *);
-VOID epilogue(FILE *);
-VOID copyrest(FILE *, FILE *);
+void emptytbl(void);
+void addaction(int, int, int);
+void writetbl(FILE *);
+void warray(FILE *, char *, int[], int, char *);
+void prolog(FILE *);
+void epilogue(FILE *);
+void copyrest(FILE *, FILE *);
 int gettoken(FILE *);
-VOID rdcmnt(FILE *);
-VOID clrhash(void);
+void rdcmnt(FILE *);
+void clrhash(void);
 int hash(char *);
-VOID enter(char *, int);
+void enter(char *, int);
 int lkup(char *);
 static char *copy(char *s);
 
@@ -182,7 +182,7 @@ char *txt3 = "\n	    }\n    }\n}\n\n";
 /*
  * turn on the bit associated with the given state
  */
-VOID setwstate(int state, trans t)
+void setwstate(int state, trans t)
 /* setwstate */ {
   int idx, msk;
   idx = state / 8;           /* byte associated with state */
@@ -230,7 +230,7 @@ trans rdinput(FILE *infp, FILE *outfp)
  * initial - read initial definitions and state names.  Returns
  * on EOF or %%.
  */
-VOID initial(FILE *infp, FILE *outfp)
+void initial(FILE *infp, FILE *outfp)
 /* initial */ {
   int c;
   char wordbuf[MAXWORD];
@@ -269,7 +269,7 @@ int isword(int c)
 /*
  * read the next word into the given buffer.
  */
-VOID rdword(FILE *fp, char *buf)
+void rdword(FILE *fp, char *buf)
 /* rdword */ {
   int len = 0, c;
   while (isword(c = getc(fp)) && ++len < MAXWORD)
@@ -281,7 +281,7 @@ VOID rdword(FILE *fp, char *buf)
 /*
  * read state names, up to a newline.
  */
-VOID rdstates(FILE *fp, FILE *ofp)
+void rdstates(FILE *fp, FILE *ofp)
 /* rdstates */ {
   int c;
   char wordbuf[MAXWORD];
@@ -357,7 +357,7 @@ trans rdrules(FILE *fp, FILE *out)
  * read a list of (comma-separated) states, set them in the
  * given transition.
  */
-VOID statelist(FILE *fp, trans t)
+void statelist(FILE *fp, trans t)
 /* statelist */ {
   int curtok, sval;
   curtok = COMMA;
@@ -379,7 +379,7 @@ VOID statelist(FILE *fp, trans t)
  * copy an action from the input to the output file
  *
  */
-VOID copyact(FILE *inp, FILE *outp, int actno)
+void copyact(FILE *inp, FILE *outp, int actno)
 /* copyact */ {
   int c, bcnt;
   fprintf(outp, "case %d:\n", actno);
@@ -430,7 +430,7 @@ int faction(trans hd, int state, int chr)
  * empty the table...
  *
  */
-VOID emptytbl(void) {
+void emptytbl(void) {
   int i;
   for (i = 0; i < nstates * 96; i++)
     tbl[i] = -1;
@@ -440,12 +440,12 @@ VOID emptytbl(void) {
  * add the specified action to the output for the given state and chr.
  *
  */
-VOID addaction(int act, int state, int chr)
+void addaction(int act, int state, int chr)
 /* addaction */ {
   tbl[state * 96 + chr] = act;
 }
 
-VOID writetbl(FILE *fp)
+void writetbl(FILE *fp)
 /* writetbl */ {
   warray(fp, "tbl", tbl, 96 * (nstates + 1), TBL_TYPE);
 }
@@ -453,7 +453,7 @@ VOID writetbl(FILE *fp)
 /*
  * write an array to the output file, given its name and size.
  */
-VOID warray(FILE *fp, char *nam, int cont[], int siz, char *typ)
+void warray(FILE *fp, char *nam, int cont[], int siz, char *typ)
 /* warray */ {
   int i;
   fprintf(fp, "%s %s[] = {\n", typ, nam);
@@ -507,12 +507,12 @@ main(int argc, char **argv) {
 /*
  * fatal error handler
  */
-VOID fatal(char *msg) {
+void fatal(char *msg) {
   fprintf(stderr, "error in line %d: %s\n", lines, msg);
   exit(BAD_EXIT);
 }
 
-VOID prolog(FILE *outfp) {
+void prolog(FILE *outfp) {
   int c;
   while ((c = *txt1++) != '\0')
     putc(c, outfp);
@@ -528,13 +528,13 @@ VOID prolog(FILE *outfp) {
     putc(c, outfp);
 }
 
-VOID epilogue(FILE *outfp) {
+void epilogue(FILE *outfp) {
   int c;
   while ((c = *txt3++) != '\0')
     putc(c, outfp);
 }
 
-VOID copyrest(FILE *in, FILE *out) {
+void copyrest(FILE *in, FILE *out) {
   int c;
   while ((c = getc(in)) != EOF)
     putc(c, out);
@@ -592,7 +592,7 @@ int gettoken(FILE *fp) {
  * skip over a comment
  */
 
-VOID rdcmnt(FILE *fp) {
+void rdcmnt(FILE *fp) {
   int c, star, prcnt;
   prcnt = star = 0; /* no star seen yet */
   while (!((c = getc(fp)) == '/' && star)) {
@@ -627,7 +627,7 @@ struct sym {
  * empty the hash table before using it...
  *
  */
-VOID clrhash() {
+void clrhash() {
   int i;
   for (i = 0; i < HASHSIZE; i++)
     htab[i] = NULL;
@@ -662,7 +662,7 @@ static char *copy(char *s) {
  * enter state name into the hash table
  *
  */
-VOID enter(char *name, int svalue) {
+void enter(char *name, int svalue) {
   int h;
   struct sym *cur;
   if (lkup(name) != -1) {

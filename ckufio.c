@@ -365,8 +365,8 @@ static int ckrootset = 0;
 int ckrooterr = 0;
 #endif /* CKROOT */
 
-VOID ignorsigs(void);
-VOID restorsigs(void);
+void ignorsigs(void);
+void restorsigs(void);
 #ifdef SELECT
 int ttwait(int, int); /* ckutio.c */
 #endif                             /* SELECT */
@@ -409,7 +409,7 @@ struct passwd *getpwent(void);
 #include <sys/time.h>
 #endif /* __APPLE__ */
 
-#define PAM_CONST CONST
+#define PAM_CONST const
 
 static char *pam_pw = NULL;
 
@@ -638,8 +638,8 @@ struct path {
 int shxpand(char *, char *[], int);
 #endif /* NOPUSH */
 static int fgen(char *, char *[], int);
-static VOID traverse(struct path *, char *, char *);
-static VOID addresult(char *, int);
+static void traverse(struct path *, char *, char *);
+static void addresult(char *, int);
 char *whoami(void);
 UID_T real_uid(void);
 static struct path *splitpath(char *p);
@@ -760,9 +760,9 @@ extern void logwtmp __P((__const char *__ut_line, __const char *__ut_name,
 #endif /* UTMPBUG */
 
 /* Prototypes for static functions - fdc 30 November 2022 */
-static VOID addresult(char *, int);
-static VOID getfullname(char *);
-static VOID traverse(struct path *, char *, char *);
+static void addresult(char *, int);
+static void getfullname(char *);
+static void traverse(struct path *, char *, char *);
 static int checkuser(char *);
 static int fgen(char *, char[] *, int);
 static int initspace(char[] *, int);
@@ -805,7 +805,7 @@ PID_T _vfork() {   /* To satisfy a library foulup */
 }
 #endif /* UW200 */
 
-VOID logwtmp(const char *line, const char *name, const char *host)
+void logwtmp(const char *line, const char *name, const char *host)
 /* logwtmp */ {
   struct UTMPSTRUCT ut;
   struct stat buf;
@@ -895,7 +895,7 @@ VOID logwtmp(const char *line, const char *name, const char *host)
     n = SYSLG_xx values defined in ckcdeb.h
     s1, s2, s3: strings.
 */
-VOID cksyslog(n, m, s1, s2, s3)
+void cksyslog(n, m, s1, s2, s3)
 int n, m;
 char *s1, *s2, *s3;
 {
@@ -993,7 +993,7 @@ int zkself() { /* For "bye", but no guarantee! */
 #endif
 }
 
-static VOID getfullname(char *name) {
+static void getfullname(char *name) {
   char *p = (char *)fullname;
   int len = 0;
   fullname[0] = '\0';
@@ -1008,7 +1008,7 @@ static VOID getfullname(char *name) {
 
 /*  D O I K L O G  --  Open Kermit-specific ftp-like transfer log. */
 
-VOID /* Called in ckcmai.c */
+void /* Called in ckcmai.c */
 doiklog() {
   if (iklogopen) /* Already open? */
     return;
@@ -1294,7 +1294,7 @@ int zclose(int n) {
       char *s, *p;
       extern char ttname[];
       if (!iklogopen)
-        (VOID) doiklog(); /* Open log if necessary */
+        (void) doiklog(); /* Open log if necessary */
       debug(F101, "zclose iklogopen", "", iklogopen);
       if (iklogopen) {
         int len;
@@ -2313,9 +2313,9 @@ int zdelet(char *name) {
 
 /*  Z R T O L  --  Convert remote filename into local form  */
 
-VOID zrtol(char *name, char *name2) { nzrtol(name, name2, 1, 0, CKMAXPATH); }
+void zrtol(char *name, char *name2) { nzrtol(name, name2, 1, 0, CKMAXPATH); }
 
-VOID nzrtol(char *name, char *name2, int fncnv, int fnrpath,
+void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
             int max) { /* nzrtol */
   char *s, *p;
   int flag = 0, n = 0;
@@ -2440,7 +2440,7 @@ VOID nzrtol(char *name, char *name2, int fncnv, int fnrpath,
 
 static char work[CKMAXPATH + 1];
 
-VOID zstrip(char *name, char **name2) {
+void zstrip(char *name, char **name2) {
   char *cp, *pp;
   int n = 0;
 
@@ -2473,14 +2473,14 @@ VOID zstrip(char *name, char **name2) {
 
 /*  Z L T O R  --  Local TO Remote */
 
-VOID zltor(char *name, char *name2) { nzltor(name, name2, 1, 0, CKMAXPATH); }
+void zltor(char *name, char *name2) { nzltor(name, name2, 1, 0, CKMAXPATH); }
 
 /*  N Z L T O R  --  New Local TO Remote */
 
 /*
   fncnv = 0 for no conversion, > 0 for regular conversion, < 0 for minimal.
 */
-VOID nzltor(char *name, char *name2, int fncnv, int fnspath,
+void nzltor(char *name, char *name2, int fncnv, int fnspath,
             int max) { /* nzltor */
   char *cp, *pp;
   int n = 0;
@@ -3298,7 +3298,7 @@ int zchkspa(char *f, CK_OFF_T n)
 
 static char znewbuf[ZNEWNBL + 12];
 
-VOID znewn(char *fn, char **s) {
+void znewn(char *fn, char **s) {
   char *buf;                  /* Pointer to buffer for new name */
   char *xp, *namepart = NULL; /* Pointer to filename part */
   struct zfnfp *fnfp;         /* znfqfp() result struct pointer */
@@ -5314,7 +5314,7 @@ static int fgen(char *pat, char *resarry[], int len) {
   be some good applications for realpath() and/or scandir() and/or fts_blah()
   here, on platforms where they are available.
 */
-static VOID traverse(struct path *pl, char *sofar, char *endcur) {
+static void traverse(struct path *pl, char *sofar, char *endcur) {
   /* Appropriate declarations for directory routines and structures */
   /* #define OPENDIR means to use opendir(), readdir(), closedir()  */
   /* If OPENDIR not defined, we use open(), read(), close() */
@@ -5726,7 +5726,7 @@ blah:
  * Input: a result string.
  * Returns: nothing.
  */
-static VOID addresult(char *str, int itsadir) {
+static void addresult(char *str, int itsadir) {
   int len;
 
   if (!freeptr) {
@@ -5975,7 +5975,7 @@ int zsyscmd(char *s) {
 #ifndef NOZEXEC
 #endif /* NOZEXEC */
 
-VOID z_exec(char *p, char **s, int t) {
+void z_exec(char *p, char **s, int t) {
 #ifdef NOZEXEC
   printf("EXEC /REDIRECT NOT IMPLEMENTED IN THIS VERSION OF C-KERMIT\n");
   debug(F110, "z_exec NOT IMPLEMENTED", p, 0);
@@ -6913,7 +6913,7 @@ int zvuser(char *name) {
   char *getusershell(void);
 #endif /* GETUSERSHELL */
 #ifndef NODCLENDUSERSHELL
-  VOID endusershell(void);
+  void endusershell(void);
 #endif /* NODCLENDUSERSHELL */
 
 #ifdef CK_PAM
@@ -7008,7 +7008,7 @@ int zvuser(char *name) {
     }
     debug(F100, "zvuser endusershell 1", "", 0);
 #ifndef NODCLENDUSERSHELL
-    (VOID) endusershell();
+    (void) endusershell();
 #else
     endusershell();
 #endif /* NODCLENDUSERSHELL */
@@ -7115,7 +7115,7 @@ static int checkuser(char *name) {
       }
       line[0] = '\0';
     }
-    (VOID) fclose(fd);
+    (void) fclose(fd);
   }
   debug(F110, "checkuser OK", name, 0);
   return (0);
@@ -7123,7 +7123,7 @@ static int checkuser(char *name) {
 
 /*  Z V L O G O U T  --  Log out from Internet Kermit Service  */
 
-VOID zvlogout() {
+void zvlogout() {
 #ifdef CKSYSLOG
   if (ckxsyslog >= SYSLG_LI && ckxlogging) {
     cksyslog(SYSLG_LI, 1, "logout", (char *)uidbuf, clienthost);
@@ -7158,7 +7158,7 @@ kpass(name, p) char *name, *p;
   ckstrncat(tkt_file, "_ftpdXXXXXX", 20);
   krb_set_tkt_string(mktemp(tkt_file));
 
-  (VOID) ckstrncpy(instance, krb_get_phost(hostname), sizeof(instance));
+  (void) ckstrncpy(instance, krb_get_phost(hostname), sizeof(instance));
 
   if ((hp = gethostbyname(instance)) == NULL)
     return (0);
@@ -7180,7 +7180,7 @@ kpass(name, p) char *name, *p;
 }
 #endif /* FTP_KERBEROS */
 
-VOID zsyslog() {
+void zsyslog() {
 #ifdef CKSYSLOG
   if (ckxsyslog && !ckxlogging) {
 #ifdef LOG_DAEMON
@@ -7435,7 +7435,7 @@ zvpass( char *p )
 #endif /* NOPUTENV */
   /* homdir = (char *)zvhome; */
   ckstrncpy((char *)uidbuf, (char *)zvuname, 64);
-  (VOID) umask(defumask);
+  (void) umask(defumask);
 #ifdef IKSDB
   if (ikdbopen) {
     char *p2;

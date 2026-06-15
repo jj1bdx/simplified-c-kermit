@@ -296,13 +296,13 @@ extern int x25serverfd;
 
 int shopad(int);
 int shox25(int);
-VOID initpad(void);
-VOID setpad(CHAR *, int);
-VOID readpad(CHAR *, int, CHAR *);
+void initpad(void);
+void setpad(CHAR *, int);
+void readpad(CHAR *, int, CHAR *);
 int qbitpkt(CHAR *, int);
-VOID setqbit(void);
-VOID resetqbit(void);
-VOID breakact(void);
+void setqbit(void);
+void resetqbit(void);
+void breakact(void);
 int pkx121(char *, CHAR *);
 SIGTYP x25oobh(int);
 int x25diag(void);
@@ -574,7 +574,7 @@ extern int sstelnet;
 #endif /* NOTCPOPTS */
 
 /* This function is declared even when TCPSOCKET is not available */
-char *ckgetpeer(VOID);
+char *ckgetpeer(void);
 
 #ifdef TCPSOCKET
 #ifdef SOL_SOCKET
@@ -597,7 +597,7 @@ int recvbuf(int, int);
 int dontroute(int, int);
 #endif /* SO_DONTROUTE */
 #endif /* SOL_SOCKET */
-int getlocalipaddr(VOID);
+int getlocalipaddr(void);
 int getlocalipaddrs(char *, int, int);
 char *ckgetfqhostname(char *);
 struct hostent *ck_copyhostent(struct hostent *);
@@ -631,7 +631,7 @@ SORRY_RLOGIN_REQUIRES_TTGWSIZ_see_ckcplm
 #define IPPORT_ECHO 7
 #endif /* IPPORT_ECHO */
 
-            VOID ini_kerb(void); /* Kerberos initialization routine */
+            void ini_kerb(void); /* Kerberos initialization routine */
 int doauth(int);                 /* AUTHENTICATE action routine */
 
 #ifdef CK_DNS_SRV
@@ -641,8 +641,8 @@ int locate_srv_dns(char *host, char *service, char *protocol,
 
 #ifndef NOHTTP
 int http_open(char *, char *, int, char *, int, char *);
-int http_reopen(VOID);
-int http_close(VOID);
+int http_reopen(void);
+int http_close(void);
 int http_get(char *, char **, char *, char *, char, char *, char *, int);
 int http_head(char *, char **, char *, char *, char, char *, char *, int);
 int http_put(char *, char **, char *, char *, char *, char, char *, char *,
