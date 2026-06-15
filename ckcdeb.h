@@ -133,18 +133,11 @@
 #endif              /* DOARROWKEYS */
 
 /* Unsigned numbers */
+/* Defined unconditionally - it's 2026 already */
 
-#ifndef USHORT
 #define USHORT unsigned short
-#endif /* USHORT */
-
-#ifndef UINT
 #define UINT unsigned int
-#endif /* UINT */
-
-#ifndef ULONG
 #define ULONG unsigned long
-#endif /* ULONG */
 
 #ifdef MACOSX10 /* Mac OS X 1.0 */
 #ifndef MACOSX  /* implies Mac OS X */
