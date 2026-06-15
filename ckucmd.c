@@ -39,9 +39,9 @@ int cmdmsk = 255; /* 31 Dec 2000 (was 127) */
 /* clang-format off */
 #include "ckcdeb.h" /* Formats for debug(), etc. */
 /* clang-format on */
+#include "ckucmd.h" /* Needed for everything */
 #include "ckcker.h" /* Needed for BIGBUFOK definition */
 #include "ckcnet.h" /* Needed for server-side Telnet */
-#include "ckucmd.h" /* Needed for everything */
 #include "ckuusr.h" /* Needed for prompt length */
 
 #ifndef NOARROWKEYS
@@ -170,8 +170,8 @@ modules would have to be changed...
 
 /* Includes */
 
-#include "ckcker.h"
 #include "ckcasc.h" /* ASCII character symbols */
+#include "ckcker.h"
 #include "ckucmd.h" /* Command parsing definitions */
 
 #include <errno.h> /* Error number symbols */
@@ -199,10 +199,10 @@ extern int timelimit, nzxopts, nopush, nolocal, xcmdsrc, keepallchars;
 
 /* This block moved here from further down 24 March 2023 */
 
-#include "ckcdeb.h"
-#include "ckucmd.h"
 #include "ckcasc.h"
+#include "ckcdeb.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckucmd.h"
 
 /* Local variables */
 

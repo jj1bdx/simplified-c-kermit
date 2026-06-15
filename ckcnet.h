@@ -232,11 +232,11 @@ int gettcpport(void);
 
 #ifdef IBMX25 /* X.25 includes, AIX only */
 #include <fcntl.h>
-#include <sys/twtypes.h>
 #include <sys/twlib.h>
+#include <sys/twtypes.h>
 
-#include <sys/stream.h>
 #include <stropts.h>
+#include <sys/stream.h>
 
 #define NPI_20 /* required to include the whole NPI */
 #include <sys/npi_20.h>
@@ -280,6 +280,7 @@ extern int x25serverfd;
 #endif /* IBMX25 */
 
 #ifdef HPX25 /* X.25 includes, HP-UX only */
+#include <sys/ioctl.h>
 #include <x25/ccittproto.h>
 #include <x25/x25.h>
 #include <x25/x25addrstr.h>
@@ -287,7 +288,6 @@ extern int x25serverfd;
 #include <x25/x25hd_ioctl.h>
 #include <x25/x25ioctls.h>
 #include <x25/x25str.h>
-#include <sys/ioctl.h>
 #endif /* HPX25 */
 
 /* C-Kermit X.3 / X.25 / X.29 / X.121 support functions */
@@ -458,11 +458,11 @@ int x25local_nua(char *);         /* find local NUA */
 #endif /* SVR4 */
 
 #ifdef INTERLAN /* Racal-Interlan TCP/IP */
-#include <interlan/socket.h>
-#include <interlan/il_types.h>
-#include <interlan/telnet.h>
 #include <interlan/il_errno.h>
+#include <interlan/il_types.h>
 #include <interlan/in.h>
+#include <interlan/socket.h>
+#include <interlan/telnet.h>
 #include <interlan/telnet.h> /* Why twice ? ? ? */
 #else                        /* Not Interlan */
 #include <sys/socket.h>

@@ -39,15 +39,15 @@ static void concld(void);
 
 #include <errno.h> /* Error number symbols */
 
-#include <setjmp.h>
 #include "ckcsig.h"
+#include <setjmp.h>
 
 /* Kermit-specific includes */
 
 #include "ckcasc.h" /* ASCII characters */
 #include "ckcker.h" /* Kermit things */
-#include "ckucmd.h" /* For xxesc() prototype */
 #include "ckcnet.h" /* Network symbols */
+#include "ckucmd.h" /* For xxesc() prototype */
 #ifndef NOCSETS
 #include "ckcxla.h" /* Character set translation */
 #endif              /* NOCSETS */
@@ -1776,9 +1776,9 @@ int conect() {
                echoing them on the terminal screen or saving them for future use in the
                parent.  The latter case happens during APC processing - see the code
                around          CEV_APC occurrences to see how the child passes its ibuf
-               etc to          parent via          xpipe, for preservation until the next entry to
-               this module, to          ensure that          no characters are lost between
-               CONNECT sessions.
+               etc to          parent via          xpipe, for preservation until the next
+               entry to          this module, to          ensure that          no characters are
+               lost between          CONNECT sessions.
              */
 
     /*

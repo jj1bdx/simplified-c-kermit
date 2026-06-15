@@ -152,12 +152,12 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 /* Note: much of the following duplicates what was done in ckcdeb.h */
 /* but let's not mess with it unless it causes trouble. */
 
-#include <stdarg.h>
-#include <signal.h>
-#include <setjmp.h>
 #include "ckcsig.h"
-#include <sys/stat.h>
 #include <ctype.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <sys/stat.h>
 
 #include <errno.h> /* Error number symbols */
 
@@ -172,11 +172,11 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
 
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckucmd.h"
-#include "ckuusr.h"
 #include "ckcnet.h" /* Includes ckctel.h */
 #include "ckctel.h" /* (then why include it again?) */
 #include "ckcxla.h"
+#include "ckucmd.h"
+#include "ckuusr.h"
 
 /*
   How to get the struct timeval definition so we can call select().  The
@@ -213,9 +213,9 @@ struct timeval {
 #endif /* DCLTIMEVAL */
 
 /* 2010-03-09 SMS.  VAX C needs help to find "sys".  It's easier not to try. */
-#include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif /* HAVE_STDLIB_H */
@@ -6356,9 +6356,10 @@ int doftpget(int cx, int who) /* who == 1 for ftp, 0 for kermit */
                           /*
                             We did not ask for a recursive listing, but the server is sending us
                             one                 anyway (as wu-ftpd is wont to do).  We get here
-                            if the current                 filename                 includes a path segment
-                            beyond any path segment we asked                 for in our                 non-recursive [M]GET
-                            command.  We MUST skip this file.
+                            if the current                 filename                 includes a
+                            path segment                 beyond any path segment we asked                 for in
+                            our                 non-recursive [M]GET                 command.  We MUST skip this
+                            file.
                           */
           debug(F111, "ftp get skipping because of path", s, 0);
           continue;
@@ -10145,7 +10146,7 @@ static void doftprecv2(void *threadinfo) {
   if (ftpcmd(ftprecv.cmd, ftprecv.remote, ftprecv.fcs, ftprecv.rcs, ftp_vbm) !=
       REPLY_PRELIM) {
     ck_signal(SIGINT, ftprecv.oldintr); /* Bad reply, fail. */
-    ftprecvret = -1;                 /* ftpcode is set by ftpcmd() */
+    ftprecvret = -1;                    /* ftpcode is set by ftpcmd() */
     return;
   }
   ftprecv.din = dataconn("r"); /* Good reply, open data connection */

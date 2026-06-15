@@ -61,9 +61,9 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 /* clang-format off */
 #include "ckcdeb.h"
 /* clang-format on */
-#include "ckcker.h"
-#include "ckcasc.h"
 #include "ckcnet.h" /* which includes ckctel.h */
+#include "ckcasc.h"
+#include "ckcker.h"
 #include "ckuusr.h"
 
 #ifdef CK_DNS_SRV

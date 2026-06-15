@@ -151,9 +151,9 @@ int tn_env_flg = 1;
 int tn_env_flg = 0;
 #endif /* CK_ENVIRONMENT */
 
-#include "ckuusr.h"
-#include "ckucmd.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckucmd.h"
+#include "ckuusr.h"
 
 static int tn_outst(int); /* fdc - 30 November 2022 */
 

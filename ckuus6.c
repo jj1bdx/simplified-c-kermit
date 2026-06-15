@@ -33,9 +33,9 @@
 
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckuusr.h"
-#include "ckcxla.h"
 #include "ckcnet.h" /* Network symbols */
+#include "ckcxla.h"
+#include "ckuusr.h"
 #include <signal.h>
 
 #ifndef NOSTAT
@@ -3207,11 +3207,11 @@ typegetline(int incs, int outcs, char *buf, int n) {
                /*
                  Here we call xgnbyte() in a loop, having it return UCS-2 bytes.  In K95,
                  we            use UCS-2 directly.  Elsewhere, we feed the UCS-2 bytes into
-                 xpnbyte()            to            convert them to the desired target character set.
-                 But since we are            using            UCS-2, we have several sources for
-                 confusion: (1) xgnbyte() might            return in            LE or BE byte order,
-                 with no explicit indication of what the            order is; but            (2)
-                 xpnbyte() wants BE; but (3) Windows wants LE.
+                 xpnbyte()            to            convert them to the desired target
+                 character set.            But since we are            using            UCS-2, we have
+                 several sources for            confusion: (1) xgnbyte() might            return in            LE
+                 or BE byte order,            with no explicit indication of what the            order
+                 is; but            (2)            xpnbyte() wants BE; but (3) Windows wants LE.
                */
     while (1) {
       if (typ_int) /* Quit if interrupted */

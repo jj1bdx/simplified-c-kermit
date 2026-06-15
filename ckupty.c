@@ -178,8 +178,8 @@ char *ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #define INIT_SPTY
 #endif /* INIT_SPTY */
 
-#include <sys/stream.h>
 #include <stropts.h>
+#include <sys/stream.h>
 #include <termio.h>
 
 /* Make sure we don't get the BSD version */

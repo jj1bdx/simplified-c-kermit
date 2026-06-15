@@ -72,11 +72,11 @@ char *cklibv = "C-Kermit library, 10.0.063, 02 May 2023";
 #include "ckcdeb.h"
 /* clang-format on */
 #include "ckcasc.h"
+#include "ckcfnp.h" /* Prototypes (must be last) */
 #include "ckcker.h"
+#include "ckcnet.h" /* for struct sockaddr */
 #include "ckucmd.h"
 #include "ckuusr.h"
-#include "ckcnet.h" /* for struct sockaddr */
-#include "ckcfnp.h" /* Prototypes (must be last) */
 
 /* Public variables */
 

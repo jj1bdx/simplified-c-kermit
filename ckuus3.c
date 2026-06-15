@@ -30,8 +30,8 @@
 /* clang-format on */
 #include "ckcasc.h" /* ASCII character symbols */
 #include "ckcker.h" /* Kermit application definitions */
-#include "ckcxla.h" /* Character set translation */
 #include "ckcnet.h" /* Network symbols */
+#include "ckcxla.h" /* Character set translation */
 
 char pwbuf[PWBUFL + 1] = {NUL, NUL};
 int pwflg = 0;
@@ -3157,8 +3157,8 @@ int sexppv = -1;          /* Predicate value */
 static int sexptrunc = 0; /* Flag to force all results to int */
 
 #define SXMLEN 64   /* Macro arg list initial length */
-#include <math.h>   /* Floating-point functions */
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include <math.h>   /* Floating-point functions */
 
 extern char math_pi[];         /* Value of Pi */
 extern int sexpecho;           /* SET SEXPRESSION ECHO value */

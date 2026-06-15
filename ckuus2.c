@@ -32,11 +32,11 @@
 /* clang-format off */
 #include "ckcdeb.h"
 /* clang-format on */
-#include "ckcnet.h"
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckuusr.h"
+#include "ckcnet.h"
 #include "ckcxla.h"
+#include "ckuusr.h"
 
 #include "ckcfnp.h"      /* Prototypes (must be last) */
 static int dohfile(int); /* Prototype for static func */

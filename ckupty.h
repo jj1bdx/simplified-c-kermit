@@ -33,21 +33,21 @@
 
 #include <stdio.h>
 
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/file.h>
-#include <sys/time.h>
 #include <ctype.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
-#include <errno.h>
 #include <pwd.h>
+#include <sys/file.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/time.h>
 
 #ifdef HAVE_SYS_LABEL_H
 /* only SunOS 4? */
-#include <sys/label.h>
-#include <sys/audit.h>
 #include <pwdadj.h>
+#include <sys/audit.h>
+#include <sys/label.h>
 #endif /* HAVE_SYS_LABEL_H */
 
 #include <signal.h>

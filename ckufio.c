@@ -406,8 +406,8 @@ struct passwd *getpwent(void);
 #endif /* PAM_SERVICE_TYPE */
 
 #ifdef __APPLE__
-#include <sys/timeb.h>
 #include <sys/time.h>
+#include <sys/timeb.h>
 #endif /* __APPLE__ */
 
 #define PAM_CONST const
@@ -684,9 +684,9 @@ extern int ckxlogging;
 #define printf ckxprintf
 #endif /* CKXPRINTF */
 
-#include "ckuusr.h"
-#include "ckcnet.h" /* struct sockaddr */
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcnet.h" /* struct sockaddr */
+#include "ckuusr.h"
 
 int ckxanon = 1;     /* Anonymous login ok */
 int ckxperms = 0040; /* Anonymous file permissions */
@@ -4834,9 +4834,9 @@ zsperms:
                   NOTE: If we are inheriting permissions from a previous file, and the
                   previous file was a directory, this would turn the new file into a
                   directory             too, but it's not, so we try to unset the right bit.
-                  Luckily,             this code             will probably never be executed since the
-                  upper level modules do             not allow             reception of a file that has
-                  the same name as a directory.
+                  Luckily,             this code             will probably never be executed
+                  since the             upper level modules do             not allow             reception of a file
+                  that has             the same name as a directory.
             
                   NOTE 2: We change the permissions *before* we change the modification
                   time,             otherwise changing the permissions would set the mod
@@ -5677,12 +5677,12 @@ blah:
                       /*
                         The problem here is that segisdir is apparently not set
                         appropriately.             If I leave in the !segisdir test, then
-                        "dir             /recursive blah" (where blah is             a directory name)
-                        misses some             regular files because sometimes segisdir             is
-                        set and sometimes it's             not.  But if I comment it out, then             "dir
-                        <star>/<star>.txt lists             every file in * and does not even open up
-                        the             subdirectories.             However, "dir /rec
-                        <star>/<star>.txt" works right.
+                        "dir             /recursive blah" (where blah is             a
+                        directory name)             misses some             regular files because
+                        sometimes segisdir             is             set and sometimes it's             not.  But
+                        if I comment it out, then             "dir             <star>/<star>.txt lists
+                        every file in * and does not even open up             the             subdirectories.
+                        However, "dir /rec             <star>/<star>.txt" works right.
                       */
           mresult &&  /* Matched */
           !itsadir && /* sofar is not a directory */
@@ -6099,7 +6099,7 @@ int zshcmd(char *s) {
 #else
     while (((wstat = wait((WAIT_T *)0)) != pid) && (wstat != -1))
 #endif /* CK_CHILD */
-      ;                    /* Wait for fork */
+      ;                       /* Wait for fork */
     ck_signal(SIGINT, istat); /* Restore interrupts */
     ck_signal(SIGQUIT, qstat);
 #ifdef CK_CHILD

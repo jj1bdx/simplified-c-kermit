@@ -38,8 +38,8 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 
 #include "ckcasc.h" /* ASCII characters */
 #include "ckcker.h" /* Kermit things */
-#include "ckucmd.h" /* For xxesc() prototype */
 #include "ckcnet.h" /* Network symbols */
+#include "ckucmd.h" /* For xxesc() prototype */
 #include "ckuusr.h"
 #ifndef NOCSETS
 #include "ckcxla.h" /* Character set translation */

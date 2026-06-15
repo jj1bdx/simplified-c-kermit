@@ -21,12 +21,12 @@
 #include "ckcdeb.h"
 /* clang-format on */
 #include "ckcasc.h"
+#include "ckcfnp.h" /* Prototypes */
 #include "ckcker.h"
+#include "ckcnet.h" /* struct sockaddr */
 #include "ckcxla.h"
 #include "ckucmd.h" /* xx_strp */
 #include "ckuusr.h" /* mtab */
-#include "ckcnet.h" /* struct sockaddr */
-#include "ckcfnp.h" /* Prototypes */
 
 /*  C K M K D I R  --  Create a directory  */
 /*

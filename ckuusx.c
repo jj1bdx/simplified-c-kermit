@@ -29,8 +29,8 @@
 /* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckuusr.h"
 #include "ckcxla.h"
+#include "ckuusr.h"
 
 /*
   Curses/Termcap function prototypes...
@@ -52,9 +52,9 @@
 #else
 #ifdef MACOSX
 #ifndef OLDMACOSX
-#include <term.h> /* macOS after 10.12 */
 #include <curses.h>
-#endif /* OLDMACOSX */
+#include <term.h> /* macOS after 10.12 */
+#endif            /* OLDMACOSX */
 #define NOHTERMCAP
 #endif /* MACOSX */
 #endif /* BSD44 */
@@ -407,8 +407,8 @@ extern int cmd_quoting;
 #endif /* NOICP */
 
 #ifndef NOCCTRAP
-#include <setjmp.h>
 #include "ckcsig.h"
+#include <setjmp.h>
 extern ckjmpbuf cmjbuf;
 #endif /* NOCCTRAP */
 

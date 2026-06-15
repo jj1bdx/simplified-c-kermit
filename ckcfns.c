@@ -31,8 +31,8 @@ char *nm[] = {"Disabled", "Local only", "Remote only", "Enabled"};
 /* clang-format on */
 #include "ckcasc.h" /* ASCII symbols */
 #include "ckcker.h" /* Symbol definitions for Kermit */
-#include "ckcxla.h" /* Character set symbols */
 #include "ckcnet.h" /* VMS definition of TCPSOCKET */
+#include "ckcxla.h" /* Character set symbols */
 
 int docrc = 0;    /* Accumulate CRC for \v(crc16) */
 long crc16 = 0L;  /* File CRC = \v(crc16) */
@@ -73,9 +73,9 @@ int lookup(struct keytab[], char *, int, int *);
 int zzstring(char *, char **, int *);
 #endif /* NOSPL */
 
+#include "ckcfnp.h" /* Prototypes */
 #include "ckucmd.h"
 #include "ckuusr.h"
-#include "ckcfnp.h" /* Prototypes */
 
 /* Externals from ckcmai.c */
 

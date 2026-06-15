@@ -31,10 +31,10 @@ extern int debtim;
 
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckucmd.h"
 #include "ckcnet.h"
-#include "ckuusr.h"
 #include "ckcxla.h"
+#include "ckucmd.h"
+#include "ckuusr.h"
 #include <signal.h>
 
 /* prototype for static funtion - fdc 30 November 2022 */

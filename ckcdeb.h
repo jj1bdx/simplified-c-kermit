@@ -521,8 +521,8 @@ typedef int MAINTYPE;
 /* if any other types are needed add them here */
 #endif /* MAINISVOID */
 
-#include <stdio.h> /* Begin by including this. */
 #include <ctype.h> /* and this. */
+#include <stdio.h> /* Begin by including this. */
 
 /* System-type compilation switches */
 

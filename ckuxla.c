@@ -2,13 +2,12 @@
 /* clang-format off */
 #include "ckcdeb.h" /* Includes... */
 /* clang-format on */
-#include "ckcker.h"
-#include "ckucmd.h"
-#include "ckcxla.h"
-#include "ckcxla.h"
-#include "ckuusr.h"
-#include "ckcnet.h" /* struct sockaddr */
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcker.h"
+#include "ckcnet.h" /* struct sockaddr */
+#include "ckcxla.h"
+#include "ckucmd.h"
+#include "ckuusr.h"
 
 /* prototypes for static functions - fdc 30 November 2022 */
 static int jpnxas(int, int[]);

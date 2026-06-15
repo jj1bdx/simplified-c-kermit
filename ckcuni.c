@@ -45,13 +45,13 @@ char *ckcuni = "Unicode support 10.0.116, 23 Sep 2022";
 /* clang-format off */
 #include "ckcdeb.h"
 /* clang-format on */
-#include "ckcker.h"
-#include "ckucmd.h"
-#include "ckcxla.h"
-#include "ckuxla.h"
-#include "ckuusr.h"
-#include "ckcnet.h" /* struct sockaddr */
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcker.h"
+#include "ckcnet.h" /* struct sockaddr */
+#include "ckcxla.h"
+#include "ckucmd.h"
+#include "ckuusr.h"
+#include "ckuxla.h"
 
 #ifdef UNICODE
 

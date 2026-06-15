@@ -1380,8 +1380,8 @@ int getiobs(void);
 #include <signal.h>
 
 #ifndef NOCCTRAP
-#include <setjmp.h>
 #include "ckcsig.h"
+#include <setjmp.h>
 ckjmpbuf cmjbuf;
 #endif /* NOCCTRAP */
 

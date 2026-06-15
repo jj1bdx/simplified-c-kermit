@@ -2,7 +2,6 @@
 # for c-kermit to maintain code integrity:
 #
 # DISABLE InsertBraces
-# DISABLE SortIncludes
 #
 ---
 Language:        Cpp
@@ -237,7 +236,7 @@ SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SkipMacroDefinitionBody: false
 SortIncludes:
-  Enabled:         false
+  Enabled:         true
   IgnoreCase:      false
 SortJavaStaticImport: Before
 SortUsingDeclarations: LexicographicNumeric

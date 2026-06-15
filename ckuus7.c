@@ -29,13 +29,13 @@
 #include "ckcdeb.h" /* Debugging & compiler things */
 /* clang-format on */
 #include "ckcasc.h" /* ASCII character symbols */
-#include "ckcker.h" /* Kermit application definitions */
-#include "ckcxla.h" /* Character set translation */
-#include "ckcnet.h" /* Network symbols */
-#include "ckuusr.h" /* User interface symbols */
-#include "ckucmd.h"
-#include "ckclib.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcker.h" /* Kermit application definitions */
+#include "ckclib.h"
+#include "ckcnet.h" /* Network symbols */
+#include "ckcxla.h" /* Character set translation */
+#include "ckucmd.h"
+#include "ckuusr.h" /* User interface symbols */
 
 #ifdef SSHBUILTIN
 #include "ckossh.h"

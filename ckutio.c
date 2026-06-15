@@ -153,9 +153,9 @@ char *ckxsys = HERALD;
 
 #ifdef TRU64 /* Tru64 UNIX 4.0 and later */
 /* Verified on Tru64 4.0F - might break on 4.0E or earlier */
-#include <sys/sysinfo.h> /* (don't know about OSF/1 or DU) */
 #include <machine/hal_sysinfo.h>
-#endif /* TRU64 */
+#include <sys/sysinfo.h> /* (don't know about OSF/1 or DU) */
+#endif                   /* TRU64 */
 
 #ifdef SYS_NMLN
 #define CK_SYSNMLN SYS_NMLN
@@ -766,10 +766,10 @@ int ckxech = 0; /* 0 if system normally echoes console characters, else 1 */
 
 int ckmaxfiles = 0; /* Max number of open files */
 
+#include "ckcfnp.h" /* Prototypes */
 #include "ckcker.h"
 #include "ckucmd.h"
 #include "ckuusr.h"
-#include "ckcfnp.h" /* Prototypes */
 
 /* Declarations of variables global within this module */
 
@@ -1287,21 +1287,21 @@ void sighup(int foo) /* SIGHUP handler */
   ignored, it remains ignored across exec(), so we have to restore these
   signals before exec(), which is the purpose of restorsigs().
 */
-static void ignorsigs() {             /* Ignore these signals */
+static void ignorsigs() {                /* Ignore these signals */
   savquit = ck_signal(SIGQUIT, SIG_IGN); /* Ignore Quit signal */
 
-#ifdef SIGDANGER                          /* Ignore danger signals */
-                                          /*
-                                            This signal is sent when the system is low on swap space.  Processes
-                                            that don't handle it are candidates for termination.  If swap space doesn't
-                                            clear out enough, we still might be terminated via kill() -- nothing we can
-                                            do about that!  Conceivably, this could be improved by installing a real
-                                            signal handler that warns the user, but that would be pretty complicated,
-                                            since we are not always in control of the screen -- e.g. during remote-mode
-                                            file transfer.
-                                          */
+#ifdef SIGDANGER                             /* Ignore danger signals */
+                                             /*
+                                               This signal is sent when the system is low on swap space.  Processes
+                                               that don't handle it are candidates for termination.  If swap space doesn't
+                                               clear out enough, we still might be terminated via kill() -- nothing we can
+                                               do about that!  Conceivably, this could be improved by installing a real
+                                               signal handler that warns the user, but that would be pretty complicated,
+                                               since we are not always in control of the screen -- e.g. during remote-mode
+                                               file transfer.
+                                             */
   savdanger = ck_signal(SIGDANGER, SIG_IGN); /* e.g. in AIX */
-#endif                                    /* SIGDANGER */
+#endif                                       /* SIGDANGER */
 #ifdef SIGPIPE
   /*
     This one comes when a TCP/IP connection is broken by the remote.
@@ -1313,7 +1313,7 @@ static void ignorsigs() {             /* Ignore these signals */
   savusr2 = ck_signal(SIGUSR2, SIG_IGN);
 }
 
-void restorsigs() {               /* Restore these signals */
+void restorsigs() {                  /* Restore these signals */
   (void)ck_signal(SIGQUIT, savquit); /* (used in ckufio.c) */
 #ifdef SIGDANGER
   (void)ck_signal(SIGDANGER, savdanger);
@@ -1383,8 +1383,8 @@ int sysinit() {
     jcshell = 3;
   }
   (void)ck_signal(SIGTSTP, jchdlr); /* Put it back... */
-#endif                           /* SIGTSTP */
-#endif                           /* NOJC */
+#endif                              /* SIGTSTP */
+#endif                              /* NOJC */
 
   conbgt(0); /* See if we're in the background */
   congm();   /* Get console modes */
@@ -1842,7 +1842,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
 
   /* Here we have to open a serial device of the given name. */
 
-  netconn = 0;                   /* So it's not a network connection */
+  netconn = 0;                      /* So it's not a network connection */
   occt = ck_signal(SIGINT, cctrap); /* Set Control-C trap, save old one */
   sigint_ign = 0;
 
@@ -1900,7 +1900,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   if (timo > 0) {
     int xx;
     saval = ck_signal(SIGALRM, timerh); /* Timed, set up timer. */
-    xx = alarm(timo);                /* Timed open() */
+    xx = alarm(timo);                   /* Timed open() */
     debug(F101, "ttopen alarm", "", xx);
     if (
 #ifdef CK_POSIX_SIG
@@ -1932,8 +1932,8 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                                 /* and priv_off() here... */
 #endif                          /* ACUNTRL */
 
-    ck_signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
-    if (errno == EACCES) { /* Device is protected against user */
+    ck_signal(SIGINT, occt); /* Put old Ctrl-C trap back. */
+    if (errno == EACCES) {   /* Device is protected against user */
       debug(F110, "ttopen EACCESS", ttname, 0); /* Return -4 */
       return (-4);
     } else
@@ -2027,7 +2027,8 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                            to                to inferior processes, in this case ls.  So if the
                            real user does                not have                directory-listing access to
                            the lockfile directory, this                will result in                something
-                           like "not found".  That's why we try this                only as a last resort.
+                           like "not found".  That's why we try this                only as a
+                           last resort.
                          */
           if (p) {       /* If we got the space... */
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
@@ -2099,7 +2100,8 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                            to                to inferior processes, in this case ls.  So if the
                            real user does                not have                directory-listing access to
                            the lockfile directory, this                will result in                something
-                           like "not found".  That's why we try this                only as a last resort.
+                           like "not found".  That's why we try this                only as a
+                           last resort.
                          */
           if (p) {       /* If we got the space... */
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
@@ -2127,7 +2129,7 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
   if (timo > 0) {
     int xx;
     saval = ck_signal(SIGALRM, timerh); /* Timed, set up timer. */
-    xx = alarm(timo);                /* Timed open() */
+    xx = alarm(timo);                   /* Timed open() */
     debug(F101, "ttopen alarm", "", xx);
     if (
 #ifdef CK_POSIX_SIG
@@ -2170,8 +2172,8 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
                               /* and priv_off() here... */
 #endif /* ACUNTRL */
 
-    ck_signal(SIGINT, occt);  /* Put old Ctrl-C trap back. */
-    if (errno == EACCES) { /* Device is protected against user */
+    ck_signal(SIGINT, occt); /* Put old Ctrl-C trap back. */
+    if (errno == EACCES) {   /* Device is protected against user */
       debug(F110, "ttopen EACCESS", fnam, 0); /* Return -4 */
       return (-4);
     } else
@@ -2579,7 +2581,7 @@ int ttclos(int foo) /* Arg req'd for signal() prototype */
 #endif /* NOFDZERO */
   ) {
     saval = ck_signal(SIGALRM, xtimerh); /* Enable timer interrupt. */
-    xx = alarm(8);                    /* Allow 8 seconds. */
+    xx = alarm(8);                       /* Allow 8 seconds. */
     debug(F101, "ttclos alarm", "", xx);
     if (
 #ifdef CK_POSIX_SIG
@@ -7689,7 +7691,7 @@ int ttoc(char c)
   c &= 0xff;
   /* debug(F101,"ttoc","",(CHAR) c); */
   saval = ck_signal(SIGALRM, timerh); /* Enable timer interrupt */
-  xx = alarm(TTOC_TMO);            /* for this many seconds. */
+  xx = alarm(TTOC_TMO);               /* for this many seconds. */
   if (xx < 0)
     xx = 0; /* Save old alarm value. */
   /* debug(F101,"ttoc alarm","",xx); */
@@ -7861,7 +7863,7 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
   if (timo) { /* Don't time out if timo == 0 */
     int xx;
     saval = ck_signal(SIGALRM, timerh); /* Enable timer interrupt */
-    xx = alarm(timo);                /* Set it. */
+    xx = alarm(timo);                   /* Set it. */
     debug(F101, "ttinl alarm", "", xx);
   }
   if (
@@ -8284,7 +8286,7 @@ int ttinc(int timo) {
 
     int oldalarm;
     saval = ck_signal(SIGALRM, timerh); /* Set up handler, save old one. */
-    oldalarm = alarm(timo);          /* Set alarm, save old one. */
+    oldalarm = alarm(timo);             /* Set alarm, save old one. */
     if (
 #ifdef CK_POSIX_SIG
         sigsetjmp(sjbuf, 1)
@@ -9408,7 +9410,7 @@ int coninc(int timo) {
   /* Timed read... */
 
   saval = ck_signal(SIGALRM, timerh); /* Set up timeout handler. */
-  xx = alarm(timo);                /* Set the alarm. */
+  xx = alarm(timo);                   /* Set the alarm. */
   debug(F101, "coninc alarm set", "", timo);
   if (
 #ifdef CK_POSIX_SIG
@@ -10149,7 +10151,7 @@ void ttimoff() { /* Turn off any timer interrupts */
                  */
   /* xx = */ alarm(0);
   /* debug(F101,"ttimoff alarm","",xx); */
-  if (saval) {              /* Restore any previous */
+  if (saval) {                 /* Restore any previous */
     ck_signal(SIGALRM, saval); /* alarm handler. */
     /* debug(F101,"ttimoff alarm restoring saval","",saval); */
     saval = NULL;
@@ -10650,7 +10652,7 @@ int ttptycmd(char *s) {
   /* Put pty master in raw mode but let forked app control the slave */
   pty_make_raw(masterfd);
 
-  have_pty = 1;                                    /* We have an open pty */
+  have_pty = 1;                                       /* We have an open pty */
   save_sigchld = ck_signal(SIGCHLD, sigchld_handler); /* Catch fork quit */
 
   pty_fork_pid = fork(); /* Make fork for external protocol */

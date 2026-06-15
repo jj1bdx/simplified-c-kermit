@@ -100,12 +100,12 @@ The remaining steps are in this module:
 #define M_ALIAS 64
 #endif /* M_ALIAS */
 
-#include <signal.h>
 #include "ckcasc.h"
 #include "ckcker.h"
-#include "ckucmd.h"
 #include "ckcnet.h"
+#include "ckucmd.h"
 #include "ckuusr.h"
+#include <signal.h>
 
 #include <setjmp.h>
 
@@ -750,9 +750,9 @@ static MDMINF DIGITEL = /* Digitel DT-22 CCITT variant used in Brazil */
                         /*
                           Attempts to adhere strictly to the V.25bis specification do not produce
                           good                     results in real life.  The modem for which this
-                          code was developed:                     (a)                     ignores parity; (b) sometimes
-                          terminates responses with LF CR instead                     of CR                     LF; (c)
-                          has a Hayes-like escape sequence; (d) supports a hangup
+                          code was developed:                     (a)                     ignores
+                          parity; (b) sometimes                     terminates responses with LF CR instead                     of CR                     LF;
+                          (c)                     has a Hayes-like escape sequence; (d) supports a hangup
                           ("HUP")                     command.  Information from Fernando Cabral in
                           Brasilia.
                         */

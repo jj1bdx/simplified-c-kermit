@@ -35,14 +35,14 @@ char *loginv = "Script Command, 10.0.033, 15 Apr 2023";
   Manual, and thus should be portable to all systems that implement those
   functions, and where alarm() and signal() work as they do in UNIX.
 */
-#include <signal.h>
-#include <setjmp.h>
 #include "ckcasc.h"
+#include "ckcfnp.h" /* Prototypes (must be last) */
 #include "ckcker.h"
-#include "ckuusr.h"
 #include "ckcnet.h"
 #include "ckcsig.h"
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckuusr.h"
+#include <setjmp.h>
+#include <signal.h>
 
 void flushi(void);
 static void myflsh(void);

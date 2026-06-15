@@ -17,6 +17,9 @@ typedef void (*ck_sighand)(int);
 
 /* Macros for POSIX vs old-style signal handling. */
 
+/* clang-format off */
+#include <setjmp.h>
+/* clang-format on */
 #ifdef CK_POSIX_SIG
 typedef sigjmp_buf ckjmpbuf;
 #else

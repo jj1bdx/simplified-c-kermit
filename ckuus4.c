@@ -26,9 +26,9 @@
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckcnet.h" /* Network symbols */
+#include "ckcxla.h" /* Character sets */
 #include "ckuusr.h"
 #include "ckuver.h"
-#include "ckcxla.h" /* Character sets */
 
 #ifdef HAVE_LOCALE
 #include <locale.h>
@@ -2077,10 +2077,10 @@ int transmit(char *s, char t, int xlate, int binary, int xxecho)
   }
 #endif /* NOCSETS */
 
-  i = 0;                           /* Beginning of buffer. */
+  i = 0;                              /* Beginning of buffer. */
   oldsig = ck_signal(SIGINT, trtrap); /* Save current interrupt trap. */
-  tr_int = 0;                      /* Have not been interrupted (yet). */
-  rc = 1;                          /* Return code presumed good. */
+  tr_int = 0;                         /* Have not been interrupted (yet). */
+  rc = 1;                             /* Return code presumed good. */
 
 #ifndef NOCSETS
   debug(F101, "XMIT unicode", "", unicode);
@@ -2481,7 +2481,7 @@ xmitexit: /* General exit point */
   }
 
   ck_signal(SIGINT, oldsig); /* Put old signal action back. */
-  zclose(ZIFILE);         /* Close file, */
+  zclose(ZIFILE);            /* Close file, */
 #ifndef NOCSETS
   language = langsv; /* restore language, */
 #endif /* NOCSETS */
