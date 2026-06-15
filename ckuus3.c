@@ -1,4 +1,3 @@
-#include "ckcsym.h" /* Symbol definitions */
 
 /*  C K U U S 3 --  "User Interface" for C-Kermit, part 3  */
 

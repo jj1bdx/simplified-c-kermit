@@ -24,7 +24,6 @@
 #undef free
 #endif /* free */
 
-#include "ckcsym.h"
 #include <stdio.h>
 #include "ckcdeb.h"
 #include "ckcfnp.h" /* Prototypes (must be last) */

@@ -68,7 +68,6 @@ char *cklibv = "C-Kermit library, 10.0.063, 02 May 2023";
 
   Note: This module should not contain any extern declarations.
 */
-#include "ckcsym.h"
 #include "ckcdeb.h"
 #include "ckcasc.h"
 #include "ckcker.h"

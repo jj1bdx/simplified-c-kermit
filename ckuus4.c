@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 /*  C K U U S 4 --  "User Interface" for C-Kermit, part 4  */
 

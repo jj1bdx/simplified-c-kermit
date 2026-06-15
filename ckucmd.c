@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 char *cmdv = "Command package 10.0.184, 19 Sept 2023";
 

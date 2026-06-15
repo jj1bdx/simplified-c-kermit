@@ -35,7 +35,6 @@ int sstelnet = 0; /* Do server-side Telnet negotiation */
 #ifndef NONET
 #ifndef NOTCPIP
 
-#include "ckcsym.h"
 #include "ckcdeb.h"
 
 #ifdef TIMEH

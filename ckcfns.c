@@ -26,7 +26,6 @@ char *nm[] = {"Disabled", "Local only", "Remote only", "Enabled"};
    ck?tio.c -- terminal (communications) i/o
    cx?fio.c -- file i/o, directory structure
 */
-#include "ckcsym.h" /* Needed for Stratus VOS */
 #include "ckcasc.h" /* ASCII symbols */
 #include "ckcdeb.h" /* Debug formats, typedefs, etc. */
 #include "ckcker.h" /* Symbol definitions for Kermit */

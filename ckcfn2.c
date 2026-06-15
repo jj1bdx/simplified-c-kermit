@@ -18,7 +18,6 @@
  the top of ckcfns.c accordingly.
 */
 
-#include "ckcsym.h" /* Compilation options */
 #include "ckcdeb.h" /* Debugging and other symbols */
 #include "ckcasc.h" /* ASCII symbols */
 #include "ckcker.h" /* Kermit symbols */

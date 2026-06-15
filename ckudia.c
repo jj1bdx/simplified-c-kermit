@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 char *dialv = "Dial Command, 10.0.165, 15 Apr 2023";
 
 /*  C K U D I A	 --  Module for automatic modem dialing. */

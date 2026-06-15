@@ -566,88 +566,88 @@ ckuker.nr:
 ###########################################################################
 # Dependencies for each module...
 #
-ckcmai.$(EXT): ckcmai.c ckcker.h ckcdeb.h ckcsym.h ckcasc.h ckcnet.h ckcsig.h \
+ckcmai.$(EXT): ckcmai.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckcsig.h \
 		ckuusr.h ckctel.h ckclib.h ckcfnp.h
 
-ckclib.$(EXT): ckclib.c ckclib.h ckcdeb.h ckcasc.h ckcsym.h ckcfnp.h
+ckclib.$(EXT): ckclib.c ckclib.h ckcdeb.h ckcasc.h ckcfnp.h
 
 wart: ckwart.$(EXT)
 	$(CC) $(LNKFLAGS) -o wart ckwart.$(EXT) $(LIBS)
 
-ckcpro.c: ckcpro.w wart ckcdeb.h ckcsym.h ckcasc.h ckcker.h ckcnet.h ckctel.h \
+ckcpro.c: ckcpro.w wart ckcdeb.h ckcasc.h ckcker.h ckcnet.h ckctel.h \
 	 ckclib.h
 	./wart ckcpro.w ckcpro.c
 
-ckcfns.$(EXT): ckcfns.c ckcker.h ckcdeb.h ckcsym.h ckcasc.h ckcxla.h ckcuni.h \
+ckcfns.$(EXT): ckcfns.c ckcker.h ckcdeb.h ckcasc.h ckcxla.h ckcuni.h \
 		ckuxla.h ckclib.h ckcnet.h ckcfnp.h
 
-ckcfn2.$(EXT): ckcfn2.c ckcker.h ckcdeb.h ckcsym.h ckcasc.h ckcxla.h \
+ckcfn2.$(EXT): ckcfn2.c ckcker.h ckcdeb.h ckcasc.h ckcxla.h \
 		ckuxla.h ckctel.h ckclib.h ckcnet.h ckcuni.h ckcfnp.h
 
-ckcfn3.$(EXT): ckcfn3.c ckcker.h ckcdeb.h ckcsym.h ckcasc.h ckcxla.h \
+ckcfn3.$(EXT): ckcfn3.c ckcker.h ckcdeb.h ckcasc.h ckcxla.h \
 		ckuxla.h ckclib.h ckcuni.h ckcfnp.h
 
-ckuxla.$(EXT): ckuxla.c ckcker.h ckcsym.h ckcdeb.h ckcxla.h ckuxla.h ckclib.h \
+ckuxla.$(EXT): ckuxla.c ckcker.h ckcdeb.h ckcxla.h ckuxla.h ckclib.h \
 		 ckcuni.h ckcfnp.h
 
 ckcuni.$(EXT): ckcuni.c ckcdeb.h ckcker.h ckucmd.h ckcuni.h ckcxla.h ckuxla.h \
 		  ckcfnp.h
 
-ckuusr.$(EXT): ckuusr.c ckucmd.h ckcker.h ckuusr.h ckcsym.h ckcdeb.h ckcxla.h \
+ckuusr.$(EXT): ckuusr.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcxla.h \
 		ckuxla.h ckcasc.h ckcnet.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
 
 ckuus2.$(EXT): ckuus2.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcxla.h ckuxla.h \
-		ckcasc.h ckcnet.h ckcsym.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
+		ckcasc.h ckcnet.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
 
 ckuus3.$(EXT): ckuus3.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcxla.h ckuxla.h \
-		ckcasc.h ckcnet.h ckcsym.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
+		ckcasc.h ckcnet.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
 
 ckuus4.$(EXT): ckuus4.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcxla.h ckuxla.h \
-		ckcasc.h ckcnet.h ckuver.h ckcsym.h ckctel.h ckclib.h \
+		ckcasc.h ckcnet.h ckuver.h ckctel.h ckclib.h \
 		ckcuni.h ckcfnp.h
 
 ckuus5.$(EXT): ckuus5.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcasc.h ckcnet.h \
-		 ckcsym.h ckctel.h ckclib.h ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
+		 ckctel.h ckclib.h ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
 ckuus6.$(EXT): ckuus6.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcasc.h ckcnet.h \
-		 ckcsym.h ckctel.h ckclib.h ckcfnp.h
+		 ckctel.h ckclib.h ckcfnp.h
 
 ckuus7.$(EXT): ckuus7.c ckucmd.h ckcker.h ckuusr.h ckcdeb.h ckcxla.h ckuxla.h \
-		ckcasc.h ckcnet.h ckcsym.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
+		ckcasc.h ckcnet.h ckctel.h ckclib.h ckcuni.h ckcfnp.h
 
-ckuusx.$(EXT): ckuusx.c ckcker.h ckuusr.h ckcdeb.h ckcasc.h ckcsym.h \
+ckuusx.$(EXT): ckuusx.c ckcker.h ckuusr.h ckcdeb.h ckcasc.h \
 		ckcsig.h ckcnet.h ckctel.h ckclib.h ckcxla.h ckuxla.h \
 		ckcuni.h ckcfnp.h
 
-ckuusy.$(EXT): ckuusy.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckcsym.h ckctel.h \
+ckuusy.$(EXT): ckuusy.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckctel.h \
 		 ckclib.h ckcfnp.h
 
-ckucmd.$(EXT): ckucmd.c ckcasc.h ckucmd.h ckcdeb.h ckcsym.h ckctel.h ckclib.h \
+ckucmd.$(EXT): ckucmd.c ckcasc.h ckucmd.h ckcdeb.h ckctel.h ckclib.h \
 		ckcfnp.h
 
-ckufio.$(EXT): ckufio.c ckcdeb.h ckuver.h ckcsym.h ckclib.h \
+ckufio.$(EXT): ckufio.c ckcdeb.h ckuver.h ckclib.h \
 		ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
-ckutio.$(EXT): ckutio.c ckcdeb.h ckcnet.h ckuver.h ckcsym.h ckctel.h ckclib.h \
+ckutio.$(EXT): ckutio.c ckcdeb.h ckcnet.h ckuver.h ckctel.h ckclib.h \
 		ckcfnp.h
 
-ckucon.$(EXT): ckucon.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckcsym.h ckctel.h \
+ckucon.$(EXT): ckucon.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckctel.h \
 		 ckclib.h ckcfnp.h
 
-ckucns.$(EXT): ckucns.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckcsym.h ckctel.h \
+ckucns.$(EXT): ckucns.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckctel.h \
 		 ckclib.h ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
-ckcnet.$(EXT): ckcnet.c ckcdeb.h ckcker.h ckcnet.h ckcsym.h ckcsig.h ckctel.h \
+ckcnet.$(EXT): ckcnet.c ckcdeb.h ckcker.h ckcnet.h ckcsig.h ckctel.h \
 		 ckclib.h ckcfnp.h ckuusr.h
 
-ckctel.$(EXT): ckcsym.h ckcdeb.h ckcker.h ckcnet.h ckctel.h ckclib.h ckcfnp.h
+ckctel.$(EXT): ckcdeb.h ckcker.h ckcnet.h ckctel.h ckclib.h ckcfnp.h
 
-ckcmdb.$(EXT): ckcmdb.c ckcdeb.h ckcsym.h ckclib.h ckcfnp.h
+ckcmdb.$(EXT): ckcmdb.c ckcdeb.h ckclib.h ckcfnp.h
 
-ckudia.$(EXT): ckudia.c ckcker.h ckcdeb.h ckucmd.h ckcasc.h ckcsym.h ckcsig.h \
+ckudia.$(EXT): ckudia.c ckcker.h ckcdeb.h ckucmd.h ckcasc.h ckcsig.h \
 		ckcnet.h ckctel.h ckclib.h ckcfnp.h
 
-ckuscr.$(EXT): ckuscr.c ckcker.h ckcdeb.h ckcasc.h ckcsym.h ckcsig.h \
+ckuscr.$(EXT): ckuscr.c ckcker.h ckcdeb.h ckcasc.h ckcsig.h \
 		ckcnet.h ckctel.h ckclib.h ckcfnp.h
 
 ckusig.$(EXT): ckusig.c ckcasc.h ckcdeb.h ckcker.h ckcnet.h ckuusr.h \

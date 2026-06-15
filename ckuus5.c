@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 int xcmdsrc = 0;
 

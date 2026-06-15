@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ckcdeb.h"
-#include "ckcsym.h"
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckclib.h"

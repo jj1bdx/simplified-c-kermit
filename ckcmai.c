@@ -25,13 +25,6 @@ If the version number has changed, also:
   . Update the edit number in ck_s_xver to agree with ck_s_edit
 */
 /*
-  ckcsym.h is used for defining symbols that normally would be defined
-  using -D or -d on the cc command line, for use with compilers that don't
-  support this feature.  Must come before any tests for preprocessor symbols.
-*/
-#include "ckcsym.h"
-
-/*
   The ckcdeb.h include was moved up here from further down so BETATEST
   definition will take effect before it is used.  Previously BETATEST was
   defined in this module but since it was also used in other modules, it

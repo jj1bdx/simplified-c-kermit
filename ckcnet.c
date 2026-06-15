@@ -58,7 +58,6 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
 #endif /* NORLOGIN */
 
 #define CKCNET_C
-#include "ckcsym.h"
 #include "ckcdeb.h"
 #include "ckcker.h"
 #include "ckcasc.h"

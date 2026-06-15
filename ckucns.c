@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
 
 /*  C K U C N S  --  Terminal connection to remote system, for UNIX  */

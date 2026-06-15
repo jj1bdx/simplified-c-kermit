@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 char *connv = "CONNECT Command for UNIX:fork(), 10.0.119, 13 May 2023";
 

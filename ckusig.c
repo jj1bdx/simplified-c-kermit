@@ -11,7 +11,6 @@ char *ckusigv = "Signal support, 10.0.100, 23 Sep 2022";
     All rights reserved.  See the C-Kermit COPYING.TXT file or the
     copyright text in the ckcmai.c module for disclaimer and permissions.
 */
-#include "ckcsym.h"
 #include "ckcasc.h" /* ASCII character symbols */
 #include "ckcdeb.h" /* Debug & other symbols */
 #include "ckcker.h" /* Kermit symbols */

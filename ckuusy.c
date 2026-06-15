@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 #define XFATAL fatal
 
 /*  C K U U S Y --  "User Interface" for C-Kermit Kermit, part Y  */

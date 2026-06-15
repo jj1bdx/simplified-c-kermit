@@ -17,7 +17,6 @@
  the top of ckcfns.c accordingly.
 */
 
-#include "ckcsym.h"
 #include "ckcdeb.h"
 #include "ckcasc.h"
 #include "ckcker.h"

@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 /*  C K U U S X --  "User Interface" common functions. */
 

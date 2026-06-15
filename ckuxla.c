@@ -1,4 +1,3 @@
-#include "ckcsym.h"
 
 #include "ckcdeb.h" /* Includes... */
 #include "ckcker.h"

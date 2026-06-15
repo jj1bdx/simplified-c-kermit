@@ -29,7 +29,6 @@
   accessed with hmsga() rather than hmsg().  The length limit might be lower
   in older C compilers.
 */
-#include "ckcsym.h"
 #include "ckcdeb.h"
 #include "ckcnet.h"
 #include "ckcasc.h"

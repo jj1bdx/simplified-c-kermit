@@ -31,7 +31,6 @@ extern int duplex;
 
 /* Includes */
 
-#include "ckcsym.h" /* This must go first   */
 #include "ckcdeb.h" /* This must go second  */
 
 /* This is for -DNONET builds external SSH client builds */
