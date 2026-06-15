@@ -1,15 +1,19 @@
-# Modified for C17 project
-# Source - https://stackoverflow.com/a/79505976
-# Posted by Ravindu Gamage
-# Retrieved 2025-11-09, License - CC BY-SA 4.0
+# Fully rewritten for Linux target
 
 {
   "CompileFlags": {
     "Add": [
-      "-std=c17",
-      "-Wall",
-      "-Wextra",
-      "-Wpedantic",
+      "-std=gnu17",
+      "-funsigned-char",
+      "-DLINUX",
+      "-DFNFLOAT",
+      "-DCK_POSIX_SIG",
+      "-DCK_NEWTERM",
+      "-DTCPSOCKET",
+      "-DLINUXFSSTND",
+      "-DNOCOTFMC",
+      "-DPOSIX",
+      "-DUSE_STRERROR",
     ]
   },
   "Index": {

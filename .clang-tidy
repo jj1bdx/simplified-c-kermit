@@ -1,0 +1,16 @@
+# clang-tidy config for clangd (Helix, etc.) on this C-Kermit tree.
+#
+# This is an old, deliberately conservative/portable C codebase. We do not want
+# clang-tidy lint on top of the compiler's own diagnostics, so all tidy checks
+# are disabled and only clang-diagnostic-* (the compiler diagnostics clangd
+# already surfaces) are kept.
+#
+# NOTE: clang-tidy cannot suppress the compiler's -W warnings here -- those are
+# driven by the CompileFlags in .clangd, not by this file. The bulk of the lint
+# "noise" (unused-parameter / unused-variable / sign-compare / ...) was the
+# -Wall -Wextra in .clangd; those flags were dropped there to match the actual
+# `make linux` build, which compiles with -O and no -W flags.
+#
+# To enable a specific check, append it, e.g.:
+#   Checks: '-*,clang-diagnostic-*,bugprone-suspicious-memset-usage'
+Checks: '-*,clang-diagnostic-*'
