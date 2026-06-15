@@ -270,7 +270,7 @@ ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) ckcpro.$(EXT) ckcfns.$(EXT) \
 ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) ckucon.$(EXT) ckutio.$(EXT) \
 ckufio.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) ckwart.$(EXT) ckuusx.$(EXT) \
 ckuusy.$(EXT) ckcnet.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) ckusig.$(EXT) \
-ckucns.$(EXT) ckcmdb.$(EXT) ckctel.$(EXT) ckclib.$(EXT) \
+ckucns.$(EXT) ckctel.$(EXT) ckclib.$(EXT) \
 ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
 ckcpro.c wart
 
@@ -538,24 +538,6 @@ xermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckctel.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
 		$(LIBS)
 
-# Malloc Debugging version
-
-mermit:	ckcmdb.$(EXT) ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckcpro.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) \
-		ckuxla.$(EXT) ckucon.$(EXT) ckutio.$(EXT) ckufio.$(EXT) \
-		ckudia.$(EXT) ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) \
-		ckusig.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT)
-	$(CC2) $(LNKFLAGS) -o mermit ckcmdb.$(EXT) ckclib.$(EXT) ckcmai.$(EXT)\
-		ckutio.$(EXT) ckufio.$(EXT) ckcfns.$(EXT) ckcfn2.$(EXT) \
-		ckcfn3.$(EXT) ckuxla.$(EXT) ckcpro.$(EXT) ckucmd.$(EXT) \
-		ckuus2.$(EXT) ckuus3.$(EXT) ckuus4.$(EXT) ckuus5.$(EXT) \
-		ckuus6.$(EXT) ckuus7.$(EXT) ckuusx.$(EXT) ckuusy.$(EXT) \
-		ckuusr.$(EXT) ckucon.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) \
-		ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) ckcuni.$(EXT) \
-		ckupty.$(EXT) ckcftp.$(EXT) $(LIBS)
-
 ###########################################################################
 # man page...
 #
@@ -641,8 +623,6 @@ ckcnet.$(EXT): ckcnet.c ckcdeb.h ckcker.h ckcnet.h ckcsig.h ckctel.h \
 		 ckclib.h ckcfnp.h ckuusr.h
 
 ckctel.$(EXT): ckcdeb.h ckcker.h ckcnet.h ckctel.h ckclib.h ckcfnp.h
-
-ckcmdb.$(EXT): ckcmdb.c ckcdeb.h ckclib.h ckcfnp.h
 
 ckudia.$(EXT): ckudia.c ckcker.h ckcdeb.h ckucmd.h ckcasc.h ckcsig.h \
 		ckcnet.h ckctel.h ckclib.h ckcfnp.h
