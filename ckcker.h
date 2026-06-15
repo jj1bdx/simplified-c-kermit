@@ -1149,8 +1149,8 @@ int chkint(void);
 void sdebu(int);
 void rdebu(CHAR *, int);
 char *dbchr(int);
-SIGTYP stptrap(int);
-SIGTYP trap(int);
+void stptrap(int);
+void trap(int);
 char *ck_errstr(void);
 #ifndef NOXFER
 int agnbyte(void);

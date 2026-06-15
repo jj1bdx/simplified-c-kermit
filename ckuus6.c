@@ -3315,7 +3315,7 @@ dointerpret:
   return (x < 0 ? -1 : len);
 }
 
-SIGTYP
+void
 tytrap(int foo) /* TYPE interrupt trap */
 /* tytrap */ {
 #ifdef __EMX__
@@ -3323,7 +3323,7 @@ tytrap(int foo) /* TYPE interrupt trap */
 #endif
   debug(F100, "type tytrap SIGINT", "", 0);
   typ_int = 1; /* (Need arg for ANSI C) */
-  SIGRETURN;
+  return;
 }
 
 char *cvtstring(char *, int, int);
@@ -3344,7 +3344,7 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   extern int ucsbom;
 #endif /* UNICODE */
 
-  SIGTYP (*oldsig)();
+  void (*oldsig)();
 
   if (!file)
     file = "";

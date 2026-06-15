@@ -4122,8 +4122,8 @@ char fbuf[FULLNUML];
 
 static ckjmpbuf sjbuf;
 
-static SIGTYP (*savalrm)(int); /* For saving alarm handler */
-static SIGTYP (*savint)(int);  /* For saving interrupt handler */
+static void (*savalrm)(int); /* For saving alarm handler */
+static void (*savint)(int);  /* For saving interrupt handler */
 
 #ifdef CKLOGDIAL
 static void dologdial(char *s) {
@@ -4177,7 +4177,7 @@ static void dologdial(char *s) {
 
 #endif /* MINIDIAL */
 
-static SIGTYP dialtime(int foo) /* Timer interrupt handler */
+static void dialtime(int foo) /* Timer interrupt handler */
 /* dialtime */ {
 
   fail_code = F_TIME; /* Failure reason = timeout */
@@ -4188,10 +4188,10 @@ static SIGTYP dialtime(int foo) /* Timer interrupt handler */
 
   cklongjmp(sjbuf, 1);
   /* NOTREACHED */
-  SIGRETURN;
+  return;
 }
 
-static SIGTYP dialint(int foo) /* Keyboard interrupt handler */
+static void dialint(int foo) /* Keyboard interrupt handler */
 /* dialint */ {
   fail_code = F_INT;
   debug(F100, "dialint caught SIGINT", "", 0);
@@ -4199,7 +4199,7 @@ static SIGTYP dialint(int foo) /* Keyboard interrupt handler */
   signal(SIGINT, SIG_ACK); /* Needed for OS/2 */
 #endif                     /* __EMX__ */
   cklongjmp(sjbuf, 1);
-  SIGRETURN;
+  return;
 }
 
 /*
@@ -4649,7 +4649,7 @@ static char *ws;   /* ws = wake string */
 static char *xnum = NULL;
 static int inited = 0;
 
-static SIGTYP _dodial(void *threadinfo)
+static void _dodial(void *threadinfo)
 /* _dodial */ {
   char c2;
   char *dcmd, *s, *flocmd = NULL;
@@ -4667,7 +4667,7 @@ static SIGTYP _dodial(void *threadinfo)
       free(fbuf);
     fbuf = NULL;
 #endif         /* DYNAMIC */
-    SIGRETURN; /* No conversation with modem to complete dialing */
+    return; /* No conversation with modem to complete dialing */
   }
   makestr(&xnum, telnbr);
 
@@ -4727,7 +4727,7 @@ static SIGTYP _dodial(void *threadinfo)
           fbuf = NULL;
 #endif /* DYNAMIC */
           dreset();
-          SIGRETURN;
+          return;
         }
       }
     }
@@ -4811,7 +4811,7 @@ static SIGTYP _dodial(void *threadinfo)
       break;
     }
     }
-    SIGRETURN;
+    return;
   } else
 #endif /* CK_TAPI */
 #endif /* MINIDIAL */
@@ -4857,7 +4857,7 @@ static SIGTYP _dodial(void *threadinfo)
               free(fbuf);
             fbuf = NULL;
 #endif                 /* DYNAMIC */
-            SIGRETURN; /* return failure */
+            return; /* return failure */
           }
           printf(", retrying%s...\r\n", (tries > 1) ? " again" : "");
           fflush(stdout);
@@ -4983,7 +4983,7 @@ static SIGTYP _dodial(void *threadinfo)
 
       if (mdmstat < 1) {   /* Initialized OK? */
         dialfail(F_MINIT); /* No, fail. */
-        SIGRETURN;
+        return;
       }
 
 #ifndef MINIDIAL
@@ -5405,7 +5405,7 @@ xdialec:
             free(fbuf);
           fbuf = NULL;
 #endif /* DYNAMIC */
-          SIGRETURN;
+          return;
         }
         x = ttgmdm(); /* Try to read modem signals */
         if (x < 0)
@@ -5836,7 +5836,7 @@ xdialec:
   alarm(0);
   if (mdmstat == D_FAILED) { /* Failure detected by modem  */
     dialfail(F_MODEM);
-    SIGRETURN;
+    return;
   } else if (mdmstat == D_PARTIAL) { /* Partial dial command OK */
     msleep(500);
     debug(F100, "dial partial", "", 0);
@@ -5904,14 +5904,14 @@ xdialec:
   fbuf = NULL;
 #endif /* DYNAMIC */
   dialsta = (mdmstat == D_PARTIAL) ? DIA_PART : DIA_OK;
-  SIGRETURN;
+  return;
 }
 
-static SIGTYP faildial(void *threadinfo)
+static void faildial(void *threadinfo)
 /* faildial */ {
   debug(F100, "longjmp returns to dial routine", "", 0);
   dialfail(fail_code);
-  SIGRETURN;
+  return;
 }
 
 /*
@@ -6351,17 +6351,17 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
 */
 static ckjmpbuf okbuf;
 
-static SIGTYP oktimo(int foo) /* Alarm handler for getok(). */
+static void oktimo(int foo) /* Alarm handler for getok(). */
 /* oktimo */ {
 
   cklongjmp(okbuf, 1);
   /* NOTREACHED */
-  SIGRETURN;
+  return;
 }
 
 static int okstatus, okn, okstrict;
 
-static SIGTYP dook(void *threadinfo)
+static void dook(void *threadinfo)
 /* dook */ {
   CHAR c;
 
@@ -6376,13 +6376,13 @@ static SIGTYP dook(void *threadinfo)
     waitfor("VAL");
     okstatus = 1;
     debug(F111, "Modem_Response(V25)", "VAL", okstatus);
-    SIGRETURN;
+    return;
 #ifndef MINIDIAL
   } else if (mymdmtyp == n_MICROCOM) { /* Microcom in SX mode, also easy */
     waitfor(MICROCOM.wake_prompt);     /* (I think...) */
     debug(F111, "Modem_Response(Microcom)", MICROCOM.wake_prompt, okstatus);
     okstatus = 1;
-    SIGRETURN;
+    return;
 #endif                          /* MINIDIAL */
   } else {                      /* Hayes & friends, start here... */
     okstatus = 0;               /* No status yet. */
@@ -6393,7 +6393,7 @@ static SIGTYP dook(void *threadinfo)
       x = ddinc(okn);           /* Read a character */
       if (x < 0) {              /* I/O error */
         okstatus = -1;
-        SIGRETURN;
+        return;
       }
       c = (char)(x & 0x7f); /* Get low order 7 bits */
       if (!c)               /* Don't deposit NULs */
@@ -6473,14 +6473,14 @@ static SIGTYP dook(void *threadinfo)
     }
   }
   debug(F101, "getok", "", okstatus); /* <-- It's a lie (why?) */
-  SIGRETURN;
+  return;
 }
 
-static SIGTYP failok(void *threadinfo)
+static void failok(void *threadinfo)
 /* failok */ {
   debug(F100, "longjmp returned to getok()", "", 0);
   debug(F100, "getok timeout", "", 0);
-  SIGRETURN;
+  return;
 }
 
 int getok(int n, int strict) {

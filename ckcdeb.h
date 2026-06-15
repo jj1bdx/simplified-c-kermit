@@ -671,9 +671,6 @@ extern int errno; /* fdc 1 November 2022 */
 #endif /* UNIX */
 
 #ifdef __DECC /* For DEC Alpha VMS or OSF/1 */
-#ifndef SIG_V
-#define SIG_V /* and signal type is VOID */
-#endif        /* SIG_V */
 #ifndef CK_ANSILIBS
 #define CK_ANSILIBS /* (Martin Zinser, Feb 1995) */
 #endif              /* CK_ANSILIBS */
@@ -772,48 +769,10 @@ int ckxfprintf(FILE *, const char *, ...);
 
 /* Signal handling */
 
-/* Signal type */
-
-#ifndef SIG_V /* signal() type, if not def'd yet */
-#ifndef SIG_I
-#ifdef POSIX
-#define SIG_V
-#else
-#ifdef SVR3 /* System V R3 and later */
-#define SIG_V
-#else
-#define SIG_I
-#endif /* SVR3 */
-#endif /* POSIX */
-#endif /* SIG_I */
-#endif /* SIG_V */
-
-#ifdef SIG_I
-#define SIGRETURN return (0)
-#ifndef SIGTYP
-#define SIGTYP int
-#endif /* SIGTYP */
-#endif /* SIG_I */
-
-#ifdef SIG_V
-#define SIGRETURN return
-#ifndef SIGTYP
-#define SIGTYP void
-#endif /* SIGTYP */
-#endif /* SIG_V */
-
-#ifndef SIGTYP
-#define SIGTYP int
-#endif /* SIGTYP */
-
-#ifndef SIGRETURN
-#define SIGRETURN return (0)
-#endif /* SIGRETURN */
-
 #ifdef CKNTSIG
 /* This does not work, so don't use it. */
 #define signal ckntsignal
-SIGTYP (*ckntsignal(int type, SIGTYP (*)(int)))(int);
+void (*ckntsignal(int type, void (*)(int)))(int);
 #endif /* CKNTSIG */
 
 /* We want all characters to be unsigned if the compiler supports it */
@@ -3023,7 +2982,7 @@ int ttinl(CHAR *, int, int, CHAR);
 /* Console functions */
 
 int congm(void);
-void conint(SIGTYP (*)(int), SIGTYP (*)(int));
+void conint(void (*)(int), void (*)(int));
 void connoi(void);
 int concb(char);
 #ifdef CONGSPD

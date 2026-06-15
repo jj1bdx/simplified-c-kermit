@@ -786,23 +786,23 @@ static int gotsigs = 0;
 
 static time_t tcount = (time_t)0; /* Elapsed time counter */
 
-static SIGTYP (*saval)() = NULL;   /* For saving alarm() handler */
-static SIGTYP (*savquit)() = NULL; /* and other signal handlers */
+static void (*saval)() = NULL;   /* For saving alarm() handler */
+static void (*savquit)() = NULL; /* and other signal handlers */
 #ifdef SIGUSR1
-static SIGTYP (*savusr1)() = NULL;
+static void (*savusr1)() = NULL;
 #endif /* SIGUSR1 */
 #ifdef SIGUSR2
-static SIGTYP (*savusr2)() = NULL;
+static void (*savusr2)() = NULL;
 #endif /* SIGUSR2 */
 #ifdef SIGPIPE
-static SIGTYP (*savpipe)() = NULL;
+static void (*savpipe)() = NULL;
 #endif /* SIGPIPE */
 #ifdef SIGDANGER
-static SIGTYP (*savdanger)() = NULL;
+static void (*savdanger)() = NULL;
 #endif /* SIGDANGER */
 
 #ifndef NOJC
-static SIGTYP (*jchdlr)() = NULL; /* For checking suspend handler */
+static void (*jchdlr)() = NULL; /* For checking suspend handler */
 #endif                            /* NOJC */
 static int jcshell = -1;          /* And flag for result */
 
@@ -948,9 +948,9 @@ static char lockname[DEVNAMLEN + 1]; /* Ditto, the part after "/dev/". */
 /* ANSI-style prototypes for internal functions. */
 /* Functions used outside this module are prototyped in ckcker.h. */
 
-SIGTYP timerh(int);
-SIGTYP cctrap(int);
-SIGTYP esctrp(int);
+void timerh(int);
+void cctrap(int);
+void esctrp(int);
 int do_open(char *);
 static int in_chk(int, int);
 static int ttrpid(char *);
@@ -991,7 +991,7 @@ static char *xxlast(char *s, char c)
 /* Timeout handler for communication line input functions */
 
 /*ARGSUSED*/
-SIGTYP
+void
 timerh(int foo) {
   ttimoff();
 #ifdef CK_POSIX_SIG
@@ -1002,7 +1002,7 @@ timerh(int foo) {
 }
 
 /*ARGSUSED*/
-SIGTYP
+void
 xtimerh(int foo) {
 /* Like timerh() but does not reset the timer itself */
 #ifdef CK_POSIX_SIG
@@ -1015,10 +1015,10 @@ xtimerh(int foo) {
 /* Control-C trap for communication line input functions */
 
 int cc_int;       /* Flag */
-SIGTYP (*occt)(); /* For saving old SIGINT handler */
+void (*occt)(); /* For saving old SIGINT handler */
 
 /*ARGSUSED*/
-SIGTYP
+void
 cctrap(int foo) /* Needs arg for ANSI C */
 {
   cc_int = 1; /* signal() prototype. */
@@ -1189,7 +1189,7 @@ int rlog_naws(void);
 
 #ifndef NOSIGWINCH
 #ifdef SIGWINCH
-SIGTYP
+void
 winchh(int foo) /* SIGWINCH handler */
 {
   int x = 0;
@@ -1261,12 +1261,12 @@ winchh(int foo) /* SIGWINCH handler */
   }
 #endif /* NOTTGWSIZ */
 #endif /* TCPSOCKET */
-  SIGRETURN;
+  return;
 }
 #endif /* SIGWINCH */
 #endif /* NOSIGWINCH */
 
-SIGTYP
+void
 sighup(int foo) /* SIGHUP handler */
 {
   backgrd = 1;
@@ -1275,7 +1275,7 @@ sighup(int foo) /* SIGHUP handler */
   debug(F100, "***************", "", 0);
   doexit(BAD_EXIT, -1);
   /*NOTREACHED*/
-  SIGRETURN; /* Shut picky compilers up... */
+  return; /* Shut picky compilers up... */
 }
 
 #ifndef SIGUSR1 /* User-defined signals */
@@ -6723,7 +6723,7 @@ int ttfluo() { /* Flush output buffer */
 #ifndef RDCHK
 
 #ifdef SVORPOSIX
-SIGTYP
+void
 esctrp(foo) int foo;
 {                           /* trap console escapes (^\) */
   signal(SIGQUIT, SIG_IGN); /* ignore until trapped */
@@ -6733,7 +6733,7 @@ esctrp(foo) int foo;
 #endif /* SVORPOSIX */
 
 #ifdef V7
-SIGTYP
+void
 esctrp(foo) int foo;
 {                           /* trap console escapes (^\) */
   signal(SIGQUIT, SIG_IGN); /* ignore until trapped */
@@ -6907,7 +6907,7 @@ void conbgt(int flag) {
   */
   if (x < 0 && !flag && !sigint_ign) { /* Didn't get good results above... */
 
-    SIGTYP (*osigint)();
+    void (*osigint)();
 
     osigint = signal(SIGINT, SIG_IGN); /* What is SIGINT set to? */
     sigint_ign = 1;
@@ -6945,7 +6945,7 @@ void conbgt(int flag) {
 */
 
 void /* Set terminal interrupt traps. */
-conint(SIGTYP (*f)(int), SIGTYP (*s)(int))
+conint(void (*f)(int), void (*s)(int))
 /* conint */ {
 
   debug(F101, "conint conistate", "", conistate);
@@ -10524,7 +10524,7 @@ static int pty_get_status(int fd, PID_T pid) {
 */
 static int have_pty = 0; /* Do we have a pty? */
 
-static SIGTYP (*save_sigchld)() = NULL; /* For catching SIGCHLD */
+static void (*save_sigchld)() = NULL; /* For catching SIGCHLD */
 
 static void sigchld_handler(int sig) {
   have_pty = 0; /* We don't have a pty */
@@ -11262,7 +11262,7 @@ external protocols over secure connections not supported in this OS.\n");
     debug(F101, "ttruncmd system", s, x);
     _exit(x ? BAD_EXIT : 0);
   } else {
-    SIGTYP (*istat)(), (*qstat)();
+    void (*istat)(), (*qstat)();
     if (pid == (PID_T)-1) /* fork() failed? */
       return (0);
     istat = signal(SIGINT, SIG_IGN);  /* Let the fork handle keyboard */

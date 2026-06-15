@@ -12,8 +12,8 @@
     copyright text in the ckcmai.c module for disclaimer and permissions.
 */
 
-typedef SIGTYP (*ck_sigfunc)(void *);
-typedef SIGTYP (*ck_sighand)(int);
+typedef void (*ck_sigfunc)(void *);
+typedef void (*ck_sighand)(int);
 
 /* Macros for POSIX vs old-style signal handling. */
 

@@ -86,11 +86,11 @@ static int got_it, no_cr;
 
 static ckjmpbuf alrmrng;
 
-static SIGTYP scrtime(int foo) /* modem read failure handler, */
+static void scrtime(int foo) /* modem read failure handler, */
 /* scrtime */ {
 
   cklongjmp(alrmrng, 1);
-  SIGRETURN;
+  return;
 }
 
 /*
@@ -212,7 +212,7 @@ static void myflsh() {
 static char *rseqe, *rseqgot, *rseqtrace;
 static int rseql;
 
-static SIGTYP dorseq(void *threadinfo)
+static void dorseq(void *threadinfo)
 /* dorseq */ {
   int i, x;
   int burst = 0; /* chars remaining in input burst */
@@ -226,7 +226,7 @@ static SIGTYP dorseq(void *threadinfo)
     x = ttinc(0); /* Read a character */
     debug(F101, "recvseq", "", x);
     if (x < 0) {
-      SIGRETURN; /* Check for error */
+      return; /* Check for error */
     }
 #ifdef NETCONN
 #ifdef TNCODE
@@ -263,20 +263,20 @@ static SIGTYP dorseq(void *threadinfo)
     if (burst <= 0) { /* Flush buffered output */
       myflsh();
       if ((burst = ttchk()) < 0) { /* Get size of next input burst */
-        SIGRETURN;
+        return;
       }
       /* prevent overflow of "conbuf" and "sesbuf" */
       if (burst > MAXBURST)
         burst = MAXBURST;
     }
   }
-  SIGRETURN;
+  return;
 }
 
-static SIGTYP failrseq(void *threadinfo)
+static void failrseq(void *threadinfo)
 /* failrseq */ {
   got_it = 0; /* Timed out here */
-  SIGRETURN;
+  return;
 }
 
 /*
@@ -326,7 +326,7 @@ static int oseqret = 0; /* Return code for outseq */
                         /* Out here to prevent clobbering */
                         /* by longjmp. */
 
-static SIGTYP dooseq(void *threadinfo) {
+static void dooseq(void *threadinfo) {
   int l;
   char *sb;
 #ifdef TCPSOCKET
@@ -380,14 +380,14 @@ static SIGTYP dooseq(void *threadinfo) {
         logchar(dopar(CK_CR));
     }
   }
-  SIGRETURN;
+  return;
 }
 
-SIGTYP
+void
 failoseq(void *threadinfo)
 /* failoseq */ {
   oseqret = -1; /* else -- alarm rang */
-  SIGRETURN;
+  return;
 }
 
 static int outseq() {
@@ -407,7 +407,7 @@ static int outseq() {
 /*  L O G I N  --  (historical misnomer) Execute the SCRIPT command */
 
 int dologin(char *cmdstr) {
-  SIGTYP (*savealm)(); /* Save incoming alarm function */
+  void (*savealm)(); /* Save incoming alarm function */
   char *e;
 
   s = cmdstr; /* Make global to this module */

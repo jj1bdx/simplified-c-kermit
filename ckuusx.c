@@ -2528,7 +2528,7 @@ int askmore() {
 
 /*  T R A P  --  Terminal interrupt handler */
 
-SIGTYP
+void
 trap(int sig)
 /* trap */ {
   extern int b_save, f_save;
@@ -2576,7 +2576,7 @@ trap(int sig)
                             current SIGINT handler).  Just return.
                           */
     debug(F101, "trap: SIGINT caught during CONNECT", "", sig);
-    SIGRETURN;
+    return;
   }
 #ifndef NOSPL
   if (i_active) {      /* INPUT command was active? */
@@ -2688,7 +2688,7 @@ trap(int sig)
 #endif           /* CK_CURSES */
   doexit(BAD_EXIT, what); /* Exit poorly */
 #endif           /* NOCCTRAP */
-  SIGRETURN;
+  return;
 }
 
 /*  C K _ T I M E  -- Returns pointer to current time. */
@@ -2713,7 +2713,7 @@ char *ck_time() {
 
 /*  S T P T R A P -- Handle SIGTSTP (suspend) signals */
 
-SIGTYP
+void
 stptrap(int sig)
 /* stptrap */ {
 
@@ -2764,7 +2764,7 @@ stptrap(int sig)
     }
   }
 #endif /* NOJC */
-  SIGRETURN;
+  return;
 }
 
 #ifdef TLOG

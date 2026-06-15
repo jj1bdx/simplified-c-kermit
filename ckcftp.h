@@ -40,6 +40,6 @@ static int syncdir(char *, int);
 
 static int tmcompare(struct tm *, struct tm *);
 static int xlatec(int, int, int, int);
-static sigtype cancelrecv(int);
-static sigtype cancelsend(int);
-static sigtype cmdcancel(int);
+static void cancelrecv(int);
+static void cancelsend(int);
+static void cmdcancel(int);

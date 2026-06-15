@@ -304,7 +304,7 @@ void setqbit(void);
 void resetqbit(void);
 void breakact(void);
 int pkx121(char *, CHAR *);
-SIGTYP x25oobh(int);
+void x25oobh(int);
 int x25diag(void);
 int x25intr(char);
 int x25reset(char, char);

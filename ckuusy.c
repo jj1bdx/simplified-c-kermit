@@ -55,7 +55,7 @@ static int xx_ftp(char *, char *);
   cl_int() is for trapping Ctrl-C before C-Kermit enters its command parser.
   Let's see if we can live without it - fdc, Fri Apr 14 14:35:16 2023
 */
-static SIGTYP cl_int(int); /* SIGTYP is typdef'd in ckcdeb.h */
+static void cl_int(int);
 #endif                     /* USE_CL_INT */
 static int pmsg(char *);
 static int fmsg(char *);
@@ -484,11 +484,10 @@ void fatal2(char *msg1, char *msg2) {
   C-Kermit executes any command-line options before entering its
   command parser.  But cl_int() generates an inexplicable
   "non-prototype" warning by Clang 15 that will turn into a fatal
-  error in Clang C2x.  Look, here's the prototype right here, in which
-  SIGTYP is typedef'd appropriately in ckcdeb.h, which has already
-  been processed above.  fdc - Fri Apr 14 14:51:22 2023
+  error in Clang C2x.  Look, here's the prototype right here.
+  fdc - Fri Apr 14 14:51:22 2023
 */
-static SIGTYP
+static void
 #ifdef CK_ANSI
 cl_int(int dummy) /* Command-line interrupt handler */
 #else             /* CK_ANSI */
@@ -497,7 +496,7 @@ int dummy;
 #endif            /* CK_ANSI */
 {
   doexit(BAD_EXIT, 1);
-  SIGRETURN;
+  return;
 }
 #endif /* USE_CL_INT */
 

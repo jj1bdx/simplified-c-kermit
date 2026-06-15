@@ -1072,14 +1072,14 @@ static char *findinpath(char *arg) {
 
 static int tr_int; /* Flag if TRANSMIT interrupted */
 
-SIGTYP
+void
 trtrap(int foo) /* TRANSMIT interrupt trap */
 /* trtrap */ {
 #ifdef __EMX__
   signal(SIGINT, SIG_ACK);
 #endif
   tr_int = 1; /* (Need arg for ANSI C) */
-  SIGRETURN;
+  return;
 }
 #endif /* NOICP */
 
@@ -1919,7 +1919,7 @@ static CHAR xbbuf[XBBUFSIZ + 4];
 int transmit(char *s, char t, int xlate, int binary, int xxecho)
 /* transmit */ {
   int count = 0;
-  SIGTYP (*oldsig)();
+  void (*oldsig)();
   int eof = 0;          /* End of File flag */
   int eol = 0;          /* End of Line flag */
   int rc = 1;           /* Return code. 0=fail, 1=succeed. */
@@ -2507,7 +2507,7 @@ CHAR xl1as(CHAR); /* ditto */
 */
 
 int xlate(char *fin, char *fout, int csin, int csout) {
-  SIGTYP (*oldsig)();
+  void (*oldsig)();
   int (*fn)(char); /* Output function pointer */
   extern int xlatype;
   int filecode; /* Code for output file */

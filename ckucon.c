@@ -466,7 +466,7 @@ static sigjmp_buf sig_env;
 static jmp_buf sig_env;
 #endif /* CK_POSIX_SIG */
 
-static SIGTYP /* CK_FORK_SIG handling in child ... */
+static void /* CK_FORK_SIG handling in child ... */
 forkint(foo)
 int foo;
 {
@@ -511,7 +511,7 @@ static jmp_buf con_env;
   It reads a function code from the pipe that connects the two forks,
   then reads additional data from the pipe, then handles it.
 */
-static SIGTYP pipeint(arg)
+static void pipeint(arg)
 int arg;
 { /* Dummy argument */
   int code, cx, x, i /* , n */;

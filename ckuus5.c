@@ -9233,12 +9233,6 @@ static void initoptlist() {
 #ifdef _POSIX_JOB_CONTROL
   makestr(&(optlist[noptlist++]), "_POSIX_JOB_CONTROL");
 #endif
-#ifdef SIG_I
-  makestr(&(optlist[noptlist++]), "SIG_I");
-#endif /* SIG_I */
-#ifdef SIG_V
-  makestr(&(optlist[noptlist++]), "SIG_V");
-#endif /* SIG_V */
 #ifdef CK_POSIX_SIG
   makestr(&(optlist[noptlist++]), "CK_POSIX_SIG");
 #endif

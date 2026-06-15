@@ -212,7 +212,7 @@ char *cmcvtdate(char *, int);
 int rlog_ctrl(CHAR *, int);
 static int rlog_oob(CHAR *, int);
 #ifndef TCPIPLIB
-static SIGTYP rlogoobh(int);
+static void rlogoobh(int);
 #endif /* TCPIPLIB */
 static int rlog_ini(CHAR *, int, struct sockaddr_in *, struct sockaddr_in *);
 int rlog_mode = RL_COOKED;
@@ -4217,7 +4217,7 @@ static int rlog_oob(CHAR *oobdata, int count) {
   return (flush);
 }
 #ifndef TCPIPLIB
-static SIGTYP rlogoobh(int sig) {
+static void rlogoobh(int sig) {
   CHAR oobdata;
 
   /* int  count = 0; */ /* (not used) */
