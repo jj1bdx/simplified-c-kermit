@@ -26,8 +26,10 @@ char *nm[] = {"Disabled", "Local only", "Remote only", "Enabled"};
    ck?tio.c -- terminal (communications) i/o
    cx?fio.c -- file i/o, directory structure
 */
-#include "ckcasc.h" /* ASCII symbols */
+/* clang-format off */
 #include "ckcdeb.h" /* Debug formats, typedefs, etc. */
+/* clang-format on */
+#include "ckcasc.h" /* ASCII symbols */
 #include "ckcker.h" /* Symbol definitions for Kermit */
 #include "ckcxla.h" /* Character set symbols */
 #include "ckcnet.h" /* VMS definition of TCPSOCKET */

@@ -77,7 +77,9 @@ The remaining steps are in this module:
   be in it.
 */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #ifndef NOLOCAL
 #ifndef NODIAL
 #ifndef NOICP

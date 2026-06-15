@@ -65,7 +65,9 @@ char *ckptyv = "Pseudoterminal support, 10.0.107, 16 Apr 2023";
 #endif                      /* NO_PTY_XOPEN_SOURCE */
 
 #include <stdlib.h> /* mdw 20140223 */
+/* clang-format off */
 #include "ckcdeb.h" /* To pick up NETPTY definition */
+/* clang-format on */
 
 #ifndef NETPTY /* Selector for PTY support */
 

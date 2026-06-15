@@ -78,7 +78,9 @@ char *userv = "User Interface 10.0.332, 02 May 2023";
 
 /* Includes */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckcnet.h" /* Network symbols */

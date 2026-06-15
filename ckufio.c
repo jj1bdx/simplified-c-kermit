@@ -24,7 +24,9 @@ char *ckzv = "UNIX File support, 9.0.234, 05 May 2023";
 */
 /* Include Files */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 
 #ifndef NOCSETS

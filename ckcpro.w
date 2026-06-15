@@ -38,7 +38,9 @@ int kactive = 0;			/* Kermit protocol is active */
     copyright text in the ckcmai.c module for disclaimer and permissions.
 */
 #ifndef NOXFER
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 
@@ -3575,7 +3577,9 @@ sgetinit(int reget, int xget)
 
 #else  /* NOXFER */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 
 void
 proto() {

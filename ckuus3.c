@@ -25,7 +25,9 @@
   Kermit-specific includes.
   Definitions here supersede those from system include files.
 */
+/* clang-format off */
 #include "ckcdeb.h" /* Debugging & compiler things */
+/* clang-format on */
 #include "ckcasc.h" /* ASCII character symbols */
 #include "ckcker.h" /* Kermit application definitions */
 #include "ckcxla.h" /* Character set translation */

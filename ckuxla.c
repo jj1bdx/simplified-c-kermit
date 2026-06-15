@@ -1,5 +1,7 @@
 
+/* clang-format off */
 #include "ckcdeb.h" /* Includes... */
+/* clang-format on */
 #include "ckcker.h"
 #include "ckucmd.h"
 #include "ckcxla.h"

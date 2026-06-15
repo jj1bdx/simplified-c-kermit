@@ -31,7 +31,9 @@ extern int duplex;
 
 /* Includes */
 
+/* clang-format off */
 #include "ckcdeb.h" /* This must go second  */
+/* clang-format on */
 
 /* This is for -DNONET builds external SSH client builds */
 #ifndef NETCONN

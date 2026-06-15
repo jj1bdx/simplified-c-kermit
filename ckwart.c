@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckclib.h"

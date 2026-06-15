@@ -17,7 +17,9 @@
  the top of ckcfns.c accordingly.
 */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckcxla.h"

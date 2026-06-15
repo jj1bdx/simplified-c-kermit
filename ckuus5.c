@@ -30,7 +30,9 @@ int cmdsrc() { return (0); }
 
 /* Includes */
 
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckuusr.h"

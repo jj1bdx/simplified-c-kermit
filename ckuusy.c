@@ -19,7 +19,9 @@
   Most recent update:
     Fri Apr 14 14:37:46 2023 (function prototypes and declations)
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 
 char *bannerfile = NULL;
 char *helpfile = NULL;

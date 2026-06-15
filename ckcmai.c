@@ -32,7 +32,9 @@ If the version number has changed, also:
   principal C-Kermit header file, the only one that all modules #include.
   - fdc, 27 September 2022
 */
+/* clang-format off */
 #include "ckcdeb.h" /* Debug & other symbols */
+/* clang-format on */
 
 char *ck_cryear = "2025"; /* C-Kermit copyright year */
 /*

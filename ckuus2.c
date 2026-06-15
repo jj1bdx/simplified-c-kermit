@@ -29,7 +29,9 @@
   accessed with hmsga() rather than hmsg().  The length limit might be lower
   in older C compilers.
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcnet.h"
 #include "ckcasc.h"
 #include "ckcker.h"

@@ -36,7 +36,9 @@ int cmdmsk = 255; /* 31 Dec 2000 (was 127) */
 
 #define CKUCMD_C
 
+/* clang-format off */
 #include "ckcdeb.h" /* Formats for debug(), etc. */
+/* clang-format on */
 #include "ckcker.h" /* Needed for BIGBUFOK definition */
 #include "ckcnet.h" /* Needed for server-side Telnet */
 #include "ckucmd.h" /* Needed for everything */

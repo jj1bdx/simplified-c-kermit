@@ -42,7 +42,9 @@ char *ckcuni = "Unicode support 10.0.116, 23 Sep 2022";
   TO DO: A lot of the functions can be tightened up -- use ranges when
   possible, sort switch statements in order of frequency, etc.
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcker.h"
 #include "ckucmd.h"
 #include "ckcxla.h"

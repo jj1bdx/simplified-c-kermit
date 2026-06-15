@@ -18,7 +18,9 @@
  the top of ckcfns.c accordingly.
 */
 
+/* clang-format off */
 #include "ckcdeb.h" /* Debugging and other symbols */
+/* clang-format on */
 #include "ckcasc.h" /* ASCII symbols */
 #include "ckcker.h" /* Kermit symbols */
 #include "ckcxla.h" /* Translation */

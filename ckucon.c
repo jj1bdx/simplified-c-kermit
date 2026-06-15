@@ -27,7 +27,9 @@ char *connv = "CONNECT Command for UNIX:fork(), 10.0.119, 13 May 2023";
   CR symbol changed to CK_CR in C-Kermit 10.0 due to conflict with a
   Windows header file.
 */
+/* clang-format off */
 #include "ckcdeb.h" /* Common things first */
+/* clang-format on */
 
 #ifndef NOLOCAL
 

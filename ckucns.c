@@ -19,7 +19,9 @@ char *connv = "CONNECT Command for UNIX:select(), 10.0.143, 15 Apr 2023";
   is not available or does not work as required.
 */
 
+/* clang-format off */
 #include "ckcdeb.h" /* Common things first */
+/* clang-format on */
 
 #ifndef NOLOCAL
 

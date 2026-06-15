@@ -20,7 +20,9 @@
   File ckuus4.c -- Functions moved from other ckuus*.c modules to even
   out their sizes.
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckcnet.h" /* Network symbols */

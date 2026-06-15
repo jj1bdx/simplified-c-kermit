@@ -1,4 +1,6 @@
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #ifndef NOICP
 
 /*

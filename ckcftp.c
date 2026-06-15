@@ -140,7 +140,9 @@ char *ckftpv = "FTP Client, 10.0.281, 18 Sep 2023";
     TYPE <SP> <type-code> <CRLF>
     USER <SP> <username> <CRLF>
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 
 #ifndef NOFTP    /* NOFTP  = no FTP */
 #ifndef SYSFTP   /* SYSFTP = use external ftp client */

@@ -34,7 +34,9 @@
   moved from here (where non-ansi builds would never see it) to ckcdeb.h.
   ckuusr.h added 12 May 2023 for MINIX / ckucon.c / struct m[x,xx]tab.
 */
+/* clang-format off */
 #include "ckcdeb.h"
+/* clang-format on */
 #include "ckcker.h"
 #include "ckucmd.h"
 #include "ckuusr.h"
