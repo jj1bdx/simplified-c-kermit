@@ -38,7 +38,6 @@ int kactive = 0;			/* Kermit protocol is active */
     copyright text in the ckcmai.c module for disclaimer and permissions.
 */
 #ifndef NOXFER
-#include "ckcsym.h"
 #include "ckcdeb.h"
 #include "ckcasc.h"
 #include "ckcker.h"
