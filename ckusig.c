@@ -43,7 +43,7 @@ extern ckjmpbuf cmjbuf;
   a plain void(*)(int), so existing tests against SIG_IGN/SIG_DFL and the
   saved-pointer comparisons throughout the tree keep working unchanged.
 */
-void (*ck_signal(int sig, void (*func)(int)))(int) {
+ck_sig_t ck_signal(int sig, ck_sig_t func) {
   struct sigaction sa, old;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART;
@@ -75,7 +75,7 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
 
   int rc = 0;
   int savalrm = 0;
-  void (*savhandler)(int);
+  ck_sig_t savhandler;
 
   savalrm = alarm(timo);
   savhandler = ck_signal(SIGALRM, handler);
@@ -100,7 +100,7 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
 
   int rc = 0;
   int savalrm = 0;
-  void (*savhandler)(int);
+  ck_sig_t savhandler;
   savalrm = alarm(timo);
   savhandler = ck_signal(SIGALRM, handler);
 

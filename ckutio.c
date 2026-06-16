@@ -787,23 +787,23 @@ static int gotsigs = 0;
 
 static time_t tcount = (time_t)0; /* Elapsed time counter */
 
-static void (*saval)(int) = NULL;   /* For saving alarm() handler */
-static void (*savquit)(int) = NULL; /* and other signal handlers */
+static ck_sig_t saval = NULL;   /* For saving alarm() handler */
+static ck_sig_t savquit = NULL; /* and other signal handlers */
 #ifdef SIGUSR1
-static void (*savusr1)(int) = NULL;
+static ck_sig_t savusr1 = NULL;
 #endif /* SIGUSR1 */
 #ifdef SIGUSR2
-static void (*savusr2)(int) = NULL;
+static ck_sig_t savusr2 = NULL;
 #endif /* SIGUSR2 */
 #ifdef SIGPIPE
-static void (*savpipe)(int) = NULL;
+static ck_sig_t savpipe = NULL;
 #endif /* SIGPIPE */
 #ifdef SIGDANGER
-static void (*savdanger)(int) = NULL;
+static ck_sig_t savdanger = NULL;
 #endif /* SIGDANGER */
 
 #ifndef NOJC
-static void (*jchdlr)(int) = NULL; /* For checking suspend handler */
+static ck_sig_t jchdlr = NULL; /* For checking suspend handler */
 #endif                             /* NOJC */
 static int jcshell = -1;           /* And flag for result */
 
@@ -1016,7 +1016,7 @@ void xtimerh(int foo) {
 /* Control-C trap for communication line input functions */
 
 int cc_int;        /* Flag */
-void (*occt)(int); /* For saving old SIGINT handler */
+ck_sig_t occt; /* For saving old SIGINT handler */
 
 /*ARGSUSED*/
 void cctrap(int foo) /* Needs arg for ANSI C */
@@ -7089,7 +7089,7 @@ void conbgt(int flag) {
   */
   if (x < 0 && !flag && !sigint_ign) { /* Didn't get good results above... */
 
-    void (*osigint)(int);
+    ck_sig_t osigint;
 
     osigint = ck_signal(SIGINT, SIG_IGN); /* What is SIGINT set to? */
     sigint_ign = 1;
@@ -7128,7 +7128,7 @@ void conbgt(int flag) {
 */
 
 void /* Set terminal interrupt traps. */
-conint(void (*f)(int), void (*s)(int))
+conint(ck_sig_t f, ck_sig_t s)
 /* conint */ {
 
   debug(F101, "conint conistate", "", conistate);
@@ -10877,7 +10877,7 @@ static int pty_get_status(int fd, PID_T pid) {
 */
 static int have_pty = 0; /* Do we have a pty? */
 
-static void (*save_sigchld)(int) = NULL; /* For catching SIGCHLD */
+static ck_sig_t save_sigchld = NULL; /* For catching SIGCHLD */
 
 static void sigchld_handler(int sig) {
   have_pty = 0; /* We don't have a pty */
@@ -11643,7 +11643,7 @@ external protocols over secure connections not supported in this OS.\n");
     debug(F101, "ttruncmd system", s, x);
     _exit(x ? BAD_EXIT : 0);
   } else {
-    void (*istat)(int), (*qstat)(int);
+    ck_sig_t istat, qstat;
     if (pid == (PID_T)-1) { /* fork() failed? */
       return (0);
     }

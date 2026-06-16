@@ -424,7 +424,7 @@ static int outseq() {
 /*  L O G I N  --  (historical misnomer) Execute the SCRIPT command */
 
 int dologin(char *cmdstr) {
-  void (*savealm)(int); /* Save incoming alarm function */
+  ck_sig_t savealm; /* Save incoming alarm function */
   char *e;
 
   s = cmdstr; /* Make global to this module */

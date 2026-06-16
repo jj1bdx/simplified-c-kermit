@@ -1964,7 +1964,7 @@ static CHAR xbbuf[XBBUFSIZ + 4];
 int transmit(char *s, char t, int xlate, int binary, int xxecho)
 /* transmit */ {
   int count = 0;
-  void (*oldsig)(int);
+  ck_sig_t oldsig;
   int eof = 0;          /* End of File flag */
   int eol = 0;          /* End of Line flag */
   int rc = 1;           /* Return code. 0=fail, 1=succeed. */
@@ -2588,7 +2588,7 @@ CHAR xl1as(CHAR);  /* ditto */
 */
 
 int xlate(char *fin, char *fout, int csin, int csout) {
-  void (*oldsig)(int);
+  ck_sig_t oldsig;
   int (*fn)(char); /* Output function pointer */
   extern int xlatype;
   int filecode; /* Code for output file */

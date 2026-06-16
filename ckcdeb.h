@@ -768,12 +768,15 @@ int ckxfprintf(FILE *, const char *, ...);
 void (*ckntsignal(int type, void (*)(int)))(int);
 #endif /* CKNTSIG */
 
+/* Signal-handler pointer type: void function of one int, returning void. */
+typedef void (*ck_sig_t)(int);
+
 /*
   signal()-compatible wrapper implemented with sigaction() (in ckusig.c), used
   at the save/restore call sites in place of signal() for deterministic
   cross-platform (Linux, macOS, BSD) semantics.  Returns the previous handler.
 */
-void (*ck_signal(int type, void (*)(int)))(int);
+ck_sig_t ck_signal(int type, ck_sig_t);
 
 /* We want all characters to be unsigned if the compiler supports it */
 
@@ -2982,7 +2985,7 @@ int ttinl(CHAR *, int, int, CHAR);
 /* Console functions */
 
 int congm(void);
-void conint(void (*)(int), void (*)(int));
+void conint(ck_sig_t, ck_sig_t);
 void connoi(void);
 int concb(char);
 #ifdef CONGSPD

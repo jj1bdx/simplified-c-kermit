@@ -13,7 +13,7 @@
 */
 
 typedef void (*ck_sigfunc)(void *);
-typedef void (*ck_sighand)(int);
+typedef ck_sig_t ck_sighand;
 
 /* Macros for POSIX vs old-style signal handling. */
 

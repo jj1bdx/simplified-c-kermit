@@ -3570,7 +3570,7 @@ int dotype(char *file, int paging, int first, int head, char *pat, int width,
   extern int ucsbom;
 #endif /* UNICODE */
 
-  void (*oldsig)(int);
+  ck_sig_t oldsig;
 
   if (!file) {
     file = "";

@@ -4126,8 +4126,8 @@ char fbuf[FULLNUML];
 
 static ckjmpbuf sjbuf;
 
-static void (*savalrm)(int); /* For saving alarm handler */
-static void (*savint)(int);  /* For saving interrupt handler */
+static ck_sig_t savalrm; /* For saving alarm handler */
+static ck_sig_t savint;  /* For saving interrupt handler */
 
 #ifdef CKLOGDIAL
 static void dologdial(char *s) {
