@@ -1,3 +1,9 @@
+# Note from Kenji Rikitake:
+# This makefile only supports macOS and Linux.
+# *BSD entries are left, but not tested.
+# I may remove *BSD entries altogether
+# because I have no target machines to test.
+
 # makefile / Makefile / ckuker.mak / CKUKER.MAK
 #
 # Sun Mar 24 13:21:46 2024
@@ -864,37 +870,6 @@ macos:
 
 # End of Mac OS X Section
 
-#NeXTSTEP 3.3.
-#Includes fullscreen file transfer display and TCP/IP.
-# You might have to add 1 line to 1 NeXT header file <ip.h>
-# to declare n_long as u_long by adding #include <bsd/netinet/in_systm.h>
-
-#### IBM RT PC - these targets were last verified in C-Kermit 8.0.211.
-
-#### IBM AIX.  The first two targets should work for any version of AIX
-#### from 4.2 onwards.  The ones after that are for older versions or
-#### specific configurations, and/or with gcc.
-
-# Old AIX versions...
-
-# None of the following aix43gcc attempts work on a gcc-only AIX 4.3.3 box.
-# It just plain can't find the math routines (fmod, pow, exp, sqrt, log10,...)
-# Which is odd because nm /usr/lib/libC.a finds them...
-
-#The following (old, old) sunosxxx entries are for debugging and testing only.
-
-# (End of SunOS test entries...)
-
-# AT&T 7300 UNIX PC.  As of C-Kermit 6.1, many of these entries don't work
-# any more due to "Out of memory" or "Too many defines" errors during
-# compilation, at least not on systems without lots of memory.  The sys3upcgc
-# entry works (using gcc) with optimization removed, and might also work
-# with optimization enabled on machines with larger memories.
-
-# The next two are likely not to work as-is.
-
-# Peter E's updated HP-UX 5.xx entries Oct 2001.
-
 # Linux 1.2 or later with gcc, dynamic libraries, ncurses, TCP/IP.
 #
 # If your Linux system has curses rather than ncurses, use the linuxc
@@ -1099,83 +1074,8 @@ linux-nonet:
 	KFLAGS="-DNONET -DNONETDIR -DSSHCMD -DANYSSH $(KFLAGS)" \
 	"LNKFLAGS = $(LNKFLAGS)"
 
-# Secure targets for Linux.  These work on RHAS4, RHEL4, and RHEL5,
-# unlike some of the older targets that follow.  They hook into the main Linux
-# target so we pick up all the other new stuff - large files, baudboy.h, the
-# appropriate pty interface, etc.
-
-# ::BEGIN_OLD_LINUX_TARGETS::
-
-# The remaining Linux entries are for special or customized builds.  They have
-# not been generalized ("subroutinized") like the ones above.  Ideally, we
-# should allow for every combination of libc vs glibc, gcc vs egcs, curses vs
-# ncurses, and so on.
-# The best way to do this is to set KFLAGS and LIBS values and then chain to
-# the main "linux" target, as in the examples just above.  To skip past all of
-# these old targets (and there are many) search for ::END_OLD_LINUX_TARGETS::
-# (after this line).
-
-# ::END_OLD_LINUX_TARGETS::
-
-#SCO UNIX (and ODT) entries...
-#
-#NOTE: All SCO UNIX entry LIBS should have "-lc_s -lc -lx" IN THAT ORDER (if
-#shared C library is desired), or else "-lc -lx" IN THAT ORDER.  Use shared C
-#libraries to save memory, but then don't expect to run the resulting binary
-#on a different machine.  When using -lc_s, you must also use -lc, because the
-#shared C library does not contain all of libc.a.  And in all cases, -lc must
-#ALWAYS precede -lx.
-#
-#ANOTHER NOTE: -DRENAME is included in all SCO UNIX entries.  Remove it if it
-#causes trouble.  No harm is done by removing it (see ckuins.txt).
-#
-#AND ANOTHER: In theory, it should be possible to run SCO UNIX binaries on
-#SCO Xenix 2.3 and later.  In practice, this might not work because of the
-#libraries, etc.  Also, don't add the -link -z switch (which is supposed to
-#root out references to null pointers) because it makes UNIX binaries core
-#dump when they are run under Xenix.
-
-# SCO 3.2v4.x targets...
-
-#  NOTE: Add -DDCLPOPEN and/or -DDCLFDOPEN to anySCO 3.2v4.x non-gcc entries
-#  that complain about fdopen() or popen() at compile time.  They compile OK
-#  without these flags as of July 1999.  However, the gcc entries seem to
-#  need them, at least for gcc 2.7.2.2.
-
-#  NOTE 2: To enable IKSD support, add:
-#  -DCK_LOGIN -DNOGETUSERSHELL -DNOINITGROUPS
-#  to CFLAGS (not tested).
-
-#As above but with floating-point math library support \ffp...() functions
-#and S-Expressions.
-
-ckuuid:
-	@echo 'building C-Kermit $(CKVER) set-UID/set-GID test programs'
-	$(CC) -DANYBSD -DSAVEDUID -o ckuuid1 ckuuid.c
-	$(CC) -DANYBSD -o ckuuid2 ckuuid.c
-	$(CC) -DANYBSD -DNOSETREU -o ckuuid3 ckuuid.c
-	$(CC) -DANYBSD -DSETEUID -DNOSETREU -o ckuuid4 ckuuid.c
-	$(CC) -o ckuuid5 ckuuid.c
-	@echo 'Read the top of ckuuid.c for directions...for testing'
-	@echo 'you must make these programs setuid and setgid'
-
-############################################################################
-# A N T I Q U I T I E S
-#
-# The following are antique targets from C-Kermit 5A or earlier.  They have
-# not been updated or tested in years.  Most of them will need recent features
-# disabled, usually with some combination of -DNOUNICODE, -DNOIKSD, -DNOANSI,
-# -DNOCKGHNLHOST, -DNO_DNS_SRV, -DNOREDIRECT, -DNOREALPATH, -DNOCURSES, etc.
-# They are also missing the KTARGET=$${KTARGET:-$(@)} business.
-# For details see ckuins.txt and ckccfg.txt.
-#
-############################################################################
-
-lintbsd:
-	@echo 'Running Lint on C-Kermit $(CKVER) sources for BSD 4.2 version..'
-	lint -x -DBSD4 -DTCPSOCKET ck[cu]*.c > ckuker.lint.bsd42
-
-#Who remembers TECO?
+# This entry remains here for the historical purpose
+# Who remembers TECO?
 love:
 	@echo 'Not war?'
 
