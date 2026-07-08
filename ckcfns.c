@@ -552,15 +552,21 @@ int bdecode(CHAR *buf, int (*fn)(char))
   while (len > 0) {
     a = *xdbuf++ & 0xff; /* Get next character */
     len--;
-    rpt = 0;                          /* Initialize repeat count. */
-    if (a == rptq && rptflg) {        /* Got a repeat prefix? */
+    rpt = 0;                   /* Initialize repeat count. */
+    if (a == rptq && rptflg) { /* Got a repeat prefix? */
+      if (len < 2) {           /* [V-29] Truncated packet -- not enough */
+        break;                 /* bytes left for the count + prefixed char. */
+      }
       rpt = xunchar(*xdbuf++ & 0xFF); /* Yes, get the repeat count, */
       rptn += rpt;
       a = *xdbuf++ & 0xFF; /* and get the prefixed character. */
       len -= 2;
     }
-    ccpflg = 0;            /* Control prefix flag. */
-    if (a == ctlq) {       /* If control prefix, */
+    ccpflg = 0;      /* Control prefix flag. */
+    if (a == ctlq) { /* If control prefix, */
+      if (len < 1) { /* [V-29] Truncated packet -- no operand byte left. */
+        break;
+      }
       a = *xdbuf++ & 0xFF; /* get its operand */
       len--;
       a7 = a & 0x7F;                                 /* and its low 7 bits. */
@@ -1265,7 +1271,10 @@ int decode(CHAR *buf, int (*fn)(char), int xlate)
   while (len > 0) {      /* Loop for each byte */
     a = *xdbuf++ & 0xff; /* Get next character */
     len--;
-    if (a == rptq && rptflg) {        /* Got a repeat prefix? */
+    if (a == rptq && rptflg) { /* Got a repeat prefix? */
+      if (len < 2) {           /* [V-29] Truncated packet -- not enough */
+        break;                 /* bytes left for the count + prefixed char. */
+      }
       rpt = xunchar(*xdbuf++ & 0xFF); /* Yes, get the repeat count, */
       rptn += rpt;
       a = *xdbuf++ & 0xFF; /* and get the prefixed character. */
@@ -1281,7 +1290,10 @@ int decode(CHAR *buf, int (*fn)(char), int xlate)
       ssflg = 0;
     }
     ccpflg = 0;
-    if (a == ctlq) {       /* If control prefix, */
+    if (a == ctlq) { /* If control prefix, */
+      if (len < 1) { /* [V-29] Truncated packet -- no operand byte left. */
+        break;
+      }
       a = *xdbuf++ & 0xFF; /* get its operand */
       len--;
       a7 = a & 0x7F;                                 /* and its low 7 bits. */

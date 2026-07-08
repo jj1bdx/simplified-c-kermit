@@ -4016,6 +4016,11 @@ int tn_snenv(CHAR *sb, int len)
             strcpy(&reply[n + 13], SFUTLNTMODE_VALUE);
             n += strlen(SFUTLNTMODE) + strlen(SFUTLNTMODE_VALUE) + 2;
           }
+          /* [V-32] Wrap in #ifdef CK_SNDLOC to match pass 1's guard above.
+             CK_SNDLOC is undefined only under -DNOTCPIP, which excludes
+             this whole file, so this is a no-op in any buildable config --
+             pure robustness against future refactors. */
+#ifdef CK_SNDLOC
           if (tn_loc && tn_loc[0]) {
             reply[n] = TEL_ENV_USERVAR; /* VAR */
             strcpy(&reply[n + 1], "LOCATION");
@@ -4023,6 +4028,7 @@ int tn_snenv(CHAR *sb, int len)
             strcpy(&reply[n + 10], tn_loc);
             n += strlen("LOCATION") + strlen(tn_loc) + 2;
           }
+#endif /* CK_SNDLOC */
         } else if (tn_sfu && !strcmp(varname, SFUTLNTVER)) {
           reply[n] = TEL_ENV_USERVAR; /* VAR */
           strcpy(&reply[n + 1], SFUTLNTVER);

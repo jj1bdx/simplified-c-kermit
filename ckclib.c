@@ -587,7 +587,7 @@ char *ckfstoa(CK_OFF_T n)
     x = n % (CK_OFF_T)10;
     if (x < 0) {
       /* x += 10; */
-      ckstrncpy(&buf[23], "OVERFLOW", 32);
+      ckstrncpy(&buf[23], "OVERFLOW", sizeof(buf) - 23);
       sign = 0;
       k = 23;
       break;
@@ -1443,7 +1443,11 @@ int ckmatch(char *pattern, char *string, int icase, int opts) {
       debug(F110, "CKMATCH INIT pat", pattern, 0);
     }
   }
-  matchdepth++; /* Now increment call depth */
+  matchdepth++;           /* Now increment call depth */
+  if (matchdepth > 200) { /* [V-41] Cap recursion on deeply-nested {...} */
+    matchdepth--;         /* groups so a local pattern can't exhaust the */
+    return (0);           /* stack; mirrors the CMDDEP guard. */
+  }
 
 #ifdef UNIX
   if (!dot) { /* For UNIX file globbing */
@@ -2514,6 +2518,12 @@ int b64tob8(char *s, int n, char *out, int len) /* Decode */
     if (bits >= 8) {  /* Have a byte yet? */
       bits -= 8;      /* Output it */
       c = (unsigned)((r >> bits) & 0xff);
+      /* [V-40] Belt-and-suspenders bound: the pre-loop check above is
+         computed from this call's input alone and ignores bits/r carried
+         over from a prior streaming call, so re-check here too. */
+      if (k >= len) {
+        return (-1); /* Destination exhausted mid-stream */
+      }
       out[k++] = c;
     }
   }

@@ -3892,6 +3892,8 @@ int doarg(char x)
       if ((xargc < 1) || (**xargv == '-')) {
         XFATAL("missing NetBios Adapter number");
       }
+      /* V-43: inert -- this whole case is #ifdef CK_NETBIOS, never defined
+         in this fork, so the &&/|| tautology below never executes. */
       if ((strlen(*xargv) != 1) ||
           (*xargv)[0] != 'X' && (atoi(*xargv) < 0) && (atoi(*xargv) > 9)) {
         XFATAL("Invalid NetBios Adapter - Adapters 0 to 9 are valid");

@@ -11781,6 +11781,9 @@ int ckxfprintf(FILE *file, const char *format, ...)
 
   va_start(args, format);
 
+  /* V-34: the vsprintf()-into-str1 branch below only runs when inserver is
+     set, which happens only inside #ifdef IKSD blocks; IKSD is never
+     defined in this fork, so that branch is dead code here. */
   if (!inserver || (file != stdout && file != stderr && file != stdin)) {
     rc = vfprintf(file, format, args);
   } else {
@@ -11858,6 +11861,9 @@ int ckxprintf(const char *format, ...)
 
   va_start(args, format);
 
+  /* V-34: the vsprintf()-into-str1 branch below only runs when inserver is
+     set, which happens only inside #ifdef IKSD blocks; IKSD is never
+     defined in this fork, so that branch is dead code here. */
   if (!inserver) {
     rc = vprintf(format, args);
   } else {

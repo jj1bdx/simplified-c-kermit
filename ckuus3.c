@@ -5516,6 +5516,7 @@ setdial(int y) {
     }
     dialtmo = x;
     mdmwaitd = z;
+    return (success = 1);
   case XYDESC: /* DIAL ESCAPE-CHARACTER */
     y = cmnum("ASCII value of character to escape back to modem", "43", 10, &x,
               xxstring);

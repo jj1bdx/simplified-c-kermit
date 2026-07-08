@@ -13777,12 +13777,14 @@ nvlook(char *s) {
 
       if (p) {
         int len = strlen(p);
-        if (p[len - 1] != '/') {
+        if (len > 0 && p[len - 1] != '/') {
           ckstrncpy(vvbuf, p, VVBUFL);
           if (vvbuf[0]) {
             ckstrncat(vvbuf, "/", CKMAXPATH);
           }
           p = vvbuf;
+        } else if (len == 0) {
+          p = NULL; /* Empty value ~ not set */
         }
       }
 

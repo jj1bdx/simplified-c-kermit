@@ -6781,7 +6781,11 @@ int doshow(int x) {
     }
     printf("  LC_TIME=\"%s\"\n", s);
 
-    printf("  LANG=\"%s\"\n", getenv("LANG"));
+    s = getenv("LANG");
+    if (!s) {
+      s = "";
+    }
+    printf("  LANG=\"%s\"\n", s);
     printf("\n");
 #else
     printf("\n");

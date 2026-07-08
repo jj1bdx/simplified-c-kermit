@@ -77,8 +77,10 @@ int alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   int savalrm = 0;
   ck_sig_t savhandler;
 
-  savalrm = alarm(timo);
+  /* [V-42] Install the new SIGALRM handler before arming the timer, so an
+     already-pending or very-short alarm cannot fire the previous handler. */
   savhandler = ck_signal(SIGALRM, handler);
+  savalrm = alarm(timo);
 
   if (cksetjmp(ckjdref(sj_buf))) {
     (*failfunc)(NULL);
@@ -101,8 +103,10 @@ int cc_alrm_execute(ckjptr(sj_buf), int timo, ck_sighand handler,
   int rc = 0;
   int savalrm = 0;
   ck_sig_t savhandler;
-  savalrm = alarm(timo);
+  /* [V-42] Install the new SIGALRM handler before arming the timer, so an
+     already-pending or very-short alarm cannot fire the previous handler. */
   savhandler = ck_signal(SIGALRM, handler);
+  savalrm = alarm(timo);
 
   if (cksetjmp(ckjdref(sj_buf))) {
     (*failfunc)(NULL);

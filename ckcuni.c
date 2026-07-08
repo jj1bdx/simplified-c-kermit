@@ -10522,6 +10522,9 @@ dgi_u(CHAR c) {
   if (c >= 0x80 && c < 0xa0) {
     return (c);
   }
+  if ((c & 0x7f) < u_dgi.offset) { /* [V-38] self-guard, matching the ~50 */
+    return (c);                    /* sibling *_u() functions. */
+  }
   return (u_dgi.map[(c & 0x7f) - u_dgi.offset]);
 }
 
@@ -10529,6 +10532,9 @@ USHORT
 hproman8_u(CHAR c) {
   if (c >= 0x80 && c < 0xa0) {
     return (c);
+  }
+  if ((c & 0x7f) < u_hproman8.offset) { /* [V-38] self-guard, matching the */
+    return (c);                         /* ~50 sibling *_u() functions. */
   }
   return (u_hproman8.map[(c & 0x7f) - u_hproman8.offset]);
 }
