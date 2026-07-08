@@ -6774,31 +6774,45 @@ or Enter to restore default definition",
   }
   s = brstrip(s);
 #ifndef NOKVERBS
-  p = s;                                           /* Save this place */
-#endif                                             /* NOKVERBS */
-                                                   /*
-                                                     If the definition included any \Kverbs, quote the backslash so the \Kverb
-                                                     will still be in the definition when the key is pressed.  We don't do this
-                                                     in zzstring(), because \Kverbs are valid only in this context and nowhere
-                                                     else.
-                                                 
-                                                     We use this code active for all versions that support SET KEY, even if they
-                                                     don't support \Kverbs, because otherwise \K would behave differently for
-                                                     different versions.
-                                                   */
-  for (x = 0, y = 0; s[x]; x++, y++) {             /* Convert \K to \\K */
+  p = s; /* Save this place */
+#endif   /* NOKVERBS */
+         /*
+           If the definition included any \Kverbs, quote the backslash so the \Kverb
+           will still be in the definition when the key is pressed.  We don't do this
+           in zzstring(), because \Kverbs are valid only in this context and nowhere
+           else.
+       
+           We use this code active for all versions that support SET KEY, even if they
+           don't support \Kverbs, because otherwise \K would behave differently for
+           different versions.
+         */
+  for (x = 0, y = 0; s[x] && y < LINBUFSIZ - 1;
+       x++, y++) {                                 /* Convert \K to \\K */
     if ((x > 0) && (s[x] == 'K' || s[x] == 'k')) { /* Have K */
 
       if ((x == 1 && s[x - 1] == CMDQ) ||
           (x > 1 && s[x - 1] == CMDQ && s[x - 2] != CMDQ)) {
-        line[y++] = CMDQ; /* Make it \\K */
+        if (y < LINBUFSIZ - 1) {
+          line[y++] = CMDQ; /* Make it \\K */
+        }
       }
       if (x > 1 && s[x - 1] == '{' && s[x - 2] == CMDQ) {
         line[y - 1] = CMDQ; /* Have \{K */
-        line[y++] = '{';    /* Make it \\{K */
+        if (y < LINBUFSIZ - 1) {
+          line[y++] = '{'; /* Make it \\{K */
+        }
       }
     }
-    line[y] = s[x];
+    if (y < LINBUFSIZ - 1) {
+      line[y] = s[x];
+    }
+  }
+  if (y >= LINBUFSIZ - 1) { /* Definition too long even after truncation */
+    printf("?Key definition too long\n");
+    if (flag) {
+      cmsetp(psave);
+    }
+    return (-9);
   }
   line[y++] = NUL;                       /* Terminate */
   s = line + y + 1;                      /* Point to after it */

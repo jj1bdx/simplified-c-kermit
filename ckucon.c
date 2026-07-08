@@ -2461,7 +2461,9 @@ void doesc(char c)
         ecbp = ecbuf;
         *ecbp++ = c;
         while (((c = (CONGKS() & cmdmsk)) != '\r') && (c != '\n')) {
-          *ecbp++ = c;
+          if (ecbp < ecbuf + sizeof(ecbuf) - 1) { /* Room left in ecbuf? */
+            *ecbp++ = c;
+          }
         }
         *ecbp = NUL;
         ecbp = ecbuf;

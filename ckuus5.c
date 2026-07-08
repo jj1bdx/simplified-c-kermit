@@ -994,7 +994,7 @@ void cmdini() {
           ckstrncat(buf, ".5", 16);
         }
         n = strlen(buf);
-        if ((n > 0) && (p = (char *)malloc(n + 1))) {
+        if ((n > 0) && (p = (char *)malloc(20 + 2))) { /* match maxspeedlen+2 */
           if (m > 0) {  /* Have at least one in list */
             for (j = 0; /* Find slot */
                  j < m && strcmp(buf, spdtab[j].kwd) > 0; j++)
@@ -1031,8 +1031,8 @@ void cmdini() {
     int i = 0;
     int k = 0;
     int x = 0;
-    int n = sizeof spdtab + 2;
     int maxspeedlen = 20;
+    int n = maxspeedlen + 2; /* Bug fix: was sizeof spdtab (a pointer!) + 2 */
 
     /*
       Fix by SMS 2022-10-11: Use constant array dimensions;
@@ -1045,11 +1045,11 @@ void cmdini() {
     tmp = malloc(sizeof(struct keytab) * (nspd + 2));
 
     for (i = 0; i < nspd; i++) { /* Allocate string storage */
-      speeds[i] = malloc(n + 2);
-      tmp[i].kwd = malloc(maxspeedlen + 2);
+      speeds[i] = malloc(n);     /* Was malloc(n+2)=12 bytes, too small */
+      tmp[i].kwd = malloc(n);
     }
     for (i = 0; i < nspd; i++) { /* Copy speeds into a sortable array */
-      ckstrncpy(speeds[i], spdtab[i].kwd, maxspeedlen);
+      ckstrncpy(speeds[i], spdtab[i].kwd, n);
     }
 
     /* Sort the array (sh_sort() doesn't sort structs) */

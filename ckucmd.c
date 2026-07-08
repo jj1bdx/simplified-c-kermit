@@ -295,6 +295,7 @@ extern int cmd_cols, cmd_rows, local, quiet;
 
 static int gtword(int);
 static int addbuf(char *);
+static void bufcpy(char *);
 static int setatm(char *, int);
 static void cmdnewl(char);
 static void cmdchardel(void);
@@ -2207,9 +2208,7 @@ i_path:
           xc = cc; /* How many new ones we just got */
           sp = atmbuf;
           printf("%s", sp); /* Print them */
-          while ((*bp++ = *sp++))
-            ;   /* Copy to command buffer */
-          bp--; /* Back up over NUL */
+          bufcpy(sp);       /* Bounded copy; leaves bp at the terminating NUL */
         }
         *xp = atmbuf;
       }
@@ -2390,9 +2389,7 @@ i_path:
           }
           cc = k;           /* How many new ones we just got */
           printf("%s", sp); /* Print them */
-          while ((*bp++ = *sp++))
-            ;   /* Copy to command buffer */
-          bp--; /* Back up over NUL */
+          bufcpy(sp);       /* Bounded copy; leaves bp at the terminating NUL */
           debug(F110, "cmifi partial cmdbuf", cmdbuf, 0);
           if (setatm(filbuf, 0) < 0) {
             printf("?Partial name too long\n");
@@ -2424,9 +2421,7 @@ i_path:
           bleep(BP_WARN);
           printf("%s", sp);
           cc++;
-          while ((*bp++ = *sp++))
-            ;
-          bp--;
+          bufcpy(sp); /* Bounded copy; leaves bp at the terminating NUL */
           if (setatm(filbuf, 0) < 0) {
             printf("?Directory name too long\n");
             if (np) {
@@ -7014,6 +7009,21 @@ static int addbuf(char *cp) {
   np = bp;    /* Update the next-field pointer */
   cmbptr = np;
   return (len); /* Return the length */
+}
+
+/*
+  B U F C P Y  --  Bounded copy of a NUL-terminated string into the command
+  buffer at the current position bp, without addbuf()'s trailing space.
+  Used for in-place completion/insertion (tilde expansion, partial-match
+  repaint, unique-directory completion) where the cursor must land right
+  after the inserted text.  Shares addbuf()'s bound so cmdbuf can never
+  be overrun; silently truncates if the text doesn't fit.
+*/
+static void bufcpy(char *sp) {
+  while (*sp && bp < (cmdbuf + CMDBL)) {
+    *bp++ = *sp++;
+  }
+  *bp = NUL;
 }
 
 /*  S E T A T M  --  Deposit a token in the atom buffer.  */

@@ -8394,15 +8394,23 @@ int docmd(int cx) {
       But it's more complicated than that.
     */
     if (cmdgquo()) { /* Only if COMMAND QUOTING ON ... */
-      for (x = 0, y = 0; s[x]; x++, y++) {
+      for (x = 0, y = 0; s[x] && y < LINBUFSIZ - 1; x++, y++) {
         if (s[x] == CMDQ) {
           char c = s[x + 1];
           if (c == 'n' || c == 'N' || c == 'b' || c == 'B' || c == 'l' ||
               c == 'L' || c == CMDQ) {
-            line[y++] = CMDQ;
+            if (y < LINBUFSIZ - 1) {
+              line[y++] = CMDQ;
+            }
           }
         }
-        line[y] = s[x];
+        if (y < LINBUFSIZ - 1) {
+          line[y] = s[x];
+        }
+      }
+      if (y >= LINBUFSIZ - 1) { /* Text too long even after truncation */
+        printf("?Output text too long\n");
+        return (success = 0);
       }
       line[y++] = '\0'; /* Now expand variables, etc. */
       debug(F110, "OUTPUT 3", line, 0);
