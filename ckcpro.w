@@ -2610,6 +2610,8 @@ srv_login() {
 #endif /* CKSYSLOG */
 		if (len > LOGINLEN) {
 		    errpkt((CHAR *)"Username too long");
+		    RESUME;		/* Wait for next server command */
+		    return(-1);
 		}
 		p = srvcmd + 2;		/* Point to it */
 		for (i = 0; i < len; i++) /* Copy it */

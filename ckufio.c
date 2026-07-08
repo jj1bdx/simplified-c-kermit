@@ -2413,6 +2413,34 @@ int zdelet(char *name) {
   return (x);
 }
 
+/*
+  Z H A S D O T D O T  --  Detect a ".." directory-traversal component.
+
+  Returns 1 if 'name' contains a path component that is exactly ".." (as
+  opposed to merely starting with ".." -- e.g. "..foo" is a legitimate
+  filename and must NOT be flagged).  Purely lexical; does no filesystem
+  access, so it works equally well for paths whose directories don't exist
+  yet (the normal case for a fresh RECEIVE into a new subdirectory).
+
+  [V-6] Defined here, immediately ahead of nzrtol() (its only caller in
+  this translation unit), rather than down by zstrip() as first sketched --
+  this file has no forward prototype for it, and this codebase's default C
+  standard (C23) rejects a call to an as-yet-undeclared function outright.
+*/
+static int zhasdotdot(char *name) {
+  char *p;
+  if (!name) {
+    return (0);
+  }
+  for (p = name; *p; p++) {
+    if (p[0] == '.' && p[1] == '.' && (p == name || ISDIRSEP(p[-1])) &&
+        (p[2] == '\0' || ISDIRSEP(p[2]))) {
+      return (1);
+    }
+  }
+  return (0);
+}
+
 /*  Z R T O L  --  Convert remote filename into local form  */
 
 void zrtol(char *name, char *name2) { nzrtol(name, name2, 1, 0, CKMAXPATH); }
@@ -2463,6 +2491,12 @@ void nzrtol(char *name, char *name2, int fncnv, int fnrpath,
     ckstrncpy(fullname, name, CKMAXPATH);
   }
   fullname[CKMAXPATH] = NUL;
+  if (zhasdotdot(fullname)) { /* Refuse directory traversal */
+    debug(F110, "nzrtol rejecting traversal", fullname, 0);
+    zstrip(name, &p); /* Fall back to bare filename only */
+    strncpy(fullname, p, CKMAXPATH);
+    fullname[CKMAXPATH] = NUL;
+  }
   debug(F110, "nzrtol fullname", fullname, 0);
 
 #ifndef NOTRUNCATE

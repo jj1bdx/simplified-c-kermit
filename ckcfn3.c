@@ -1338,6 +1338,14 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
 #endif             /* DYNAMIC */
 #define RPBUFL 20  /* Attribute reply */
   static char rpbuf[RPBUFL + 1];
+  /* Append one rejection code to rpbuf, silently dropping it once the   */
+  /* buffer is full instead of writing past the end -- a hostile packet  */
+  /* can pack far more rejected entries than RPBUFL into one A packet.    */
+#define RPBUFPUT(ch)                                                           \
+  do {                                                                         \
+    if (rp < rpbuf + RPBUFL)                                                   \
+      *rp++ = (ch);                                                            \
+  } while (0)
 
 #ifdef CK_PERMS
   static char lprmbuf[CK_PERMLEN + 1];
@@ -1389,7 +1397,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
       if ((rfbuf[0] != 'A') || (rfbuf[1] && rfbuf[1] != 'M') ||
           (rfbuf[2] && rfbuf[2] != 'J')) {
         debug(F110, "gattr bad recfm", rfbuf, 0);
-        *rp++ = c;
+        RPBUFPUT(c);
         retcode = -1;
       }
       break;
@@ -1417,7 +1425,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
 #endif /* CK_LABELED */
         ) {
           retcode = -1; /* Reject the file */
-          *rp++ = c;
+          RPBUFPUT(c);
           if (!opnerr) {
             tlog(F100, " refused: type", "", 0);
           }
@@ -1455,7 +1463,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
         yy->date.len = i;              /* Length of string */
         if (fncact == XYFX_U) {        /* Receiving in update mode? */
           if (zstime(ff, yy, 1) > 0) { /* Compare dates */
-            *rp++ = c;                 /* Discard if older, reason = date. */
+            RPBUFPUT(c);               /* Discard if older, reason = date. */
             if (!opnerr) {
               tlog(F100, " refused: date", "", 0);
             }
@@ -1525,7 +1533,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
             debug(F110, "gattr: xfer charset unknown", ss, 0);
             if (!unkcs) {   /* and SET UNKNOWN DISCARD, */
               retcode = -1; /* reject the file. */
-              *rp++ = c;
+              RPBUFPUT(c);
               if (!opnerr) {
                 tlog(F100, " refused: character set", "", 0);
               }
@@ -1553,7 +1561,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
           debug(F110, "gattr unk encoding attribute", tsbuf, 0);
           if (!unkcs) { /* If SET UNK DISC */
             retcode = -1;
-            *rp++ = c;
+            RPBUFPUT(c);
             if (!opnerr) {
               tlog(F100, " refused: encoding", "", 0);
             }
@@ -1595,7 +1603,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
 #endif                  /* CK_RESEND */
             d != 'P') { /* PRINT */
           retcode = -1; /* Unknown/unsupported disposition */
-          *rp++ = c;
+          RPBUFPUT(c);
           if (!opnerr) {
             tlog(F101, " refused: bad disposition", "", d);
           }
@@ -1607,7 +1615,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
         case 'M':
           if (!en_mai) {
             retcode = -1;
-            *rp++ = c;
+            RPBUFPUT(c);
             if (!opnerr) {
               tlog(F100, " refused: mail disabled", "", 0);
             }
@@ -1618,7 +1626,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
         case 'P':
           if (!en_pri) {
             retcode = -1;
-            *rp++ = c;
+            RPBUFPUT(c);
             if (!opnerr) {
               tlog(F100, " refused: print disabled", "", 0);
             }
@@ -1648,7 +1656,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
           }
 #else
           retcode = -1; /* This shouldn't happen */
-          *rp++ = c;    /* 'cause it wasn't negotiated. */
+          RPBUFPUT(c);  /* 'cause it wasn't negotiated. */
           if (!opnerr) {
             tlog(F100, " refused: resend", "", 0);
           }
@@ -1656,7 +1664,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
         }
 #else  /* NODISPO */
         retcode = -1;
-        *rp++ = c;
+        RPBUFPUT(c);
         if (!opnerr) {
           tlog(F100, " refused: NODISPO", "", 0);
         }
@@ -1782,7 +1790,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
     if (yy->length > (CK_OFF_T)-1) {    /* Length-in-bytes attribute rec'd? */
       if (!zchkspa(ff, (yy->length))) { /* Check space */
         retcode = -1;                   /* Not enuf */
-        *rp++ = '1';
+        RPBUFPUT('1');
         if (!opnerr) {
           tlog(F100, " refused: length bytes", "", 0);
         }
@@ -1792,7 +1800,7 @@ int gattr(CHAR *s, struct zattr *yy) /* Read incoming attribute packet */
       xlen = yy->lengthk * 1024;
       if (!zchkspa(ff, xlen)) {
         retcode = -1; /* Check space */
-        *rp++ = '!';
+        RPBUFPUT('!');
         if (!opnerr) {
           tlog(F100, " refused: length K", "", 0);
         }

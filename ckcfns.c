@@ -413,7 +413,13 @@ int encstr(CHAR *s) {
 int /*  Put character in server command buffer  */
 putsrv(char c)
 /* putsrv */ {
-  *srvptr++ = c;
+  /* srvcmd holds srvcmdlen usable bytes (see inibufs()); stop one byte  */
+  /* short so the terminating NUL below always lands inside the buffer,  */
+  /* silently truncating oversized/hostile decoded output instead of     */
+  /* writing past the allocation.                                        */
+  if (srvptr < srvcmd + srvcmdlen) {
+    *srvptr++ = c;
+  }
   *srvptr = '\0'; /* Make sure buffer is null-terminated */
   return (0);
 }

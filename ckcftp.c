@@ -9706,7 +9706,9 @@ static int getreply(int expecteof, int lcs, int rcs, int vbm, int fc) {
       }
       if (pflag == 2) {
         if (c != '\r' && c != ')') {
-          *pt++ = c;
+          if (pt < &pasv[sizeof(pasv) - 1]) {
+            *pt++ = c;
+          }
         } else {
           *pt = '\0';
           pflag = 3;

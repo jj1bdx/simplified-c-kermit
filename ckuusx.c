@@ -2334,9 +2334,11 @@ int fnparse(char *string) {
       continue;
     } else if (*s == SP || *s == NUL) { /* Unquoted space or NUL? */
       *q++ = NUL;                       /* End of output filename. */
-      msfiles[r] = p;                   /* Add this filename to the list */
-      debug(F111, "fnparse", msfiles[r], r);
-      r++; /* Count it */
+      if (r < MSENDMAX - 1) {           /* Leave room for the NULL entry */
+        msfiles[r] = p;                 /* Add this filename to the list */
+        debug(F111, "fnparse", msfiles[r], r);
+        r++; /* Count it */
+      }
       if (*s == NUL) {
         break; /* End of string? */
       }

@@ -3710,8 +3710,9 @@ int tn_rnenv(CHAR *sb, int len)
 /* In order for this code to work, sb[len] == IAC          */
 
 int tn_snenv(CHAR *sb, int len)
-/* tn_snenv */ { /* Send new environment */
-  char varname[16];
+/* tn_snenv */ {    /* Send new environment */
+  char varname[17]; /* [V-18] match tn_rnenv() -- j can reach 16 in both */
+                    /* passes, and varname[j]='\0' then writes byte 16. */
   char *reply = 0;
   int i, j, n;  /* Worker. */
   int type = 0; /* 0 for NONE, 1 for VAR, 2 for USERVAR in progress */
@@ -4079,7 +4080,9 @@ int tn_snenv(CHAR *sb, int len)
       /* Not sure what this for.  Quote next character? */
       break;
     default:
-      varname[j++] = sb[i];
+      if (j < 16) {
+        varname[j++] = sb[i];
+      }
     }
   }
   if (tn_ssbopt(TELOPT_NEWENVIRON, TELQUAL_IS, (CHAR *)reply, n) < 0) {
