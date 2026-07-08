@@ -777,6 +777,12 @@ int rptmin = 3; /* Repeat-count minimum */
 int usepipes = 0, /* Used for xfer to/from pipes */
     g_usepipes = -1;
 
+/* [V-11] Separate opt-in for the RECEIVE direction: a peer naming a file
+   "!command" asks the local Kermit to execute that command on receipt.
+   usepipes alone (SEND-direction, user-controlled) must not silently also
+   authorize that -- see rcvfil() in ckcfns.c. Default off. */
+int usepipes_recv = 0;
+
 char *filefile = NULL; /* File containing list of filenames */
 /* CD message filename list */
 

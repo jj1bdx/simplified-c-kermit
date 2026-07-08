@@ -235,7 +235,8 @@ extern int protocol, size, spsiz, spmax, urpsiz, srvtim, srvcdmsg, slostart,
 
 #ifdef PIPESEND
 extern int usepipes;
-#endif /* PIPESEND */
+extern int usepipes_recv; /* [V-11] receive-direction opt-in; see ckcmai.c */
+#endif                    /* PIPESEND */
 
 #ifdef CKXXCHAR /* DOUBLE / IGNORE char table */
 extern int dblflag, ignflag, dblchar;
@@ -1364,6 +1365,9 @@ static struct keytab tstab[] = {/* SET TRANSFER/XFER table */
 #ifdef PIPESEND
                                 "pipes",
                                 XYX_PIP,
+                                0,
+                                "pipes-receive",
+                                XYX_PIPRCV,
                                 0,
 #endif /* PIPESEND */
 #ifdef CK_XYZ
@@ -11546,6 +11550,17 @@ int doprm(int xx, int rmsflg) {
       } else
 #endif /* NOPUSH */
         return (seton(&usepipes));
+
+    case XYX_PIPRCV: /* Pipes, receive direction [V-11] */
+#ifndef NOPUSH
+      if (nopush) {
+#endif /* NOPUSH */
+        printf("Sorry, access to pipes is disabled\n");
+        return (-9);
+#ifndef NOPUSH
+      } else
+#endif /* NOPUSH */
+        return (seton(&usepipes_recv));
 #endif /* PIPESEND */
 
     case XYX_INT: /* Interruption */

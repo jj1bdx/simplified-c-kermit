@@ -954,39 +954,40 @@ struct stringint { /* String and (wide) integer */
 #define XYTLSP 64      /* SET TERM LINE-SPACING */
 #define XYTLFD 65      /* SET TERM LF-DISPLAY   */
 
-#define XYATTR 34  /* Attribute packets  */
-#define XYSERV 35  /* Server parameters  */
-#define XYSERT 0   /*  Server timeout    */
-#define XYSERD 1   /*  Server display    */
-#define XYSERI 2   /*  Server idle       */
-#define XYSERP 3   /*  Server get-path   */
-#define XYSERL 4   /*  Server login      */
-#define XYSERC 5   /*  Server CD-Message */
-#define XYSERK 6   /*  Server keepalive  */
-#define XYWIND 36  /* Window size */
-#define XYXFER 37  /* Transfer */
-#define XYX_CAN 0  /*   Cancellation  */
-#define XYX_CSE 1  /*   Character-Set */
-#define XYX_LSH 2  /*   Locking-Shift */
-#define XYX_PRO 3  /*   Protocol      */
-#define XYX_MOD 4  /*   Mode          */
-#define XYX_DIS 5  /*   Display       */
-#define XYX_SLO 6  /*   Slow-start    */
-#define XYX_CRC 7  /*   CRC calculation */
-#define XYX_BEL 8  /*   Bell */
-#define XYX_PIP 9  /*   Pipes */
-#define XYX_INT 10 /*   Interruption */
-#define XYX_XLA 11 /*   (character-set) Translation On/Off */
-#define XYX_MSG 12 /*   Message */
-#define XYX_RPT 13 /*   Report */
-#define XYLANG 38  /* Language */
-#define XYCOUN 39  /* Count */
-#define XYTAKE 40  /* Take */
-#define XYUNCS 41  /* Unknown-character-set */
-#define XYKEY 42   /* Key */
-#define XYMACR 43  /* Macro */
-#define XYHOST 44  /* Hostname on network */
-#define XYNET 45   /* SET NETWORK things */
+#define XYATTR 34     /* Attribute packets  */
+#define XYSERV 35     /* Server parameters  */
+#define XYSERT 0      /*  Server timeout    */
+#define XYSERD 1      /*  Server display    */
+#define XYSERI 2      /*  Server idle       */
+#define XYSERP 3      /*  Server get-path   */
+#define XYSERL 4      /*  Server login      */
+#define XYSERC 5      /*  Server CD-Message */
+#define XYSERK 6      /*  Server keepalive  */
+#define XYWIND 36     /* Window size */
+#define XYXFER 37     /* Transfer */
+#define XYX_CAN 0     /*   Cancellation  */
+#define XYX_CSE 1     /*   Character-Set */
+#define XYX_LSH 2     /*   Locking-Shift */
+#define XYX_PRO 3     /*   Protocol      */
+#define XYX_MOD 4     /*   Mode          */
+#define XYX_DIS 5     /*   Display       */
+#define XYX_SLO 6     /*   Slow-start    */
+#define XYX_CRC 7     /*   CRC calculation */
+#define XYX_BEL 8     /*   Bell */
+#define XYX_PIP 9     /*   Pipes */
+#define XYX_INT 10    /*   Interruption */
+#define XYX_XLA 11    /*   (character-set) Translation On/Off */
+#define XYX_MSG 12    /*   Message */
+#define XYX_RPT 13    /*   Report */
+#define XYX_PIPRCV 14 /*   Pipes, receive-direction opt-in [V-11] */
+#define XYLANG 38     /* Language */
+#define XYCOUN 39     /* Count */
+#define XYTAKE 40     /* Take */
+#define XYUNCS 41     /* Unknown-character-set */
+#define XYKEY 42      /* Key */
+#define XYMACR 43     /* Macro */
+#define XYHOST 44     /* Hostname on network */
+#define XYNET 45      /* SET NETWORK things */
 
 #define XYNET_D 99  /* NETWORK DIRECTORY */
 #define XYNET_T 100 /* NETWORK TYPE */

@@ -1349,6 +1349,7 @@ static int sendrequest(char *, char *, char *, int, int, int, int);
 static char *radix_error(int);
 static char *ftp_hookup(char *, int, int);
 static CHAR *remote_files(int, CHAR *, CHAR *, int);
+static int has_dotdot(char *);
 
 static void mlsreset(void);
 static void secure_error(char *fmt, ...);
@@ -6811,6 +6812,13 @@ int doftpget(int cx, int who) /* who == 1 for ftp, 0 for kermit */
 #endif /* NOSPL */
 
       local = *s2 ? s2 : s;
+
+      if (!skipthis && has_dotdot(local)) { /* [V-12] Refuse traversal */
+        skipthis++;
+        debug(F110, "ftp get skip unsafe path", local, 0);
+        tlog(F100, " refused: unsafe path", "", 0);
+        msg = "Refused: Unsafe Path";
+      }
 
       if (!skipthis && x_fnc == XYFX_D) { /* File Collision = Discard */
         CK_OFF_T x;
@@ -12638,6 +12646,27 @@ static void mlsreset() { /* Reset MGET temp-file stack */
   mlsdepth = 0;
 }
 
+/*
+  Reject a ".." path *component* (not a mere substring -- "..foo" is a
+  legitimate filename) or a leading path separator in a server-supplied
+  name (MLSD entry or NLST local-name assembly).  Ordinary separators are
+  NOT rejected -- recursive transfers legitimately create subdirectories.
+*/
+static int has_dotdot(char *s) { /* Reject ../ traversal + absolute paths */
+  char *p = s;
+  if (ISDIRSEP(*p)) {
+    return (1);
+  }
+  while (*p) {
+    if (p[0] == '.' && p[1] == '.' && (p[2] == '\0' || ISDIRSEP(p[2])) &&
+        (p == s || ISDIRSEP(p[-1]))) {
+      return (1);
+    }
+    p++;
+  }
+  return (0);
+}
+
 static CHAR *remote_files(int new_query, CHAR *arg, CHAR *pattern,
                           int proxy_switch)
 /* remote_files */ {
@@ -12944,6 +12973,10 @@ again:
     case FTYP_DIR:      /* (Sub)Directory */
       if (!recursive) { /* If not /RECURSIVE */
         goto again;     /* Skip */
+      }
+      if (has_dotdot(p)) { /* [V-12] Refuse traversal/absolute paths */
+        printf("?Refused: unsafe path from server: %s\n", p);
+        goto again;
       }
       if (mlsdepth < MLSDEPTH) {
         char *p2 = NULL;

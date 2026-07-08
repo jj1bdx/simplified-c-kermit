@@ -3489,7 +3489,7 @@ char *shoxm(void) {
 #ifndef NOXFER
 void /* SHOW TRANSFER */
 shoxfer() {
-  extern int docrc, usepipes, xfrxla, whereflg;
+  extern int docrc, usepipes, usepipes_recv, xfrxla, whereflg;
   extern char *xfrmsg;
   printf("\n");
   printf(" Transfer Bell: %s\n", showoff(xfrbel));
@@ -3539,6 +3539,7 @@ shoxfer() {
   printf("\n Transfer Mode: %s\n",
          xfermode == XMODE_A ? "automatic" : "manual");
   printf(" Transfer Pipes: %s\n", showoff(usepipes));
+  printf(" Transfer Pipes-Receive: %s\n", showoff(usepipes_recv));
   printf(" Transfer Protocol: %s\n", ptab[protocol].p_name);
   printf(" Transfer Report: %s\n", showoff(whereflg));
   printf(" Transfer Slow-start: %s\n", showoff(slostart));

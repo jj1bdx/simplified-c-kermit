@@ -128,7 +128,8 @@ extern CKFLOAT fpfsecs;
 
 #ifdef PIPESEND
 extern int usepipes;
-#endif /* PIPESEND */
+extern int usepipes_recv; /* [V-11] receive-direction opt-in; see ckcmai.c */
+#endif                    /* PIPESEND */
 extern int pipesend;
 
 #ifdef STREAMING
@@ -3459,9 +3460,15 @@ Please confirm output file specification or supply an alternative:";
   debug(F110, "rcvfil srvcmd 2", srvcmd, 0);
 
 #ifdef PIPESEND
-  /* If it starts with "bang", it's a pipe, not a file. */
-  if (usepipes && protocol == PROTO_K && *srvcmd == '!' && !rcvfilter) {
+  /* If it starts with "bang", it's a pipe, not a file. Note: this is a
+     REMOTE PEER requesting local command execution on receipt, distinct
+     from the local user's own SEND-side piping (usepipes). Require a
+     separate opt-in so enabling outbound piping doesn't silently also
+     authorize inbound command execution. */
+  if (usepipes && usepipes_recv && protocol == PROTO_K && *srvcmd == '!' &&
+      !rcvfilter) {
     CHAR *s;
+    printf("Warning: peer requested pipe execution: %s\n", srvcmd + 1);
     s = srvcmd + 1;  /* srvcmd[] is not a pointer. */
     while (*s) {     /* So we have to slide the contents */
       *(s - 1) = *s; /* over 1 space to the left. */
