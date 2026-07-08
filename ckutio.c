@@ -3903,9 +3903,13 @@ static int ttlock(char *ttdev) {
   debug(F110, "ttlock flfnam", flfnam, 0);
   debug(F110, "ttlock tmpnam", tmpnam, 0);
 
-  priv_on();                    /* Turn on privileges if possible. */
-  lockfd = creat(tmpnam, 0444); /* Try to create temp lock file. */
-  if (lockfd < 0) {             /* Create failed. */
+  priv_on(); /* Turn on privileges if possible. */
+  /* [V-19] O_EXCL refuses to follow/replace a pre-existing name --      */
+  /* including a symlink another local user planted in the shared,      */
+  /* world-writable lock directory -- closing a TOCTOU/symlink race     */
+  /* that plain creat() leaves open while running under priv_on().      */
+  lockfd = open(tmpnam, O_WRONLY | O_CREAT | O_EXCL, 0444);
+  if (lockfd < 0) { /* Create failed. */
     debug(F111, "ttlock creat failed", tmpnam, errno);
     if (errno == ENOENT) {
       perror(lockdir);

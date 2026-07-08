@@ -15409,7 +15409,9 @@ int zzstring(char *s, char **s2, int *n) {
                 if ((q = malloc(k + 1))) {
                   strcpy(q, vp); /* safe */
                   if (c == '.') {
-                    q[x1 + 1] = NUL;
+                    if (x1 + 1 <= k) {
+                      q[x1 + 1] = NUL;
+                    }
                     debug(F000, "XXX. q", q, c);
                   }
                   if (c == ':') { /* start:length */

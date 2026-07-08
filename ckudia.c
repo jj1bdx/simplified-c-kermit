@@ -4699,6 +4699,34 @@ static char *ws;   /* ws = wake string */
 static char *xnum = NULL;
 static int inited = 0;
 
+/*
+  d i a l e x p a n d  --  [V-20]
+  Substitute the phone number for the *first* literal "%s" in a
+  user-configured DIAL-COMMAND string, without ever passing that string
+  to printf()/sprintf() as a format.  Any other '%' sequence (a second
+  "%s", "%n", "%%", ...) is copied through as ordinary text.
+*/
+static void dialexpand(char *dst, const char *fmt, const char *num,
+                       int dstsize) {
+  const char *f = fmt;
+  char *d = dst, *dend = dst + dstsize - 1; /* leave room for NUL */
+  int replaced = 0;
+
+  while (*f && d < dend) {
+    if (!replaced && f[0] == '%' && f[1] == 's') {
+      const char *n = num;
+      while (*n && d < dend) {
+        *d++ = *n++;
+      }
+      f += 2;
+      replaced = 1;
+    } else {
+      *d++ = *f++;
+    }
+  }
+  *d = '\0';
+}
+
 static void _dodial(void *threadinfo)
 /* _dodial */ {
   char c2;
@@ -5419,7 +5447,7 @@ xdialec:
     if ((int)strlen(dcmd) + (int)strlen(xnum) > LBUFL) {
       ckstrncpy(lbuf, "NUMBER TOO LONG!", LBUFL);
     } else {
-      sprintf(lbuf, dcmd, xnum); /* safe (prechecked) */
+      dialexpand(lbuf, dcmd, xnum, (int)sizeof(lbuf)); /* [V-20]: no printf */
     }
     debug(F110, "dialing", lbuf, 0);
     /* Send the dialing string */

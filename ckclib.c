@@ -2881,6 +2881,8 @@ static void setword(int n, char *s, int len) {
       return;
     }
     if (!(wordsize = (int *)malloc((MAXWORDS + 1) * sizeof(int)))) {
+      free(wordarray);
+      wordarray = NULL;
       return;
     }
     for (i = 0; i <= MAXWORDS; i++) { /* Initialize result array */

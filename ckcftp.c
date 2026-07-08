@@ -11371,8 +11371,12 @@ static int initconn() {
 #endif /* NOHTTP */
     {
       data_addr.sin_family = AF_INET;
-      data_addr.sin_addr.s_addr =
-          htonl((a1 << 24) | (a2 << 16) | (a3 << 8) | a4);
+      /* [V-16] Never trust the address in a PASV reply -- a malicious    */
+      /* server can redirect the data connection to an arbitrary          */
+      /* host:port (SSRF-style). Always reconnect to the same host as     */
+      /* the already-established control connection; take only the port  */
+      /* from the reply.                                                  */
+      data_addr.sin_addr = hisctladdr.sin_addr;
       data_addr.sin_port = htons((p1 << 8) | p2);
 
       if (connect(data, (struct sockaddr *)&data_addr, sizeof(data_addr)) < 0) {
@@ -13425,6 +13429,10 @@ static FILE *cfile;
 #define MACH 11
 
 static char tokval[100];
+/* [V-17] Leave room for the NUL terminator written after each copy loop */
+/* below; bounds both loops against tokval's real size instead of        */
+/* copying an arbitrarily long .netrc token straight through.            */
+#define TOKVALMAX (tokval + sizeof(tokval) - 1)
 
 static struct toktab {
   char *tokstr;
@@ -13454,16 +13462,22 @@ static int token() {
       if (c == '\\') {
         c = getc(cfile);
       }
-      *cp++ = c;
+      if (cp < TOKVALMAX) {
+        *cp++ = c;
+      }
     }
   } else {
-    *cp++ = c;
+    if (cp < TOKVALMAX) {
+      *cp++ = c;
+    }
     while ((c = getc(cfile)) != EOF && c != '\n' && c != '\t' && c != ' ' &&
            c != ',') {
       if (c == '\\') {
         c = getc(cfile);
       }
-      *cp++ = c;
+      if (cp < TOKVALMAX) {
+        *cp++ = c;
+      }
     }
   }
   *cp = 0;

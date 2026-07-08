@@ -1213,6 +1213,11 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
       if (isatty(fd)) {
         filefd = fd;
         istty++;
+      } else {
+        close(fd); /* [V-21] probe-only open for isatty(); the real open  */
+                   /* happens below via open()+fdopen() -- this was never */
+                   /* closed on the non-tty path, leaking one fd per      */
+                   /* overwrite.                                          */
       }
     }
   }
@@ -1221,7 +1226,15 @@ int zopeno(int n, char *name, struct zattr *zz, struct filinfo *fcb) {
   if (istty) {
     fp[n] = fdopen(filefd, p);
   } else {
-    fp[n] = fopen(name, p); /* Try to open the file */
+    /* [V-22] O_NOFOLLOW: refuse to write through a symlink planted at the */
+    /* destination name between zchko()'s precheck and this open.          */
+    int wflags =
+        O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC) | O_NOFOLLOW;
+    int wfd = open(name, wflags, 0600);
+    fp[n] = (wfd > -1) ? fdopen(wfd, p) : NULL;
+    if (wfd > -1 && !fp[n]) {
+      close(wfd);
+    }
   }
   ispipe[ZIFILE] = 0;
 

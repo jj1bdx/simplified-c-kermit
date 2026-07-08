@@ -5394,6 +5394,9 @@ CHAR x69l1(CHAR c) { /* x69l1 */ /* CP869 to Latin-1 */
 }
 
 CHAR xeglg(CHAR c) { /* xeglg */ /* ELOT 927 to Latin/Greek */
+  if (c & 0x80) {
+    return (UNK);
+  }
   return (yeglg[c]);
 }
 

@@ -2255,11 +2255,11 @@ i_path:
       nfiles = y;
       debug(F111, "cmifi nzxpand", *xp, y);
       if (y > 0) {
-        ckstrncpy(filbuf, mtchs[0], CKMAXPATH);
+        ckstrncpy(filbuf, mtchs[0], (int)sizeof(filbuf));
       } else {
         *filbuf = '\0';
       }
-      filbuf[CKMAXPATH] = NUL;
+      filbuf[sizeof(filbuf) - 1] = NUL;
       *sp = '\0'; /* Remove wildcard. */
       debug(F111, "cmifi filbuf", filbuf, y);
       debug(F111, "cmifi *xp", *xp, cc);
@@ -7856,7 +7856,7 @@ int nlookup(struct keytab table[], char *word, int n, int *x) {
     }
     tmp = strncmp(this, word, wordlen);
     if (tmp) {
-      debug(F111, "nlookup no match", table[lastmatch].kwd, tmp);
+      debug(F111, "nlookup no match", this, tmp);
     } else {
       debug(F111, ">>> nlookup match", this, wordlen);
       debug(F101, ">>> nlookup kwdlen", "", kwdlen);

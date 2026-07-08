@@ -6334,6 +6334,33 @@ static int dotelopt() {
 
 #ifndef NOPUSH
 #ifndef NOFRILLS
+/*
+  p c t s e x p a n d  --  [V-27]  Substitute 'arg' for the *first*
+  literal "%s" in a user-configured EDITOR/BROWSER options string,
+  without handing that string to sprintf() as a format.  Any other '%'
+  is copied through as ordinary text.
+*/
+static void pctsexpand(char *dst, const char *opts, const char *arg,
+                       int dstsize) {
+  const char *f = opts;
+  char *d = dst, *dend = dst + dstsize - 1;
+  int replaced = 0;
+
+  while (*f && d < dend) {
+    if (!replaced && f[0] == '%' && f[1] == 's') {
+      const char *a = arg;
+      while (*a && d < dend) {
+        *d++ = *a++;
+      }
+      f += 2;
+      replaced = 1;
+    } else {
+      *d++ = *f++;
+    }
+  }
+  *d = '\0';
+}
+
 static int doedit() {
   if (!editor[0]) {
     s = getenv("EDITOR");
@@ -6391,7 +6418,7 @@ static int doedit() {
   }
   if (((int)strlen(editopts) + (int)strlen(editfile) + 1) < TMPBUFSIZ) {
     if (x) {
-      sprintf(tmpbuf, editopts, editfile);
+      pctsexpand(tmpbuf, editopts, editfile, TMPBUFSIZ); /* [V-27]: no printf */
     } else {
       sprintf(tmpbuf, "%s %s", editopts, editfile);
     }
@@ -6435,7 +6462,8 @@ static int dobrowse() {
   }
   if (((int)strlen(browsopts) + (int)strlen(browsurl) + 1) < TMPBUFSIZ) {
     if (x) {
-      sprintf(tmpbuf, browsopts, browsurl);
+      pctsexpand(tmpbuf, browsopts, browsurl,
+                 TMPBUFSIZ); /* [V-27]: no printf */
     } else {
       sprintf(tmpbuf, "%s %s", browsopts, browsurl);
     }
