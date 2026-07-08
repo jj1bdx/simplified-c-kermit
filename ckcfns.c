@@ -4875,6 +4875,12 @@ int spar(CHAR *s) /* Set parameters */
   padch = '\0';
   if (biggest >= 3) {
     npad = xunchar(s[3]);
+    /* [V-3] Valid pad count is 0..94.  A corrupt/hostile field-3 byte wraps */
+    /* (a control char decodes to 224..255) and would overrun padbuf[96], so */
+    /* treat any out-of-range count as "no padding".                         */
+    if (npad > 94) {
+      npad = 0;
+    }
     if (biggest >= 4) {
       padch = (CHAR)ctl(s[4]);
     } else {

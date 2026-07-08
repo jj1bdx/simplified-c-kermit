@@ -644,15 +644,18 @@ extern int tcp_incoming; /* Used by ENABLE macro */
 
 #define tochar(ch) (((ch) + SP) & 0xFF) /* Number to character */
 /*
-  Character to number.  Valid encoded quantities are the printable chars
-  SP+1..SP+95 ('!'..'~'), representing 0-94.  A conforming peer never sends
-  anything else here; a corrupted or hostile one might.  Clamp instead of
-  wrapping mod 256, so a bad byte maps to 0 (i.e. "field absent/empty")
-  instead of an attacker-chosen value up to 255.
+  Character to number.  This MUST evaluate its argument exactly once: nearly
+  every caller passes a side-effecting expression -- xunchar(*p++),
+  xunchar(recpkt[i++]), xunchar(*xdbuf++ & 0xFF) -- so a multiple-evaluation
+  (e.g. clamping ternary) form advances the pointer/index 2-3 times and
+  corrupts all packet parsing.  Out-of-range encoded bytes are therefore NOT
+  clamped here.  The one field where an unclamped value could overflow a
+  fixed buffer -- the S/I packet pad count -- is bounded at its point of use
+  in spar().  See V-3 in BUGFIX_20260708.md.
 */
-#define xunchar(ch) (((ch) < SP || (ch) > (SP + 94)) ? 0 : (((ch) - SP) & 0xFF))
-#define ctl(ch) (((ch) ^ 64) & 0xFF)    /* Control/Uncontrol toggle */
-#define unpar(ch) (((ch) & 127) & 0xFF) /* Clear parity bit */
+#define xunchar(ch) (((ch) - SP) & 0xFF) /* Character to number */
+#define ctl(ch) (((ch) ^ 64) & 0xFF)     /* Control/Uncontrol toggle */
+#define unpar(ch) (((ch) & 127) & 0xFF)  /* Clear parity bit */
 
 #ifndef NOLOCAL /* CONNECT return status codes */
 
