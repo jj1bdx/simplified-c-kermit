@@ -557,7 +557,7 @@ ckuker.nr:
 ckcmai.$(EXT): ckcmai.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckcsig.h \
 		ckuusr.h ckctel.h ckclib.h ckcfnp.h
 
-ckclib.$(EXT): ckclib.c ckclib.h ckcdeb.h ckcasc.h ckcfnp.h
+ckclib.$(EXT): ckclib.c ckclib.h ckcker.h ckcdeb.h ckcasc.h ckcfnp.h
 
 wart: ckwart.$(EXT)
 	$(CC) $(LNKFLAGS) -o wart ckwart.$(EXT) $(LIBS)
@@ -610,13 +610,13 @@ ckuusx.$(EXT): ckuusx.c ckcker.h ckuusr.h ckcdeb.h ckcasc.h \
 ckuusy.$(EXT): ckuusy.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckctel.h \
 		 ckclib.h ckcfnp.h
 
-ckucmd.$(EXT): ckucmd.c ckcasc.h ckucmd.h ckcdeb.h ckctel.h ckclib.h \
+ckucmd.$(EXT): ckucmd.c ckcasc.h ckucmd.h ckcker.h ckcdeb.h ckctel.h ckclib.h \
 		ckcfnp.h
 
-ckufio.$(EXT): ckufio.c ckcdeb.h ckuver.h ckclib.h \
+ckufio.$(EXT): ckufio.c ckcker.h ckcdeb.h ckuver.h ckclib.h \
 		ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
-ckutio.$(EXT): ckutio.c ckcdeb.h ckcnet.h ckuver.h ckctel.h ckclib.h \
+ckutio.$(EXT): ckutio.c ckcker.h ckcdeb.h ckcnet.h ckuver.h ckctel.h ckclib.h \
 		ckcfnp.h
 
 ckucon.$(EXT): ckucon.c ckcker.h ckcdeb.h ckcasc.h ckcnet.h ckctel.h \
