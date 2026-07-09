@@ -25,6 +25,8 @@
 * Removed unusable files
 * Streamlined include files 
 * Applied clang-format with the flags InsertBraces and SortIncludes enabled
+* Performed basic vulnerability check and the fixes
+* Remove FTP support (equivalent to `-DNOFTP`)
 
 ## License
 
