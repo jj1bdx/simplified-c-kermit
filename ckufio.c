@@ -315,11 +315,21 @@ char *PRINTCMD = "lp";
 #define PRINTCMD ""
 #endif /* UNIX */
 
-#ifdef BSD4
+/*
+  On BSD-family systems (BSD44: macOS, FreeBSD, NetBSD, OpenBSD) restrict the
+  no-argument REMOTE SPACE command to the current filesystem.  A plain "df"
+  stats every mounted volume and blocks indefinitely on a sleeping or wedged
+  one (external disk, Time Machine or network mount); while it blocks, the
+  server sends empty data packets forever and the client waits forever, so
+  the session appears hung.  This was guarded by BSD4, which no live target
+  defines (macOS implies BSD44, not BSD4), so the branch was dead code and
+  macOS ran the all-volumes "df".  See BUGFIX_20260709.md.
+*/
+#ifdef BSD44
 char *SPACMD = "pwd ; df ."; /* Space in current directory */
 #else
 char *SPACMD = "df ";
-#endif /* BSD4 */
+#endif /* BSD44 */
 
 char *SPACM2 = "df "; /* For space in specified directory */
 
