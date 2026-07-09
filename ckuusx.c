@@ -386,10 +386,6 @@ extern long xfsecs;
 #endif /* NOXFER */
 
 #ifdef TCPSOCKET
-#ifdef NEWFTP
-extern char *ftp_host, ftp_srvtyp[];
-extern int ftp_csx, ftp_csl, ftp_deb;
-#endif /* NEWFTP */
 extern char myipaddr[];
 #endif /* TCPSOCKET */
 
@@ -3752,12 +3748,7 @@ void ckscreen(int f, char c, CK_OFF_T n, char *s)
   switch (f) { /* Handle our function code */
   case SCR_FN: /* Filename */
     if (fdispla == XYFD_B) {
-#ifdef NEWFTP
-      if (ftp) {
-        printf(" %s %s", what & W_SEND ? "PUT" : "GET", s);
-      } else
-#endif /* NEWFTP */
-        printf(" %s %s", what & W_SEND ? "SEND" : "RECV", s);
+      printf(" %s %s", what & W_SEND ? "SEND" : "RECV", s);
 #ifdef UNIX
       fflush(stdout);
 #endif /* UNIX */
@@ -3961,14 +3952,6 @@ void ckscreen(int f, char c, CK_OFF_T n, char *s)
       return;
 
     case ST_MSG: /* Message */
-#ifdef NEWFTP
-      if (fdispla == XYFD_B) {
-        if (ftp && ftp_deb) {
-          printf(": MESSAGE: %s\n", s);
-        }
-        return;
-      }
-#endif /* NEWFTP */
       conoll("");
       conol("Message: ");
       conoll(s);
@@ -4310,10 +4293,6 @@ void doclean(int fc) /* General cleanup */
     debug(F100, "doclean hangup/close skipped", "", 0);
 #endif /* DEBUG */
 #endif /* NOLOCAL */
-
-#ifdef NEWFTP
-  ftpbye(); /* If FTP connection open, close it */
-#endif      /* NEWFTP */
 
 #ifdef IKSD
   if (inserver) {
@@ -5607,36 +5586,22 @@ static void scrft() { /* Display file type */
 
 #ifndef NOCSETS
     ckstrncpy(xferstr, "TEXT", 256);
-#ifdef NEWFTP
-#ifndef NOUNICODE
-    if (what & W_FTP) {
-      if (ftp_csx < 0) {
-        ckstrncat(xferstr, " (no translation)", 256);
+    if (tcharset == TC_TRANSP) {
+      ckstrncat(xferstr, " (no translation)", 256);
+    } else {
+      if (what & W_SEND) {
+        sprintf(&xferstr[strlen(xferstr)], /* safe */
+                " (%s => %s)",
+                fcsinfo[fcharset].keyword, /* built-in keywords */
+                tcsinfo[tcharset].keyword  /* lengths are controlled */
+        );
       } else {
-        ckmakxmsg(&xferstr[4], 252, " (",
-                  fcsinfo[(what & W_SEND) ? ftp_csl : ftp_csx].keyword, " => ",
-                  fcsinfo[(what & W_SEND) ? ftp_csx : ftp_csl].keyword, ")",
-                  NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        sprintf(&xferstr[strlen(xferstr)], /* safe */
+                " (%s => %s)",
+                tcsinfo[tcharset].keyword,  /* built-in keywords */
+                fcsinfo[fcharset].keyword); /* lengths controlled */
       }
-    } else
-#endif /* NOUNICODE */
-#endif /* NEWFTP */
-      if (tcharset == TC_TRANSP) {
-        ckstrncat(xferstr, " (no translation)", 256);
-      } else {
-        if (what & W_SEND) {
-          sprintf(&xferstr[strlen(xferstr)], /* safe */
-                  " (%s => %s)",
-                  fcsinfo[fcharset].keyword, /* built-in keywords */
-                  tcsinfo[tcharset].keyword  /* lengths are controlled */
-          );
-        } else {
-          sprintf(&xferstr[strlen(xferstr)], /* safe */
-                  " (%s => %s)",
-                  tcsinfo[tcharset].keyword,  /* built-in keywords */
-                  fcsinfo[fcharset].keyword); /* lengths controlled */
-        }
-      }
+    }
 #endif /* NOCSETS */
   }
   move(CW_TYP, 22);
@@ -5835,11 +5800,7 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
     printw("Current Directory: %s", zgtdir());
     if (net) {
       move(CW_LIN, 8);
-      printw("Network Host: %s",
-#ifdef NEWFTP
-             ftp ? (ftp_host ? ftp_host : "(unknown)") :
-#endif /* NEWFTP */
-                 ttname);
+      printw("Network Host: %s", ttname);
     } else {
       move(CW_LIN, 0);
       printw("Communication Device: %s", ttname);
@@ -5862,24 +5823,17 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
       } else {
         xname = netname[xnet];
       }
-#ifdef NEWFTP
-      if (ftp) {
-        if (ftpissecure()) {
-          secure = 1;
-        }
-      } else
-#endif /* NEWFTP */
-        if (0
+      if (0
 #ifdef SSHBUILTIN
-            || IS_SSH()
+          || IS_SSH()
 #endif /* SSHBUILTIN */
 #ifdef RLOGCODE
 #endif /* RLOGCODE */
-        ) {
-          /* You may get an "unreachable code" warning in builds with no SSL,
-           * Kerberos or SSH support. This is OK. */
-          secure = 1;
-        }
+      ) {
+        /* You may get an "unreachable code" warning in builds with no SSL,
+         * Kerberos or SSH support. This is OK. */
+        secure = 1;
+      }
       if (secure) {
         printw("%s (SECURE)", xname);
       } else {
@@ -6019,43 +5973,25 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
     clrtoeol();
 
     if (what & W_SEND) { /* If we're sending... */
-#ifdef NEWFTP
-      if (what & W_FTP) { /* FTP */
-        move(CW_NAM, 10);
-        printw("   FTP PUT:");
-      } else
-#endif /* NEWFTP */
 #ifdef CK_RESEND
-        switch (sendmode) { /* Kermit */
-        case SM_RESEND:
-          move(CW_NAM, 10);
-          printw(" RESENDING:");
-          break;
-        default:
-          move(CW_NAM, 10);
-          printw("   SENDING:");
-          break;
-        }
+      switch (sendmode) { /* Kermit */
+      case SM_RESEND:
+        move(CW_NAM, 10);
+        printw(" RESENDING:");
+        break;
+      default:
+        move(CW_NAM, 10);
+        printw("   SENDING:");
+        break;
+      }
 #else
       move(CW_NAM, 10);
       printw("   SENDING:");
 #endif /* CK_RESEND */
 
     } else if (what & W_RECV) { /* If we're receiving... */
-#ifdef NEWFTP
-      if (what & W_FTP) { /* FTP */
-        move(CW_NAM, 10);
-        printw("   FTP GET:");
-      } else {
-#endif /* NEWFTP */
-        move(CW_NAM, 10);
-        printw(" RECEIVING:");
-#ifdef NEWFTP
-      }
-    } else if (what == (W_FTP | W_FT_DELE)) {
       move(CW_NAM, 10);
-      printw("FTP DELETE:");
-#endif                  /* NEWFTP */
+      printw(" RECEIVING:");
     } else {            /* If we don't know... */
       move(CW_NAM, 10); /* (should never see this) */
       printw(" File Name:");
@@ -6124,28 +6060,13 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
       move(CW_PAR, 22);
       printw("%s", parnam((char)parity));
       clrtoeol();
-      if (
-#ifdef NEWFTP
-          (ftp && (spackets == 1 || rpackets == 1)) ||
-#endif /* NEWFTP */
-          spackets == 4) {
+      if (spackets == 4) {
         move(CW_LIN, 8);
-        if (
-#ifdef NEWFTP
-            ftp ||
-#endif /* NEWFTP */
-            ((protocol == PROTO_K) && (sysindex > -1))) {
+        if (((protocol == PROTO_K) && (sysindex > -1))) {
           if (net) {
             move(CW_LIN, 8);
-            printw("Network Host: %s (%s)",
-#ifdef NEWFTP
-                   ftp ? (ftp_host ? ftp_host : "") :
-#endif /* NEWFTP */
-                       ttname,
-#ifdef NEWFTP
-                   ftp ? ftp_srvtyp :
-#endif /* NEWFTP */
-                       sysidlist[sysindex].sid_name);
+            printw("Network Host: %s (%s)", ttname,
+                   sysidlist[sysindex].sid_name);
           } else {
             move(CW_LIN, 0);
             printw("Communication Device: %s (remote host is %s)", ttname,

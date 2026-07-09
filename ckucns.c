@@ -80,8 +80,6 @@ struct timeval {
 
 /* Internal function prototypes */
 
-#ifdef NEWFTP
-#endif /* NEWFTP */
 void ttflux(void);
 void doesc(char);
 int hconne(void);
@@ -950,12 +948,7 @@ int conect() {
   ttimoff();    /* Turn off any timer interrupts */
   if (!local) { /* Be sure we're not in remote mode */
 #ifdef NETCONN
-#ifdef NEWFTP
-    if (ftpisconnected()) {
-      printf("Sorry, you can't CONNECT to an FTP server\n");
-    } else
-#endif /* NEWFTP */
-      printf("Sorry, you must SET LINE or SET HOST first\n");
+    printf("Sorry, you must SET LINE or SET HOST first\n");
 #else
     printf("Sorry, you must SET LINE first\n");
 #endif /* NETCONN */

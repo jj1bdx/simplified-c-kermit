@@ -37,9 +37,6 @@ extern int debtim;
 #include "ckuusr.h"
 #include <signal.h>
 
-/* prototype for static funtion - fdc 30 November 2022 */
-static int xx_ftp(char *, char *);
-
 /*
   ckcfnp.c: new to C-Kermit 1.0.  Prototypes for functions used in
   multiple modules.  This header file should be included only after
@@ -157,10 +154,6 @@ int haveftpuid = 0; /* Have FTP user ID */
 
 static char *failmsg = NULL; /* Failure message */
 
-#ifdef NEWFTP
-extern char *ftp_host;
-#endif /* NEWFTP */
-
 extern int what;
 
 #ifndef NOICP
@@ -202,9 +195,6 @@ static int fmsg(char *s) {
 #define URL_LOGIN 6
 
 struct keytab urltab[] = {
-#ifdef NEWFTP
-    "ftp",    URL_FTP,    0,
-#endif /* NEWFTP */
 #ifndef NOHTTP
     "http",   URL_HTTP,   0, "https",  URL_HTTPS, 0,
 #endif /* NOHTTP */
@@ -517,90 +507,6 @@ cl_int(int dummy) /* Command-line interrupt handler */
 }
 #endif /* USE_CL_INT */
 
-#ifdef NEWFTP
-extern int ftp_action, ftp_cmdlin;
-
-static int xx_ftp(char *host, char *port) {
-#ifdef CK_URL
-  extern int haveurl;
-#endif /* CK_URL */
-  extern char *ftp_logname;
-  int use_tls = 0;
-  char *p;
-
-  if (port) {
-    if (!*port) {
-      port = NULL;
-    }
-  }
-
-  if (!host) {
-    return (0);
-  }
-  if (!*host) {
-    return (0);
-  }
-  debug(F111, "ftp xx_ftp host", ftp_host, haveftpuid);
-  debug(F111, "ftp xx_ftp uidbuf 1", uidbuf, haveftpuid);
-  ftp_cmdlin = 1; /* 1 = FTP started from command line */
-  if (nfils > 0) {
-    ftp_cmdlin++; /* 2 = same plus file transfer */
-  }
-
-#ifndef NOURL
-  /* debug(F111,"ftp xx_ftp g_url.usr",g_url.usr,g_url.usr); */
-  if (haveurl && g_url.usr) { /* Wed Oct  9 15:15:22 2002 */
-    if (!*(g_url.usr)) {      /* Force username prompt if */
-      haveftpuid = 0;         /* "ftp://:@host" given. */
-      uidbuf[0] = NUL;
-      makestr(&ftp_logname, NULL);
-    }
-    debug(F111, "ftp xx_ftp uidbuf 2", uidbuf, haveftpuid);
-  }
-#endif /* NOURL */
-  debug(F111, "ftp xx_ftp uidbuf 3", uidbuf, haveftpuid);
-  if (haveftpuid) {
-    makestr(&ftp_logname, uidbuf);
-    debug(F111, "ftp_logname", ftp_logname, haveftpuid);
-  }
-  if (!port) {
-    if ((p = ckstrchr(ftp_host, ':'))) {
-      *p++ = NUL;
-    }
-    port = p;
-  }
-  if (!port) {
-#ifdef CK_URL
-    if (haveurl) {
-      if (g_url.por) {
-        port = g_url.por;
-      } else if (g_url.svc) {
-        port = g_url.svc;
-      } else {
-        port = "ftp";
-      }
-    } else
-#endif /* CK_URL */
-      port = "ftp";
-  }
-
-  if (ftpopen(ftp_host, port, use_tls) < 1) {
-    return (-1);
-  }
-  debug(F111, "ftp xx_ftp action", ckctoa((char)ftp_action), nfils);
-  if (nfils > 0) {
-    switch (ftp_action) {
-    case 'g':
-      return (cmdlinget(stayflg));
-    case 'p':
-    case 's':
-      return (cmdlinput(stayflg));
-    }
-  }
-  return (1);
-}
-#endif /* NEWFTP */
-
 #ifndef NOHTTP
 static char *http_hlp[] = {
     " -h             This message.\n",
@@ -665,10 +571,6 @@ void usage() {
 int cmdlin() {
   char x; /* Local general-purpose char */
   extern int haveurl;
-
-#ifdef NEWFTP
-  char *port = NULL;
-#endif /* NEWFTP */
 
 #ifndef NOXFER
   cmarg = ""; /* Initialize globals */
@@ -913,120 +815,9 @@ int cmdlin() {
     }
   } else
 #endif /* NOHTTP */
-#ifdef NEWFTP
-      if (howcalled == I_AM_FTP) { /* If I was called as FTP... */
-    debug(F100, "ftp personality", "", 0);
-#ifdef CK_URL
-    if (haveurl) {
-      doftparg('U');
-    } else
-#endif /* CK_URL */
-    {
-      while (--xargc > 0) { /* Go through command line words */
-        xargv++;
-        debug(F111, "cmdlin ftp xargv", *xargv, xargc);
-        if (**xargv == '-') { /* Got an option */
-          int xx;
-          x = *(*xargv + 1); /* Get the option letter */
-          xx = doftparg(x);
-          if (xx < 0) {
-            if (what == W_COMMAND) {
-              return (0);
-            } else {
-              doexit(BAD_EXIT, 1);
-            }
-          }
-        } else { /* No dash - must be hostname */
-          makestr(&ftp_host, *xargv);
-          if (xargc > 1) {
-            port = *(xargv + 1);
-            if (port) {
-              if (*port == '-' || !*port) {
-                port = NULL;
-              }
-            }
-            if (port) {
-              xargv++;
-              xargc--;
-            }
-          }
-          debug(F110, "cmdlin ftp host", ftp_host, 0);
-          debug(F110, "cmdlin ftp port", port, 0);
-        }
-      } /* while */
-    } /* if (haveurl) */
-
-    if (ftp_host) {
-      int xx;
-#ifdef NODIAL
-      xx = xx_ftp(ftp_host, port);
-      if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
-        doexit(BAD_EXIT, -1);
-      }
-#else
-#ifdef NOICP
-      xx = xx_ftp(ftp_host, port);
-      if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
-        doexit(BAD_EXIT, -1);
-      }
-#else
-      if (*ftp_host == '=') { /* Skip directory lookup */
-        xx = xx_ftp(&ftp_host[1], port);
-        if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
-          doexit(BAD_EXIT, -1);
-        }
-      } else { /* Want lookup */
-        int i;
-        nhcount = 0; /* Check network directory */
-        debug(F101, "cmdlin nnetdir", "", nnetdir);
-        if (nnetdir > 0) { /* If there is a directory... */
-          lunet(ftp_host); /* Look up the name */
-        } else {           /* If no directory */
-          nhcount = 0;     /* we didn't find anything there */
-        }
-#ifdef DEBUG
-        if (deblog) {
-          debug(F101, "cmdlin lunet nhcount", "", nhcount);
-          if (nhcount > 0) {
-            debug(F110, "cmdlin lunet nh_p[0]", nh_p[0], 0);
-            debug(F110, "cmdlin lunet nh_p2[0]", nh_p2[0], 0);
-            debug(F110, "cmdlin lunet nh_px[0][0]", nh_px[0][0], 0);
-          }
-        }
-#endif /* DEBUG */
-        if (nhcount == 0) {
-          xx = xx_ftp(ftp_host, port);
-          if (xx < 0 && (haveurl || ftp_cmdlin > 1)) {
-            doexit(BAD_EXIT, -1);
-          }
-        } else {
-          for (i = 0; i < nhcount; i++) {
-            if (ckstrcmp(nh_p2[i], "tcp/ip", 6, 0)) {
-              continue;
-            }
-            makestr(&ftp_host, nh_p[i]);
-            debug(F110, "cmdlin calling xx_ftp", ftp_host, 0);
-            if (!quiet) {
-              printf("Trying %s...\n", ftp_host);
-            }
-            if (xx_ftp(ftp_host, port) > -1) {
-              break;
-            }
-          }
-        }
-      }
-#endif /* NODIAL */
-#endif /* NOICP */
-      if (!ftpisconnected()) {
-        doexit(BAD_EXIT, -1);
-      }
-    }
-    return (0);
-  }
-#endif /* NEWFTP */
 
 #ifdef TNCODE
-  if (howcalled == I_AM_TELNET) { /* If I was called as Telnet... */
+      if (howcalled == I_AM_TELNET) { /* If I was called as Telnet... */
 
     while (--xargc > 0) { /* Go through command line words */
       xargv++;
@@ -1825,13 +1616,6 @@ void iniopthlp() {
       opthlp[i] = "Connection is 8-bit clean";
       arghlp[i] = NULL;
       break;
-
-#ifdef NEWFTP
-    case '9':
-      opthlp[i] = "Make a connection to an FTP server";
-      arghlp[i] = "IP-address-or-hostname[:optional-TCP-port]";
-      break;
-#endif /* NEWFTP */
 
 #ifdef IKSD
     case 'A':
@@ -3929,19 +3713,6 @@ int doarg(char x)
       noherald = 1;
       break;
 #endif /* NOICP */
-
-#ifdef NEWFTP
-    case '9': /* FTP */
-      if (*(xp + 1)) {
-        XFATAL("invalid argument bundling after -9");
-      }
-      xargv++, xargc--;
-      if ((xargc < 1) || (**xargv == '-')) {
-        XFATAL("FTP server address missing");
-      }
-      makestr(&ftp_host, *xargv);
-      break;
-#endif /* NEWFTP */
 
     default:
       fatal2(*xargv,

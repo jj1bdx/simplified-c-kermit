@@ -247,9 +247,6 @@ char *introtxt[] = {
 #ifdef RLOGCODE
     "   - Rlogin sessions",
 #endif /* RLOGCODE */
-#ifdef NEWFTP
-    "   - FTP sessions",
-#endif /* NEWFTP */
 #ifdef CKHTTP
     "   - HTTP 1.1 sessions",
 #endif /* CKHTTP */
@@ -385,9 +382,6 @@ char *introtxt[] = {
 #ifdef ANYSSH
     "  SSH [ OPEN ]           Select an SSH host and CONNECT to it",
 #endif /* ANYSSH */
-#ifdef NEWFTP
-    "  FTP [ OPEN ]           Make an FTP connection",
-#endif /* NEWFTP */
 #ifdef CKHTTP
     "  HTTP OPEN              Make an HTTP connection",
 #endif /* CKHTTP */
@@ -614,23 +608,6 @@ static char *hmxyssh[] = {
     ""};
 #endif /* ANYSSH */
 
-#ifdef NEWFTP
-static char *hmxygpr[] = {
-    "Syntax: SET GET-PUT-REMOTE { AUTO, FTP, KERMIT}",
-    "  Tells Kermit whether GET, PUT, and REMOTE commands should be directed",
-    "  at a Kermit server or an FTP server.  The default is AUTO, meaning that",
-    "  if you have only one active connection, the appropriate action is taken",
-    "  when you give a GET, PUT, or REMOTE command.  SET GET-PUT-REMOTE FTP "
-    "forces",
-    "  Kermit to treat GET, PUT, and REMOTE as FTP client commands; setting "
-    "this",
-    "  to KERMIT forces these commands to be treated as Kermit client "
-    "commands.",
-    "  NOTE: PUT includes SEND, MPUT, MSEND, and all other similar commands.",
-    "  Also see HELP REMOTE, HELP SET LOCUS, HELP FTP.",
-    ""};
-#endif /* NEWFTP */
-
 #ifdef LOCUS
 static char *hmxylocus[] = {
     "Syntax: SET LOCUS { AUTO, LOCAL, REMOTE }",
@@ -696,11 +673,9 @@ static char *hmxxtak[] = {
 static char *hmxxfirew[] = {
     "Firewall Traversal in C-Kermit",
     " ",
-#ifndef NEWFTP
 #ifndef CKHTTP
 #ifndef CK_SOCKS
 #define NOFIREWALL
-#endif
 #endif
 #endif
 #ifdef NOFIREWALL
@@ -788,36 +763,6 @@ static char *hmxxfirew[] = {
     " ",
 #endif /* CK_SOCKS */
 
-#ifdef NEWFTP
-
-    "FTP is one of the few well-known Internet services that requires",
-    "multiple connections.  As described above, FTP originally required the",
-    "server to establish the data connection to the client using a destination",
-    "address and port provided by the client.  This doesn't work with port",
-    "filtering firewalls.",
-
-    " ",
-
-    "Later, FTP protocol added a \"passive\" mode, in which connections for",
-    "the data channels are created in the reverse direction.  Instead of the",
-    "server establishing a connection to the client, the client makes a second",
-    "connection with the server as the destination.  This works just fine as",
-    "long as the client is behind the firewall and the server is in public",
-    "address space.  If the server is behind a firewall then the traditional",
-    "active mode must be used.  If both the client and server are behind their",
-    "own port filtering firewalls then data channels cannot be established.",
-
-    " ",
-
-    "In Kermit's FTP client, passive mode is controlled with the command:",
-
-    " ",
-    "  SET FTP PASSIVE-MODE { ON, OFF }",
-    " ",
-
-    "The default is ON, meaning to use passive mode.",
-
-#endif /* NEWFTP */
 #endif /* NOFIREWALL */
 
     ""};
@@ -3864,18 +3809,9 @@ static char *hsetsrv[] = {
 #endif /* NOSERVER */
 
 static char *hmhrmt[] = {
-#ifdef NEWFTP
-    "The REMOTE command sends file management instructions or other commands",
-    "to a Kermit or FTP server.  If you have a single connection, the command "
-    "is",
-    "directed to the server you are connected to; if you have multiple "
-    "connections",
-    "the command is directed according to your GET-PUT-REMOTE setting.",
-#else
     "The REMOTE command sends file management instructions or other commands",
     "to a Kermit server.  There should already be a Kermit running in server",
     "mode on the other end of the connection.",
-#endif /* NEWFTP */
     "Type REMOTE ? to see a list of available remote commands.  Type HELP "
     "REMOTE",
     "xxx to get further information about a particular remote command xxx.",
@@ -3883,17 +3819,9 @@ static char *hmhrmt[] = {
     "All REMOTE commands except LOGIN and LOGOUT have R-command shortcuts;",
     "for example, RDIR for REMOTE DIR, RCD for REMOTE CD, etc.",
     " ",
-#ifdef NEWFTP
-#ifdef LOCUS
-    "Also see: HELP SET LOCUS, HELP FTP, HELP SET GET-PUT-REMOTE.",
-#else
-    "Also see: HELP FTP, HELP SET GET-PUT-REMOTE.",
-#endif /* LOCUS */
-#else
 #ifdef LOCUS
     "Also see: HELP SET LOCUS.",
 #endif /* LOCUS */
-#endif /* NEWFTP */
     ""};
 
 #ifndef NOSPL
@@ -6217,17 +6145,6 @@ sent successfully is deleted after it is sent."));
     return (hmsg("Syntax: PING [ IP-hostname-or-number ]\n\
   Checks if the given IP network host is reachable.  Default host is from\n\
   most recent SET HOST or TELNET command.  Runs system PING program, if any."));
-
-  case XXFTP:
-#ifdef SYSFTP
-    return (hmsg("Syntax: FTP [ IP-hostname-or-number ]\n\
-  Makes an FTP connection to the given IP host or, if no host specified, to\n\
-  the current host.  Uses the system's FTP program, if any."));
-#else
-#ifndef NOFTP
-    return (doftphlp());
-#endif /* NOFTP */
-#endif /* SYSFTP */
 #endif /* TCPSOCKET */
 
 #ifndef NOFRILLS
@@ -6458,16 +6375,6 @@ at the end of text.  See WRITE."));
     return (hmsg("View the terminal emulation screen even when there is no "
                  "connection."));
 
-#ifdef NEWFTP
-  case XXASC:
-    return (hmsg(
-        "Inhibits automatic transfer-mode switching and forces TEXT (ASCII) transfer\n\
-mode for all files in both Kermit and FTP protocols."));
-  case XXBIN:
-    return (hmsg(
-        "Inhibits automatic transfer-mode switching and forces BINARY transfer mode\n\
-for all files in both Kermit and FTP protocols."));
-#else
   case XXASC:
     return (hmsg(
         "Inhibits automatic transfer-mode switching and forces TEXT (ASCII) transfer\n\
@@ -6476,7 +6383,6 @@ mode for all files."));
     return (hmsg(
         "Inhibits automatic transfer-mode switching and forces BINARY transfer mode\n\
 for all files."));
-#endif /* NEWFTP */
 
   case XXDATE:
     return (hmsga(hmxxdate));
@@ -6820,13 +6726,6 @@ command, given at the prompt, logs you out and closes your session."));
   case XXFIREW:
     return (hmsga(hmxxfirew));
 #endif /* TCPSOCKET */
-
-#ifdef NEWFTP
-  case XXUSER:
-    return (hmsg(" Equivalent to FTP USER."));
-  case XXACCT:
-    return (hmsg(" Equivalent to FTP ACCOUNT."));
-#endif /* NEWFTP */
 
   case XXORIE:
     return (hmsg(" Shows the directories important to Kermit."));
@@ -8409,15 +8308,6 @@ int dohset(int xx) {
   if (xx < 0) {
     return (xx);
   }
-
-#ifdef NEWFTP
-  if (xx == XYFTPX) {
-    return (dosetftphlp());
-  }
-  if (xx == XYGPR) {
-    return (hmsga(hmxygpr));
-  }
-#endif /* NEWFTP */
 
   if ((x = cmcfm()) < 0) {
     return (x);
@@ -10129,74 +10019,36 @@ int dohrmt(int xx) {
   Synonym: RCOPY."));
 
   case XZCWD:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE CD [ name ]\n\
-  Asks the Kermit or FTP server to change its working directory or device.\n\
-  If the device or directory name is omitted, restore the default.\n\
-  Synonym: RCD."));
-#else
     return (hmsg("Syntax: REMOTE CD [ name ]\n\
   Asks the Kermit server to change its working directory or device.\n\
   If the device or directory name is omitted, restore the default.\n\
   Synonym: RCD."));
-#endif /* NEWFTP */
 
   case XZDEL:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE DELETE filespec\n\
-  Asks the Kermit or FTP server to delete the named file(s).\n\
-  Synonym: RDEL."));
-#else
     return (hmsg("Syntax: REMOTE DELETE filespec\n\
   Asks the Kermit server to delete the named file(s).\n\
   Synonym: RDEL."));
-#endif /* NEWFTP */
 
   case XZMKD:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE MKDIR directory-name\n\
-  Asks the Kermit or FTP server to create the named directory.\n\
-  Synonym: RMKDIR."));
-#else
     return (hmsg("Syntax: REMOTE MKDIR directory-name\n\
   Asks the Kermit server to create the named directory.\n\
   Synonym: RMKDIR."));
-#endif /* NEWFTP */
 
   case XZRMD:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE RMDIR directory-name\n\
-  Asks the Kermit or FTP server to remove the named directory.\n\
-  Synonym: RRMDIR."));
-#else
     return (hmsg("Syntax: REMOTE RMDIR directory-name\n\
   Asks the Kermit server to remove the named directory.\n\
   Synonym: RRMDIR."));
-#endif /* NEWFTP */
 
   case XZDIR:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE DIRECTORY [ filespec ]\n\
-  Asks the Kermit or FTP server to provide a directory listing of the named\n\
-  file(s) or if no file specification is given, of all files in its current\n\
-  directory.  Synonym: RDIR."));
-#else
     return (hmsg("Syntax: REMOTE DIRECTORY [ filespec ]\n\
   Asks the Kermit server to provide a directory listing of the named\n\
   file(s) or if no file specification is given, of all files in its current\n\
   directory.  Synonym: RDIR."));
-#endif /* NEWFTP */
 
   case XZHLP:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE HELP\n\
-  Asks the Kermit or FTP server to list the services it provides.\n\
-  Synonym: RHELP."));
-#else
     return (hmsg("Syntax: REMOTE HELP\n\
   Asks the Kermit server to list the services it provides.\n\
   Synonym: RHELP."));
-#endif /* NEWFTP */
 
   case XZHOS:
     return (hmsg("Syntax: REMOTE HOST command\n\
@@ -10230,13 +10082,8 @@ int dohrmt(int xx) {
 #endif /* NOFRILLS */
 
   case XZREN:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE RENAME filespec newname\n\
-  Asks the Kermit or FTP server to rename the file.  Synonym: RRENAME."));
-#else
     return (hmsg("Syntax: REMOTE RENAME filespec newname\n\
   Asks the Kermit server to rename the file.  Synonym: RRENAME."));
-#endif /* NEWFTP */
 
   case XZSET:
     return (hmsga(hrset));
@@ -10248,15 +10095,9 @@ int dohrmt(int xx) {
 
 #ifndef NOFRILLS
   case XZTYP:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE TYPE file\n\
-  Asks the Kermit or FTP server to send the named file to your screen.\n\
-  Synonym: RTYPE."));
-#else
     return (hmsg("Syntax: REMOTE TYPE file\n\
   Asks the Kermit server to send the named file(s) to your screen.\n\
   Synonym: RTYPE."));
-#endif /* NEWFTP */
 
   case XZWHO:
     return (hmsg("Syntax: REMOTE WHO [ name ]\n\
@@ -10279,26 +10120,13 @@ int dohrmt(int xx) {
 #endif /* NOSPL */
 
   case XZPWD:
-    return (hmsg(
-#ifdef NEWFTP
-        "Syntax: REMOTE PWD\n\
-  Asks the Kermit server to display its current working directory.\n\
-  Synonym: RPWD."));
-#else
-        "Syntax: REMOTE PWD\n\
+    return (hmsg("Syntax: REMOTE PWD\n\
   Asks the Kermit or FTP server to display its current working directory.\n\
   Synonym: RPWD."));
-#endif /* NEWFTP */
 
   case XZXIT:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE EXIT\n\
-   Asks the Kermit server to exit (without disconnecting), or closes an FTP\n\
-   connection.  Synonym: REXIT, and (for FTP only) BYE, FTP BYE."));
-#else
     return (hmsg("Syntax: REMOTE EXIT\n\
   Asks the Kermit server to exit.  Synonym: REXIT."));
-#endif /* NEWFTP */
 
   case XZSTA:
     return (hmsg("Syntax: REMOTE STATUS\n\
@@ -10308,15 +10136,9 @@ int dohrmt(int xx) {
   details of the most recent file transfer (if any)."));
 
   case XZCDU:
-#ifdef NEWFTP
-    return (hmsg("Syntax: REMOTE CDUP\n\
-  Asks the Kermit or FTP server to change its working directory to\n\
-  the directory above it.  Synonym: RCDUP."));
-#else
     return (hmsg("Syntax: REMOTE CDUP\n\
   Asks the Kermit server to change its working directory to the directory\n\
   above it.  Synonym: RCDUP."));
-#endif /* NEWFTP */
 
   default:
     if ((x = cmcfm()) < 0) {

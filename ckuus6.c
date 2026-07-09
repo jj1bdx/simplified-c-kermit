@@ -10154,23 +10154,6 @@ int doxget(int cx) {
   struct FDB sw, fl, cm;            /* FDBs for each parse function */
   char *cmdstr = "this command";
 
-#ifdef NEWFTP
-  if (cx == XXGET || cx == XXREGET || cx == XXMGET || cx == XXRETR) {
-    extern int ftpget;
-    extern int ftpisopen();
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      int x;
-      x = doftpget(cx, 0);
-      debug(F101, "doftpget return", "", x);
-      if (x > -1) {
-        success = x;
-      }
-      debug(F101, "doftpget success", "", success);
-      return (x);
-    }
-  }
-#endif /* NEWFTP */
-
   debug(F101, "xget cx", "", cx);
 
   oopts = -1;

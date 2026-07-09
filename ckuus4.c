@@ -245,12 +245,6 @@ static void myflsh(void);
 static char *getip(char *);
 int delta2sec(char *, long *);
 
-#ifdef NEWFTP
-char *ftp_cpl_mode(void);
-char *ftp_dpl_mode(void);
-char *ftp_authtype(void);
-#endif /* NEWFTP */
-
 #ifndef NOHTTP
 char *http_host(void);
 int http_isconnected(void);
@@ -544,24 +538,9 @@ struct keytab vartab[] = {
     {"ftime", VN_FTIME, 0}, /* 199 */
 #else
     {"ftime", VN_NTIM, CM_INV},
-#endif /* GFTIMER */
-#ifndef NOFTP
-#ifndef SYSFTP
-    {"ftp_code", VN_FTP_C, 0},         /* 199 */
-    {"ftp_cpl", VN_FTP_B, 0},          /* 199 */
-    {"ftp_connected", VN_FTP_X, 0},    /* 199 */
-    {"ftp_dpl", VN_FTP_D, 0},          /* 199 */
-    {"ftp_getputremote", VN_FTP_G, 0}, /* 199 */
-    {"ftp_host", VN_FTP_H, 0},         /* 199 */
-    {"ftp_loggedin", VN_FTP_L, 0},     /* 199 */
-    {"ftp_message", VN_FTP_M, 0},      /* 199 */
-    {"ftp_msg", VN_FTP_M, CM_INV},     /* 199 */
-    {"ftp_security", VN_FTP_Z, 0},     /* 199 */
-    {"ftp_server", VN_FTP_S, 0},       /* 199 */
-#endif                                 /* SYSFTP */
-#endif                                 /* NOFTP */
-    {"ftype", VN_MODE, 0},             /* 190 */
-    {"fullversion", VN_FULLVER, 0},    /* 400 */
+#endif                              /* GFTIMER */
+    {"ftype", VN_MODE, 0},          /* 190 */
+    {"fullversion", VN_FULLVER, 0}, /* 400 */
     {"herald", VN_HERALD, 0},
     {"home", VN_HOME, 0},
     {"host", VN_HOST, 0},
@@ -1344,56 +1323,6 @@ void prescan(int dummy) /* Arg is ignored. */
   }
 
 #ifndef NOCMDL
-#ifdef NEWFTP
-  if (howcalled == I_AM_FTP) { /* Kermit's FTP client personality */
-    while (--yargc > 0) {      /* Go through command-line args */
-      yargv++;                 /* looking for -Y and -d */
-      yp = *yargv + 1;
-      if (**yargv == '-') {
-        x = *(*yargv + 1);
-        while (x) {
-          switch (x) {
-#ifndef NOICP
-          case '+':
-          case '-':
-            if (doxarg(yargv, 1) < 0) {
-              fatal("Extended argument error");
-            }
-            yp = "";
-            break;
-#endif /* NOICP */
-          case 'Y':
-            noinit++;
-            break;
-
-          case 'q':
-            quiet = 1;
-            break;
-
-          case 'h':
-            noinit = 1;
-            break;
-          case 'd': /* = SET DEBUG ON */
-#ifdef DEBUG
-            if (debcount++ > 0) {
-              debtim = 1;
-            }
-            if (!deblog) {
-              deblog = debopn("debug.log", 0);
-            }
-#endif /* DEBUG */
-            break;
-          }
-          if (!yp) {
-            break;
-          }
-          x = *++yp;
-        }
-      }
-    }
-    return;
-  }
-#endif /* NEWFTP */
 #endif /* NOCMDL */
 
   while (--yargc > 0) { /* Go through command-line args */
@@ -3748,13 +3677,6 @@ void shoparc() {
   extern int reliable, stopbits, clsondisc;
   char *s;
   long zz;
-
-#ifdef NEWFTP
-  if (ftpisconnected()) {
-    shoftp(1);
-    printf("\n");
-  }
-#endif /* NEWFTP */
 
   printf("Communications Parameters:\n");
 
@@ -6199,16 +6121,10 @@ int dostat(int brief) {
     }
   }
   if (!brief) {
-#ifdef NEWFTP
-    if (ftp) {
-      extern char ftp_srvtyp[];
-      printf(" remote system type     : %s\n", ftp_srvtyp);
-    } else
-#endif /* NEWFTP */
-      if (whoareu[0]) {
-        printf(" remote system type     : %s\n", getsysid((char *)whoareu));
-        n++;
-      }
+    if (whoareu[0]) {
+      printf(" remote system type     : %s\n", getsysid((char *)whoareu));
+      n++;
+    }
     printf(" files transferred      : %ld\n", filcnt - filrej);
     if (!ftp) {
       printf(" files not transferred  : %ld\n", filrej);
@@ -13927,11 +13843,6 @@ nvlook(char *s) {
     extern char filnam[], ofn1[], *sfspec, *rrfspec;
     char *tmp;
     switch (what) { /* File transfer is in progress */
-#ifdef NEWFTP
-    case (W_FTP | W_RECV):
-    case (W_FTP | W_SEND):
-      return ((char *)filnam);
-#endif /* NEWFTP */
     case W_RECV:
     case W_REMO:
       return ((char *)ofn1);
@@ -14591,58 +14502,6 @@ nvlook(char *s) {
   case VN_HTTP_S: /* HTTP Security */
     return ((char *)http_security());
 #endif /* NOHTTP */
-
-#ifdef NEWFTP
-  case VN_FTP_B:
-    return ((char *)ftp_cpl_mode());
-  case VN_FTP_D:
-    return ((char *)ftp_dpl_mode());
-  case VN_FTP_Z:
-    return ((char *)ftp_authtype());
-  case VN_FTP_C: {
-    extern int ftpcode;
-    return (ckitoa(ftpcode));
-  }
-  case VN_FTP_M: {
-    extern char ftp_reply_str[];
-    if (isdigit(ftp_reply_str[0]) && isdigit(ftp_reply_str[1]) &&
-        isdigit(ftp_reply_str[2]) && ftp_reply_str[3] == ' ') {
-      return (&ftp_reply_str[4]);
-    } else {
-      return (ftp_reply_str);
-    }
-  }
-  case VN_FTP_S: {
-    extern char ftp_srvtyp[];
-    return ((char *)ftp_srvtyp);
-  }
-  case VN_FTP_H: {
-    extern char *ftp_host;
-    return (ftp_host ? ftp_host : "");
-  }
-  case VN_FTP_X: { /* FTP Connected */
-    return (ftpisconnected() ? "1" : "0");
-  }
-  case VN_FTP_L: { /* FTP Logged in */
-    return (ftpisloggedin() ? "1" : "0");
-  }
-  case VN_FTP_G: { /* FTP GET-PUT-REMOTE */
-    extern int ftpget;
-    char *s = "";
-    switch (ftpget) {
-    case 0:
-      s = "kermit";
-      break;
-    case 1:
-      s = "ftp";
-      break;
-    case 2:
-      s = "auto";
-      break;
-    }
-    return (s);
-  }
-#endif /* NEWFTP */
 
 #ifndef NOLOCAL
   case VN_CX_STA: { /* CONNECT status */

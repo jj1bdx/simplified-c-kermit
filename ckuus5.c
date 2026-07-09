@@ -251,11 +251,6 @@ extern char *cksftpv;
 #ifdef TNCODE
 extern char *cktelv;
 #endif /* TNCODE */
-#ifndef NOFTP
-#ifndef SYSFTP
-extern char *ckftpv;
-#endif /* SYSFTP */
-#endif /* NOFTP */
 
 extern int srvidl;
 
@@ -4730,14 +4725,6 @@ void shover() {
 #endif /* SFTP_BUILTIN */
 #endif /* SSHBUILTIN */
 
-#ifndef NOFTP
-#ifndef SYSFTP
-#ifdef NEWFTP
-  printf(" %s\n", ckftpv);
-#endif /* NEWFTP */
-#endif /* SYSFTP */
-#endif /* NOFTP */
-
   printf("\n");
 }
 
@@ -6528,33 +6515,6 @@ int doshow(int x) {
     break;
 #endif /* IKSD */
 
-#ifndef NOFTP
-  case SHOFTP: {
-#ifdef IKSD
-    if (inserver) {
-      printf("Sorry, command disabled.\r\n");
-      return (success = 0);
-    }
-#endif /* IKSD */
-#ifdef SYSFTP
-    {
-      extern char ftpapp[], ftpopts[];
-      printf(" ftp-client:  %s\n", ftpapp[0] ? ftpapp : "(none)");
-      if (ftpapp[0]) {
-        printf(" ftp options: %s\n", ftpopts[0] ? ftpopts : "(none)");
-      }
-    }
-#else
-#ifdef NEWFTP
-    shoftp(0);
-#else
-    printf("(No FTP client included in this version of Kermit.)\n");
-#endif /* NEWFTP */
-#endif /* SYSFTP */
-    break;
-  }
-#endif /* NOFTP */
-
 #ifndef NOCMDL
   case SHXOPT: {
 #ifdef IKSDB
@@ -6667,19 +6627,7 @@ int doshow(int x) {
 
 #ifdef CKLOGDIAL
   case SHCONNX:
-#ifdef NEWFTP
-    if (ftpisconnected()) {
-      extern char cxlogbuf[];
-      dologshow(W_FTP | 1);
-      if (cxlogbuf[0]) {
-        dologshow(1);
-      }
-    } else {
-#endif /* NEWFTP */
-      dologshow(1);
-#ifdef NEWFTP
-    }
-#endif /* NEWFTP */
+    dologshow(1);
     break;
 #endif /* CKLOGDIAL */
 
@@ -9878,15 +9826,7 @@ static void initoptlist() {
 #ifdef CKTUNING
   makestr(&(optlist[noptlist++]), "CKTUNING");
 #endif /* CKTUNING */
-#ifdef NEWFTP
-  makestr(&(optlist[noptlist++]), "NEWFTP");
-#endif /* NEWFTP */
-#ifdef SYSFTP
-  makestr(&(optlist[noptlist++]), "SYSFTP");
-#endif /* SYSFTP */
-#ifdef NOFTP
   makestr(&(optlist[noptlist++]), "NOFTP");
-#endif /* NOFTP */
 #ifdef CKHTTP
   makestr(&(optlist[noptlist++]), "CKHTTP");
 #endif /* CKHTTP */
@@ -10093,16 +10033,6 @@ int shofea() {
   }
 #endif /* CK_SOCKS5 */
 #endif /* CK_SOCKS */
-#ifdef NEWFTP
-  printf(" Built-in FTP client\n");
-  if (++lines > cmd_rows - 3) {
-    if (!askmore()) {
-      return (1);
-    } else {
-      lines = 0;
-    }
-  }
-#endif /* NEWFTP */
 #ifdef CKHTTP
   printf(" Built-in HTTP client\n");
   if (++lines > cmd_rows - 3) {
@@ -10626,7 +10556,6 @@ int shofea() {
     }
   }
 #endif /* CK_SOCKS */
-#ifndef NEWFTP
   printf(" No built-in FTP client\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10635,7 +10564,6 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NEWFTP */
 #ifdef NOTELNET
   printf(" No built-in TELNET client\n");
   if (++lines > cmd_rows - 3) {

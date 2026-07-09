@@ -47,10 +47,6 @@ extern char *exedir;
 extern int cm_retry;
 #endif /* CK_RECALL */
 
-#ifdef NEWFTP
-extern int ftpisopen();
-#endif /* NEWFTP */
-
 extern int cmdint;
 extern int srvidl;
 
@@ -1817,15 +1813,9 @@ struct keytab ftrtab[] = {/* Feature table */
                           0,
 #endif /* XXFWD */
 
-#ifdef NEWFTP
-                          "ftp",
-                          0,
-                          0,
-#else
                           "ftp",
                           1,
                           0,
-#endif /* NEWFTP */
 
 #ifdef CK_CURSES
                           "fullscreen-display",
@@ -4761,12 +4751,7 @@ void dologend() { /* Write record to connection log */
 
 #ifdef LOCUS
   if (autolocus) {
-#ifdef NEWFTP
-    debug(F101, "dologend ftpisconnected", "", ftpisconnected());
-    setlocus(ftpisconnected() ? 0 : 1, 1);
-#else
     setlocus(1, 1);
-#endif /* NEWFTP */
   }
 #endif /* LOCUS */
 
@@ -4859,25 +4844,10 @@ long dologshow(int fc) /* SHOW (current) CONNECTION */
   char *xlogbuf, xbuf[CXLOGBUFL + 1];
   int i, x = 0, z, ftp = 0, active = 0;
 
-#ifdef NEWFTP
-  extern char ftplogbuf[];
-  extern long ftplogprev;
-  extern int ftplogactive;
-  if (fc & W_FTP) {
-    fc &= 63;
-    ftp = 1;
-    xlogbuf = ftplogbuf;
-    prev = ftplogprev;
-    active = ftplogactive;
-  } else {
-#endif /* NEWFTP */
-    ftp = 0;
-    xlogbuf = cxlogbuf;
-    prev = cx_prev;
-    active = cx_active;
-#ifdef NEWFTP
-  }
-#endif /* NEWFTP */
+  ftp = 0;
+  xlogbuf = cxlogbuf;
+  prev = cx_prev;
+  active = cx_active;
 
   debug(F101, "dologshow local", "", local);
   debug(F101, "dologshow ftp", "", ftp);
@@ -4894,21 +4864,13 @@ long dologshow(int fc) /* SHOW (current) CONNECTION */
     return (prev);
   }
 
-#ifdef NEWFTP
-  if (ftp) {
-    z = ftpisconnected() ? 1 : -1;
+  if (local) { /* See if we have an open connection */
+    z = ttchk();
+    debug(F101, "dologshow ttchk", "", z);
+    z = (z > -1) ? 1 : -2;
   } else {
-#endif           /* NEWFTP */
-    if (local) { /* See if we have an open connection */
-      z = ttchk();
-      debug(F101, "dologshow ttchk", "", z);
-      z = (z > -1) ? 1 : -2;
-    } else {
-      z = active ? 1 : -2;
-    }
-#ifdef NEWFTP
+    z = active ? 1 : -2;
   }
-#endif /* NEWFTP */
   if (z < 0L) {
     if (!fc) {
       return (prev);
@@ -11516,12 +11478,6 @@ int doprm(int xx, int rmsflg) {
       }
       g_xfermode = y;
       xfermode = y;
-#ifdef NEWFTP
-      if (ftpisopen()) {         /* If an FTP connection is open */
-        extern int ftp_xfermode; /* change its transfer mode too */
-        ftp_xfermode = xfermode;
-      }
-#endif /* NEWFTP */
       return (success = 1);
 
 #ifndef NOLOCAL
@@ -12154,34 +12110,11 @@ int doprm(int xx, int rmsflg) {
     }
     return (success = 1);
 
-#ifndef NOFTP
-#ifndef SYSFTP
-#ifdef TCPSOCKET
-  case XYFTPX:
-    return (dosetftp()); /* SET FTP */
-#endif                   /* TCPSOCKET */
-#endif                   /* SYSFTP */
-#endif                   /* NOFTP */
-
 #ifdef BROWSER
-#ifndef NOFTP
-#ifdef SYSFTP
-  case XYFTP:    /* SET FTP-CLIENT */
-#endif           /* SYSFTP */
-#endif           /* NOFTP */
   case XYBROWSE: /* SET BROWSER */
   {
     char *p = getenv("PATH");
     char *app = (char *)browser, *opts = (char *)browsopts;
-#ifndef NOFTP
-#ifdef SYSFTP
-    extern char ftpapp[], ftpopts[];
-    if (xx == XYFTP) {
-      app = (char *)ftpapp;
-      opts = (char *)ftpopts;
-    }
-#endif /* SYSFTP */
-#endif /* NOFTP */
 #ifdef IKSD
     if (inserver) {
       printf("?Sorry, command disabled.\r\n");
@@ -12655,21 +12588,6 @@ int doprm(int xx, int rmsflg) {
   }
 #endif /* NOSEXPL */
 #endif /* NOSPL */
-
-#ifdef NEWFTP
-  case XYGPR: {
-    extern struct keytab gprtab[];
-    extern int ftpget;
-    if ((x = cmkey(gprtab, 3, "", "kermit", xxstring)) < 0) {
-      return (x);
-    }
-    if ((y = cmcfm()) < 0) {
-      return (y);
-    }
-    ftpget = x;
-    return (success = 1);
-  }
-#endif /* NEWFTP */
 
 #ifdef ANYSSH
   case XYSSH:

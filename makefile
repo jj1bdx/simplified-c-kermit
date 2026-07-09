@@ -277,7 +277,7 @@ ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) ckucon.$(EXT) ckutio.$(EXT) \
 ckufio.$(EXT) ckudia.$(EXT) ckuscr.$(EXT) ckwart.$(EXT) ckuusx.$(EXT) \
 ckuusy.$(EXT) ckcnet.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) ckusig.$(EXT) \
 ckucns.$(EXT) ckctel.$(EXT) ckclib.$(EXT) \
-ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
+ckcuni.$(EXT) ckupty.$(EXT) \
 ckcpro.c wart
 
 show:
@@ -514,7 +514,7 @@ wermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
 		ckucon.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
 		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
+		ckcuni.$(EXT) ckupty.$(EXT) \
 	$(CC2) $(LNKFLAGS) -o wermit \
 		ckcmai.$(EXT) ckclib.$(EXT) ckutio.$(EXT) ckufio.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
@@ -522,7 +522,7 @@ wermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) \
 		ckuusx.$(EXT) ckuusy.$(EXT) ckuusr.$(EXT) ckucon.$(EXT) \
 		ckudia.$(EXT) ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) \
-		ckusig.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
+		ckusig.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) \
 		$(LIBS)
 
 # Preferred configuration with select()-based CONNECT
@@ -533,7 +533,7 @@ xermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
 		ckucns.$(EXT) ckutio.$(EXT) ckufio.$(EXT) ckudia.$(EXT) \
 		ckuscr.$(EXT) ckcnet.$(EXT) ckctel.$(EXT) ckusig.$(EXT) \
-		ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT)
+		ckcuni.$(EXT) ckupty.$(EXT)
 	$(CC2) $(LNKFLAGS) -o wermit \
 		ckcmai.$(EXT) ckclib.$(EXT) ckutio.$(EXT) ckufio.$(EXT) \
 		ckcfns.$(EXT) ckcfn2.$(EXT) ckcfn3.$(EXT) ckuxla.$(EXT) \
@@ -541,7 +541,7 @@ xermit:	ckcmai.$(EXT) ckclib.$(EXT) ckucmd.$(EXT) ckuusr.$(EXT) ckuus2.$(EXT) \
 		ckuus4.$(EXT) ckuus5.$(EXT) ckuus6.$(EXT) ckuus7.$(EXT) \
 		ckuusx.$(EXT) ckuusy.$(EXT) ckuusr.$(EXT) ckucns.$(EXT) \
 		ckudia.$(EXT) ckuscr.$(EXT) ckcnet.$(EXT) ckusig.$(EXT) \
-		ckctel.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) ckcftp.$(EXT) \
+		ckctel.$(EXT) ckcuni.$(EXT) ckupty.$(EXT) \
 		$(LIBS)
 
 ###########################################################################
@@ -638,9 +638,6 @@ ckuscr.$(EXT): ckuscr.c ckcker.h ckcdeb.h ckcasc.h ckcsig.h \
 
 ckusig.$(EXT): ckusig.c ckcasc.h ckcdeb.h ckcker.h ckcnet.h ckuusr.h \
 		ckcsig.h ckctel.h ckclib.h ckcfnp.h
-
-ckcftp.$(EXT): ckcftp.c ckcdeb.h ckcasc.h ckcker.h ckucmd.h ckuusr.h \
-		ckcnet.h ckctel.h ckcxla.h ckuxla.h ckcuni.h ckcfnp.h
 
 ckupty.$(EXT): ckupty.c ckupty.h ckcdeb.h ckcfnp.h
 

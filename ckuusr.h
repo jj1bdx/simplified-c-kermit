@@ -2487,16 +2487,6 @@ char *ckgetpid(void);
 
 int dogrep(void);
 
-#ifndef NOFTP
-#ifndef SYSFTP
-int doxftp(void);
-int doftphlp(void);
-int dosetftp(void);
-int dosetftphlp(void);
-int shoftp(int);
-#endif /* SYSFTP */
-#endif /* NOFTP */
-
 void cmhistory(void);
 char *getdcset(void);
 char *ttgtpn(void);
@@ -2567,21 +2557,6 @@ int dofile(int);
 #ifdef CKROOT
 int dochroot(void);
 #endif /* CKROOT */
-
-#ifdef NEWFTP
-int doftpusr(void);
-int doftpput(int, int);
-int doftpget(int, int);
-int doftprmt(int, int);
-int ftpopen(char *, char *, int);
-int cmdlinget(int);
-int cmdlinput(int);
-int doftparg(char);
-int doftpacct(void);
-int doftpsite(void);
-int dosetftppsv(void);
-int ftpbye(void);
-#endif /* NEWFTP */
 
 int cx_net(int net, int protocol, char *xhost, char *svc, char *username,
            char *password, char *command, int param1, int param2, int param3,

@@ -1935,9 +1935,6 @@ int doxdis(int which) /* 1 = Kermit, 2 = FTP */
 {
   extern int nolocal;
   int x, y = 0, z;
-#ifdef NEWFTP
-  extern int ftp_dis;
-#endif /* NEWFTP */
 
   if ((x = cmkey(fdtab, nfdtab, "file transfer display style", "", xxstring)) <
       0) {
@@ -1970,11 +1967,6 @@ int doxdis(int which) /* 1 = Kermit, 2 = FTP */
   if (which == 1) { /* It's OK. */
     fdispla = x;
   }
-#ifdef NEWFTP
-  else if (which == 2) {
-    ftp_dis = x;
-  }
-#endif /* NEWFTP */
   return (success = 1);
 }
 #endif /* NOLOCAL */
@@ -4251,13 +4243,6 @@ int dormt(int xx)
   int x, y, retcode;
   char *s, sbuf[50], *s2;
 
-#ifdef NEWFTP
-  extern int ftpget, ftpisopen();
-  if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-    return (doftprmt(xx, 0));
-  }
-#endif /* NEWFTP */
-
   remfile = 0; /* Clear these */
   rempipe = 0;
   remappd = 0;
@@ -5510,12 +5495,6 @@ lu_again:
 
 int clsconnx(int ask) {
   int x, rc = 0;
-#ifdef NEWFTP
-  extern int ftpget, ftpisopen();
-  if ((ftpget == 1) || ((ftpget == 2) && !local && ftpisopen())) {
-    return (success = ftpbye());
-  }
-#endif /* NEWFTP */
   debug(F101, "clsconnx local", "", local);
   if (local) {
     x = ask ? hupok(1) : 1; /* Make sure it's OK to close */
@@ -5598,16 +5577,8 @@ int clsconnx(int ask) {
 
 int clskconnx(int x) /* Close Kermit connection only */
 {
-  int t, rc; /* (not FTP) */
-#ifdef NEWFTP
-  extern int ftpget;
-  t = ftpget;
-  ftpget = 0;
-#endif /* NEWFTP */
+  int rc; /* (not FTP) */
   rc = clsconnx(x);
-#ifdef NEWFTP
-  ftpget = t;
-#endif /* NEWFTP */
   return (rc);
 }
 

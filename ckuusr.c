@@ -108,12 +108,6 @@ int type_intrp = 0;
 int optlines = 0;
 int didsetlin = 0;
 
-#ifdef NEWFTP
-extern int ftpget, ftpisopen(), doftpres();
-int doftptyp(int);
-void doftpglobaltype(int);
-#endif /* NEWFTP */
-
 #include "ckcfnp.h" /* Prototypes (must be last) */
 
 /* Prototypes for static functions - fdc 30 November 2022 */
@@ -333,15 +327,11 @@ extern char editfile[];
 #endif /* NOPUSH */
 
 #ifdef BROWSER
-extern char browser[];   /* Web browser application */
-extern char browsopts[]; /* Web browser options */
-extern char browsurl[];  /* Most recent URL */
-#endif                   /* BROWSER */
-#ifndef NOFTP
-char ftpapp[CKMAXPATH + 1] = {NUL, NUL}; /* ftp executable */
-char ftpopts[128] = {NUL, NUL};          /* ftp command-line options */
-#endif                                   /* NOFTP */
-extern struct keytab onoff[];            /* On/Off keyword table */
+extern char browser[];        /* Web browser application */
+extern char browsopts[];      /* Web browser options */
+extern char browsurl[];       /* Most recent URL */
+#endif                        /* BROWSER */
+extern struct keytab onoff[]; /* On/Off keyword table */
 
 #ifdef CK_TMPDIR
 int f_tmpdir = 0;       /* Directory changed temporarily */
@@ -573,9 +563,6 @@ struct keytab cmdtab[] = {
 
     {"about", XXVER, CM_INV}, /* Synonym for VERSION */
 #ifndef NOSPL
-#ifdef NEWFTP
-    {"account", XXACCT, CM_INV}, /* (FTP) Account */
-#endif                           /* NEWFTP */
 #ifdef ADDCMD
     {"add", XXADD, 0}, /* ADD */
 #endif                 /* ADDCMD */
@@ -883,20 +870,8 @@ struct keytab cmdtab[] = {
 #endif                           /* CKCHANNELIO */
 
 #ifdef TCPSOCKET
-#ifndef NOFTP
-#ifdef SYSFTP
-#ifndef NOPUSH
-    {"ftp", XXFTP, CM_INV | CM_PSH | CM_LOC}, /* System FTP */
-#else
-    {"ftp", XXNOTAV, CM_INV | CM_PSH | CM_LOC},
-#endif /* NOPUSH */
-#else  /* SYSFTP */
-    {"ftp", XXFTP, 0}, /* Built-in FTP */
-#endif /* SYSFTP */
-#else  /* NOFTP */
     {"ftp", XXNOTAV, CM_INV}, /* No FTP */
-#endif /* NOFTP */
-#endif /* TCPSOCKET */
+#endif                        /* TCPSOCKET */
 
 #ifndef NOSPL
     {"function", XXFUNC, CM_INV | CM_HLP}, /* (for HELP FUNCTION) */
@@ -1123,10 +1098,6 @@ struct keytab cmdtab[] = {
     {"pad", XXPAD, CM_LOC}, /* X.3 PAD commands */
 #endif                      /* IBMX25 */
 #endif                      /* ANYX25 */
-
-#ifdef NEWFTP
-    {"passive", XXPASV, CM_INV}, /* (FTP) PASSIVE */
-#endif                           /* NEWFTP */
 
 #ifndef NOHELP
     {"patterns", XXPAT, CM_INV | CM_HLP}, /* Pattern syntax */
@@ -1458,10 +1429,6 @@ struct keytab cmdtab[] = {
     {"show", XXNOTAV, CM_INV},
 #endif /* NOSHOW */
 
-#ifdef NEWFTP
-    {"site", XXSITE, CM_INV}, /* (FTP) SITE */
-#endif                        /* NEWFTP */
-
 #ifdef SSHBUILTIN
     {"skermit", XXSKRM, 0}, /* SKERMIT */
 #endif                      /* SSHBUILTIN */
@@ -1593,10 +1560,6 @@ struct keytab cmdtab[] = {
     {"undeclare", XXNOTAV, CM_INV},
     {"undefine", XXNOTAV, CM_INV},
 #endif /* NOSPL */
-
-#ifdef NEWFTP
-    {"user", XXUSER, CM_INV}, /* (FTP) USER */
-#endif                        /* NEWFTP */
 
     {"v", XXDIR, CM_INV | CM_ABR}, /* Like TOPS-20 VDIRECTORY */
     {"vdirectory", XXDIR, CM_INV}, /* Like TOPS-20 VDIRECTORY */
@@ -1848,12 +1811,6 @@ struct keytab prmtab[] = {
     {"flag", XYFLAG, 0},
 #endif /* NOSPL */
 #ifdef TCPSOCKET
-#ifndef SYSFTP
-#ifndef NOFTP
-    {"ft", XYFTPX, CM_INV | CM_ABR},
-    {"ftp", XYFTPX, 0},
-#endif /* NOFTP */
-#endif /* SYSFTP */
 #endif /* TCPSOCKET */
 #ifdef BROWSER
     {"ftp-client", XYFTP, CM_PSH},
@@ -1862,9 +1819,6 @@ struct keytab prmtab[] = {
 #ifndef NOSPL
     {"function", XYFUNC, 0},
 #endif /* NOSPL */
-#ifdef NEWFTP
-    {"get-put-remote", XYGPR, 0},
-#endif /* NEWFTP */
     {"handshake", XYHAND, 0},
     {"hints", XYHINTS, 0},
 #ifdef NETCONN
@@ -2635,17 +2589,6 @@ struct keytab shotab[] = {
 #ifndef NOLOCAL
     {"flow-control", SHOFLO, 0},
 #endif /* NOLOCAL */
-#ifdef BROWSER
-    {"ftp", SHOFTP, CM_PSH | CM_LOC},
-#else
-#ifndef NOFTP
-#ifndef SYSFTP
-#ifdef TCPSOCKET
-    {"ftp", SHOFTP, 0}, /* (built-in ftp) */
-#endif /* TCPSOCKET */
-#endif /* SYSFTP */
-#endif /* NOFTP */
-#endif /* BROWSER */
 #ifndef NOSPL
     {"functions", SHFUN, 0},
     {"globals", SHVAR, 0},
@@ -3295,48 +3238,6 @@ static int ntnsbopts = (sizeof(tnsbopts) / sizeof(struct keytab)) - 1;
 
 #ifdef TCPSOCKET
 #ifndef NOPUSH
-#ifdef SYSFTP
-int doftp() {  /* (External) FTP command */
-  char *p, *f; /* (See doxftp() for internal one) */
-  int x;
-
-  if (network) {                        /* If we have a current connection */
-    ckstrncpy(line, ttname, LINBUFSIZ); /* get the host name */
-  } else {
-    *line = '\0'; /* as default host */
-  }
-  for (p = line; *p; p++) { /* Remove ":service" from end. */
-    if (*p == ':') {
-      *p = '\0';
-      break;
-    }
-  }
-  if ((x = cmtxt("IP host name or number", line, &s, xxstring)) < 0) {
-    return (x);
-  }
-  if (nopush) {
-    printf("?Sorry, FTP command disabled\n");
-    return (success = 0);
-  }
-/* Construct FTP command */
-#ifndef NOFTP
-  f = ftpapp;
-  if (!f) {
-    f = "";
-  }
-  if (!f[0]) {
-    f = "ftp";
-  }
-  ckmakmsg(line, LINBUFSIZ, f, " ", s, NULL);
-#else       /* NOFTP */
-  ckmakmsg(line, LINBUFSIZ, "ftp ", s, NULL, NULL);
-#endif      /* NOFTP */
-  conres(); /* Make console normal  */
-  x = zshcmd(line);
-  concb((char)escape);
-  return (success = x);
-}
-#endif /* SYSFTP */
 
 int doping() { /* PING command */
   char *p;     /* just runs ping program */
@@ -3495,16 +3396,6 @@ int doxsend(int cx) {
   char **ap = NULL; /* Array pointer */
   int arrayx = -1;  /* Array index */
 #endif              /* NOSPL */
-
-#ifdef NEWFTP
-  if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-    if (cx == XXMAI) {
-      printf("?Sorry, No MAIL with FTP\n");
-      return (-9);
-    }
-    return (doftpput(cx, 0));
-  }
-#endif /* NEWFTP */
 
   for (i = 0; i <= SND_MAX; i++) { /* Initialize switch values */
     pv[i].sval = NULL;             /* to null pointers */
@@ -8046,18 +7937,6 @@ int docmd(int cx) {
       return (x);
     }
 
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      extern int stayflg, ftp_fai;
-      success = ftpbye();
-      if (ftp_cmdlin && !stayflg && !local) {
-        doexit(ftp_fai ? BAD_EXIT : GOOD_EXIT, -1);
-      } else {
-        return (success);
-      }
-    }
-#endif /* NEWFTP */
-
     if (!local) {
       printf("?No connection - use EXIT to quit.\n");
       return (-9);
@@ -8554,18 +8433,6 @@ int docmd(int cx) {
   }
 #endif /* NOPUSH */
 
-#ifndef NOFTP
-  if (cx == XXFTP) /* FTP */
-#ifdef SYSFTP
-#ifndef NOPUSH
-    return (doftp()); /* Just runs system's ftp program */
-#else
-    return (-2);
-#endif /* NOPUSH */
-#else
-    return (doxftp());
-#endif /* SYSFTP */
-#endif /* NOFTP */
 #endif /* TCPSOCKET */
 
   if (cx == XXPWD || cx == XXLPWD) { /* PWD */
@@ -8643,11 +8510,6 @@ int docmd(int cx) {
 #endif /* NOFRILLS */
 
   if (cx == XXFIN) { /* FINISH */
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      return (ftpbye());
-    }
-#endif /* NEWFTP */
 #ifdef CK_XYZ
     if (protocol != PROTO_K) {
       printf("Sorry, FINISH only works with Kermit protocol\n");
@@ -8778,11 +8640,6 @@ int docmd(int cx) {
     if ((x = cmcfm()) < 0) {
       return (x);
     }
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && !local && ftpisopen())) {
-      return (success = ftpbye());
-    }
-#endif /* NEWFTP */
 #ifndef NODIAL
     if ((x = mdmhup()) < 1) {
       debug(F101, "HANGUP mdmup", "", x);
@@ -9053,11 +8910,6 @@ int docmd(int cx) {
     }
   }
   if (cx == XXLOGIN) { /* (REMOTE) LOGIN */
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      return (success = doftpusr());
-    }
-#endif /* NEWFTP */
 #ifdef IKSD
     if (inserver) {
       printf("?Already logged in\n");
@@ -9073,11 +8925,6 @@ int docmd(int cx) {
     }
   }
   if (cx == XXLOGOUT) { /* (REMOTE) LOGOUT */
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      return (success = doftpres());
-    }
-#endif /* NEWFTP */
 
 #ifdef IKSD
     if (inserver) {
@@ -9135,11 +8982,6 @@ int docmd(int cx) {
 
 #ifndef NOXFER
   if (cx == XXREM) { /* REMOTE */
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      return (doftprmt(0, 0));
-    }
-#endif /* NEWFTP */
 #ifdef CK_XYZ
     if (protocol != PROTO_K) {
       printf("Sorry, REMOTE commands only work with Kermit protocol\n");
@@ -9321,11 +9163,6 @@ int docmd(int cx) {
 #ifndef NOXFER
 #ifndef NOMSEND
   if (cx == XXMSE || cx == XXMMOVE) {
-#ifdef NEWFTP
-    if ((ftpget == 1) || ((ftpget == 2) && ftpisopen())) {
-      return (doftpput(cx, 0));
-    }
-#endif /* NEWFTP */
 #ifdef CK_XYZ
     if (protocol == PROTO_X || protocol == PROTO_XC) {
       printf(
@@ -12006,17 +11843,6 @@ int docmd(int cx) {
     if ((x = cmcfm()) < 0) {
       return (x);
     }
-#ifdef NEWFTP
-    /*
-      Make C-Kermit work like other ftp clients, where
-      the ASCII (TEXT) and BINARY commands are global settings.
-    */
-    if (ftpisopen()) {
-      doftpglobaltype((cx == XXASC) ? XYFT_T : XYFT_B);
-      /* Fall thru--the command it should apply to both FTP and Kermit */
-      /* return(success = 1); */
-    }
-#endif /* NEWFTP */
 
     xfermode = XMODE_M; /* Set manual Kermit transfer mode */
     binary = (cx == XXASC) ? XYFT_T : XYFT_B;
@@ -12679,23 +12505,6 @@ int docmd(int cx) {
     return (success = 1);
   }
 #endif /* CKLEARN */
-
-#ifdef NEWFTP
-  if (cx == XXUSER || cx == XXACCT) {
-    if (!ftpisopen()) {
-      printf("?FTP connection is not open\n");
-      return (-9);
-    }
-    return (success = (cx == XXUSER) ? doftpusr() : doftpacct());
-  }
-  if (cx == XXSITE || cx == XXPASV) {
-    if (!ftpisopen()) {
-      printf("?FTP connection is not open\n");
-      return (-9);
-    }
-    return (success = (cx == XXSITE) ? doftpsite() : dosetftppsv());
-  }
-#endif /* NEWFTP */
 
   if (cx == XXORIE) { /* ORIENTATION */
     extern char *myname;

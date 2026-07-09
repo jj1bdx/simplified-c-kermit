@@ -69,6 +69,19 @@
 #define NOSYSLOG
 #endif /* NOSYSLOG */
 #endif /* DOSYSLOG */
+
+/*
+  FTP client removed 2026-07-09: the built-in FTP client (ckcftp.c) has been
+  deleted from this tree, so NOFTP is now hard-wired on.  There is no DOFTP
+  escape hatch -- re-enabling FTP would mean restoring ckcftp.c and its command
+  tables.  The old NOFTP/NEWFTP/SYSFTP arbitration and the scattered
+  feature-implied "#define NOFTP" blocks have been removed accordingly.  See
+  doc/NOFTP-20260709.md.
+*/
+#ifndef NOFTP
+#define NOFTP
+#endif /* NOFTP */
+
 /*
    14 Sep 2022 - TYPE command's new /INTERPRET switch enabled by default
    except in Windows where it doesn't work because of character-set issues.
@@ -108,9 +121,6 @@
   about political correctness that saving space.  -fdc 12 May 2022
 */
 #ifdef NODEPRECATED
-#ifndef NOFTP /* No more FTP client */
-#define NOFTP
-#endif           /* NOFTP */
 #ifndef NOTELNET /* No more Telnet client */
 #define NOTELNET
 #endif /* NOTELNET */
@@ -193,10 +203,7 @@
 #endif          /* NOSPL */
 #ifndef NOCSETS /* Or characer sets */
 #define NOCSETS
-#endif        /* NOCSETS */
-#ifndef NOFTP /* Or FTP client */
-#define NOFTP
-#endif /* NOFTP */
+#endif /* NOCSETS */
 #endif /* NOICP */
 
 /* Built-in makefile entries */
@@ -204,9 +211,6 @@
 /* Features that can be eliminated from a no-file-transfer version */
 
 #ifdef NOXFER
-#ifndef NOFTP
-#define NOFTP
-#endif           /* NOFTP */
 #ifndef NOCURSES /* Fullscreen file-transfer display */
 #define NOCURSES
 #endif          /* NOCURSES */
@@ -316,9 +320,6 @@
 #ifndef NOHTTP
 #define NOHTTP
 #endif /* NOHTTP */
-#ifndef NOFTP
-#define NOFTP
-#endif /* NOFTP */
 #ifndef NO_COMPORT
 #define NO_COMPORT
 #endif /* NO_COMPORT */
@@ -328,9 +329,6 @@
 /* Features that can be eliminated from a remote-only version */
 
 #ifdef NOLOCAL
-#ifndef NOFTP
-#define NOFTP
-#endif /* NOFTP */
 #ifndef NOHTTP
 #define NOHTTP
 #endif /* NOHTTP */
@@ -429,9 +427,6 @@
 /* #ifndef NOSSH */
 /* #define NOSSH */
 /* #endif */ /* NOSSH */
-#ifndef NOFTP
-#define NOFTP
-#endif /* NOFTP */
 #ifndef NOHTTP
 #define NOHTTP
 #endif /* NOHTTP */
@@ -1356,9 +1351,6 @@ extern long ztmsec, ztusec; /* Fraction of sec of current time */
 #ifndef NOBROWSER
 #define NOBROWSER
 #endif /* NOBROWSER */
-#ifndef NOFTP
-#define NOFTP
-#endif /* NOFTP */
 #endif /* NOFRILLS */
 
 #ifndef NOHTTP /* HTTP features need... */
@@ -1397,33 +1389,6 @@ extern long ztmsec, ztusec; /* Fraction of sec of current time */
 #ifndef NOLOCAL
 #endif /* NOLOCAL */
 #endif /* NETCONN */
-
-#ifndef NOFTP
-#ifndef SYSFTP
-#ifndef NEWFTP
-#define NEWFTP
-#endif /* NEWFTP */
-#endif /* SYSFTP */
-#endif /* NOFTP */
-
-#ifndef NOFTP
-#ifdef NEWFTP
-#ifdef SYSFTP
-#undef SYSFTP
-#endif /* SYSFTP */
-#else  /* NEWFTP */
-#ifndef SYSFTP
-#define SYSFTP
-#endif /* SYSFTP */
-#endif /* NEWFTP */
-#else  /* NOFTP */
-#ifdef NEWFTP
-#undef NEWFTP
-#endif /* NEWFTP */
-#ifdef SYSFTP
-#undef SYSFTP
-#endif /* SYSFTP */
-#endif /* NOFTP */
 
 #ifndef NOBROWSER
 #ifdef UNIX
@@ -3675,12 +3640,6 @@ struct tm *cmdate2tm(char *, int);
 #endif /* SVR4ORPOSIX */
 #endif /* NOSETTIME */
 
-#ifdef NEWFTP
-int ftpisconnected(void);
-int ftpisloggedin(void);
-int ftpissecure(void);
-#endif /* NEWFTP */
-
 /*
   -DNOTCPIP = Build with no TCP/IP support,
    which unexpectedly turned out not to be a major task.
@@ -3689,16 +3648,7 @@ int ftpissecure(void);
 #ifdef NOTCPIP
 #ifdef TCPSOCKET
 #undef TCPSOCKET
-#endif        /* TCPSOCKET */
-#ifndef NOFTP /* No TCP means no FTP... */
-#define NOFTP
-#endif /* NOFTP */
-#ifdef NEWFTP
-#undef NEWFTP
-#endif /* NEWFTP */
-#ifdef SYSFTP
-#undef SYSFTP
-#endif /* SYSFTP */
+#endif /* TCPSOCKET */
 #ifdef SFTP
 #undef SFTP
 #endif /* SFTP */

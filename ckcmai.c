@@ -2329,11 +2329,6 @@ MAINNAME(int argc, char **argv) {
   } else if (!ckstrcmp(myname, "iksd", -1, 0)) {
     howcalled = I_AM_IKSD;
   }
-#ifdef NEWFTP
-  else if (!ckstrcmp(myname, "ftp", -1, 0)) {
-    howcalled = I_AM_FTP;
-  }
-#endif /* NEWFTP */
 #ifndef NOHTTP
   else if (!ckstrcmp(myname, "http", -1, 0)) {
     howcalled = I_AM_HTTP;
