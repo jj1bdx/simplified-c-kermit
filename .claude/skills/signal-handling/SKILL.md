@@ -14,8 +14,8 @@ The classic `old = signal(SIG, h); …; signal(SIG, old);` save/restore idiom (~
 files) was replaced by `ck_signal()` in `ckusig.c` (prototype in `ckcdeb.h`, so callers need no
 new include). It calls `sigaction()` with `sigemptyset(&sa.sa_mask)` + `sa.sa_flags =
 SA_RESTART` and returns `old.sa_handler` — faithfully reproducing glibc/BSD/macOS `signal()`
-(persistent handler, restarted syscalls), so it is a drop-in. See `SIGACTION_PLAN_20260615.md`;
-macOS verified on real hardware (`SIGACTION_MACOS_20260615.md`).
+(persistent handler, restarted syscalls), so it is a drop-in. See `doc/SIGACTION_PLAN_20260615.md`;
+macOS verified on real hardware (`doc/SIGACTION_MACOS_20260615.md`).
 
 - **The wrapper is unconditional — NOT gated on `CK_POSIX_SIG`**, which is defined only on the
   `linux` makefile target (not `macos`, not the BSD targets, not implied in `ckcdeb.h`).
@@ -37,7 +37,7 @@ macOS verified on real hardware (`SIGACTION_MACOS_20260615.md`).
 verbatim `void (*NAME)(int)` signal-handler spelling was converted to it (~25 sites; also
 `ckcsig.h`'s `typedef ck_sig_t ck_sighand;`). It is structurally identical to
 `void (*)(int)` — pure source spelling, codegen-neutral (all 29 objects byte-identical). Use
-`ck_sig_t` for new handler variables/params/returns. See `CK_SIG_T_20260616.md`.
+`ck_sig_t` for new handler variables/params/returns. See `doc/CK_SIG_T_20260616.md`.
 
 **Left unconverted, correctly:** `ck_sigfunc` (`void (*)(void *)` — different signature),
 `ckcftp.c`'s own `sig_t` typedef (deliberately mirrors the platform `sig_t`; that module is
@@ -48,11 +48,11 @@ inactive `#ifdef CKNTSIG` `ckntsignal` block in `ckcdeb.h`.
 
 - `SIGTYP`/`SIGRETURN` (and `ckcftp.c`'s lowercase `sigtype`) were expanded to
   `void`/`return` and removed from `ckcdeb.h`, on the proven premise that the old selector
-  always picked `SIG_V` on Linux/macOS/*BSD (`SIGTYPE_PLAN_20260615.md`). One intentional
+  always picked `SIG_V` on Linux/macOS/*BSD (`doc/SIGTYPE_PLAN_20260615.md`). One intentional
   behavior change: `SHOW FEATURES` no longer lists `SIG_V`.
 - C23 (the default `-std` now that `-std=gnu17` was dropped) required the empty-paren
   signal-handler pointer declarations to gain explicit `(int)` prototypes
-  (`SIGNAL_TYPE_20260615.md`).
+  (`doc/SIGNAL_TYPE_20260615.md`).
 
 ## Known latent bug (pre-existing, low severity)
 

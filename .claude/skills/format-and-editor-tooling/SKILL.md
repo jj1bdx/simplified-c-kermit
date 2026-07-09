@@ -10,15 +10,15 @@ description: clang-format rules (InsertBraces=true is the one non-cosmetic trans
 `.clang-format` is git-tracked and the whole `*.c`/`*.h` tree is formatted with it. Two settings
 are load-bearing:
 
-- **`InsertBraces: true`** (enabled 2026-06-15, see `INSERT_BRACES_20260615.md`): wraps
+- **`InsertBraces: true`** (enabled 2026-06-15, see `doc/INSERT_BRACES_20260615.md`): wraps
   single-statement `if/else/for/while/do` bodies in `{}`. This is the **one non-cosmetic**
   clang-format transform — the added empty block scope perturbs register allocation, so a
   reformat that touches braces is **not** byte-identical. Verify such changes by the
   per-object `.o` + token-proof method from that report (see the build-and-verify skill), not
   whole-binary `cmp`. clang-format 21 handles the two real hazards correctly: dangling-else
   stays bound to the inner `if`, and it refuses to brace a body spanning `#ifdef/#else/#endif`.
-- **`SortIncludes: true`** (enabled 2026-06-15, see `ENABLE_SORTINCLUDES_20260615.md` +
-  `MOVE_CKCDEB_H_20260615.md`): the master header `ckcdeb.h` must precede every other `ck*.h`,
+- **`SortIncludes: true`** (enabled 2026-06-15, see `doc/ENABLE_SORTINCLUDES_20260615.md` +
+  `doc/MOVE_CKCDEB_H_20260615.md`): the master header `ckcdeb.h` must precede every other `ck*.h`,
   so it is wrapped `/* clang-format off */ … /* clang-format on */` as the first `#include` in
   every `*.c`/`*.h` and in both branches of `ckcpro.w` (regenerate `ckcpro.c` after touching
   it). `ckcsig.h` similarly pins its own `<setjmp.h>` (it typedefs `ckjmpbuf` from
@@ -38,7 +38,7 @@ pre-existing; don't chase it.
 
 Historical note: `ckuver.h`'s herald selector was flattened from an `#else`-nested ladder into
 independent first-match-wins `#ifndef HERALD` guard blocks specifically to make it
-clang-format-able (see `SIMPLIFY_SUMMARY_20260613.md` §3). Priority is encoded by physical
+clang-format-able (see `doc/SIMPLIFY_SUMMARY_20260613.md` §3). Priority is encoded by physical
 order + the per-block `#ifndef HERALD` guard: macOS > OpenBSD > NetBSD > FreeBSD > " 4.4BSD".
 That block only compiles under `BSD44`, so verify edits to it via `gcc -E -DBSD44 …`, not
 `make linux`.
@@ -56,7 +56,7 @@ the live `#ifdef` branches.
 It carries **no `-std=` flag**: the `linux` target dropped its pinned `-std=gnu17`, so the
 build (and clangd) use the compiler's default C standard — currently C23, which is what
 required the empty-paren signal-handler pointers to gain explicit `(int)` prototypes (see
-`SIGNAL_TYPE_20260615.md`). It also deliberately omits `-Wall`/`-Wextra` (the build uses
+`doc/SIGNAL_TYPE_20260615.md`). It also deliberately omits `-Wall`/`-Wextra` (the build uses
 neither; they only produce unused-variable/sign-compare lint noise on this old code) and the
 codegen-only `-O`/`-pipe`. `.clang-tidy` pins clang-tidy to `-*,clang-diagnostic-*` so it adds
 no lint beyond the compiler's own diagnostics.
