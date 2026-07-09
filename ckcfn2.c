@@ -1158,7 +1158,18 @@ int spack(char pkttyp, int n, int len, CHAR *d)
 
   longpkt = 0;
   if (lpcapu > 0) { /* Only if long packet capability has been negotiated */
-    longpkt = (len + bctl + 2) > 96;
+    /*
+      A short packet's LEN field is a single printable character,
+      tochar(len+bctl+2), which is only legal for values 0..94:
+      tochar(94) = '~' (126) is the top of the printable range, 95
+      encodes as DEL (127) and 96 as 0x80.  The receiver's framing code
+      (ttinl() in ckutio.c) discards any packet whose LEN byte decodes
+      above 94 without replying, so a threshold of 96 here made the
+      sender emit an unanswerable packet whenever the last chunk of a
+      transfer landed on 95 or 96, stalling the session in a silent
+      retransmission loop.  See BUGFIX_20260709_2.md.
+    */
+    longpkt = (len + bctl + 2) > 94;
     /* Len + Seq + Type + Data + Blockcheck */
     /*  1     1     2      n       1-3      */
   }
