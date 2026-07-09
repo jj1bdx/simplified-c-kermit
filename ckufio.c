@@ -316,20 +316,19 @@ char *PRINTCMD = "lp";
 #endif /* UNIX */
 
 /*
-  On BSD-family systems (BSD44: macOS, FreeBSD, NetBSD, OpenBSD) restrict the
-  no-argument REMOTE SPACE command to the current filesystem.  A plain "df"
-  stats every mounted volume and blocks indefinitely on a sleeping or wedged
-  one (external disk, Time Machine or network mount); while it blocks, the
-  server sends empty data packets forever and the client waits forever, so
-  the session appears hung.  This was guarded by BSD4, which no live target
-  defines (macOS implies BSD44, not BSD4), so the branch was dead code and
-  macOS ran the all-volumes "df".  See BUGFIX_20260709.md.
+  This was once forced to use "df ." in commit
+  7f77234007945d744ccf135658a2e9cf150f035b, but is manually reverted
+  because the true cause of the bug was NOT by the command.
+  See BUGFIX_20260709.md for the past reasoning.
+  The actual cause is described in
+  commit c6e9bbc606937514fed60dab11daeee361565812
+  See BUGFIX_20260709_2.md for the past reasoning.
 */
-#ifdef BSD44
+#ifdef BSD4
 char *SPACMD = "pwd ; df ."; /* Space in current directory */
 #else
 char *SPACMD = "df ";
-#endif /* BSD44 */
+#endif /* BSD4 */
 
 char *SPACM2 = "df "; /* For space in specified directory */
 
@@ -5136,7 +5135,8 @@ zsperms:
                   directory             too, but it's not, so we try to unset the right bit.
                   Luckily,             this code             will probably never be executed
                   since the             upper level modules do             not allow
-                  reception of a file             that has             the same name as a directory.
+                  reception of a file             that has             the same name as a
+                  directory.
             
                   NOTE 2: We change the permissions *before* we change the modification
                   time,             otherwise changing the permissions would set the mod
@@ -6027,10 +6027,10 @@ blah:
                         "dir             /recursive blah" (where blah is             a
                         directory name)             misses some             regular files
                         because             sometimes segisdir             is             set and
-                        sometimes it's             not.  But             if I comment it out, then             "dir
-                        <star>/<star>.txt lists             every file in * and does not even open up
-                        the             subdirectories.             However, "dir /rec
-                        <star>/<star>.txt" works right.
+                        sometimes it's             not.  But             if I comment it
+                        out, then             "dir             <star>/<star>.txt lists             every
+                        file in * and does not even open up             the             subdirectories.
+                        However, "dir /rec             <star>/<star>.txt" works right.
                       */
           mresult &&  /* Matched */
           !itsadir && /* sofar is not a directory */
