@@ -854,6 +854,24 @@ macos:
 	$(KFLAGS)" \
 	"LIBS= -lncurses -lresolv -Xlinker -max_default_common_align -Xlinker 0x4000 $(LIBS)"
 
+# macOS with no TCP/IP support but with the external ssh client.
+# -UCKHTTP cancels the -DCKHTTP hard-coded in the macos entry's CFLAGS
+# (KFLAGS comes after it); NOTCPIP takes care of -DTCPSOCKET by itself
+# (ckcdeb.h undefines TCPSOCKET when NOTCPIP is defined).
+macos-notcp:
+	@echo Making C-Kermit $(CKVER) for macOS NO TCP/IP...
+	$(MAKE) macos KTARGET=$${KTARGET:-$(@)} \
+	KFLAGS="-DNOTCPIP -UCKHTTP -DSSHCMD -DANYSSH $(KFLAGS)" \
+	"LNKFLAGS = $(LNKFLAGS)"
+
+# macOS with no networking at all but with the external ssh client.
+# See the macos-notcp comment about -UCKHTTP.
+macos-nonet:
+	@echo Making C-Kermit $(CKVER) for macOS NO NETWORKING...
+	$(MAKE) macos KTARGET=$${KTARGET:-$(@)} \
+	KFLAGS="-DNONET -DNONETDIR -UCKHTTP -DSSHCMD -DANYSSH $(KFLAGS)" \
+	"LNKFLAGS = $(LNKFLAGS)"
+
 # End of Mac OS X Section
 
 # Linux 1.2 or later with gcc, dynamic libraries, ncurses, TCP/IP.

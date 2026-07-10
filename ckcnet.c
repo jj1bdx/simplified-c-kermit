@@ -329,10 +329,7 @@ int tcp_keepalive = 1;
   Dummy functions here in case #ifdef's forgotten elsewhere.
 */
 int /* Open network connection */
-netopen(name, lcl, nett)
-char *name;
-int *lcl, nett;
-{
+netopen(char *name, int *lcl, int nett) {
   return (-1);
 }
 int /* Close network connection */
@@ -352,9 +349,7 @@ netbreak() {
   return (-1);
 }
 int /* Input character from network */
-netinc(timo)
-int timo;
-{
+netinc(int timo) {
   return (-1);
 }
 int /* Output character to network */
@@ -362,12 +357,7 @@ nettoc(CHAR c)
 /* nettoc */ {
   return (-1);
 }
-int nettol(s, n)
-CHAR *s;
-int n;
-{
-  return (-1);
-}
+int nettol(CHAR *s, int n) { return (-1); }
 
 #else /* NETCONN is defined (much of this module...) */
 
