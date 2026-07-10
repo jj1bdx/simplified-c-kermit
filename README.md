@@ -27,6 +27,8 @@
 * Applied clang-format with the flags InsertBraces and SortIncludes enabled
 * Performed basic vulnerability check and the fixes
 * Remove FTP support (equivalent to `-DNOFTP`)
+* Remove RLOGIN support
+* Remove XMODEM/YMODEM/ZMODEM support
 
 ## License
 
