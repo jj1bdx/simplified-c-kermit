@@ -32,7 +32,8 @@
 
 ### For removing possible network vulnerabilities
 
-Use `make linux-nonet` or `make linux-notcp` for removing unwanted network support code from the executable.
+* For Linux: use `make linux-nonet` or `make linux-notcp` for removing unwanted network support code from the executable.
+* For macOS: use `make macos-nonet` or `make macos-notcp` for removing unwanted network support code from the executable.
 
 ## License
 
