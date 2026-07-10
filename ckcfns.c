@@ -4761,11 +4761,7 @@ CHAR *rpar() {
     x |= WMI_CLEAR;
   } else if (clearrq == SET_AUTO &&           /* SET CLEAR-CHANNEL AUTO */
              ((network && nettype == NET_TCPB /* TCP/IP */
-#ifdef RLOGCODE
-               && ttnproto != NP_RLOGIN /* Rlogin is not clear */
-               && !(ttnproto >= NP_K4LOGIN && ttnproto <= NP_EK5LOGIN)
-#endif /* RLOGCODE */
-                   )
+               )
 #ifdef SSHBUILTIN
               || (network && nettype == NET_SSH)
 #endif /* SSHBUILTIN */
@@ -5170,23 +5166,18 @@ int spar(CHAR *s) /* Set parameters */
     debug(F101, "spar streamok", "", streamok);
     debug(F101, "spar clearrq", "", clearrq);
     if (clearrq == SET_ON ||
-        (clearrq == SET_AUTO &&
-         ((network && nettype == NET_TCPB
-#ifdef RLOGCODE
-           && ttnproto != NP_RLOGIN /* Rlogin is not clear */
-           && !(ttnproto >= NP_K4LOGIN && ttnproto <= NP_EK5LOGIN)
-#endif /* RLOGCODE */
+        (clearrq == SET_AUTO && ((network && nettype == NET_TCPB
 #ifdef TN_COMPORT
-           && !istncomport()
+                                  && !istncomport()
 #endif /* TN_COMPORT */
-               )
+                                      )
 #ifdef SSHBUILTIN
-          || (network && nettype == NET_SSH)
+                                 || (network && nettype == NET_SSH)
 #endif /* SSHBUILTIN */
 #ifdef IKSD
-          || inserver
+                                 || inserver
 #endif /* IKSD */
-          )))
+                                 )))
       urclear = (whatru & WMI_CLEAR);
     debug(F101, "spar urclear", "", urclear);
 #ifdef CK_SPEED

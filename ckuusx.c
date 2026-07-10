@@ -5648,9 +5648,6 @@ static int nnetname = (sizeof(netname) / sizeof(char *));
 
 void screenc(int f, char c, CK_OFF_T n, char *s)
 /* screenc() */ {
-#ifdef RLOGCODE
-  extern int ttnproto;
-#endif /* RLOGCODE */
   static int q = 0;
   static long fcnt = 0L;               /* Number of files transferred */
   static CK_OFF_T fsiz = (CK_OFF_T)-1; /* Copy of file size */
@@ -5827,8 +5824,6 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
 #ifdef SSHBUILTIN
           || IS_SSH()
 #endif /* SSHBUILTIN */
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
       ) {
         /* You may get an "unreachable code" warning in builds with no SSL,
          * Kerberos or SSH support. This is OK. */

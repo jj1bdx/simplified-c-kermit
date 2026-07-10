@@ -2324,8 +2324,6 @@ MAINNAME(int argc, char **argv) {
   makestr(&myname, p);
   if (!ckstrcmp(myname, "telnet", -1, 0)) {
     howcalled = I_AM_TELNET;
-  } else if (!ckstrcmp(myname, "rlogin", -1, 0)) {
-    howcalled = I_AM_RLOGIN;
   } else if (!ckstrcmp(myname, "iksd", -1, 0)) {
     howcalled = I_AM_IKSD;
   }

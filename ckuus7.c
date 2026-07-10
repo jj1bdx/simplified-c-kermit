@@ -228,12 +228,6 @@ static struct keytab shteltab[] = {/* TELNET command options */
                                    {"", 0, 0}};
 static int nshteltab = sizeof(shteltab) / sizeof(struct keytab) - 1;
 
-#ifdef RLOGCODE
-static struct keytab shrlgtab[] = {/* SET HOST RLOGIN command options */
-                                   {"", 0, 0}};
-static int nshrlgtab = sizeof(shrlgtab) / sizeof(struct keytab) - 1;
-#endif /* RLOGCODE */
-
 extern struct keytab netcmd[];
 extern int nnets;
 #ifndef NODIAL
@@ -317,16 +311,10 @@ static struct keytab tcprawtab[] = {/* SET HOST options */
                                     {"/no-telnet-init", NP_NONE, 0},
                                     {"/none", NP_NONE, CM_INV},
                                     {"/raw-socket", NP_TCPRAW, 0},
-#ifdef RLOGCODE
-                                    {"/rlogin", NP_RLOGIN, 0},
-#endif /* RLOGCODE */
                                     {"/telnet", NP_TELNET, 0},
                                     {"", 0, 0}};
 static int ntcpraw = (sizeof(tcprawtab) / sizeof(struct keytab)) - 1;
 
-#ifdef RLOGCODE
-int rlog_naws(void);
-#endif /* RLOGCODE */
 #endif /* TCPSOCKET */
 
 #ifdef SUPERLAT
@@ -5829,15 +5817,7 @@ int cx_net(int net, int protocol, char *xhost, char *svc, char *username,
           ckstrncat(line, ":", LINBUFSIZ);
           ckstrncat(line, srvbuf, LINBUFSIZ);
           debug(F110, "cx_net service 5", line, 0);
-        }
-#ifdef RLOGCODE
-        /* If no service given but command was RLOGIN */
-        else if (ttnproto == NP_RLOGIN) { /* add this... */
-          ckstrncat(line, ":login", LINBUFSIZ);
-          debug(F110, "cx_net service 6", line, 0);
-        }
-#endif         /* RLOGCODE */
-        else { /* Otherwise, add ":telnet". */
+        } else { /* Otherwise, add ":telnet". */
           ckstrncat(line, ":telnet", LINBUFSIZ);
           debug(F110, "cx_net service 9", line, 0);
         }
@@ -5850,11 +5830,6 @@ int cx_net(int net, int protocol, char *xhost, char *svc, char *username,
         if (nh_px[1][i] && !uidflag) {
           ckstrncpy(uidbuf, username, UIDBUFLEN);
         }
-#ifdef RLOGCODE
-        if (IS_RLOGIN() && !uidbuf[0]) {
-          return (cx_fail(msg, "Username required"));
-        }
-#endif /* RLOGCODE */
 #endif /* TCPSOCKET */
         break;
       }
@@ -6024,20 +5999,8 @@ int cx_net(int net, int protocol, char *xhost, char *svc, char *username,
         ttnproto = protocol;
         break;
       }
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
 
 #ifndef NOSPL
-#ifdef RLOGCODE
-      if (username) {
-        if (!sl_uid_saved) {
-          ckstrncpy(sl_uidbuf, uidbuf, UIDBUFLEN);
-          sl_uid_saved = 1;
-        }
-        ckstrncpy(uidbuf, username, UIDBUFLEN);
-        uidflag = 1;
-      }
-#endif /* RLOGCODE */
 #ifdef TNCODE
       if (!sl_tn_saved) {
         sl_tn_wait = tn_wait_flg;
@@ -6788,15 +6751,6 @@ int setlin(int xx, int zz, int fc) {
                    &nx);
           }
         }
-#ifdef RLOGCODE
-        else if (mynet == NET_TCPB && ttnproto == NP_RLOGIN) {
-          if (nshrlgtab) {
-            haveswitch++;
-            cmfdbi(&sw, _CMKEY, ss, "", "", nshrlgtab, 4, xxstring, shrlgtab,
-                   &nx);
-          }
-        }
-#endif /* RLOGCODE */
       } else {
         haveswitch++;
         cmfdbi(&sw, _CMKEY, ss, "", "", nshtab, 4, xxstring, shtab, &nx);
@@ -7294,100 +7248,45 @@ int setlin(int xx, int zz, int fc) {
           return (-9);
         }
 #endif /* NOLISTEN */
-#ifdef RLOGCODE
-        /* Allow a username if rlogin is requested */
-        if (mynet == NET_TCPB &&
-            (ttnproto == NP_RLOGIN || ttnproto == NP_K5LOGIN ||
-             ttnproto == NP_EK5LOGIN || ttnproto == NP_K4LOGIN ||
-             ttnproto == NP_EK4LOGIN)) {
-          int y;
-          uidflag = 0;
-          /* Check for "host:service" */
-          for (; (*s != '\0') && (*s != ':'); s++)
-            ;
-          if (*s) { /* Service, save it */
-            *s = NUL;
-            ckstrncpy(srvbuf, ++s, SRVBUFSIZ);
-          } else { /* No :service, then use default. */
-            switch (ttnproto) {
-            case NP_RLOGIN:
-              ckstrncpy(srvbuf, "login", SRVBUFSIZ);
-              break;
-            case NP_K4LOGIN:
-            case NP_K5LOGIN:
-              ckstrncpy(srvbuf, "klogin", SRVBUFSIZ);
-              break;
-            case NP_EK4LOGIN:
-            case NP_EK5LOGIN:
-              ckstrncpy(srvbuf, "eklogin", SRVBUFSIZ);
-              break;
-            }
-          }
-          if (!confirmed) {
-            y = cmfld("Userid on remote system", uidbuf, &s, xxstring);
-            if (y < 0 && y != -3) {
-              return (y);
-            }
-            if ((int)strlen(s) > 63) {
-              makestr(&slmsg, "Internal error");
-              printf("Sorry, too long\n");
-              return (-9);
-            }
-            makestr(&tmpusrid, s);
-          }
-        } else { /* TELNET or SET HOST */
-#endif           /* RLOGCODE */
-          /* Check for "host:service" */
-          for (; (*s != '\0') && (*s != ':'); s++)
-            ;
-          if (*s) { /* Service, save it */
-            *s = NUL;
-            ckstrncpy(srvbuf, ++s, SRVBUFSIZ);
-          } else if (!confirmed) {
-            /* No :service, let them type one. */
-            if (*line != '*') { /* Not incoming */
-              if (mynet == NET_TCPB && ttnproto == NP_KERMIT) {
-                if ((x = cmfld("TCP service name or number", "kermit", &s,
-                               xxstring)) < 0 &&
-                    x != -3) {
-                  return (x);
-                }
-#ifdef RLOGCODE
-              } else if (mynet == NET_TCPB && ttnproto == NP_RLOGIN) {
-                if ((x = cmfld("TCP service name or number,\n or carriage "
-                               "return for rlogin (513)",
-                               "login", &s, xxstring)) < 0 &&
-                    x != -3) {
-                  return (x);
-                }
-#endif /* RLOGCODE */
-              } else {
-                /* Do not set a default value in this call */
-                /* If you do then it will prevent entries  */
-                /* in the network directory from accessing */
-                /* alternate ports.                        */
-
-                if ((x = cmfld("TCP service name or number", "", &s,
-                               xxstring)) < 0 &&
-                    x != -3) {
-                  return (x);
-                }
+        /* Check for "host:service" */
+        for (; (*s != '\0') && (*s != ':'); s++)
+          ;
+        if (*s) { /* Service, save it */
+          *s = NUL;
+          ckstrncpy(srvbuf, ++s, SRVBUFSIZ);
+        } else if (!confirmed) {
+          /* No :service, let them type one. */
+          if (*line != '*') { /* Not incoming */
+            if (mynet == NET_TCPB && ttnproto == NP_KERMIT) {
+              if ((x = cmfld("TCP service name or number", "kermit", &s,
+                             xxstring)) < 0 &&
+                  x != -3) {
+                return (x);
               }
-            } else { /* Incoming connection */
+            } else {
+              /* Do not set a default value in this call */
+              /* If you do then it will prevent entries  */
+              /* in the network directory from accessing */
+              /* alternate ports.                        */
+
               if ((x = cmfld("TCP service name or number", "", &s, xxstring)) <
                       0 &&
                   x != -3) {
                 return (x);
               }
             }
-            if (*s) {                          /* If they gave a service, */
-              ckstrncpy(srvbuf, s, SRVBUFSIZ); /* copy it */
+          } else { /* Incoming connection */
+            if ((x = cmfld("TCP service name or number", "", &s, xxstring)) <
+                    0 &&
+                x != -3) {
+              return (x);
             }
-            debug(F110, "setlin service 0.5", srvbuf, 0);
           }
-#ifdef RLOGCODE
+          if (*s) {                          /* If they gave a service, */
+            ckstrncpy(srvbuf, s, SRVBUFSIZ); /* copy it */
+          }
+          debug(F110, "setlin service 0.5", srvbuf, 0);
         }
-#endif /* RLOGCODE */
         if (!confirmed) {
           char *defproto;
           switch (ttnproto) {

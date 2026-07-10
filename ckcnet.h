@@ -160,7 +160,6 @@ int nettol(CHAR *, int);
 int nettoc(CHAR);
 int net_read(int fd, register char *buf, register int len);
 int net_write(int fd, register const char *buf, int len);
-int rlog_ctrl(unsigned char *cp, int n);
 int locate_txt_rr(char *prefix, char *name, char **retstr);
 
 #ifdef TCPSOCKET
@@ -364,23 +363,6 @@ int x25local_nua(char *);         /* find local NUA */
 #ifndef CKGHNLHOST
 #endif /* CKGHNLHOST */
 
-#ifndef RLOGCODE /* What about Rlogin? */
-#ifndef NORLOGIN
-/*
-  Rlogin can be enabled only for UNIX versions that have both SIGURG
-  (SCO doesn't) and CK_TTGWSIZ (OSF/1 doesn't), so we don't assume that
-  any others have these without verifying first.  Not that it really makes
-  much difference since you can only use Rlogin if you are root...
-*/
-#ifdef __linux__
-#define RLOGCODE
-#else
-#ifdef BSD44
-#define RLOGCODE
-#endif /* BSD44 */
-#endif /* __linux__ */
-#endif /* NORLOGIN */
-#endif /* RLOGCODE */
 #endif /* TCPSOCKET */
 
 #ifdef TNCODE
@@ -608,16 +590,9 @@ char *ckaddr2name(char *);
 
 #endif /* TCPSOCKET */
 
-#ifdef RLOGCODE
-#ifndef CK_TTGWSIZ
-SORRY_RLOGIN_REQUIRES_TTGWSIZ_see_ckcplm
-    .doc
-#endif /* CK_TTGWSIZ */
-#endif /* RLOGCODE */
-
 #ifdef CK_NAWS
 #ifndef CK_TTGWSIZ
-        SORRY_CK_NAWS_REQUIRES_TTGWSIZ_see_ckcplm.doc
+SORRY_CK_NAWS_REQUIRES_TTGWSIZ_see_ckcplm.doc
 #endif /* CK_TTGWSIZ */
 #endif /* CK_NAWS */
 

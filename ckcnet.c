@@ -51,11 +51,6 @@ char *cknetv = "Network support, 10.0.304, 18 Sep 2023";
     Stephen Riehm added support for IBM AIX X.25 in April 1998.
   Other contributions as indicated in the code.
 */
-#ifdef NORLOGIN
-#ifdef RLOGCODE
-#undef RLOGCODE
-#endif /* RLOGCODE */
-#endif /* NORLOGIN */
 
 #define CKCNET_C
 /* clang-format off */
@@ -209,18 +204,6 @@ int tcp_dns_srv = SET_OFF;
 
 char *cmcvtdate(char *, int);
 
-#ifdef RLOGCODE
-int rlog_ctrl(CHAR *, int);
-static int rlog_oob(CHAR *, int);
-#ifndef TCPIPLIB
-static void rlogoobh(int);
-#endif /* TCPIPLIB */
-static int rlog_ini(CHAR *, int, struct sockaddr_in *, struct sockaddr_in *);
-int rlog_mode = RL_COOKED;
-int rlog_stopped = 0;
-int rlog_inband = 0;
-#endif /* RLOGCODE */
-
 #ifndef NOICP
 extern int doconx; /* CONNECT-class command active */
 #endif             /* NOICP */
@@ -248,10 +231,7 @@ int x25_state = X25_CLOSED; /* Default state */
 #endif /* DEBUG */
 
 #ifdef CK_NAWS /* Negotiate About Window Size */
-#ifdef RLOGCODE
-int rlog_naws(void);
-#endif /* RLOGCODE */
-#endif /* CK_NAWS */
+#endif         /* CK_NAWS */
 
 #include "ckcsig.h"
 
@@ -636,21 +616,7 @@ int ttbufr() { /* TT Buffer Read */
         ckhexdump("ttbufr out-of-band chars", &ttibuf[ttibp + ttibn], count);
 #ifdef BETADEBUG
         bleep(BP_NOTE);
-#endif                /* BETADEBUG */
-#ifdef RLOGCODE       /* blah */
-        if (ttnproto == NP_RLOGIN || ttnproto == NP_K4LOGIN ||
-            ttnproto == NP_EK4LOGIN ||
-            ((ttnproto == NP_K5LOGIN || ttnproto == NP_EK5LOGIN) &&
-             !rlog_inband)) {
-          /*
-            When urgent data is read with MSG_OOB and not OOBINLINE
-            then urgent data and normal data are not mixed.  So
-            treat the entire buffer as urgent data.
-          */
-          rlog_oob(&ttibuf[ttibp + ttibn], count);
-          return ttbufr();
-        } else
-#endif /* RLOGCODE */ /* blah */
+#endif /* BETADEBUG */
         {
           /* For any protocols we don't have a special out-of-band  */
           /* handler for, just put the bytes in the normal buffer   */
@@ -1323,16 +1289,11 @@ int timo {
   }
   ttnet = nett; /* TCP/IP (sockets) network */
 
-#ifdef RLOGCODE
-  if (ntohs(saddr.sin_port) == 513) {
-    ttnproto = NP_LOGIN;
-  } else
-#endif /* RLOGCODE */
-    /* Assume the service is TELNET. */
-    /* fdc's code from 2005/12/04 */
-    if (ttnproto != NP_TCPRAW) {
-      ttnproto = NP_TELNET; /* Yes, set global flag. */
-    }
+  /* Assume the service is TELNET. */
+  /* fdc's code from 2005/12/04 */
+  if (ttnproto != NP_TCPRAW) {
+    ttnproto = NP_TELNET; /* Yes, set global flag. */
+  }
   if (tn_ini() < 0) {  /* Start/Reset TELNET negotiations */
     if (ttchk() < 0) { /* Did it fail due to connect loss? */
       return (-1);
@@ -1411,14 +1372,6 @@ int tcpsrv_open(char *name, int *lcl, int nett, int timo) {
     service = &servrec;
     service->s_port = htons(1649);
   }
-#ifdef RLOGCODE
-  if (service && !strcmp("login", p) && service->s_port != htons(513)) {
-    fprintf(stderr, "  Warning: login service on port %d instead of port 513\n",
-            ntohs(service->s_port));
-    fprintf(stderr, "  Edit SERVICES file if RLOGIN fails to connect.\n");
-    debug(F101, "tcpsrv_open login on port", "", ntohs(service->s_port));
-  }
-#endif /* RLOGCODE */
   if (!service) {
     fprintf(stderr, "Cannot find port for service: %s\n", p);
     debug(F111, "tcpsrv_open can't get service", p, errno);
@@ -1883,22 +1836,13 @@ void setnproto(char *p) {
       ttnproto = NP_TELNET;
     } else if (!strcmp("http", p)) {
       ttnproto = NP_TCPRAW;
-    }
-#ifdef RLOGCODE
-    else if (!strcmp("login", p)) {
-      ttnproto = NP_RLOGIN;
-    }
-#endif /* RLOGCODE */
-    else {
+    } else {
       ttnproto = NP_NONE;
     }
   } else {
     switch (atoi(p)) {
     case 23: /* Telnet */
       ttnproto = NP_TELNET;
-      break;
-    case 513:
-      ttnproto = NP_RLOGIN;
       break;
     case 1649:
       ttnproto = NP_KERMIT;
@@ -1977,12 +1921,6 @@ static struct servent *ckgetservice(char *hostname, char *servicename, char *ip,
       service = &servrec;
       service->s_port = htons(80);
     }
-#ifdef RLOGCODE
-    else if (!ckstrcmp("login", servicename, -1, 0)) {
-      service = &servrec;
-      service->s_port = htons(513);
-    }
-#endif /* RLOGCODE */
   }
   return (service);
 }
@@ -2197,11 +2135,7 @@ int netopen(char *name, int *lcl, int nett) {
     debug(F110, "netopen namecopy after stripping", namecopy, 0);
     debug(F110, "netopen p after stripping", p, 0);
     service = getservbyname(namecopy, "tcp");
-    if (service ||
-#ifdef RLOGCODE
-        !ckstrcmp("rlogin", namecopy, NAMECPYL, 0) ||
-#endif /* RLOGCODE */
-        !ckstrcmp("iksd", namecopy, NAMECPYL, 0)) {
+    if (service || !ckstrcmp("iksd", namecopy, NAMECPYL, 0)) {
       char temphost[256], tempservice[80], temppath[256];
       char *q = p, *r = p, *w = p;
       int uidfound = 0;
@@ -2287,12 +2221,6 @@ int netopen(char *name, int *lcl, int nett) {
         if (getservbyname(q, "tcp")) {
           p = q;
         } else {
-#ifdef RLOGCODE
-          /* rlogin is not a valid service */
-          if (!ckstrcmp("rlogin", namecopy, 6, 0)) {
-            ckstrncpy(namecopy, "login", NAMECPYL);
-          }
-#endif /* RLOGCODE */
           /* iksd is not a valid service */
           if (!ckstrcmp("iksd", namecopy, 6, 0)) {
             ckstrncpy(namecopy, "kermit", NAMECPYL);
@@ -2381,15 +2309,6 @@ int netopen(char *name, int *lcl, int nett) {
     ckstrncpy(svcbuf, ckuitoa(ntohs(service->s_port)), sizeof(svcbuf));
     debug(F110, "netopen service ok", svcbuf, 0);
   }
-
-#ifdef RLOGCODE
-  if (service && !strcmp("login", p) && service->s_port != htons(513)) {
-    fprintf(stderr, "  Warning: login service on port %d instead of port 513\n",
-            ntohs(service->s_port));
-    fprintf(stderr, "  Edit SERVICES file if RLOGIN fails to connect.\n");
-    debug(F101, "tcpsrv_open login on port", "", ntohs(service->s_port));
-  }
-#endif /* RLOGCODE */
 
 #ifndef NOHTTP
   /* For HTTP connections we must preserve the original hostname and */
@@ -2577,99 +2496,40 @@ int netopen(char *name, int *lcl, int nett) {
     }
     errno = 0;
 
-#ifdef RLOGCODE
-    /* Not part of the RLOGIN RFC, but the BSD implementation     */
-    /* requires that the client port be a priviliged port (<1024) */
-    /* on a Unix system this would require SuperUser permissions  */
-    /* thereby saying that the root of the Unix system has given  */
-    /* permission for this connection to be created               */
-    if (service->s_port == htons((unsigned short)RLOGIN_PORT)) {
-      static unsigned short lport = 1024; /* max reserved port */
+    /* If a specific TCP address on the local host is desired we */
+    /* must bind it to the socket.                               */
+    if (tcp_address) {
+      int s_errno;
 
-      lport--; /* Make sure we do not reuse a port */
-      if (lport == 512) {
-        lport = 1023;
-      }
-
+      debug(F110, "netopen binding socket to", tcp_address, 0);
+      bzero((char *)&sin, sizeof(sin));
       sin.sin_family = AF_INET;
-      if (tcp_address) {
 #ifdef INADDRX
-        inaddrx = inet_addr(tcp_address);
-        sin.sin_addr.s_addr = *(unsigned long *)&inaddrx;
-#else
-        sin.sin_addr.s_addr = inet_addr(tcp_address);
-#endif /* INADDRX */
-      } else {
-        sin.sin_addr.s_addr = INADDR_ANY;
-      }
-      while (1) {
-        sin.sin_port = htons(lport);
-        if (bind(ttyfd, (struct sockaddr *)&sin, sizeof(sin)) >= 0) {
-          break;
-        }
-        if (errno != EADDRINUSE) {
-          debug(F101, "rlogin bind errno", "", errno);
-          perror("rlogin bind");
-          debug(F101, "rlogin local port", "", lport);
-          netclos();
-          return -1;
-        }
-        lport--;
-        if (lport == 512 /* lowest reserved port to use */) {
-          printf("\nNo reserved ports available.\n");
-          netclos();
-          return -1;
-        }
-      }
-      debug(F101, "rlogin lport", "", lport);
-      ttnproto = NP_RLOGIN;
-    } else
-#endif /* RLOGCODE  */
-
-      /* If a specific TCP address on the local host is desired we */
-      /* must bind it to the socket.                               */
-      if (tcp_address) {
-        int s_errno;
-
-        debug(F110, "netopen binding socket to", tcp_address, 0);
-        bzero((char *)&sin, sizeof(sin));
-        sin.sin_family = AF_INET;
-#ifdef INADDRX
-        inaddrx = inet_addr(tcp_address);
-        sin.sin_addr.s_addr = *(unsigned long *)&inaddrx;
+      inaddrx = inet_addr(tcp_address);
+      sin.sin_addr.s_addr = *(unsigned long *)&inaddrx;
 #else
       sin.sin_addr.s_addr = inet_addr(tcp_address);
 #endif /* INADDRX */
-        sin.sin_port = 0;
-        if (bind(ttyfd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-          s_errno = socket_errno; /* Save error code */
+      sin.sin_port = 0;
+      if (bind(ttyfd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
+        s_errno = socket_errno; /* Save error code */
 #ifdef TCPIPLIB
-          socket_close(ttyfd);
+        socket_close(ttyfd);
 #else  /* TCPIPLIB */
         close(ttyfd);
 #endif /* TCPIPLIB */
-          ttyfd = -1;
-          wasclosed = 1;
-          errno = s_errno; /* and report this error */
-          debug(F101, "netopen bind errno", "", errno);
-          return (-1);
-        }
+        ttyfd = -1;
+        wasclosed = 1;
+        errno = s_errno; /* and report this error */
+        debug(F101, "netopen bind errno", "", errno);
+        return (-1);
       }
+    }
 
     /* Now connect to the socket on the other end. */
 
     if (connect(ttyfd, (struct sockaddr *)&r_addr, sizeof(r_addr)) < 0) {
       i = errno; /* Save error code */
-#ifdef RLOGCODE
-      if (errno == EADDRINUSE && ttnproto == NP_RLOGIN) {
-#ifdef TCPIPLIB
-        socket_close(ttyfd); /* Close it. */
-#else
-        close(ttyfd);
-#endif /* TCPIPLIB */
-        continue; /* Try a different lport */
-      }
-#endif /* RLOGCODE */
 #ifdef HADDRLIST
 #ifdef h_addr
       if (host && host->h_addr_list && host->h_addr_list[1]) {
@@ -2755,11 +2615,6 @@ int netopen(char *name, int *lcl, int nett) {
       ttnproto = NP_TELNET; /* Select TELNET protocol. */
     }
   }
-#ifdef RLOGCODE
-  else if (x == RLOGIN_PORT) {
-    ttnproto = NP_RLOGIN;
-  }
-#endif /* RLOGCODE */
 #ifdef IKS_OPTION
   else if (x == KERMIT_PORT) { /* IKS uses Telnet protocol */
     if (ttnproto == NP_NONE) {
@@ -2769,51 +2624,35 @@ int netopen(char *name, int *lcl, int nett) {
 #endif /* IKS_OPTION */
 
 #ifdef SO_OOBINLINE
-/*
-  The symbol SO_OOBINLINE is not known to Ultrix 2.0.
-  It means "leave out of band data inline".  The normal value is 0x0100,
-  but don't try this on systems where the symbol is undefined.
-*/
-/*
-  Note from Jeff Altman: 12/13/95
-  In implementing rlogin protocol I have come to the conclusion that it is
-  a really bad idea to read out-of-band data inline.
-  At least Windows and OS/2 does not handle this well.
-  And if you need to know that data is out-of-band, then it becomes
-  absolutely pointless.
+  /*
+    The symbol SO_OOBINLINE is not known to Ultrix 2.0.
+    It means "leave out of band data inline".  The normal value is 0x0100,
+    but don't try this on systems where the symbol is undefined.
+  */
+  /*
+    Note from Jeff Altman: 12/13/95
+    In implementing rlogin protocol I have come to the conclusion that it is
+    a really bad idea to read out-of-band data inline.
+    At least Windows and OS/2 does not handle this well.
+    And if you need to know that data is out-of-band, then it becomes
+    absolutely pointless.
 
-  Therefore, at least on OS2 and Windows (NT) I have changed the value of
-  on to 0, so that out-of-band data stays out-of-band.
+    Therefore, at least on OS2 and Windows (NT) I have changed the value of
+    on to 0, so that out-of-band data stays out-of-band.
 
-  12/18/95
-  Actually, OOB data should be read inline when possible.  Especially with
-  protocols that don't care about the Urgent flag.  This is true with Telnet.
-  With Rlogin, you need to be able to catch OOB data.  However, the best
-  way to do this is to set a signal handler on SIGURG.  This isn't possible
-  on OS/2 and Windows.  But it is in UNIX.  We will also need OOB data for
-  FTP so better create a general mechanism.
+    12/18/95
+    Actually, OOB data should be read inline when possible.  Especially with
+    protocols that don't care about the Urgent flag.  This is true with Telnet.
+    With Rlogin, you need to be able to catch OOB data.  However, the best
+    way to do this is to set a signal handler on SIGURG.  This isn't possible
+    on OS/2 and Windows.  But it is in UNIX.  We will also need OOB data for
+    FTP so better create a general mechanism.
 
-  The reason for making OOB data be inline is that the standard ttinc/ttoc
-  calls can be used for reading that data on UNIX systems.  If we didn't
-  have the OOBINLINE option set then we would have to use recv(,MSG_OOB)
-  to read it.
-*/
-#ifdef RLOGCODE
-#ifdef TCPIPLIB
-  if (ttnproto == NP_RLOGIN) {
-    on = 0;
-  }
-#else  /* TCPIPLIB */
-  if (ttnproto == NP_RLOGIN) {
-    debug(F100, "Installing rlogoobh on SIGURG", "", 0);
-    signal(SIGURG, rlogoobh);
-    on = 0;
-  } else {
-    debug(F100, "Ignoring SIGURG", "", 0);
-    signal(SIGURG, SIG_DFL);
-  }
-#endif /* TCPIPLIB */
-#endif /* RLOGCODE */
+    The reason for making OOB data be inline is that the standard ttinc/ttoc
+    calls can be used for reading that data on UNIX systems.  If we didn't
+    have the OOBINLINE option set then we would have to use recv(,MSG_OOB)
+    to read it.
+  */
 
 #ifdef POSIX
   setsockopt(ttyfd, SOL_SOCKET, SO_OOBINLINE, (char *)&on, sizeof on);
@@ -2959,22 +2798,10 @@ int netopen(char *name, int *lcl, int nett) {
   /* This should already have been done but just in case */
   ckstrncpy(ipaddr, (char *)inet_ntoa(r_addr.sin_addr), 20);
 
-#ifdef RLOGCODE
-  if (ttnproto == NP_RLOGIN) { /* Similar deal for rlogin */
-    if (rlog_ini(((tcp_rdns && host && host->h_name && host->h_name[0])
-                      ? (CHAR *)host->h_name
-                      : (CHAR *)ipaddr),
-                 service->s_port, &l_addr, &r_addr) < 0) {
-      debug(F100, "rlogin initialization failed", "", 0);
-      netclos();
-      return (-1);
-    }
-  } else
-#endif /* RLOGCODE */
-    if (tn_ini() < 0) { /* Start Telnet negotiations. */
-      netclos();
-      return (-1); /* Gone, so open failed.  */
-    }
+  if (tn_ini() < 0) { /* Start Telnet negotiations. */
+    netclos();
+    return (-1); /* Gone, so open failed.  */
+  }
   if (ttchk() < 0) {
     netclos();
     return (-1);
@@ -3194,10 +3021,7 @@ nettchk() { /* for reading from network */
    */
   /* we know now that count >= 0 and that ttibn == 0 */
 
-  if (count == 0
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
-  ) {
+  if (count == 0) {
     int s_errno = 0;
 #ifndef NOCOUNT
 /*
@@ -4054,333 +3878,7 @@ int getlocalipaddrs(char *buf, int bufsz, int index) {
   return (-1);
 }
 
-#ifdef RLOGCODE /* TCP/IP RLOGIN protocol support code */
-#ifdef CK_NAWS
-int rlog_naws(void) {
-  struct rlog_naws {
-    unsigned char id[4];
-    unsigned short rows, cols, ypix, xpix;
-  } nawsbuf;
-
-  if (ttnet != NET_TCPB) {
-    return 0;
-  }
-  if (ttnproto != NP_RLOGIN) {
-    return 0;
-  }
-  if (!TELOPT_ME(TELOPT_NAWS)) {
-    return 0;
-  }
-
-  debug(F100, "rlogin Window Size sent", "", 0);
-
-  nawsbuf.id[0] = nawsbuf.id[1] = 0377;
-  nawsbuf.id[2] = nawsbuf.id[3] = 's';
-  nawsbuf.rows = htons((unsigned short)tt_rows);
-  nawsbuf.cols = htons((unsigned short)tt_cols);
-  nawsbuf.ypix = htons(0); /* y pixels */
-
-  nawsbuf.xpix = htons(0); /* x pixels */
-  if (ttol((CHAR *)(&nawsbuf), sizeof(nawsbuf)) < 0) {
-    return (-1);
-  }
-  return (0);
-}
-#endif /* CK_NAWS */
 #endif /* NOTCPIP */
-
-#ifndef NORLOGIN
-#define RLOGOUTBUF
-static int rlog_ini(CHAR *hostname, int port, struct sockaddr_in *l_addr,
-                    struct sockaddr_in *r_addr)
-/* rlog_ini */ {
-
-#ifdef RLOGOUTBUF
-  char outbuf[512];
-  int outbytes = 0;
-#endif /* RLOGOUTBUF */
-  int flag = 0;
-#define TERMLEN 16
-#define CONSPDLEN 16
-  CHAR localuser[UIDBUFLEN + 1];
-  CHAR remoteuser[UIDBUFLEN + 1];
-  int userlen = 0;
-  CHAR term_speed[TERMLEN + CONSPDLEN + 1];
-#ifdef CONGSPD
-  long conspd = -1L;
-#endif /* CONGSPD */
-  int i, n;
-
-  int rc = 0;
-  tn_reset(); /* This call will reset all of the Telnet */
-              /* options and then quit.  We need to do  */
-              /* this since we use the Telnet options   */
-              /* to hold various state information      */
-  duplex = 0; /* Rlogin is always remote echo */
-  rlog_inband = 0;
-
-#ifdef CK_TTGWSIZ
-  /*
-    But compute the values anyway before the first read since the out-
-    of-band NAWS request would arrive before the first data byte (NULL).
-  */
-  debug(F101, "rlog_ini tt_rows 1", "", tt_rows);
-  debug(F101, "rlog_ini tt_cols 1", "", tt_cols);
-  if (tt_rows < 0 || tt_cols < 0) { /* Not known yet */
-    ttgwsiz();                      /* Try to find out */
-  }
-  debug(F101, "rlog_ini tt_rows 2", "", tt_rows);
-  debug(F101, "rlog_ini tt_cols 2", "", tt_cols);
-#endif /* CK_TTGWSIZ */
-
-  ttflui(); /* Start by flushing the buffers */
-
-  rlog_mode = RL_COOKED;
-
-  /* Determine the user's local username ... */
-
-  localuser[0] = '\0';
-  {
-    char *user = getenv("USER");
-    if (!user) {
-      user = "";
-    }
-    userlen = strlen(user);
-    debug(F111, "rlogin getenv(USER)", user, userlen);
-    ckstrncpy((char *)localuser, user, UIDBUFLEN);
-    debug(F110, "rlog_ini localuser 1", localuser, 0);
-  }
-  if (!localuser[0]) {
-    strcpy((char *)localuser, "unknown");
-  } else if (ck_lcname) {
-    cklower((char *)localuser);
-    debug(F110, "rlog_ini localuser 2", localuser, 0);
-  }
-
-  /* And the username to login with */
-  if (uidbuf[0]) {
-    ckstrncpy((char *)remoteuser, uidbuf, UIDBUFLEN);
-    debug(F110, "rlog_ini remoteuser 1", remoteuser, 0);
-  } else if (localuser[0]) {
-    ckstrncpy((char *)remoteuser, (char *)localuser, UIDBUFLEN);
-    debug(F110, "rlog_ini remoteuser 2", remoteuser, 0);
-  } else {
-    remoteuser[0] = '\0';
-    debug(F110, "rlog_ini remoteuser 3", remoteuser, 0);
-  }
-  if (ck_lcname) {
-    cklower((char *)remoteuser);
-  }
-  debug(F110, "rlog_ini remoteuser 4", remoteuser, 0);
-
-  /* The command to issue is the terminal type and speed */
-  term_speed[0] = '\0';
-  if (tn_term) {    /* SET TELNET TERMINAL-TYPE value */
-    if (*tn_term) { /* (if any) takes precedence. */
-      ckstrncpy((char *)term_speed, tn_term, TERMLEN);
-      flag = 1;
-    }
-  } else { /* Otherwise the local terminal type */
-    /* In the others, we just look at the TERM environment variable */
-    {
-      char *p = getenv("TERM");
-      if (p) {
-        ckstrncpy((char *)term_speed, p, TERMLEN);
-      } else {
-        term_speed[0] = '\0';
-      }
-    }
-  }
-  n = strlen((char *)term_speed);
-  if (n > 0) {                  /* We have a terminal type */
-    if (!flag) {                /* If not user-specified */
-      for (i = 0; i < n; i++) { /* then lowercase it.    */
-        if (isupper(term_speed[i])) {
-          term_speed[i] = tolower(term_speed[i]);
-        }
-      }
-    }
-    debug(F110, "rlog_ini term_speed 1", term_speed, 0);
-
-#ifdef CONGSPD
-    /* conspd() is not yet defined in all ck*tio.c modules */
-    conspd = congspd();
-    if (conspd > 0L) {
-      ckstrncat((char *)term_speed, "/", sizeof(term_speed));
-      ckstrncat((char *)term_speed, ckltoa(conspd), sizeof(term_speed));
-    } else
-#endif /* CONGSPD */
-      ckstrncat((char *)term_speed, "/19200", sizeof(term_speed));
-    debug(F110, "rlog_ini term_speed 2", term_speed, 0);
-  } else {
-    term_speed[0] = '\0';
-    debug(F110, "rlog_ini term_speed 3", term_speed, 0);
-  }
-
-  if (ttnproto == NP_RLOGIN) {
-#ifdef RLOGOUTBUF
-    /*
-     *  The rcmds start the connection with a series of init data:
-     *
-     *    a port number upon which client is listening for stderr data
-     *    the user's name on the client machine
-     *    the user's name on the server machine
-     *    the terminal_type/speed or command to execute
-     */
-    outbuf[outbytes++] = 0;
-    strcpy((char *)outbuf + outbytes, (char *)localuser);
-    outbytes += strlen((char *)localuser) + 1;
-    strcpy((char *)outbuf + outbytes, (char *)remoteuser);
-    outbytes += strlen((char *)remoteuser) + 1;
-    strcpy((char *)outbuf + outbytes, (char *)term_speed);
-    outbytes += strlen((char *)term_speed) + 1;
-    rc = ttol((CHAR *)outbuf, outbytes);
-#else  /* RLOGOUTBUF */
-    ttoc(0); /* Send an initial NUL as wake-up */
-    /* Send each variable with the trailing NUL */
-    rc = ttol(localuser, strlen((char *)localuser) + 1);
-    if (rc > 0) {
-      rc = ttol(remoteuser, strlen((char *)remoteuser) + 1);
-    }
-    if (rc > 0) {
-      rc = ttol(term_speed, strlen((char *)term_speed) + 1);
-    }
-#endif /* RLOGOUTBUF */
-
-    /* Now we are supposed to get back a single NUL as confirmation */
-    errno = 0;
-    rc = ttinc(60);
-    debug(F101, "rlogin first ttinc", "", rc);
-    if (rc > 0) {
-      debug(F101, "rlogin ttinc 1", "", rc);
-      printf("Rlogin protocol error - 0x%x received instead of 0x00\n", rc);
-      return (-1);
-    } else if (rc < 0) {
-      debug(F101, "rlogin ttinc errno", "", errno);
-      /* printf("Network error: %d\n", errno); */
-      return (-1);
-    }
-  }
-  return (0);
-}
-/* two control messages are defined:
-
-   a double flag byte of 'o' indicates a one-byte message which is
-   identical to what was once carried out of band.
-
-   a double flag byte of 'q' indicates a zero-byte message.  This
-   message is interpreted as two \377 data bytes.  This is just a
-   quote rule so that binary data from the server does not confuse the
-   client.  */
-
-int rlog_ctrl(unsigned char *cp, int n) {
-  if ((n >= 5) && (cp[2] == 'o') && (cp[3] == 'o')) {
-    if (rlog_oob(&cp[4], 1)) {
-      return (-5);
-    }
-    return (5);
-  } else if ((n >= 4) && (cp[2] == 'q') && (cp[3] == 'q')) {
-    /* this is somewhat of a hack */
-    cp[2] = '\377';
-    cp[3] = '\377';
-    return (2);
-  }
-  return (0);
-}
-
-static int rlog_oob(CHAR *oobdata, int count) {
-  int i;
-  int flush = 0;
-
-  debug(F111, "rlogin out_of_band", "count", count);
-
-  for (i = 0; i < count; i++) {
-    debug(F101, "rlogin out_of_band", "", oobdata[i]);
-    if (oobdata[i] & 0x01) {
-      continue;
-    }
-
-    if (oobdata[i] & 0x02) { /* Flush Buffered Data not yet displayed */
-      debug(F101, "rlogin Flush Buffered Data command", "", oobdata[i]);
-
-      /* Only flush the data if in fact we are in a mode that won't */
-      /* get out of sync.  Ie, not when we are in protocol mode.    */
-      switch (what) {
-      case W_NOTHING:
-      case W_CONNECT:
-      case W_COMMAND:
-        if (rlog_inband) {
-          flush = 1;
-        } else {
-          ttflui();
-        }
-        break;
-      }
-    }
-    if (oobdata[i] & 0x10) { /* Switch to RAW mode */
-      debug(F101, "rlogin Raw Mode command", "", oobdata[i]);
-      rlog_mode = RL_RAW;
-    }
-
-    if (oobdata[i] & 0x20) { /* Switch to COOKED mode */
-      debug(F101, "rlogin Cooked Mode command", "", oobdata[i]);
-      rlog_mode = RL_COOKED;
-    }
-    if (oobdata[i] & 0x80) { /* Send Window Size Info */
-      debug(F101, "rlogin Window Size command", "", oobdata[i]);
-      /* Remember to send WS Info when Window Size changes */
-      if (!TELOPT_ME(TELOPT_NAWS)) {
-        TELOPT_ME(TELOPT_NAWS) = 1;
-        rlog_naws();
-      }
-    }
-  }
-  return (flush);
-}
-#ifndef TCPIPLIB
-static void rlogoobh(int sig) {
-  CHAR oobdata;
-
-  /* int  count = 0; */ /* (not used) */
-
-  while (recv(ttyfd, &oobdata, 1, MSG_OOB) < 0) {
-    /*
-     * We need to do some special processing here.
-     * Just in case the socket is blocked for input
-     *
-     */
-    switch (errno) {
-    case EWOULDBLOCK:
-      break;
-    default:
-      return;
-    }
-  }
-  debug(F101, "rlogin out_of_band", "", oobdata);
-  if (oobdata == 0x02) { /* Flush Buffered Data not yet displayed */
-    debug(F101, "rlogin Flush Buffered Data command", "", oobdata);
-    netflui();
-  }
-  if (oobdata & 0x10) { /* Switch to raw mode */
-    debug(F101, "rlogin Raw Mode command", "", oobdata);
-    rlog_mode = RL_RAW;
-  }
-  if (oobdata & 0x20) { /* Switch to cooked mode */
-    debug(F101, "rlogin Cooked Mode command", "", oobdata);
-    rlog_mode = RL_COOKED;
-  }
-  if (oobdata & 0x80) { /* Send Window Size Info */
-    debug(F101, "rlogin Window Size command", "", oobdata);
-    /* Remember to send WS Info when Window Size changes */
-    if (!TELOPT_ME(TELOPT_NAWS)) {
-      TELOPT_ME(TELOPT_NAWS) = 1;
-      rlog_naws();
-    }
-  }
-}
-#endif /* TCPIPLIB */
-#endif /* RLOGCODE */
-#endif /* NORLOGIN */
 
 /* Send network BREAK */
 /*

@@ -3178,22 +3178,6 @@ int pxyz(int);
 
 #ifdef NETCONN
 #ifdef TCPSOCKET
-#ifdef RLOGCODE
-	    if (network && ttnproto == NP_RLOGIN) {
-		switch (tn_b_nlm) { /* Always BINARY */
-		  case TNL_CR:
-		    break;
-		  case TNL_CRNUL:
-		    stuff2 = stuff;
-		    stuff  = NUL;
-		    break;
-		  case TNL_CRLF:
-		    stuff2 = stuff;
-		    stuff = LF;
-		    break;
-		}
-	    }
-#endif /* RLOGCODE */
 #endif /* TCPSOCKET */
 #endif /* NETCONN */
 

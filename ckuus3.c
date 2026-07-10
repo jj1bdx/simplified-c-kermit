@@ -4958,8 +4958,6 @@ long dologshow(int fc) /* SHOW (current) CONNECTION */
       x++;
     }
 #endif /* SSHBUILTIN */
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
 #endif /* NETCONN */
     if (z > 0) {
       printf(" Encrypted:    %s\n", x ? "Yes" : "No");

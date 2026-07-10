@@ -64,10 +64,7 @@ int sstelnet = 0; /* Do server-side Telnet negotiation */
 #endif /* NOTERM */
 
 #ifdef CK_NAWS /* Negotiate About Window Size */
-#ifdef RLOGCODE
-int rlog_naws(void);
-#endif /* RLOGCODE */
-#endif /* CK_NAWS */
+#endif         /* CK_NAWS */
 
 int tn_init = 0;         /* Telnet protocol initialized flag */
 int tn_begun = 0;        /* Telnet protocol started flag */

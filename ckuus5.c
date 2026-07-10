@@ -9141,9 +9141,6 @@ static void initoptlist() {
   makestr(&(optlist[noptlist++]), "CK_SOCKS_NS");
 #endif /* CK_SOCKS_NS */
 #endif /* CK_SOCKS */
-#ifdef RLOGCODE
-  makestr(&(optlist[noptlist++]), "RLOGCODE");
-#endif /* RLOGCODE */
 #ifdef NETCMD
   makestr(&(optlist[noptlist++]), "NETCMD");
 #endif /* NETCMD */
@@ -10564,17 +10561,6 @@ int shofea() {
       lines = 0;
     }
   }
-#ifdef NOTELNET
-  printf(" No built-in TELNET client\n");
-  if (++lines > cmd_rows - 3) {
-    if (!askmore()) {
-      return (1);
-    } else {
-      lines = 0;
-    }
-  }
-#endif /* NOTELNET */
-#ifdef NORLOGIN
   printf(" No built-in RLOGIN client\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10583,7 +10569,6 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NORLOGIN */
 #ifdef NOHTTP
   printf(" No built-in HTTP client\n");
   if (++lines > cmd_rows - 3) {

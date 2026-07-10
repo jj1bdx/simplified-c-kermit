@@ -804,8 +804,8 @@ static ck_sig_t savdanger = NULL;
 
 #ifndef NOJC
 static ck_sig_t jchdlr = NULL; /* For checking suspend handler */
-#endif                             /* NOJC */
-static int jcshell = -1;           /* And flag for result */
+#endif                         /* NOJC */
+static int jcshell = -1;       /* And flag for result */
 
 /*
   BREAKNULS is defined for systems that simulate sending a BREAK signal
@@ -1015,7 +1015,7 @@ void xtimerh(int foo) {
 
 /* Control-C trap for communication line input functions */
 
-int cc_int;        /* Flag */
+int cc_int;    /* Flag */
 ck_sig_t occt; /* For saving old SIGINT handler */
 
 /*ARGSUSED*/
@@ -1189,10 +1189,6 @@ int ttgwsiz() {
 #endif /* NONAWS */
 }
 
-#ifdef RLOGCODE
-int rlog_naws(void);
-#endif /* RLOGCODE */
-
 #ifndef NOSIGWINCH
 #ifdef SIGWINCH
 void winchh(int foo) /* SIGWINCH handler */
@@ -1260,9 +1256,6 @@ void winchh(int foo) /* SIGWINCH handler */
 #ifndef NOTTGWSIZ
   if (x > 0 && tt_rows > 0 && tt_cols > 0) {
     tn_snaws();
-#ifdef RLOGCODE
-    rlog_naws();
-#endif /* RLOGCODE */
   }
 #endif /* NOTTGWSIZ */
 #endif /* TCPSOCKET */
@@ -7492,9 +7485,6 @@ static int in_chk(int channel, int fd) {
 
   /* We seem to have a connection so now see if any bytes are waiting on it */
 
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
-
   errno = 0; /* Reset this so we log good info */
 #ifdef FIONREAD
   x = ioctl(fd, FIONREAD, &n); /* BSD and lots of others */
@@ -7750,8 +7740,6 @@ int ttxin(int n, CHAR *buf) {
       break;
     }
     buf[x++] = c & ttpmsk;
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
   }
 #else
   debug(F101, "ttxin READ", "", n);
@@ -10532,8 +10520,6 @@ int tt_is_secure() { /* Tells whether the current connection is secure */
 #ifdef SSHBUILTIN
       || IS_SSH()
 #endif /* SSHBUILTIN */
-#ifdef RLOGCODE
-#endif /* RLOGCODE */
   )
     return (1);
   return (0);

@@ -116,21 +116,24 @@
 
 #endif /* NOSPL */
 /*
-  Disinclude features that are "deprecated" in 2022;
-  on amd64 this saves about 185K out of 2.48MB, so this is really more
-  about political correctness that saving space.  -fdc 12 May 2022
+  RLOGIN client removed 2026-07-10: the old NODEPRECATED flag (which defined
+  NOTELNET and NORLOGIN -- features "deprecated" in 2022, -fdc 12 May 2022)
+  is hard-wired on, so NORLOGIN is permanently defined and (via the former
+  RLOGCODE arbitration in ckcnet.h) RLOGCODE is permanently undefined: the
+  built-in Rlogin client is gone and the RLOGIN command always reports "not
+  configured".  There is no re-enable escape hatch.  NOTELNET is defined
+  too, for parity with NODEPRECATED, but it never disabled the TELNET
+  command or the Telnet protocol engine (ckctel.c), which remain fully
+  functional; the old block's "#undef TNCODE" was a no-op because the
+  TCPSOCKET-implies-TNCODE backstops further down re-define it.
+  See doc/NODEPRECATED-20260709.md.
 */
-#ifdef NODEPRECATED
-#ifndef NOTELNET /* No more Telnet client */
+#ifndef NOTELNET
 #define NOTELNET
 #endif /* NOTELNET */
-#ifdef TNCODE
-#undef TNCODE
-#endif           /* TNCODE */
-#ifndef NORLOGIN /* No more RLOGIN client */
+#ifndef NORLOGIN
 #define NORLOGIN
 #endif /* NORLOGIN */
-#endif /* NODEPRECATED */
 /*
   As of 26 September 2022, the Arrow-key feature is included only if
   explicitly requested because the API is disappearing not only in glibc
@@ -302,9 +305,6 @@
 #ifdef NETPTY
 #undef NETPTY
 #endif /* NETPTY */
-#ifdef RLOGCODE
-#undef RLOGCODE
-#endif /* RLOGCODE */
 #ifdef NETDLL
 #undef NETDLL
 #endif /* NETDLL */
@@ -413,9 +413,6 @@
 /* #ifdef NETPTY */
 /* #undef NETPTY */
 /* #endif NETPTY */
-#ifdef RLOGCODE
-#undef RLOGCODE
-#endif /* RLOGCODE */
 #ifdef NETDLL
 #undef NETDLL
 #endif         /* NETDLL */
@@ -463,9 +460,6 @@
 #ifdef NETPTY
 #undef NETPTY
 #endif /* NETPTY */
-#ifdef RLOGCODE
-#undef RLOGCODE
-#endif /* RLOGCODE */
 #ifdef NETDLL
 #undef NETDLL
 #endif /* NETDLL */
@@ -3669,10 +3663,7 @@ struct tm *cmdate2tm(char *, int);
 #endif            /* NOHTTP */
 #ifndef NOBROWSER /* no Web browser... */
 #define NOBROWSER
-#endif           /* NOBROWSER */
-#ifndef NORLOGIN /* no Rlogin... */
-#define NORLOGIN
-#endif      /* NORLOGIN */
+#endif      /* NOBROWSER */
 #ifdef IKSD /* No Internet Kermit Server */
 #undef IKSD
 #endif /* IKSD */

@@ -11231,23 +11231,8 @@ int docmd(int cx) {
 #endif /* SFTP_BUILTIN */
 
   if (cx == XXRLOG) { /* RLOGIN */
-#ifdef RLOGCODE
-    int x, z;
-    x = nettype;  /* Save net type in case of failure */
-    z = ttnproto; /* Save protocol in case of failure */
-    nettype = NET_TCPB;
-    ttnproto = NP_RLOGIN;
-    if ((y = setlin(XYHOST, 0, 1)) <= 0) {
-      nettype = x;  /* Failed, restore net type. */
-      ttnproto = z; /* and protocol */
-      success = 0;
-    }
-    didsetlin++;
-    return (y);
-#else
     printf("?Sorry, RLOGIN is not configured in this copy of C-Kermit.\n");
     return (-9);
-#endif /* RLOGCODE */
   }
 #endif /* NOLOCAL */
 

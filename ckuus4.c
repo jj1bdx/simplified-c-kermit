@@ -3923,14 +3923,6 @@ void shoparc() {
         printf(" (SECURE)");
       }
     }
-#ifdef RLOGCODE
-    else if (ttnproto == NP_RLOGIN || ttnproto == NP_K4LOGIN ||
-             ttnproto == NP_K5LOGIN)
-      printf(", rlogin protocol");
-    else if (ttnproto == NP_EK4LOGIN || ttnproto == NP_EK5LOGIN) {
-      printf(", rlogin protocol (SECURE)");
-    }
-#endif /* RLOGCODE */
 #endif /* NETCONN */
   }
   printf("\n");
@@ -4895,18 +4887,6 @@ int shonet() {
 #endif /* SSHBUILTIN */
 
   if (nettype == NET_TCPA || nettype == NET_TCPB) {
-#ifdef RLOGCODE
-    if (ttnproto == NP_RLOGIN) {
-      printf(" LOGIN (rlogin) protocol\n");
-      if (++n > cmd_rows - 3) {
-        if (!askmore()) {
-          return (0);
-        } else {
-          n = 0;
-        }
-      }
-    }
-#endif /* RLOGCODE */
 
 #ifdef TNCODE
     if (IS_TELNET()) {

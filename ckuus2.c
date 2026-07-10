@@ -244,9 +244,6 @@ char *introtxt[] = {
     "   - SSH connections via external agent",
 #endif /* ANYSSH */
 #endif /* SSHBUILTIN */
-#ifdef RLOGCODE
-    "   - Rlogin sessions",
-#endif /* RLOGCODE */
 #ifdef CKHTTP
     "   - HTTP 1.1 sessions",
 #endif /* CKHTTP */
@@ -376,9 +373,6 @@ char *introtxt[] = {
 #ifdef TNCODE
     "  TELNET                 Select a Telnet host and CONNECT to it",
 #endif /* TNCODE */
-#ifdef RLOGCODE
-    "  RLOGIN                 Select an Rlogin host and CONNECT to it",
-#endif /* RLOGCODE */
 #ifdef ANYSSH
     "  SSH [ OPEN ]           Select an SSH host and CONNECT to it",
 #endif /* ANYSSH */
@@ -6289,14 +6283,6 @@ sent successfully is deleted after it is sent."));
     return (hmsga(hxtopt));
 #endif /* TNCODE */
 
-#ifdef RLOGCODE
-  case XXRLOG:
-    return (hmsg("Syntax: RLOGIN [ switches ] [ host [ username ] ]\n\
-  Equivalent to SET NETWORK TYPE TCP/IP, SET HOST host [ service ] /RLOGIN,\n\
-  IF SUCCESS CONNECT.  If host is omitted, the previous connection (if any)\n\
-  is resumed.  Depending on how Kermit has been built switches may be\n\
-  available to require Kerberos authentication and DES encryption."));
-#endif /* RLOGCODE */
 #endif /* TCPSOCKET */
 
 #ifndef NOXMIT
@@ -7307,11 +7293,6 @@ Enter CONNECT (terminal) mode automatically if the connection is successful.",
     " /RAW-SOCKET",
     "   This is a connection to a raw TCP socket.",
     " ",
-#ifdef RLOGCODE
-    " /RLOGIN",
-    "   Use Rlogin protocol even if this is not an Rlogin port.",
-    " ",
-#endif /* RLOGCODE */
     " /TELNET",
     "   Send initial Telnet negotiations even if this is not a Telnet port.",
     " ",
@@ -7383,15 +7364,11 @@ static char *hxynet[] = {
 #endif /* SUPERLAT */
     " ",
     "If only one network type is listed above, that is the default network for",
-#ifdef RLOGCODE
-    "SET HOST commands.  Also see SET HOST, TELNET, RLOGIN.",
-#else
 #ifdef TNCODE
     "SET HOST commands.  Also see SET HOST, TELNET.",
 #else
     "SET HOST commands.  Also see SET HOST.",
 #endif /* TNCODE */
-#endif /* RLOGCODE */
     " ",
     "SET NETWORK DIRECTORY [ file [ file [ ... ] ] ]",
     "  Specifies the name(s) of zero or more network directory files, similar "

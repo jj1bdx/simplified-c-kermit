@@ -162,7 +162,6 @@ char *zgperm(char *);
 char *ziperm(char *);
 char *zjdate(char *);
 char *zlocaltime(char *);
-int rlog_ctrl(unsigned char *, int);
 int addlocal(char *);
 int addmac(char *, char *);
 int addmmac(char *, char *[]);

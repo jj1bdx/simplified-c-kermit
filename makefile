@@ -155,13 +155,13 @@ CKVER= "10.0 Beta.12"
 # + "make linux"   - Linux, any version, any architecture (auto-detecting).
 #                    Sub-variants: "make linux-clang" (build with clang),
 #                    "make linux-nonet" / "make linux-notcp" (no networking),
-#                    "make linux-nodeprecated", "make linux-pedantic".
+#                    "make linux-pedantic".
 # + "make macos"   - macOS 10.12 (Sierra) and later, Intel or Apple Silicon.
 # + "make freebsd" - FreeBSD 4.1 or later (auto-detecting).
 # + "make netbsd"  - NetBSD, any version.  Sub-variants: "make netbsd-clang",
 #                    "make netbsdnc" (no curses), "make netbsdn" (ncurses),
 #                    "make netbsd-nonet" / "make netbsd-notcp",
-#                    "make netbsd-nodeprecated", "make netbsd-pedantic".
+#                    "make netbsd-pedantic".
 # + "make openbsd" - OpenBSD 2.3 or later.
 # + "make mirbsd"  - MirBSD.
 #
@@ -754,17 +754,6 @@ netbsd-notcp:
 	"LNKFLAGS = $(LNKFLAGS)" \
 	netbsd
 
-# NetBSD with "legacy" and deprecated features removed:
-# FTP, Telnet, Rlogin, Wtmp logging, and arrow keys, 
-# which depend on a deprecated API that has no undeprecated replacement.
-netbsd-nodeprecated: \
-	# Dummy comment \
-	@echo 'Making C-Kermit $(CKVER) for Linux without deprecated features'
-	$(MAKE) KTARGET=$${KTARGET:-$(@)} \
-	KFLAGS="-DNODEPRECATED $(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)" \
-	netbsd
-
 #NetBSD with curses left out (e.g. for use as IKSD).
 netbsdnc:
 	@echo Making C-Kermit $(CKVER) for NetBSD with no curses...
@@ -1039,16 +1028,6 @@ linux gnu-linux:
 # Force compilation with clang
 linux-clang linuxclang:
 	$(MAKE) CC=clang CC2=clang linux
-
-# Linux with "legacy" and "deprecated" features removed:
-# FTP, Telnet, Rlogin, Wtmp logging.  And arrow keys, which depend on
-# a deprecated API that as yet has no undeprecated replacement. 
-linux-nodeprecated: \
-	# Dummy comment \
-	@echo 'Making C-Kermit $(CKVER) for Linux without deprecated features'
-	$(MAKE) linux KTARGET=$${KTARGET:-$(@)} \
-	KFLAGS="-DNODEPRECATED $(KFLAGS)" \
-	"LNKFLAGS = $(LNKFLAGS)"
 
 # Linux with pedantic warnings (force gcc)
 linux-pedantic:
