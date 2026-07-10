@@ -1795,13 +1795,6 @@ struct keytab prmtab[] = {
 #endif /* NOSPL */
     {"exit", XYEXIT, 0},
 #ifndef NOXFER
-#ifdef CK_XYZ
-#ifndef NOPUSH
-#ifndef XYZ_INTERNAL
-    {"external-protocol", XYEXTRN, 0},
-#endif /* XYZ_INTERNAL */
-#endif /* NOPUSH */
-#endif /* CK_XYZ */
     {"f-ack-bug", XYFACKB, CM_INV},
     {"f-ack-path", XYFACKP, CM_INV},
 #endif /* NOXFER */
@@ -2825,11 +2818,7 @@ static struct keytab sndtab[] = {/* SEND command options */
                                  {"/not-before", SND_NBE, CM_ARG},
                                  {"/pathnames", SND_PTH, CM_ARG},
                                  {"/print", SND_PRI, CM_ARG},
-#ifdef CK_XYZ
-                                 {"/protocol", SND_PRO, CM_ARG},
-#else
                                  {"/protocol", SND_PRO, CM_ARG | CM_INV},
-#endif /* CK_XYZ */
                                  {"/quiet", SND_SHH, 0},
                                  {"/recover", SND_RES, 0},
 #ifdef RECURSIVE
@@ -2886,9 +2875,6 @@ static struct keytab msndtab[] = {/* MSEND options */
                                   {"/not-before", SND_NBE, CM_ARG},
                                   {"/pathnames", SND_PTH, CM_ARG},
                                   {"/print", SND_PRI, CM_ARG},
-#ifdef CK_XYZ
-                                  {"/protocol", SND_PRO, CM_ARG},
-#endif /* CK_XYZ */
                                   {"/quiet", SND_SHH, 0},
                                   {"/recover", SND_RES, 0},
                                   {"/rename-to", SND_REN, CM_ARG},
@@ -4237,24 +4223,7 @@ int doxsend(int cx) {
       x = -9;
       goto xsendx;
     }
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("?Sorry, SEND /START works only with Kermit protocol\n");
-      x = -9;
-      goto xsendx;
-    }
-#endif /* CK_XYZ */
   }
-#ifdef CK_XYZ
-  if (pv[SND_RES].ival > 0) {
-    if (protocol != PROTO_K && protocol != PROTO_Z) {
-      printf(
-          "Sorry, /RECOVER is possible only with Kermit or ZMODEM protocol\n");
-      x = -9;
-      goto xsendx;
-    }
-  }
-#endif /* CK_XYZ */
 #endif /* CK_RESEND */
 
   if (protocol == PROTO_K) {
@@ -4268,15 +4237,6 @@ int doxsend(int cx) {
       goto xsendx;
     }
   }
-
-#ifdef CK_XYZ
-  if (wild && (protocol == PROTO_X || protocol == PROTO_XC)) {
-    printf(
-        "Sorry, you can only send one file at a time with XMODEM protocol\n");
-    x = -9;
-    goto xsendx;
-  }
-#endif /* CK_XYZ */
 
   if (!confirmed) { /* CR not typed yet, get more fields */
     char *m;
@@ -4396,14 +4356,6 @@ like \\v(filename)";
     }
     debug(F111, "xsend", p, n);
 #endif /* DEBUG */
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("Sorry, %s available only with Kermit protocol\n",
-             (n == SND_MAI) ? "/MAIL" : "/PRINT");
-      x = -9;
-      goto xsendx;
-    }
-#endif /* CK_XYZ */
     debug(F101, "xsend print/mail wild", "", wild);
     *optbuf = NUL;  /* Wipe out any old options */
     s = pv[n].sval; /* mail address or print switch val */
@@ -4719,11 +4671,7 @@ sendend: /* Common successful exit */
   }
 #endif /* CK_APC */
 #ifdef IKS_OPTION
-  if (
-#ifdef CK_XYZ
-      protocol == PROTO_K &&
-#endif /* CK_XYZ */
-      !iks_wait(KERMIT_REQ_START, 1)) {
+  if (!iks_wait(KERMIT_REQ_START, 1)) {
     printf("?A Kermit Server is not available to process this command.\n");
     printf("?Start a RECEIVE command to complement this command.\n");
   }
@@ -5131,12 +5079,10 @@ static int addsend(int cx) {
     return (-9);
   }
 #ifndef NOMSEND
-#ifndef XYZ_INTERNAL
   if (protocol != PROTO_K) {
     printf("?Sorry, ADD SEND-LIST does not work with external protocols\n");
     return (-9);
   }
-#endif /* XYZ_INTERNAL */
 
   x = cmifi("File specification to add", "", &s, &y, xxstring);
   if (x < 0) {
@@ -7941,19 +7887,9 @@ int docmd(int cx) {
       printf("?No connection - use EXIT to quit.\n");
       return (-9);
     }
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("?Sorry, BYE only works with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
 
 #ifdef IKS_OPTION
-    if (
-#ifdef CK_XYZ
-        protocol == PROTO_K &&
-#endif /* CK_XYZ */
-        !iks_wait(KERMIT_REQ_START, 1)) {
+    if (!iks_wait(KERMIT_REQ_START, 1)) {
       printf("?A Kermit Server is not available to process this command\n");
       return (-9); /* Correct the return code */
     }
@@ -8493,12 +8429,6 @@ int docmd(int cx) {
 #ifndef NOXFER
 #ifndef NOFRILLS
   if (cx == XXERR) { /* ERROR */
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("Sorry, E-PACKET only works with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
     if ((x = cmcfm()) < 0) {
       return (x);
     }
@@ -8510,22 +8440,12 @@ int docmd(int cx) {
 #endif /* NOFRILLS */
 
   if (cx == XXFIN) { /* FINISH */
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("Sorry, FINISH only works with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
     if ((x = cmcfm()) < 0) {
       return (x);
     }
 
 #ifdef IKS_OPTION
-    if (
-#ifdef CK_XYZ
-        protocol == PROTO_K &&
-#endif /* CK_XYZ */
-        !iks_wait(KERMIT_REQ_START, 1)) {
+    if (!iks_wait(KERMIT_REQ_START, 1)) {
       printf("?A Kermit Server is not available to process this command\n");
       return (-9); /* Correct the return code */
     }
@@ -8982,12 +8902,6 @@ int docmd(int cx) {
 
 #ifndef NOXFER
   if (cx == XXREM) { /* REMOTE */
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("Sorry, REMOTE commands only work with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
     x = cmkey(remcmd, nrmt, "Remote Kermit server command", "", xxstring);
     if (x == -3) {
       printf("?You must specify a command for the remote server\n");
@@ -9134,12 +9048,6 @@ int docmd(int cx) {
       return (-9);
     }
 #endif /* PIPESEND */
-#ifdef CK_XYZ
-    if ((protocol == PROTO_X || protocol == PROTO_XC)) {
-      printf("Sorry, PSEND works only with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
 
     cmarg2 = brstrip(tmpbuf); /* Strip braces */
     cmarg = line;             /* File to send */
@@ -9163,13 +9071,6 @@ int docmd(int cx) {
 #ifndef NOXFER
 #ifndef NOMSEND
   if (cx == XXMSE || cx == XXMMOVE) {
-#ifdef CK_XYZ
-    if (protocol == PROTO_X || protocol == PROTO_XC) {
-      printf(
-          "Sorry, you can only send one file at a time with XMODEM protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
     return (doxsend(cx));
   }
 
@@ -9178,12 +9079,6 @@ int docmd(int cx) {
 
 #ifndef NOSERVER
   if (cx == XXSER) { /* SERVER */
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {
-      printf("Sorry, SERVER only works with Kermit protocol\n");
-      return (-9);
-    }
-#endif /* CK_XYZ */
 
     if ((x = cmcfm()) < 0) {
       return (x);

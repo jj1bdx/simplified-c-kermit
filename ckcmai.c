@@ -595,47 +595,32 @@ int haveurl = 0;                         /* URL given on command line */
 #ifndef NOXFER
 /* Multi-protocol support */
 
-struct ck_p ptab[NPROTOS] =
-    {                   /* Initialize the Kermit part ... */
-     {"Kermit", DRPSIZ, /* Receive packet size */
-      DSPSIZ,           /* Send packet size */
-      0,                /* Send-packet-size-set flag */
-      DFWSIZ,           /* Window size */
+struct ck_p ptab[NPROTOS] = {
+    /* Initialize the Kermit part ... */
+    {"Kermit", DRPSIZ, /* Receive packet size */
+     DSPSIZ,           /* Send packet size */
+     0,                /* Send-packet-size-set flag */
+     DFWSIZ,           /* Window size */
 
 #ifdef NEWDEFAULTS
-      PX_CAU, /* Control char unprefixing... */
+     PX_CAU, /* Control char unprefixing... */
 #else
-    PX_ALL,
+     PX_ALL,
 #endif /* NEWDEFAULTS */
 
-      XYFX_B, /* BACKUP for everybody else */
+     XYFX_B, /* BACKUP for everybody else */
 
-      XYFN_C, /* Converted for others */
+     XYFN_C, /* Converted for others */
 
-      PATH_OFF,  /* Send pathnames OFF */
-      PATH_AUTO, /* Receive pathnames AUTO */
-      NULL,      /* Host receive initiation string (binary) */
-      NULL,      /* Host receive initiation string (text)   */
-      NULL,      /* Host server string */
-      NULL,      /* External protocol send command (binary) */
-      NULL,      /* External protocol send command (text)   */
-      NULL,      /* External protocol receive command (bin) */
-      NULL}      /* External protocol receive command (txt) */
-#ifdef CK_XYZ
-     ,
-     {"XMODEM", 128, 128, -1, -1, 1, -1, -1, 0, 0, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL},
-     {"XMODEM-CRC", 128, 128, -1, -1, -1, -1, -1, 0, 0, NULL, NULL, NULL, NULL,
-      NULL, NULL, NULL},
-     {"YMODEM", -1, -1, -1, -1, -1, -1, -1, 0, 0, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL},
-     {"YMODEM-g", -1, -1, -1, -1, -1, -1, -1, 0, 0, NULL, NULL, NULL, NULL,
-      NULL, NULL, NULL},
-     {"ZMODEM", -1, -1, -1, -1, PX_WIL, -1, -1, 0, 0, NULL, NULL, NULL, NULL,
-      NULL, NULL, NULL},
-     {"Other", -1, -1, -1, -1, -1, -1, -1, 0, 0, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL}
-#endif /* CK_XYZ */
+     PATH_OFF,  /* Send pathnames OFF */
+     PATH_AUTO, /* Receive pathnames AUTO */
+     NULL,      /* Host receive initiation string (binary) */
+     NULL,      /* Host receive initiation string (text)   */
+     NULL,      /* Host server string */
+     NULL,      /* External protocol send command (binary) */
+     NULL,      /* External protocol send command (text)   */
+     NULL,      /* External protocol receive command (bin) */
+     NULL}      /* External protocol receive command (txt) */
 };
 
 /* Declarations for Send-Init Parameters */
@@ -2448,41 +2433,9 @@ MAINNAME(int argc, char **argv) {
 #ifndef NOXFER
   initxlist(); /* Init exception lists */
 
-#ifdef CK_XYZ /* Initialize protocols...  */
-
-#ifdef XYZ_INTERNAL /* XYZMODEM are internal ... */
-
-  initproto(PROTO_X, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-  initproto(PROTO_XC, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-  initproto(PROTO_Y, "rb", "rb", NULL, NULL, NULL, NULL, NULL);
-  initproto(PROTO_G, "rb", "rb", NULL, NULL, NULL, NULL, NULL);
-  initproto(PROTO_Z, "rz", "rz", NULL, NULL, NULL, NULL, NULL);
-  initproto(PROTO_K, "kermit -ir", "kermit -r", "kermit -x", NULL, NULL, NULL,
-            NULL);
-  /* Kermit Must be last */
-
-#else /* XYZMODEM are external protocols ... */
-
-  /*                  s1      s2     s3    s4      s5         s6      s7     */
-  initproto(PROTO_X, "rx %s", "rx %s", NULL, "sx %s", "sx -a %s", "rx %s",
-            "rx %s");
-  initproto(PROTO_XC, "rc %s", "rc %s", NULL, "sx %s", "sx -a %s", "rc %s",
-            "rc %s");
-  initproto(PROTO_Y, "rb", "rb", NULL, "sb %s", "sb -a %s", "rb", "rb");
-  initproto(PROTO_G, "rb", "rb", NULL, "sb %s", "sb -a %s", "rb", "rb");
-  initproto(PROTO_Z, "rz", "rz", NULL, "sz %s", "sz -a %s", "rz", "rz");
-  initproto(PROTO_K, "kermit -ir", "kermit -r", "kermit -x", NULL, NULL, NULL,
-            NULL);
-  /* Kermit must be last */
-
-#endif /* XYZ_INTERNAL */
-
-#else /* No XYZMODEM support */
-
   initproto(PROTO_K, "kermit -ir", "kermit -r", "kermit -x", NULL, NULL, NULL,
             NULL);
 
-#endif /* CK_XYZ */
 #endif /* NOXFER */
 
   connoi(); /* Console interrupts off */

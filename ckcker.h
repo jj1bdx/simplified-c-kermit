@@ -88,17 +88,7 @@
 /* File transfer protocols */
 
 #define PROTO_K 0 /*   Kermit   */
-#ifdef CK_XYZ
-#define PROTO_X 1  /*   XMODEM     */
-#define PROTO_XC 2 /*   XMODEM-CRC */
-#define PROTO_Y 3  /*   YMODEM     */
-#define PROTO_G 4  /*   YMODEM-g */
-#define PROTO_Z 5  /*   ZMODEM   */
-#define PROTO_O 6  /*   OTHER    */
-#define NPROTOS 7  /*   How many */
-#else
 #define NPROTOS 1 /*   How many */
-#endif            /* CK_XYZ */
 
 struct ck_p {     /* C-Kermit Protocol info structure */
   char *p_name;   /* Protocol name */
@@ -1237,9 +1227,6 @@ int shoesc(int);
 int chkspkt(char *);
 int kstart(CHAR);
 void autodown(int);
-#ifdef CK_XYZ
-int zstart(CHAR);
-#endif /* CK_XYZ */
 #endif /* CK_APC */
 
 /* User Query data structures and functions */

@@ -1366,11 +1366,6 @@ static struct keytab tstab[] = {/* SET TRANSFER/XFER table */
                                 XYX_PIPRCV,
                                 0,
 #endif /* PIPESEND */
-#ifdef CK_XYZ
-                                "protocol",
-                                XYX_PRO,
-                                0,
-#endif /* CK_XYZ */
                                 "report",
                                 XYX_RPT,
                                 0,
@@ -2121,15 +2116,9 @@ struct keytab ftrtab[] = {/* Feature table */
                           0,
 #endif /* UNICODE */
 
-#ifdef CK_XYZ
-                          "xyzmodem",
-                          0,
-                          0,
-#else
                           "xyzmodem",
                           1,
                           0,
-#endif /* CK_XYZ */
 
                           "",
                           0,
@@ -6886,44 +6875,12 @@ static int noptstab = (sizeof(optstab) / sizeof(struct keytab)) - 1;
   external protocol.
 */
 struct keytab protos[] = {
-#ifdef CK_XYZ
-    "g",
-    PROTO_G,
-    CM_INV,
-#endif /* CK_XYZ */
     "kermit",
     PROTO_K,
     0,
-#ifdef CK_XYZ
-    "other",
-    PROTO_O,
-    0,
-    "x",
-    PROTO_X,
-    CM_INV | CM_ABR,
-    "xmodem",
-    PROTO_X,
-    0,
-    "xmodem-crc",
-    PROTO_XC,
-    0,
-    "y",
-    PROTO_Y,
-    CM_INV | CM_ABR,
-    "ymodem",
-    PROTO_Y,
-    0,
-    "ymodem-g",
-    PROTO_G,
-    0,
-    "zmodem",
-    PROTO_Z,
-    0
-#endif /* CK_XYZ */
 };
 int nprotos = (sizeof(protos) / sizeof(struct keytab));
 
-#ifndef XYZ_INTERNAL
 #ifndef NOPUSH
 #define EXP_HANDLER 1
 #define EXP_STDERR 2
@@ -6934,7 +6891,6 @@ static struct keytab extprotab[] = {{"handler", EXP_HANDLER, 0},
                                     {"timeout", EXP_TIMO, 0}};
 static int nxtprotab = (sizeof(extprotab) / sizeof(struct keytab));
 #endif /* NOPUSH */
-#endif /* XYZ_INTERNAL */
 
 #define XPCMDLEN 71
 
@@ -6981,13 +6937,9 @@ static int setproto() { /* Select a file transfer protocol */
   extern void initproto(int, char *, char *, char *, char *, char *, char *,
                         char *);
 
-#ifdef XYZ_INTERNAL
-  extern int p_avail;
-#else
 #ifndef CK_REDIR
   x = 1;
 #endif /* CK_REDIR */
-#endif /* XYZ_INTERNAL */
   s1[0] = NUL;
   s2[0] = NUL;
   s3[0] = NUL;
@@ -7017,13 +6969,6 @@ static int setproto() { /* Select a file transfer protocol */
        * like all the others which is why the existing behaviour is being
        * left as-is for now.
        * */
-#ifdef XYZ_INTERNAL
-      if (!p_avail) {
-        bleep(BP_WARN);
-        printf("\n?X,Y, and Zmodem are unavailable\n");
-        return (success = 0);
-      }
-#endif              /* XYZ_INTERNAL */
       protocol = y; /* Set protocol but don't change */
       return (1);   /* anything else */
     } else {
@@ -7053,8 +6998,6 @@ static int setproto() { /* Select a file transfer protocol */
       }
     }
   }
-
-#ifndef XYZ_INTERNAL /* If XYZMODEM are external... */
 
   if (y != PROTO_K) {
     if ((x = protofield(
@@ -7098,21 +7041,12 @@ static int setproto() { /* Select a file transfer protocol */
       }
     }
   }
-#endif /* XYZ_INTERNAL */
 
   if ((x = cmcfm()) < 0) { /* Confirm the command */
     return (x);
   }
 
 protoexit: /* Common exit from this routine */
-
-#ifdef XYZ_INTERNAL
-  if (!p_avail) {
-    bleep(BP_WARN);
-    printf("\n?X,Y, and Zmodem are unavailable\n");
-    return (success = 0);
-  }
-#endif /* XYZ_INTERNAL */
 
   p1 = brstrip(p1);
   p2 = brstrip(p2);
@@ -7126,7 +7060,6 @@ protoexit: /* Common exit from this routine */
 }
 
 #ifndef NOPUSH
-#ifndef XYZ_INTERNAL
 
 #define DEF_EXP_TIMO 12 /* Default timeout for external protocol (seconds) */
 
@@ -7166,7 +7099,6 @@ int setextern() { /* SET EXTERNAL-PROTOCOL */
   }
   return (success = 1);
 }
-#endif /* XYZ_INTERNAL */
 #endif /* NOPUSH */
 
 int setdest() {
@@ -11612,15 +11544,7 @@ int doprm(int xx, int rmsflg) {
       y = cmnum("Window size for Kermit protocol, 1 to 32", "1", 10, &x,
                 xxstring);
       y = setnum(&z, x, y, MAXWS); /* == 32 */
-    }
-#ifdef CK_XYZ
-    else if (protocol == PROTO_Z) {
-      y = cmnum("Window size for ZMODEM protocol, 0 to 65535", "0", 10, &x,
-                xxstring);
-      y = setnum(&z, x, y, 65535);
-    }
-#endif /* CK_XYZ */
-    else {
+    } else {
       y = cmnum("Window size for current protocol", "", 10, &x, xxstring);
       y = setnum(&z, x, y, 65472); /* Doesn't matter - we won't use it */
     }
@@ -11632,21 +11556,6 @@ int doprm(int xx, int rmsflg) {
         z = 1;
       }
     }
-#ifdef CK_XYZ
-    else if (protocol == PROTO_Z) {
-      /* Zmodem windowing is closer to Kermit packet length */
-      /* than Kermit window size.  If Window size is zero   */
-      /* an end of frame and CRC is sent only at the end of */
-      /* the file (default).  Otherwise, an End of Frame    */
-      /* and CRC are sent after Window Size number of bytes */
-      if (z < 0) { /* Disable windowing  */
-        z = 0;
-      }
-    } else {
-      printf("?SET WINDOW does not apply to %s protocol\n",
-             ptab[protocol].p_name);
-    }
-#endif /* CK_XYZ */
 
     if (protocol == PROTO_K && rmsflg) { /* Set remote window size */
       wslotr = z;                        /* Set local window size too */
@@ -12625,10 +12534,8 @@ int doprm(int xx, int rmsflg) {
 #ifndef NOPUSH
 #ifdef CK_REDIR
 #ifndef NOXFER
-#ifndef XYZ_INTERNAL
   case XYEXTRN: /* SET EXTERNAL-PROTOCOL */
     return (setextern());
-#endif /* XYZ_INTERNAL */
 #endif /* NOXFER */
 #endif /* CK_REDIR */
 #endif /* NOPUSH */

@@ -2898,21 +2898,6 @@ proto() {
 	      tn_wait("proto set binary mode");
         }
 #ifdef IKS_OPTION
-#ifdef CK_XYZ
-        if (protocol != PROTO_K) {	/* Non-Kermit protocol selected */
-            if (TELOPT_U(TELOPT_KERMIT) &&
-                TELOPT_SB(TELOPT_KERMIT).kermit.u_start) {
-                iks_wait(KERMIT_REQ_STOP,0); /* Stop the other Server */
-		/* _u_start = 1; */
-            }
-            if (TELOPT_ME(TELOPT_KERMIT) &&
-                TELOPT_SB(TELOPT_KERMIT).kermit.me_start) {
-                tn_siks(KERMIT_STOP);	/* I'm not servering */
-	 	TELOPT_SB(TELOPT_KERMIT).kermit.me_start = 0;
-		_me_start = 1;
-            }
-        } else
-#endif /* CK_XYZ */
         if (sstate == 'x' || sstate == 'v') { /* Responding to a request */
             if (!inserver && TELOPT_U(TELOPT_KERMIT) &&
                 TELOPT_SB(TELOPT_KERMIT).kermit.u_start) {
@@ -3031,11 +3016,6 @@ static void
 xxproto() {
     int x;
     long lx;
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-int pxyz(int);
-#endif /* XYZ_INTERNAL */
-#endif /* CK_XYZ */
 
     char xss[2];			/* String representation of sstate */
     xss[0] = sstate;
@@ -3140,20 +3120,7 @@ int pxyz(int);
 	    int stuff = -1, stuff2 = -1, len = 0;
 	    extern int tnlm;
 	    if (sstate == 's') {	/* Sending file(s) */
-#ifdef CK_XYZ
-		if (protocol == PROTO_X) {
-		    char * s2;
-		    s2 = cmarg2[0] ? cmarg2 : cmarg;
-		    if ((int)strlen(s) + (int)strlen(s2) + 4 < 356)
-		      sprintf(tmpbuf, s, s2);
-		    else
-		      tmpbuf[0] = NUL;
-		} else {
-#endif /* CK_XYZ */
 		    ckmakmsg(tmpbuf, 356, s, NULL, NULL, NULL);
-#ifdef CK_XYZ
-		}
-#endif /* CK_XYZ */
 	    } else {			/* Command for server */
 		ckstrncpy(tmpbuf,s,356);
 	    }
@@ -3194,84 +3161,6 @@ int pxyz(int);
 	}
     }
 
-#ifdef CK_XYZ
-    if (protocol != PROTO_K) {		/* Non-Kermit protocol selected */
-	char tmpbuf[356];
-	int tmpbufsiz = 356;
-	char * s = "";
-
-#ifdef CK_TMPDIR
-	if (sstate == 'v') {		/* If receiving and... */
-	    if (dldir && !f_tmpdir) {	/* if they have a download directory */
-                if ((s = zgtdir())) {   /* Get current directory */
-		    if (zchdir(dldir)) { /* Change to download directory */
-			ckstrncpy(savdir,s,TMPDIRLEN);
-			f_tmpdir = 1;	/* Remember that we did this */
-		    }
-		}
-	    }
-	}
-#endif /* CK_TMPDIR */
-
-#ifdef XYZ_INTERNAL			/* Internal */
-	success = !pxyz(sstate);
-#else
-#ifdef CK_REDIR				/* External */
-	switch (sstate) {
-	  case 's':			/* 'Tis better to SEND... */
-	    s = binary ? ptab[protocol].p_b_scmd : ptab[protocol].p_t_scmd;
-	    break;
-	  case 'v':			/* ... than RECEIVE */
-	    s = binary ? ptab[protocol].p_b_rcmd : ptab[protocol].p_t_rcmd;
-	    break;
-	}
-	if (!s) s = "";
-	if (*s) {
-	    if (sstate == 's') {	/* Sending */
-		extern int xfermode;
-		int k = 0, x = 0, b = binary;
-		/*
-		  If just one file we can scan it to set the xfer mode.
-		  Otherwise it's up to the external protocol program.
-		*/
-		if (patterns && xfermode == XMODE_A && !iswild(fspec)) {
-		    extern int nscanfile;
-		    k = scanfile(fspec,&x,nscanfile);
-		    if (k > -1) {
-			b = (k == FT_BIN) ? XYFT_B : XYFT_T;
-			s = b ?
-			    ptab[protocol].p_b_scmd :
-			    ptab[protocol].p_t_scmd;
-		    }
-		}
-		if ((int)strlen(s) + (int)strlen(fspec) < tmpbufsiz) {
-		    sprintf(tmpbuf,s,fspec); /* safe (prechecked) */
-		    tlog(F110,"Sending",fspec,0L);
-		}
-	    } else {			/* Receiving */
-		if ((int)strlen(s) + (int)strlen(cmarg2) < tmpbufsiz) {
-		    sprintf(tmpbuf,s,cmarg2); /* safe (prechecked) */
-		    tlog(F110,"Receiving",cmarg2,0L);
-		}
-	    }
-	    tlog(F110," via external protocol:",tmpbuf,0);
-	    debug(F110,"ckcpro ttruncmd",tmpbuf,0);
-	    success = ttruncmd(tmpbuf);
-	    tlog(F110," status:",success ? "OK" : "FAILED", 0);
-	} else {
-	    printf("?Sorry, no external protocol defined for %s\r\n",
-		   ptab[protocol].p_name
-		   );
-	}
-#else
-	printf(
-"Sorry, only Kermit protocol is supported in this version of Kermit\n"
-	       );
-#endif /* CK_REDIR */
-#endif /* XYZ_INTERNAL */
-	return;
-    }
-#endif /* CK_XYZ */
 
     if (!local)
       connoi();				/* No console interrupts if remote */

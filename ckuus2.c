@@ -1108,53 +1108,6 @@ static char *hxyfunc[] = {
 #endif /* NOSPL */
 
 static char *hxyxyz[] = {
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-
-    /* This is for built-in protocols */
-
-    "Syntax: SET PROTOCOL { KERMIT, XMODEM, YMODEM, ZMODEM } [ s1 s2 [ s3 ] ]",
-    "  Selects protocol to use for transferring files.  String s1 is a command "
-    "to",
-    "  send to the remote host prior to SENDing files with this protocol in",
-    "  binary mode; string s2 is the same thing but for text mode.  Use \"%s\" "
-    "in",
-    "  any of these strings to represent the filename(s).  If the protocol is",
-    "  KERMIT, you may also specify a string s3, the command to start a Kermit",
-    "  server on the remote host when you give a GET, REGET, REMOTE, or other",
-    "  client command.  Use { braces } if any command contains spaces.  "
-    "Examples:",
-    " ",
-    "    set proto xmodem {rx %s} {rx -a %s}",
-    "    set proto kermit {kermit -YQir} {kermit -YQTr} {kermit -YQx}",
-
-#else  /* This is for when non-Kermit protocols are external */
-
-    "Syntax: \
-SET PROTOCOL { KERMIT, XMODEM, YMODEM, ZMODEM } [ s1 s2 s3 s4 s5 s6 ]",
-    "  Selects protocol to use for transferring files.  s1 and s2 are commands "
-    "to",
-    "  output prior to SENDing with this protocol, to automatically start the",
-    "  RECEIVE process on the other end in binary or text mode, respectively.",
-    "  If the protocol is KERMIT, s3 is the command to start a Kermit server "
-    "on",
-    "  the remote computer, and there are no s4-s6 commands.  Otherwise, s3 "
-    "and",
-    "  s4 are commands used on this computer for sending files with this "
-    "protocol",
-    "  in binary or text mode, respectively; s5 and s6 are the commands for",
-    "  receiving files with this protocol.  Use \"%s\" in any of these strings",
-    "  to represent the filename(s).  Use { braces } if any command contains",
-    "  spaces.  Examples:",
-    " ",
-    "    set proto kermit {kermit -YQir} {kermit -YQTr} {kermit -YQx}",
-    "    set proto ymodem rb {rb -a} {sb %s} {sb -a %s} rb rb",
-    " ",
-    "External protocols require REDIRECT and external file transfer programs "
-    "that",
-    "use redirectable standard input/output.",
-#endif /* XYZ_INTERNAL */
-#else
     "Syntax: \
 SET PROTOCOL KERMIT [ s1 [ s2 [ s3 ] ] ]",
     "  Lets you specify the autoupload binary, autoupload text, and autoserver",
@@ -1165,7 +1118,6 @@ SET PROTOCOL KERMIT [ s1 [ s2 [ s3 ] ] ]",
     "  Example:",
     " ",
     "    set proto kermit {kermit -Yir} {kermit -YTr} {kermit -Yx}",
-#endif /* CK_XYZ */
     " ",
     "  SHOW PROTOCOL displays the current settings.",
     ""};
@@ -2719,12 +2671,6 @@ static char *hmxxsen[] = {
     "/PRINT:options",
     "  Sends the file to be printed, with optional options for the printer.",
     " ",
-#ifdef CK_XYZ
-    "/PROTOCOL:name",
-    "  Uses the given protocol to send the file (Kermit, Zmodem, etc) for this",
-    "  transfer without changing global protocol.",
-    " ",
-#endif /* CK_XYZ */
     "/AFTER:date-time",
     "  Specifies that only those files modified after the given date-time are",
     "  to be sent.  HELP DATE for info about date-time formats.",
@@ -7110,14 +7056,8 @@ static char *hxyterm[] = {
     "SET TERMINAL AUTODOWNLOAD { ON, OFF, ERROR { STOP, CONTINUE } }",
     "  Enables/disables automatic switching into file-transfer mode when a "
     "valid",
-#ifdef CK_XYZ
-    "  Kermit or ZMODEM packet of the appropriate type is received during "
-    "CONNECT",
-    "  mode.  Default is OFF.",
-#else
     "  Kermit packet of the appropriate type is received during CONNECT mode.",
     "  Default is OFF.",
-#endif /* CK_XYZ */
 
     " ",
     "  When TERMINAL AUTODOWNLOAD is ON, the TERMINAL AUTODOWNLOAD ERROR "
@@ -7710,21 +7650,11 @@ static char *hxywind[] = {
     "packets",
     "  that can be transmitted before waiting for acknowledgement.  The "
     "default",
-#ifdef XYZ_INTERNAL
-    "  for Kermit protocol is one, the maximum is 32; for ZMODEM, the default",
-    "  is no windowing (0).  For ZMODEM, the window size is really the packet",
-    "  length, and is used only when non-windowed (streaming) transfers fail; "
-    "the",
-    "  ZMODEM window size should be a largish number, like 1024, and it should "
-    "be",
-    "  a multiple of 64.",
-#else
     "  is one, the maximum is 32.  Increased window size might result in "
     "reduced",
     "  maximum packet length.  Use sliding windows for improved efficiency on",
     "  connections with long delays.  A full duplex connection is required, as",
     "  well as a cooperating Kermit on the other end.",
-#endif /* XYZ_INTERNAL */
     ""};
 
 static char *hxyrpt[] = {
@@ -8046,11 +7976,6 @@ static char *hxyxfer[] = {
     "  the incoming filename starts with '!'.  Also see CSEND, CRECEIVE.",
     " ",
 #endif /* PIPESEND */
-#ifdef CK_XYZ
-    "SET TRANSFER PROTOCOL { KERMIT, XMODEM, ... }",
-    "  Synonym for SET PROTOCOL (q.v.).",
-    " ",
-#endif /* CK_XYZ */
     "SET TRANSFER REPORT { ON, OFF }",
     "  Enables/Disables the automatic post-transfer message telling what files",
     "  went where from C-Kermit when it is in remote mode.  ON by default.",

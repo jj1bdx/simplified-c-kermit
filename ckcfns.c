@@ -308,11 +308,9 @@ CHAR myinit[MYINITLEN]; /* Copy of my Send-Init data */
 /* Variables local to this module */
 
 #ifdef TLOG
-#ifndef XYZ_INTERNAL
-static
-#endif /* XYZ_INTERNAL */
-    char *fncnam[] = {"rename", "replace", "backup",       "append", "discard",
-                      "ask",    "update",  "dates-differ", ""};
+static char *fncnam[] = {"rename", "replace",      "backup",
+                         "append", "discard",      "ask",
+                         "update", "dates-differ", ""};
 #endif /* TLOG */
 
 static char *memptr; /* Pointer for memory strings */

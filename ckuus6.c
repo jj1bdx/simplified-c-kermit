@@ -342,11 +342,7 @@ static struct keytab rcvtab[] = {/* RECEIVE options */
 #endif /* CK_TMPDIR */
                                  {"/pathnames", SND_PTH, CM_ARG},
                                  {"/pipes", SND_PIP, CM_ARG | CM_PSH},
-#ifdef CK_XYZ
-                                 {"/protocol", SND_PRO, CM_ARG},
-#else
                                  {"/protocol", SND_PRO, CM_ARG | CM_INV},
-#endif /* CK_XYZ */
                                  {"/quiet", SND_SHH, 0},
                                  {"/recursive", SND_REC, 0},
                                  {"/rename-to", SND_REN, CM_ARG},
@@ -10212,13 +10208,6 @@ int doxget(int cx) {
   debug(F111, "xget rcvcmd", cmdstr, rcvcmd);
   debug(F101, "xget konly", "", konly);
 
-#ifdef CK_XYZ
-  if (!rcvcmd && protocol != PROTO_K) {
-    printf("?Sorry, %s works only with Kermit protocol\n", cmdstr);
-    return (-9);
-  }
-#endif /* CK_XYZ */
-
   /* Set up chained parse functions... */
 
   cmfdbi(&sw,    /* First FDB - command switches */
@@ -10644,11 +10633,7 @@ int doxget(int cx) {
   }
 
 #ifdef IKS_OPTION
-  if (!rcvcmd
-#ifdef CK_XYZ
-      && protocol == PROTO_K
-#endif /* CK_XYZ */
-  ) {
+  if (!rcvcmd) {
     if (!iks_wait(KERMIT_REQ_START, 1)) {
       printf("?A Kermit Server is not available to process this command\n");
       x = -9; /* correct the return code */
@@ -10656,23 +10641,6 @@ int doxget(int cx) {
     }
   }
 #endif /* IKS_OPTION */
-
-#ifdef CK_XYZ
-  {
-    int po, pg;                 /* (for clarity) */
-    po = pv[SND_PRO].ival;      /* /PROTOCOL option */
-    pg = protocol;              /* Protocol global  */
-    if ((rcvcmd && !*cmarg2) && /* If no as-name was given */
-        /* and /PROTOCOL is XMODEM or global protocol is XMODEM... */
-        ((po < 0 && (pg == PROTO_X || pg == PROTO_XC)) ||
-         (po > -1 && (po == PROTO_X || po == PROTO_XC)))) {
-      printf("Sorry, you must specify a name when receiving a file with XMODEM "
-             "protocol\n");
-      x = -9;
-      goto xgetx;
-    }
-  }
-#endif /* CK_XYZ */
 
 #ifdef RECURSIVE
   if (pv[SND_REC].ival > 0) { /* RECURSIVE */

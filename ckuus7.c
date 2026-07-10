@@ -3267,14 +3267,6 @@ setsr(int xx, int rmsflg) {
           ptab[protocol].rpktlen = urpsiz;
           rpsiz = (y > 94) ? 94 : y;
         } else {
-#ifdef CK_XYZ
-          if ((protocol == PROTO_X || protocol == PROTO_XC) && z != 128 &&
-              z != 1024) {
-            printf("Sorry, bad packet length for XMODEM.\n");
-            printf("Please use 128 or 1024.\n");
-            return (-9);
-          }
-#endif /* CK_XYZ */
           urpsiz = rpsiz = z;
         }
       }
@@ -3301,14 +3293,6 @@ setsr(int xx, int rmsflg) {
       } else {
         y = z;
       }
-#ifdef CK_XYZ
-      if ((protocol == PROTO_X || protocol == PROTO_XC) && z != 128 &&
-          z != 1024) {
-        printf("Sorry, bad packet length for XMODEM.\n");
-        printf("Please use 128 or 1024.\n");
-        return (-9);
-      }
-#endif                            /* CK_XYZ */
       spsiz = spmax = spsizr = y; /* Set it and flag that it was set */
       spsizf = 1;                 /* to allow overriding Send-Init. */
       ptab[protocol].spktflg = spsizf;

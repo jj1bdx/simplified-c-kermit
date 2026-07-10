@@ -216,10 +216,7 @@
 #ifdef NOXFER
 #ifndef NOCURSES /* Fullscreen file-transfer display */
 #define NOCURSES
-#endif          /* NOCURSES */
-#ifndef NOCKXYZ /* XYZMODEM support */
-#define NOCKXYZ
-#endif            /* NOCKXYZ */
+#endif            /* NOCURSES */
 #ifndef NOCKSPEED /* Ctrl-char unprefixing */
 #define NOCKSPEED
 #endif           /* NOCKSPEED */
@@ -258,10 +255,7 @@
 #ifdef NOICP   /* No Interactive Command Parser */
 #ifndef NODIAL /* Implies No DIAL command */
 #define NODIAL
-#endif          /* NODIAL */
-#ifndef NOCKXYZ /* and no external protocols */
-#define NOCKXYZ
-#endif /* NOCKXYZ */
+#endif /* NODIAL */
 #endif /* NOICP */
 
 #ifndef NOIKSD
@@ -2915,31 +2909,17 @@ int ttinl(CHAR *, int, int, CHAR);
 /* XYZMODEM support */
 
 /*
-  CK_XYZ enables the various commands and data structures.
-  XYZ_INTERNAL means these protocols are built-in; if not defined,
-  then they are external.  XYZ_DLL is used to indicate a separate
-  loadable library containing the XYZmodem protocol code.
+  XMODEM/YMODEM/ZMODEM support removed 2026-07-10: NOCKXYZ is now always
+  defined, so CK_XYZ (which enabled the external-protocol commands and
+  data structures) is never defined, and the XYZ_INTERNAL / XYZ_DLL
+  variants (built-in / loadable protocol engines, never enabled by any
+  makefile target in this tree) are gone with it.
+  See doc/NOCKXYZ-20260709.md.
 */
 
-#ifndef NOCKXYZ /* Alternative protocols */
-#ifndef CK_XYZ
-#ifdef UNIX
-#define CK_XYZ
-#else
-#endif /* UNIX */
-#endif /* CK_XYZ */
+#ifndef NOCKXYZ
+#define NOCKXYZ
 #endif /* NOCKXYZ */
-
-#ifdef XYZ_INTERNAL /* This ensures that XYZ_INTERNAL */
-#ifndef CK_XYZ      /* is defined only if CK_XYZ is too */
-#undef XYZ_INTERNAL
-#endif               /* CK_XYZ */
-#endif               /* XYZ_INTERNAL */
-#ifdef XYZ_DLL       /* This ensures XYZ_DLL is defined */
-#ifndef XYZ_INTERNAL /* only if XYZ_INTERNAL is too */
-#undef XYZ_DLL
-#endif /* XYZ_INTERNAL */
-#endif /* XYZ_DLL */
 
 /* Console functions */
 

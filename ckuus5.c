@@ -10053,21 +10053,6 @@ int shofea() {
   }
 #endif /* CK_RTSCTS */
 
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-  printf(" Built-in XYZMODEM protocols\n");
-#else
-  printf(" External XYZMODEM protocol support\n");
-#endif /* XYZ_INTERNAL */
-  if (++lines > cmd_rows - 3) {
-    if (!askmore()) {
-      return (1);
-    } else {
-      lines = 0;
-    }
-  }
-#endif /* CK_XYZ */
-
 #ifndef NOCSETS
   printf(" Latin-1 (West European) character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10357,7 +10342,6 @@ int shofea() {
   flag = 1;
 #endif /* CK_AUTODL */
 
-#ifndef CK_XYZ
   printf(" No built-in XYZMODEM protocols\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10367,7 +10351,6 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_XYZ */
 
 #ifdef NOFLOAT
   printf(" No floating-point arithmetic\n");

@@ -153,16 +153,6 @@ extern CHAR stchr;
 extern int kstartactive;
 #endif /* CK_AUTODL */
 
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-static int zmdlok = 1; /* Zmodem autodownloads available */
-#else
-static int zmdlok = 0; /* Depends on external protocol def */
-#endif /* XYZ_INTERNAL */
-#else
-static int zmdlok = 0; /* Not available at all */
-#endif /* CK_XYZ */
-
 #ifndef NOSETKEY           /* Keyboard mapping */
 extern KEY *keymap;        /* Single-character key map */
 extern MACRO *macrotab;    /* Key macro pointer table */
@@ -1235,20 +1225,6 @@ int conect() {
 #endif /* NOCYRIL */
     language = L_USASCII;
 
-#ifdef CK_XYZ
-#ifndef XYZ_INTERNAL
-  {
-    extern int binary; /* See about ZMODEM autodownloads */
-    char *s;
-    s = binary ? ptab[PROTO_Z].p_b_rcmd : ptab[PROTO_Z].p_t_rcmd;
-    if (!s) {
-      s = "";
-    }
-    zmdlok = (*s != NUL); /* OK if we have external commands */
-  }
-#endif /* XYZ_INTERNAL */
-#endif /* CK_XYZ */
-
 #ifndef NOESCSEQ
   /*
     We need to activate the escape-sequence recognition feature when:
@@ -1854,11 +1830,6 @@ int conect() {
           ) {
             k = kstart((CHAR)c);
           }
-#ifdef CK_XYZ
-          if (!k && zmdlok) { /* Or an "sz" start? */
-            k = zstart((CHAR)c);
-          }
-#endif /* CK_XYZ */
           if (k) {
             int ksign = 0;
             debug(F101, "CONNECT autodownload k", "", k);
@@ -1874,11 +1845,7 @@ int conect() {
               justone = 0;
             }
             k--; /* Adjust [kz]start's return value */
-            if (k == PROTO_K
-#ifdef CK_XYZ
-                || k == PROTO_Z
-#endif /* CK_XYZ */
-            ) {
+            if (k == PROTO_K) {
               /* Damage the packet so that it doesn't trigger */
               /* autodownload detection downstream. */
               if (k == PROTO_K) {
@@ -1887,14 +1854,6 @@ int conect() {
                   ckcputc(BS);
                 }
               }
-#ifdef CK_XYZ
-              else {
-                int i;
-                for (i = 0; i < 3; i++) {
-                  ckcputc(CAN);
-                }
-              }
-#endif /* CK_XYZ */
 
 #ifndef NOICP
               /* sprintf is safe here (builtin keywords) */

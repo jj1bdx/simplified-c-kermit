@@ -5811,97 +5811,6 @@ void shoparp() { /* Protocol */
     printf(", SHOW CHARACTER-SETS");
 #endif /* NOCSETS */
   }
-
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-  if (protocol != PROTO_K) {
-    int i;
-    int x;
-    printf(" File type: %s\n", binary ? "binary" : "text");
-    if (protocol == PROTO_Z) { /* Zmodem */
-      printf(" Window size:   ");
-      if (ptab[protocol].winsize < 1) {
-        printf("none\n");
-      } else {
-        printf("%d\n", wslotr);
-      }
-    } else {
-      if (ptab[protocol].spktlen >= 1000) {
-        printf(" 1K packets\n");
-      } else {
-        printf(" 128-byte packets\n");
-      }
-    }
-    printf(" Pathname stripping when sending:   %s\n",
-           showoff(ptab[protocol].fnsp));
-    printf(" Pathname stripping when receiving: %s\n",
-           showoff(ptab[protocol].fnrp));
-    printf(" Filename collision action:         ");
-    for (i = 0; i < ncolx; i++) {
-      if (colxtab[i].kwval == fncact) {
-        break;
-      }
-    }
-    printf("%-12s", (i == ncolx) ? "unknown" : colxtab[i].kwd);
-
-    printf("\n Escape control characters:          ");
-    x = ptab[protocol].prefix;
-    if (x == PX_ALL) {
-      printf("all\n");
-    } else if (x == PX_CAU || x == PX_WIL) {
-      printf("minimal\n");
-    } else {
-      printf("none\n");
-    }
-    if (!(s = ptab[protocol].h_b_init)) {
-      s = "";
-    }
-    printf(" Autoreceive command (binary): %s\n", *s ? s : "(none)");
-    if (!(s = ptab[protocol].h_t_init)) {
-      s = "";
-    }
-    printf(" Autoreceive command (text):   %s\n", *s ? s : "(none)");
-  }
-#else
-#ifndef NOPUSH
-  if (protocol != PROTO_K) {
-    void shoextern(void);
-    printf("\nExecuted by external commands:\n\n");
-    s = ptab[protocol].p_b_scmd;
-    if (!s) {
-      s = "";
-    }
-    printf(" SEND command (binary):        %s\n", *s ? s : "(none)");
-    s = ptab[protocol].p_t_scmd;
-    if (!s) {
-      s = "";
-    }
-    printf(" SEND command (text):          %s\n", *s ? s : "(none)");
-    s = ptab[protocol].p_b_rcmd;
-    if (!s) {
-      s = "";
-    }
-    printf(" RECEIVE command (binary):     %s\n", *s ? s : "(none)");
-    s = ptab[protocol].p_t_rcmd;
-    if (!s) {
-      s = "";
-    }
-    printf(" RECEIVE command (text):       %s\n", *s ? s : "(none)");
-    s = ptab[protocol].h_b_init;
-    if (!s) {
-      s = "";
-    }
-    printf(" Autoreceive command (binary): %s\n", *s ? s : "(none)");
-    s = ptab[protocol].h_t_init;
-    if (!s) {
-      s = "";
-    }
-    printf(" Autoreceive command (text):   %s\n", *s ? s : "(none)");
-    (void)shoextern();
-  }
-#endif /* NOPUSH */
-#endif /* XYZ_INTERNAL */
-#endif /* CK_XYZ */
 }
 #endif /* NOXFER */
 
@@ -6079,12 +5988,10 @@ int dostat(int brief) {
   } else {
     printf("FAILURE\n");
   }
-#ifndef XYZ_INTERNAL
   if (!ftp && protocol != PROTO_K) {
     printf("\n external protocol statistics not available\n");
     return (1);
   }
-#endif /* XYZ_INTERNAL */
   n++;
   if (!ftp) {
     if (xferstat > 0) { /* Transfer OK - show CRC */
@@ -13564,11 +13471,7 @@ nvlook(char *s) {
 #ifdef NOXFER
     return ("none");
 #else
-#ifdef CK_XYZ
-    return (ptab[protocol].p_name);
-#else
     return ("kermit");
-#endif /* CK_XYZ */
 #endif /* NOXFER */
 
 #ifndef NOXFER

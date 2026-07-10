@@ -1759,9 +1759,9 @@ void rcalcpsz(void) {
                    current        block-check        type.  Usually this will        work out
                    OK (like when        acking Data        packets), and no great harm
                    will be        done        if it        was some other kind        of
-                   packet (F, etc).  If        we are requesting an        interruption of the
-                   file transfer, the        flags are still set, so we'll        catch        up on
-                   the        next        packet.
+                   packet (F, etc).  If        we are requesting an        interruption
+                   of the        file transfer, the        flags are still set, so
+                   we'll        catch        up on        the        next        packet.
                  */
           x = spack('Y', n, 0, (CHAR *)"");
           if (x < 0) {
@@ -2307,41 +2307,6 @@ void rcalcpsz(void) {
     return (0);
   }
 
-#ifdef CK_XYZ
-
-  /*  Z S T A R T  --  Checks for a ZMODEM packet while in terminal mode.  */
-
-  int zstart(CHAR ch)
-  /* zstart */ {
-    static CHAR *matchstr = (CHAR *)"\030B00";
-    /* "rz\r**\030B00000000000000\r\033J\021"; */
-    static CHAR *p = NULL;
-    extern int inserver;
-
-    if (inserver) {
-      return (0);
-    }
-
-    if (!ch) {
-      return (0);
-    }
-    if (!p) {
-      p = matchstr;
-    }
-    if (ch == *p) {
-      p++;
-      if (*p == '\0') {
-        p = matchstr;
-        debug(F100, "zstart Zmodem SOP", "", 0);
-        return (PROTO_Z + 1);
-      }
-    } else {
-      p = matchstr;
-    }
-    return (0);
-  }
-#endif /* CK_XYZ */
-
 #ifndef NOICP
 #ifdef CK_APC
   /*  A U T O D O W N  */
@@ -2366,19 +2331,6 @@ void rcalcpsz(void) {
 #endif /* IKS_OPTION */
          ) &&
         !debses) {
-#ifdef CK_XYZ
-#ifdef XYZ_INTERNAL
-      extern int p_avail;
-#else
-      int p_avail = 1;
-#endif /* XYZ_INTERNAL */
-      if (p_avail && zstart((CHAR)ch)) {
-        debug(F100, "Zmodem download", "", 0);
-        ckstrncpy(apcbuf, "receive /protocol:zmodem", APCBUFLEN);
-        apcactive = APC_LOCAL;
-        return;
-      }
-#endif /* CK_XYZ */
 
       /* First try... */
       k = kstart((CHAR)ch);
@@ -2392,28 +2344,6 @@ void rcalcpsz(void) {
         if (k < 0) { /* Stuff RECEIVE into APC buffer */
           justone = 1;
           switch (protocol) {
-#ifdef CK_XYZ
-          case PROTO_G:
-            ckstrncpy(apcbuf, "set proto kermit, server, set protocol g",
-                      APCBUFLEN);
-            break;
-          case PROTO_X:
-            ckstrncpy(apcbuf, "set proto kermit,server,set proto xmodem",
-                      APCBUFLEN);
-            break;
-          case PROTO_XC:
-            ckstrncpy(apcbuf, "set proto kermit,server,set proto xmodem-crc",
-                      APCBUFLEN);
-            break;
-          case PROTO_Y:
-            ckstrncpy(apcbuf, "set proto kermit,server, set protocol y",
-                      APCBUFLEN);
-            break;
-          case PROTO_Z:
-            ckstrncpy(apcbuf, "set proto kermit,server,set proto zmodem",
-                      APCBUFLEN);
-            break;
-#endif /* CK_XYZ */
           case PROTO_K:
             ckstrncpy(apcbuf, "server", APCBUFLEN);
             break;

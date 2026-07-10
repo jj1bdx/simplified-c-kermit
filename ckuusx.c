@@ -5870,10 +5870,6 @@ void screenc(int f, char c, CK_OFF_T n, char *s)
     pctlbl = (what & W_SEND);
     printw("%s:", pctlbl ? "Percent Done" : "Bytes So Far");
 
-#ifdef XYZ_INTERNAL
-    move(CW_BAR, 1);
-    printw("%10s Protocol:", ftp ? "FTP" : ptab[protocol].p_name);
-#endif /* XYZ_INTERNAL */
 #ifdef CK_PCT_BAR
     if (thermometer) {
       oldpct = pct = 0;
