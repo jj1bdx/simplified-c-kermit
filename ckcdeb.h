@@ -2098,58 +2098,38 @@ long *ttspdlist(void);
 #endif /* SCO_OSR504 */
 #endif /* NOB_460K */
 
-#ifndef NOB_921K /* 921600 bps */
-#endif           /* NOB_921K */
+#ifndef NOB_921K       /* 921600 bps */
+#endif                 /* NOB_921K */
 
 /*
   13 October 2021
   From Elad Lahav:
   Added support for 1.5MHz (1500000bps) serial speed for Linux and QNX.
 */
-#ifdef BPS_1500K /* Maximum speed defined */
+#if defined(BPS_1500K) /* Maximum speed defined */
 #define MAX_SPD 1500000L
-#else
-#ifdef BPS_921K
+#elif defined(BPS_921K)
 #define MAX_SPD 921600L
-#else
-#ifdef BPS_460K
+#elif defined(BPS_460K)
 #define MAX_SPD 460800L
-#else
-#ifdef BPS_230K
+#elif defined(BPS_230K)
 #define MAX_SPD 230400L
-#else
-#ifdef BPS_115K
+#elif defined(BPS_115K)
 #define MAX_SPD 115200L
-#else
-#ifdef BPS_76K
+#elif defined(BPS_76K)
 #define MAX_SPD 76800L
-#else
-#ifdef BPS_57K
+#elif defined(BPS_57K)
 #define MAX_SPD 57600L
-#else
-#ifdef BPS_38K
+#elif defined(BPS_38K)
 #define MAX_SPD 38400L
-#else
-#ifdef BPS_28K
+#elif defined(BPS_28K)
 #define MAX_SPD 28800L
-#else
-#ifdef BPS_19K
+#elif defined(BPS_19K)
 #define MAX_SPD 19200L
-#else
-#ifdef BPS_14K
+#elif defined(BPS_14K)
 #define MAX_SPD 14400L
 #else
 #define MAX_SPD 9600L
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
 #endif
 #endif /* TTSPDLIST */
 
