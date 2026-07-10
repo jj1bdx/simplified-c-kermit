@@ -30,6 +30,10 @@
 * Remove RLOGIN support
 * Remove XMODEM/YMODEM/ZMODEM support
 
+### For removing possible network vulnerabilities
+
+Use `make linux-nonet` or `make linux-notcp` for removing unwanted network support code from the executable.
+
 ## License
 
 Simplified 3-Clause BSD License
