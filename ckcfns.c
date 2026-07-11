@@ -1657,7 +1657,7 @@ static int bgetpkt(int bufmax) {
                                // At this point, the character we just read is
                                // in rnext, and the character we are about to
                                // encode into the packet is in rt.
-    odp = dp; // Remember where we started.
+    odp = dp;                  // Remember where we started.
     xxrc = xxcq =
         NUL; // Clear these.
              // Now encode the character according to the options that are in

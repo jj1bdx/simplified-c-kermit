@@ -958,8 +958,8 @@ static void concld() {
 
     } else { // Not X.25...
 #endif       // ANYX25
-       // Get the next communication line character from our internal buffer.
-       // If the buffer is empty, refill it.
+      // Get the next communication line character from our internal buffer.
+      // If the buffer is empty, refill it.
       prev = c;       // Remember previous character
       c = ckcgetc(0); // Get next character
       // debug(F101,"CONNECT c","",c);
@@ -1397,7 +1397,7 @@ int conect() {
                    // because the CONNECT module uses no timer of any kind, and
                    // no other timer                               should be
                    // armed while Kermit is in CONNECT mode.
-  ttimoff(); // Turn off any timer interrupts
+  ttimoff();       // Turn off any timer interrupts
 
 #ifdef CK_TRIGGER
   makestr(&triggerval, NULL); // Reset trigger

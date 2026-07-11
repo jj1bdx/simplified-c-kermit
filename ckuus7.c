@@ -529,10 +529,10 @@ int nxmit = (sizeof(xmitab) / sizeof(struct keytab));
 // but not others.  Those that are not possible for your implementation
 // should be ifdef'd out.
 
-struct keytab colxtab[] = { // SET FILE COLLISION options
-    {"append", XYFX_A, 0},  // append to old file
-    {"backup", XYFX_B, 0},  // rename old file
-                           // This crashes Mac Kermit.
+struct keytab colxtab[] = {           // SET FILE COLLISION options
+    {"append", XYFX_A, 0},            // append to old file
+    {"backup", XYFX_B, 0},            // rename old file
+                                      // This crashes Mac Kermit.
     {"discard", XYFX_D, CM_INV},      // don't accept new file
     {"no-supersede", XYFX_D, CM_INV}, // ditto (MSK compatibility)
     {"overwrite", XYFX_X, 0},         // overwrite the old file

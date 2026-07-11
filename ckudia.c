@@ -2649,15 +2649,15 @@ static MDMINF MICROCOM = // Microcom modems in native SX mode
         ",!@", // pause_chars (! and @ aren't pure pauses)
         3,     // pause_time
                // The following sets 8 bits, no parity, BREAK passthru, and SE0
-           // disables the                       escape character, which is a
-           // single character with no guard time,                       totally
-           // unsafe, so we have no choice but to disable it.  Especially since,
-           // by                       default, it is Ctrl-A, which is Kermit's
-           // packet-start                       character.  We would change it
-           // to something else, which would enable "mdmhup()", but the user
-           // wouldn't know about it.  Very bad.  Note: SE1 sets it to Ctrl-A,
-           // SE2 sets it to Ctrl-B, etc (1..31 allowed).  Also SE/Q sets it to
-           // "Q".
+        // disables the                       escape character, which is a
+        // single character with no guard time,                       totally
+        // unsafe, so we have no choice but to disable it.  Especially since,
+        // by                       default, it is Ctrl-A, which is Kermit's
+        // packet-start                       character.  We would change it
+        // to something else, which would enable "mdmhup()", but the user
+        // wouldn't know about it.  Very bad.  Note: SE1 sets it to Ctrl-A,
+        // SE2 sets it to Ctrl-B, etc (1..31 allowed).  Also SE/Q sets it to
+        // "Q".
         "SE0;S1P4;SBRK5\015", // wake_str
         100,                  // wake_rate
         "!",                  // wake_prompt

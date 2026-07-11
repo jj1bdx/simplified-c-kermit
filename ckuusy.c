@@ -3173,9 +3173,9 @@ int doarg(char x)
               XFATAL(tmpbuf);
             }
           }
-#endif // NOICP
-#endif // NODIAL
-       // Add service to line specification for ttopen()
+#endif                    // NOICP
+#endif                    // NODIAL
+                          // Add service to line specification for ttopen()
           if (*service) { // There is a service specified
             ckstrncat(line, ":", LINBUFSIZ);
             ckstrncat(line, service, LINBUFSIZ);

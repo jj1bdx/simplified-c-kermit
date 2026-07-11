@@ -1985,16 +1985,15 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
           char *p = NULL;
           int x;
           x = (int)strlen(flfnam) + (int)strlen(DIRCMD) + 2;
-          p = malloc(
-              x); // Print a directory listing.
-                  // Note: priv_on() won't help here, because we do not pass
-                  // privs along to                to inferior processes, in
-                  // this case ls.  So if the real user does                not
-                  // have                directory-listing access to the
-                  // lockfile directory, this                will result in
-                  // something like "not found".  That's why we try this only as
-                  // a last resort.
-          if (p) { // If we got the space...
+          p = malloc(x); // Print a directory listing.
+                         // Note: priv_on() won't help here, because we do not
+                         // pass privs along to                to inferior
+                         // processes, in this case ls.  So if the real user
+                         // does                not have directory-listing
+                         // access to the lockfile directory, this will result
+                         // in something like "not found".  That's why we try
+                         // this only as a last resort.
+          if (p) {       // If we got the space...
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
             zsyscmd(p); // Get listing.
             if (p) {    // free the space
@@ -2060,16 +2059,15 @@ int ttopen(char *ttname, int *lcl, int modem, int timo) {
           char *p = NULL;
           int x;
           x = (int)strlen(flfnam) + (int)strlen(DIRCMD) + 2;
-          p = malloc(
-              x); // Print a directory listing.
-                  // Note: priv_on() won't help here, because we do not pass
-                  // privs along to                to inferior processes, in
-                  // this case ls.  So if the real user does                not
-                  // have                directory-listing access to the
-                  // lockfile directory, this                will result in
-                  // something like "not found".  That's why we try this only as
-                  // a last resort.
-          if (p) { // If we got the space...
+          p = malloc(x); // Print a directory listing.
+                         // Note: priv_on() won't help here, because we do not
+                         // pass privs along to                to inferior
+                         // processes, in this case ls.  So if the real user
+                         // does                not have directory-listing
+                         // access to the lockfile directory, this will result
+                         // in something like "not found".  That's why we try
+                         // this only as a last resort.
+          if (p) {       // If we got the space...
             ckmakmsg(p, x, DIRCMD, " ", flfnam, NULL);
             zsyscmd(p); // Get listing.
             if (p) {    // free the space

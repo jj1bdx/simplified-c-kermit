@@ -6696,9 +6696,9 @@ or Enter to restore default definition",
   p = s; // Save this place
 #endif   // NOKVERBS
          // If the definition included any \Kverbs, quote the backslash so the
-       // \Kverb will still be in the definition when the key is pressed.  We
-       // don't do this in zzstring(), because \Kverbs are valid only in this
-       // context and nowhere else.
+         // \Kverb will still be in the definition when the key is pressed.  We
+         // don't do this in zzstring(), because \Kverbs are valid only in this
+         // context and nowhere else.
   //
   // We use this code active for all versions that support SET KEY, even if they
   // don't support \Kverbs, because otherwise \K would behave differently for

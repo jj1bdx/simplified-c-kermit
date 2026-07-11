@@ -2103,10 +2103,10 @@ int parser(int m) {
 #ifndef NOXFER
   ftreset(); // Reset global file settings
 #endif       // NOXFER
-       // sstate becomes nonzero when a command has been parsed that requires
-       // some action from the protocol module.  Any non-protocol actions, such
-       // as local directory listing or terminal emulation, are invoked directly
-       // from below.
+      // sstate becomes nonzero when a command has been parsed that requires
+      // some action from the protocol module.  Any non-protocol actions, such
+      // as local directory listing or terminal emulation, are invoked directly
+      // from below.
   sstate = 0; // Start with no start state.
 
 #ifndef NOXFER

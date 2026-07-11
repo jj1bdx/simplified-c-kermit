@@ -1549,11 +1549,11 @@ int dodef(int cx) {
   mydot = xxdot; // Copy
   xxdot = 0;     // and reset
                  // In case we got here from a command that begins like ".\%a",
-             // cmkey() has already evaluated \%a, but we don't want that, so we
-             // retrieve the variable name from a special pre-evaluation buffer
-             // in the command module, and we undo the "unget word" that would
-             // be done because of the token, because if the variable was
-             // defined, it will unget its value rather than its name.
+  // cmkey() has already evaluated \%a, but we don't want that, so we
+  // retrieve the variable name from a special pre-evaluation buffer
+  // in the command module, and we undo the "unget word" that would
+  // be done because of the token, because if the variable was
+  // defined, it will unget its value rather than its name.
   s = NULL;
 
   if (mydot && ppvnambuf[0] == '.' && ppvnambuf[1]) {

@@ -1682,7 +1682,7 @@ void rcalcpsz(void) {
                          // take a chance and send a copy of the parameters in
                          // an ACK packet with block check type 1. (Or 3 if SET
                          // BLOCK 5.)
-          if (bctf) { // Force Type 3 on all packets?
+          if (bctf) {    // Force Type 3 on all packets?
             x = spack('Y', 0, (int)strlen((char *)myinit), (CHAR *)myinit);
             if (x < 0) {
               return (x);
