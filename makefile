@@ -7,8 +7,8 @@
 # makefile / Makefile / ckuker.mak / CKUKER.MAK
 #
 # Sun Mar 24 13:21:46 2024
-BUILDID=20250322
-CKVER= "10.0 Beta.12"
+BUILDID=20260711
+CKVER= "10.0 jj1bdx-simplified Dev.1"
 #
 # -- Makefile to build C-Kermit for UNIX and UNIX-like platforms --
 #

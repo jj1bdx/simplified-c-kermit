@@ -1,8 +1,8 @@
 // ckcmai.c - Main program for C-Kermit plus some miscellaneous functions
 
-#define EDITDATE "2025/03/22" // Last edit date ISO format
+#define EDITDATE "2026/07/11" // Last edit date ISO format
 
-#define EDITNDATE "20250322" // Keep them in sync
+#define EDITNDATE "20260711" // Keep them in sync
 // Thu Aug  8 12:25:04 2024
 // As of 27 September 2022 BETATEST is defined in ckcdeb.h, not here,
 // because it's also used in other modules.
@@ -30,18 +30,20 @@
 #include "ckcdeb.h" // Debug & other symbols
 // clang-format on
 
-char *ck_cryear = "2025"; // C-Kermit copyright year
+char *ck_cryear = "2026"; // C-Kermit copyright year
 // Note: initialize ck_s_test to "" if this is not a test version.
 // Use (*ck_s_test != '\0') to decide whether to print test-related messages.
 
 #ifdef BETATEST
 // Can also use "Pre-Beta" here for in between "daily" uploads
-char *ck_s_test = "Beta"; // "Dev","Alpha","pre-Beta","Beta","RC", or ""
-char *ck_s_tver = "12";   // Test version number
-#else                     // BETATEST
+// The original version is Beta 12
+// But our version is still unstable so I'll call it a Dev
+char *ck_s_test = "Dev"; // "Dev","Alpha","pre-Beta","Beta","RC", or ""
+char *ck_s_tver = "1";   // Test version number
+#else                    // BETATEST
 char *ck_s_test = ""; // Not development
 char *ck_s_tver = "";
-#endif                    // BETATEST
+#endif                   // BETATEST
 
 #ifdef BETADATE             // Date of this version or edit
 char *ck_s_date = __DATE__; // Compilation date
@@ -74,13 +76,13 @@ int offtsize = 0; // Size of OFF_T
 // Also the custom-format version numbers for the original 1980s Macintosh is
 // gone as there is no more Mac Kermit (for the original Macintosh), just
 // C-Kermit for each platform (except the original Mac) and Kermit 95.
-char *ck_s_ver = "10.0";      // C-Kermit version string
-char *ck_s_edit = "416";      // Edit number (for Debian package)
-char *ck_s_xver = "10.0.416"; // eXtended version string
-long ck_l_ver = 1000415L;     // C-Kermit version number
-char *ck_s_name = "C-Kermit"; // Name of this program
-char *ck_s_who = "";          // Where customized, "" = not.
-char *ck_patch = "";          // Patch info, if any.
+char *ck_s_ver = "10.0";              // C-Kermit version string
+char *ck_s_edit = "416";              // Edit number (for Debian package)
+char *ck_s_xver = "10.0.416";         // eXtended version string
+long ck_l_ver = 1000415L;             // C-Kermit version number
+char *ck_s_name = "C-Kermit";         // Name of this program
+char *ck_s_who = "jj1bdx-simplified"; // Where customized, "" = not.
+char *ck_patch = "";                  // Patch info, if any.
 
 long ck_l_xver;
 
