@@ -1,13 +1,11 @@
-/* ckclib.h -- C-Kermit library routine prototypes */
-/*
-  Author: Frank da Cruz <fdc@columbia.edu>,
-  Columbia University Academic Information Systems, New York City.
-
-  Copyright (C) 2002, 2009,
-    Trustees of Columbia University in the City of New York.
-    All rights reserved.  See the C-Kermit COPYING.TXT file or the
-    copyright text in the ckcmai.c module for disclaimer and permissions.
-*/
+// ckclib.h -- C-Kermit library routine prototypes
+// Author: Frank da Cruz <fdc@columbia.edu>,
+// Columbia University Academic Information Systems, New York City.
+//
+// Copyright (C) 2002, 2009,
+//  Trustees of Columbia University in the City of New York.
+//  All rights reserved.  See the C-Kermit COPYING.TXT file or the
+//  copyright text in the ckcmai.c module for disclaimer and permissions.
 #ifndef CKCLIB_H
 #define CKCLIB_H
 
@@ -60,21 +58,21 @@ int chknum(char *);
 int rdigits(char *);
 char *ckradix(char *, int, int);
 
-/* Base-64 conversion needed for script programming and HTTP */
+// Base-64 conversion needed for script programming and HTTP
 
 #ifndef NOB64
 int b8tob64(char *, int, char *, int);
 int b64tob8(char *, int, char *, int);
-#endif /* NOB64 */
+#endif // NOB64
 
 #ifdef CKFLOAT
 int isfloat(char *, int);
 #ifndef CKCLIB_C
 #ifndef CKWART_C
 extern CKFLOAT floatval;
-#endif /* CKWART_C */
-#endif /* CKCLIB_C */
-#endif /* CKFLOAT */
+#endif // CKWART_C
+#endif // CKCLIB_C
+#endif // CKFLOAT
 
 char *parnam(char);
 char *hhmmss(long);
@@ -87,4 +85,4 @@ struct stringarray *cksplit(int, int, char *, char *, char *, int, int, int,
                             int);
 
 int ckhexbytetoint(char *);
-#endif /* CKCLIB_H */
+#endif // CKCLIB_H

@@ -1,83 +1,79 @@
 char *ckptyv = "Pseudoterminal support, 10.0.107, 16 Apr 2023";
 
-/*  C K U P T Y  --  C-Kermit pseudoterminal control functions for UNIX  */
+//  C K U P T Y  --  C-Kermit pseudoterminal control functions for UNIX
 
-/* Last update: Sun Apr 16 13:28:14 2023 */
+// Last update: Sun Apr 16 13:28:14 2023
 
-/*
-  Copyright 1995 by the Massachusetts Institute of Technology.
+// Copyright 1995 by the Massachusetts Institute of Technology.
+//
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose and without fee is hereby granted, provided
+// that the above copyright notice appear in all copies and that both that
+// copyright notice and this permission notice appear in supporting
+// documentation, and that the name of M.I.T. not be used in advertising or
+// publicity pertaining to distribution of the software without specific,
+// written prior permission.  Furthermore if you modify this software you must
+// label your software as modified software and not distribute it in such a
+// fashion that it might be confused with the original M.I.T. software.
+// M.I.T. makes no representations about the suitability of this software for
+// any purpose.  It is provided "as is" without express or implied warranty.
+//
+// Modified for use in C-Kermit, and new material added, by:
+//
+// Jeffrey Altman <jaltman@secure-endpoints.com>
+// Secure Endpoints Inc., New York City
+// November 1999
+//
+// Parameterized for pty file descriptor and function code,
+// Dec 2006 - Sep 2009, plus some minor "compliance" nits addressed in 2020.
+// See "HAVE_OPENPTY" section of ckcdeb.h.
+// Frank da Cruz, The Kermit Project, New York City
 
-  Permission to use, copy, modify, and distribute this software and its
-  documentation for any purpose and without fee is hereby granted, provided
-  that the above copyright notice appear in all copies and that both that
-  copyright notice and this permission notice appear in supporting
-  documentation, and that the name of M.I.T. not be used in advertising or
-  publicity pertaining to distribution of the software without specific,
-  written prior permission.  Furthermore if you modify this software you must
-  label your software as modified software and not distribute it in such a
-  fashion that it might be confused with the original M.I.T. software.
-  M.I.T. makes no representations about the suitability of this software for
-  any purpose.  It is provided "as is" without express or implied warranty.
-
-  Modified for use in C-Kermit, and new material added, by:
-
-  Jeffrey Altman <jaltman@secure-endpoints.com>
-  Secure Endpoints Inc., New York City
-  November 1999
-
-  Parameterized for pty file descriptor and function code,
-  Dec 2006 - Sep 2009, plus some minor "compliance" nits addressed in 2020.
-  See "HAVE_OPENPTY" section of ckcdeb.h.
-  Frank da Cruz, The Kermit Project, New York City
-*/
-
-/*
-  Built and tested successully on:
-   . 4.4BSD, including BSDI/OS, NetBSD, FreeBSD, OpenBSD, Mac OS X
-   . AIX 4.1 and later
-   . DG/UX 5.4R4.11
-   . Digital UNIX 3.2 and 4.0
-   . HP-UX 9.00 and later
-   . IRIX 6.0 and later
-   . Linux
-   . Mac OS X 10.4
-   . NeXTSTEP 3.x
-   . OpenBSD
-   . QNX 4.25 (except PTY process termination not detected)
-   . SCO OSR5.0.5
-   . SCO Unixware 7
-   . SINIX 5.42
-   . Solaris 2.x and 7
-   . SunOS 4.1.3
-
-  Failures include:
-   . SCO UNIX 3.2v4.2 (compile fails with syntax error in <memory.h>)
-   . HP-UX 8.00 and earlier (no vhangup or ptsname routines)
-*/
+// Built and tested successully on:
+// . 4.4BSD, including BSDI/OS, NetBSD, FreeBSD, OpenBSD, Mac OS X
+// . AIX 4.1 and later
+// . DG/UX 5.4R4.11
+// . Digital UNIX 3.2 and 4.0
+// . HP-UX 9.00 and later
+// . IRIX 6.0 and later
+// . Linux
+// . Mac OS X 10.4
+// . NeXTSTEP 3.x
+// . OpenBSD
+// . QNX 4.25 (except PTY process termination not detected)
+// . SCO OSR5.0.5
+// . SCO Unixware 7
+// . SINIX 5.42
+// . Solaris 2.x and 7
+// . SunOS 4.1.3
+//
+// Failures include:
+// . SCO UNIX 3.2v4.2 (compile fails with syntax error in <memory.h>)
+// . HP-UX 8.00 and earlier (no vhangup or ptsname routines)
 #ifndef NO_PTY_XOPEN_SOURCE
-#ifdef __FreeBSD__ /* bs  20151224 */
+#ifdef __FreeBSD__ // bs  20151224
 #define NO_PTY_XOPEN_SOURCE
-#endif /* __FreeBSD__ */
-#endif /* NO_PTY_XOPEN_SOURCE */
+#endif // __FreeBSD__
+#endif // NO_PTY_XOPEN_SOURCE
 
-#ifndef NO_PTY_XOPEN_SOURCE /* fdc 20211207 */
-#define _XOPEN_SOURCE 500   /* mdw 20140223 */
-#endif                      /* NO_PTY_XOPEN_SOURCE */
+#ifndef NO_PTY_XOPEN_SOURCE // fdc 20211207
+#define _XOPEN_SOURCE 500   // mdw 20140223
+#endif                      // NO_PTY_XOPEN_SOURCE
 
-#include <stdlib.h> /* mdw 20140223 */
-/* clang-format off */
-#include "ckcdeb.h" /* To pick up NETPTY definition */
-/* clang-format on */
+#include <stdlib.h> // mdw 20140223
+// clang-format off
+#include "ckcdeb.h" // To pick up NETPTY definition
+// clang-format on
 
-#ifndef NETPTY /* Selector for PTY support */
+#ifndef NETPTY // Selector for PTY support
 
 char *ptyver = "No PTY support";
 
-#else /* (rest of this module...) */
+#else // (rest of this module...)
 
 char *ptyver = "PTY support 8.0.017, 18 Sep 2020";
 
-/* These will no doubt need adjustment... */
+// These will no doubt need adjustment...
 
 #define HAVE_SETSID
 #define HAVE_KILLPG
@@ -94,42 +90,40 @@ char *ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #ifdef BSD44ORPOSIX
 #define USE_TERMIO
 #else
-#endif /* BSD44ORPOSIX */
-#endif /* ATTSV */
-#endif /* LINUX */
-#endif /* USE_TERMIO */
+#endif // BSD44ORPOSIX
+#endif // ATTSV
+#endif // LINUX
+#endif // USE_TERMIO
 
 #ifdef USE_TERMIO
-#define POSIX_TERMIOS /* Seems to be a misnomer */
-#endif                /* USE_TERMIO */
+#define POSIX_TERMIOS // Seems to be a misnomer
+#endif                // USE_TERMIO
 
-#ifdef WANT_UTMP       /* See ckupty.h */
-/*
-  WANT_UTMP is not defined because (a) the utmp/wtmp junk is the most
-  nonportable part of this module, and (b) we're not logging anybody
-  in, we're just running a process, and don't need to write utmp/wtmp records.
-*/
-#ifndef HAVE_SETUTXENT /* Who has <utmpx.h> */
-#endif                 /* HAVE_SETUTXENT */
+#ifdef WANT_UTMP       // See ckupty.h
+// WANT_UTMP is not defined because (a) the utmp/wtmp junk is the most
+// nonportable part of this module, and (b) we're not logging anybody
+// in, we're just running a process, and don't need to write utmp/wtmp records.
+#ifndef HAVE_SETUTXENT // Who has <utmpx.h>
+#endif                 // HAVE_SETUTXENT
 
-#ifndef HAVE_UTHOST   /* Does utmp include ut_host[]? */
-#ifdef HAVE_SETUTXENT /* utmpx always does */
+#ifndef HAVE_UTHOST   // Does utmp include ut_host[]?
+#ifdef HAVE_SETUTXENT // utmpx always does
 #define HAVE_UTHOST
 #else
-#ifdef LINUX /* Linux does */
+#ifdef LINUX // Linux does
 #define HAVE_UTHOST
 #else
-#endif /* LINUX */
-#endif /* HAVE_SETUTXENT */
-#endif /* HAVE_UTHOST */
+#endif // LINUX
+#endif // HAVE_SETUTXENT
+#endif // HAVE_UTHOST
 
 #ifndef HAVE_UT_HOST
 #ifndef NO_UT_HOST
 #define NO_UT_HOST
-#endif /* NO_UT_HOST */
-#endif /* HAVE_UT_HOST */
+#endif // NO_UT_HOST
+#endif // HAVE_UT_HOST
 
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
 #ifdef LINUX
 #define CK_VHANGUP
@@ -137,18 +131,18 @@ char *ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #define HAVE_GETUTENT
 #define HAVE_SETUTENT
 #define HAVE_UPDWTMP
-#endif /* LINUX */
+#endif // LINUX
 
 #ifdef LINUX
 #ifdef HAVE_PTMX
 #define HAVE_GRANTPT
 #define HAVE_PTSNAME
-#endif /* HAVE_PTMX */
+#endif // HAVE_PTMX
 #else
 #ifdef HAVE_STREAMS
 #define HAVE_PTMX
-#endif /* HAVE_STREAMS */
-#endif /* LINUX */
+#endif // HAVE_STREAMS
+#endif // LINUX
 
 #include "ckupty.h"
 
@@ -156,64 +150,62 @@ char *ptyver = "PTY support 8.0.017, 18 Sep 2020";
 #ifndef O_NDELAY
 #ifdef O_NONBLOCK
 #define O_NDELAY O_NONBLOCK
-#endif /* O_NONBLOCK */
-#endif /* O_NDELAY */
-#else  /* PTYNOBLOCK */
+#endif // O_NONBLOCK
+#endif // O_NDELAY
+#else  // PTYNOBLOCK
 #ifdef O_NDELAY
 #undef O_NDELAY
-#endif /* O_NDELAY */
+#endif // O_NDELAY
 #define O_NDELAY 0
-#endif /* PTYNOBLOCK */
+#endif // PTYNOBLOCK
 
 #ifndef ONLCR
 #define ONLCR 0
-#endif /* ONLCR */
+#endif // ONLCR
 
 #ifdef CK_WAIT_H
 #include <sys/wait.h>
-#endif /* CK_WAIT_H */
+#endif // CK_WAIT_H
 
 #ifdef STREAMSPTY
 #ifndef INIT_SPTY
 #define INIT_SPTY
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 
 #include <stropts.h>
 #include <sys/stream.h>
 #include <termio.h>
 
-/* Make sure we don't get the BSD version */
+// Make sure we don't get the BSD version
 
 #ifdef HAVE_SYS_TTY_H
 #include "/usr/include/sys/tty.h"
-#endif /* HAVE_SYS_TTY_H */
+#endif // HAVE_SYS_TTY_H
 
-#ifdef HAS_PTYVAR /* Where is this set? */
+#ifdef HAS_PTYVAR // Where is this set?
 
 #include <sys/ptyvar.h>
 
-#else /* HAS_PTYVAR */
+#else // HAS_PTYVAR
 
 #ifndef TIOCPKT_FLUSHWRITE
 #define TIOCPKT_FLUSHWRITE 0x02
 #define TIOCPKT_NOSTOP 0x10
 #define TIOCPKT_DOSTOP 0x20
 #define TIOCPKT_IOCTL 0x40
-#endif /* TIOCPKT_FLUSHWRITE */
+#endif // TIOCPKT_FLUSHWRITE
 
-#endif /* HAS_PTYVAR */
+#endif // HAS_PTYVAR
 
 #ifdef HAVE_TTY_H
 #include <tty.h>
-#endif /* HAVE_TTY_H */
+#endif // HAVE_TTY_H
 
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcfnp.h" // Prototypes (must be last)
 
-/*
-  Because of the way ptyibuf is used with streams messages, we need
-  ptyibuf+1 to be on a full-word boundary.  The following weirdness
-  is simply to make that happen.
-*/
+// Because of the way ptyibuf is used with streams messages, we need
+// ptyibuf+1 to be on a full-word boundary.  The following weirdness
+// is simply to make that happen.
 long ptyibufbuf[BUFSIZ / sizeof(long) + 1];
 char *ptyibuf = ((char *)&ptyibufbuf[1]) - 1;
 char *ptyip = ((char *)&ptyibufbuf[1]) - 1;
@@ -223,14 +215,14 @@ struct strbuf strbufc, strbufd;
 
 int readstream();
 
-#else /* ! STREAMSPTY */
+#else // ! STREAMSPTY
 
-/* I/O data buffers, pointers, and counters. */
+// I/O data buffers, pointers, and counters.
 
 char ptyibuf[BUFSIZ], *ptyip = ptyibuf;
 char ptyibuf2[BUFSIZ];
 
-#endif /* ! STREAMSPTY */
+#endif // ! STREAMSPTY
 
 #ifndef USE_TERMIO
 struct termbuf {
@@ -246,7 +238,7 @@ struct termbuf {
 #define cfgetospeed(tp) (tp)->sg.sg_ospeed
 #define cfgetispeed(tp) (tp)->sg.sg_ispeed
 
-#else /* USE_TERMIO */
+#else // USE_TERMIO
 
 #ifndef TCSANOW
 
@@ -256,19 +248,19 @@ struct termbuf {
 #define TCSADRAIN TCSETSW
 #define tcgetattr(f, t) ioctl(f, TCGETS, (char *)t)
 
-#else /* TCSETS */
+#else // TCSETS
 
 #ifdef TCSETA
 #define TCSANOW TCSETA
 #define TCSADRAIN TCSETAW
 #define tcgetattr(f, t) ioctl(f, TCGETA, (char *)t)
-#else /* TCSETA */
+#else // TCSETA
 #define TCSANOW TIOCSETA
 #define TCSADRAIN TIOCSETAW
 #define tcgetattr(f, t) ioctl(f, TIOCGETA, (char *)t)
-#endif /* TCSETA */
+#endif // TCSETA
 
-#endif /* TCSETS */
+#endif // TCSETS
 
 #define tcsetattr(f, a, t) ioctl(f, a, t)
 #define cfsetospeed(tp, val)                                                   \
@@ -281,47 +273,46 @@ struct termbuf {
   (tp)->c_cflag &= ~CIBAUD;                                                    \
   (tp)->c_cflag |= ((val) << IBSHIFT)
 #define cfgetispeed(tp) (((tp)->c_cflag & CIBAUD) >> IBSHIFT)
-#else /* CIBAUD */
+#else // CIBAUD
 #define cfsetispeed(tp, val)                                                   \
   (tp)->c_cflag &= ~CBAUD;                                                     \
   (tp)->c_cflag |= (val)
 #define cfgetispeed(tp) ((tp)->c_cflag & CBAUD)
-#endif /* CIBAUD */
+#endif // CIBAUD
 
-#endif /* TCSANOW */
+#endif // TCSANOW
 
-struct termios termbuf, termbuf2; /* pty control structure */
+struct termios termbuf, termbuf2; // pty control structure
 
 #ifdef INIT_SPTY
 static int spty = -1;
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 
-#endif /* USE_TERMIO */
+#endif // USE_TERMIO
 
-#ifndef IXANY      /* This was in #ifdef QNX.. */
-#define IXANY 0    /* but because of _XOPEN_SOURCE */
-#endif /* IXANY */ /* must be universal - does no harm */
+#ifndef IXANY   // This was in #ifdef QNX..
+#define IXANY 0 // but because of _XOPEN_SOURCE
+#endif          // IXANY
+// must be universal - does no harm
 
 static int msg = 0;
 
-/* Variables available to other modules */
+// Variables available to other modules
 
-int pty_fork_active = 0; /* pty fork is active */
-PID_T pty_fork_pid = -1; /* pty fork pid */
-int pty_slave_fd = -1;   /* pty slave file descriptor */
-int pty_master_fd = -1;  /* pty master file descriptor */
+int pty_fork_active = 0; // pty fork is active
+PID_T pty_fork_pid = -1; // pty fork pid
+int pty_slave_fd = -1;   // pty slave file descriptor
+int pty_master_fd = -1;  // pty master file descriptor
 
-/* termbuf routines (begin) */
-/*
-  init_termbuf()
-  copy_termbuf(cp)
-  set_termbuf()
-
-  These three routines are used to get and set the "termbuf" structure
-  to and from the kernel.  init_termbuf() gets the current settings.
-  copy_termbuf() hands in a new "termbuf" to write to the kernel, and
-  set_termbuf() writes the structure into the kernel.
-*/
+// termbuf routines (begin)
+// init_termbuf()
+// copy_termbuf(cp)
+// set_termbuf()
+//
+// These three routines are used to get and set the "termbuf" structure
+// to and from the kernel.  init_termbuf() gets the current settings.
+// copy_termbuf() hands in a new "termbuf" to write to the kernel, and
+// set_termbuf() writes the structure into the kernel.
 void init_termbuf(int fd) {
   int ttyfd;
   int rc = 0;
@@ -332,22 +323,22 @@ void init_termbuf(int fd) {
   debug(F100, "init_termbuf HAVE_STREAMS", "", 0);
 #else
   debug(F100, "init_termbuf HAVE_STREAMS NOT DEFINED", "", 0);
-#endif /* HAVE_STREAMS */
+#endif // HAVE_STREAMS
 #ifdef STREAMSPTY
   debug(F100, "init_termbuf STREAMSPTY", "", 0);
 #else
   debug(F100, "init_termbuf STREAMSPTY NOT DEFINED", "", 0);
-#endif /* STREAMSPTY */
+#endif // STREAMSPTY
 #ifdef INIT_SPTY
   debug(F100, "init_termbuf INIT_SPTY", "", 0);
 #else
   debug(F100, "init_termbuf INIT_SPTY NOT DEFINED", "", 0);
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 
   debug(F101, "init_termbuf ttyfd", "", ttyfd);
 #ifdef INIT_SPTY
   debug(F101, "init_termbuf spty", "", spty);
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 
   memset(&termbuf, 0, sizeof(termbuf));
   memset(&termbuf2, 0, sizeof(termbuf2));
@@ -357,8 +348,8 @@ void init_termbuf(int fd) {
   rc |= ioctl(ttyfd, TIOCGLTC, (char *)&termbuf.ltc);
 #ifdef TIOCGSTATE
   rc |= ioctl(ttyfd, TIOCGSTATE, (char *)&termbuf.state);
-#endif /* TIOCGSTATE */
-#else  /* USE_TERMIO */
+#endif // TIOCGSTATE
+#else  // USE_TERMIO
   errno = 0;
 #ifdef INIT_SPTY
   rc = tcgetattr(spty, &termbuf);
@@ -366,8 +357,8 @@ void init_termbuf(int fd) {
 #else
   rc = tcgetattr(ttyfd, &termbuf);
   debug(F111, "init_termbuf() tcgetattr(ttyfd)", ckitoa(rc), errno);
-#endif /* INIT_SPTY */
-#endif /* USE_TERMIO */
+#endif // INIT_SPTY
+#endif // USE_TERMIO
   if (!rc) {
     termbuf2 = termbuf;
   }
@@ -381,9 +372,9 @@ void copy_termbuf(char *cp, int len) {
   memcpy((char *)&termbuf, cp, len);
   termbuf2 = termbuf;
 }
-#endif /* TIOCPKT_IOCTL */
+#endif // TIOCPKT_IOCTL
 
-void set_termbuf(int fd) /* Only make the necessary changes. */
+void set_termbuf(int fd) // Only make the necessary changes.
 {
   int x;
   int ttyfd;
@@ -392,7 +383,7 @@ void set_termbuf(int fd) /* Only make the necessary changes. */
   debug(F101, "set_termbuf ttyfd", "", ttyfd);
 #ifdef INIT_SPTY
   debug(F101, "set_termbuf spty", "", spty);
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 
 #ifndef USE_TERMIO
   debug(F100, "set_termbuf USE_TERMIO", "", 0);
@@ -409,10 +400,10 @@ void set_termbuf(int fd) /* Only make the necessary changes. */
   if (termbuf.lflags != termbuf2.lflags) {
     ioctl(ttyfd, TIOCLSET, (char *)&termbuf.lflags);
   }
-#else /* USE_TERMIO */
+#else // USE_TERMIO
   x = memcmp((char *)&termbuf, (char *)&termbuf2, sizeof(termbuf));
   debug(F101, "set_termbuf !USE_TERMIO memcmp", "", x);
-  x = 1; /* Force this */
+  x = 1; // Force this
   if (x) {
     int x;
     errno = 0;
@@ -424,18 +415,18 @@ void set_termbuf(int fd) /* Only make the necessary changes. */
     debug(F100, "set_termbuf !INIT_SPTY", "", 0);
     x = tcsetattr(ttyfd, TCSANOW, &termbuf);
     debug(F111, "set_termbuf tcsetattr(ttyfd)", ckitoa(x), errno);
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
   }
-#endif /* USE_TERMIO */
+#endif // USE_TERMIO
 }
-/* termbuf routines (end) */
+// termbuf routines (end)
 
 void ptyint_vhangup() {
 #ifdef CK_VHANGUP
   int vhangup(void);
 #ifdef CK_POSIX_SIG
   struct sigaction sa;
-  /* Initialize "sa" structure. */
+  // Initialize "sa" structure.
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   sa.sa_handler = SIG_IGN;
@@ -443,34 +434,32 @@ void ptyint_vhangup() {
   vhangup();
   sa.sa_handler = SIG_DFL;
   sigaction(SIGHUP, &sa, (struct sigaction *)0);
-#else  /* CK_POSIX_SIG */
+#else  // CK_POSIX_SIG
   signal(SIGHUP, SIG_IGN);
   vhangup();
   signal(SIGHUP, SIG_DFL);
-#endif /* CK_POSIX_SIG */
-#endif /* CK_VHANGUP */
+#endif // CK_POSIX_SIG
+#endif // CK_VHANGUP
 }
 
-/*
-  This routine is called twice.  It's not particularly important that the
-  setsid() or TIOCSCTTY ioctls succeed (they may not the second time), but
-  rather that we have a controlling terminal at the end.  It is assumed that
-  vhangup doesn't exist and confuse the process's notion of controlling
-  terminal on any system without TIOCNOTTY.  That is, either vhangup() leaves
-  the controlling terminal in tact, breaks the association completely, or the
-  system provides TIOCNOTTY to get things back into a reasonable state.  In
-  practice, vhangup() either breaks the association completely or doesn't
-  effect controlling terminals, so this condition is met.
-*/
+// This routine is called twice.  It's not particularly important that the
+// setsid() or TIOCSCTTY ioctls succeed (they may not the second time), but
+// rather that we have a controlling terminal at the end.  It is assumed that
+// vhangup doesn't exist and confuse the process's notion of controlling
+// terminal on any system without TIOCNOTTY.  That is, either vhangup() leaves
+// the controlling terminal in tact, breaks the association completely, or the
+// system provides TIOCNOTTY to get things back into a reasonable state.  In
+// practice, vhangup() either breaks the association completely or doesn't
+// effect controlling terminals, so this condition is met.
 long ptyint_void_association() {
   int con_fd;
 #ifdef HAVE_SETSID
   debug(F110, "ptyint_void_association()", "setsid()", 0);
   setsid();
-#endif /* HAVE_SETSID */
+#endif // HAVE_SETSID
 
 #ifndef NO_DEVTTY
-  /* Void tty association first */
+  // Void tty association first
 #ifdef TIOCNOTTY
   con_fd = open("/dev/tty", O_RDWR);
   debug(F111, "ptyint_void_association() open(/dev/tty,O_RDWR)", "/dev/tty",
@@ -482,18 +471,18 @@ long ptyint_void_association() {
 #ifdef DEBUG
   else
     debug(F101, "ptyint_void_association() open() errno", "", errno);
-#endif /* DEBUG */
-#endif /* TIOCNOTTY */
-#endif /* NO_DEVTTY */
+#endif // DEBUG
+#endif // TIOCNOTTY
+#endif // NO_DEVTTY
   return (0);
 }
 
-/* PID may be zero for unknown.*/
+// PID may be zero for unknown.
 
 long pty_cleanup(char *slave, int pid, int update_utmp) {
 #ifdef VHANG_LAST
   int retval, fd;
-#endif /* VHANG_LAST */
+#endif // VHANG_LAST
 
   debug(F111, "pty_cleanup()", slave, pid);
 #ifdef WANT_UTMP
@@ -501,32 +490,30 @@ long pty_cleanup(char *slave, int pid, int update_utmp) {
     pty_update_utmp(PTY_DEAD_PROCESS, 0, "", slave, (char *)0,
                     PTY_UTMP_USERNAME_VALID);
   }
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
 #ifdef SETUID
   chmod(slave, 0666);
   chown(slave, 0, 0);
-#endif /* SETUID */
+#endif // SETUID
 
 #ifdef HAVE_REVOKE
   revoke(slave);
-  /*
-     Revoke isn't guaranteed to send a SIGHUP to the processes it
-     dissociates from the terminal.  The best solution without a Posix
-     mechanism for forcing a hangup is to killpg() the process group of the
-     pty.  This will at least kill the shell and hopefully, the child
-     processes.  This is not always the case, however.  If the shell puts
-     each job in a process group and doesn't pass along SIGHUP, all
-     processes may not die.
-  */
+  // Revoke isn't guaranteed to send a SIGHUP to the processes it
+  // dissociates from the terminal.  The best solution without a Posix
+  // mechanism for forcing a hangup is to killpg() the process group of the
+  // pty.  This will at least kill the shell and hopefully, the child
+  // processes.  This is not always the case, however.  If the shell puts
+  // each job in a process group and doesn't pass along SIGHUP, all
+  // processes may not die.
   if (pid > 0) {
 #ifdef HAVE_KILLPG
     killpg(pid, SIGHUP);
 #else
     kill(-(pid), SIGHUP);
-#endif /*HAVE_KILLPG*/
+#endif // HAVE_KILLPG
   }
-#else  /* HAVE_REVOKE*/
+#else  // HAVE_REVOKE
 #ifdef VHANG_LAST
   {
     int status;
@@ -535,16 +522,16 @@ long pty_cleanup(char *slave, int pid, int update_utmp) {
     sigemptyset(&new);
     sigaddset(&new, SIGCHLD);
     sigprocmask(SIG_BLOCK, &new, &old);
-#else  /*CK_POSIX_SIG*/
+#else  // CK_POSIX_SIG
     int mask = sigblock(sigmask(SIGCHLD));
-#endif /*CK_POSIX_SIG*/
+#endif // CK_POSIX_SIG
     switch (retval = fork()) {
     case -1:
 #ifdef CK_POSIX_SIG
       sigprocmask(SIG_SETMASK, &old, 0);
-#else  /*CK_POSIX_SIG*/
+#else  // CK_POSIX_SIG
       sigsetmask(mask);
-#endif /*CK_POSIX_SIG*/
+#endif // CK_POSIX_SIG
       return errno;
     case 0:
       ptyint_void_association();
@@ -557,26 +544,26 @@ long pty_cleanup(char *slave, int pid, int update_utmp) {
     default:
 #ifdef HAVE_WAITPID
       waitpid(retval, &status, 0);
-#else  /*HAVE_WAITPID*/
+#else  // HAVE_WAITPID
       wait(&status);
-#endif /* HAVE_WAITPID */
+#endif // HAVE_WAITPID
 #ifdef CK_POSIX_SIG
       sigprocmask(SIG_SETMASK, &old, 0);
-#else  /*CK_POSIX_SIG*/
+#else  // CK_POSIX_SIG
       sigsetmask(mask);
-#endif /*CK_POSIX_SIG*/
+#endif // CK_POSIX_SIG
       break;
     }
   }
-#endif /*VHANG_LAST*/
-#endif /* HAVE_REVOKE*/
+#endif // VHANG_LAST
+#endif // HAVE_REVOKE
 #ifndef HAVE_STREAMS
   slave[strlen("/dev/")] = 'p';
 #ifdef SETUID
   chmod(slave, 0666);
   chown(slave, 0, 0);
-#endif /* SETUID */
-#endif /* HAVE_STREAMS */
+#endif // SETUID
+#endif // HAVE_STREAMS
   return (0);
 }
 
@@ -588,11 +575,11 @@ long pty_getpty(int *fd, char *slave, int slavelength) {
 #ifndef HAVE_OPENPTY
 #ifndef HAVE__GETPTY
   char slavebuf[1024];
-#endif /* HAVE__GETPTY */
-#endif /* HAVE_OPENPTY */
+#endif // HAVE__GETPTY
+#endif // HAVE_OPENPTY
 #ifdef HAVE__GETPTY
-  char *slaveret; /* Temp to hold pointer to slave */
-#endif /*HAVE__GETPTY*/
+  char *slaveret; // Temp to hold pointer to slave
+#endif // HAVE__GETPTY
 
 #ifdef HAVE_OPENPTY
   int slavefd;
@@ -606,16 +593,14 @@ long pty_getpty(int *fd, char *slave, int slavelength) {
   close(slavefd);
   return (0);
 
-#else /* HAVE_OPENPTY */
+#else // HAVE_OPENPTY
 
 #ifdef HAVE__GETPTY
-  /*
-    This code is included for Irix; as of version 5.3, Irix has /dev/ptmx, but
-    it fails to work properly; even after calling unlockpt, root gets permission
-    denied opening the pty.  The code to support _getpty should be removed if
-    Irix gets working streams ptys in favor of maintaining the least needed code
-    paths.
-  */
+  // This code is included for Irix; as of version 5.3, Irix has /dev/ptmx, but
+  // it fails to work properly; even after calling unlockpt, root gets
+  // permission denied opening the pty.  The code to support _getpty should be
+  // removed if Irix gets working streams ptys in favor of maintaining the least
+  // needed code paths.
   debug(F100, "HAVE__GETPTY", "", 0);
   if ((slaveret = _getpty(fd, O_RDWR | O_NDELAY, 0600, 0)) == 0) {
     *fd = -1;
@@ -630,9 +615,9 @@ long pty_getpty(int *fd, char *slave, int slavelength) {
   }
   return (0);
 
-#else /* HAVE__GETPTY */
+#else // HAVE__GETPTY
 
-  *fd = open("/dev/ptym/clone", O_RDWR | O_NDELAY); /* HPUX */
+  *fd = open("/dev/ptym/clone", O_RDWR | O_NDELAY); // HPUX
   if (*fd >= 0) {
     debug(F110, "pty_getpty()", "open(/dev/ptym/clone) success", 0);
     goto have_fd;
@@ -645,20 +630,20 @@ long pty_getpty(int *fd, char *slave, int slavelength) {
     debug(F110, "pty_getpty()", "open(/dev/ptmx) success", 0);
     goto have_fd;
   }
-#endif /* HAVE_PTMX */
+#endif // HAVE_PTMX
 
-  *fd = open("/dev/ptc", O_RDWR | O_NDELAY); /* AIX */
+  *fd = open("/dev/ptc", O_RDWR | O_NDELAY); // AIX
   if (*fd >= 0) {
     debug(F110, "pty_getpty()", "open(/dev/ptc) success", 0);
     goto have_fd;
   }
-  *fd = open("/dev/pty", O_RDWR | O_NDELAY); /* sysvimp */
+  *fd = open("/dev/pty", O_RDWR | O_NDELAY); // sysvimp
   if (*fd >= 0) {
     debug(F110, "pty_getpty()", "open(/dev/pty) success", 0);
   }
 
 have_fd:
-  /* This would be the pty master */
+  // This would be the pty master
   debug(F101, "pty_getpty fd(A)", "", *fd);
   if (*fd >= 0) {
     pty_master_fd = *fd;
@@ -669,8 +654,8 @@ have_fd:
     if (grantpt(*fd) || unlockpt(*fd)) {
       return (PTY_GETPTY_STREAMS);
     }
-#endif /* HAVE_PTMX */
-#endif /* HAVE_GRANTPT */
+#endif // HAVE_PTMX
+#endif // HAVE_GRANTPT
 
 #ifdef HAVE_PTSNAME
     debug(F100, "HAVE_PTSNAME", "", 0);
@@ -682,10 +667,10 @@ have_fd:
     p = ttyname(*fd);
     debug(F110, "pty_getpty() ttyname()", p, 0);
 #else
-    /* If we don't have either what do we do? */
-    return (PTY_GETPTY_NOPTY); /* punt */
-#endif /* HAVE_TTYNAME */
-#endif /* HAVE_PTSNAME */
+    // If we don't have either what do we do?
+    return (PTY_GETPTY_NOPTY); // punt
+#endif // HAVE_TTYNAME
+#endif // HAVE_PTSNAME
     if (p) {
       if (strlen(p) > slavelength - 1) {
         close(*fd);
@@ -700,7 +685,7 @@ have_fd:
       return (PTY_GETPTY_FSTAT);
     }
     ptynum = (int)(stb.st_rdev & 0xFF);
-    sprintf(slavebuf, "/dev/ttyp%x", ptynum); /* safe */
+    sprintf(slavebuf, "/dev/ttyp%x", ptynum); // safe
     if (strlen(slavebuf) > slavelength - 1) {
       close(*fd);
       *fd = -1;
@@ -711,7 +696,7 @@ have_fd:
     return (0);
   } else {
     for (cp = "pqrstuvwxyzPQRST"; *cp; cp++) {
-      sprintf(slavebuf, "/dev/ptyXX"); /* safe */
+      sprintf(slavebuf, "/dev/ptyXX"); // safe
       slavebuf[sizeof("/dev/pty") - 1] = *cp;
       slavebuf[sizeof("/dev/ptyp") - 1] = '0';
       if (stat(slavebuf, &stb) < 0) {
@@ -726,7 +711,7 @@ have_fd:
           continue;
         }
         debug(F111, "pty_getpty() found pty master", slavebuf, *fd);
-        slavebuf[sizeof("/dev/") - 1] = 't'; /* got pty */
+        slavebuf[sizeof("/dev/") - 1] = 't'; // got pty
         if (strlen(slavebuf) > slavelength - 1) {
           close(*fd);
           *fd = -1;
@@ -740,8 +725,8 @@ have_fd:
     }
     return (PTY_GETPTY_NOPTY);
   }
-#endif /*HAVE__GETPTY*/
-#endif /* HAVE_OPENPTY */
+#endif // HAVE__GETPTY
+#endif // HAVE_OPENPTY
 }
 
 long pty_init(void) {
@@ -756,11 +741,9 @@ long pty_init(void) {
   return (0L);
 }
 
-/*
-  The following is an array of modules that should be pushed on the stream.
-  See configure.in for caviats and notes about when this array is used and not
-  used.
-*/
+// The following is an array of modules that should be pushed on the stream.
+// See configure.in for caviats and notes about when this array is used and not
+// used.
 #ifdef HAVE_STREAMS
 #ifndef HAVE_LINE_PUSH
 static char *push_list[] = {
@@ -774,26 +757,26 @@ static char *push_list[] = {
     "ttcompat",
 #endif
     0};
-#endif /* HAVE_LINE_PUSH */
-#endif /* HAVE_STREAMS */
+#endif // HAVE_LINE_PUSH
+#endif // HAVE_STREAMS
 
 long pty_initialize_slave(int fd) {
 #ifdef POSIX_TERMIOS
   struct termios new_termio;
 #else
   struct sgttyb b;
-#endif /* POSIX_TERMIOS */
+#endif // POSIX_TERMIOS
   int pid;
 #ifdef POSIX_TERMIOS
   int rc;
-#endif /* POSIX_TERMIOS */
+#endif // POSIX_TERMIOS
 
   debug(F111, "pty_initialize_slave()", "fd", fd);
 
 #ifdef HAVE_STREAMS
 #ifdef HAVE_LINE_PUSH
   while (ioctl(fd, I_POP, 0) == 0)
-    ; /* Clear out any old lined's */
+    ; // Clear out any old lined's
 
   if (line_push(fd) < 0) {
     debug(F110, "pty_initialize_slave()", "line_push() failed", 0);
@@ -801,7 +784,7 @@ long pty_initialize_slave(int fd) {
     fd = -1;
     return (PTY_OPEN_SLAVE_LINE_PUSHFAIL);
   }
-#else  /*No line_push */
+#else  // No line_push
   {
     char **module = &push_list[0];
     while (*module) {
@@ -811,23 +794,21 @@ long pty_initialize_slave(int fd) {
       }
     }
   }
-#endif /*LINE_PUSH*/
-#endif /*HAVE_STREAMS*/
-/*
-  Under Ultrix 3.0, the pgrp of the slave pty terminal needs to be set
-  explicitly.  Why rlogind works at all without this on 4.3BSD is a mystery.
-*/
+#endif // LINE_PUSH
+#endif // HAVE_STREAMS
+// Under Ultrix 3.0, the pgrp of the slave pty terminal needs to be set
+// explicitly.  Why rlogind works at all without this on 4.3BSD is a mystery.
 #ifdef GETPGRP_ONEARG
   pid = getpgrp(getpid());
 #else
   pid = getpgrp();
-#endif /* GETPGRP_ONEARG */
+#endif // GETPGRP_ONEARG
 
   debug(F111, "pty_initialize_slave()", "pid", pid);
 
 #ifdef TIOCSPGRP
   ioctl(fd, TIOCSPGRP, &pid);
-#endif /* TIOCSPGRP */
+#endif // TIOCSPGRP
 
 #ifdef POSIX_TERMIOS
   tcsetpgrp(fd, pid);
@@ -840,7 +821,7 @@ long pty_initialize_slave(int fd) {
     rc = tcsetattr(fd, TCSANOW, &new_termio);
     debug(F111, "pty_initialize_slave tcsetattr(fd)", ckitoa(rc), errno);
   }
-#endif /* POSIX_TERMIOS */
+#endif // POSIX_TERMIOS
   return (0L);
 }
 
@@ -855,11 +836,11 @@ char *user, *tty, *host;
   struct utmp ut;
   char *tmpx;
   char utmp_id[5];
-  int loggingin = user[0]; /* Will be empty for logout */
+  int loggingin = user[0]; // Will be empty for logout
 
 #ifndef NO_UT_HOST
   strncpy(ut.ut_host, host, sizeof(ut.ut_host));
-#endif /* NO_UT_HOST */
+#endif // NO_UT_HOST
 
   strncpy(ut.ut_line, tty, sizeof(ut.ut_line));
   ut.ut_time = time(0);
@@ -875,44 +856,40 @@ char *user, *tty, *host;
   ut.ut_type = (loggingin ? USER_PROCESS : DEAD_PROCESS);
 #else
   strncpy(ut.ut_name, user, sizeof(ut.ut_name));
-#endif /* NO_UT_PID */
+#endif // NO_UT_PID
 
   return (ptyint_update_wtmp(&ut, host, user));
 
-#endif /* HAVE_LOGWTMP */
+#endif // HAVE_LOGWTMP
 }
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
-/*
-  This routine is called twice.  It's not particularly important that the
-  setsid() or TIOCSCTTY ioctls succeed (they may not the second time), but
-  rather that we have a controlling terminal at the end.  It is assumed that
-  vhangup doesn't exist and confuse the process's notion of controlling
-  terminal on any system without TIOCNOTTY.  That is, either vhangup() leaves
-  the controlling terminal intact, breaks the association completely, or the
-  system provides TIOCNOTTY to get things back into a reasonable state.  In
-  practice, vhangup() either breaks the association completely or doesn't
-  effect controlling terminals, so this condition is met.
-*/
+// This routine is called twice.  It's not particularly important that the
+// setsid() or TIOCSCTTY ioctls succeed (they may not the second time), but
+// rather that we have a controlling terminal at the end.  It is assumed that
+// vhangup doesn't exist and confuse the process's notion of controlling
+// terminal on any system without TIOCNOTTY.  That is, either vhangup() leaves
+// the controlling terminal intact, breaks the association completely, or the
+// system provides TIOCNOTTY to get things back into a reasonable state.  In
+// practice, vhangup() either breaks the association completely or doesn't
+// effect controlling terminals, so this condition is met.
 long pty_open_ctty(char *slave, int *fd, int fc) {
   int retval;
 
   debug(F110, "pty_open_ctty() slave", slave, 0);
 
-  /* First, dissociate from previous terminal */
+  // First, dissociate from previous terminal
 
   if ((retval = ptyint_void_association()) != 0) {
     debug(F111, "pty_open_ctty()", "ptyint_void_association() failed", retval);
     return (retval);
   }
 #ifdef MUST_SETPGRP
-  /*
-    The Ultrix (and other BSD tty drivers) require the process group
-    to be zero in order to acquire the new tty as a controlling tty.
-  */
+  // The Ultrix (and other BSD tty drivers) require the process group
+  // to be zero in order to acquire the new tty as a controlling tty.
   setpgrp(0, 0);
   debug(F101, "pty_open_ctty MUST_SETPGRP setpgrp(0,0)", "", errno);
-#endif /* MUST_SETPGRP */
+#endif // MUST_SETPGRP
 
   errno = 0;
   *fd = open(slave, O_RDWR);
@@ -924,16 +901,16 @@ long pty_open_ctty(char *slave, int *fd, int fc) {
 
 #ifdef MUST_SETPGRP
   setpgrp(0, getpid());
-#endif /* MUST_SETPGRP */
+#endif // MUST_SETPGRP
 
 #ifdef TIOCSCTTY
   if (1) {
-    /* TIOCSCTTY = Make this the job's controlling terminal */
+    // TIOCSCTTY = Make this the job's controlling terminal
     errno = 0;
-    retval = ioctl(*fd, TIOCSCTTY, 0); /* Don't check return.*/
+    retval = ioctl(*fd, TIOCSCTTY, 0); // Don't check return.
     debug(F111, "pty_open_ctty() ioctl TIOCSCTTY", ckitoa(retval), errno);
   }
-#endif /* TIOCSCTTY */
+#endif // TIOCSCTTY
   return (0L);
 }
 
@@ -943,18 +920,16 @@ long pty_open_slave(char *slave, int *fd, int fc) {
 #ifdef CK_POSIX_SIG
   struct sigaction sa;
 
-  sigemptyset(&sa.sa_mask); /* Initialize "sa" structure. */
+  sigemptyset(&sa.sa_mask); // Initialize "sa" structure.
   sa.sa_flags = 0;
-#endif /* CK_POSIX_SIG */
+#endif // CK_POSIX_SIG
 
-/*
-  First, chmod and chown the slave.  If we have vhangup then we really need
-  pty_open_ctty to make sure our controlling terminal is the pty we're
-  opening.  However, if we are using revoke or nothing then we just need a
-  file descriiptor for the pty.  Considering some OSes in this category break
-  on the second call to open_ctty (currently OSF but others may), we simply
-  use a descriptor if we can.
-*/
+// First, chmod and chown the slave.  If we have vhangup then we really need
+// pty_open_ctty to make sure our controlling terminal is the pty we're
+// opening.  However, if we are using revoke or nothing then we just need a
+// file descriiptor for the pty.  Considering some OSes in this category break
+// on the second call to open_ctty (currently OSF but others may), we simply
+// use a descriptor if we can.
 #ifdef VHANG_FIRST
   if ((retval = pty_open_ctty(slave, &vfd, fc)) != 0) {
     debug(F111, "pty_open_slave() VHANG_FIRST", "pty_open_ctty() failed",
@@ -965,7 +940,7 @@ long pty_open_slave(char *slave, int *fd, int fc) {
     debug(F111, "pty_open_slave() VHANG_FIRST", "PTY_OPEN_SLAVE_OPENFAIL", vfd);
     return (PTY_OPEN_SLAVE_OPENFAIL);
   }
-#endif /* VHANG_FIRST */
+#endif // VHANG_FIRST
 
   if (slave == NULL || *slave == '\0') {
     debug(F110, "pty_open_slave()", "PTY_OPEN_SLAVE_TOOSHORT", 0);
@@ -981,11 +956,11 @@ long pty_open_slave(char *slave, int *fd, int fc) {
     debug(F110, "pty_open_slave()", "PTY_OPEN_SLAVE_CHOWNFAIL", 0);
     return (PTY_OPEN_SLAVE_CHOWNFAIL);
   }
-#endif /* SETUID */
+#endif // SETUID
 #ifdef VHANG_FIRST
   ptyint_vhangup();
   close(vfd);
-#endif /* VHANG_FIRST */
+#endif // VHANG_FIRST
 
   if ((retval = ptyint_void_association()) != 0) {
     debug(F111, "pty_open_slave()", "ptyint_void_association() failed", retval);
@@ -997,9 +972,9 @@ long pty_open_slave(char *slave, int *fd, int fc) {
     debug(F110, "pty_open_slave()", "PTY_OPEN_SLAVE_REVOKEFAIL", 0);
     return (PTY_OPEN_SLAVE_REVOKEFAIL);
   }
-#endif /* HAVE_REVOKE */
+#endif // HAVE_REVOKE
 
-  /* Open the pty for real. */
+  // Open the pty for real.
 
   retval = pty_open_ctty(slave, fd, fc);
   debug(F111, "pty_open_slave retval", slave, retval);
@@ -1008,7 +983,7 @@ long pty_open_slave(char *slave, int *fd, int fc) {
     debug(F111, "pty_open_slave()", "pty_open_ctty() failed", retval);
     return (PTY_OPEN_SLAVE_OPENFAIL);
   }
-  pty_slave_fd = *fd; /* This is not visible to the upper fork */
+  pty_slave_fd = *fd; // This is not visible to the upper fork
   debug(F111, "pty_open_slave fd ctty'd", slave, pty_slave_fd);
   retval = pty_initialize_slave(*fd);
   debug(F111, "pty_open_slave fd init'd", slave, pty_slave_fd);
@@ -1016,7 +991,7 @@ long pty_open_slave(char *slave, int *fd, int fc) {
     debug(F111, "pty_open_slave()", "pty_initialize_slave() failed", retval);
     return (retval);
   }
-  /* (VOID)pty_make_raw(*fd); */
+  // (VOID)pty_make_raw(*fd);
 
   debug(F100, "pty_open_slave OK", "", *fd);
   return (0L);
@@ -1027,37 +1002,38 @@ long pty_open_slave(char *slave, int *fd, int fc) {
 #ifndef UTMP_FILE
 #ifdef _PATH_UTMP
 #define UTMP_FILE _PATH_UTMP
-#endif /* _PATH_UTMP */
-#endif /*  UTMP_FILE */
+#endif // _PATH_UTMP
+#endif //  UTMP_FILE
 
-/* If it is *still* missing, assume /etc/utmp */
+// If it is *still* missing, assume /etc/utmp
 
 #ifndef UTMP_FILE
 #define UTMP_FILE "/etc/utmp"
-#endif /* UTMP_FILE */
+#endif // UTMP_FILE
 
 #ifndef NO_UT_PID
 #define WTMP_REQUIRES_USERNAME
-#endif /* NO_UT_PID */
+#endif // NO_UT_PID
 
 long pty_update_utmp(process_type, pid, username, line, host, flags)
 int process_type;
 int pid;
 char *username, *line, *host;
 int flags;
-/* pty_update_utmp */ {
+// pty_update_utmp
+{
   struct utmp ent, ut;
 #ifndef HAVE_SETUTENT
   struct stat statb;
   int tty;
-#endif /* HAVE_SETUTENT */
+#endif // HAVE_SETUTENT
 #ifdef HAVE_SETUTXENT
   struct utmpx utx;
-#endif /* HAVE_SETUTXENT */
+#endif // HAVE_SETUTXENT
 #ifndef NO_UT_PID
   char *tmpx;
   char utmp_id[5];
-#endif /* NO_UT_PID */
+#endif // NO_UT_PID
   char userbuf[32];
   int fd;
 
@@ -1069,7 +1045,7 @@ int flags;
   if (process_type == PTY_LOGIN_PROCESS) {
     return (0L);
   }
-#else  /* NO_UT_PID */
+#else  // NO_UT_PID
 
   ent.ut_pid = pid;
 
@@ -1086,7 +1062,7 @@ int flags;
   default:
     return (PTY_UPDATE_UTMP_PROCTYPE_INVALID);
   }
-#endif /*NO_UT_PID*/
+#endif // NO_UT_PID
 
 #ifndef NO_UT_HOST
   if (host) {
@@ -1094,7 +1070,7 @@ int flags;
   } else {
     ent.ut_host[0] = '\0';
   }
-#endif /* NO_UT_HOST */
+#endif // NO_UT_HOST
 
 #ifndef NO_UT_PID
   if (!strcmp(line, "/dev/console")) {
@@ -1108,7 +1084,7 @@ int flags;
 
     tmpx = line + strlen(line) - 1;
     if (*(tmpx - 1) != '/') {
-      tmpx--; /* last 2 chars unless it's a '/' */
+      tmpx--; // last 2 chars unless it's a '/'
     }
     ckmakmsg(utmp_id, 5, "kl", tmpx, NULL, NULL);
     strncpy(ent.ut_id, utmp_id, sizeof(ent.ut_id));
@@ -1119,7 +1095,7 @@ int flags;
 
   strncpy(ent.ut_name, username, sizeof(ent.ut_name));
 
-#endif /* NO_UT_PID */
+#endif // NO_UT_PID
 
   if (username[0]) {
     strncpy(userbuf, username, sizeof(userbuf));
@@ -1131,12 +1107,10 @@ int flags;
 
   utmpname(UTMP_FILE);
   setutent();
-  /*
-    If we need to preserve the user name in the wtmp structure and Our flags
-    tell us we can obtain it from the utmp and we succeed in obtaining it, we
-    then save the utmp structure we obtain, write out the utmp structure and
-    change the username pointer so it is used by update_wtmp.
-  */
+  // If we need to preserve the user name in the wtmp structure and Our flags
+  // tell us we can obtain it from the utmp and we succeed in obtaining it, we
+  // then save the utmp structure we obtain, write out the utmp structure and
+  // change the username pointer so it is used by update_wtmp.
 
 #ifdef WTMP_REQUIRES_USERNAME
   if ((!username[0]) && (flags & PTY_UTMP_USERNAME_VALID) && line) {
@@ -1147,7 +1121,7 @@ int flags;
       strncpy(userbuf, utptr->ut_user, sizeof(ut.ut_user));
     }
   }
-#endif /* WTMP_REQUIRES_USERNAME */
+#endif // WTMP_REQUIRES_USERNAME
 
   pututline(&ent);
   endutent();
@@ -1156,22 +1130,22 @@ int flags;
   setutxent();
 #ifdef HAVE_GETUTMPX
   getutmpx(&ent, &utx);
-#else /* HAVE_GETUTMPX */
-  /* For platforms like HPUX and Dec Unix which don't have getutmpx */
+#else // HAVE_GETUTMPX
+  // For platforms like HPUX and Dec Unix which don't have getutmpx
   strncpy(utx.ut_user, ent.ut_user, sizeof(ent.ut_user));
   strncpy(utx.ut_id, ent.ut_id, sizeof(ent.ut_id));
   strncpy(utx.ut_line, ent.ut_line, sizeof(ent.ut_line));
-  utx.ut_pid = pid; /* kludge for Irix, etc. to avoid trunc. */
+  utx.ut_pid = pid; // kludge for Irix, etc. to avoid trunc.
   utx.ut_type = ent.ut_type;
 #ifdef UT_EXIT_STRUCTURE_DIFFER
   utx.ut_exit.ut_exit = ent.ut_exit.e_exit;
-#else  /* UT_EXIT_STRUCTURE_DIFFER */
-  /* KLUDGE for now; eventually this will be a feature test... See PR#[40] */
-  /* XXX do nothing for now; we don't even know the struct member exists */
-#endif /* UT_EXIT_STRUCTURE_DIFFER */
+#else  // UT_EXIT_STRUCTURE_DIFFER
+  // KLUDGE for now; eventually this will be a feature test... See PR#[40]
+  // XXX do nothing for now; we don't even know the struct member exists
+#endif // UT_EXIT_STRUCTURE_DIFFER
   utx.ut_tv.tv_sec = ent.ut_time;
   utx.ut_tv.tv_usec = 0;
-#endif /* HAVE_GETUTMPX */
+#endif // HAVE_GETUTMPX
   if (host) {
     strncpy(utx.ut_host, host, sizeof(utx.ut_host));
   } else {
@@ -1179,9 +1153,9 @@ int flags;
   }
   pututxline(&utx);
   endutxent();
-#endif /* HAVE_SETUTXENT */
+#endif // HAVE_SETUTXENT
 
-#else /* HAVE_SETUTENT */
+#else // HAVE_SETUTENT
   if (flags & PTY_TTYSLOT_USABLE) {
     tty = ttyslot();
   } else {
@@ -1201,7 +1175,7 @@ int flags;
         if (!username && (flags & PTY_UTMP_USERNAME_VALID)) {
           strncpy(userbuf, ut.ut_user, sizeof(ut.ut_user));
         }
-#endif /* WTMP_REQUIRES_USERNAME */
+#endif // WTMP_REQUIRES_USERNAME
         break;
       }
     }
@@ -1212,9 +1186,9 @@ int flags;
     write(fd, (char *)&ent, sizeof(struct utmp));
     close(fd);
   }
-#endif /* HAVE_SETUTENT */
+#endif // HAVE_SETUTENT
 
-  /* Don't record LOGIN_PROCESS entries. */
+  // Don't record LOGIN_PROCESS entries.
   if (process_type == PTY_LOGIN_PROCESS) {
     return (0);
   } else {
@@ -1224,26 +1198,26 @@ int flags;
 #ifndef WTMP_FILE
 #ifdef _PATH_WTMP
 #define WTMP_FILE _PATH_WTMP
-#endif /* _PATH_WTMP */
-#endif /* WTMP_FILE */
+#endif // _PATH_WTMP
+#endif // WTMP_FILE
 
 #ifndef WTMPX_FILE
 #ifdef _PATH_WTMPX
 #ifdef HAVE_UPDWTMPX
 #define WTMPX_FILE _PATH_WTMPX
-#endif /* HAVE_UPDWTMPX */
-#endif /* _PATH_WTMPX */
-#endif /* WTMPX_FILE */
+#endif // HAVE_UPDWTMPX
+#endif // _PATH_WTMPX
+#endif // WTMPX_FILE
 
-/* If it is *still* missing, assume /usr/adm/wtmp */
+// If it is *still* missing, assume /usr/adm/wtmp
 
 #ifndef WTMP_FILE
 #define WTMP_FILE "/usr/adm/wtmp"
-#endif /* WTMP_FILE */
+#endif // WTMP_FILE
 
 #ifdef __GLIBC__
-#undef HAVE_UPDWTMPX /* Don't use updwtmpx for glibc period */
-#endif               /* __GLIBC__ */
+#undef HAVE_UPDWTMPX // Don't use updwtmpx for glibc period
+#endif               // __GLIBC__
 
 long ptyint_update_wtmp(ent, host, user)
 struct utmp *ent;
@@ -1267,14 +1241,14 @@ char *user;
     strncpy(utx.ut_user, user, sizeof(utx.ut_user));
   }
   updwtmpx(WTMPX_FILE, &utx);
-#endif /* HAVE_UPDWTMPX */
+#endif // HAVE_UPDWTMPX
 
 #ifdef HAVE_UPDWTMP
 #ifndef HAVE_UPDWTMPX
-  /* This is already performed byupdwtmpx if present.*/
+  // This is already performed byupdwtmpx if present.
   updwtmp(WTMP_FILE, ent);
-#endif /* HAVE_UPDWTMPX*/
-#else  /* HAVE_UPDWTMP */
+#endif // HAVE_UPDWTMPX
+#else  // HAVE_UPDWTMP
 
   if ((fd = open(WTMP_FILE, O_WRONLY | O_APPEND, 0)) >= 0) {
     if (!fstat(fd, &statb)) {
@@ -1283,7 +1257,7 @@ char *user;
       strncpy(ut.ut_name, ent->ut_name, sizeof(ut.ut_name));
 #ifndef NO_UT_HOST
       strncpy(ut.ut_host, ent->ut_host, sizeof(ut.ut_host));
-#endif /* NO_UT_HOST */
+#endif // NO_UT_HOST
 
       time(&uttime);
       ut.ut_time = uttime;
@@ -1301,11 +1275,11 @@ char *user;
 #ifdef EMPTY
         ut.ut_type = EMPTY;
 #else
-        ut.ut_type = DEAD_PROCESS; /* For Linux brokenness*/
-#endif /* EMPTY */
+        ut.ut_type = DEAD_PROCESS; // For Linux brokenness
+#endif // EMPTY
       }
-#endif /* USER_PROCESS */
-#endif /* HAVE_GETUTENT */
+#endif // USER_PROCESS
+#endif // HAVE_GETUTENT
 
       if (write(fd, (char *)&ut, sizeof(struct utmp)) != sizeof(struct utmp)) {
         ftruncate(fd, statb.st_size);
@@ -1313,33 +1287,31 @@ char *user;
     }
     close(fd);
   }
-#endif /* HAVE_UPDWTMP */
-  return (0); /* no current failure cases; file not found is not failure! */
+#endif // HAVE_UPDWTMP
+  return (0); // no current failure cases; file not found is not failure!
 }
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
-/* This is for ancient Unixes that don't have these tty symbols defined. */
+// This is for ancient Unixes that don't have these tty symbols defined.
 
 #ifndef PENDIN
 #define PENDIN ICANON
-#endif /* PENDIN */
+#endif // PENDIN
 #ifndef FLUSHO
 #define FLUSHO ICANON
-#endif /* FLUSHO */
+#endif // FLUSHO
 #ifndef IMAXBEL
 #define IMAXBEL ICANON
-#endif /* IMAXBEL */
+#endif // IMAXBEL
 #ifndef EXTPROC
 #define EXTPROC ICANON
-#endif /* EXTPROC */
+#endif // EXTPROC
 
 static char Xline[17] = {0, 0};
-/*
-  getptyslave()
-  Open the slave side of the pty, and do any initialization that is necessary.
-  The return value fd is a file descriptor for the slave side.
-  fc = function code from do_pty() (q.v.)
-*/
+// getptyslave()
+// Open the slave side of the pty, and do any initialization that is necessary.
+// The return value fd is a file descriptor for the slave side.
+// fc = function code from do_pty() (q.v.)
 int getptyslave(int *fd, int fc) {
   int ttyfd;
   int t = -1;
@@ -1347,18 +1319,16 @@ int getptyslave(int *fd, int fc) {
 #ifdef TIOCGWINSZ
   struct winsize ws;
   extern int cmd_rows, cmd_cols;
-#endif /* TIOCGWINSZ */
+#endif // TIOCGWINSZ
 
   ttyfd = *fd;
   debug(F111, "getptyslave()", "ttyfd", ttyfd);
-  /*
-   * Opening the slave side may cause initilization of the
-   * kernel tty structure.  We need remember the state of:
-   *      if linemode was turned on
-   *      terminal window size
-   *      terminal speed
-   * so that we can reset them if we need to.
-   */
+  // Opening the slave side may cause initilization of the
+  // kernel tty structure.  We need remember the state of:
+  //      if linemode was turned on
+  //      terminal window size
+  //      terminal speed
+  // so that we can reset them if we need to.
   if ((retval = pty_open_slave(Xline, &t, fc)) != 0) {
     perror(Xline);
     msg++;
@@ -1369,15 +1339,15 @@ int getptyslave(int *fd, int fc) {
 #ifdef INIT_SPTY
   spty = t;
   debug(F111, "getptyslave", "spty", spty);
-#endif /* INIT_SPTY */
+#endif // INIT_SPTY
 #ifdef STREAMSPTY
   if (ioctl(t, I_PUSH, "pckt") < 0) {
     debug(F111, "getptyslave()", "ioctl(I_PUSH) failed", errno);
     fatal("I_PUSH pckt");
   }
-#endif /* STREAMSPTY */
+#endif // STREAMSPTY
 
-  /* Set up the tty modes as we like them to be. */
+  // Set up the tty modes as we like them to be.
   init_termbuf(t);
 #ifdef TIOCGWINSZ
   if (cmd_rows || cmd_cols) {
@@ -1387,100 +1357,98 @@ int getptyslave(int *fd, int fc) {
     debug(F101, "getptyslave() doing TIOCSWINSZ...", "", t);
     ioctl(t, TIOCSWINSZ, (char *)&ws);
   }
-#endif /* TIOCGWINSZ */
+#endif // TIOCGWINSZ
 
-  /* For external protocols, put the pty in no-echo mode */
+  // For external protocols, put the pty in no-echo mode
   if (fc == 1) {
     debug(F100, "getptyslave() setting rawmode", "", 0);
-    /* iflags */
+    // iflags
     termbuf.c_iflag &= ~(PARMRK | ISTRIP | BRKINT | INLCR | IGNCR | ICRNL);
     termbuf.c_iflag &= ~(INPCK | IGNPAR | IMAXBEL | IXANY | IXON | IXOFF);
     termbuf.c_iflag |= IGNBRK;
 #ifdef IUCLC
     termbuf.c_iflag &= ~IUCLC;
-#endif /* IUCLC */
+#endif // IUCLC
 
-    /* oflags */
+    // oflags
     termbuf.c_oflag &= ~OPOST;
 #ifdef OXTABS
     termbuf.c_oflag &= ~OXTABS;
-#endif /* OXTABS */
+#endif // OXTABS
 #ifdef ONOCR
     termbuf.c_oflag &= ~ONOCR;
-#endif /* ONOCR */
+#endif // ONOCR
 #ifdef ONLRET
     termbuf.c_oflag &= ~ONLRET;
-#endif /* ONLRET */
+#endif // ONLRET
 #ifdef ONLCR
     termbuf.c_oflag &= ~ONLCR;
-#endif /* ONLCR */
+#endif // ONLCR
 
-    /* lflags */
+    // lflags
     termbuf.c_lflag &= ~ECHO;
 #ifdef ECHOE
     termbuf.c_lflag &= ~ECHOE;
-#endif /* ECHOE */
+#endif // ECHOE
 #ifdef ECHONL
     termbuf.c_lflag &= ~ECHONL;
-#endif /* ECHONL */
+#endif // ECHONL
 #ifdef ECHOPRT
     termbuf.c_lflag &= ~ECHOPRT;
-#endif /* ECHOPRT */
+#endif // ECHOPRT
 #ifdef ECHOKE
     termbuf.c_lflag &= ~ECHOKE;
-#endif /* ECHOKE */
+#endif // ECHOKE
 #ifdef ECHOCTL
     termbuf.c_lflag &= ~ECHOCTL;
-#endif /* ECHOCTL */
+#endif // ECHOCTL
 #ifdef ALTWERASE
     termbuf.c_lflag &= ~ALTWERASE;
-#endif /* ALTWERASE */
+#endif // ALTWERASE
 #ifdef EXTPROC
     termbuf.c_lflag &= ~EXTPROC;
-#endif /* EXTPROC */
+#endif // EXTPROC
     termbuf.c_lflag &= ~(ICANON | ISIG | IEXTEN | TOSTOP | FLUSHO | PENDIN);
 
 #ifdef NOKERNINFO
     termbuf.c_lflag |= NOKERNINFO;
-#endif /* NOKERNINFO */
-    /* termbuf.c_lflag |= NOFLSH; */
+#endif // NOKERNINFO
+    // termbuf.c_lflag |= NOFLSH;
     termbuf.c_lflag &= ~NOFLSH;
 
-    /* cflags */
+    // cflags
     termbuf.c_cflag &= ~(CSIZE | PARENB | PARODD);
     termbuf.c_cflag |= CS8 | CREAD;
 #ifdef VMIN
     termbuf.c_cc[VMIN] = 1;
-#endif /* VMIN */
-  } else { /* Regular interactive use */
+#endif // VMIN
+  } else { // Regular interactive use
     debug(F100, "getptyslave() setting cooked mode", "", 0);
 
-    /* Settings for sgtty based systems */
+    // Settings for sgtty based systems
 
 #ifndef USE_TERMIO
     termbuf.sg.sg_flags |= CRMOD | ANYP | ECHO | XTABS;
-#endif /* USE_TERMIO */
+#endif // USE_TERMIO
 
 #ifndef OXTABS
 #define OXTABS 0
-#endif /* OXTABS */
+#endif // OXTABS
 
-    /* Settings for UNICOS and HPUX */
+    // Settings for UNICOS and HPUX
 
 #ifdef USE_TERMIO
-    /*
-      Settings for all other termios/termio based systems, other than
-      4.4BSD.  In 4.4BSD the kernel does the initial terminal setup.
-    */
+    // Settings for all other termios/termio based systems, other than
+    // 4.4BSD.  In 4.4BSD the kernel does the initial terminal setup.
     termbuf.c_lflag |= ECHO | ICANON | IEXTEN | ISIG;
     termbuf.c_oflag |= ONLCR | OXTABS | OPOST;
     termbuf.c_iflag |= ICRNL | IGNPAR;
     termbuf.c_cflag |= HUPCL;
     termbuf.c_iflag &= ~IXOFF;
-#endif /* USE_TERMIO */
+#endif // USE_TERMIO
   }
 
-  /* Set the tty modes, and make this our controlling tty. */
+  // Set the tty modes, and make this our controlling tty.
   set_termbuf(t);
 
   if (t != 0) {
@@ -1493,7 +1461,7 @@ int getptyslave(int *fd, int fc) {
     if (fc == 0) {
       dup2(t, 2);
     } else if (fc == 1) {
-      /* For external protocols, send stderr to /dev/null */
+      // For external protocols, send stderr to /dev/null
     }
   }
   if (t > 2) {
@@ -1509,10 +1477,8 @@ int getptyslave(int *fd, int fc) {
 }
 
 #ifdef HAVE_PTYTRAP
-/*
-  To be called to determine if a trap is pending on a pty
-  if and only if select() cannot be used.
-*/
+// To be called to determine if a trap is pending on a pty
+// if and only if select() cannot be used.
 int pty_trap_pending(fd)
 int fd;
 {
@@ -1529,11 +1495,9 @@ int fd;
   }
 }
 
-/*
-  To be called after select() has returned indicating that an exception is
-  waiting on a pty.  It should be called with the file descriptor of the pty.
-  Returns -1 on error; 0 if pty is still open; 1 if pty has closed.
-*/
+// To be called after select() has returned indicating that an exception is
+// waiting on a pty.  It should be called with the file descriptor of the pty.
+// Returns -1 on error; 0 if pty is still open; 1 if pty has closed.
 int pty_trap_handler(fd)
 int fd;
 {
@@ -1565,7 +1529,7 @@ int fd;
     return (0);
   }
 }
-#endif /* HAVE_PTYTRAP */
+#endif // HAVE_PTYTRAP
 
 void exec_cmd(char *s) {
   struct stringarray *q;
@@ -1604,16 +1568,16 @@ void exec_cmd(char *s) {
       }
     }
   }
-#endif /* DEBUG */
+#endif // DEBUG
 
   execvp(args[0], args);
 }
 
-/* Get a pty, scan input lines. */
-/* fc = 0 for interactive access; fc = 1 for running external protocols */
-/* Returns -1 on failure and the PID (a positive number) on success */
+// Get a pty, scan input lines.
+// fc = 0 for interactive access; fc = 1 for running external protocols
+// Returns -1 on failure and the PID (a positive number) on success
 
-static int pty_fc = -1; /* Global copy of fc */
+static int pty_fc = -1; // Global copy of fc
 
 int do_pty(int *fd, char *cmd, int fc) {
   long retval;
@@ -1621,7 +1585,7 @@ int do_pty(int *fd, char *cmd, int fc) {
   int i, ttyfd;
 #ifdef HAVE_PTYTRAP
   int x;
-#endif /* HAVE_PTYTRAP */
+#endif // HAVE_PTYTRAP
   int dummy;
 
   debug(F101, "CKUPTY.C do_pty fc", "", fc);
@@ -1632,8 +1596,8 @@ int do_pty(int *fd, char *cmd, int fc) {
   pty_slave_fd = -2;
   pty_fork_pid = -2;
 
-  msg = 0;    /* Message counter */
-  pty_init(); /* Find an available pty to use. */
+  msg = 0;    // Message counter
+  pty_init(); // Find an available pty to use.
   errno = 0;
 
   if ((retval = pty_getpty(&ttyfd, Xline, 20)) != 0) {
@@ -1648,14 +1612,12 @@ int do_pty(int *fd, char *cmd, int fc) {
   debug(F111, "do_pty() Xline", Xline, ttyfd);
 
 #ifdef SIGTTOU
-  /*
-    Ignoring SIGTTOU keeps the kernel from blocking us.  we tweak the tty with
-    an ioctl() (in ttioct() in /sys/tty.c in a BSD kernel)
-  */
+  // Ignoring SIGTTOU keeps the kernel from blocking us.  we tweak the tty with
+  // an ioctl() (in ttioct() in /sys/tty.c in a BSD kernel)
   signal(SIGTTOU, SIG_IGN);
-#endif /* SIGTTOU */
+#endif // SIGTTOU
 
-  /* Start up the command on the slave side of the terminal */
+  // Start up the command on the slave side of the terminal
 
   if (pipe(syncpipe) < 0) {
     debug(F110, "do_pty()", "pipe() fails", 0);
@@ -1665,37 +1627,37 @@ int do_pty(int *fd, char *cmd, int fc) {
     return (-1);
   }
   if ((i = fork()) < 0) {
-    /* XXX - need to clean up the allocated pty */
+    // XXX - need to clean up the allocated pty
     perror("fork() failed");
     msg++;
     debug(F111, "do_pty()", "fork fails", errno);
     return (-1);
   }
-  if (i) { /* Wait for child before writing to parent side of pty. */
+  if (i) { // Wait for child before writing to parent side of pty.
     char c;
 #ifdef HAVE_PTYTRAP
     int on = 1;
-#endif /* HAVE_PTYTRAP */
+#endif // HAVE_PTYTRAP
     close(syncpipe[1]);
     errno = 0;
-    if (read(syncpipe[0], &c, 1) == 0) { /* Slave side died */
+    if (read(syncpipe[0], &c, 1) == 0) { // Slave side died
       perror("Pipe read() failed");
       msg++;
       debug(F110, "do_pty()", "Slave fails to initialize", 0);
       close(syncpipe[0]);
       return (-1);
     }
-    pty_fork_pid = i; /* So we can clean it up later */
+    pty_fork_pid = i; // So we can clean it up later
     pty_fork_active = 1;
     debug(F101, "do_pty pty_fork_pid", "", pty_fork_pid);
 #ifdef HAVE_PTYTRAP
-    /* HPUX does not allow the master to read end of file.  */
-    /* Therefore, we must determine that the slave has been */
-    /* closed by trapping the call to close().              */
+    // HPUX does not allow the master to read end of file.
+    // Therefore, we must determine that the slave has been
+    // closed by trapping the call to close().
     errno = 0;
     x = ioctl(ttyfd, TIOCTRAP, (char *)&on);
     debug(F111, "do_pty ioctl(TIOCTRAP)", ckitoa(x), errno);
-#endif /* HAVE_PTYTRAP */
+#endif // HAVE_PTYTRAP
     debug(F111, "do_pty()", "synchronized - pty_fork_pid", pty_fork_pid);
     close(syncpipe[0]);
   } else {
@@ -1709,8 +1671,8 @@ int do_pty(int *fd, char *cmd, int fc) {
 #ifdef WANT_UTMP
       pty_update_utmp(PTY_USER_PROCESS, getpid(), "KERMIT", Xline, cmd,
                       PTY_TTYSLOT_USABLE);
-#endif /* WANT_UTMP */
-      /* Notify our parent we're ready to continue.*/
+#endif // WANT_UTMP
+      // Notify our parent we're ready to continue.
       debug(F110, "do_pty()", "slave synchronizing", 0);
       dummy = write(syncpipe[1], "y", 1);
       close(syncpipe[0]);
@@ -1727,10 +1689,10 @@ int do_pty(int *fd, char *cmd, int fc) {
   *fd = ttyfd;
   pty_fc = fc;
   return (getpid());
-} /* end of do_pty() */
+} // end of do_pty()
 
 void end_pty() {
-  msg = 0; /* Message counter */
+  msg = 0; // Message counter
   debug(F101, "end_pty pty_fork_pid", "", pty_fork_pid);
   if (Xline[0] && pty_fork_pid >= 0) {
     pty_cleanup(Xline, pty_fork_pid, 1);
@@ -1741,4 +1703,4 @@ void end_pty() {
   }
   pty_fc = -1;
 }
-#endif /* NETPTY */
+#endif // NETPTY

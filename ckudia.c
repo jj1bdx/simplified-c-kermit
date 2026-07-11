@@ -1,104 +1,96 @@
 char *dialv = "Dial Command, 10.0.165, 15 Apr 2023";
 
-/*  C K U D I A	 --  Module for automatic modem dialing. */
+//  C K U D I A	 --  Module for automatic modem dialing.
 
-/*
-  Copyright (C) 1985, 2023,
-    Trustees of Columbia University in the City of New York.
-    All rights reserved.  See the C-Kermit COPYING.TXT file or the
-    copyright text in the ckcmai.c module for disclaimer and permissions.
-*/
+// Copyright (C) 1985, 2023,
+//  Trustees of Columbia University in the City of New York.
+//  All rights reserved.  See the C-Kermit COPYING.TXT file or the
+//  copyright text in the ckcmai.c module for disclaimer and permissions.
 
-/*
-  Authors:
+// Authors:
+//
+// Original (version 1, 1985) author: Herm Fischer, Encino, CA.
+// Contributed to Columbia University in 1985 for inclusion in C-Kermit 4.0.
+// Author and maintainer since 1985: Frank da Cruz, fdc@columbia.edu.
+//
+// Contributions by many others throughout the years, including: Jeffrey
+// Altman, Mark Berryman, Fernando Cabral, John Chmielewski, Joe Doupnik,
+// Richard Hill, Larry Jacobs, Eric Jones, Tom Kloos, Bob Larson, Peter Mauzey,
+// Joe Orost, Kevin O'Gorman, Kai Uwe Rommel, Dan Schullman, Warren Tucker, and
+// many others.
 
-  Original (version 1, 1985) author: Herm Fischer, Encino, CA.
-  Contributed to Columbia University in 1985 for inclusion in C-Kermit 4.0.
-  Author and maintainer since 1985: Frank da Cruz, fdc@columbia.edu.
+// Entry points:
+//  ckdial(char * number)   Dial a number or answer a call
+//  dialhup()               Hang up a dialed connection
+//  mdmhup()                Use modem commands to hang up
+//
+// All other routines are static.
+// Don't call dialhup() or mdmhup() without first calling ckdial().
 
-  Contributions by many others throughout the years, including: Jeffrey
-  Altman, Mark Berryman, Fernando Cabral, John Chmielewski, Joe Doupnik,
-  Richard Hill, Larry Jacobs, Eric Jones, Tom Kloos, Bob Larson, Peter Mauzey,
-  Joe Orost, Kevin O'Gorman, Kai Uwe Rommel, Dan Schullman, Warren Tucker, and
-  many others.
-*/
+// This module calls externally defined system-dependent functions for
+// communications i/o, as described in the C-Kermit Program Logic Manual:
+// https://kermitproject.org/ckcplm.html
+// and thus should be portable to all systems that implement those functions,
+// and where alarm() and signal() work.
+//
+// HOW TO ADD SUPPORT FOR ANOTHER MODEM:
+//
+// 1. In ckuusr.h, define a modem-type number symbol (n_XXX) for the new modem,
+//   the next highest one.
+//
+// 2. In ckuusr.h, adjust MAX_MDM to the new number of modem types.
+//
+// The remaining steps are in this module:
+//
+// 3. Create a MDMINF structure for it.  NOTE: The wake_str should include
+//   all invariant setup info, e.g. enable result codes, BREAK transparency,
+//   modulation negotiation, etc.  See ckcker.h for MDMINF struct definition.
+//
+// 4. Add the address of the MDMINF structure to the modemp[] array,
+//   according to the numerical value of the modem-type number.
+//
+// 5. Add the user-visible (SET MODEM) name and corresponding modem number
+//   to the mdmtab[] array, in alphabetical order by modem-name string.
+//
+// 6. If this falls into a class like is_rockwell, is_supra, etc, add the new
+//   one to the definition of the class.
+//
+// 7. Adjust the gethrn() routine to account for any special numeric result
+//   codes (if it's a Hayes compatible modem).
+//
+// 8. Read through the code and add any modem-specific sections as necessary.
+//   For most modern Hayes-compatible modems, no specific code will be
+//   needed.
+//
+// NOTE: The MINIDIAL symbol is used to build this module to include support
+// for only a minimum number of standard and/or generally useful modem types,
+// namely Hayes 1200 and 2400, ITU-T (CCITT) V.25bis and V.25ter (V.250),
+// Generic-High-Speed, "Unknown", and None.  When adding support for a new
+// modem type, keep it outside of the MINIDIAL sections unless it deserves to
+// be in it.
 
-/*
-  Entry points:
-    ckdial(char * number)   Dial a number or answer a call
-    dialhup()               Hang up a dialed connection
-    mdmhup()                Use modem commands to hang up
-
-  All other routines are static.
-  Don't call dialhup() or mdmhup() without first calling ckdial().
-*/
-
-/*
-  This module calls externally defined system-dependent functions for
-  communications i/o, as described in the C-Kermit Program Logic Manual:
-   https://kermitproject.org/ckcplm.html
-  and thus should be portable to all systems that implement those functions,
-  and where alarm() and signal() work.
-
-  HOW TO ADD SUPPORT FOR ANOTHER MODEM:
-
-  1. In ckuusr.h, define a modem-type number symbol (n_XXX) for the new modem,
-     the next highest one.
-
-  2. In ckuusr.h, adjust MAX_MDM to the new number of modem types.
-
-The remaining steps are in this module:
-
-  3. Create a MDMINF structure for it.  NOTE: The wake_str should include
-     all invariant setup info, e.g. enable result codes, BREAK transparency,
-     modulation negotiation, etc.  See ckcker.h for MDMINF struct definition.
-
-  4. Add the address of the MDMINF structure to the modemp[] array,
-     according to the numerical value of the modem-type number.
-
-  5. Add the user-visible (SET MODEM) name and corresponding modem number
-     to the mdmtab[] array, in alphabetical order by modem-name string.
-
-  6. If this falls into a class like is_rockwell, is_supra, etc, add the new
-     one to the definition of the class.
-
-  7. Adjust the gethrn() routine to account for any special numeric result
-     codes (if it's a Hayes compatible modem).
-
-  8. Read through the code and add any modem-specific sections as necessary.
-     For most modern Hayes-compatible modems, no specific code will be
-     needed.
-
-  NOTE: The MINIDIAL symbol is used to build this module to include support
-  for only a minimum number of standard and/or generally useful modem types,
-  namely Hayes 1200 and 2400, ITU-T (CCITT) V.25bis and V.25ter (V.250),
-  Generic-High-Speed, "Unknown", and None.  When adding support for a new
-  modem type, keep it outside of the MINIDIAL sections unless it deserves to
-  be in it.
-*/
-
-/* clang-format off */
+// clang-format off
 #include "ckcdeb.h"
-/* clang-format on */
+// clang-format on
 #ifndef NOLOCAL
 #ifndef NODIAL
 #ifndef NOICP
 
 #ifndef CK_ATDT
 #define CK_ATDT
-#endif /* CK_ATDT */
+#endif // CK_ATDT
 
-#ifndef NOOLDMODEMS /* Unless instructed otherwise, */
-#define OLDMODEMS   /* keep support for old modems. */
-#endif              /* NOOLDMODEMS */
+#ifndef NOOLDMODEMS // Unless instructed otherwise,
+#define OLDMODEMS   // keep support for old modems.
+#endif              // NOOLDMODEMS
 
-#ifndef M_OLD   /* Hide old modem keywords in SET MODEM table. */
-#define M_OLD 0 /* Define as CM_INV to make them invisible. */
-#endif          /* M_OLD */
+#ifndef M_OLD   // Hide old modem keywords in SET MODEM table.
+#define M_OLD 0 // Define as CM_INV to make them invisible.
+#endif          // M_OLD
 
 #ifndef M_ALIAS
 #define M_ALIAS 64
-#endif /* M_ALIAS */
+#endif // M_ALIAS
 
 #include "ckcasc.h"
 #include "ckcker.h"
@@ -109,258 +101,256 @@ The remaining steps are in this module:
 
 #include <setjmp.h>
 
-#include "ckcsig.h" /* C-Kermit signal processing */
+#include "ckcsig.h" // C-Kermit signal processing
 
-/* static function prototypes - fdc 30 November 2022 */
+// static function prototypes - fdc 30 November 2022
 static void dologdial(char *);
 static void ttslow(char *, int);
 static void waitfor(char *);
 static int ddinc(int);
 static int dialfail(int);
 
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcfnp.h" // Prototypes (must be last)
 
 #ifndef NOHINTS
 extern int hints;
-#endif /* NOHINTS */
+#endif // NOHINTS
 
 #ifdef CK_TAPI
 extern int tttapi;
 extern int tapipass;
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
 #ifdef CKLOGDIAL
 extern int dialog;
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
 char *dialmsg[] = {
-    /* DIAL status strings */
+    // DIAL status strings
 
-    /* Keyed to numbers defined in ckcker.h -- keep in sync! */
+    // Keyed to numbers defined in ckcker.h -- keep in sync!
 
-    "DIAL succeeded",                       /*  0 DIA_OK */
-    "Modem type not specified",             /*  1 DIA_NOMO */
-    "Communication device not specified",   /*  2 DIA_NOLI */
-    "Communication device can't be opened", /*  3 DIA_OPEN */
-    "Speed not specified",                  /*  4 DIA_NOSP */
-    "Pre-DIAL hangup failed",               /*  5 DIA_HANG */
-    "Internal error",                       /*  6 DIA_IE   */
-    "Device input/output error",            /*  7 DIA_IO   */
-    "DIAL TIMEOUT expired",                 /*  8 DIA_TIMO */
-    "Interrupted by user",                  /*  9 DIA_INTR */
-    "Modem not ready",                      /* 10 DIA_NRDY */
-    "Partial dial OK",                      /* 11 DIA_PART */
-    "Dial directory lookup error",          /* 12 DIA_DIR  */
-    "Hangup OK",                            /* 13 DIA_HUP  */
-    NULL,                                   /* 14 (undef)  */
-    NULL,                                   /* 15 (undef)  */
-    NULL,                                   /* 16 (undef)  */
-    NULL,                                   /* 17 (undef)  */
-    NULL,                                   /* 18 (undef)  */
-    "No response from modem",               /* 19 DIA_NRSP */
-    "Modem command error",                  /* 20 DIA_ERR  */
-    "Failure to initialize modem",          /* 21 DIA_NOIN */
-    "Phone busy",                           /* 22 DIA_BUSY */
-    "No carrier",                           /* 23 DIA_NOCA */
-    "No dialtone",                          /* 24 DIA_NODT */
-    "Incoming call",                        /* 25 DIA_RING */
-    "No answer",                            /* 26 DIA_NOAN */
-    "Disconnected",                         /* 27 DIA_DISC */
-    "Answered by voice",                    /* 28 DIA_VOIC */
-    "Access denied / forbidden call",       /* 29 DIA_NOAC */
-    "Blacklisted",                          /* 30 DIA_BLCK */
-    "Delayed",                              /* 31 DIA_DELA */
-    "Fax connection",                       /* 32 DIA_FAX  */
-    "Digital line",                         /* 33 DIA_DIGI */
-    "TAPI dialing failure",                 /* 34 DIA_TAPI */
-    NULL                                    /* 34 */
+    "DIAL succeeded",                       //  0 DIA_OK
+    "Modem type not specified",             //  1 DIA_NOMO
+    "Communication device not specified",   //  2 DIA_NOLI
+    "Communication device can't be opened", //  3 DIA_OPEN
+    "Speed not specified",                  //  4 DIA_NOSP
+    "Pre-DIAL hangup failed",               //  5 DIA_HANG
+    "Internal error",                       //  6 DIA_IE
+    "Device input/output error",            //  7 DIA_IO
+    "DIAL TIMEOUT expired",                 //  8 DIA_TIMO
+    "Interrupted by user",                  //  9 DIA_INTR
+    "Modem not ready",                      // 10 DIA_NRDY
+    "Partial dial OK",                      // 11 DIA_PART
+    "Dial directory lookup error",          // 12 DIA_DIR
+    "Hangup OK",                            // 13 DIA_HUP
+    NULL,                                   // 14 (undef)
+    NULL,                                   // 15 (undef)
+    NULL,                                   // 16 (undef)
+    NULL,                                   // 17 (undef)
+    NULL,                                   // 18 (undef)
+    "No response from modem",               // 19 DIA_NRSP
+    "Modem command error",                  // 20 DIA_ERR
+    "Failure to initialize modem",          // 21 DIA_NOIN
+    "Phone busy",                           // 22 DIA_BUSY
+    "No carrier",                           // 23 DIA_NOCA
+    "No dialtone",                          // 24 DIA_NODT
+    "Incoming call",                        // 25 DIA_RING
+    "No answer",                            // 26 DIA_NOAN
+    "Disconnected",                         // 27 DIA_DISC
+    "Answered by voice",                    // 28 DIA_VOIC
+    "Access denied / forbidden call",       // 29 DIA_NOAC
+    "Blacklisted",                          // 30 DIA_BLCK
+    "Delayed",                              // 31 DIA_DELA
+    "Fax connection",                       // 32 DIA_FAX
+    "Digital line",                         // 33 DIA_DIGI
+    "TAPI dialing failure",                 // 34 DIA_TAPI
+    NULL                                    // 34
 };
 
-int mdmtyp = n_GENERIC; /* Default modem type */
-int mdmset = 0;         /* User explicitly set a modem type */
+int mdmtyp = n_GENERIC; // Default modem type
+int mdmset = 0;         // User explicitly set a modem type
 
-int                /* SET DIAL parameters */
-    dialhng = 1,   /* DIAL HANGUP, default is ON */
-    dialdpy = 0,   /* DIAL DISPLAY, default is OFF */
-    mdmspd = 0,    /* DIAL SPEED-MATCHING (0 = OFF) */
-    mdmspk = 1,    /* MODEM SPEAKER */
-    mdmvol = 2,    /* MODEM VOLUME */
-    dialtmo = 0,   /* DIAL TIMEOUT */
-    dialatmo = -1, /* ANSWER TIMEOUT */
-    dialksp = 0,   /* DIAL KERMIT-SPOOF, 0 = OFF */
-    dialidt = 0,   /* DIAL IGNORE-DIALTONE */
+int                // SET DIAL parameters
+    dialhng = 1,   // DIAL HANGUP, default is ON
+    dialdpy = 0,   // DIAL DISPLAY, default is OFF
+    mdmspd = 0,    // DIAL SPEED-MATCHING (0 = OFF)
+    mdmspk = 1,    // MODEM SPEAKER
+    mdmvol = 2,    // MODEM VOLUME
+    dialtmo = 0,   // DIAL TIMEOUT
+    dialatmo = -1, // ANSWER TIMEOUT
+    dialksp = 0,   // DIAL KERMIT-SPOOF, 0 = OFF
+    dialidt = 0,   // DIAL IGNORE-DIALTONE
 #ifndef CK_RTSCTS
-    /* If we can't do RTS/CTS then there's no flow control at first.  */
-    /* So we might easily lose the echo to the init string and the OK */
-    /* and then give "No response from modem" errors. */
-    dialpace = 150, /* DIAL PACING */
+    // If we can't do RTS/CTS then there's no flow control at first.
+    // So we might easily lose the echo to the init string and the OK
+    // and then give "No response from modem" errors.
+    dialpace = 150, // DIAL PACING
 #else
     dialpace = -1,
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
 
-    /* 0 = RS232 (drop DTR); 1 = MODEM-COMMAND (e.g. <sec>+++<sec>ATH0) */
-    dialmhu = DEFMDMHUP; /* MODEM HANGUP-METHOD */
+    // 0 = RS232 (drop DTR); 1 = MODEM-COMMAND (e.g. <sec>+++<sec>ATH0)
+    dialmhu = DEFMDMHUP; // MODEM HANGUP-METHOD
 
-int dialec = 1,                          /* DIAL ERROR-CORRECTION */
-    dialdc = 1,                          /* DIAL COMPRESSION  */
-    dialfc = FLO_AUTO, dialmth = XYDM_D, /* DIAL METHOD (Tone, Pulse, Defalt) */
-    dialmauto = 1,                       /* DIAL METHOD is AUTO */
-    dialesc = 0;                         /* DIAL ESCAPE */
+int dialec = 1,                          // DIAL ERROR-CORRECTION
+    dialdc = 1,                          // DIAL COMPRESSION
+    dialfc = FLO_AUTO, dialmth = XYDM_D, // DIAL METHOD (Tone, Pulse, Defalt)
+    dialmauto = 1,                       // DIAL METHOD is AUTO
+    dialesc = 0;                         // DIAL ESCAPE
 
-int telephony = 0; /* Command-line '-T' option */
+int telephony = 0; // Command-line '-T' option
 
-long dialmax = 0L,  /* Modem's max interface speed */
-    dialcapas = 0L; /* Modem's capabilities */
+long dialmax = 0L,  // Modem's max interface speed
+    dialcapas = 0L; // Modem's capabilities
 
-int dialsta = DIA_UNK; /* Detailed return code (ckuusr.h) */
+int dialsta = DIA_UNK; // Detailed return code (ckuusr.h)
 
 int is_rockwell = 0;
 int is_motorola = 0;
 int is_supra = 0;
 int is_hayeshispd = 0;
 
-/* Dialing directory list */
+// Dialing directory list
 
-char *dialdir[MAXDDIR]; /* DIAL DIRECTORY filename array */
-int ndialdir = 0;       /* How many dial directories */
+char *dialdir[MAXDDIR]; // DIAL DIRECTORY filename array
+int ndialdir = 0;       // How many dial directories
 
-/* User overrides for built-in modem commands */
+// User overrides for built-in modem commands
 
-char *dialini = NULL;   /* MODEM INIT-STRING none */
-char *dialmstr = NULL;  /* MODEM DIALMODE-STRING */
-char *dialmprmt = NULL; /* MODEM DIALMODE-PROMPT */
-char *dialcmd = NULL;   /* MODEM DIAL-COMMAND, default none */
-char *dialname = NULL;  /* Descriptive name for modem */
-char *dialdcon = NULL;  /* DC ON command */
-char *dialdcoff = NULL; /* DC OFF command */
-char *dialecon = NULL;  /* EC ON command */
-char *dialecoff = NULL; /* EC OFF command */
-char *dialaaon = NULL;  /* Autoanswer ON command */
-char *dialaaoff = NULL; /* Autoanswer OFF command */
-char *dialhcmd = NULL;  /* Hangup command */
-char *dialhwfc = NULL;  /* Hardware flow control command */
-char *dialswfc = NULL;  /* (Local) software f.c. command */
-char *dialnofc = NULL;  /* No (Local) flow control command */
-char *dialtone = NULL;  /* Command to force tone dialing */
-char *dialpulse = NULL; /*  ..to force pulse dialing */
-char *dialx3 = NULL;    /* Ignore dialtone */
+char *dialini = NULL;   // MODEM INIT-STRING none
+char *dialmstr = NULL;  // MODEM DIALMODE-STRING
+char *dialmprmt = NULL; // MODEM DIALMODE-PROMPT
+char *dialcmd = NULL;   // MODEM DIAL-COMMAND, default none
+char *dialname = NULL;  // Descriptive name for modem
+char *dialdcon = NULL;  // DC ON command
+char *dialdcoff = NULL; // DC OFF command
+char *dialecon = NULL;  // EC ON command
+char *dialecoff = NULL; // EC OFF command
+char *dialaaon = NULL;  // Autoanswer ON command
+char *dialaaoff = NULL; // Autoanswer OFF command
+char *dialhcmd = NULL;  // Hangup command
+char *dialhwfc = NULL;  // Hardware flow control command
+char *dialswfc = NULL;  // (Local) software f.c. command
+char *dialnofc = NULL;  // No (Local) flow control command
+char *dialtone = NULL;  // Command to force tone dialing
+char *dialpulse = NULL; //  ..to force pulse dialing
+char *dialx3 = NULL;    // Ignore dialtone
 char *mdmname = NULL;
-char *dialspon = NULL;  /* Speaker On command */
-char *dialspoff = NULL; /* Speaker Off command */
-char *dialvol1 = NULL;  /* Volume Low command */
-char *dialvol2 = NULL;  /* Volume Medium command */
-char *dialvol3 = NULL;  /* Volume High command */
-char *dialini2 = NULL;  /* Second init string */
+char *dialspon = NULL;  // Speaker On command
+char *dialspoff = NULL; // Speaker Off command
+char *dialvol1 = NULL;  // Volume Low command
+char *dialvol2 = NULL;  // Volume Medium command
+char *dialvol3 = NULL;  // Volume High command
+char *dialini2 = NULL;  // Second init string
 
-/* Phone number options */
+// Phone number options
 
-char *dialnpr = NULL; /* DIAL PREFIX, ditto */
-char *diallac = NULL; /* DIAL LOCAL-AREA-CODE, ditto */
-char *diallcc = NULL; /* DIAL LOCAL-COUNTRY-CODE, ditto */
-char *dialixp = NULL; /* DIAL INTL-PREFIX */
-char *dialixs = NULL; /* DIAL INTL-SUFFIX */
-char *dialldp = NULL; /* DIAL LD-PREFIX */
-char *diallds = NULL; /* DIAL LD-SUFFIX */
-char *diallcp = NULL; /* DIAL LOCAL-PREFIX */
-char *diallcs = NULL; /* DIAL LOCAL-SUFFIX */
-char *dialpxi = NULL; /* DIAL PBX-INTERNAL-PREFIX */
-char *dialpxo = NULL; /* DIAL PBX-OUTSIDE-PREFIX */
-char *dialsfx = NULL; /* DIAL SUFFIX */
-char *dialtfp = NULL; /* DIAL TOLL-FREE-PREFIX */
+char *dialnpr = NULL; // DIAL PREFIX, ditto
+char *diallac = NULL; // DIAL LOCAL-AREA-CODE, ditto
+char *diallcc = NULL; // DIAL LOCAL-COUNTRY-CODE, ditto
+char *dialixp = NULL; // DIAL INTL-PREFIX
+char *dialixs = NULL; // DIAL INTL-SUFFIX
+char *dialldp = NULL; // DIAL LD-PREFIX
+char *diallds = NULL; // DIAL LD-SUFFIX
+char *diallcp = NULL; // DIAL LOCAL-PREFIX
+char *diallcs = NULL; // DIAL LOCAL-SUFFIX
+char *dialpxi = NULL; // DIAL PBX-INTERNAL-PREFIX
+char *dialpxo = NULL; // DIAL PBX-OUTSIDE-PREFIX
+char *dialsfx = NULL; // DIAL SUFFIX
+char *dialtfp = NULL; // DIAL TOLL-FREE-PREFIX
 
-char *callid_date = NULL; /* Caller ID strings */
+char *callid_date = NULL; // Caller ID strings
 char *callid_time = NULL;
 char *callid_name = NULL;
 char *callid_nmbr = NULL;
 char *callid_mesg = NULL;
 
 extern char *d_name;
-extern char *dialtfc[]; /* DIAL TOLL-FREE-AREA-CODE */
-extern char *dialpxx[]; /* DIAL PBX-EXCHANGE */
+extern char *dialtfc[]; // DIAL TOLL-FREE-AREA-CODE
+extern char *dialpxx[]; // DIAL PBX-EXCHANGE
 extern int ntollfree;
 extern int ndialpxx;
 
-extern char *dialpucc[]; /* DIAL Pulse countries */
+extern char *dialpucc[]; // DIAL Pulse countries
 extern int ndialpucc;
-extern char *dialtocc[]; /* DIAL Tone countries */
+extern char *dialtocc[]; // DIAL Tone countries
 extern int ndialtocc;
 
-char *dialmac = NULL; /* DIAL macro */
+char *dialmac = NULL; // DIAL macro
 
-/* Countries where pulse dialing must be used (tone is not available) */
-static char *pulsecc[] = {NULL}; /* (Unknown at present) */
+// Countries where pulse dialing must be used (tone is not available)
+static char *pulsecc[] = {NULL}; // (Unknown at present)
 
-/* Countries where tone dialing may safely be the default. */
-/* "+" marks countries where pulse is also allowed. */
-/* Both Pulse and Tone are allowed in Austria & Switzerland but it is not */
-/* yet known if Tone is universally in those countries. */
-static char *tonecc[] = {"1",   /* + North American Numbering Plan */
-                         "31",  /*   Netherlands */
-                         "32",  /*   Belgium */
-                         "33",  /*   France */
-                         "352", /*   Luxembourg */
-                         "353", /*   Ireland */
-                         "354", /*   Iceland */
-                         "358", /*   Finland */
-                         "39",  /*   Italy */
-                         "44",  /* + UK */
-                         "45",  /*   Denmark */
-                         "46",  /*   Sweden */
-                         "47",  /*   Norway */
-                         "49",  /* + Germany */
+// Countries where tone dialing may safely be the default.
+// "+" marks countries where pulse is also allowed.
+// Both Pulse and Tone are allowed in Austria & Switzerland but it is not
+// yet known if Tone is universally in those countries.
+static char *tonecc[] = {"1",   // + North American Numbering Plan
+                         "31",  //   Netherlands
+                         "32",  //   Belgium
+                         "33",  //   France
+                         "352", //   Luxembourg
+                         "353", //   Ireland
+                         "354", //   Iceland
+                         "358", //   Finland
+                         "39",  //   Italy
+                         "44",  // + UK
+                         "45",  //   Denmark
+                         "46",  //   Sweden
+                         "47",  //   Norway
+                         "49",  // + Germany
                          NULL};
 
 #ifndef MINIDIAL
-/*
-  Telebit model codes:
+// Telebit model codes:
+//
+// ATI  Model Numbers           Examples
+// ---  -------------           --------
+// 123                          Telebit in "total Hayes-1200" emulation mode
+// 960                          Telebit in Conventional Command (Hayes) mode
+// 961  RA12C                   IBM PC internal original Trailblazer
+// 962  RA12E                   External original Trailblazer
+// 963  RM12C                   Rackmount original Trailblazer
+// 964  T18PC                   IBM PC internal Trailblazer-Plus (TB+)
+// 965  T18SA, T2SAA, T2SAS     External TB+, T1600, T2000, T3000, WB, and later
+// 966  T18RMM                  Rackmount TB+
+// 967  T2MC                    IBM PS/2 internal TB+
+// 968  T1000                   External T1000
+// 969  ?                       Qblazer
+// 970                          Qblazer Plus
+// 971  T2500                   External T2500
+// 972  T2500                   Rackmount T2500
 
-  ATI  Model Numbers           Examples
-  ---  -------------           --------
-  123                          Telebit in "total Hayes-1200" emulation mode
-  960                          Telebit in Conventional Command (Hayes) mode
-  961  RA12C                   IBM PC internal original Trailblazer
-  962  RA12E                   External original Trailblazer
-  963  RM12C                   Rackmount original Trailblazer
-  964  T18PC                   IBM PC internal Trailblazer-Plus (TB+)
-  965  T18SA, T2SAA, T2SAS     External TB+, T1600, T2000, T3000, WB, and later
-  966  T18RMM                  Rackmount TB+
-  967  T2MC                    IBM PS/2 internal TB+
-  968  T1000                   External T1000
-  969  ?                       Qblazer
-  970                          Qblazer Plus
-  971  T2500                   External T2500
-  972  T2500                   Rackmount T2500
-*/
+// Telebit model codes
 
-/* Telebit model codes */
+#define TB_UNK 0   // Unknown Telebit model
+#define TB_BLAZ 1  // Original TrailBlazer
+#define TB_PLUS 2  // TrailBlazer Plus
+#define TB_1000 3  // T1000
+#define TB_1500 4  // T1500
+#define TB_1600 5  // T1600
+#define TB_2000 6  // T2000
+#define TB_2500 7  // T2500
+#define TB_3000 8  // T3000
+#define TB_QBLA 9  // Qblazer
+#define TB_WBLA 10 // WorldBlazer
+#define TB__MAX 10 // Highest number
 
-#define TB_UNK 0   /* Unknown Telebit model */
-#define TB_BLAZ 1  /* Original TrailBlazer */
-#define TB_PLUS 2  /* TrailBlazer Plus */
-#define TB_1000 3  /* T1000 */
-#define TB_1500 4  /* T1500 */
-#define TB_1600 5  /* T1600 */
-#define TB_2000 6  /* T2000 */
-#define TB_2500 7  /* T2500 */
-#define TB_3000 8  /* T3000 */
-#define TB_QBLA 9  /* Qblazer */
-#define TB_WBLA 10 /* WorldBlazer */
-#define TB__MAX 10 /* Highest number */
-
-char *tb_name[] = {                    /* Array of model names */
-                   "Unknown",          /* TB_UNK  */
-                   "TrailBlazer",      /* TB_BLAZ */
-                   "TrailBlazer-Plus", /* TB_PLUS */
-                   "T1000",            /* TB_1000 */
-                   "T1500",            /* TB_1500 */
-                   "T1600",            /* TB_1600 */
-                   "T2000",            /* TB_2000 */
-                   "T2500",            /* TB_2500 */
-                   "T3000",            /* TB_3000 */
-                   "Qblazer",          /* TB_QBLA */
-                   "WorldBlazer",      /* TB_WBLA */
-                   ""};
-#endif /* MINIDIAL */
+char *tb_name[] = {     // Array of model names
+    "Unknown",          // TB_UNK
+    "TrailBlazer",      // TB_BLAZ
+    "TrailBlazer-Plus", // TB_PLUS
+    "T1000",            // TB_1000
+    "T1500",            // TB_1500
+    "T1600",            // TB_1600
+    "T2000",            // TB_2000
+    "T2500",            // TB_2500
+    "T3000",            // TB_3000
+    "Qblazer",          // TB_QBLA
+    "WorldBlazer",      // TB_WBLA
+    ""};
+#endif // MINIDIAL
 
 extern int flow, local, mdmtyp, quiet, backgrd, parity, seslog, network;
 extern int carrier, duplex, mdmsav, reliable, setreliable;
@@ -370,31 +360,31 @@ extern char ttname[], sesfil[];
 #ifndef NOXFER
 extern CHAR stchr;
 extern int interrupted;
-#endif /* NOXFER */
+#endif // NOXFER
 
-/*  Failure codes  */
+//  Failure codes
 
-#define F_TIME 1  /* timeout */
-#define F_INT 2   /* interrupt */
-#define F_MODEM 3 /* modem-detected failure */
-#define F_MINIT 4 /* cannot initialize modem */
+#define F_TIME 1  // timeout
+#define F_INT 2   // interrupt
+#define F_MODEM 3 // modem-detected failure
+#define F_MINIT 4 // cannot initialize modem
 
 #ifndef CK_TAPI
 static
-#endif                 /* CK_TAPI */
-    int fail_code = 0; /* Default failure reason. */
+#endif                 // CK_TAPI
+    int fail_code = 0; // Default failure reason.
 
 static int xredial = 0;
-static int func_code; /* 0 = dialing, nonzero = answering */
+static int func_code; // 0 = dialing, nonzero = answering
 static int partial;
 static int mymdmtyp = 0;
 
-#define DW_NOTHING 0 /* What we are doing */
+#define DW_NOTHING 0 // What we are doing
 #define DW_INIT 1
 #define DW_DIAL 2
 
-static int dial_what = DW_NOTHING; /* Nothing at first. */
-static int nonverbal = 0;          /* Hayes in numeric response mode */
+static int dial_what = DW_NOTHING; // Nothing at first.
+static int nonverbal = 0;          // Hayes in numeric response mode
 static MDMINF *mp;
 static CHAR escbuf[6];
 static long mdmcapas;
@@ -414,3252 +404,3241 @@ static int dialfail(int);
 static void gethrw(void);
 static void gethrn(void);
 
-int dialudt = n_UDEF; /* Number of user-defined type */
+int dialudt = n_UDEF; // Number of user-defined type
 
-/* BEGIN MDMINF STRUCT DEFINITIONS */
+// BEGIN MDMINF STRUCT DEFINITIONS
 
-/*
-  Declare structures containing modem-specific information.
-  REMEMBER that only the first SEVEN characters of these names are
-  guaranteed to be unique.
-
-  First declare the three types that are allowed for MINIDIAL versions.
-*/
-static MDMINF CCITT = /* CCITT / ITU-T V.25bis autodialer */
-                      /*
-                        According to V.25bis:
-                        . Even parity is required for giving commands to the modem.
-                        . Commands might or might not echo.
-                        . Responses ("Indications") from the modem are terminated by CR and LF.
-                        . Call setup is accomplished by:
-                          - DTE raises DTR (V.24 circuit 108)              [ttopen() does this]
-                          - Modem raises CTS (V.24 circuit 106)            [C-Kermit ignores this]
-                          - DTE issues a call request command ("CRN")
-                          - Modem responds with "VAL" ("command accepted")
-                          - If the call is completed:
-                              modem responds with "CNX" ("call connected");
-                              modem turns CTS (106) OFF;
-                              modem turns DSR (107) ON;
-                            else:
-                              modem responds with "CFI <parameter>" ("call failure indication").
-                        . To clear a call, the DTE turns DTR (108) OFF.
-                        . There is no mention of the Carrier Detect circuit (109) in the standard.
-                        . There is no provision for "escaping back" to the modem's command mode.
-                  
-                        It is not known whether there exists in real life a pure V.25bis modem.
-                        If there is, this code has never been tested on it.  See the Digitel
-                        entry.
-                      */
+// Declare structures containing modem-specific information.
+// REMEMBER that only the first SEVEN characters of these names are
+// guaranteed to be unique.
+//
+// First declare the three types that are allowed for MINIDIAL versions.
+static MDMINF
+    CCITT = // CCITT / ITU-T V.25bis autodialer
+            // According to V.25bis:
+            // . Even parity is required for giving commands to the modem.
+            // . Commands might or might not echo.
+            // . Responses ("Indications") from the modem are terminated by CR
+            // and LF. . Call setup is accomplished by:
+            //  - DTE raises DTR (V.24 circuit 108)              [ttopen() does
+            //  this]
+            //  - Modem raises CTS (V.24 circuit 106)            [C-Kermit
+            //  ignores this]
+            //  - DTE issues a call request command ("CRN")
+            //  - Modem responds with "VAL" ("command accepted")
+            //  - If the call is completed:
+            //      modem responds with "CNX" ("call connected");
+            //      modem turns CTS (106) OFF;
+            //      modem turns DSR (107) ON;
+            //    else:
+            //      modem responds with "CFI <parameter>" ("call failure
+            //      indication").
+            // . To clear a call, the DTE turns DTR (108) OFF.
+            // . There is no mention of the Carrier Detect circuit (109) in the
+            // standard. . There is no provision for "escaping back" to the
+            // modem's command mode.
+    //
+    // It is not known whether there exists in real life a pure V.25bis modem.
+    // If there is, this code has never been tested on it.  See the Digitel
+    // entry.
     {
-        "Any CCITT / ITU-T V.25bis conformant modem", "", /* pulse command */
-        "",                                               /* tone command */
-        40,          /* dial_time -- programmable -- */
-        ",:",        /* pause_chars -- "," waits for programmable time */
-                     /* ":" waits for dial tone */
-        10,          /* pause_time (seconds, just a guess) */
-        "",          /* wake_str (none) */
-        200,         /* wake_rate (msec) */
-        "VAL",       /* wake_prompt */
-        "",          /* dmode_str (none) */
-        "",          /* dmode_prompt (none) */
-        "CRN%s\015", /* dial_str */
-        200,         /* dial_rate (msec) */
-        0,           /* No esc_time */
-        0,           /* No esc_char  */
-        "",          /* No hup_str  */
-        "",          /* hwfc_str */
-        "",          /* swfc_str */
-        "",          /* nofc_str */
-        "",          /* ec_on_str */
-        "",          /* ec_off_str */
-        "",          /* dc_on_str */
-        "",          /* dc_off_str */
-        "CIC\015",   /* aa_on_str */
-        "DIC\015",   /* aa_off_str */
-        "",          /* sb_on_str */
-        "",          /* sb_off_str */
-        "",          /* sp_off_str */
-        "",          /* sp_on_str */
-        "",          /* vol1_str */
-        "",          /* vol2_str */
-        "",          /* vol3_str */
-        "",          /* ignoredt */
-        "",          /* ini2 */
-        0L,          /* max_speed */
-        CKD_V25,     /* capas */
-        NULL         /* No ok_fn    */
+        "Any CCITT / ITU-T V.25bis conformant modem", "", // pulse command
+        "",                                               // tone command
+        40,          // dial_time -- programmable --
+        ",:",        // pause_chars -- "," waits for programmable time
+                     // ":" waits for dial tone
+        10,          // pause_time (seconds, just a guess)
+        "",          // wake_str (none)
+        200,         // wake_rate (msec)
+        "VAL",       // wake_prompt
+        "",          // dmode_str (none)
+        "",          // dmode_prompt (none)
+        "CRN%s\015", // dial_str
+        200,         // dial_rate (msec)
+        0,           // No esc_time
+        0,           // No esc_char
+        "",          // No hup_str
+        "",          // hwfc_str
+        "",          // swfc_str
+        "",          // nofc_str
+        "",          // ec_on_str
+        "",          // ec_off_str
+        "",          // dc_on_str
+        "",          // dc_off_str
+        "CIC\015",   // aa_on_str
+        "DIC\015",   // aa_off_str
+        "",          // sb_on_str
+        "",          // sb_off_str
+        "",          // sp_off_str
+        "",          // sp_on_str
+        "",          // vol1_str
+        "",          // vol2_str
+        "",          // vol3_str
+        "",          // ignoredt
+        "",          // ini2
+        0L,          // max_speed
+        CKD_V25,     // capas
+        NULL         // No ok_fn
 };
 
-static MDMINF HAYES = /* Hayes 2400 and compatible modems */
+static MDMINF HAYES = // Hayes 2400 and compatible modems
     {
         "Hayes Smartmodem 2400 and compatibles",
-        "ATP\015",    /* pulse command */
-        "ATT\015",    /* tone command */
-        35,           /* dial_time */
-        ",",          /* pause_chars */
-        2,            /* pause_time */
-        "ATQ0\015",   /* wake_str */
-        0,            /* wake_rate */
-        "OK\015",     /* wake_prompt */
-        "",           /* dmode_str */
-        "",           /* dmode_prompt */
-        "ATD%s\015",  /* dial_str, user supplies D or T */
-        0,            /* dial_rate */
-        1100,         /* esc_time */
-        43,           /* esc_char */
-        "ATQ0H0\015", /* hup_str */
-        "",           /* hwfc_str */
-        "",           /* swfc_str */
-        "",           /* nofc_str */
-        "",           /* ec_on_str */
-        "",           /* ec_off_str */
-        "",           /* dc_on_str */
-        "",           /* dc_off_str */
-        "ATS0=1\015", /* aa_on_str */
-        "ATS0=0\015", /* aa_off_str */
-        "",           /* sb_on_str */
-        "",           /* sb_off_str */
-        "ATM1\015",   /* sp_on_str */
-        "ATM0\015",   /* sp_off_str */
-        "ATL1\015",   /* vol1_str */
-        "ATL2\015",   /* vol2_str */
-        "ATL3\015",   /* vol3_str */
-        "ATX3\015",   /* ignoredt */
-        "",           /* ini2 */
-        2400L,        /* max_speed */
-        CKD_AT,       /* capas */
-        getok         /* ok_fn */
+        "ATP\015",    // pulse command
+        "ATT\015",    // tone command
+        35,           // dial_time
+        ",",          // pause_chars
+        2,            // pause_time
+        "ATQ0\015",   // wake_str
+        0,            // wake_rate
+        "OK\015",     // wake_prompt
+        "",           // dmode_str
+        "",           // dmode_prompt
+        "ATD%s\015",  // dial_str, user supplies D or T
+        0,            // dial_rate
+        1100,         // esc_time
+        43,           // esc_char
+        "ATQ0H0\015", // hup_str
+        "",           // hwfc_str
+        "",           // swfc_str
+        "",           // nofc_str
+        "",           // ec_on_str
+        "",           // ec_off_str
+        "",           // dc_on_str
+        "",           // dc_off_str
+        "ATS0=1\015", // aa_on_str
+        "ATS0=0\015", // aa_off_str
+        "",           // sb_on_str
+        "",           // sb_off_str
+        "ATM1\015",   // sp_on_str
+        "ATM0\015",   // sp_off_str
+        "ATL1\015",   // vol1_str
+        "ATL2\015",   // vol2_str
+        "ATL3\015",   // vol3_str
+        "ATX3\015",   // ignoredt
+        "",           // ini2
+        2400L,        // max_speed
+        CKD_AT,       // capas
+        getok         // ok_fn
 };
 
-/*
-  The intent of the "unknown" modem is to allow KERMIT to support
-  unknown modems by having the user type the entire autodial sequence
-  (possibly including control characters, etc.) as the "phone number".
-  The protocol and other characteristics of this modem are unknown, with
-  some "reasonable" values being chosen for some of them.  The only way to
-  detect if a connection is made is to look for carrier.
-*/
-static MDMINF UNKNOWN = /* Information for "Unknown" modem */
+// The intent of the "unknown" modem is to allow KERMIT to support
+// unknown modems by having the user type the entire autodial sequence
+// (possibly including control characters, etc.) as the "phone number".
+// The protocol and other characteristics of this modem are unknown, with
+// some "reasonable" values being chosen for some of them.  The only way to
+// detect if a connection is made is to look for carrier.
+static MDMINF UNKNOWN = // Information for "Unknown" modem
     {
-        "Unknown", /* name */
-        "",        /* pulse command */
-        "",        /* tone command */
-        30,        /* dial_time */
-        "",        /* pause_chars */
-        0,         /* pause_time */
-        "",        /* wake_str */
-        0,         /* wake_rate */
-        "",        /* wake_prompt */
-        "",        /* dmode_str */
-        NULL,      /* dmode_prompt */
-        "%s\015",  /* dial_str */
-        0,         /* dial_rate */
-        0,         /* esc_time */
-        0,         /* esc_char */
-        "",        /* hup_str */
-        "",        /* hwfc_str */
-        "",        /* swfc_str */
-        "",        /* nofc_str */
-        "",        /* ec_on_str */
-        "",        /* ec_off_str */
-        "",        /* dc_on_str */
-        "",        /* dc_off_str */
-        "",        /* aa_on_str */
-        "",        /* aa_off_str */
-        "",        /* sb_on_str */
-        "",        /* sb_off_str */
-        "",        /* sp_off_str */
-        "",        /* sp_on_str */
-        "",        /* vol1_str */
-        "",        /* vol2_str */
-        "",        /* vol3_str */
-        "",        /* ignoredt */
-        "",        /* ini2 */
-        0L,        /* max_speed */
-        0,         /* capas */
-        NULL       /* ok_fn */
+        "Unknown", // name
+        "",        // pulse command
+        "",        // tone command
+        30,        // dial_time
+        "",        // pause_chars
+        0,         // pause_time
+        "",        // wake_str
+        0,         // wake_rate
+        "",        // wake_prompt
+        "",        // dmode_str
+        NULL,      // dmode_prompt
+        "%s\015",  // dial_str
+        0,         // dial_rate
+        0,         // esc_time
+        0,         // esc_char
+        "",        // hup_str
+        "",        // hwfc_str
+        "",        // swfc_str
+        "",        // nofc_str
+        "",        // ec_on_str
+        "",        // ec_off_str
+        "",        // dc_on_str
+        "",        // dc_off_str
+        "",        // aa_on_str
+        "",        // aa_off_str
+        "",        // sb_on_str
+        "",        // sb_off_str
+        "",        // sp_off_str
+        "",        // sp_on_str
+        "",        // vol1_str
+        "",        // vol2_str
+        "",        // vol3_str
+        "",        // ignoredt
+        "",        // ini2
+        0L,        // max_speed
+        0,         // capas
+        NULL       // ok_fn
 };
 
 #ifndef MINIDIAL
-static MDMINF ATTISN = /* AT&T ISN Network */
+static MDMINF ATTISN = // AT&T ISN Network
     {
-        "", /* pulse command */
-        "", /* tone command */
+        "", // pulse command
+        "", // tone command
         "AT&T ISN Network",
-        30,                 /* Dial time */
-        "",                 /* Pause characters */
-        0,                  /* Pause time */
-        "\015\015\015\015", /* Wake string */
-        900,                /* Wake rate */
-        "DIAL",             /* Wake prompt */
-        "",                 /* dmode_str */
-        "",                 /* dmode_prompt */
-        "%s\015",           /* dial_str */
-        0,                  /* dial_rate */
-        0,                  /* esc_time */
-        0,                  /* esc_char */
-        "",                 /* hup_str */
-        "",                 /* hwfc_str */
-        "",                 /* swfc_str */
-        "",                 /* nofc_str */
-        "",                 /* ec_on_str */
-        "",                 /* ec_off_str */
-        "",                 /* dc_on_str */
-        "",                 /* dc_off_str */
-        "",                 /* aa_on_str */
-        "",                 /* aa_off_str */
-        "",                 /* sb_on_str */
-        "",                 /* sb_off_str */
-        "",                 /* sp_off_str */
-        "",                 /* sp_on_str */
-        "",                 /* vol1_str */
-        "",                 /* vol2_str */
-        "",                 /* vol3_str */
-        "",                 /* ignoredt */
-        "",                 /* ini2 */
-        0L,                 /* max_speed */
-        0,                  /* capas */
-        NULL                /* ok_fn */
+        30,                 // Dial time
+        "",                 // Pause characters
+        0,                  // Pause time
+        "\015\015\015\015", // Wake string
+        900,                // Wake rate
+        "DIAL",             // Wake prompt
+        "",                 // dmode_str
+        "",                 // dmode_prompt
+        "%s\015",           // dial_str
+        0,                  // dial_rate
+        0,                  // esc_time
+        0,                  // esc_char
+        "",                 // hup_str
+        "",                 // hwfc_str
+        "",                 // swfc_str
+        "",                 // nofc_str
+        "",                 // ec_on_str
+        "",                 // ec_off_str
+        "",                 // dc_on_str
+        "",                 // dc_off_str
+        "",                 // aa_on_str
+        "",                 // aa_off_str
+        "",                 // sb_on_str
+        "",                 // sb_off_str
+        "",                 // sp_off_str
+        "",                 // sp_on_str
+        "",                 // vol1_str
+        "",                 // vol2_str
+        "",                 // vol3_str
+        "",                 // ignoredt
+        "",                 // ini2
+        0L,                 // max_speed
+        0,                  // capas
+        NULL                // ok_fn
 };
 
-static MDMINF ATTMODEM = /* information for AT&T switched-network modems */
-                         /* "Number" following "dial" can include: p's and
-                          * t's to indicate pulse or tone (default) dialing,
-                          * + for wait for dial tone, , for pause, r for
-                          * last number dialed, and, except for 2224B, some
-                          * comma-delimited options like o12=y, before number.
-                     
-  * "Important" options for the modems:
-  *
-  *	All:		Except for 2224B, enable option 12 for "transparent
-  *			data," o12=y.  If a computer port used for both
-  *			incoming and outgoing calls is connected to the
-  *			modem, disable "enter interactive mode on carriage
-  *			return," EICR.  The Kermit "dial" command can
-  *			function with EIA leads standard, EIAS.
-  *
-  *	2212C:		Internal hardware switches at their default
-  *			positions (four rockers down away from numbers)
-  *			unless EICR is not wanted (rocker down at the 4).
-  *			For EIAS, rocker down at the 1.
-  *
-  *	2224B:		Front-panel switch position 1 must be up (at the 1,
-  *			closed).  Disable EICR with position 2 down.
-  *			For EIAS, position 4 down.
-  *			All switches on the back panel down.
-  *
-  *	2224CEO:	All front-panel switches down except either 5 or 6.
-  *			Enable interactive flow control with o16=y.
-  *			Select normal asynchronous mode with o34=0 (zero).
-  *			Disable EICR with position 3 up.  For EIAS, 1 up.
-  *			Reset the modem after changing switches.
-  *
-  *	2296A:		If option 00 (zeros) is present, use o00=0.
-  *			Enable interactive flow control with o16=y.
-  *			Select normal asynchronous mode with o34=0 (zero).
-  *                      (available in Microcom Networking version, but
-  *                      not necessarily other models of the 2296A).
-  *			Enable modem-port flow control (if available) with
-  * 			o42=y.  Enable asynchronous operation with o50=y.
-  * 			Disable EICR with o69=n.  For EIAS, o66=n, using
-  * 			front panel.
-  */
+static MDMINF ATTMODEM = // information for AT&T switched-network modems
+                         // "Number" following "dial" can include: p's and
+                         // t's to indicate pulse or tone (default) dialing,
+                         // + for wait for dial tone, , for pause, r for
+                         // last number dialed, and, except for 2224B, some
+                         // comma-delimited options like o12=y, before number.
+                         //
+                         // "Important" options for the modems:
+                         //
+    // All:		Except for 2224B, enable option 12 for "transparent
+    //		data," o12=y.  If a computer port used for both
+    //		incoming and outgoing calls is connected to the
+    //		modem, disable "enter interactive mode on carriage
+    //		return," EICR.  The Kermit "dial" command can
+    //		function with EIA leads standard, EIAS.
+    //
+    // 2212C:		Internal hardware switches at their default
+    //		positions (four rockers down away from numbers)
+    //		unless EICR is not wanted (rocker down at the 4).
+    //		For EIAS, rocker down at the 1.
+    //
+    // 2224B:		Front-panel switch position 1 must be up (at the 1,
+    //		closed).  Disable EICR with position 2 down.
+    //		For EIAS, position 4 down.
+    //		All switches on the back panel down.
+    //
+    // 2224CEO:	All front-panel switches down except either 5 or 6.
+    //		Enable interactive flow control with o16=y.
+    //		Select normal asynchronous mode with o34=0 (zero).
+    //		Disable EICR with position 3 up.  For EIAS, 1 up.
+    //		Reset the modem after changing switches.
+    //
+    // 2296A:		If option 00 (zeros) is present, use o00=0.
+    //		Enable interactive flow control with o16=y.
+    //		Select normal asynchronous mode with o34=0 (zero).
+    //                     (available in Microcom Networking version, but
+    //                     not necessarily other models of the 2296A).
+    //		Enable modem-port flow control (if available) with
+    //			o42=y.  Enable asynchronous operation with o50=y.
+    //			Disable EICR with o69=n.  For EIAS, o66=n, using
+    //			front panel.
     {
         "AT&T switched-network modems",
-        "",         /* pulse command */
-        "",         /* tone command */
-        20,         /* dial_time */
-        ",",        /* pause_chars */
-        2,          /* pause_time */
-        "+",        /* wake_str */
-        0,          /* wake_rate */
-        "",         /* wake_prompt */
-        "",         /* dmode_str */
-        "",         /* dmode_prompt */
-        "at%s\015", /* dial_str */
-        0,          /* dial_rate */
-        0,          /* esc_time */
-        0,          /* esc_char */
-        "",         /* hup_str */
-        "",         /* hwfc_str */
-        "",         /* swfc_str */
-        "",         /* nofc_str */
-        "",         /* ec_on_str */
-        "",         /* ec_off_str */
-        "",         /* dc_on_str */
-        "",         /* dc_off_str */
-        "",         /* aa_on_str */
-        "",         /* aa_off_str */
-        "",         /* sb_on_str */
-        "",         /* sb_off_str */
-        "",         /* sp_off_str */
-        "",         /* sp_on_str */
-        "",         /* vol1_str */
-        "",         /* vol2_str */
-        "",         /* vol3_str */
-        "",         /* ignoredt */
-        "",         /* ini2 */
-        0L,         /* max_speed */
-        CKD_AT,     /* capas */
-        NULL        /* ok_fn */
+        "",         // pulse command
+        "",         // tone command
+        20,         // dial_time
+        ",",        // pause_chars
+        2,          // pause_time
+        "+",        // wake_str
+        0,          // wake_rate
+        "",         // wake_prompt
+        "",         // dmode_str
+        "",         // dmode_prompt
+        "at%s\015", // dial_str
+        0,          // dial_rate
+        0,          // esc_time
+        0,          // esc_char
+        "",         // hup_str
+        "",         // hwfc_str
+        "",         // swfc_str
+        "",         // nofc_str
+        "",         // ec_on_str
+        "",         // ec_off_str
+        "",         // dc_on_str
+        "",         // dc_off_str
+        "",         // aa_on_str
+        "",         // aa_off_str
+        "",         // sb_on_str
+        "",         // sb_off_str
+        "",         // sp_off_str
+        "",         // sp_on_str
+        "",         // vol1_str
+        "",         // vol2_str
+        "",         // vol3_str
+        "",         // ignoredt
+        "",         // ini2
+        0L,         // max_speed
+        CKD_AT,     // capas
+        NULL        // ok_fn
 };
 
-static MDMINF ATTDTDM = /* AT&T Digital Terminal Data Module  */
-                        /* For dialing: KYBD switch down, others usually up. */
+static MDMINF ATTDTDM = // AT&T Digital Terminal Data Module
+                        // For dialing: KYBD switch down, others usually up.
     {
         "AT&T Digital Terminal Data Module",
-        "",       /* pulse command */
-        "",       /* tone command */
-        20,       /* dial_time */
-        "",       /* pause_chars */
-        0,        /* pause_time */
-        "",       /* wake_str */
-        0,        /* wake_rate */
-        "",       /* wake_prompt */
-        "",       /* dmode_str */
-        "",       /* dmode_prompt */
-        "%s\015", /* dial_str */
-        0,        /* dial_rate */
-        0,        /* esc_time */
-        0,        /* esc_char */
-        "",       /* hup_str */
-        "",       /* hwfc_str */
-        "",       /* swfc_str */
-        "",       /* nofc_str */
-        "",       /* ec_on_str */
-        "",       /* ec_off_str */
-        "",       /* dc_on_str */
-        "",       /* dc_off_str */
-        "",       /* aa_on_str */
-        "",       /* aa_off_str */
-        "",       /* sb_on_str */
-        "",       /* sb_off_str */
-        "",       /* sp_off_str */
-        "",       /* sp_on_str */
-        "",       /* vol1_str */
-        "",       /* vol2_str */
-        "",       /* vol3_str */
-        "",       /* ignoredt */
-        "",       /* ini2 */
-        0L,       /* max_speed */
-        0,        /* capas */
-        NULL      /* ok_fn */
+        "",       // pulse command
+        "",       // tone command
+        20,       // dial_time
+        "",       // pause_chars
+        0,        // pause_time
+        "",       // wake_str
+        0,        // wake_rate
+        "",       // wake_prompt
+        "",       // dmode_str
+        "",       // dmode_prompt
+        "%s\015", // dial_str
+        0,        // dial_rate
+        0,        // esc_time
+        0,        // esc_char
+        "",       // hup_str
+        "",       // hwfc_str
+        "",       // swfc_str
+        "",       // nofc_str
+        "",       // ec_on_str
+        "",       // ec_off_str
+        "",       // dc_on_str
+        "",       // dc_off_str
+        "",       // aa_on_str
+        "",       // aa_off_str
+        "",       // sb_on_str
+        "",       // sb_off_str
+        "",       // sp_off_str
+        "",       // sp_on_str
+        "",       // vol1_str
+        "",       // vol2_str
+        "",       // vol3_str
+        "",       // ignoredt
+        "",       // ini2
+        0L,       // max_speed
+        0,        // capas
+        NULL      // ok_fn
 };
 
-static MDMINF DIGITEL = /* Digitel DT-22 CCITT variant used in Brazil */
-                        /*
-                          Attempts to adhere strictly to the V.25bis specification do not produce
-                          good                     results in real life.  The modem for which this
-                          code was developed:                     (a)                     ignores
-                          parity; (b) sometimes                     terminates responses with LF CR
-                          instead                     of CR                     LF;                     (c)                     has a
-                          Hayes-like escape sequence; (d) supports a hangup
-                          ("HUP")                     command.  Information from Fernando Cabral in
-                          Brasilia.
-                        */
+static MDMINF DIGITEL = // Digitel DT-22 CCITT variant used in Brazil
+                        // Attempts to adhere strictly to the V.25bis
+                        // specification do not produce good results in real
+                        // life.  The modem for which this code was developed:
+                        // (a)                     ignores parity; (b) sometimes
+                        // terminates responses with LF CR instead of CR LF; (c)
+                        // has a Hayes-like escape sequence; (d) supports a
+                        // hangup
+                        // ("HUP")                     command.  Information
+                        // from Fernando Cabral in Brasilia.
     {
-        "Digitel DT-22 CCITT dialer", "", /* pulse command */
-        "",                               /* tone command */
-        40,                               /* dial_time -- programmable -- */
-        ",:",        /* pause_chars -- "," waits for programmable time */
-                     /* ":" waits for dial tone */
-        10,          /* pause_time (seconds, just a guess) */
-        "HUP\015",   /* wake_str (Not Standard CCITT) */
-        200,         /* wake_rate (msec) */
-        "VAL",       /* wake_prompt */
-        "",          /* dmode_str (none) */
-        "",          /* dmode_prompt (none) */
-        "CRN%s\015", /* dial_str */
-        200,         /* dial_rate (msec) */
-        1100,        /* esc_time (Not Standard CCITT) */
-        43,          /* esc_char  (Not Standard CCITT) */
-        "HUP\015",   /* hup_str  (Not Standard CCITT) */
-        "",          /* hwfc_str */
-        "",          /* swfc_str */
-        "",          /* nofc_str */
-        "",          /* ec_on_str */
-        "",          /* ec_off_str */
-        "",          /* dc_on_str */
-        "",          /* dc_off_str */
-        "CIC\015",   /* aa_on_str */
-        "DIC\015",   /* aa_off_str */
-        "",          /* sb_on_str */
-        "",          /* sb_off_str */
-        "",          /* sp_off_str */
-        "",          /* sp_on_str */
-        "",          /* vol1_str */
-        "",          /* vol2_str */
-        "",          /* vol3_str */
-        "",          /* ignoredt */
-        "",          /* ini2 */
-        0L,          /* max_speed */
-        CKD_V25,     /* capas */
-        getok        /* ok_fn */
+        "Digitel DT-22 CCITT dialer", "", // pulse command
+        "",                               // tone command
+        40,                               // dial_time -- programmable --
+        ",:",        // pause_chars -- "," waits for programmable time
+                     // ":" waits for dial tone
+        10,          // pause_time (seconds, just a guess)
+        "HUP\015",   // wake_str (Not Standard CCITT)
+        200,         // wake_rate (msec)
+        "VAL",       // wake_prompt
+        "",          // dmode_str (none)
+        "",          // dmode_prompt (none)
+        "CRN%s\015", // dial_str
+        200,         // dial_rate (msec)
+        1100,        // esc_time (Not Standard CCITT)
+        43,          // esc_char  (Not Standard CCITT)
+        "HUP\015",   // hup_str  (Not Standard CCITT)
+        "",          // hwfc_str
+        "",          // swfc_str
+        "",          // nofc_str
+        "",          // ec_on_str
+        "",          // ec_off_str
+        "",          // dc_on_str
+        "",          // dc_off_str
+        "CIC\015",   // aa_on_str
+        "DIC\015",   // aa_off_str
+        "",          // sb_on_str
+        "",          // sb_off_str
+        "",          // sp_off_str
+        "",          // sp_on_str
+        "",          // vol1_str
+        "",          // vol2_str
+        "",          // vol3_str
+        "",          // ignoredt
+        "",          // ini2
+        0L,          // max_speed
+        CKD_V25,     // capas
+        getok        // ok_fn
 };
 
-static MDMINF H_1200 = /* Hayes 1200 and compatible modems */
+static MDMINF H_1200 = // Hayes 1200 and compatible modems
     {
         "Hayes Smartmodem 1200 and compatibles",
-        "ATP\015",    /* pulse command */
-        "ATT\015",    /* tone command */
-        35,           /* dial_time */
-        ",",          /* pause_chars */
-        2,            /* pause_time */
-        "ATQ0\015",   /* wake_str */
-        0,            /* wake_rate */
-        "OK\015",     /* wake_prompt */
-        "",           /* dmode_str */
-        "",           /* dmode_prompt */
-        "ATD%s\015",  /* dial_str */
-        0,            /* dial_rate */
-        1100,         /* esc_time */
-        43,           /* esc_char */
-        "ATQ0H0\015", /* hup_str */
-        "",           /* hwfc_str */
-        "",           /* swfc_str */
-        "",           /* nofc_str */
-        "",           /* ec_on_str */
-        "",           /* ec_off_str */
-        "",           /* dc_on_str */
-        "",           /* dc_off_str */
-        "ATS0=1\015", /* aa_on_str */
-        "ATS0=0\015", /* aa_off_str */
-        "",           /* sb_on_str */
-        "",           /* sb_off_str */
-        "ATM1\015",   /* sp_on_str */
-        "ATM0\015",   /* sp_off_str */
-        "ATL1\015",   /* vol1_str */
-        "ATL2\015",   /* vol2_str */
-        "ATL3\015",   /* vol3_str */
-        "",           /* ignoredt */
-        "",           /* ini2 */
-        1200L,        /* max_speed */
-        CKD_AT,       /* capas */
-        getok         /* ok_fn */
+        "ATP\015",    // pulse command
+        "ATT\015",    // tone command
+        35,           // dial_time
+        ",",          // pause_chars
+        2,            // pause_time
+        "ATQ0\015",   // wake_str
+        0,            // wake_rate
+        "OK\015",     // wake_prompt
+        "",           // dmode_str
+        "",           // dmode_prompt
+        "ATD%s\015",  // dial_str
+        0,            // dial_rate
+        1100,         // esc_time
+        43,           // esc_char
+        "ATQ0H0\015", // hup_str
+        "",           // hwfc_str
+        "",           // swfc_str
+        "",           // nofc_str
+        "",           // ec_on_str
+        "",           // ec_off_str
+        "",           // dc_on_str
+        "",           // dc_off_str
+        "ATS0=1\015", // aa_on_str
+        "ATS0=0\015", // aa_off_str
+        "",           // sb_on_str
+        "",           // sb_off_str
+        "ATM1\015",   // sp_on_str
+        "ATM0\015",   // sp_off_str
+        "ATL1\015",   // vol1_str
+        "ATL2\015",   // vol2_str
+        "ATL3\015",   // vol3_str
+        "",           // ignoredt
+        "",           // ini2
+        1200L,        // max_speed
+        CKD_AT,       // capas
+        getok         // ok_fn
 };
 
-static MDMINF H_ULTRA = /* Hayes high-speed */
+static MDMINF H_ULTRA = // Hayes high-speed
     {
-        "Hayes Ultra/Optima/Accura 96/144/288", /* U,O,A */
-        "ATP\015",                              /* pulse command */
-        "ATT\015",                              /* tone command */
-        35,                                     /* dial_time */
-        ",",                                    /* pause_chars */
-        2,                                      /* pause_time */
-        "ATQ0X4N1Y0S37=0S82=128\015",           /* wake_str */
-        0,                                      /* wake_rate */
-        "OK\015",                               /* wake_prompt */
-        "",                                     /* dmode_str */
-        "",                                     /* dmode_prompt */
-        "ATD%s\015",                            /* dial_str */
-        0,                                      /* dial_rate */
-        1100,                                   /* esc_time */
-        43,                                     /* esc_char */
-        "ATQ0H0\015",                           /* hup_str */
+        "Hayes Ultra/Optima/Accura 96/144/288", // U,O,A
+        "ATP\015",                              // pulse command
+        "ATT\015",                              // tone command
+        35,                                     // dial_time
+        ",",                                    // pause_chars
+        2,                                      // pause_time
+        "ATQ0X4N1Y0S37=0S82=128\015",           // wake_str
+        0,                                      // wake_rate
+        "OK\015",                               // wake_prompt
+        "",                                     // dmode_str
+        "",                                     // dmode_prompt
+        "ATD%s\015",                            // dial_str
+        0,                                      // dial_rate
+        1100,                                   // esc_time
+        43,                                     // esc_char
+        "ATQ0H0\015",                           // hup_str
         "AT&K3\015",
-        /* hwfc_str */ /* OK for U,O */
+        // hwfc_str
+        // OK for U,O
         "AT&K4\015",
-        /* swfc_str */ /* OK for U,O */
+        // swfc_str
+        // OK for U,O
         "AT&K0\015",
-        /* nofc_str */ /* OK for U,O */
+        // nofc_str
+        // OK for U,O
         "AT&Q5S36=7S48=7\015",
-        /* ec_on_str */ /* OK for U,O */
+        // ec_on_str
+        // OK for U,O
         "AT&Q0\015",
-        /* ec_off_str */ /* OK for U,O */
-        "ATS46=2\015",   /* dc_on_str */
-        "ATS46=0\015",   /* dc_off_str */
-        "ATS0=1\015",    /* aa_on_str */
-        "ATS0=0\015",    /* aa_off_str */
-        "",              /* sb_on_str */
-        "",              /* sb_off_str */
-        "ATM1\015",      /* sp_on_str */
-        "ATM0\015",      /* sp_off_str */
-        "ATL1\015",      /* vol1_str */
-        "ATL2\015",      /* vol2_str */
-        "ATL3\015",      /* vol3_str */
-        "ATX3\015",      /* ignoredt */
-        "",              /* ini2 */
+        // ec_off_str
+        // OK for U,O
+        "ATS46=2\015", // dc_on_str
+        "ATS46=0\015", // dc_off_str
+        "ATS0=1\015",  // aa_on_str
+        "ATS0=0\015",  // aa_off_str
+        "",            // sb_on_str
+        "",            // sb_off_str
+        "ATM1\015",    // sp_on_str
+        "ATM0\015",    // sp_off_str
+        "ATL1\015",    // vol1_str
+        "ATL2\015",    // vol2_str
+        "ATL3\015",    // vol3_str
+        "ATX3\015",    // ignoredt
+        "",            // ini2
         115200L,
-        /* max_speed */                                          /* (varies) */
-            CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                    /* ok_fn */
+        // max_speed
+        // (varies)
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF H_ACCURA = /* Hayes Accura */
+static MDMINF H_ACCURA = // Hayes Accura
     {
-        /* GUESSING IT'S LIKE ULTRA & OPTIMA */
+        // GUESSING IT'S LIKE ULTRA & OPTIMA
         "Hayes Accura",
-        "ATP\015",             /* pulse command */
-        "ATT\015",             /* tone command */
-        35,                    /* dial_time */
-        ",",                   /* pause_chars */
-        2,                     /* pause_time */
-        "ATQ0X4N1Y0S37=0\015", /* wake_str */
-        0,                     /* wake_rate */
-        "OK\015",              /* wake_prompt */
-        "",                    /* dmode_str */
-        "",                    /* dmode_prompt */
-        "ATD%s\015",           /* dial_str */
-        0,                     /* dial_rate */
-        1100,                  /* esc_time */
-        43,                    /* esc_char */
-        "ATQ0H0\015",          /* hup_str */
-        "AT&K3\015",           /* hwfc_str */
-        "AT&K4\015",           /* swfc_str */
-        "AT&K0\015",           /* nofc_str */
-        "AT&Q5S36=7S48=7\015", /* ec_on_str */
-        "AT&Q0\015",           /* ec_off_str */
-        "ATS46=2\015",         /* dc_on_str */
-        "ATS46=0\015",         /* dc_off_str */
-        "ATS0=1\015",          /* aa_on_str */
-        "ATS0=0\015",          /* aa_off_str */
-        "",                    /* sb_on_str */
-        "",                    /* sb_off_str */
-        "ATM1\015",            /* sp_on_str */
-        "ATM0\015",            /* sp_off_str */
-        "ATL1\015",            /* vol1_str */
-        "ATL2\015",            /* vol2_str */
-        "ATL3\015",            /* vol3_str */
-        "ATX3\015",            /* ignoredt */
-        "",                    /* ini2 */
+        "ATP\015",             // pulse command
+        "ATT\015",             // tone command
+        35,                    // dial_time
+        ",",                   // pause_chars
+        2,                     // pause_time
+        "ATQ0X4N1Y0S37=0\015", // wake_str
+        0,                     // wake_rate
+        "OK\015",              // wake_prompt
+        "",                    // dmode_str
+        "",                    // dmode_prompt
+        "ATD%s\015",           // dial_str
+        0,                     // dial_rate
+        1100,                  // esc_time
+        43,                    // esc_char
+        "ATQ0H0\015",          // hup_str
+        "AT&K3\015",           // hwfc_str
+        "AT&K4\015",           // swfc_str
+        "AT&K0\015",           // nofc_str
+        "AT&Q5S36=7S48=7\015", // ec_on_str
+        "AT&Q0\015",           // ec_off_str
+        "ATS46=2\015",         // dc_on_str
+        "ATS46=0\015",         // dc_off_str
+        "ATS0=1\015",          // aa_on_str
+        "ATS0=0\015",          // aa_off_str
+        "",                    // sb_on_str
+        "",                    // sb_off_str
+        "ATM1\015",            // sp_on_str
+        "ATM0\015",            // sp_off_str
+        "ATL1\015",            // vol1_str
+        "ATL2\015",            // vol2_str
+        "ATL3\015",            // vol3_str
+        "ATX3\015",            // ignoredt
+        "",                    // ini2
         115200L,
-        /* max_speed */                                          /* (varies) */
-            CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                    /* ok_fn */
+        // max_speed
+        // (varies)
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF PPI = /* Practical Peripherals  */
+static MDMINF PPI = // Practical Peripherals
     {
         "Practical Peripherals V.22bis or higher with V.42 and V.42bis",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4N1Y0S37=0\015",                               /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5S36=7S48=7\015",                               /* ec_on_str */
-        "AT&Q0S36=0S48=128\015",                             /* ec_off_str */
-        "ATS46=2\015",                                       /* dc_on_str */
-        "ATS46=0\015",                                       /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str  */
-        "",                                                  /* sb_off_str  */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4N1Y0S37=0\015",                               // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5S36=7S48=7\015",                               // ec_on_str
+        "AT&Q0S36=0S48=128\015",                             // ec_off_str
+        "ATS46=2\015",                                       // dc_on_str
+        "ATS46=0\015",                                       // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF DATAPORT = /* AT&T Dataport  */
+static MDMINF DATAPORT = // AT&T Dataport
     {
         "AT&T / Paradyne DataPort V.32 or higher",
-        "ATP\015", /* pulse command */
-        "ATT\015", /* tone command */
-        35,        /* dial_time */
-        ",",       /* pause_chars */
-        2,         /* pause_time */
-        /*
-           Note: S41=0 (use highest modulation) omitted, since it is not
-           supported on the V.32 and lower models.  So let's not touch it.
-        */
-        "ATQ0E1X6&Q0Y0\\K5S78=0\015",                        /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT\\Q3\015",                                        /* hwfc_str */
-        "AT\\Q1\\X0\015",                                    /* swfc_str */
-        "AT\\Q0\015",                                        /* nofc_str */
-        "AT\\N7\015",                                        /* ec_on_str */
-        "AT\\N0\015",                                        /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015", // pulse command
+        "ATT\015", // tone command
+        35,        // dial_time
+        ",",       // pause_chars
+        2,         // pause_time
+        // Note: S41=0 (use highest modulation) omitted, since it is not
+        // supported on the V.32 and lower models.  So let's not touch it.
+        "ATQ0E1X6&Q0Y0\\K5S78=0\015",                        // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT\\Q3\015",                                        // hwfc_str
+        "AT\\Q1\\X0\015",                                    // swfc_str
+        "AT\\Q0\015",                                        // nofc_str
+        "AT\\N7\015",                                        // ec_on_str
+        "AT\\N0\015",                                        // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF UCOM_AT = /* Microcom DeskPorte FAST ES 28.8 */
+static MDMINF UCOM_AT = // Microcom DeskPorte FAST ES 28.8
     {
         "Microcom DeskPorte FAST 28.8",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4F0\\K5\015",                                  /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT\\Q3\015",                                        /* hwfc_str */
-        "AT\\Q1\015",                                        /* swfc_str */
-        "AT\\H0\\Q0\015",                                    /* nofc_str */
-        "AT\\N3\015",                                        /* ec_on_str */
-        "AT\\N0\015",                                        /* ec_off_str */
-        "AT%C3\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "AT-J0\015",                                         /* sb_on_str */
-        "AT-J1\015",                                         /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4F0\\K5\015",                                  // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT\\Q3\015",                                        // hwfc_str
+        "AT\\Q1\015",                                        // swfc_str
+        "AT\\H0\\Q0\015",                                    // nofc_str
+        "AT\\N3\015",                                        // ec_on_str
+        "AT\\N0\015",                                        // ec_off_str
+        "AT%C3\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "AT-J0\015",                                         // sb_on_str
+        "AT-J1\015",                                         // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZOOM = /* Zoom Telephonics V.32bis  */
+static MDMINF ZOOM = // Zoom Telephonics V.32bis
     {
         "Zoom Telephonics V.32bis",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1N1W1X4S82=128S95=47\015",                     /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5S36=7S48=7\015",                               /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "ATS46=138\015",                                     /* dc_on_str */
-        "ATS46=136\015",                                     /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1N1W1X4S82=128S95=47\015",                     // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5S36=7S48=7\015",                               // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "ATS46=138\015",                                     // dc_on_str
+        "ATS46=136\015",                                     // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZYXEL = /* ZyXEL U-Series */
+static MDMINF ZYXEL = // ZyXEL U-Series
     {
         "ZyXEL U-Series V.32bis or higher",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1&N0X5&Y1\015",                                /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&H3\015",                                         /* hwfc_str */
-        "AT&H4\015",                                         /* swfc_str */
-        "AT&H0\015",                                         /* nofc_str */
-        "AT&K3\015",                                         /* ec_on_str */
-        "AT&K0\015",                                         /* ec_off_str */
-        "AT&K4\015",                                         /* dc_on_str */
-        "AT&K3\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1&N0X5&Y1\015",                                // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&H3\015",                                         // hwfc_str
+        "AT&H4\015",                                         // swfc_str
+        "AT&H0\015",                                         // nofc_str
+        "AT&K3\015",                                         // ec_on_str
+        "AT&K0\015",                                         // ec_off_str
+        "AT&K4\015",                                         // dc_on_str
+        "AT&K3\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZOLTRIX = /* Zoltrix */
+static MDMINF ZOLTRIX = // Zoltrix
     {
         "Zoltrix V.32bis and V.34 modems with Rockwell ACI chipset",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1F0W1X4Y0\\K5S82=128S95=41\015",               /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3\015",                                        /* ec_on_str */
-        "AT\\N1\015",                                        /* ec_off_str */
-        "ATS46=138%C3\015",                                  /* dc_on_str */
-        "ATS46=136%C0\015",                                  /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "AT\\N0\015",                                        /* sb_on_str */
-        "AT&Q0\015",                                         /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1F0W1X4Y0\\K5S82=128S95=41\015",               // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3\015",                                        // ec_on_str
+        "AT\\N1\015",                                        // ec_off_str
+        "ATS46=138%C3\015",                                  // dc_on_str
+        "ATS46=136%C0\015",                                  // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "AT\\N0\015",                                        // sb_on_str
+        "AT&Q0\015",                                         // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
 static MDMINF MOTOROLA = {
-    /* Motorola FasTalk II or Lifestyle */
-    /*
-      "\E" and "\X" commands removed - Motorola Lifestyle doesn't have them.
-         \E0 = Don't echo while online
-         \X0 = Process Xon/Xoff but don't pass through
-    */
-    "Motorola FasTalk II or Lifestyle",                  /* Name */
-    "ATP\015",                                           /* pulse command */
-    "ATT\015",                                           /* tone command */
-    35,                                                  /* dial_time */
-    ",",                                                 /* pause_chars */
-    2,                                                   /* pause_time */
-    "ATQ0E1X4\\K5\\V1\015",                              /* wake_str */
-    0,                                                   /* wake_rate */
-    "OK\015",                                            /* wake_prompt */
-    "",                                                  /* dmode_str */
-    "",                                                  /* dmode_prompt */
-    "ATD%s\015",                                         /* dial_str */
-    0,                                                   /* dial_rate */
-    1100,                                                /* esc_time */
-    43,                                                  /* esc_char */
-    "ATQ0H0\015",                                        /* hup_str */
-    "AT\\Q3\015",                                        /* hwfc_str */
-    "AT\\Q1\015",                                        /* swfc_str */
-    "AT\\Q0\015",                                        /* nofc_str */
-    "AT\\N6\015",                                        /* ec_on_str */
-    "AT\\N1\015",                                        /* ec_off_str */
-    "AT%C1\015",                                         /* dc_on_str */
-    "AT%C0\015",                                         /* dc_off_str */
-    "ATS0=1\015",                                        /* aa_on_str */
-    "ATS0=0\015",                                        /* aa_off_str */
-    "AT\\J0\015",                                        /* sb_on_str */
-    "AT\\J1\015",                                        /* sb_off_str */
-    "ATM1\015",                                          /* sp_on_str */
-    "ATM0\015",                                          /* sp_off_str */
-    "ATL1\015",                                          /* vol1_str */
-    "ATL2\015",                                          /* vol2_str */
-    "ATL3\015",                                          /* vol3_str */
-    "ATX3\015",                                          /* ignoredt */
-    "",                                                  /* ini2 */
-    57600L,                                              /* max_speed */
-    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-    getok                                                /* ok_fn */
+    // Motorola FasTalk II or Lifestyle
+    // "\E" and "\X" commands removed - Motorola Lifestyle doesn't have them.
+    //   \E0 = Don't echo while online
+    //   \X0 = Process Xon/Xoff but don't pass through
+    "Motorola FasTalk II or Lifestyle",                  // Name
+    "ATP\015",                                           // pulse command
+    "ATT\015",                                           // tone command
+    35,                                                  // dial_time
+    ",",                                                 // pause_chars
+    2,                                                   // pause_time
+    "ATQ0E1X4\\K5\\V1\015",                              // wake_str
+    0,                                                   // wake_rate
+    "OK\015",                                            // wake_prompt
+    "",                                                  // dmode_str
+    "",                                                  // dmode_prompt
+    "ATD%s\015",                                         // dial_str
+    0,                                                   // dial_rate
+    1100,                                                // esc_time
+    43,                                                  // esc_char
+    "ATQ0H0\015",                                        // hup_str
+    "AT\\Q3\015",                                        // hwfc_str
+    "AT\\Q1\015",                                        // swfc_str
+    "AT\\Q0\015",                                        // nofc_str
+    "AT\\N6\015",                                        // ec_on_str
+    "AT\\N1\015",                                        // ec_off_str
+    "AT%C1\015",                                         // dc_on_str
+    "AT%C0\015",                                         // dc_off_str
+    "ATS0=1\015",                                        // aa_on_str
+    "ATS0=0\015",                                        // aa_off_str
+    "AT\\J0\015",                                        // sb_on_str
+    "AT\\J1\015",                                        // sb_off_str
+    "ATM1\015",                                          // sp_on_str
+    "ATM0\015",                                          // sp_off_str
+    "ATL1\015",                                          // vol1_str
+    "ATL2\015",                                          // vol2_str
+    "ATL3\015",                                          // vol3_str
+    "ATX3\015",                                          // ignoredt
+    "",                                                  // ini2
+    57600L,                                              // max_speed
+    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+    getok                                                // ok_fn
 };
 
-static MDMINF BOCA = /* Boca */
+static MDMINF BOCA = // Boca
     {
         "BOCA 14.4 Faxmodem",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1F1N1W1\\K5S37=11S82=128S95=47X4\015",         /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3S36=7S48=7\015",                              /* ec_on_str */
-        "AT\\N1\015",                                        /* ec_off_str */
-        "ATS46=138\015",                                     /* dc_on_str */
-        "ATS46=136\015",                                     /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1F1N1W1\\K5S37=11S82=128S95=47X4\015",         // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3S36=7S48=7\015",                              // ec_on_str
+        "AT\\N1\015",                                        // ec_off_str
+        "ATS46=138\015",                                     // dc_on_str
+        "ATS46=136\015",                                     // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF INTEL = /* Intel */
+static MDMINF INTEL = // Intel
     {
         "Intel High-Speed Faxmodem",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1Y0X4\\K1\\V2S25=50\015",                      /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "ATB1+FCLASS=0\015",                                 /* dmode_str */
-        "OK\015",                                            /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT\\G1\\Q3\015",                                    /* hwfc_str */
-        "AT\\G1\\Q1\\X0\015",                                /* swfc_str */
-        "AT\\G0\015",                                        /* nofc_str */
-        "AT\\J0\\N3\"H3\015",                                /* ec_on_str */
-        "AT\\N1\015",                                        /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1Y0X4\\K1\\V2S25=50\015",                      // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "ATB1+FCLASS=0\015",                                 // dmode_str
+        "OK\015",                                            // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT\\G1\\Q3\015",                                    // hwfc_str
+        "AT\\G1\\Q1\\X0\015",                                // swfc_str
+        "AT\\G0\015",                                        // nofc_str
+        "AT\\J0\\N3\"H3\015",                                // ec_on_str
+        "AT\\N1\015",                                        // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF MULTITECH = /* Multitech */
+static MDMINF MULTITECH = // Multitech
     {
-        "Multitech MT1432 or MT2834 Series", "ATP\015", /* pulse command */
-        "ATT\015",                                      /* tone command */
-        35,                                             /* dial_time */
-        ",",                                            /* pause_chars */
-        2,                                              /* pause_time */
-        /* #P0 (= no parity) is not listed in the manual for newer models */
-        /* so it has been removed from all three copies of the Multitech
-           wake_str */
-        "ATQ0E1X4&E8&Q0\015",      /* wake_str */
-        0,                         /* wake_rate */
-        "OK\015",                  /* wake_prompt */
-        "",                        /* dmode_str */
-        "",                        /* dmode_prompt */
-        "ATD%s\015",               /* dial_str */
-        0,                         /* dial_rate */
-        1100,                      /* esc_time */
-        43,                        /* esc_char */
-        "ATQ0H0\015",              /* hup_str */
-        "AT&E4&E7&E8&E11&E13\015", /* hwfc_str */
-        "AT&E5&E6&E8&E11&E13\015", /* swfc_str */
-        "AT&E3&E7&E8&E10&E12\015", /* nofc_str */
-        "AT&E1\015",               /* ec_on_str */
-        "AT&E0\015",               /* ec_off_str */
-        "AT&E15\015",              /* dc_on_str */
-        "AT&E14\015",              /* dc_off_str */
-        "ATS0=1\015",              /* aa_on_str */
-        "ATS0=0\015",              /* aa_off_str */
-        "AT$BA0\015",              /* sb_on_str (= "baud adjust off") */
-        "AT$BA1\015",              /* sb_off_str */
-        "ATM1\015",                /* sp_on_str */
-        "ATM0\015",                /* sp_off_str */
-        "ATL1\015",                /* vol1_str */
-        "ATL2\015",                /* vol2_str */
-        "ATL3\015",                /* vol3_str */
-        "ATX3\015",                /* ignoredt */
-        "",                        /* ini2 */
-        57600L,                    /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Multitech MT1432 or MT2834 Series", "ATP\015", // pulse command
+        "ATT\015",                                      // tone command
+        35,                                             // dial_time
+        ",",                                            // pause_chars
+        2,                                              // pause_time
+        // #P0 (= no parity) is not listed in the manual for newer models
+        // so it has been removed from all three copies of the Multitech
+        // wake_str
+        "ATQ0E1X4&E8&Q0\015",      // wake_str
+        0,                         // wake_rate
+        "OK\015",                  // wake_prompt
+        "",                        // dmode_str
+        "",                        // dmode_prompt
+        "ATD%s\015",               // dial_str
+        0,                         // dial_rate
+        1100,                      // esc_time
+        43,                        // esc_char
+        "ATQ0H0\015",              // hup_str
+        "AT&E4&E7&E8&E11&E13\015", // hwfc_str
+        "AT&E5&E6&E8&E11&E13\015", // swfc_str
+        "AT&E3&E7&E8&E10&E12\015", // nofc_str
+        "AT&E1\015",               // ec_on_str
+        "AT&E0\015",               // ec_off_str
+        "AT&E15\015",              // dc_on_str
+        "AT&E14\015",              // dc_off_str
+        "ATS0=1\015",              // aa_on_str
+        "ATS0=0\015",              // aa_off_str
+        "AT$BA0\015",              // sb_on_str (= "baud adjust off")
+        "AT$BA1\015",              // sb_off_str
+        "ATM1\015",                // sp_on_str
+        "ATM0\015",                // sp_off_str
+        "ATL1\015",                // vol1_str
+        "ATL2\015",                // vol2_str
+        "ATL3\015",                // vol3_str
+        "ATX3\015",                // ignoredt
+        "",                        // ini2
+        57600L,                    // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF SUPRA = /* Supra */
+static MDMINF SUPRA = // Supra
     {
         "SupraFAXModem 144 or 288",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1N1W0X4Y0\\K5S82=128\015",                     /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\\N3S48=7\015",                                /* ec_on_str */
-        "AT&Q0\\N1\015",                                     /* ec_off_str */
-        "AT%C1S46=138\015",                                  /* dc_on_str */
-        "AT%C0S46=136\015",                                  /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM\015",                                           /* sp_off_str */
-        "ATL\015",                                           /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1N1W0X4Y0\\K5S82=128\015",                     // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\\N3S48=7\015",                                // ec_on_str
+        "AT&Q0\\N1\015",                                     // ec_off_str
+        "AT%C1S46=138\015",                                  // dc_on_str
+        "AT%C0S46=136\015",                                  // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM\015",                                           // sp_off_str
+        "ATL\015",                                           // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF SUPRAX = /* Supra Express */
+static MDMINF SUPRAX = // Supra Express
     {
         "Diamond Supra Express V.90",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1W0X4\\K5\015",                                /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3\015",                                        /* ec_on_str */
-        "AT\\N1\015",                                        /* ec_off_str */
-        "AT%C2\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM\015",                                           /* sp_off_str */
-        "ATL\015",                                           /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        230400L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1W0X4\\K5\015",                                // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3\015",                                        // ec_on_str
+        "AT\\N1\015",                                        // ec_off_str
+        "AT%C2\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM\015",                                           // sp_off_str
+        "ATL\015",                                           // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        230400L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF MAXTECH = /* MaxTech */
+static MDMINF MAXTECH = // MaxTech
     {
         "MaxTech XM288EA or GVC FAXModem",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1X4Y0&L0&M0\\K5\015",                          /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT\\Q3\015",                                        /* hwfc_str */
-        "AT\\Q1\\X0\015",                                    /* swfc_str */
-        "AT\\Q0\015",                                        /* nofc_str */
-        "AT\\N6\015",                                        /* ec_on_str */
-        "AT\\N0\015",                                        /* ec_off_str */
-        "AT\\N6%C1\015",                                     /* dc_on_str */
-        "AT\\N6%C0\015",                                     /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1X4Y0&L0&M0\\K5\015",                          // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT\\Q3\015",                                        // hwfc_str
+        "AT\\Q1\\X0\015",                                    // swfc_str
+        "AT\\Q0\015",                                        // nofc_str
+        "AT\\N6\015",                                        // ec_on_str
+        "AT\\N0\015",                                        // ec_off_str
+        "AT\\N6%C1\015",                                     // dc_on_str
+        "AT\\N6%C0\015",                                     // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ROLM = /* IBM / Siemens / Rolm 8000, 9000, 9751 CBX DCM */
+static MDMINF ROLM = // IBM / Siemens / Rolm 8000, 9000, 9751 CBX DCM
     {
         "IBM/Siemens/Rolm CBX Data Communications Module",
-        "",            /* pulse command */
-        "",            /* tone command */
-        60,            /* dial_time */
-        "",            /* pause_chars */
-        0,             /* pause_time */
-        "\015\015",    /* wake_str */
-        50,            /* wake_rate */
-        "MODIFY?",     /* wake_prompt */
-        "",            /* dmode_str */
-        "",            /* dmode_prompt */
-        "CALL %s\015", /* dial_str */
-        0,             /* dial_rate */
-        0,             /* esc_time */
-        0,             /* esc_char */
-        "",            /* hup_str */
-        "",            /* hwfc_str */
-        "",            /* swfc_str */
-        "",            /* nofc_str */
-        "",            /* ec_on_str */
-        "",            /* ec_off_str */
-        "",            /* dc_on_str */
-        "",            /* dc_off_str */
-        "",            /* aa_on_str */
-        "",            /* aa_off_str */
-        "",            /* sb_on_str */
-        "",            /* sb_off_str */
-        "",            /* sp_off_str */
-        "",            /* sp_on_str */
-        "",            /* vol1_str */
-        "",            /* vol2_str */
-        "",            /* vol3_str */
-        "",            /* ignoredt */
-        "",            /* ini2 */
-        19200L,        /* max_speed */
-        0,             /* capas */
-        NULL           /* ok_fn */
+        "",            // pulse command
+        "",            // tone command
+        60,            // dial_time
+        "",            // pause_chars
+        0,             // pause_time
+        "\015\015",    // wake_str
+        50,            // wake_rate
+        "MODIFY?",     // wake_prompt
+        "",            // dmode_str
+        "",            // dmode_prompt
+        "CALL %s\015", // dial_str
+        0,             // dial_rate
+        0,             // esc_time
+        0,             // esc_char
+        "",            // hup_str
+        "",            // hwfc_str
+        "",            // swfc_str
+        "",            // nofc_str
+        "",            // ec_on_str
+        "",            // ec_off_str
+        "",            // dc_on_str
+        "",            // dc_off_str
+        "",            // aa_on_str
+        "",            // aa_off_str
+        "",            // sb_on_str
+        "",            // sb_off_str
+        "",            // sp_off_str
+        "",            // sp_on_str
+        "",            // vol1_str
+        "",            // vol2_str
+        "",            // vol3_str
+        "",            // ignoredt
+        "",            // ini2
+        19200L,        // max_speed
+        0,             // capas
+        NULL           // ok_fn
 };
 
-static MDMINF USR = /* USR Courier and Sportster modems */
+static MDMINF USR = // USR Courier and Sportster modems
     {
         "US Robotics Courier, Sportster, or compatible",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4&A3&N0&Y3S14=0\015",                          /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&H1&R2&I0\015",                                   /* hwfc_str */
-        "AT&H2&R1&I2\015",                                   /* swfc_str */
-        "AT&H0&R1&I0\015",                                   /* nofc_str */
-        "AT&M4&B1\015",                                      /* ec_on_str */
-        "AT&M0\015",                                         /* ec_off_str */
-        "AT&K1\015",                                         /* dc_on_str */
-        "AT&K0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4&A3&N0&Y3S14=0\015",                          // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&H1&R2&I0\015",                                   // hwfc_str
+        "AT&H2&R1&I2\015",                                   // swfc_str
+        "AT&H0&R1&I0\015",                                   // nofc_str
+        "AT&M4&B1\015",                                      // ec_on_str
+        "AT&M0\015",                                         // ec_off_str
+        "AT&K1\015",                                         // dc_on_str
+        "AT&K0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF USRX2 = /* USR XJ-CC1560 X2 56K */
+static MDMINF USRX2 = // USR XJ-CC1560 X2 56K
     {
         "US Robotics / Megahertz CC/XJ-CC1560 X2",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4&A3&B2&N0\015",                               /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&H1&I0\015",                                      /* hwfc_str */
-        "AT&H2&I2\015",                                      /* swfc_str */
-        "AT&H0&I0\015",                                      /* nofc_str */
-        "AT&M4\015",                                         /* ec_on_str */
-        "AT&M0\015",                                         /* ec_off_str */
-        "AT&K1\015",                                         /* dc_on_str */
-        "AT&K0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "AT&B1\015",                                         /* sb_on_str */
-        "AT&B0\015",                                         /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4&A3&B2&N0\015",                               // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&H1&I0\015",                                      // hwfc_str
+        "AT&H2&I2\015",                                      // swfc_str
+        "AT&H0&I0\015",                                      // nofc_str
+        "AT&M4\015",                                         // ec_on_str
+        "AT&M0\015",                                         // ec_off_str
+        "AT&K1\015",                                         // dc_on_str
+        "AT&K0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "AT&B1\015",                                         // sb_on_str
+        "AT&B0\015",                                         // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF OLDTB = /* Old Telebits */
+static MDMINF OLDTB = // Old Telebits
     {
         "Telebit TrailBlazer, T1000, T1500, T2000, T2500",
-        "ATP\015",                               /* pulse command */
-        "ATT\015",                               /* tone command */
-        60,                                      /* dial_time */
-        ",",                                     /* pause_chars */
-        2,                                       /* pause_time */
-        "\021AAAAATQ0X1&S1S12=50S50=0S54=3\015", /* wake_str. */
-        100,                                     /* wake_rate = 100 msec */
-        "OK\015",                                /* wake_prompt */
-        "",                                      /* dmode_str */
-        "",                                      /* dmode_prompt */
-        "ATD%s\015",                             /* dial_str, Note: no T or P */
-        80,                                      /* dial_rate */
-        1100,                                    /* esc_time (guard time) */
-        43,                                      /* esc_char */
-        "ATQ0H0\015",                            /* hup_str */
-        "ATS58=2S68=2\015",                      /* hwfc_str */
-        "ATS58=3S68=3S69=0\015",                 /* swfc_str */
-        "ATS58=0S68=0\015",                      /* nofc_str */
-        "ATS66=1S95=2\015",                      /* ec_on_str */
-        "ATS95=0\015",                           /* ec_off_str */
-        "ATS110=1S96=1\015",                     /* dc_on_str */
-        "ATS110=0S96=0\015",                     /* dc_off_str */
-        "ATS0=1\015",                            /* aa_on_str */
-        "ATS0=0\015",                            /* aa_off_str */
-        "",                                      /* sb_on_str */
-        "",                                      /* sb_off_str */
-        "ATM1\015",                              /* sp_on_str */
-        "ATM0\015",                              /* sp_off_str */
-        "ATL1\015",                              /* vol1_str */
-        "ATL2\015",                              /* vol2_str */
-        "ATL3\015",                              /* vol3_str */
-        "ATX3\015",                              /* ignoredt */
-        "",                                      /* ini2 */
-        19200L,                                  /* max_speed */
+        "ATP\015",                               // pulse command
+        "ATT\015",                               // tone command
+        60,                                      // dial_time
+        ",",                                     // pause_chars
+        2,                                       // pause_time
+        "\021AAAAATQ0X1&S1S12=50S50=0S54=3\015", // wake_str.
+        100,                                     // wake_rate = 100 msec
+        "OK\015",                                // wake_prompt
+        "",                                      // dmode_str
+        "",                                      // dmode_prompt
+        "ATD%s\015",                             // dial_str, Note: no T or P
+        80,                                      // dial_rate
+        1100,                                    // esc_time (guard time)
+        43,                                      // esc_char
+        "ATQ0H0\015",                            // hup_str
+        "ATS58=2S68=2\015",                      // hwfc_str
+        "ATS58=3S68=3S69=0\015",                 // swfc_str
+        "ATS58=0S68=0\015",                      // nofc_str
+        "ATS66=1S95=2\015",                      // ec_on_str
+        "ATS95=0\015",                           // ec_off_str
+        "ATS110=1S96=1\015",                     // dc_on_str
+        "ATS110=0S96=0\015",                     // dc_off_str
+        "ATS0=1\015",                            // aa_on_str
+        "ATS0=0\015",                            // aa_off_str
+        "",                                      // sb_on_str
+        "",                                      // sb_off_str
+        "ATM1\015",                              // sp_on_str
+        "ATM0\015",                              // sp_off_str
+        "ATL1\015",                              // vol1_str
+        "ATL2\015",                              // vol2_str
+        "ATL3\015",                              // vol3_str
+        "ATX3\015",                              // ignoredt
+        "",                                      // ini2
+        19200L,                                  // max_speed
         CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW | CKD_TB |
-            CKD_KS, /* capas */
-        getok       /* ok_fn */
+            CKD_KS, // capas
+        getok       // ok_fn
 };
 
-static MDMINF NEWTB = /* New Telebits */
+static MDMINF NEWTB = // New Telebits
     {
         "Telebit T1600, T3000, QBlazer, WorldBlazer, etc.",
-        "ATP\015",                                 /* pulse command */
-        "ATT\015",                                 /* tone command */
-        60,                                        /* dial_time */
-        ",",                                       /* pause_chars */
-        2,                                         /* pause_time */
-        "\021AAAAATQ0X2S12=50S50=0S61=0S63=0\015", /* wake_str. */
-        100,                                       /* wake_rate = 100 msec */
-        "OK\015",                                  /* wake_prompt */
-        "",                                        /* dmode_str */
-        "",                                        /* dmode_prompt */
-        "ATD%s\015",        /* dial_str, Note: no T or P */
-        80,                 /* dial_rate */
-        1100,               /* esc_time (guard time) */
-        43,                 /* esc_char */
-        "ATQ0H0\015",       /* hup_str */
-        "ATS58=2S68=2\015", /* hwfc_str */
-        "ATS58=3S68=3\015", /* swfc_str */
-        "ATS58=0S68=0\015", /* nofc_str */
-        "ATS180=3\015",     /* ec_on_str */
-        "ATS180=0\015",     /* ec_off_str */
-        "ATS190=1\015",     /* dc_on_str */
-        "ATS190=0\015",     /* dc_off_str */
-        "ATS0=1\015",       /* aa_on_str */
-        "ATS0=0\015",       /* aa_off_str */
-        "",                 /* sb_on_str */
-        "",                 /* sb_off_str */
-        "ATM1\015",         /* sp_on_str */
-        "ATM0\015",         /* sp_off_str */
-        "ATL1\015",         /* vol1_str */
-        "ATL2\015",         /* vol2_str */
-        "ATL3\015",         /* vol3_str */
-        "ATX3\015",         /* ignoredt */
-        "",                 /* ini2 */
-        38400L,             /* max_speed */
+        "ATP\015",                                 // pulse command
+        "ATT\015",                                 // tone command
+        60,                                        // dial_time
+        ",",                                       // pause_chars
+        2,                                         // pause_time
+        "\021AAAAATQ0X2S12=50S50=0S61=0S63=0\015", // wake_str.
+        100,                                       // wake_rate = 100 msec
+        "OK\015",                                  // wake_prompt
+        "",                                        // dmode_str
+        "",                                        // dmode_prompt
+        "ATD%s\015",                               // dial_str, Note: no T or P
+        80,                                        // dial_rate
+        1100,                                      // esc_time (guard time)
+        43,                                        // esc_char
+        "ATQ0H0\015",                              // hup_str
+        "ATS58=2S68=2\015",                        // hwfc_str
+        "ATS58=3S68=3\015",                        // swfc_str
+        "ATS58=0S68=0\015",                        // nofc_str
+        "ATS180=3\015",                            // ec_on_str
+        "ATS180=0\015",                            // ec_off_str
+        "ATS190=1\015",                            // dc_on_str
+        "ATS190=0\015",                            // dc_off_str
+        "ATS0=1\015",                              // aa_on_str
+        "ATS0=0\015",                              // aa_off_str
+        "",                                        // sb_on_str
+        "",                                        // sb_off_str
+        "ATM1\015",                                // sp_on_str
+        "ATM0\015",                                // sp_off_str
+        "ATL1\015",                                // vol1_str
+        "ATL2\015",                                // vol2_str
+        "ATL3\015",                                // vol3_str
+        "ATX3\015",                                // ignoredt
+        "",                                        // ini2
+        38400L,                                    // max_speed
         CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW | CKD_TB |
-            CKD_KS, /* capas */
-        getok       /* ok_fn */
+            CKD_KS, // capas
+        getok       // ok_fn
 };
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-static MDMINF
-    DUMMY = /* dummy information for modems that are handled elsewhere */
+static MDMINF DUMMY = // dummy information for modems that are handled elsewhere
     {
-        "(dummy)", "", /* pulse command */
-        "",            /* tone command */
-        30,            /* dial_time */
-        "",            /* pause_chars */
-        0,             /* pause_time */
-        "",            /* wake_str */
-        0,             /* wake_rate */
-        "",            /* wake_prompt */
-        "",            /* dmode_str */
-        NULL,          /* dmode_prompt */
-        "%s\015",      /* dial_str */
-        0,             /* dial_rate */
-        0,             /* esc_time */
-        0,             /* esc_char */
-        "",            /* hup_str */
-        "",            /* hwfc_str */
-        "",            /* swfc_str */
-        "",            /* nofc_str */
-        "",            /* ec_on_str */
-        "",            /* ec_off_str */
-        "",            /* dc_on_str */
-        "",            /* dc_off_str */
-        "",            /* aa_on_str */
-        "",            /* aa_off_str */
-        "",            /* sb_on_str */
-        "",            /* sb_off_str */
-        "",            /* sp_off_str */
-        "",            /* sp_on_str */
-        "",            /* vol1_str */
-        "",            /* vol2_str */
-        "",            /* vol3_str */
-        "",            /* ignoredt */
-        "",            /* ini2 */
-        0L,            /* max_speed */
-        0,             /* capas */
-        NULL           /* ok_fn */
+        "(dummy)", "", // pulse command
+        "",            // tone command
+        30,            // dial_time
+        "",            // pause_chars
+        0,             // pause_time
+        "",            // wake_str
+        0,             // wake_rate
+        "",            // wake_prompt
+        "",            // dmode_str
+        NULL,          // dmode_prompt
+        "%s\015",      // dial_str
+        0,             // dial_rate
+        0,             // esc_time
+        0,             // esc_char
+        "",            // hup_str
+        "",            // hwfc_str
+        "",            // swfc_str
+        "",            // nofc_str
+        "",            // ec_on_str
+        "",            // ec_off_str
+        "",            // dc_on_str
+        "",            // dc_off_str
+        "",            // aa_on_str
+        "",            // aa_off_str
+        "",            // sb_on_str
+        "",            // sb_off_str
+        "",            // sp_off_str
+        "",            // sp_on_str
+        "",            // vol1_str
+        "",            // vol2_str
+        "",            // vol3_str
+        "",            // ignoredt
+        "",            // ini2
+        0L,            // max_speed
+        0,             // capas
+        NULL           // ok_fn
 };
 
 #ifndef MINIDIAL
-static MDMINF RWV32 = /* Generic Rockwell V.32 */
+static MDMINF RWV32 = // Generic Rockwell V.32
     {
-        "Generic Rockwell V.32 modem", /* ATI3, ATI4, and ATI6 for details */
-        "ATP\015",                     /* pulse command */
-        "ATT\015",                     /* tone command */
-        35,                            /* dial_time */
-        ",",                           /* pause_chars */
-        2,                             /* pause_time */
-        "ATQ0X4Y0%E2\\K5+FCLASS=0N1S37=0\015",               /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q6\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Generic Rockwell V.32 modem", // ATI3, ATI4, and ATI6 for details
+        "ATP\015",                     // pulse command
+        "ATT\015",                     // tone command
+        35,                            // dial_time
+        ",",                           // pause_chars
+        2,                             // pause_time
+        "ATQ0X4Y0%E2\\K5+FCLASS=0N1S37=0\015",               // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q6\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF RWV32B = /* Generic Rockwell V.32bis */
+static MDMINF RWV32B = // Generic Rockwell V.32bis
     {
-        "Generic Rockwell V.32bis modem", /* ATI3, ATI4, and ATI6 for details */
-        "ATP\015",                        /* pulse command */
-        "ATT\015",                        /* tone command */
-        35,                               /* dial_time */
-        ",",                              /* pause_chars */
-        2,                                /* pause_time */
-        "ATQ0X4Y0%E2\\K5+FCLASS=0N1S37=0\015",               /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "ATS%C1\015",                                        /* dc_on_str */
-        "ATS%C0\015",                                        /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Generic Rockwell V.32bis modem", // ATI3, ATI4, and ATI6 for details
+        "ATP\015",                        // pulse command
+        "ATT\015",                        // tone command
+        35,                               // dial_time
+        ",",                              // pause_chars
+        2,                                // pause_time
+        "ATQ0X4Y0%E2\\K5+FCLASS=0N1S37=0\015",               // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "ATS%C1\015",                                        // dc_on_str
+        "ATS%C0\015",                                        // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF RWV34 = /* Generic Rockwell V.34 Data/Fax */
+static MDMINF RWV34 = // Generic Rockwell V.34 Data/Fax
     {
-        "Generic Rockwell V.34 modem", /* ATI3, ATI4, and ATI6 for details */
-        "ATP\015",                     /* pulse command */
-        "ATT\015",                     /* tone command */
-        35,                            /* dial_time */
-        ",",                           /* pause_chars */
-        2,                             /* pause_time */
-        "ATQ0V1X4Y0&C1&D2%E2\\K5+FCLASS=0\015",              /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "ATS%C3\015",                                        /* dc_on_str */
-        "ATS%C0\015",                                        /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Generic Rockwell V.34 modem", // ATI3, ATI4, and ATI6 for details
+        "ATP\015",                     // pulse command
+        "ATT\015",                     // tone command
+        35,                            // dial_time
+        ",",                           // pause_chars
+        2,                             // pause_time
+        "ATQ0V1X4Y0&C1&D2%E2\\K5+FCLASS=0\015",              // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "ATS%C3\015",                                        // dc_on_str
+        "ATS%C0\015",                                        // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF RWV90 = /* Generic Rockwell V.90 Data/Fax */
+static MDMINF RWV90 = // Generic Rockwell V.90 Data/Fax
     {
-        "Generic Rockwell V.90 56K modem", /* ATI3, ATI4, and ATI6 for details
-                                            */
-        "ATP\015",                         /* pulse command */
-        "ATT\015",                         /* tone command */
-        35,                                /* dial_time */
-        ",",                               /* pause_chars */
-        2,                                 /* pause_time */
-        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "AT%C3\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Generic Rockwell V.90 56K modem", // ATI3, ATI4, and ATI6 for details
+        "ATP\015",                         // pulse command
+        "ATT\015",                         // tone command
+        35,                                // dial_time
+        ",",                               // pause_chars
+        2,                                 // pause_time
+        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "AT%C3\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF MWAVE = /* IBM Mwave */
+static MDMINF MWAVE = // IBM Mwave
     {
         "IBM Mwave Adapter",
-        "ATP\015",                                  /* pulse command */
-        "ATT\015",                                  /* tone command */
-        35,                                         /* dial_time */
-        ",",                                        /* pause_chars */
-        2,                                          /* pause_time */
-        "ATQ0X4Y0&M0&Q0&N1&S0\\K3\\T0%E2S28=0\015", /* wake_str */
-        0,                                          /* wake_rate */
-        "OK\015",                                   /* wake_prompt */
-        "",                                         /* dmode_str */
-        "",                                         /* dmode_prompt */
-        "ATD%s\015",                                /* dial_str */
-        0,                                          /* dial_rate */
-        1100,                                       /* esc_time */
-        43,                                         /* esc_char */
-        "ATQ0H0\015",                               /* hup_str */
-        "AT\\Q3\015",                               /* hwfc_str */
-        "",                                         /* swfc_str (it doesn't!) */
-        "AT\\Q0\015",                               /* nofc_str */
-        "AT\\N7\015",                               /* ec_on_str */
-        "AT\\N0\015",                               /* ec_off_str */
-        "AT%C1\"H3\015",                            /* dc_on_str */
-        "AT%C0\"H0\015",                            /* dc_off_str */
-        "ATS0=1\015",                               /* aa_on_str */
-        "ATS0=0\015",                               /* aa_off_str */
-        "",                                         /* sb_on_str */
-        "",                                         /* sb_off_str */
-        "ATM1\015",                                 /* sp_on_str */
-        "ATM0\015",                                 /* sp_off_str */
-        "ATL1\015",                                 /* vol1_str */
-        "ATL2\015",                                 /* vol2_str */
-        "ATL3\015",                                 /* vol3_str */
-        "ATX3\015",                                 /* ignoredt */
-        "",                                         /* ini2 */
-        57600L,                                     /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, /* capas */
-        getok                                       /* ok_fn */
+        "ATP\015",                                  // pulse command
+        "ATT\015",                                  // tone command
+        35,                                         // dial_time
+        ",",                                        // pause_chars
+        2,                                          // pause_time
+        "ATQ0X4Y0&M0&Q0&N1&S0\\K3\\T0%E2S28=0\015", // wake_str
+        0,                                          // wake_rate
+        "OK\015",                                   // wake_prompt
+        "",                                         // dmode_str
+        "",                                         // dmode_prompt
+        "ATD%s\015",                                // dial_str
+        0,                                          // dial_rate
+        1100,                                       // esc_time
+        43,                                         // esc_char
+        "ATQ0H0\015",                               // hup_str
+        "AT\\Q3\015",                               // hwfc_str
+        "",                                         // swfc_str (it doesn't!)
+        "AT\\Q0\015",                               // nofc_str
+        "AT\\N7\015",                               // ec_on_str
+        "AT\\N0\015",                               // ec_off_str
+        "AT%C1\"H3\015",                            // dc_on_str
+        "AT%C0\"H0\015",                            // dc_off_str
+        "ATS0=1\015",                               // aa_on_str
+        "ATS0=0\015",                               // aa_off_str
+        "",                                         // sb_on_str
+        "",                                         // sb_off_str
+        "ATM1\015",                                 // sp_on_str
+        "ATM0\015",                                 // sp_off_str
+        "ATL1\015",                                 // vol1_str
+        "ATL2\015",                                 // vol2_str
+        "ATL3\015",                                 // vol3_str
+        "ATX3\015",                                 // ignoredt
+        "",                                         // ini2
+        57600L,                                     // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, // capas
+        getok                                       // ok_fn
 };
 
-static MDMINF TELEPATH = /* Gateway 2000 Telepath */
+static MDMINF TELEPATH = // Gateway 2000 Telepath
     {
         "Gateway 2000 Telepath II 28.8",
-        "ATP\015",                               /* pulse command */
-        "ATT\015",                               /* tone command */
-        35,                                      /* dial_time */
-        ",",                                     /* pause_chars */
-        2,                                       /* pause_time */
-        "ATQ0X4&N0&Y1#CLS=0S13=0S15=0S19=0\015", /* wake_str */
-        0,                                       /* wake_rate */
-        "OK\015",                                /* wake_prompt */
-        "",                                      /* dmode_str */
-        "",                                      /* dmode_prompt */
-        "ATD%s\015",                             /* dial_str */
-        0,                                       /* dial_rate */
-        1100,                                    /* esc_time */
-        43,                                      /* esc_char */
-        "ATQ0H0\015",                            /* hup_str */
-        "AT&H1&R2\015",                          /* hwfc_str */
-        "AT&H2&I2S22=17S23=19\015",              /* swfc_str */
-        "AT&H0&I0&R1\015",                       /* nofc_str */
-        "AT&M4&B1\015", /* ec_on_str -- also fixes speed */
-        "AT&M0\015",    /* ec_off_str */
-        "AT&K1\015",    /* dc_on_str */
-        "AT&K0\015",    /* dc_off_str */
-        "ATS0=1\015",   /* aa_on_str */
-        "ATS0=0\015",   /* aa_off_str */
-        "",             /* sb_on_str */
-        "",             /* sb_off_str */
-        "ATM1\015",     /* sp_on_str */
-        "ATM0\015",     /* sp_off_str */
-        "ATL1\015",     /* vol1_str */
-        "ATL2\015",     /* vol2_str */
-        "ATL3\015",     /* vol3_str */
-        "ATX3\015",     /* ignoredt */
-        "",             /* ini2 */
-        57600L,         /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                               // pulse command
+        "ATT\015",                               // tone command
+        35,                                      // dial_time
+        ",",                                     // pause_chars
+        2,                                       // pause_time
+        "ATQ0X4&N0&Y1#CLS=0S13=0S15=0S19=0\015", // wake_str
+        0,                                       // wake_rate
+        "OK\015",                                // wake_prompt
+        "",                                      // dmode_str
+        "",                                      // dmode_prompt
+        "ATD%s\015",                             // dial_str
+        0,                                       // dial_rate
+        1100,                                    // esc_time
+        43,                                      // esc_char
+        "ATQ0H0\015",                            // hup_str
+        "AT&H1&R2\015",                          // hwfc_str
+        "AT&H2&I2S22=17S23=19\015",              // swfc_str
+        "AT&H0&I0&R1\015",                       // nofc_str
+        "AT&M4&B1\015", // ec_on_str -- also fixes speed
+        "AT&M0\015",    // ec_off_str
+        "AT&K1\015",    // dc_on_str
+        "AT&K0\015",    // dc_off_str
+        "ATS0=1\015",   // aa_on_str
+        "ATS0=0\015",   // aa_off_str
+        "",             // sb_on_str
+        "",             // sb_off_str
+        "ATM1\015",     // sp_on_str
+        "ATM0\015",     // sp_off_str
+        "ATL1\015",     // vol1_str
+        "ATL2\015",     // vol2_str
+        "ATL3\015",     // vol3_str
+        "ATX3\015",     // ignoredt
+        "",             // ini2
+        57600L,         // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF CARDINAL = /* Cardinal - based on Rockwell V.34 */
+static MDMINF CARDINAL = // Cardinal - based on Rockwell V.34
     {
-        "Cardinal MVP288X Series", /* ATI3, ATI4, and ATI6 for details */
-        "ATP\015",                 /* pulse command */
-        "ATT\015",                 /* tone command */
-        35,                        /* dial_time */
-        ",",                       /* pause_chars */
-        2,                         /* pause_time */
-        "ATQ0X4W1Y0%E2\\K5+FCLASS=0+MS=11,1\015",            /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5S36=7S48=7\\N3\015",                           /* ec_on_str */
-        "AT&Q0S48=128\\N1\015",                              /* ec_off_str */
-        "ATS46=138%C1\015",                                  /* dc_on_str */
-        "ATS46=136%C0\015",                                  /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Cardinal MVP288X Series", // ATI3, ATI4, and ATI6 for details
+        "ATP\015",                 // pulse command
+        "ATT\015",                 // tone command
+        35,                        // dial_time
+        ",",                       // pause_chars
+        2,                         // pause_time
+        "ATQ0X4W1Y0%E2\\K5+FCLASS=0+MS=11,1\015",            // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5S36=7S48=7\\N3\015",                           // ec_on_str
+        "AT&Q0S48=128\\N1\015",                              // ec_off_str
+        "ATS46=138%C1\015",                                  // dc_on_str
+        "ATS46=136%C0\015",                                  // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF LUCENT = /* Lucent Venus or Data/Fax modem */
+static MDMINF LUCENT = // Lucent Venus or Data/Fax modem
     {
         "Lucent Venus chipset",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       /* All others */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       // All others
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF CONEXANT = /* Conexant family */
+static MDMINF CONEXANT = // Conexant family
     {
         "Conexant family of modems",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0V1X4&C1&D2%E1+FCLASS=0\015",                    /* UNIX etc */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "AT%C3\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0V1X4&C1&D2%E1+FCLASS=0\015",                    // UNIX etc
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "AT%C3\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF PCTEL = /* PCTel chipset */
+static MDMINF PCTEL = // PCTel chipset
     {
         "PCTel chipset",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0V1N1X4Y0&C1&D2%E2\\K5S37=0\015",                /* UNIX etc */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3\015",                                        /* ec_on_str */
-        "AT\\N0\015",                                        /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0V1N1X4Y0&C1&D2%E2\\K5S37=0\015",                // UNIX etc
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3\015",                                        // ec_on_str
+        "AT\\N0\015",                                        // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZOOMV34 = /* Zoom Telephonics V.34  */
+static MDMINF ZOOMV34 = // Zoom Telephonics V.34
     {
         "Zoom Telephonics V.34",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0V1N1W1X4S82=128S015",                           /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015S32=17S33=19",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "ATS%C3\015",                                        /* dc_on_str */
-        "ATS%C0\015",                                        /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0V1N1W1X4S82=128S015",                           // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015S32=17S33=19",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "ATS%C3\015",                                        // dc_on_str
+        "ATS%C0\015",                                        // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZOOMV90 = /* ZOOM V.90 */
+static MDMINF ZOOMV90 = // ZOOM V.90
     {
         "Zoom V.90 56K",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       /* All others */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                             /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT&Q5\015",                                         /* ec_on_str */
-        "AT&Q0\015",                                         /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0\015",       // All others
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4S32=17S33=19\015",                             // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT&Q5\015",                                         // ec_on_str
+        "AT&Q0\015",                                         // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ZOOMV92 = /* ZOOM V.92 */
+static MDMINF ZOOMV92 = // ZOOM V.92
     {
         "Zoom V.92 with V.44 compression",
-        "ATP\015", /* pulse command */
-        "ATT\015", /* tone command */
-        35,        /* dial_time */
-        ",",       /* pause_chars */
-        2,         /* pause_time */
-        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0+MS=V92\015", /* All others */
-        0,                                                    /* wake_rate */
-        "OK\015",                                             /* wake_prompt */
-        "",                                                   /* dmode_str */
-        "",                                                   /* dmode_prompt */
-        "ATD%s\015",                                          /* dial_str */
-        0,                                                    /* dial_rate */
-        1100,                                                 /* esc_time */
-        43,                                                   /* esc_char */
-        "ATQ0H0\015",                                         /* hup_str */
-        "AT&K3\015",                                          /* hwfc_str */
-        "AT&K4S32=17S33=19\015",                              /* swfc_str */
-        "AT&K0\015",                                          /* nofc_str */
-        "AT&Q5\015",                                          /* ec_on_str */
-        "AT&Q0\015",                                          /* ec_off_str */
-        "AT%C1+DCS=1,1\015",                                  /* dc_on_str */
-        "AT%C0\015",                                          /* dc_off_str */
-        "ATS0=1\015",                                         /* aa_on_str */
-        "ATS0=0\015",                                         /* aa_off_str */
-        "",                                                   /* sb_on_str */
-        "",                                                   /* sb_off_str */
-        "ATM1\015",                                           /* sp_on_str */
-        "ATM0\015",                                           /* sp_off_str */
-        "ATL1\015",                                           /* vol1_str */
-        "ATL2\015",                                           /* vol2_str */
-        "ATL3\015",                                           /* vol3_str */
-        "ATX3\015",                                           /* ignoredt */
-        "",                                                   /* ini2 */
-        115200L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW,  /* capas */
-        getok                                                 /* ok_fn */
+        "ATP\015",                                            // pulse command
+        "ATT\015",                                            // tone command
+        35,                                                   // dial_time
+        ",",                                                  // pause_chars
+        2,                                                    // pause_time
+        "ATQ0V1N1X4Y0&C1&D2%E2\\K5+FCLASS=0S37=0+MS=V92\015", // All others
+        0,                                                    // wake_rate
+        "OK\015",                                             // wake_prompt
+        "",                                                   // dmode_str
+        "",                                                   // dmode_prompt
+        "ATD%s\015",                                          // dial_str
+        0,                                                    // dial_rate
+        1100,                                                 // esc_time
+        43,                                                   // esc_char
+        "ATQ0H0\015",                                         // hup_str
+        "AT&K3\015",                                          // hwfc_str
+        "AT&K4S32=17S33=19\015",                              // swfc_str
+        "AT&K0\015",                                          // nofc_str
+        "AT&Q5\015",                                          // ec_on_str
+        "AT&Q0\015",                                          // ec_off_str
+        "AT%C1+DCS=1,1\015",                                  // dc_on_str
+        "AT%C0\015",                                          // dc_off_str
+        "ATS0=1\015",                                         // aa_on_str
+        "ATS0=0\015",                                         // aa_off_str
+        "",                                                   // sb_on_str
+        "",                                                   // sb_off_str
+        "ATM1\015",                                           // sp_on_str
+        "ATM0\015",                                           // sp_off_str
+        "ATL1\015",                                           // vol1_str
+        "ATL2\015",                                           // vol2_str
+        "ATL3\015",                                           // vol3_str
+        "ATX3\015",                                           // ignoredt
+        "",                                                   // ini2
+        115200L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW,  // capas
+        getok                                                 // ok_fn
 };
 
-/*
-  Now the "old" modems, all grouped together, and also within
-  "if not defined MINIDIAL"...
-*/
+// Now the "old" modems, all grouped together, and also within
+// "if not defined MINIDIAL"...
 #ifdef OLDMODEMS
 
-static MDMINF CERMETEK = /* Information for "Cermetek Info-Mate 212 A" modem */
+static MDMINF CERMETEK = // Information for "Cermetek Info-Mate 212 A" modem
     {
         "Cermetek Info-Mate 212 A",
-        "",               /* pulse command */
-        "",               /* tone command */
-        20,               /* dial_time */
-        "BbPpTt",         /* pause_chars */
-        0,                /* pause_time */
-        "  XY\016R\015",  /* wake_str */
-        200,              /* wake_rate */
-        "",               /* wake_prompt */
-        "",               /* dmode_str */
-        NULL,             /* dmode_prompt */
-        "\016D '%s'\015", /* dial_str */
-        200,              /* dial_rate */
-        0,                /* esc_time */
-        0,                /* esc_char */
-        "",               /* hup_str */
-        "",               /* hwfc_str */
-        "",               /* swfc_str */
-        "",               /* nofc_str */
-        "",               /* ec_on_str */
-        "",               /* ec_off_str */
-        "",               /* dc_on_str */
-        "",               /* dc_off_str */
-        "",               /* aa_on_str */
-        "",               /* aa_off_str */
-        "",               /* sb_on_str */
-        "",               /* sb_off_str */
-        "",               /* sp_off_str */
-        "",               /* sp_on_str */
-        "",               /* vol1_str */
-        "",               /* vol2_str */
-        "",               /* vol3_str */
-        "",               /* ignoredt */
-        "",               /* ini2 */
-        1200L,            /* max_speed */
-        0,                /* capas */
-        NULL              /* ok_fn */
+        "",               // pulse command
+        "",               // tone command
+        20,               // dial_time
+        "BbPpTt",         // pause_chars
+        0,                // pause_time
+        "  XY\016R\015",  // wake_str
+        200,              // wake_rate
+        "",               // wake_prompt
+        "",               // dmode_str
+        NULL,             // dmode_prompt
+        "\016D '%s'\015", // dial_str
+        200,              // dial_rate
+        0,                // esc_time
+        0,                // esc_char
+        "",               // hup_str
+        "",               // hwfc_str
+        "",               // swfc_str
+        "",               // nofc_str
+        "",               // ec_on_str
+        "",               // ec_off_str
+        "",               // dc_on_str
+        "",               // dc_off_str
+        "",               // aa_on_str
+        "",               // aa_off_str
+        "",               // sb_on_str
+        "",               // sb_off_str
+        "",               // sp_off_str
+        "",               // sp_on_str
+        "",               // vol1_str
+        "",               // vol2_str
+        "",               // vol3_str
+        "",               // ignoredt
+        "",               // ini2
+        1200L,            // max_speed
+        0,                // capas
+        NULL              // ok_fn
 };
 
-static MDMINF DF03 = /* information for "DEC DF03-AC" modem */
+static MDMINF DF03 = // information for "DEC DF03-AC" modem
     {
         "Digital DF03-AC",
-        "",         /* pulse command */
-        "",         /* tone command */
-        27,         /* dial_time */
-        "=",        /* pause_chars */
-        15,         /* pause_time */
-        "\001\002", /* wake_str */
-        0,          /* wake_rate */
-        "",         /* wake_prompt */
-        "",         /* dmode_str */
-        NULL,       /* dmode_prompt */
-        "%s",       /* dial_str */
-        0,          /* dial_rate */
-        0,          /* esc_time */
-        0,          /* esc_char */
-        "",         /* hup_str */
-        "",         /* hwfc_str */
-        "",         /* swfc_str */
-        "",         /* nofc_str */
-        "",         /* ec_on_str */
-        "",         /* ec_off_str */
-        "",         /* dc_on_str */
-        "",         /* dc_off_str */
-        "",         /* aa_on_str */
-        "",         /* aa_off_str */
-        "",         /* sb_on_str */
-        "",         /* sb_off_str */
-        "",         /* sp_off_str */
-        "",         /* sp_on_str */
-        "",         /* vol1_str */
-        "",         /* vol2_str */
-        "",         /* vol3_str */
-        "",         /* ignoredt */
-        "",         /* ini2 */
-        0L,         /* max_speed */
-        0,          /* capas */
-        NULL        /* ok_fn */
+        "",         // pulse command
+        "",         // tone command
+        27,         // dial_time
+        "=",        // pause_chars
+        15,         // pause_time
+        "\001\002", // wake_str
+        0,          // wake_rate
+        "",         // wake_prompt
+        "",         // dmode_str
+        NULL,       // dmode_prompt
+        "%s",       // dial_str
+        0,          // dial_rate
+        0,          // esc_time
+        0,          // esc_char
+        "",         // hup_str
+        "",         // hwfc_str
+        "",         // swfc_str
+        "",         // nofc_str
+        "",         // ec_on_str
+        "",         // ec_off_str
+        "",         // dc_on_str
+        "",         // dc_off_str
+        "",         // aa_on_str
+        "",         // aa_off_str
+        "",         // sb_on_str
+        "",         // sb_off_str
+        "",         // sp_off_str
+        "",         // sp_on_str
+        "",         // vol1_str
+        "",         // vol2_str
+        "",         // vol3_str
+        "",         // ignoredt
+        "",         // ini2
+        0L,         // max_speed
+        0,          // capas
+        NULL        // ok_fn
 };
 
-static MDMINF DF100 = /* information for "DEC DF100-series" modem */
-                      /*
-                       * The telephone "number" can include "P"s and/or "T"s
-                       * within it to indicate that subsequent digits are
-                       * to be dialed using pulse or tone dialing.  The
-                       * modem defaults to pulse dialing.  You may modify
-                       * the dial string below to explicitly default all
-                       * dialing to pulse or tone, but doing so prevents
-                       * the use of phone numbers that you may have stored
-                       * in the modem's memory.
-                       */
+static MDMINF DF100 = // information for "DEC DF100-series" modem
+                      // The telephone "number" can include "P"s and/or "T"s
+                      // within it to indicate that subsequent digits are
+                      // to be dialed using pulse or tone dialing.  The
+                      // modem defaults to pulse dialing.  You may modify
+                      // the dial string below to explicitly default all
+                      // dialing to pulse or tone, but doing so prevents
+                      // the use of phone numbers that you may have stored
+                      // in the modem's memory.
     {
         "Digital DF-100",
-        "",     /* pulse command */
-        "",     /* tone command */
-        30,     /* dial_time */
-        "=",    /* pause_chars */
-        15,     /* pause_time */
-        "\001", /* wake_str */
-        0,      /* wake_rate */
-        "",     /* wake_prompt */
-        "",     /* dmode_str */
-        NULL,   /* dmode_prompt */
-        "%s#",  /* dial_str */
-        0,      /* dial_rate */
-        0,      /* esc_time */
-        0,      /* esc_char */
-        "",     /* hup_str */
-        "",     /* hwfc_str */
-        "",     /* swfc_str */
-        "",     /* nofc_str */
-        "",     /* ec_on_str */
-        "",     /* ec_off_str */
-        "",     /* dc_on_str */
-        "",     /* dc_off_str */
-        "",     /* aa_on_str */
-        "",     /* aa_off_str */
-        "",     /* sb_on_str */
-        "",     /* sb_off_str */
-        "",     /* sp_off_str */
-        "",     /* sp_on_str */
-        "",     /* vol1_str */
-        "",     /* vol2_str */
-        "",     /* vol3_str */
-        "",     /* ignoredt */
-        "",     /* ini2 */
-        0L,     /* max_speed */
-        0,      /* capas */
-        NULL    /* ok_fn */
+        "",     // pulse command
+        "",     // tone command
+        30,     // dial_time
+        "=",    // pause_chars
+        15,     // pause_time
+        "\001", // wake_str
+        0,      // wake_rate
+        "",     // wake_prompt
+        "",     // dmode_str
+        NULL,   // dmode_prompt
+        "%s#",  // dial_str
+        0,      // dial_rate
+        0,      // esc_time
+        0,      // esc_char
+        "",     // hup_str
+        "",     // hwfc_str
+        "",     // swfc_str
+        "",     // nofc_str
+        "",     // ec_on_str
+        "",     // ec_off_str
+        "",     // dc_on_str
+        "",     // dc_off_str
+        "",     // aa_on_str
+        "",     // aa_off_str
+        "",     // sb_on_str
+        "",     // sb_off_str
+        "",     // sp_off_str
+        "",     // sp_on_str
+        "",     // vol1_str
+        "",     // vol2_str
+        "",     // vol3_str
+        "",     // ignoredt
+        "",     // ini2
+        0L,     // max_speed
+        0,      // capas
+        NULL    // ok_fn
 };
 
-static MDMINF DF200 = /* information for "DEC DF200-series" modem */
-                      /*
-                       * The telephone "number" can include "P"s and/or "T"s
-                       * within it to indicate that subsequent digits are
-                       * to be dialed using pulse or tone dialing.  The
-                       * modem defaults to pulse dialing.  You may modify
-                       * the dial string below to explicitly default all
-                       * dialing to pulse or tone, but doing so prevents
-                       * the use of phone numbers that you may have stored
-                       * in the modem's memory.
-                       */
+static MDMINF DF200 = // information for "DEC DF200-series" modem
+                      // The telephone "number" can include "P"s and/or "T"s
+                      // within it to indicate that subsequent digits are
+                      // to be dialed using pulse or tone dialing.  The
+                      // modem defaults to pulse dialing.  You may modify
+                      // the dial string below to explicitly default all
+                      // dialing to pulse or tone, but doing so prevents
+                      // the use of phone numbers that you may have stored
+                      // in the modem's memory.
     {
         "Digital DF-200",
-        "", /* pulse command */
-        "", /* tone command */
-        30, /* dial_time */
+        "", // pulse command
+        "", // tone command
+        30, // dial_time
         "=W",
-        /* pause_chars */ /* =: second tone; W: 5 secs */
+        // pause_chars
+        // =: second tone; W: 5 secs
         15,
-        /* pause_time */ /* worst case */
+        // pause_time
+        // worst case
         "\002",
-        /* wake_str */ /* allow stored number usage */
-        0,             /* wake_rate */
-        "",            /* wake_prompt */
-        "",            /* dmode_str */
-        NULL,          /* dmode_prompt */
+        // wake_str
+        // allow stored number usage
+        0,    // wake_rate
+        "",   // wake_prompt
+        "",   // dmode_str
+        NULL, // dmode_prompt
         "   d %s\015",
-        0,   /* dial_rate */
-        0,   /* esc_time */
-        0,   /* esc_char */
-        "",  /* hup_str */
-        "",  /* hwfc_str */
-        "",  /* swfc_str */
-        "",  /* nofc_str */
-        "",  /* ec_on_str */
-        "",  /* ec_off_str */
-        "",  /* dc_on_str */
-        "",  /* dc_off_str */
-        "",  /* aa_on_str */
-        "",  /* aa_off_str */
-        "",  /* sb_on_str */
-        "",  /* sb_off_str */
-        "",  /* sp_off_str */
-        "",  /* sp_on_str */
-        "",  /* vol1_str */
-        "",  /* vol2_str */
-        "",  /* vol3_str */
-        "",  /* ignoredt */
-        "",  /* ini2 */
-        0L,  /* max_speed */
-        0,   /* capas */
-        NULL /* ok_fn */
+        0,   // dial_rate
+        0,   // esc_time
+        0,   // esc_char
+        "",  // hup_str
+        "",  // hwfc_str
+        "",  // swfc_str
+        "",  // nofc_str
+        "",  // ec_on_str
+        "",  // ec_off_str
+        "",  // dc_on_str
+        "",  // dc_off_str
+        "",  // aa_on_str
+        "",  // aa_off_str
+        "",  // sb_on_str
+        "",  // sb_off_str
+        "",  // sp_off_str
+        "",  // sp_on_str
+        "",  // vol1_str
+        "",  // vol2_str
+        "",  // vol3_str
+        "",  // ignoredt
+        "",  // ini2
+        0L,  // max_speed
+        0,   // capas
+        NULL // ok_fn
 };
 
-static MDMINF GDC = /* information for "GeneralDataComm 212A/ED" modem */
+static MDMINF GDC = // information for "GeneralDataComm 212A/ED" modem
     {
         "GeneralDataComm 212A/ED",
-        "",         /* pulse command */
-        "",         /* tone command */
-        32,         /* dial_time */
-        "%",        /* pause_chars */
-        3,          /* pause_time */
-        "\015\015", /* wake_str */
-        500,        /* wake_rate */
-        "$",        /* wake_prompt */
-        "D\015",    /* dmode_str */
-        ":",        /* dmode_prompt */
-        "T%s\015",  /* dial_str */
-        0,          /* dial_rate */
-        0,          /* esc_time */
-        0,          /* esc_char */
-        "",         /* hup_str */
-        "",         /* hwfc_str */
-        "",         /* swfc_str */
-        "",         /* nofc_str */
-        "",         /* ec_on_str */
-        "",         /* ec_off_str */
-        "",         /* dc_on_str */
-        "",         /* dc_off_str */
-        "",         /* aa_on_str */
-        "",         /* aa_off_str */
-        "",         /* sb_on_str */
-        "",         /* sb_off_str */
-        "",         /* sp_off_str */
-        "",         /* sp_on_str */
-        "",         /* vol1_str */
-        "",         /* vol2_str */
-        "",         /* vol3_str */
-        "",         /* ignoredt */
-        "",         /* ini2 */
-        1200L,      /* max_speed */
-        0,          /* capas */
-        NULL        /* ok_fn */
+        "",         // pulse command
+        "",         // tone command
+        32,         // dial_time
+        "%",        // pause_chars
+        3,          // pause_time
+        "\015\015", // wake_str
+        500,        // wake_rate
+        "$",        // wake_prompt
+        "D\015",    // dmode_str
+        ":",        // dmode_prompt
+        "T%s\015",  // dial_str
+        0,          // dial_rate
+        0,          // esc_time
+        0,          // esc_char
+        "",         // hup_str
+        "",         // hwfc_str
+        "",         // swfc_str
+        "",         // nofc_str
+        "",         // ec_on_str
+        "",         // ec_off_str
+        "",         // dc_on_str
+        "",         // dc_off_str
+        "",         // aa_on_str
+        "",         // aa_off_str
+        "",         // sb_on_str
+        "",         // sb_off_str
+        "",         // sp_off_str
+        "",         // sp_on_str
+        "",         // vol1_str
+        "",         // vol2_str
+        "",         // vol3_str
+        "",         // ignoredt
+        "",         // ini2
+        1200L,      // max_speed
+        0,          // capas
+        NULL        // ok_fn
 };
 
-static MDMINF PENRIL = /* information for "Penril" modem */
+static MDMINF PENRIL = // information for "Penril" modem
     {
         "Penril modem",
-        "",         /* pulse command */
-        "",         /* tone command */
-        50,         /* dial_time */
-        "",         /* pause_chars */
-        0,          /* pause_time */
-        "\015\015", /* wake_str */
-        300,        /* wake_rate */
-        ">",        /* wake_prompt */
-        "k\015",    /* dmode_str */
-        ":",        /* dmode_prompt */
-        "%s\015",   /* dial_str */
-        0,          /* dial_rate */
-        0,          /* esc_time */
-        0,          /* esc_char */
-        "",         /* hup_str */
-        "",         /* hwfc_str */
-        "",         /* swfc_str */
-        "",         /* nofc_str */
-        "",         /* ec_on_str */
-        "",         /* ec_off_str */
-        "",         /* dc_on_str */
-        "",         /* dc_off_str */
-        "",         /* aa_on_str */
-        "",         /* aa_off_str */
-        "",         /* sb_on_str */
-        "",         /* sb_off_str */
-        "",         /* sp_off_str */
-        "",         /* sp_on_str */
-        "",         /* vol1_str */
-        "",         /* vol2_str */
-        "",         /* vol3_str */
-        "",         /* ignoredt */
-        "",         /* ini2 */
-        0L,         /* max_speed */
-        0,          /* capas */
-        NULL        /* ok_fn */
+        "",         // pulse command
+        "",         // tone command
+        50,         // dial_time
+        "",         // pause_chars
+        0,          // pause_time
+        "\015\015", // wake_str
+        300,        // wake_rate
+        ">",        // wake_prompt
+        "k\015",    // dmode_str
+        ":",        // dmode_prompt
+        "%s\015",   // dial_str
+        0,          // dial_rate
+        0,          // esc_time
+        0,          // esc_char
+        "",         // hup_str
+        "",         // hwfc_str
+        "",         // swfc_str
+        "",         // nofc_str
+        "",         // ec_on_str
+        "",         // ec_off_str
+        "",         // dc_on_str
+        "",         // dc_off_str
+        "",         // aa_on_str
+        "",         // aa_off_str
+        "",         // sb_on_str
+        "",         // sb_off_str
+        "",         // sp_off_str
+        "",         // sp_on_str
+        "",         // vol1_str
+        "",         // vol2_str
+        "",         // vol3_str
+        "",         // ignoredt
+        "",         // ini2
+        0L,         // max_speed
+        0,          // capas
+        NULL        // ok_fn
 };
 
-static MDMINF RACAL = /* Racal Vadic VA4492E */
+static MDMINF RACAL = // Racal Vadic VA4492E
     {
         "Racal Vadic VA4492E",
-        "",         /* pulse command */
-        "",         /* tone command */
-        35,         /* dial_time (manual says modem is hardwired to 60) */
-        "Kk",       /* pause_chars */
-        5,          /* pause_time */
-        "\005\015", /* wake_str, ^E^M */
-        50,         /* wake_rate */
-        "*",        /* wake_prompt */
-        "D\015",    /* dmode_str */
-        "?",        /* dmode_prompt */
-        "%s\015",   /* dial_str */
-        0,          /* dial_rate */
-        1100,       /* esc_time */
-        5,          /* esc_char, ^E */
-        "\003\004", /* hup_str, ^C^D */
-        0,          /* hwfc_str */
-        "",         /* swfc_str */
-        "",         /* nofc_str */
-        "",         /* ec_on_str */
-        "",         /* ec_off_str */
-        "",         /* dc_on_str */
-        "",         /* dc_off_str */
-        "",         /* aa_on_str */
-        "",         /* aa_off_str */
-        "",         /* sb_on_str */
-        "",         /* sb_off_str */
-        "",         /* sp_off_str */
-        "",         /* sp_on_str */
-        "",         /* vol1_str */
-        "",         /* vol2_str */
-        "",         /* vol3_str */
-        "",         /* ignoredt */
-        "",         /* ini2 */
-        0L,         /* max_speed */
-        0,          /* capas */
-        NULL        /* ok_fn */
+        "",         // pulse command
+        "",         // tone command
+        35,         // dial_time (manual says modem is hardwired to 60)
+        "Kk",       // pause_chars
+        5,          // pause_time
+        "\005\015", // wake_str, ^E^M
+        50,         // wake_rate
+        "*",        // wake_prompt
+        "D\015",    // dmode_str
+        "?",        // dmode_prompt
+        "%s\015",   // dial_str
+        0,          // dial_rate
+        1100,       // esc_time
+        5,          // esc_char, ^E
+        "\003\004", // hup_str, ^C^D
+        0,          // hwfc_str
+        "",         // swfc_str
+        "",         // nofc_str
+        "",         // ec_on_str
+        "",         // ec_off_str
+        "",         // dc_on_str
+        "",         // dc_off_str
+        "",         // aa_on_str
+        "",         // aa_off_str
+        "",         // sb_on_str
+        "",         // sb_off_str
+        "",         // sp_off_str
+        "",         // sp_on_str
+        "",         // vol1_str
+        "",         // vol2_str
+        "",         // vol3_str
+        "",         // ignoredt
+        "",         // ini2
+        0L,         // max_speed
+        0,          // capas
+        NULL        // ok_fn
 };
 
-static MDMINF VENTEL = /* Information for Ven-Tel modem */
+static MDMINF VENTEL = // Information for Ven-Tel modem
     {
         "Ven-Tel",
-        "",                 /* pulse command */
-        "",                 /* tone command */
-        20,                 /* dial_time */
-        "%",                /* pause_chars */
-        5,                  /* pause_time */
-        "\015\015\015",     /* wake_str */
-        300,                /* wake_rate */
-        "$",                /* wake_prompt */
-        "K\015",            /* dmode_str (was "") */
-        "Number to call: ", /* dmode_prompt (was NULL) */
-        "%s\015",           /* dial_str (was "<K%s\r>") */
-        0,                  /* dial_rate */
-        0,                  /* esc_time */
-        0,                  /* esc_char */
-        "",                 /* hup_str */
-        "",                 /* hwfc_str */
-        "",                 /* swfc_str */
-        "",                 /* nofc_str */
-        "",                 /* ec_on_str */
-        "",                 /* ec_off_str */
-        "",                 /* dc_on_str */
-        "",                 /* dc_off_str */
-        "",                 /* aa_on_str */
-        "",                 /* aa_off_str */
-        "",                 /* sb_on_str */
-        "",                 /* sb_off_str */
-        "",                 /* sp_off_str */
-        "",                 /* sp_on_str */
-        "",                 /* vol1_str */
-        "",                 /* vol2_str */
-        "",                 /* vol3_str */
-        "",                 /* ignoredt */
-        "",                 /* ini2 */
-        0L,                 /* max_speed */
-        0,                  /* capas */
-        NULL                /* ok_fn */
+        "",                 // pulse command
+        "",                 // tone command
+        20,                 // dial_time
+        "%",                // pause_chars
+        5,                  // pause_time
+        "\015\015\015",     // wake_str
+        300,                // wake_rate
+        "$",                // wake_prompt
+        "K\015",            // dmode_str (was "")
+        "Number to call: ", // dmode_prompt (was NULL)
+        "%s\015",           // dial_str (was "<K%s\r>")
+        0,                  // dial_rate
+        0,                  // esc_time
+        0,                  // esc_char
+        "",                 // hup_str
+        "",                 // hwfc_str
+        "",                 // swfc_str
+        "",                 // nofc_str
+        "",                 // ec_on_str
+        "",                 // ec_off_str
+        "",                 // dc_on_str
+        "",                 // dc_off_str
+        "",                 // aa_on_str
+        "",                 // aa_off_str
+        "",                 // sb_on_str
+        "",                 // sb_off_str
+        "",                 // sp_off_str
+        "",                 // sp_on_str
+        "",                 // vol1_str
+        "",                 // vol2_str
+        "",                 // vol3_str
+        "",                 // ignoredt
+        "",                 // ini2
+        0L,                 // max_speed
+        0,                  // capas
+        NULL                // ok_fn
 };
 
-static MDMINF CONCORD = /* Info for Condor CDS 220 2400b modem */
+static MDMINF CONCORD = // Info for Condor CDS 220 2400b modem
     {
         "Concord Condor CDS 220 2400b",
-        "",            /* pulse command */
-        "",            /* tone command */
-        35,            /* dial_time */
-        ",",           /* pause_chars */
-        2,             /* pause_time */
-        "\015\015",    /* wake_str */
-        20,            /* wake_rate */
-        "CDS >",       /* wake_prompt */
-        "",            /* dmode_str */
-        NULL,          /* dmode_prompt */
-        "<D M%s\015>", /* dial_str */
-        0,             /* dial_rate */
-        0,             /* esc_time */
-        0,             /* esc_char */
-        "",            /* hup_str */
-        "",            /* hwfc_str */
-        "",            /* swfc_str */
-        "",            /* nofc_str */
-        "",            /* ec_on_str */
-        "",            /* ec_off_str */
-        "",            /* dc_on_str */
-        "",            /* dc_off_str */
-        "",            /* aa_on_str */
-        "",            /* aa_off_str */
-        "",            /* sb_on_str */
-        "",            /* sb_off_str */
-        "",            /* sp_off_str */
-        "",            /* sp_on_str */
-        "",            /* vol1_str */
-        "",            /* vol2_str */
-        "",            /* vol3_str */
-        "",            /* ignoredt */
-        "",            /* ini2 */
-        2400L,         /* max_speed */
-        0,             /* capas */
-        NULL           /* ok_fn */
+        "",            // pulse command
+        "",            // tone command
+        35,            // dial_time
+        ",",           // pause_chars
+        2,             // pause_time
+        "\015\015",    // wake_str
+        20,            // wake_rate
+        "CDS >",       // wake_prompt
+        "",            // dmode_str
+        NULL,          // dmode_prompt
+        "<D M%s\015>", // dial_str
+        0,             // dial_rate
+        0,             // esc_time
+        0,             // esc_char
+        "",            // hup_str
+        "",            // hwfc_str
+        "",            // swfc_str
+        "",            // nofc_str
+        "",            // ec_on_str
+        "",            // ec_off_str
+        "",            // dc_on_str
+        "",            // dc_off_str
+        "",            // aa_on_str
+        "",            // aa_off_str
+        "",            // sb_on_str
+        "",            // sb_off_str
+        "",            // sp_off_str
+        "",            // sp_on_str
+        "",            // vol1_str
+        "",            // vol2_str
+        "",            // vol3_str
+        "",            // ignoredt
+        "",            // ini2
+        2400L,         // max_speed
+        0,             // capas
+        NULL           // ok_fn
 };
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
 
-static MDMINF MICROCOM = /* Microcom modems in native SX mode */
-                         /* (long answer only) */
+static MDMINF MICROCOM = // Microcom modems in native SX mode
+                         // (long answer only)
     {
-        "Microcom MNP modems in SX command mode", "DP\015", /* pulse command */
-        "DT\015",                                           /* tone command */
-        35,                                                 /* dial_time */
-        ",!@",                /* pause_chars (! and @ aren't pure pauses) */
-        3,                    /* pause_time */
-                              /*
-                                The following sets 8 bits, no parity, BREAK passthru, and SE0 disables
-                                the                       escape character, which is a single
-                                character with no guard time,                       totally                       unsafe, so
-                                we have no choice but to disable it.  Especially                       since, by                       default, it
-                                is Ctrl-A, which is Kermit's packet-start                       character.  We would                       change
-                                it to something else, which would enable                       "mdmhup()", but the user
-                                wouldn't know about it.  Very bad.  Note: SE1                       sets it to Ctrl-A, SE2
-                                sets it to Ctrl-B, etc (1..31 allowed).  Also                       SE/Q sets it to "Q".
-                              */
-        "SE0;S1P4;SBRK5\015", /* wake_str */
-        100,                  /* wake_rate */
-        "!",                  /* wake_prompt */
-        "",                   /* dmode_str */
-        NULL,                 /* dmode_prompt */
-        "D%s\015",            /* dial_str - number up to 39 chars */
-        0,                    /* dial_rate */
-        0,                    /* esc_time */
-        0,                    /* esc_char - we can't use this */
-        "",                   /* hup_str - it's "H" but can't use */
-        "SF13\015",           /* hwfc_str */
-        "SF11\015",           /* swfc_str */
-        "SF10\015",           /* nofc_str */
-        "BAOFF;SMAUT\015",    /* ec_on_str */
-        "BAON;SMDIR\015",     /* ec_off_str */
-        "COMP1\015",          /* dc_on_str */
-        "COMP0\015",          /* dc_off_str */
-        "AA",                 /* aa_on_str */
-        "",                   /* aa_off_str */
-        "",                   /* sb_on_str */
-        "",                   /* sb_off_str */
-        "SA2",                /* sp_off_str */
-        "SA0",                /* sp_on_str */
-        "",                   /* vol1_str */
-        "",                   /* vol2_str */
-        "",                   /* vol3_str */
-        "",                   /* ignoredt */
-        "",                   /* ini2 */
-        0L,                   /* max_speed */
-        CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW | CKD_KS, /* capas */
-        getok                                                /* ok_fn */
+        "Microcom MNP modems in SX command mode", "DP\015", // pulse command
+        "DT\015",                                           // tone command
+        35,                                                 // dial_time
+        ",!@", // pause_chars (! and @ aren't pure pauses)
+        3,     // pause_time
+               // The following sets 8 bits, no parity, BREAK passthru, and SE0
+           // disables the                       escape character, which is a
+           // single character with no guard time,                       totally
+           // unsafe, so we have no choice but to disable it.  Especially since,
+           // by                       default, it is Ctrl-A, which is Kermit's
+           // packet-start                       character.  We would change it
+           // to something else, which would enable "mdmhup()", but the user
+           // wouldn't know about it.  Very bad.  Note: SE1 sets it to Ctrl-A,
+           // SE2 sets it to Ctrl-B, etc (1..31 allowed).  Also SE/Q sets it to
+           // "Q".
+        "SE0;S1P4;SBRK5\015", // wake_str
+        100,                  // wake_rate
+        "!",                  // wake_prompt
+        "",                   // dmode_str
+        NULL,                 // dmode_prompt
+        "D%s\015",            // dial_str - number up to 39 chars
+        0,                    // dial_rate
+        0,                    // esc_time
+        0,                    // esc_char - we can't use this
+        "",                   // hup_str - it's "H" but can't use
+        "SF13\015",           // hwfc_str
+        "SF11\015",           // swfc_str
+        "SF10\015",           // nofc_str
+        "BAOFF;SMAUT\015",    // ec_on_str
+        "BAON;SMDIR\015",     // ec_off_str
+        "COMP1\015",          // dc_on_str
+        "COMP0\015",          // dc_off_str
+        "AA",                 // aa_on_str
+        "",                   // aa_off_str
+        "",                   // sb_on_str
+        "",                   // sb_off_str
+        "SA2",                // sp_off_str
+        "SA0",                // sp_on_str
+        "",                   // vol1_str
+        "",                   // vol2_str
+        "",                   // vol3_str
+        "",                   // ignoredt
+        "",                   // ini2
+        0L,                   // max_speed
+        CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW | CKD_KS, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF MICROLINK = /* MicroLink ... */
+static MDMINF MICROLINK = // MicroLink ...
     {
-        /* 14.4TQ,TL,PC;28.8TQ,TQV;2440T/TR */
-        "ELSA MicroLink 14.4, 28.8, 33.6 or 56K", /* ELSA GmbH, Aachen */
-        "ATP\015",                                /* pulse command */
-        "ATT\015",                                /* tone command */
-        35,                                       /* dial_time */
-        ",",                                      /* pause_chars */
-        2,                                        /* pause_time */
-        "ATQ0X4\\K5\015",                         /* wake_str */
-        0,                                        /* wake_rate */
-        "OK\015",                                 /* wake_prompt */
-        "",                                       /* dmode_str */
-        "",                                       /* dmode_prompt */
-        "ATD%s\015",                              /* dial_str */
-        0,                                        /* dial_rate */
-        1100,                                     /* esc_time */
-        43,                                       /* esc_char */
-        "ATQ0H\015",                              /* hup_str */
-        "AT\\Q3\015",                             /* hwfc_str */
-        "AT\\Q1\\X0\015",                         /* swfc_str */
-        "AT\\Q0\015",                             /* nofc_str */
-        "AT\\N3\015",                             /* ec_on_str */
-        "AT\\N0\015",                             /* ec_off_str */
-        "AT%C3\015",                              /* dc_on_str */
-        "AT%C0\015",                              /* dc_off_str */
-        "ATS0=1\015",                             /* aa_on_str */
-        "ATS0=0\015",                             /* aa_off_str */
-        "\\J0",                                   /* sb_on_str (?) */
-        "",                                       /* sb_off_str */
-        "ATM1\015",                               /* sp_on_str */
-        "ATM0\015",                               /* sp_off_str */
-        "ATL1\015",                               /* vol1_str */
-        "ATL2\015",                               /* vol2_str */
-        "ATL3\015",                               /* vol3_str */
-        "ATX3\015",                               /* ignoredt */
-        "",                                       /* ini2 */
-        57600L,                                   /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        // 14.4TQ,TL,PC;28.8TQ,TQV;2440T/TR
+        "ELSA MicroLink 14.4, 28.8, 33.6 or 56K", // ELSA GmbH, Aachen
+        "ATP\015",                                // pulse command
+        "ATT\015",                                // tone command
+        35,                                       // dial_time
+        ",",                                      // pause_chars
+        2,                                        // pause_time
+        "ATQ0X4\\K5\015",                         // wake_str
+        0,                                        // wake_rate
+        "OK\015",                                 // wake_prompt
+        "",                                       // dmode_str
+        "",                                       // dmode_prompt
+        "ATD%s\015",                              // dial_str
+        0,                                        // dial_rate
+        1100,                                     // esc_time
+        43,                                       // esc_char
+        "ATQ0H\015",                              // hup_str
+        "AT\\Q3\015",                             // hwfc_str
+        "AT\\Q1\\X0\015",                         // swfc_str
+        "AT\\Q0\015",                             // nofc_str
+        "AT\\N3\015",                             // ec_on_str
+        "AT\\N0\015",                             // ec_off_str
+        "AT%C3\015",                              // dc_on_str
+        "AT%C0\015",                              // dc_off_str
+        "ATS0=1\015",                             // aa_on_str
+        "ATS0=0\015",                             // aa_off_str
+        "\\J0",                                   // sb_on_str (?)
+        "",                                       // sb_off_str
+        "ATM1\015",                               // sp_on_str
+        "ATM0\015",                               // sp_off_str
+        "ATL1\015",                               // vol1_str
+        "ATL2\015",                               // vol2_str
+        "ATL3\015",                               // vol3_str
+        "ATX3\015",                               // ignoredt
+        "",                                       // ini2
+        57600L,                                   // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ULINKV250 = /* MicroLink V.250 */
+static MDMINF ULINKV250 = // MicroLink V.250
     {
-        /* 56Kflex, V.90; V.250 command set */
-        "ELSA MicroLink 56K V.250", /* ELSA GmbH, Aachen */
-        "ATP\015",                  /* pulse command */
-        "ATT\015",                  /* tone command */
-        35,                         /* dial_time */
-        ",",                        /* pause_chars */
-        2,                          /* pause_time */
-        "ATQ0X4\015",               /* wake_str */
-        0,                          /* wake_rate */
-        "OK\015",                   /* wake_prompt */
-        "",                         /* dmode_str */
-        "",                         /* dmode_prompt */
-        "ATD%s\015",                /* dial_str */
-        0,                          /* dial_rate */
-        1100,                       /* esc_time */
-        43,                         /* esc_char */
-        "ATQ0H0\015",               /* hup_str */
-        "AT+IFC=2,2\015",           /* hwfc_str */
-        "AT+IFC=1,1\015",           /* swfc_str */
-        "AT+IFC=0,0\015",           /* nofc_str */
-        "AT+ES=3,0\015",            /* ec_on_str */
-        "AT+ES=1,0\015",            /* ec_off_str */
-        "AT+DS=3,0,2048,32\015",    /* dc_on_str */
-        "AT+DS=0,0\015",            /* dc_off_str */
+        // 56Kflex, V.90; V.250 command set
+        "ELSA MicroLink 56K V.250", // ELSA GmbH, Aachen
+        "ATP\015",                  // pulse command
+        "ATT\015",                  // tone command
+        35,                         // dial_time
+        ",",                        // pause_chars
+        2,                          // pause_time
+        "ATQ0X4\015",               // wake_str
+        0,                          // wake_rate
+        "OK\015",                   // wake_prompt
+        "",                         // dmode_str
+        "",                         // dmode_prompt
+        "ATD%s\015",                // dial_str
+        0,                          // dial_rate
+        1100,                       // esc_time
+        43,                         // esc_char
+        "ATQ0H0\015",               // hup_str
+        "AT+IFC=2,2\015",           // hwfc_str
+        "AT+IFC=1,1\015",           // swfc_str
+        "AT+IFC=0,0\015",           // nofc_str
+        "AT+ES=3,0\015",            // ec_on_str
+        "AT+ES=1,0\015",            // ec_off_str
+        "AT+DS=3,0,2048,32\015",    // dc_on_str
+        "AT+DS=0,0\015",            // dc_off_str
 
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str (?) */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str (?)
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-static MDMINF ITUTV250 = /* ITU-T V.250 conforming modem */
+static MDMINF ITUTV250 = // ITU-T V.250 conforming modem
     {
         "Any ITU-T V.25ter/V.250 conformant modem",
-        "ATP\015",                    /* pulse command */
-        "ATT\015",                    /* tone command */
-        35,                           /* dial_time */
-        ",",                          /* pause_chars */
-        2,                            /* pause_time */
-        "ATQ0E1V1X4&C1&D2\015",       /* wake_str (no &Sn in V.25) */
-        0,                            /* wake_rate */
-        "OK\015",                     /* wake_prompt */
-        "",                           /* dmode_str */
-        "",                           /* dmode_prompt */
-        "ATD%s\015",                  /* dial_str */
-        0,                            /* dial_rate */
-        1100,                         /* esc_time */
-        43,                           /* esc_char */
-        "ATQ0H0\015",                 /* hup_str */
-        "AT+IFC=2,2\015",             /* hwfc_str */
-        "AT+IFC=1,1\015",             /* swfc_str */
-        "AT+IFC=0,0\015",             /* nofc_str */
-        "AT+ES=3,0,2;+EB=1,0,30\015", /* ec_on_str */
-        "AT+ES=0\015",                /* ec_off_str */
-        "AT+DS=3,0\015",              /* dc_on_str */
-        "AT+DS=0,0\015",              /* dc_off_str */
-        "ATS0=1\015",                 /* aa_on_str */
-        "ATS0=0\015",                 /* aa_off_str */
-        "",                           /* sb_on_str */
-        "",                           /* sb_off_str */
-        "ATM1\015",                   /* sp_on_str */
-        "ATM0\015",                   /* sp_off_str */
-        "ATL1\015",                   /* vol1_str */
-        "ATL2\015",                   /* vol2_str */
-        "ATL3\015",                   /* vol3_str */
-        "ATX3\015",                   /* ignoredt */
-        "",                           /* ini2 */
-        57600L,                       /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                    // pulse command
+        "ATT\015",                    // tone command
+        35,                           // dial_time
+        ",",                          // pause_chars
+        2,                            // pause_time
+        "ATQ0E1V1X4&C1&D2\015",       // wake_str (no &Sn in V.25)
+        0,                            // wake_rate
+        "OK\015",                     // wake_prompt
+        "",                           // dmode_str
+        "",                           // dmode_prompt
+        "ATD%s\015",                  // dial_str
+        0,                            // dial_rate
+        1100,                         // esc_time
+        43,                           // esc_char
+        "ATQ0H0\015",                 // hup_str
+        "AT+IFC=2,2\015",             // hwfc_str
+        "AT+IFC=1,1\015",             // swfc_str
+        "AT+IFC=0,0\015",             // nofc_str
+        "AT+ES=3,0,2;+EB=1,0,30\015", // ec_on_str
+        "AT+ES=0\015",                // ec_off_str
+        "AT+DS=3,0\015",              // dc_on_str
+        "AT+DS=0,0\015",              // dc_off_str
+        "ATS0=1\015",                 // aa_on_str
+        "ATS0=0\015",                 // aa_off_str
+        "",                           // sb_on_str
+        "",                           // sb_off_str
+        "ATM1\015",                   // sp_on_str
+        "ATM0\015",                   // sp_off_str
+        "ATL1\015",                   // vol1_str
+        "ATL2\015",                   // vol2_str
+        "ATL3\015",                   // vol3_str
+        "ATX3\015",                   // ignoredt
+        "",                           // ini2
+        57600L,                       // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
 #ifndef CK_TAPI
 static
-#endif               /* CK_TAPI */
-    MDMINF GENERIC = /* Generic high speed ... */
+#endif               // CK_TAPI
+    MDMINF GENERIC = // Generic high speed ...
     {
         "Generic high-speed AT command set",
-        "ATP\015",                                  /* pulse command */
-        "ATT\015",                                  /* tone command */
-        35,                                         /* dial_time */
-        ",",                                        /* pause_chars */
-        2,                                          /* pause_time */
-        "",                                         /* wake_str */
-        0,                                          /* wake_rate */
-        "",                                         /* wake_prompt */
-        "",                                         /* dmode_str */
-        "",                                         /* dmode_prompt */
-        "ATD%s\015",                                /* dial_str */
-        0,                                          /* dial_rate */
-        1100,                                       /* esc_time */
-        43,                                         /* esc_char */
-        "ATQ0H0\015",                               /* hup_str */
-        "",                                         /* hwfc_str */
-        "",                                         /* swfc_str */
-        "",                                         /* nofc_str */
-        "",                                         /* ec_on_str */
-        "",                                         /* ec_off_str */
-        "",                                         /* dc_on_str */
-        "",                                         /* dc_off_str */
-        "ATS0=1\015",                               /* aa_on_str */
-        "ATS0=0\015",                               /* aa_off_str */
-        "",                                         /* sb_on_str */
-        "",                                         /* sb_off_str */
-        "",                                         /* sp_on_str */
-        "",                                         /* sp_off_str */
-        "",                                         /* vol1_str */
-        "",                                         /* vol2_str */
-        "",                                         /* vol3_str */
-        "ATX3\015",                                 /* ignoredt */
-        "",                                         /* ini2 */
-        115200,                                     /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, /* capas */
-        getok                                       /* ok_fn */
+        "ATP\015",                                  // pulse command
+        "ATT\015",                                  // tone command
+        35,                                         // dial_time
+        ",",                                        // pause_chars
+        2,                                          // pause_time
+        "",                                         // wake_str
+        0,                                          // wake_rate
+        "",                                         // wake_prompt
+        "",                                         // dmode_str
+        "",                                         // dmode_prompt
+        "ATD%s\015",                                // dial_str
+        0,                                          // dial_rate
+        1100,                                       // esc_time
+        43,                                         // esc_char
+        "ATQ0H0\015",                               // hup_str
+        "",                                         // hwfc_str
+        "",                                         // swfc_str
+        "",                                         // nofc_str
+        "",                                         // ec_on_str
+        "",                                         // ec_off_str
+        "",                                         // dc_on_str
+        "",                                         // dc_off_str
+        "ATS0=1\015",                               // aa_on_str
+        "ATS0=0\015",                               // aa_off_str
+        "",                                         // sb_on_str
+        "",                                         // sb_off_str
+        "",                                         // sp_on_str
+        "",                                         // sp_off_str
+        "",                                         // vol1_str
+        "",                                         // vol2_str
+        "",                                         // vol3_str
+        "ATX3\015",                                 // ignoredt
+        "",                                         // ini2
+        115200,                                     // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, // capas
+        getok                                       // ok_fn
 };
 
 #ifndef MINIDIAL
-static MDMINF XJACK = /* Megahertz X-Jack */
+static MDMINF XJACK = // Megahertz X-Jack
     {
         "Megahertz X-Jack XJ3144 / CC6144",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4N1\\K5\015",                                  /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H\015",                                         /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3&Q5\015",                                     /* ec_on_str */
-        "AT\\N1&Q0\015",                                     /* ec_off_str */
-        "AT%C3\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4N1\\K5\015",                                  // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H\015",                                         // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3&Q5\015",                                     // ec_on_str
+        "AT\\N1&Q0\015",                                     // ec_off_str
+        "AT%C3\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF SPIRITII = /* QuickComm Spirit II */
+static MDMINF SPIRITII = // QuickComm Spirit II
     {
         "QuickComm Spirit II",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "AT&F\015",                                          /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H\015",                                         /* hup_str */
-        "AT*F3\015",                                         /* hwfc_str */
-        "AT*F2\015",                                         /* swfc_str */
-        "AT*F0\015",                                         /* nofc_str */
-        "AT*E6\015",                                         /* ec_on_str */
-        "AT*E0\015",                                         /* ec_off_str */
-        "AT*E9\015",                                         /* dc_on_str */
-        "AT*E0\015",                                         /* dc_off_str */
-        "ATS0=2\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "",                                                  /* sb_on_str */
-        "",                                                  /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "AT&F\015",                                          // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H\015",                                         // hup_str
+        "AT*F3\015",                                         // hwfc_str
+        "AT*F2\015",                                         // swfc_str
+        "AT*F0\015",                                         // nofc_str
+        "AT*E6\015",                                         // ec_on_str
+        "AT*E0\015",                                         // ec_off_str
+        "AT*E9\015",                                         // dc_on_str
+        "AT*E0\015",                                         // dc_off_str
+        "ATS0=2\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "",                                                  // sb_on_str
+        "",                                                  // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
 static MDMINF MONTANA = {
-    /* Motorola Montana */
-    "Motorola Montana",                                  /* Name */
-    "ATP\015",                                           /* pulse command */
-    "ATT\015",                                           /* tone command */
-    35,                                                  /* dial_time */
-    ",",                                                 /* pause_chars */
-    2,                                                   /* pause_time */
-    "ATQ0E1X4\\K5\\V1\015",                              /* wake_str */
-    0,                                                   /* wake_rate */
-    "OK\015",                                            /* wake_prompt */
-    "",                                                  /* dmode_str */
-    "",                                                  /* dmode_prompt */
-    "ATD%s\015",                                         /* dial_str */
-    0,                                                   /* dial_rate */
-    1100,                                                /* esc_time */
-    43,                                                  /* esc_char */
-    "ATQ0H0\015",                                        /* hup_str */
-    "AT\\Q3\015",                                        /* hwfc_str */
-    "AT\\Q1\015",                                        /* swfc_str */
-    "AT\\Q0\015",                                        /* nofc_str */
-    "AT\\N4\015",                                        /* ec_on_str */
-    "AT\\N1\015",                                        /* ec_off_str */
-    "AT%C1\015",                                         /* dc_on_str */
-    "AT%C0\015",                                         /* dc_off_str */
-    "ATS0=1\015",                                        /* aa_on_str */
-    "ATS0=0\015",                                        /* aa_off_str */
-    "AT\\J0\015",                                        /* sb_on_str */
-    "AT\\J1\015",                                        /* sb_off_str */
-    "ATM1\015",                                          /* sp_on_str */
-    "ATM0\015",                                          /* sp_off_str */
-    "ATL1\015",                                          /* vol1_str */
-    "ATL2\015",                                          /* vol2_str */
-    "ATL3\015",                                          /* vol3_str */
-    "ATX3\015",                                          /* ignoredt */
-    "",                                                  /* ini2 */
-    57600L,                                              /* max_speed */
-    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-    getok                                                /* ok_fn */
+    // Motorola Montana
+    "Motorola Montana",                                  // Name
+    "ATP\015",                                           // pulse command
+    "ATT\015",                                           // tone command
+    35,                                                  // dial_time
+    ",",                                                 // pause_chars
+    2,                                                   // pause_time
+    "ATQ0E1X4\\K5\\V1\015",                              // wake_str
+    0,                                                   // wake_rate
+    "OK\015",                                            // wake_prompt
+    "",                                                  // dmode_str
+    "",                                                  // dmode_prompt
+    "ATD%s\015",                                         // dial_str
+    0,                                                   // dial_rate
+    1100,                                                // esc_time
+    43,                                                  // esc_char
+    "ATQ0H0\015",                                        // hup_str
+    "AT\\Q3\015",                                        // hwfc_str
+    "AT\\Q1\015",                                        // swfc_str
+    "AT\\Q0\015",                                        // nofc_str
+    "AT\\N4\015",                                        // ec_on_str
+    "AT\\N1\015",                                        // ec_off_str
+    "AT%C1\015",                                         // dc_on_str
+    "AT%C0\015",                                         // dc_off_str
+    "ATS0=1\015",                                        // aa_on_str
+    "ATS0=0\015",                                        // aa_off_str
+    "AT\\J0\015",                                        // sb_on_str
+    "AT\\J1\015",                                        // sb_off_str
+    "ATM1\015",                                          // sp_on_str
+    "ATM0\015",                                          // sp_off_str
+    "ATL1\015",                                          // vol1_str
+    "ATL2\015",                                          // vol2_str
+    "ATL3\015",                                          // vol3_str
+    "ATX3\015",                                          // ignoredt
+    "",                                                  // ini2
+    57600L,                                              // max_speed
+    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+    getok                                                // ok_fn
 };
 
 static MDMINF COMPAQ = {
-    /* Compaq Data+Fax Modem */
-    "Compaq Data+Fax Modem", /* Name */
-    "ATP\015",               /* pulse command */
-    "ATT\015",               /* tone command */
-    35,                      /* dial_time */
-    ",",                     /* pause_chars */
-    2,                       /* pause_time */
-    "ATQ0E1X4\015",          /* wake_str */
-    0,                       /* wake_rate */
-    "OK\015",                /* wake_prompt */
-    "",                      /* dmode_str */
-    "",                      /* dmode_prompt */
-    "ATD%s\015",             /* dial_str */
-    0,                       /* dial_rate */
-    1100,                    /* esc_time */
-    43,                      /* esc_char */
-    "ATQ0H0\015",            /* hup_str */
-    "AT\\Q3\015",            /* hwfc_str (same as &K3) */
-    "AT\\Q1\015",            /* swfc_str (same as &K4) */
-    "AT\\Q0\015",            /* nofc_str (same as &K0) */
-    "AT\\N3\015",            /* ec_on_str */
-    "AT\\N0\015",            /* ec_off_str */
-    "AT%C1\015",             /* dc_on_str */
-    "AT%C0\015",             /* dc_off_str */
-    "ATS0=1\015",            /* aa_on_str */
-    "ATS0=0\015",            /* aa_off_str */
-    "AT\\N3\015",            /* sb_on_str */
-    "AT\\N1\015",            /* sb_off_str */
-    "ATM1\015",              /* sp_on_str */
-    "ATM0\015",              /* sp_off_str */
-    "ATL0\015",              /* vol1_str */
-    "ATL2\015",              /* vol2_str */
-    "ATL3\015",              /* vol3_str */
-    "ATX3\015",              /* ignoredt */
-    "",                      /* ini2 */
-    115200L,                 /* max_speed */
-    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-    getok                                                /* ok_fn */
+    // Compaq Data+Fax Modem
+    "Compaq Data+Fax Modem", // Name
+    "ATP\015",               // pulse command
+    "ATT\015",               // tone command
+    35,                      // dial_time
+    ",",                     // pause_chars
+    2,                       // pause_time
+    "ATQ0E1X4\015",          // wake_str
+    0,                       // wake_rate
+    "OK\015",                // wake_prompt
+    "",                      // dmode_str
+    "",                      // dmode_prompt
+    "ATD%s\015",             // dial_str
+    0,                       // dial_rate
+    1100,                    // esc_time
+    43,                      // esc_char
+    "ATQ0H0\015",            // hup_str
+    "AT\\Q3\015",            // hwfc_str (same as &K3)
+    "AT\\Q1\015",            // swfc_str (same as &K4)
+    "AT\\Q0\015",            // nofc_str (same as &K0)
+    "AT\\N3\015",            // ec_on_str
+    "AT\\N0\015",            // ec_off_str
+    "AT%C1\015",             // dc_on_str
+    "AT%C0\015",             // dc_off_str
+    "ATS0=1\015",            // aa_on_str
+    "ATS0=0\015",            // aa_off_str
+    "AT\\N3\015",            // sb_on_str
+    "AT\\N1\015",            // sb_off_str
+    "ATM1\015",              // sp_on_str
+    "ATM0\015",              // sp_off_str
+    "ATL0\015",              // vol1_str
+    "ATL2\015",              // vol2_str
+    "ATL3\015",              // vol3_str
+    "ATX3\015",              // ignoredt
+    "",                      // ini2
+    115200L,                 // max_speed
+    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+    getok                                                // ok_fn
 };
 
 static MDMINF FUJITSU = {
-    /* Fujitsu */
-    "Fujitsu Fax/Modem Adapter",                         /* Name */
-    "ATP\015",                                           /* pulse command */
-    "ATT\015",                                           /* tone command */
-    35,                                                  /* dial_time */
-    ",",                                                 /* pause_chars */
-    2,                                                   /* pause_time */
-    "ATQ0E1X4\\K5\\N3\015",                              /* wake_str */
-    0,                                                   /* wake_rate */
-    "OK\015",                                            /* wake_prompt */
-    "",                                                  /* dmode_str */
-    "",                                                  /* dmode_prompt */
-    "ATD%s\015",                                         /* dial_str */
-    0,                                                   /* dial_rate */
-    1100,                                                /* esc_time */
-    43,                                                  /* esc_char */
-    "ATQ0H0\015",                                        /* hup_str */
-    "AT&K3\\Q3\015",                                     /* hwfc_str */
-    "AT&K4\\Q1\015",                                     /* swfc_str */
-    "AT&K0\\Q0\015",                                     /* nofc_str */
-    "AT\\N3\015",                                        /* ec_on_str */
-    "AT\\N0\015",                                        /* ec_off_str */
-    "AT%C1",                                             /* dc_on_str */
-    "AT%C0",                                             /* dc_off_str */
-    "ATS0=1\015",                                        /* aa_on_str */
-    "ATS0=0\015",                                        /* aa_off_str */
-    "AT\\J0\015",                                        /* sb_on_str */
-    "AT\\J1\015",                                        /* sb_off_str */
-    "ATM1\015",                                          /* sp_on_str */
-    "ATM0\015",                                          /* sp_off_str */
-    "ATL1\015",                                          /* vol1_str */
-    "ATL2\015",                                          /* vol2_str */
-    "ATL3\015",                                          /* vol3_str */
-    "ATX3\015",                                          /* ignoredt */
-    "",                                                  /* ini2 */
-    115200L,                                             /* max_speed */
-    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-    getok                                                /* ok_fn */
+    // Fujitsu
+    "Fujitsu Fax/Modem Adapter",                         // Name
+    "ATP\015",                                           // pulse command
+    "ATT\015",                                           // tone command
+    35,                                                  // dial_time
+    ",",                                                 // pause_chars
+    2,                                                   // pause_time
+    "ATQ0E1X4\\K5\\N3\015",                              // wake_str
+    0,                                                   // wake_rate
+    "OK\015",                                            // wake_prompt
+    "",                                                  // dmode_str
+    "",                                                  // dmode_prompt
+    "ATD%s\015",                                         // dial_str
+    0,                                                   // dial_rate
+    1100,                                                // esc_time
+    43,                                                  // esc_char
+    "ATQ0H0\015",                                        // hup_str
+    "AT&K3\\Q3\015",                                     // hwfc_str
+    "AT&K4\\Q1\015",                                     // swfc_str
+    "AT&K0\\Q0\015",                                     // nofc_str
+    "AT\\N3\015",                                        // ec_on_str
+    "AT\\N0\015",                                        // ec_off_str
+    "AT%C1",                                             // dc_on_str
+    "AT%C0",                                             // dc_off_str
+    "ATS0=1\015",                                        // aa_on_str
+    "ATS0=0\015",                                        // aa_off_str
+    "AT\\J0\015",                                        // sb_on_str
+    "AT\\J1\015",                                        // sb_off_str
+    "ATM1\015",                                          // sp_on_str
+    "ATM0\015",                                          // sp_off_str
+    "ATL1\015",                                          // vol1_str
+    "ATL2\015",                                          // vol2_str
+    "ATL3\015",                                          // vol3_str
+    "ATX3\015",                                          // ignoredt
+    "",                                                  // ini2
+    115200L,                                             // max_speed
+    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+    getok                                                // ok_fn
 };
 
-static MDMINF MHZATT = /* Megahertz AT&T V.34 */
+static MDMINF MHZATT = // Megahertz AT&T V.34
     {
         "Megahertz AT&T V.34",
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0X4N1\\K5\015",                                  /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H\015",                                         /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\\N3\015",                                        /* ec_on_str */
-        "AT\\N0\015",                                        /* ec_off_str */
-        "AT%C1\"H3\015",                                     /* dc_on_str */
-        "AT%C0\"H0\015",                                     /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "AT\\J0\015",                                        /* sb_on_str */
-        "AT\\J1\015",                                        /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0X4N1\\K5\015",                                  // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H\015",                                         // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\\N3\015",                                        // ec_on_str
+        "AT\\N0\015",                                        // ec_off_str
+        "AT%C1\"H3\015",                                     // dc_on_str
+        "AT%C0\"H0\015",                                     // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "AT\\J0\015",                                        // sb_on_str
+        "AT\\J1\015",                                        // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF SUPRASON = /* SupraSonic */
+static MDMINF SUPRASON = // SupraSonic
     {
-        "Diamond SupraSonic 288V+", /* Diamond Multimedia Systems Inc */
-        "ATP\015",                  /* pulse command */
-        "ATT\015",                  /* tone command */
-        35,                         /* dial_time */
-        ",",                        /* pause_chars */
-        2,                          /* pause_time */
-        "ATQ0E1N1W0X4Y0\015",       /* wake_str */
-        0,                          /* wake_rate */
-        "OK\015",                   /* wake_prompt */
-        "",                         /* dmode_str */
-        "",                         /* dmode_prompt */
-        "ATD%s\015",                /* dial_str */
-        0,                          /* dial_rate */
-        1100,                       /* esc_time */
-        43,                         /* esc_char */
-        "ATQ0H0\015",               /* hup_str */
-        "AT&K3\015",                /* hwfc_str */
-        "AT&K4\015",                /* swfc_str */
-        "AT&K\015",                 /* nofc_str */
-        "AT&Q5\\N3S48=7\015",       /* ec_on_str */
-        "AT&Q0\\N1\015",            /* ec_off_str */
-        "AT%C3S46=138\015",         /* dc_on_str */
-        "AT%C0S46=136\015",         /* dc_off_str */
-        "ATS0=1\015",               /* aa_on_str */
-        "ATS0=0\015",               /* aa_off_str */
-        "",                         /* sb_on_str */
-        "",                         /* sb_off_str */
-        "ATM1\015",                 /* sp_on_str */
-        "ATM\015",                  /* sp_off_str */
-        "ATL\015",                  /* vol1_str */
-        "ATL2\015",                 /* vol2_str */
-        "ATL3\015",                 /* vol3_str */
-        "ATX3\015",                 /* ignoredt */
-        "",                         /* ini2 */
-        115200L,                    /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Diamond SupraSonic 288V+", // Diamond Multimedia Systems Inc
+        "ATP\015",                  // pulse command
+        "ATT\015",                  // tone command
+        35,                         // dial_time
+        ",",                        // pause_chars
+        2,                          // pause_time
+        "ATQ0E1N1W0X4Y0\015",       // wake_str
+        0,                          // wake_rate
+        "OK\015",                   // wake_prompt
+        "",                         // dmode_str
+        "",                         // dmode_prompt
+        "ATD%s\015",                // dial_str
+        0,                          // dial_rate
+        1100,                       // esc_time
+        43,                         // esc_char
+        "ATQ0H0\015",               // hup_str
+        "AT&K3\015",                // hwfc_str
+        "AT&K4\015",                // swfc_str
+        "AT&K\015",                 // nofc_str
+        "AT&Q5\\N3S48=7\015",       // ec_on_str
+        "AT&Q0\\N1\015",            // ec_off_str
+        "AT%C3S46=138\015",         // dc_on_str
+        "AT%C0S46=136\015",         // dc_off_str
+        "ATS0=1\015",               // aa_on_str
+        "ATS0=0\015",               // aa_off_str
+        "",                         // sb_on_str
+        "",                         // sb_off_str
+        "ATM1\015",                 // sp_on_str
+        "ATM\015",                  // sp_off_str
+        "ATL\015",                  // vol1_str
+        "ATL2\015",                 // vol2_str
+        "ATL3\015",                 // vol3_str
+        "ATX3\015",                 // ignoredt
+        "",                         // ini2
+        115200L,                    // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF BESTDATA = /* Best Data */
+static MDMINF BESTDATA = // Best Data
     {
-        "Best Data Fax Modem", /* Best Data Fax Modem */
-        "ATP\015",             /* pulse command */
-        "ATT\015",             /* tone command */
-        35,                    /* dial_time */
-        ",",                   /* pause_chars */
-        2,                     /* pause_time */
-        "ATQ0E1N1W0X4Y0\015",  /* wake_str */
-        0,                     /* wake_rate */
-        "OK\015",              /* wake_prompt */
-        "",                    /* dmode_str */
-        "",                    /* dmode_prompt */
-        "ATD%s\015",           /* dial_str */
-        0,                     /* dial_rate */
-        1100,                  /* esc_time */
-        43,                    /* esc_char */
-        "ATQ0H0\015",          /* hup_str */
-        "AT&K3\015",           /* hwfc_str */
-        "AT&K4\015",           /* swfc_str */
-        "AT&K\015",            /* nofc_str */
-        "AT&Q6\\N3\015",       /* ec_on_str */
-        "AT&Q0\\N1\015",       /* ec_off_str */
-        "AT%C3\015",           /* dc_on_str */
-        "AT%C0\015",           /* dc_off_str */
-        "ATS0=1\015",          /* aa_on_str */
-        "ATS0=0\015",          /* aa_off_str */
-        "AT\\N3\015",          /* sb_on_str */
-        "AT\\N0\015",          /* sb_off_str */
-        "ATM1\015",            /* sp_on_str */
-        "ATM0\015",            /* sp_off_str */
-        "ATL1\015",            /* vol1_str */
-        "ATL2\015",            /* vol2_str */
-        "ATL3\015",            /* vol3_str */
-        "ATX3\015",            /* ignoredt */
-        "",                    /* ini2 */
-        57600L,                /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Best Data Fax Modem", // Best Data Fax Modem
+        "ATP\015",             // pulse command
+        "ATT\015",             // tone command
+        35,                    // dial_time
+        ",",                   // pause_chars
+        2,                     // pause_time
+        "ATQ0E1N1W0X4Y0\015",  // wake_str
+        0,                     // wake_rate
+        "OK\015",              // wake_prompt
+        "",                    // dmode_str
+        "",                    // dmode_prompt
+        "ATD%s\015",           // dial_str
+        0,                     // dial_rate
+        1100,                  // esc_time
+        43,                    // esc_char
+        "ATQ0H0\015",          // hup_str
+        "AT&K3\015",           // hwfc_str
+        "AT&K4\015",           // swfc_str
+        "AT&K\015",            // nofc_str
+        "AT&Q6\\N3\015",       // ec_on_str
+        "AT&Q0\\N1\015",       // ec_off_str
+        "AT%C3\015",           // dc_on_str
+        "AT%C0\015",           // dc_off_str
+        "ATS0=1\015",          // aa_on_str
+        "ATS0=0\015",          // aa_off_str
+        "AT\\N3\015",          // sb_on_str
+        "AT\\N0\015",          // sb_off_str
+        "ATM1\015",            // sp_on_str
+        "ATM0\015",            // sp_off_str
+        "ATL1\015",            // vol1_str
+        "ATL2\015",            // vol2_str
+        "ATL3\015",            // vol3_str
+        "ATX3\015",            // ignoredt
+        "",                    // ini2
+        57600L,                // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ATT1900 = /* AT&T Secure Data STU III 1900 */
+static MDMINF ATT1900 = // AT&T Secure Data STU III 1900
     {
-        "AT&T Secure Data STU III Model 1900", /* name */
-        "",                                    /* pulse command */
-        "",                                    /* tone command */
-        35,                                    /* dial_time */
-        ",",                                   /* pause_chars */
-        2,                                     /* pause_time */
-        "ATQ0E1X4\015",                        /* wake_str */
-        0,                                     /* wake_rate */
-        "OK\015",                              /* wake_prompt */
-        "",                                    /* dmode_str */
-        "",                                    /* dmode_prompt */
-        "ATD%s\015",                           /* dial_str */
-        0,                                     /* dial_rate */
-        1100,                                  /* esc_time */
-        43,                                    /* esc_char */
-        "ATQ0H0\015",                          /* hup_str */
-        "",                                    /* hwfc_str */
-        "",                                    /* swfc_str */
-        "",                                    /* nofc_str */
-        "",                                    /* ec_on_str */
-        "",                                    /* ec_off_str */
-        "",                                    /* dc_on_str */
-        "",                                    /* dc_off_str */
-        "ATS0=1\015",                          /* aa_on_str */
-        "ATS0=0\015",                          /* aa_off_str */
-        "",                                    /* sb_on_str */
-        "",                                    /* sb_off_str */
-        "",                                    /* sp_on_str */
-        "",                                    /* sp_off_str */
-        "",                                    /* vol1_str */
-        "",                                    /* vol2_str */
-        "",                                    /* vol3_str */
-        "",                                    /* ignoredt */
-        "",                                    /* ini2 */
-        9600L,                                 /* max_speed */
-        CKD_AT | CKD_SB | CKD_HW,              /* capas */
-        getok                                  /* ok_fn */
+        "AT&T Secure Data STU III Model 1900", // name
+        "",                                    // pulse command
+        "",                                    // tone command
+        35,                                    // dial_time
+        ",",                                   // pause_chars
+        2,                                     // pause_time
+        "ATQ0E1X4\015",                        // wake_str
+        0,                                     // wake_rate
+        "OK\015",                              // wake_prompt
+        "",                                    // dmode_str
+        "",                                    // dmode_prompt
+        "ATD%s\015",                           // dial_str
+        0,                                     // dial_rate
+        1100,                                  // esc_time
+        43,                                    // esc_char
+        "ATQ0H0\015",                          // hup_str
+        "",                                    // hwfc_str
+        "",                                    // swfc_str
+        "",                                    // nofc_str
+        "",                                    // ec_on_str
+        "",                                    // ec_off_str
+        "",                                    // dc_on_str
+        "",                                    // dc_off_str
+        "ATS0=1\015",                          // aa_on_str
+        "ATS0=0\015",                          // aa_off_str
+        "",                                    // sb_on_str
+        "",                                    // sb_off_str
+        "",                                    // sp_on_str
+        "",                                    // sp_off_str
+        "",                                    // vol1_str
+        "",                                    // vol2_str
+        "",                                    // vol3_str
+        "",                                    // ignoredt
+        "",                                    // ini2
+        9600L,                                 // max_speed
+        CKD_AT | CKD_SB | CKD_HW,              // capas
+        getok                                  // ok_fn
 };
 
-/*
-  Experimentation showed that hardly any of the documented commands did
-  anything other that print ERROR.  At first there was no communication at
-  all at 9600 bps -- turns out the interface speed was stuck at 2400.
-  ATS28=130 (given at 2400 bps) allowed it to work at 9600.
-*/
-static MDMINF ATT1910 = /* AT&T Secure Data STU III 1910 */
+// Experimentation showed that hardly any of the documented commands did
+// anything other that print ERROR.  At first there was no communication at
+// all at 9600 bps -- turns out the interface speed was stuck at 2400.
+// ATS28=130 (given at 2400 bps) allowed it to work at 9600.
+static MDMINF ATT1910 = // AT&T Secure Data STU III 1910
     {
-        /* Adds V.32bis, V.42, V.42bis */
-        "AT&T Secure Data STU III Model 1910", /* name */
+        // Adds V.32bis, V.42, V.42bis
+        "AT&T Secure Data STU III Model 1910", // name
 
-        /* Believe it or not, "ATT" and "ATP" result in ERROR */
+        // Believe it or not, "ATT" and "ATP" result in ERROR
 
-        "",                                         /* pulse command */
-        "",                                         /* tone command */
-        35,                                         /* dial_time */
-        ",",                                        /* pause_chars */
-        2,                                          /* pause_time */
-        "ATQ0E1X4\015",                             /* wake_str */
-        0,                                          /* wake_rate */
-        "OK\015",                                   /* wake_prompt */
-        "",                                         /* dmode_str */
-        "",                                         /* dmode_prompt */
-        "ATD%s\015",                                /* dial_str */
-        0,                                          /* dial_rate */
-        1100,                                       /* esc_time */
-        43,                                         /* esc_char */
-        "ATQ0H0\015",                               /* hup_str */
-        "",                                         /* hwfc_str */
-        "",                                         /* swfc_str */
-        "",                                         /* nofc_str */
-        "", "", "", "", "ATS0=1\015",               /* aa_on_str */
-        "ATS0=0\015",                               /* aa_off_str */
-        "",                                         /* sb_on_str */
-        "",                                         /* sb_off_str */
-        "",                                         /* sp_on_str */
-        "",                                         /* sp_off_str */
-        "",                                         /* vol1_str */
-        "",                                         /* vol2_str */
-        "",                                         /* vol3_str */
-        "",                                         /* ignoredt */
-        "",                                         /* ini2 */
-        9600L,                                      /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, /* capas */
-        getok                                       /* ok_fn */
+        "",                                         // pulse command
+        "",                                         // tone command
+        35,                                         // dial_time
+        ",",                                        // pause_chars
+        2,                                          // pause_time
+        "ATQ0E1X4\015",                             // wake_str
+        0,                                          // wake_rate
+        "OK\015",                                   // wake_prompt
+        "",                                         // dmode_str
+        "",                                         // dmode_prompt
+        "ATD%s\015",                                // dial_str
+        0,                                          // dial_rate
+        1100,                                       // esc_time
+        43,                                         // esc_char
+        "ATQ0H0\015",                               // hup_str
+        "",                                         // hwfc_str
+        "",                                         // swfc_str
+        "",                                         // nofc_str
+        "", "", "", "", "ATS0=1\015",               // aa_on_str
+        "ATS0=0\015",                               // aa_off_str
+        "",                                         // sb_on_str
+        "",                                         // sb_off_str
+        "",                                         // sp_on_str
+        "",                                         // sp_off_str
+        "",                                         // vol1_str
+        "",                                         // vol2_str
+        "",                                         // vol3_str
+        "",                                         // ignoredt
+        "",                                         // ini2
+        9600L,                                      // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW, // capas
+        getok                                       // ok_fn
 };
 
-static MDMINF KEEPINTOUCH = /* AT&T KeepinTouch Card Modem */
+static MDMINF KEEPINTOUCH = // AT&T KeepinTouch Card Modem
     {
-        "AT&T KeepinTouch V.32bis Card Modem",               /* Name */
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATQ0E1X4\\K5\015",                                  /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT\\Q3\015",                                        /* hwfc_str */
-        "AT\\Q1\\X0\015",                                    /* swfc_str */
-        "AT\\Q0\015",                                        /* nofc_str */
-        "AT\\N3-J1\015",                                     /* ec_on_str */
-        "AT\\N1\015",                                        /* ec_off_str */
-        "AT%C3\"H3\015",                                     /* dc_on_str */
-        "AT%C0\"H0\015",                                     /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "ATN0\\J0\015",                                      /* sb_on_str */
-        "ATN1\\J1\015",                                      /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "",                                                  /* vol1_str */
-        "",                                                  /* vol2_str */
-        "",                                                  /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        57600L,                                              /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "AT&T KeepinTouch V.32bis Card Modem",               // Name
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATQ0E1X4\\K5\015",                                  // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT\\Q3\015",                                        // hwfc_str
+        "AT\\Q1\\X0\015",                                    // swfc_str
+        "AT\\Q0\015",                                        // nofc_str
+        "AT\\N3-J1\015",                                     // ec_on_str
+        "AT\\N1\015",                                        // ec_off_str
+        "AT%C3\"H3\015",                                     // dc_on_str
+        "AT%C0\"H0\015",                                     // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "ATN0\\J0\015",                                      // sb_on_str
+        "ATN1\\J1\015",                                      // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "",                                                  // vol1_str
+        "",                                                  // vol2_str
+        "",                                                  // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        57600L,                                              // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF ROLM_AT = /* Rolm data phone with AT command set */
+static MDMINF ROLM_AT = // Rolm data phone with AT command set
     {
         "Rolm 244PC or 600 Series with AT Command Set",
-        "",           /* pulse command */
-        "",           /* tone command */
-        35,           /* dial_time */
-        ",",          /* pause_chars */
-        2,            /* pause_time */
-        "ATQ0\015",   /* wake_str */
-        0,            /* wake_rate */
-        "OK\015",     /* wake_prompt */
-        "",           /* dmode_str */
-        "",           /* dmode_prompt */
-        "ATDT%s\015", /* dial_str -- always Tone */
-        0,            /* dial_rate */
-        1100,         /* esc_time */
-        43,           /* esc_char */
-        "ATQ0H0\015", /* hup_str */
-        "",           /* hwfc_str */
-        "",           /* swfc_str */
-        "",           /* nofc_str */
-        "",           /* ec_on_str */
-        "",           /* ec_off_str */
-        "",           /* dc_on_str */
-        "",           /* dc_off_str */
-        "ATS0=1\015", /* aa_on_str */
-        "ATS0=0\015", /* aa_off_str */
-        "",           /* sb_on_str */
-        "",           /* sb_off_str */
-        "",           /* sp_on_str */
-        "",           /* sp_off_str */
-        "",           /* vol1_str */
-        "",           /* vol2_str */
-        "",           /* vol3_str */
-        "",           /* ignoredt */
-        "",           /* ini2 */
-        19200L,       /* max_speed */
-        CKD_AT,       /* capas */
-        getok         /* ok_fn */
+        "",           // pulse command
+        "",           // tone command
+        35,           // dial_time
+        ",",          // pause_chars
+        2,            // pause_time
+        "ATQ0\015",   // wake_str
+        0,            // wake_rate
+        "OK\015",     // wake_prompt
+        "",           // dmode_str
+        "",           // dmode_prompt
+        "ATDT%s\015", // dial_str -- always Tone
+        0,            // dial_rate
+        1100,         // esc_time
+        43,           // esc_char
+        "ATQ0H0\015", // hup_str
+        "",           // hwfc_str
+        "",           // swfc_str
+        "",           // nofc_str
+        "",           // ec_on_str
+        "",           // ec_off_str
+        "",           // dc_on_str
+        "",           // dc_off_str
+        "ATS0=1\015", // aa_on_str
+        "ATS0=0\015", // aa_off_str
+        "",           // sb_on_str
+        "",           // sb_off_str
+        "",           // sp_on_str
+        "",           // sp_off_str
+        "",           // vol1_str
+        "",           // vol2_str
+        "",           // vol3_str
+        "",           // ignoredt
+        "",           // ini2
+        19200L,       // max_speed
+        CKD_AT,       // capas
+        getok         // ok_fn
 };
 
-static MDMINF ATLAS = /* Atlas / Newcom ixfC 33.6 */
+static MDMINF ATLAS = // Atlas / Newcom ixfC 33.6
     {
-        "Atlas / Newcom 33600ixfC Data/Fax Modem",           /* Name */
-        "ATP\015",                                           /* pulse command */
-        "ATT\015",                                           /* tone command */
-        35,                                                  /* dial_time */
-        ",",                                                 /* pause_chars */
-        2,                                                   /* pause_time */
-        "ATZ0&FQ0V1\015",                                    /* wake_str */
-        0,                                                   /* wake_rate */
-        "OK\015",                                            /* wake_prompt */
-        "",                                                  /* dmode_str */
-        "",                                                  /* dmode_prompt */
-        "ATD%s\015",                                         /* dial_str */
-        0,                                                   /* dial_rate */
-        1100,                                                /* esc_time */
-        43,                                                  /* esc_char */
-        "ATQ0H0\015",                                        /* hup_str */
-        "AT&K3\015",                                         /* hwfc_str */
-        "AT&K4\015",                                         /* swfc_str */
-        "AT&K0\015",                                         /* nofc_str */
-        "AT\"H3\015",                                        /* ec_on_str */
-        "AT\"H0\015",                                        /* ec_off_str */
-        "AT%C1\015",                                         /* dc_on_str */
-        "AT%C0\015",                                         /* dc_off_str */
-        "ATS0=1\015",                                        /* aa_on_str */
-        "ATS0=0\015",                                        /* aa_off_str */
-        "ATN0\\J0\015",                                      /* sb_on_str */
-        "ATN1\\J1\015",                                      /* sb_off_str */
-        "ATM1\015",                                          /* sp_on_str */
-        "ATM0\015",                                          /* sp_off_str */
-        "ATL1\015",                                          /* vol1_str */
-        "ATL2\015",                                          /* vol2_str */
-        "ATL3\015",                                          /* vol3_str */
-        "ATX3\015",                                          /* ignoredt */
-        "",                                                  /* ini2 */
-        115200L,                                             /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Atlas / Newcom 33600ixfC Data/Fax Modem",           // Name
+        "ATP\015",                                           // pulse command
+        "ATT\015",                                           // tone command
+        35,                                                  // dial_time
+        ",",                                                 // pause_chars
+        2,                                                   // pause_time
+        "ATZ0&FQ0V1\015",                                    // wake_str
+        0,                                                   // wake_rate
+        "OK\015",                                            // wake_prompt
+        "",                                                  // dmode_str
+        "",                                                  // dmode_prompt
+        "ATD%s\015",                                         // dial_str
+        0,                                                   // dial_rate
+        1100,                                                // esc_time
+        43,                                                  // esc_char
+        "ATQ0H0\015",                                        // hup_str
+        "AT&K3\015",                                         // hwfc_str
+        "AT&K4\015",                                         // swfc_str
+        "AT&K0\015",                                         // nofc_str
+        "AT\"H3\015",                                        // ec_on_str
+        "AT\"H0\015",                                        // ec_off_str
+        "AT%C1\015",                                         // dc_on_str
+        "AT%C0\015",                                         // dc_off_str
+        "ATS0=1\015",                                        // aa_on_str
+        "ATS0=0\015",                                        // aa_off_str
+        "ATN0\\J0\015",                                      // sb_on_str
+        "ATN1\\J1\015",                                      // sb_off_str
+        "ATM1\015",                                          // sp_on_str
+        "ATM0\015",                                          // sp_off_str
+        "ATL1\015",                                          // vol1_str
+        "ATL2\015",                                          // vol2_str
+        "ATL3\015",                                          // vol3_str
+        "ATX3\015",                                          // ignoredt
+        "",                                                  // ini2
+        115200L,                                             // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
 static MDMINF CODEX = {
-    /* Motorola Codex */
-    "Motorola Codex 326X Series",       /* Name - AT&V to see settings */
-    "ATP\015",                          /* pulse command */
-    "ATT\015",                          /* tone command */
-    35,                                 /* dial_time */
-    ",",                                /* pause_chars */
-    2,                                  /* pause_time */
-    "ATZQ0E1V1X4Y0*DE22*MM0&C1&M0\015", /* wake_str */
-    0,                                  /* wake_rate */
-    "OK\015",                           /* wake_prompt */
-    "",                                 /* dmode_str */
-    "",                                 /* dmode_prompt */
-    "ATD%s\015",                        /* dial_str */
-    0,                                  /* dial_rate */
-    1100,                               /* esc_time */
-    43,                                 /* esc_char */
-    "ATQ0H0\015",                       /* hup_str */
-    "AT*MF1*FL3\015",                   /* hwfc_str */
-    "AT*MF1*FL1\015",                   /* swfc_str */
-    "AT*MF0*FL0\015",                   /* nofc_str */
-    "AT*EC0*SM3*SC0\015",               /* ec_on_str */
-    "AT*SM0\015",                       /* ec_off_str */
-    "AT*DC1\015",                       /* dc_on_str */
-    "AT*DC0\015",                       /* dc_off_str */
-    "AT*AA5S0=1\015",                   /* aa_on_str */
-    "AT*AA5S0=0\015",                   /* aa_off_str */
-    "AT*SC1\015",                       /* sb_on_str */
-    "AT*SC0\015",                       /* sb_off_str */
-    "ATM1\015",                         /* sp_on_str */
-    "ATM0\015",                         /* sp_off_str */
-    "ATL1\015",                         /* vol1_str */
-    "ATL2\015",                         /* vol2_str */
-    "ATL3\015",                         /* vol3_str */
-    "ATX3*BD2\015",                     /* ignoredt */
-    "",                                 /* ini2 */
-    115200L,                            /* max_speed */
-    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-    getok                                                /* ok_fn */
+    // Motorola Codex
+    "Motorola Codex 326X Series",       // Name - AT&V to see settings
+    "ATP\015",                          // pulse command
+    "ATT\015",                          // tone command
+    35,                                 // dial_time
+    ",",                                // pause_chars
+    2,                                  // pause_time
+    "ATZQ0E1V1X4Y0*DE22*MM0&C1&M0\015", // wake_str
+    0,                                  // wake_rate
+    "OK\015",                           // wake_prompt
+    "",                                 // dmode_str
+    "",                                 // dmode_prompt
+    "ATD%s\015",                        // dial_str
+    0,                                  // dial_rate
+    1100,                               // esc_time
+    43,                                 // esc_char
+    "ATQ0H0\015",                       // hup_str
+    "AT*MF1*FL3\015",                   // hwfc_str
+    "AT*MF1*FL1\015",                   // swfc_str
+    "AT*MF0*FL0\015",                   // nofc_str
+    "AT*EC0*SM3*SC0\015",               // ec_on_str
+    "AT*SM0\015",                       // ec_off_str
+    "AT*DC1\015",                       // dc_on_str
+    "AT*DC0\015",                       // dc_off_str
+    "AT*AA5S0=1\015",                   // aa_on_str
+    "AT*AA5S0=0\015",                   // aa_off_str
+    "AT*SC1\015",                       // sb_on_str
+    "AT*SC0\015",                       // sb_off_str
+    "ATM1\015",                         // sp_on_str
+    "ATM0\015",                         // sp_off_str
+    "ATL1\015",                         // vol1_str
+    "ATL2\015",                         // vol2_str
+    "ATL3\015",                         // vol3_str
+    "ATX3*BD2\015",                     // ignoredt
+    "",                                 // ini2
+    115200L,                            // max_speed
+    CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+    getok                                                // ok_fn
 };
 
-static MDMINF MT5634ZPX = /* Multitech */
+static MDMINF MT5634ZPX = // Multitech
     {
-        "Multitech MT5634ZPX", /* name */
-        "ATP\015",             /* pulse command */
-        "ATT\015",             /* tone command */
-        35,                    /* dial_time */
-        ",",                   /* pause_chars */
-        2,                     /* pause_time */
-        "ATQ0E1X4&Q0\015",     /* wake_str */
-        0,                     /* wake_rate */
-        "OK\015",              /* wake_prompt */
-        "",                    /* dmode_str */
-        "",                    /* dmode_prompt */
-        "ATD%s\015",           /* dial_str */
-        0,                     /* dial_rate */
-        1100,                  /* esc_time */
-        43,                    /* esc_char */
-        "ATQ0H0\015",          /* hup_str */
-        "AT&K3\015",           /* hwfc_str */
-        "AT&K4\015",           /* swfc_str */
-        "AT&K0\015",           /* nofc_str */
-        "AT\\N3\015",          /* ec_on_str */
-        "AT\\N1\015",          /* ec_off_str */
-        "AT%C1\015",           /* dc_on_str */
-        "AT%C0\015",           /* dc_off_str */
-        "ATS0=1\015",          /* aa_on_str */
-        "ATS0=0\015",          /* aa_off_str */
-        "AT\\J0\015",          /* sb_on_str */
-        "AT\\J1\015",          /* sb_off_str (NOT SUPPORTED) */
-        "ATM1\015",            /* sp_on_str */
-        "ATM0\015",            /* sp_off_str */
-        "ATL1\015",            /* vol1_str */
-        "ATL2\015",            /* vol2_str */
-        "ATL3\015",            /* vol3_str */
-        "ATX3\015",            /* ignoredt */
-        "",                    /* ini2 */
-        115200L,               /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Multitech MT5634ZPX", // name
+        "ATP\015",             // pulse command
+        "ATT\015",             // tone command
+        35,                    // dial_time
+        ",",                   // pause_chars
+        2,                     // pause_time
+        "ATQ0E1X4&Q0\015",     // wake_str
+        0,                     // wake_rate
+        "OK\015",              // wake_prompt
+        "",                    // dmode_str
+        "",                    // dmode_prompt
+        "ATD%s\015",           // dial_str
+        0,                     // dial_rate
+        1100,                  // esc_time
+        43,                    // esc_char
+        "ATQ0H0\015",          // hup_str
+        "AT&K3\015",           // hwfc_str
+        "AT&K4\015",           // swfc_str
+        "AT&K0\015",           // nofc_str
+        "AT\\N3\015",          // ec_on_str
+        "AT\\N1\015",          // ec_off_str
+        "AT%C1\015",           // dc_on_str
+        "AT%C0\015",           // dc_off_str
+        "ATS0=1\015",          // aa_on_str
+        "ATS0=0\015",          // aa_off_str
+        "AT\\J0\015",          // sb_on_str
+        "AT\\J1\015",          // sb_off_str (NOT SUPPORTED)
+        "ATM1\015",            // sp_on_str
+        "ATM0\015",            // sp_off_str
+        "ATL1\015",            // vol1_str
+        "ATL2\015",            // vol2_str
+        "ATL3\015",            // vol3_str
+        "ATX3\015",            // ignoredt
+        "",                    // ini2
+        115200L,               // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
 
-static MDMINF MOTSM56 = /* Motorola SM56 Chipset */
+static MDMINF MOTSM56 = // Motorola SM56 Chipset
     {
-        "Motorola SM56 V.90 chipset", /* name */
-        "ATP\015",                    /* pulse command */
-        "ATT\015",                    /* tone command */
-        35,                           /* dial_time */
-        ",",                          /* pause_chars */
-        2,                            /* pause_time */
-        "ATQ0V1X4&C1&D2*MM16\015",    /* wake_str */
-        0,                            /* wake_rate */
-        "OK\015",                     /* wake_prompt */
-        "",                           /* dmode_str */
-        "",                           /* dmode_prompt */
-        "ATD%s\015",                  /* dial_str */
-        0,                            /* dial_rate */
-        1100,                         /* esc_time */
-        43,                           /* esc_char */
-        "ATQ0H0\015",                 /* hup_str */
-        "AT\\Q3\015",                 /* hwfc_str */
-        "AT\\Q1\015",                 /* swfc_str */
-        "AT\\Q0\015",                 /* nofc_str */
-        "AT\\N7\015",                 /* ec_on_str */
-        "AT\\N1\015",                 /* ec_off_str */
-        "AT%C1\015",                  /* dc_on_str */
-        "AT%C0\015",                  /* dc_off_str */
-        "ATS0=1\015",                 /* aa_on_str */
-        "ATS0=0\015",                 /* aa_off_str */
-        "AT\\J0\015",                 /* sb_on_str */
-        "AT\\J1\015",                 /* sb_off_str (NOT SUPPORTED) */
-        "ATM1\015",                   /* sp_on_str */
-        "ATM0\015",                   /* sp_off_str */
-        "ATL1\015",                   /* vol1_str */
-        "ATL2\015",                   /* vol2_str */
-        "ATL3\015",                   /* vol3_str */
-        "ATX3\015",                   /* ignoredt */
-        "",                           /* ini2 */
-        115200L,                      /* max_speed */
-        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, /* capas */
-        getok                                                /* ok_fn */
+        "Motorola SM56 V.90 chipset", // name
+        "ATP\015",                    // pulse command
+        "ATT\015",                    // tone command
+        35,                           // dial_time
+        ",",                          // pause_chars
+        2,                            // pause_time
+        "ATQ0V1X4&C1&D2*MM16\015",    // wake_str
+        0,                            // wake_rate
+        "OK\015",                     // wake_prompt
+        "",                           // dmode_str
+        "",                           // dmode_prompt
+        "ATD%s\015",                  // dial_str
+        0,                            // dial_rate
+        1100,                         // esc_time
+        43,                           // esc_char
+        "ATQ0H0\015",                 // hup_str
+        "AT\\Q3\015",                 // hwfc_str
+        "AT\\Q1\015",                 // swfc_str
+        "AT\\Q0\015",                 // nofc_str
+        "AT\\N7\015",                 // ec_on_str
+        "AT\\N1\015",                 // ec_off_str
+        "AT%C1\015",                  // dc_on_str
+        "AT%C0\015",                  // dc_off_str
+        "ATS0=1\015",                 // aa_on_str
+        "ATS0=0\015",                 // aa_off_str
+        "AT\\J0\015",                 // sb_on_str
+        "AT\\J1\015",                 // sb_off_str (NOT SUPPORTED)
+        "ATM1\015",                   // sp_on_str
+        "ATM0\015",                   // sp_off_str
+        "ATL1\015",                   // vol1_str
+        "ATL2\015",                   // vol2_str
+        "ATL3\015",                   // vol3_str
+        "ATX3\015",                   // ignoredt
+        "",                           // ini2
+        115200L,                      // max_speed
+        CKD_AT | CKD_SB | CKD_EC | CKD_DC | CKD_HW | CKD_SW, // capas
+        getok                                                // ok_fn
 };
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-/* END MDMINF STRUCT DEFINITIONS */
+// END MDMINF STRUCT DEFINITIONS
 
-/*
-  Table to convert modem numbers to MDMINF struct pointers.
-  The entries MUST be in ascending order by modem number, without any
-  "gaps" in the numbers, and starting from one (1).
-*/
+// Table to convert modem numbers to MDMINF struct pointers.
+// The entries MUST be in ascending order by modem number, without any
+// "gaps" in the numbers, and starting from one (1).
 
 MDMINF *modemp[] = {
 #ifdef MINIDIAL
-    NULL,     /*  0 */
-    &CCITT,   /*  1 */
-    &HAYES,   /*  2 */
-    &UNKNOWN, /*  3 */
-    &DUMMY,   /*  4 */
-    &GENERIC, /*  5 */
-    &ITUTV250 /*  6 */
-#else         /* Not MINIDIAL */
-    NULL,      /*  0 */
-    &ATTDTDM,  /*  1 */
-    &ATTISN,   /*  2 */
-    &ATTMODEM, /*  3 */
-    &CCITT,    /*  4 */
+    NULL,     //  0
+    &CCITT,   //  1
+    &HAYES,   //  2
+    &UNKNOWN, //  3
+    &DUMMY,   //  4
+    &GENERIC, //  5
+    &ITUTV250 //  6
+#else         // Not MINIDIAL
+    NULL,      //  0
+    &ATTDTDM,  //  1
+    &ATTISN,   //  2
+    &ATTMODEM, //  3
+    &CCITT,    //  4
 #ifdef OLDMODEMS
-    &CERMETEK, /*  5 */
-    &DF03,     /*  6 */
-    &DF100,    /*  7 */
-    &DF200,    /*  8 */
-    &GDC,      /*  9 */
+    &CERMETEK, //  5
+    &DF03,     //  6
+    &DF100,    //  7
+    &DF200,    //  8
+    &GDC,      //  9
 #else
     NULL,         NULL, NULL, NULL, NULL,
-#endif /* OLDMODEMS */
-    &HAYES, /* 10 */
+#endif // OLDMODEMS
+    &HAYES, // 10
 #ifdef OLDMODEMS
-    &PENRIL, /* 11 */
-    &RACAL,  /* 12 */
+    &PENRIL, // 11
+    &RACAL,  // 12
 #else
     NULL,         NULL,
-#endif /* OLDMODEMS */
-    &UNKNOWN, /* 13 */
+#endif // OLDMODEMS
+    &UNKNOWN, // 13
 #ifdef OLDMODEMS
-    &VENTEL,  /* 14 */
-    &CONCORD, /* 15 */
+    &VENTEL,  // 14
+    &CONCORD, // 15
 #else
     NULL,         NULL,
-#endif /* OLDMODEMS */
-    &DUMMY, /* 16 */
-    &ROLM,  /* 17 */
+#endif // OLDMODEMS
+    &DUMMY, // 16
+    &ROLM,  // 17
 #ifdef OLDMODEMS
-    &MICROCOM, /* 18 */
+    &MICROCOM, // 18
 #else
     NULL,
-#endif /* OLDMODEMS */
-    &USR,         /* 19 USR Courier and Sportster */
-    &OLDTB,       /* 20 Old Telebits */
-    &DIGITEL,     /* 21 Digitel CCITT */
-    &H_1200,      /* 22 Hayes 1200 */
-    &H_ULTRA,     /* 23 Hayes Ultra */
-    &H_ACCURA,    /* 24 Hayes Optima */
-    &PPI,         /* 25 PPI */
-    &DATAPORT,    /* 26 Dataport */
-    &BOCA,        /* 27 Boca */
-    &MOTOROLA,    /* 28 Motorola UDS MOTOROLA */
-    NULL,         /* 29 Digicomm */
-    NULL,         /* 30 Dynalink */
-    &INTEL,       /* 31 Intel */
-    &UCOM_AT,     /* 32 Microcom in AT mode */
-    &MULTITECH,   /* 33 Multitech */
-    &SUPRA,       /* 34 Supra */
-    &ZOLTRIX,     /* 35 Zoltrix */
-    &ZOOM,        /* 36 Zoom */
-    &ZYXEL,       /* 37 ZyXEL */
-    &DUMMY,       /* 38 TAPI */
-    &NEWTB,       /* 39 New-Telebit */
-    &MAXTECH,     /* 40 MaxTech */
-    &DUMMY,       /* 41 User-defined */
-    &RWV32,       /* 42 Rockwell V.32 */
-    &RWV32B,      /* 43 Rockwell V.32bis */
-    &RWV34,       /* 44 Rockwell V.34 */
-    &MWAVE,       /* 45 IBM Mwave */
-    &TELEPATH,    /* 46 Gateway 2000 Telepath II 28.8 */
-    &MICROLINK,   /* 47 MicroLink modems */
-    &CARDINAL,    /* 48 Cardinal */
-    &GENERIC,     /* 49 Generic high-speed */
-    &XJACK,       /* 50 Megahertz-Xjack */
-    &SPIRITII,    /* 51 QuickComm Spirit II */
-    &MONTANA,     /* 52 Motorola Montana */
-    &COMPAQ,      /* 53 Compaq Data+Fax */
-    &FUJITSU,     /* 54 Fujitsu */
-    &MHZATT,      /* 55 Megahertz AT&T V.34 */
-    &SUPRASON,    /* 56 Suprasonic */
-    &BESTDATA,    /* 57 Best Data */
-    &ATT1900,     /* 58 AT&T Secure Data STU III 1900 */
-    &ATT1910,     /* 59 AT&T Secure Data STU III 1910 */
-    &KEEPINTOUCH, /* 60 AT&T KeepinTouch */
-    &USRX2,       /* 61 USR XJ-1560 X2 */
-    &ROLM_AT,     /* 62 Rolm with AT command set */
-    &ATLAS,       /* 63 Atlas / Newcom */
-    &CODEX,       /* 64 Motorola Codex */
-    &MT5634ZPX,   /* 65 Multitech MT5634ZPX */
-    &ULINKV250,   /* 66 Microlink V.250 56K */
-    &ITUTV250,    /* 67 Generic ITU-T V.250 */
-    &RWV90,       /* 68 Rockwell V.90 56K */
-    &SUPRAX,      /* 69 Diamond Supra Express V.90 */
-    &LUCENT,      /* 70 Lucent Venus chipset */
-    &PCTEL,       /* 71 PCTel */
-    &CONEXANT,    /* 72 Conexant */
-    &ZOOMV34,     /* 73 Zoom V.34 */
-    &ZOOMV90,     /* 74 Zoom V.90 */
-    &ZOOMV92,     /* 75 Zoom V.92 */
-    &MOTSM56      /* 76 Motorola SM56 chipset */
-#endif /* MINIDIAL */
+#endif // OLDMODEMS
+    &USR,         // 19 USR Courier and Sportster
+    &OLDTB,       // 20 Old Telebits
+    &DIGITEL,     // 21 Digitel CCITT
+    &H_1200,      // 22 Hayes 1200
+    &H_ULTRA,     // 23 Hayes Ultra
+    &H_ACCURA,    // 24 Hayes Optima
+    &PPI,         // 25 PPI
+    &DATAPORT,    // 26 Dataport
+    &BOCA,        // 27 Boca
+    &MOTOROLA,    // 28 Motorola UDS MOTOROLA
+    NULL,         // 29 Digicomm
+    NULL,         // 30 Dynalink
+    &INTEL,       // 31 Intel
+    &UCOM_AT,     // 32 Microcom in AT mode
+    &MULTITECH,   // 33 Multitech
+    &SUPRA,       // 34 Supra
+    &ZOLTRIX,     // 35 Zoltrix
+    &ZOOM,        // 36 Zoom
+    &ZYXEL,       // 37 ZyXEL
+    &DUMMY,       // 38 TAPI
+    &NEWTB,       // 39 New-Telebit
+    &MAXTECH,     // 40 MaxTech
+    &DUMMY,       // 41 User-defined
+    &RWV32,       // 42 Rockwell V.32
+    &RWV32B,      // 43 Rockwell V.32bis
+    &RWV34,       // 44 Rockwell V.34
+    &MWAVE,       // 45 IBM Mwave
+    &TELEPATH,    // 46 Gateway 2000 Telepath II 28.8
+    &MICROLINK,   // 47 MicroLink modems
+    &CARDINAL,    // 48 Cardinal
+    &GENERIC,     // 49 Generic high-speed
+    &XJACK,       // 50 Megahertz-Xjack
+    &SPIRITII,    // 51 QuickComm Spirit II
+    &MONTANA,     // 52 Motorola Montana
+    &COMPAQ,      // 53 Compaq Data+Fax
+    &FUJITSU,     // 54 Fujitsu
+    &MHZATT,      // 55 Megahertz AT&T V.34
+    &SUPRASON,    // 56 Suprasonic
+    &BESTDATA,    // 57 Best Data
+    &ATT1900,     // 58 AT&T Secure Data STU III 1900
+    &ATT1910,     // 59 AT&T Secure Data STU III 1910
+    &KEEPINTOUCH, // 60 AT&T KeepinTouch
+    &USRX2,       // 61 USR XJ-1560 X2
+    &ROLM_AT,     // 62 Rolm with AT command set
+    &ATLAS,       // 63 Atlas / Newcom
+    &CODEX,       // 64 Motorola Codex
+    &MT5634ZPX,   // 65 Multitech MT5634ZPX
+    &ULINKV250,   // 66 Microlink V.250 56K
+    &ITUTV250,    // 67 Generic ITU-T V.250
+    &RWV90,       // 68 Rockwell V.90 56K
+    &SUPRAX,      // 69 Diamond Supra Express V.90
+    &LUCENT,      // 70 Lucent Venus chipset
+    &PCTEL,       // 71 PCTel
+    &CONEXANT,    // 72 Conexant
+    &ZOOMV34,     // 73 Zoom V.34
+    &ZOOMV90,     // 74 Zoom V.90
+    &ZOOMV92,     // 75 Zoom V.92
+    &MOTSM56      // 76 Motorola SM56 chipset
+#endif // MINIDIAL
 };
-/*
- * Declare modem names and associated numbers for command parsing,
- * and also for doing number-to-name translation.
- *
- * The entries must be in alphabetical order by modem name.
- */
+// Declare modem names and associated numbers for command parsing,
+// and also for doing number-to-name translation.
+//
+// The entries must be in alphabetical order by modem name.
 struct keytab mdmtab[] = {
 #ifndef MINIDIAL
     "3com-usr-megahertz-56k",
@@ -3698,16 +3677,16 @@ struct keytab mdmtab[] = {
 
     "att7300",
     n_ATTUPC,
-    CM_INV, /* old name */
+    CM_INV, // old name
     "attdtdm",
     n_ATTDTDM,
-    CM_INV, /* old name */
+    CM_INV, // old name
     "attisn",
     n_ATTISN,
-    CM_INV, /* old name */
+    CM_INV, // old name
     "attmodem",
     n_ATTMODEM,
-    CM_INV, /* old name */
+    CM_INV, // old name
 
     "bestdata",
     n_BESTDATA,
@@ -3718,16 +3697,16 @@ struct keytab mdmtab[] = {
     "cardinal",
     n_CARDINAL,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "ccitt-v25bis",
     n_CCITT,
-    CM_INV, /* Name changed to ITU-T */
+    CM_INV, // Name changed to ITU-T
 #ifndef MINIDIAL
 #ifdef OLDMODEMS
     "cermetek",
     n_CERMETEK,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "compaq",
     n_COMPAQ,
     0,
@@ -3735,7 +3714,7 @@ struct keytab mdmtab[] = {
     "concord",
     n_CONCORD,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "conexant",
     n_CONEXANT,
     0,
@@ -3744,7 +3723,7 @@ struct keytab mdmtab[] = {
     CM_INV,
     "dataport",
     n_DATAPORT,
-    CM_INV, /* == att-dataport */
+    CM_INV, // == att-dataport
 #ifdef OLDMODEMS
     "df03-ac",
     n_DF03,
@@ -3755,14 +3734,14 @@ struct keytab mdmtab[] = {
     "df200-series",
     n_DF200,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "digitel-dt22",
     n_DIGITEL,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "direct",
     0,
-    CM_INV, /* Synonym for NONE */
+    CM_INV, // Synonym for NONE
 #ifndef MINIDIAL
     "fujitsu",
     n_FUJITSU,
@@ -3782,9 +3761,9 @@ struct keytab mdmtab[] = {
     CM_INV | CM_ABR,
     "gendatacomm",
     n_GDC,
-    CM_INV, /* Synonym for GDC */
-#endif      /* OLDMODEMS */
-#endif      /* MINIDIAL */
+    CM_INV, // Synonym for GDC
+#endif      // OLDMODEMS
+#endif      // MINIDIAL
     "gene",
     n_GENERIC,
     CM_INV | CM_ABR,
@@ -3808,12 +3787,12 @@ struct keytab mdmtab[] = {
     CM_INV | CM_ABR,
     "hayes",
     n_HAYES,
-    CM_INV | CM_ABR, /* Hayes 2400 */
+    CM_INV | CM_ABR, // Hayes 2400
 #ifndef MINIDIAL
     "hayes-1200",
     n_H_1200,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "hayes-2400",
     n_HAYES,
     0,
@@ -3832,18 +3811,18 @@ struct keytab mdmtab[] = {
     CM_INV,
     "hst-courier",
     n_USR,
-    CM_INV, /* Synonym for COURIER */
+    CM_INV, // Synonym for COURIER
     "intel",
     n_INTEL,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
     "itu-t-v250",
     n_ITUTV250,
     0,
     "itu-t-v25bis",
     n_CCITT,
-    0, /* New name for CCITT */
+    0, // New name for CCITT
     "itu-t-v25ter/v250",
     n_ITUTV250,
     CM_INV,
@@ -3858,7 +3837,7 @@ struct keytab mdmtab[] = {
 
     "megahertz-att-v34",
     n_MHZATT,
-    0, /* Megahertzes */
+    0, // Megahertzes
     "megahertz-xjack",
     n_XJACK,
     CM_INV | CM_ABR,
@@ -3867,7 +3846,7 @@ struct keytab mdmtab[] = {
     0,
     "megahertz-xjack-56k",
     n_USRX2,
-    0, /* 3COM/USR/Megahertz 33.6 PC Card */
+    0, // 3COM/USR/Megahertz 33.6 PC Card
 
     "mi",
     n_MICROCOM,
@@ -3892,10 +3871,10 @@ struct keytab mdmtab[] = {
     CM_INV | CM_ABR,
     "microcom-at-mode",
     n_UCOM_AT,
-    0, /* Microcom DeskPorte, etc */
+    0, // Microcom DeskPorte, etc
     "microcom-sx-mode",
     n_MICROCOM,
-    0, /* Microcom AX,QX,SX, native mode */
+    0, // Microcom AX,QX,SX, native mode
     "microlink",
     n_MICROLINK,
     0,
@@ -3926,7 +3905,7 @@ struct keytab mdmtab[] = {
     "mwave",
     n_MWAVE,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "none",
     0,
     0,
@@ -3935,7 +3914,7 @@ struct keytab mdmtab[] = {
     "old-telebit",
     n_TELEBIT,
     0,
-#endif /* OLDTBCODE */
+#endif // OLDTBCODE
     "pctel",
     n_PCTEL,
     0,
@@ -3943,7 +3922,7 @@ struct keytab mdmtab[] = {
     "penril",
     n_PENRIL,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "ppi",
     n_PPI,
     0,
@@ -3951,7 +3930,7 @@ struct keytab mdmtab[] = {
     "racalvadic",
     n_RACAL,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "rockwell-v32",
     n_RWV32,
     0,
@@ -4007,7 +3986,7 @@ struct keytab mdmtab[] = {
     "tapi",
     n_TAPI,
     0,
-#endif /* CK_TAPI */
+#endif // CK_TAPI
     "te",
     n_TBNEW,
     CM_INV | CM_ABR,
@@ -4020,7 +3999,7 @@ struct keytab mdmtab[] = {
     "telepath",
     n_TELEPATH,
     CM_INV,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "unknown",
     n_UNKNOWN,
     0,
@@ -4053,12 +4032,12 @@ struct keytab mdmtab[] = {
 
     "v25bis",
     n_CCITT,
-    CM_INV, /* Name changed to ITU-T */
+    CM_INV, // Name changed to ITU-T
 #ifdef OLDMODEMS
     "ventel",
     n_VENTEL,
     M_OLD,
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
     "zoltrix-v34",
     n_ZOLTRIX,
     0,
@@ -4089,24 +4068,24 @@ struct keytab mdmtab[] = {
     "zyxel",
     n_ZYXEL,
     0,
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     "",
     0,
     0};
-int nmdm = (sizeof(mdmtab) / sizeof(struct keytab)) - 1; /* Number of modems */
+int nmdm = (sizeof(mdmtab) / sizeof(struct keytab)) - 1; // Number of modems
 
-#define CONNECTED 1 /* For completion status */
+#define CONNECTED 1 // For completion status
 #define D_FAILED 2
 #define D_PARTIAL 3
 
 static int tries = 0;
-static int mdmecho = 0; /* Assume modem does not echo */
+static int mdmecho = 0; // Assume modem does not echo
 
-static char *p; /* For command strings & messages */
+static char *p; // For command strings & messages
 
 #define LBUFL 200
 static char lbuf[LBUFL + 4];
-char modemmsg[LBUFL + 4] = {NUL, NUL}; /* DIAL response from modem */
+char modemmsg[LBUFL + 4] = {NUL, NUL}; // DIAL response from modem
 
 #ifdef DYNAMIC
 #define RBUFL 256
@@ -4114,20 +4093,20 @@ static char *rbuf = NULL;
 #else
 #define RBUFL 63
 static char rbuf[RBUFL + 1];
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 #ifdef DYNAMIC
 #define FULLNUML 256
-char *fbuf = NULL; /* For full (prefixed) phone number */
+char *fbuf = NULL; // For full (prefixed) phone number
 #else
 #define FULLNUML 100
 char fbuf[FULLNUML];
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 static ckjmpbuf sjbuf;
 
-static ck_sig_t savalrm; /* For saving alarm handler */
-static ck_sig_t savint;  /* For saving interrupt handler */
+static ck_sig_t savalrm; // For saving alarm handler
+static ck_sig_t savint;  // For saving interrupt handler
 
 #ifdef CKLOGDIAL
 static void dologdial(char *s) {
@@ -4139,7 +4118,7 @@ static void dologdial(char *s) {
   if (!s) {
     s = "";
   }
-  if ((x = strlen(s)) > 0) { /* Replace spaces by underscores */
+  if ((x = strlen(s)) > 0) { // Replace spaces by underscores
     r = (char *)malloc(x + 1);
     if (r) {
       int i;
@@ -4169,7 +4148,7 @@ static void dologdial(char *s) {
     } else {
       ckstrncpy(buf2, "Unknown", 16);
     }
-    sprintf(p, " %s %s T=DIAL H=%s D=%s N=%s O=%s ", /* safe (prechecked) */
+    sprintf(p, " %s %s T=DIAL H=%s D=%s N=%s O=%s ", // safe (prechecked)
             uidbuf, ckgetpid(), myhost, ttname, s, buf2);
     debug(F110, "dologdial cxlogbuf", cxlogbuf, 0);
   } else {
@@ -4179,42 +4158,42 @@ static void dologdial(char *s) {
     free(r);
   }
 }
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
 #ifndef MINIDIAL
 
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-static void dialtime(int foo) /* Timer interrupt handler */
-/* dialtime */ {
+static void dialtime(int foo) // Timer interrupt handler
+                              // dialtime
+{
 
-  fail_code = F_TIME; /* Failure reason = timeout */
+  fail_code = F_TIME; // Failure reason = timeout
   debug(F100, "dialtime caught SIGALRM", "", 0);
 #ifdef __EMX__
-  signal(SIGALRM, SIG_ACK); /* Needed for OS/2 */
-#endif                      /* __EMX__ */
+  signal(SIGALRM, SIG_ACK); // Needed for OS/2
+#endif                      // __EMX__
 
   cklongjmp(sjbuf, 1);
-  /* NOTREACHED */
+  // NOTREACHED
   return;
 }
 
-static void dialint(int foo) /* Keyboard interrupt handler */
-/* dialint */ {
+static void dialint(int foo) // Keyboard interrupt handler
+                             // dialint
+{
   fail_code = F_INT;
   debug(F100, "dialint caught SIGINT", "", 0);
 #ifdef __EMX__
-  signal(SIGINT, SIG_ACK); /* Needed for OS/2 */
-#endif                     /* __EMX__ */
+  signal(SIGINT, SIG_ACK); // Needed for OS/2
+#endif                     // __EMX__
   cklongjmp(sjbuf, 1);
   return;
 }
 
-/*
-  Routine to read a character from communication device, handling TELNET
-  protocol negotiations in case we're connected to the modem through a
-  TCP/IP TELNET modem server.
-*/
+// Routine to read a character from communication device, handling TELNET
+// protocol negotiations in case we're connected to the modem through a
+// TCP/IP TELNET modem server.
 static int ddinc(int n) {
 #ifdef TNCODE
   int c = 0;
@@ -4222,7 +4201,7 @@ static int ddinc(int n) {
   debug(F101, "ddinc entry n", "", n);
   while (!done) {
     c = ttinc(n);
-    /* debug(F000,"ddinc","",c); */
+    // debug(F000,"ddinc","",c);
     if (c < 0) {
       return (c);
     }
@@ -4241,19 +4220,19 @@ static int ddinc(int n) {
     }
   }
   return (c & 0xff);
-#else  /* TNCODE */
+#else  // TNCODE
   return (ttinc(n));
-#endif /* TNCODE */
+#endif // TNCODE
 }
 
-static void ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
+static void ttslow(char *s, int millisec) // Output s-l-o-w-l-y
 {
 #ifdef TCPSOCKET
   extern int tn_nlm, tn_b_nlm;
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
   debug(F111, "ttslow", s, millisec);
-  if (dialdpy && (duplex || !mdmecho)) { /* Echo the command in case modem */
-    printf("%s\n", s);                   /* isn't echoing commands. */
+  if (dialdpy && (duplex || !mdmecho)) { // Echo the command in case modem
+    printf("%s\n", s);                   // isn't echoing commands.
   }
   for (; *s; s++) {
     ttoc(*s);
@@ -4266,24 +4245,22 @@ static void ttslow(char *s, int millisec) /* Output s-l-o-w-l-y */
         ttoc((char)((tn_b_nlm == TNL_CRLF) ? LF : NUL));
       }
     }
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
     if (millisec > 0) {
       msleep(millisec);
     }
   }
 }
 
-/*
- * Wait for a string of characters.
- *
- * The characters are waited for individually, and other characters may
- * be received "in between".  This merely guarantees that the characters
- * ARE received, and in the order specified.
- */
+// Wait for a string of characters.
+//
+// The characters are waited for individually, and other characters may
+// be received "in between".  This merely guarantees that the characters
+// ARE received, and in the order specified.
 static void waitfor(char *s) {
   CHAR c, x;
-  while ((c = *s++)) { /* while more characters remain... */
-    do {               /* wait for the character */
+  while ((c = *s++)) { // while more characters remain...
+    do {               // wait for the character
       x = (CHAR)(ddinc(0) & 0177);
       debug(F000, "dial waitfor got", "", x);
       if (dialdpy) {
@@ -4298,9 +4275,9 @@ static void waitfor(char *s) {
   }
 }
 
-static int didweget(char *s, char *r) /* Looks in string s for response r */
+static int didweget(char *s, char *r) // Looks in string s for response r
 {
-  int lr = (int)strlen(r); /*  0 means not found, 1 means found it */
+  int lr = (int)strlen(r); //  0 means not found, 1 means found it
   int i;
   debug(F110, "didweget", r, 0);
   debug(F110, " in", s, 0);
@@ -4314,57 +4291,55 @@ static int didweget(char *s, char *r) /* Looks in string s for response r */
   return (0);
 }
 
-/* R E S E T -- Reset alarms, etc. on exit. */
+// R E S E T -- Reset alarms, etc. on exit.
 
 static void dreset() {
   debug(F100, "dreset resetting alarm and signal handlers", "", 0);
   alarm(0);
-  ck_signal(SIGALRM, savalrm); /* restore alarm handler */
-  ck_signal(SIGINT, savint);   /* restore interrupt handler */
+  ck_signal(SIGALRM, savalrm); // restore alarm handler
+  ck_signal(SIGINT, savint);   // restore interrupt handler
   debug(F100, "dreset alarm and signal handlers reset", "", 0);
 }
 
-/*
-  Call this routine when the modem reports that it has connected at a certain
-  speed, giving that speed as the argument.  If the connection speed is not
-  the same as Kermit's current communication speed, AND the modem interface
-  speed is not locked (i.e. DIAL SPEED-MATCHING is not ON), then change the
-  device speed to the one given.
-*/
+// Call this routine when the modem reports that it has connected at a certain
+// speed, giving that speed as the argument.  If the connection speed is not
+// the same as Kermit's current communication speed, AND the modem interface
+// speed is not locked (i.e. DIAL SPEED-MATCHING is not ON), then change the
+// device speed to the one given.
 static void spdchg(long s)
-/* spdchg */ {
+// spdchg
+{
   int s2;
-  if (!mdmspd) { /* If modem interface speed locked, */
-    return;      /*  don't do this. */
+  if (!mdmspd) { // If modem interface speed locked,
+    return;      //  don't do this.
   }
-  if (speed != s) {       /* Speeds differ? */
-    s2 = s / 10L;         /* Convert to cps expressed as int */
-    if (ttsspd(s2) < 0) { /* Change speed. */
+  if (speed != s) {       // Speeds differ?
+    s2 = s / 10L;         // Convert to cps expressed as int
+    if (ttsspd(s2) < 0) { // Change speed.
       printf(" WARNING - speed change to %ld failed.\r\n", s);
     } else {
       printf(" Speed changed to %ld.\r\n", s);
-      speed = s; /* Update global speed variable */
+      speed = s; // Update global speed variable
     }
   }
 }
 
-/*
-  Display all characters received from modem dialer through this routine,
-  for consistent handling of carriage returns and linefeeds.
-*/
-static void dialoc(char c) { /* dialoc */ /* Dial Output Character */
+// Display all characters received from modem dialer through this routine,
+// for consistent handling of carriage returns and linefeeds.
+static void dialoc(char c) { // dialoc
+                             // Dial Output Character
   if (dialdpy) {
     if (c != LF) {
-      conoc(c); /* Don't echo LF */
+      conoc(c); // Don't echo LF
     }
     if (c == CK_CR) {
-      conoc(LF); /* Echo CR as CRLF */
+      conoc(LF); // Echo CR as CRLF
     }
   }
 }
 
 #ifndef NOSPL
-char *getdm(int x) /* Return dial modifier */
+char *getdm(int x) // Return dial modifier
 {
   MDMINF *mp;
   int m;
@@ -4382,7 +4357,7 @@ char *getdm(int x) /* Return dial modifier */
   if (m == n_TAPI) {
     m = n_HAYES;
   }
-#endif /* MINIDIAL */
+#endif // MINIDIAL
   mp = modemp[m];
   ishayes = (dialcapas ? dialcapas : mp->capas) & CKD_AT;
   switch (x) {
@@ -4393,7 +4368,7 @@ char *getdm(int x) /* Return dial modifier */
     return ("");
 #else
     return (m == n_USR ? "/" : "");
-#endif /* MINIDIAL */
+#endif // MINIDIAL
   case VN_DM_PD:
     return (ishayes ? "P" : "");
   case VN_DM_TD:
@@ -4411,18 +4386,18 @@ char *getdm(int x) /* Return dial modifier */
   }
   return ("");
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
 static void getdialmth() {
-  if (dialmauto && diallcc) {         /* If DIAL METHOD AUTO... */
-    int i;                            /* and we know our area code... */
-    for (i = 0; i < ndialtocc; i++) { /* First check Tone countries list */
+  if (dialmauto && diallcc) {         // If DIAL METHOD AUTO...
+    int i;                            // and we know our area code...
+    for (i = 0; i < ndialtocc; i++) { // First check Tone countries list
       if (!strcmp(dialtocc[i], diallcc)) {
         dialmth = XYDM_T;
         break;
       }
     }
-    for (i = 0; i < ndialpucc; i++) { /* Then Pulse countries list */
+    for (i = 0; i < ndialpucc; i++) { // Then Pulse countries list
       if (!strcmp(dialpucc[i], diallcc)) {
         dialmth = XYDM_P;
         break;
@@ -4431,7 +4406,7 @@ static void getdialmth() {
   }
 }
 
-void /* Get dialing defaults from environment */
+void // Get dialing defaults from environment
 getdialenv() {
   char *p = NULL;
   int i, x;
@@ -4449,13 +4424,13 @@ getdialenv() {
     }
     ndialdir = i;
   }
-  xmakestr(&diallcc, getenv("K_COUNTRYCODE")); /* My country code */
-  xmakestr(&dialixp, getenv("K_LD_PREFIX"));   /* My long-distance prefix */
-  xmakestr(&dialldp, getenv("K_INTL_PREFIX")); /* My international prefix */
-  xmakestr(&dialldp, getenv("K_TF_PREFIX"));   /* Ny Toll-free prefix */
+  xmakestr(&diallcc, getenv("K_COUNTRYCODE")); // My country code
+  xmakestr(&dialixp, getenv("K_LD_PREFIX"));   // My long-distance prefix
+  xmakestr(&dialldp, getenv("K_INTL_PREFIX")); // My international prefix
+  xmakestr(&dialldp, getenv("K_TF_PREFIX"));   // Ny Toll-free prefix
 
 #ifndef NOICP
-  p = getenv("K_DIAL_METHOD"); /* Local dial method */
+  p = getenv("K_DIAL_METHOD"); // Local dial method
   if (p) {
     if (*p) {
       extern struct keytab dial_m[];
@@ -4472,10 +4447,10 @@ getdialenv() {
       }
     }
   }
-#endif /* NOICP */
+#endif // NOICP
 
   p = NULL;
-  xmakestr(&p, getenv("K_TF_AREACODE")); /* Toll-free areacodes */
+  xmakestr(&p, getenv("K_TF_AREACODE")); // Toll-free areacodes
   if (p) {
     int i;
     xwords(p, 7, dialtfc, 0);
@@ -4489,11 +4464,11 @@ getdialenv() {
     ntollfree = i;
     free(p);
   }
-  for (i = 0; i < MAXTPCC; i++) { /* Clear Tone/Pulse country lists */
+  for (i = 0; i < MAXTPCC; i++) { // Clear Tone/Pulse country lists
     dialtocc[i] = NULL;
     dialpucc[i] = NULL;
   }
-  for (i = 0; i < MAXTPCC; i++) { /* Init Tone country list */
+  for (i = 0; i < MAXTPCC; i++) { // Init Tone country list
     if (tonecc[i]) {
       makestr(&(dialtocc[i]), tonecc[i]);
     } else {
@@ -4501,7 +4476,7 @@ getdialenv() {
     }
   }
   ndialtocc = i;
-  for (i = 0; i < MAXTPCC; i++) { /* Init Pulse country list */
+  for (i = 0; i < MAXTPCC; i++) { // Init Pulse country list
     if (pulsecc[i]) {
       makestr(&(dialpucc[i]), pulsecc[i]);
     } else {
@@ -4510,9 +4485,9 @@ getdialenv() {
   }
   ndialpucc = i;
 
-  if (diallcc) {                 /* Have country code */
-    if (!strcmp(diallcc, "1")) { /* If it's 1 */
-      if (!dialldp) {            /* Set these prefixes... */
+  if (diallcc) {                 // Have country code
+    if (!strcmp(diallcc, "1")) { // If it's 1
+      if (!dialldp) {            // Set these prefixes...
         makestr(&dialldp, "1");
       }
       if (!dialtfp) {
@@ -4521,18 +4496,18 @@ getdialenv() {
       if (!dialixp) {
         makestr(&dialixp, "011");
       }
-      if (ntollfree == 0) { /* Toll-free area codes */
+      if (ntollfree == 0) { // Toll-free area codes
         if ((dialtfc[0] = malloc(4))) {
-          ckstrncpy(dialtfc[0], "800", 4); /* 1970-something */
+          ckstrncpy(dialtfc[0], "800", 4); // 1970-something
           ntollfree++;
           if ((dialtfc[1] = malloc(4))) {
-            ckstrncpy(dialtfc[1], "888", 4); /* 1996 */
+            ckstrncpy(dialtfc[1], "888", 4); // 1996
             ntollfree++;
             if ((dialtfc[2] = malloc(4))) {
-              ckstrncpy(dialtfc[2], "877", 4); /* 5 April 1998 */
+              ckstrncpy(dialtfc[2], "877", 4); // 5 April 1998
               ntollfree++;
               if ((dialtfc[3] = malloc(4))) {
-                ckstrncpy(dialtfc[3], "866", 4); /* 2000? */
+                ckstrncpy(dialtfc[3], "866", 4); // 2000?
                 ntollfree++;
               }
             }
@@ -4540,14 +4515,14 @@ getdialenv() {
         }
       }
     } else if (!strcmp(diallcc, "358") &&
-               ((int)strcmp(zzndate(), "19961011") > 0)) { /* Finland */
-      if (!dialldp) { /* Long-distance prefix */
+               ((int)strcmp(zzndate(), "19961011") > 0)) { // Finland
+      if (!dialldp) { // Long-distance prefix
         makestr(&dialldp, "9");
       }
-      if (!dialixp) { /* International dialing prefix */
+      if (!dialixp) { // International dialing prefix
         makestr(&dialixp, "990");
       }
-    } else { /* Not NANP or Finland */
+    } else { // Not NANP or Finland
       if (!dialldp) {
         makestr(&dialldp, "0");
       }
@@ -4564,9 +4539,9 @@ getdialenv() {
     if (*p) {
       char *s = NULL;
       char *pp[MAXPBXEXCH + 2];
-      makestr(&s, p); /* Make a copy for poking */
+      makestr(&s, p); // Make a copy for poking
       if (s) {
-        xwords(s, MAXPBXEXCH + 1, pp, 0); /* Note: pp[] is 1-based. */
+        xwords(s, MAXPBXEXCH + 1, pp, 0); // Note: pp[] is 1-based.
         for (i = 0; i <= MAXPBXEXCH; i++) {
           if (!pp[i + 1]) {
             break;
@@ -4574,7 +4549,7 @@ getdialenv() {
           makestr(&(dialpxx[i]), pp[i + 1]);
           ndialpxx++;
         }
-        makestr(&s, NULL); /* Free poked copy */
+        makestr(&s, NULL); // Free poked copy
       }
     }
   }
@@ -4585,18 +4560,18 @@ static int dialfail(int x) {
 
   fail_code = x;
   debug(F101, "ckudial dialfail", "", x);
-  dreset(); /* Reset alarm and signal handlers */
+  dreset(); // Reset alarm and signal handlers
 
   printf("%s Failure: ", func_code == 0 ? "DIAL" : "ANSWER");
-  if (dialdpy) { /* If showing progress */
+  if (dialdpy) { // If showing progress
     debug(F100, "dial display is on", "", 0);
-    p = ck_time(); /* get current time; */
+    p = ck_time(); // get current time;
     if (*p) {
       printf("%s: ", p);
     }
   }
-  switch (fail_code) { /* Type of failure */
-  case F_TIME:         /* Timeout */
+  switch (fail_code) { // Type of failure
+  case F_TIME:         // Timeout
     if (dial_what == DW_INIT) {
       printf("Timed out while trying to initialize modem.\n");
     } else if (dial_what == DW_DIAL) {
@@ -4607,33 +4582,33 @@ static int dialfail(int x) {
     }
     fflush(stdout);
     if (mdmcapas & CKD_AT) {
-      ttoc('\015'); /* Send CR to interrupt dialing */
+      ttoc('\015'); // Send CR to interrupt dialing
     }
-    /* Some Hayes modems don't fail with BUSY on busy lines */
+    // Some Hayes modems don't fail with BUSY on busy lines
     dialsta = DIA_TIMO;
     debug(F110, "dial", "timeout", 0);
     break;
 
-  case F_INT: /* Dialing interrupted */
+  case F_INT: // Dialing interrupted
     printf("Interrupted.\n");
     fflush(stdout);
 #ifndef NOXFER
     interrupted = 1;
-#endif /* NOXFER */
+#endif // NOXFER
     debug(F111, "dial", "interrupted", mdmcapas & CKD_AT);
     if (mdmcapas & CKD_AT) {
-      ttoc('\015'); /* Send CR to interrupt dialing */
+      ttoc('\015'); // Send CR to interrupt dialing
     }
     dialsta = DIA_INTR;
     break;
 
-  case F_MODEM: /* Modem detected a failure */
+  case F_MODEM: // Modem detected a failure
     debug(F110, "dialfail()", "lbuf", 0);
-    if (strlen(lbuf) > 0) { /* was (lbuf && *lbuf)  */
+    if (strlen(lbuf) > 0) { // was (lbuf && *lbuf)
       printf(" \"");
       for (s = lbuf; *s; s++) {
         if (isprint(*s)) {
-          putchar(*s); /* Display printable reason */
+          putchar(*s); // Display printable reason
         }
       }
       printf("\"");
@@ -4648,7 +4623,7 @@ static int dialfail(int x) {
     }
     break;
 
-  case F_MINIT: /* Failure to initialize modem */
+  case F_MINIT: // Failure to initialize modem
     printf("Error initializing modem.\n");
     debug(F110, "dial", "modem init", 0);
     dialsta = DIA_NOIN;
@@ -4659,7 +4634,7 @@ static int dialfail(int x) {
     debug(F110, "dial", "unknown", 0);
     fflush(stdout);
     if (mdmcapas & CKD_AT) {
-      ttoc('\015'); /* Send CR to interrupt dialing */
+      ttoc('\015'); // Send CR to interrupt dialing
     }
     dialsta = DIA_INTR;
   }
@@ -4673,43 +4648,41 @@ static int dialfail(int x) {
     free(fbuf);
   }
   fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
   if (dialsta < 0) {
-    dialsta = DIA_UERR; /* Set failure code */
+    dialsta = DIA_UERR; // Set failure code
   }
-  return (0); /* Return zero (important) */
+  return (0); // Return zero (important)
 }
 
-/*  C K D I A L	 --  Dial up the remote system */
+//  C K D I A L	 --  Dial up the remote system
 
-/* Returns 1 if call completed, 0 otherwise */
+// Returns 1 if call completed, 0 otherwise
 
 static int mdmwait, mdmstat = 0;
 #ifndef CK_TAPI
 static
-#endif /* CK_TAPI */
+#endif // CK_TAPI
     int waitct;
-int mdmwaitd = 10; /* dialtmo / mdmwait difference */
+int mdmwaitd = 10; // dialtmo / mdmwait difference
 static char c;
 static char *telnbr;
 
-static int wr = 0; /* wr = wake rate */
-static char *ws;   /* ws = wake string */
+static int wr = 0; // wr = wake rate
+static char *ws;   // ws = wake string
 static char *xnum = NULL;
 static int inited = 0;
 
-/*
-  d i a l e x p a n d  --  [V-20]
-  Substitute the phone number for the *first* literal "%s" in a
-  user-configured DIAL-COMMAND string, without ever passing that string
-  to printf()/sprintf() as a format.  Any other '%' sequence (a second
-  "%s", "%n", "%%", ...) is copied through as ordinary text.
-*/
+// d i a l e x p a n d  --  [V-20]
+// Substitute the phone number for the *first* literal "%s" in a
+// user-configured DIAL-COMMAND string, without ever passing that string
+// to printf()/sprintf() as a format.  Any other '%' sequence (a second
+// "%s", "%n", "%%", ...) is copied through as ordinary text.
 static void dialexpand(char *dst, const char *fmt, const char *num,
                        int dstsize) {
   const char *f = fmt;
-  char *d = dst, *dend = dst + dstsize - 1; /* leave room for NUL */
+  char *d = dst, *dend = dst + dstsize - 1; // leave room for NUL
   int replaced = 0;
 
   while (*f && d < dend) {
@@ -4728,7 +4701,8 @@ static void dialexpand(char *dst, const char *fmt, const char *num,
 }
 
 static void _dodial(void *threadinfo)
-/* _dodial */ {
+// _dodial
+{
   char c2;
   char *dcmd, *s, *flocmd = NULL;
   int x = 0, n = F_TIME;
@@ -4746,19 +4720,19 @@ static void _dodial(void *threadinfo)
       free(fbuf);
     }
     fbuf = NULL;
-#endif      /* DYNAMIC */
-    return; /* No conversation with modem to complete dialing */
+#endif      // DYNAMIC
+    return; // No conversation with modem to complete dialing
   }
   makestr(&xnum, telnbr);
 
-  getdialmth(); /* Get dial method */
+  getdialmth(); // Get dial method
 
 #ifdef CK_ATDT
-  /* Combine the SET DIAL METHOD command with the DIAL command string */
-  if (!dialcmd &&                            /* Using default DIAL command */
-      (mdmcapas & CKD_AT) &&                 /* AT command set only */
-      ((dialmth == XYDM_T && !dialtone) ||   /* and using default */
-       (dialmth == XYDM_P && !dialpulse))) { /* modem commands... */
+  // Combine the SET DIAL METHOD command with the DIAL command string
+  if (!dialcmd &&                            // Using default DIAL command
+      (mdmcapas & CKD_AT) &&                 // AT command set only
+      ((dialmth == XYDM_T && !dialtone) ||   // and using default
+       (dialmth == XYDM_P && !dialpulse))) { // modem commands...
     char c;
     debug(F110, "dial atdt xnum 1", xnum, 0);
     s = dcmd;
@@ -4777,25 +4751,25 @@ static void _dodial(void *threadinfo)
       }
     }
   }
-#endif /* CK_ATDT */
+#endif // CK_ATDT
   debug(F111, "_dodial", xnum, xredial);
 
-  /* Hang up the modem (in case it wasn't "on hook") */
-  /* But only if SET DIAL HANGUP ON... */
+  // Hang up the modem (in case it wasn't "on hook")
+  // But only if SET DIAL HANGUP ON...
 
-  if (!xredial) { /* Modem not initalized yet. */
+  if (!xredial) { // Modem not initalized yet.
     inited = 0;
   }
   if (!xredial || !inited) {
-    if (dialhup() < 0) { /* Hangup first */
+    if (dialhup() < 0) { // Hangup first
       debug(F100, "_dodial dialhup failed", "", 0);
 #ifndef MINIDIAL
-      if (mdmcapas & CKD_TB) { /* Telebits might need a BREAK */
-        ttsndb();              /*  first. */
+      if (mdmcapas & CKD_TB) { // Telebits might need a BREAK
+        ttsndb();              //  first.
       }
-#endif                                      /* MINIDIAL */
-      if (dialhng && dialsta != DIA_PART) { /* If hangup failed, */
-        ttclos(0);                          /* close and reopen the device. */
+#endif                                      // MINIDIAL
+      if (dialhng && dialsta != DIA_PART) { // If hangup failed,
+        ttclos(0);                          // close and reopen the device.
         if (ttopen(ttname, &local, mymdmtyp, 0) < 0) {
           printf("Sorry, Can't hang up communication device.\n");
           printf("Try 'set line %s' again.\n", ttname);
@@ -4809,30 +4783,30 @@ static void _dodial(void *threadinfo)
             free(fbuf);
           }
           fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
           dreset();
           return;
         }
       }
     }
-    inited = 0; /* We hung up so must reinit */
+    inited = 0; // We hung up so must reinit
   }
 #ifndef MINIDIAL
-  /* Don't start talking to Rolm too soon */
+  // Don't start talking to Rolm too soon
   if (mymdmtyp == n_ROLM && dialsta != DIA_PART) {
     msleep(500);
   }
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-  if (dialsta != DIA_PART /* Some initial setups. */
+  if (dialsta != DIA_PART // Some initial setups.
 #ifndef MINIDIAL
       && mymdmtyp != n_ATTUPC
-#endif /* MINIDIAL */
+#endif // MINIDIAL
   ) {
-    fail_code = F_MINIT; /* Default failure code */
-    dial_what = DW_INIT; /* What I'm Doing Now   */
-    if (dialdpy) {       /* If showing progress, */
-      p = ck_time();     /* get timestamp.   */
+    fail_code = F_MINIT; // Default failure code
+    dial_what = DW_INIT; // What I'm Doing Now
+    if (dialdpy) {       // If showing progress,
+      p = ck_time();     // get timestamp.
       if (!inited) {
         if (*p) {
           printf(" Initializing: %s...\n", p);
@@ -4842,9 +4816,9 @@ static void _dodial(void *threadinfo)
   }
 #ifndef MINIDIAL
 #ifdef CK_TAPI
-  if (tttapi && !tapipass) { /* TAPI Dialing */
+  if (tttapi && !tapipass) { // TAPI Dialing
     switch (func_code) {
-    case 0: /* Dial */
+    case 0: // Dial
       if (cktapidial(telnbr)) {
         fail_code = 0;
         if (partial) {
@@ -4863,12 +4837,12 @@ static void _dodial(void *threadinfo)
         dialsta = DIA_TAPI;
       }
       break;
-    case 1: { /* Answer */
+    case 1: { // Answer
 #ifdef __WATCOMC__
       long strttime = time((unsigned long *)NULL);
 #else
       long strttime = time((long *)NULL);
-#endif /* __WATCOMC__ */
+#endif // __WATCOMC__
       long diff = 0;
       do {
         if (dialatmo > 0) {
@@ -4876,11 +4850,11 @@ static void _dodial(void *threadinfo)
           waitct -= diff;
         }
         fail_code = 0;
-        if (cktapianswer()) { /* SUCCESS */
+        if (cktapianswer()) { // SUCCESS
           dialsta = DIA_OK;
           speed = ttgspd();
           break;
-        } else { /* FAILURE */
+        } else { // FAILURE
           if (fail_code) {
             dialsta = DIA_TAPI;
             break;
@@ -4894,7 +4868,7 @@ static void _dodial(void *threadinfo)
           diff = time((unsigned long *)NULL) - strttime;
 #else
           diff = time((long *)NULL) - strttime;
-#endif /* __WATCOMC__ */
+#endif // __WATCOMC__
         }
       } while ((dialatmo > 0) ? (diff < waitct) : 1);
       break;
@@ -4902,40 +4876,40 @@ static void _dodial(void *threadinfo)
     }
     return;
   } else
-#endif /* CK_TAPI */
-#endif /* MINIDIAL */
+#endif // CK_TAPI
+#endif // MINIDIAL
 
-    /* Modems with AT command set... */
+    // Modems with AT command set...
 
     if ((mdmcapas & CKD_AT) && dialsta != DIA_PART) {
 
-      if (dialpace > -1) { /* Set intercharacter pacing */
+      if (dialpace > -1) { // Set intercharacter pacing
         wr = dialpace;
       } else {
         wr = mp->wake_rate;
       }
 
-      if (dialini) { /* Get wakeup/init string */
+      if (dialini) { // Get wakeup/init string
         ws = dialini;
       } else {
         ws = mp->wake_str;
       }
 
-      /* First get the modem's attention and enable result codes */
+      // First get the modem's attention and enable result codes
 
-      for (tries = 0; tries < 5; tries++) { /* Send short command */
+      for (tries = 0; tries < 5; tries++) { // Send short command
         if (tries > 0) {
-          ttoc('\015'); /* AT must go first for speed */
-          msleep(wr);   /* detection. */
+          ttoc('\015'); // AT must go first for speed
+          msleep(wr);   // detection.
         }
-        if (mymdmtyp == n_GENERIC) { /* Force word result codes */
-          ttslow("ATQ0V1\015", wr);  /* for generic modem type */
+        if (mymdmtyp == n_GENERIC) { // Force word result codes
+          ttslow("ATQ0V1\015", wr);  // for generic modem type
         } else {
           ttslow("ATQ0\015", wr);
         }
-        mdmstat = getok(tries < 2 ? 2 : tries, 1); /* Get response */
+        mdmstat = getok(tries < 2 ? 2 : tries, 1); // Get response
         if (mdmstat > 0) {
-          break; /* OK - done */
+          break; // OK - done
         }
         if (dialdpy && tries > 0) {
           printf("\r\n No response from modem");
@@ -4951,8 +4925,8 @@ static void _dodial(void *threadinfo)
               free(fbuf);
             }
             fbuf = NULL;
-#endif              /* DYNAMIC */
-            return; /* return failure */
+#endif              // DYNAMIC
+            return; // return failure
           }
           printf(", retrying%s...\r\n", (tries > 1) ? " again" : "");
           fflush(stdout);
@@ -4982,22 +4956,20 @@ static void _dodial(void *threadinfo)
       }
       debug(F101, "_dodial ATQ0 mdmstat", "", mdmstat);
 
-      if (xredial && inited) { /* Redialing... */
-        ttoc('\015');          /* Cancel previous */
-        msleep(250);           /* Wait a bit */
-        alarm(0);              /* Just in case... */
-        ttflui();              /* Clear out stuff from modem setup */
-        goto REDIAL;           /* Skip setup - we already did it */
+      if (xredial && inited) { // Redialing...
+        ttoc('\015');          // Cancel previous
+        msleep(250);           // Wait a bit
+        alarm(0);              // Just in case...
+        ttflui();              // Clear out stuff from modem setup
+        goto REDIAL;           // Skip setup - we already did it
       }
-      /*
-        Do flow control next because a long init string echoing back could
-        cause data overruns, causing us to miss the OK, or (worse) to get out
-        of sync entirely.
-      */
-      x = 0;                    /* User said SET DIAL FLOW RTS/CTS */
-      if (dialfc == FLO_RTSC || /* Even if Kermit's FLOW isn't...  */
+      // Do flow control next because a long init string echoing back could
+      // cause data overruns, causing us to miss the OK, or (worse) to get out
+      // of sync entirely.
+      x = 0;                    // User said SET DIAL FLOW RTS/CTS
+      if (dialfc == FLO_RTSC || // Even if Kermit's FLOW isn't...
           (dialfc == FLO_AUTO && flow == FLO_RTSC)) {
-        if (dialhwfc) { /* User-defined HWFC string */
+        if (dialhwfc) { // User-defined HWFC string
           if (*dialhwfc) {
             x = 1;
             flocmd = dialhwfc;
@@ -5006,7 +4978,7 @@ static void _dodial(void *threadinfo)
           x = 1;
           flocmd = mp->hwfc_str;
         }
-      } else if (dialfc == FLO_XONX || /* User said SET DIAL FLOW SOFT */
+      } else if (dialfc == FLO_XONX || // User said SET DIAL FLOW SOFT
                  (dialfc == FLO_AUTO && flow == FLO_XONX)) {
         if (dialswfc) {
           if (*dialswfc) {
@@ -5017,7 +4989,7 @@ static void _dodial(void *threadinfo)
           x = 1;
           flocmd = mp->swfc_str;
         }
-      } else if (dialfc == FLO_NONE) { /* User said SET DIAL FLOW NONE */
+      } else if (dialfc == FLO_NONE) { // User said SET DIAL FLOW NONE
         if (dialnofc) {
           if (*dialnofc) {
             x = 1;
@@ -5028,9 +5000,9 @@ static void _dodial(void *threadinfo)
           flocmd = mp->nofc_str;
         }
       }
-      if (x) { /* Send the flow control command */
+      if (x) { // Send the flow control command
         debug(F110, "_dodial flocmd", flocmd, 0);
-        for (tries = 4; tries > 0; tries--) { /* Send the command */
+        for (tries = 4; tries > 0; tries--) { // Send the command
           ttslow(flocmd, wr);
           mdmstat = getok(5, 1);
           if (mdmstat > 0) {
@@ -5044,34 +5016,32 @@ static void _dodial(void *threadinfo)
 
 #ifdef CK_TTSETFLOW
 #ifdef CK_RTSCTS
-        /*
-          So far only ckutio.c has ttsetflow().
-          We have just told the modem to turn on RTS/CTS flow control and the
-          modem has said OK.  But we ourselves have not turned it on yet because
-          of the disgusting ttpkt(...FLO_DIAL...) hack.  So now, if the computer
-          does not happen to be asserting RTS, the modem will no longer send
-          characters to it. So at EXACTLY THIS POINT, we must enable RTS/CTS in
-          the device driver.
-        */
+        // So far only ckutio.c has ttsetflow().
+        // We have just told the modem to turn on RTS/CTS flow control and the
+        // modem has said OK.  But we ourselves have not turned it on yet
+        // because of the disgusting ttpkt(...FLO_DIAL...) hack.  So now, if the
+        // computer does not happen to be asserting RTS, the modem will no
+        // longer send characters to it. So at EXACTLY THIS POINT, we must
+        // enable RTS/CTS in the device driver.
         if (dialfc == FLO_RTSC || (dialfc == FLO_AUTO && flow == FLO_RTSC)) {
           ttsetflow(FLO_RTSC);
         }
-#endif /* CK_RTSCTS */
-#endif /* CK_TTSETFLOW */
+#endif // CK_RTSCTS
+#endif // CK_TTSETFLOW
       }
-      ttflui(); /* Clear out stuff from modem setup */
+      ttflui(); // Clear out stuff from modem setup
       msleep(250);
 
       if (!ws) {
-        goto xdialec; /* No init string */
+        goto xdialec; // No init string
       }
       if (!*ws) {
         goto xdialec;
       }
 
-      for (tries = 4; tries > 0; tries--) { /* Send init string */
+      for (tries = 4; tries > 0; tries--) { // Send init string
         ttslow(ws, wr);
-        mdmstat = getok(4, 1); /* Get response */
+        mdmstat = getok(4, 1); // Get response
         if (mdmstat > 0) {
           break;
         }
@@ -5082,19 +5052,19 @@ static void _dodial(void *threadinfo)
       }
       debug(F101, "_dodial wake_str mdmstat", "", mdmstat);
 
-      if (mdmstat < 1) {   /* Initialized OK? */
-        dialfail(F_MINIT); /* No, fail. */
+      if (mdmstat < 1) {   // Initialized OK?
+        dialfail(F_MINIT); // No, fail.
         return;
       }
 
 #ifndef MINIDIAL
-    } else if (mymdmtyp == n_ATTDTDM && dialsta != DIA_PART) { /* AT&T ... */
-      ttsndb();                                                /* Send BREAK */
-#endif                                                         /* MINIDIAL */
+    } else if (mymdmtyp == n_ATTDTDM && dialsta != DIA_PART) { // AT&T ...
+      ttsndb();                                                // Send BREAK
+#endif                                                         // MINIDIAL
 
-    } else if (dialsta != DIA_PART) { /* All others */
+    } else if (dialsta != DIA_PART) { // All others
 
-      /* Place modem into command mode */
+      // Place modem into command mode
 
       ws = dialini ? dialini : mp->wake_str;
       if (ws && (int)strlen(ws) > 0) {
@@ -5114,20 +5084,20 @@ static void _dodial(void *threadinfo)
       }
     }
 
-  /* Handle error correction, data compression, and flow control... */
+  // Handle error correction, data compression, and flow control...
 
 xdialec:
 
   if (dialsta != DIA_PART) {
-    alarm(0); /* Turn off alarm */
+    alarm(0); // Turn off alarm
     debug(F100, "_dodial got wake prompt", "", 0);
-    msleep(500); /* Allow settling time */
+    msleep(500); // Allow settling time
 
-    /* Enable/disable error-correction */
+    // Enable/disable error-correction
 
     x = 0;
-    if (dialec) {     /* DIAL ERROR-CORRECTION is ON */
-      if (dialecon) { /* SET DIAL STRING ERROR-CORRECTION */
+    if (dialec) {     // DIAL ERROR-CORRECTION is ON
+      if (dialecon) { // SET DIAL STRING ERROR-CORRECTION
         if (*dialecon) {
           x = 1;
           ttslow(dialecon, wr);
@@ -5137,7 +5107,7 @@ xdialec:
         ttslow(mp->ec_on_str, wr);
       }
     } else {
-      if (dialecoff) { /* DIAL ERROR-CORRECTION OFF */
+      if (dialecoff) { // DIAL ERROR-CORRECTION OFF
         if (*dialecoff) {
           x = 1;
           ttslow(dialecoff, wr);
@@ -5147,8 +5117,8 @@ xdialec:
         ttslow(mp->ec_off_str, wr);
       }
     }
-    /* debug(F101,"ckudia xx_ok","",xx_ok); */
-    if (x && xx_ok) { /* Look for OK response */
+    // debug(F101,"ckudia xx_ok","",xx_ok);
+    if (x && xx_ok) { // Look for OK response
       debug(F100, "ckudia calling xx_ok for EC", "", 0);
       x = (*xx_ok)(5, 1);
       debug(F101, "ckudia xx_ok", "", x);
@@ -5160,7 +5130,7 @@ xdialec:
       }
     }
 
-    /* Enable/disable data compression */
+    // Enable/disable data compression
 
     if (x > 0) {
       x = 0;
@@ -5169,7 +5139,7 @@ xdialec:
       if (x < 0 || !dialec) {
         printf(
             "WARNING - You can't have compression without error correction.\n");
-      } else if (dialdcon) { /* SET DIAL STRING ... */
+      } else if (dialdcon) { // SET DIAL STRING ...
         if (*dialdcon) {
           x = 1;
           ttslow(dialdcon, wr);
@@ -5189,7 +5159,7 @@ xdialec:
         ttslow(mp->dc_off_str, wr);
       }
     }
-    if (x && xx_ok) { /* Look for OK response */
+    if (x && xx_ok) { // Look for OK response
       x = (*xx_ok)(5, 1);
       if (x < 0) {
         printf("WARNING - Trouble enabling compression\n");
@@ -5199,16 +5169,16 @@ xdialec:
 
 #ifndef NOXFER
 #ifndef MINIDIAL
-  if (mdmcapas & CKD_KS && dialsta != DIA_PART) { /* Kermit spoof */
-    int r;                                        /* Register */
-    char tbcmdbuf[64];                            /* Command buffer */
+  if (mdmcapas & CKD_KS && dialsta != DIA_PART) { // Kermit spoof
+    int r;                                        // Register
+    char tbcmdbuf[64];                            // Command buffer
     switch (mymdmtyp) {
 
-    case n_MICROCOM: /* Microcoms in SX mode */
+    case n_MICROCOM: // Microcoms in SX mode
       if (dialksp) {
-        sprintf(tbcmdbuf, "APM1;KMC%d\015", stchr); /* safe */
+        sprintf(tbcmdbuf, "APM1;KMC%d\015", stchr); // safe
       } else {
-        sprintf(tbcmdbuf, "APM0\015"); /* safe */
+        sprintf(tbcmdbuf, "APM0\015"); // safe
       }
       ttslow(tbcmdbuf, MICROCOM.wake_rate);
       alarm(3);
@@ -5216,12 +5186,12 @@ xdialec:
       alarm(0);
       break;
 
-    case n_TELEBIT: /* Old and new Telebits */
+    case n_TELEBIT: // Old and new Telebits
     case n_TBNEW:
       if (!dialksp) {
-        sprintf(tbcmdbuf, "ATS111=0\015"); /* safe */
+        sprintf(tbcmdbuf, "ATS111=0\015"); // safe
       } else {
-        switch (parity) { /* S111 value depends on parity */
+        switch (parity) { // S111 value depends on parity
         case 'e':
           r = 12;
           break;
@@ -5239,35 +5209,35 @@ xdialec:
           r = 10;
           break;
         }
-        sprintf(tbcmdbuf, "ATS111=%d S112=%d\015", r, stchr); /* safe */
+        sprintf(tbcmdbuf, "ATS111=%d S112=%d\015", r, stchr); // safe
       }
       ttslow(tbcmdbuf, wr);
 
-      /* Not all Telebit models have the Kermit spoof, so ignore response. */
+      // Not all Telebit models have the Kermit spoof, so ignore response.
 
-      if (xx_ok) { /* Get modem's response */
+      if (xx_ok) { // Get modem's response
         x = (*xx_ok)(5, 1);
       }
     }
   }
-#endif /* MINIDIAL */
-#endif /* NOXFER */
+#endif // MINIDIAL
+#endif // NOXFER
 
-  /* Speaker */
+  // Speaker
 
   if (mymdmtyp != n_GENERIC && (mdmcapas & CKD_AT) && (dialsta != DIA_PART) &&
       !dialspon && !dialspoff && !dialvol1 && !dialvol2 && !dialvol3) {
-    /* AT command set and commands have not been customized */
-    /* so combine speaker and volume commands. */
+    // AT command set and commands have not been customized
+    // so combine speaker and volume commands.
     if (mdmspk) {
-      sprintf(lbuf, "ATM1L%d%c", mdmvol, 13); /* safe */
+      sprintf(lbuf, "ATM1L%d%c", mdmvol, 13); // safe
     } else {
-      sprintf(lbuf, "ATM0%c", 13); /* safe */
+      sprintf(lbuf, "ATM0%c", 13); // safe
     }
-    ttslow(lbuf, wr);               /* Send command */
-    getok(5, 1);                    /* Get but ignore response */
-  } else if (dialsta != DIA_PART) { /* Customized or not AT commands */
-    x = 0;                          /* Do it the hard way */
+    ttslow(lbuf, wr);               // Send command
+    getok(5, 1);                    // Get but ignore response
+  } else if (dialsta != DIA_PART) { // Customized or not AT commands
+    x = 0;                          // Do it the hard way
     if (mdmspk) {
       if (dialspon) {
         if (*dialspon) {
@@ -5281,7 +5251,7 @@ xdialec:
         }
       }
     } else {
-      /* s = dialspoff ? dialspoff : mp->sp_off_str; */
+      // s = dialspoff ? dialspoff : mp->sp_off_str;
       if (dialspoff) {
         if (*dialspoff) {
           x = 1;
@@ -5295,11 +5265,11 @@ xdialec:
       }
     }
     if (x) {
-      if (xx_ok) { /* Get response */
+      if (xx_ok) { // Get response
         x = (*xx_ok)(5, 1);
       }
-      if (x && mdmspk) {  /* Good response and speaker on? */
-        switch (mdmvol) { /* Yes, send volume command. */
+      if (x && mdmspk) {  // Good response and speaker on?
+        switch (mdmvol) { // Yes, send volume command.
         case 0:
         case 1:
           s = dialvol1 ? dialvol1 : mp->vol1_str;
@@ -5314,9 +5284,9 @@ xdialec:
           s = NULL;
         }
         if (s) {
-          if (*s) { /* Send volume command. */
+          if (*s) { // Send volume command.
             ttslow(s, wr);
-            if (xx_ok) { /* Get response but ignore it */
+            if (xx_ok) { // Get response but ignore it
               (*xx_ok)(5, 1);
             }
           }
@@ -5326,188 +5296,186 @@ xdialec:
   }
 
 #ifndef CK_ATDT
-  /* Dialing Method */
+  // Dialing Method
 
-  if (dialmth && dialsta != DIA_PART) { /* If dialing method specified... */
-    char *s = "";                       /* Do it here... */
+  if (dialmth && dialsta != DIA_PART) { // If dialing method specified...
+    char *s = "";                       // Do it here...
 
-    if (dialmth == XYDM_T && dialtone) { /* Tone */
+    if (dialmth == XYDM_T && dialtone) { // Tone
       s = dialtone;
-    } else if (dialmth == XYDM_P && dialpulse) { /* Pulse */
+    } else if (dialmth == XYDM_P && dialpulse) { // Pulse
       s = dialpulse;
     }
     if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok) {      /* Get modem's response */
-          (*xx_ok)(5, 1); /* (but ignore it...) */
+        if (xx_ok) {      // Get modem's response
+          (*xx_ok)(5, 1); // (but ignore it...)
         }
       }
     }
   }
-#endif /* CK_ATDT */
+#endif // CK_ATDT
 
-  if (dialidt) { /* Ignore dialtone? */
+  if (dialidt) { // Ignore dialtone?
     char *s = "";
     s = dialx3 ? dialx3 : mp->ignoredt;
     if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok) {      /* Get modem's response */
-          (*xx_ok)(5, 1); /* (but ignore it...) */
+        if (xx_ok) {      // Get modem's response
+          (*xx_ok)(5, 1); // (but ignore it...)
         }
       }
     }
   }
   {
-    char *s = ""; /* Last-minute init string? */
+    char *s = ""; // Last-minute init string?
     s = dialini2 ? dialini2 : mp->ini2;
     if (s) {
       if (*s) {
         ttslow(s, wr);
-        if (xx_ok) {      /* Get modem's response */
-          (*xx_ok)(5, 1); /* (but ignore it...) */
+        if (xx_ok) {      // Get modem's response
+          (*xx_ok)(5, 1); // (but ignore it...)
         }
       }
     }
   }
-  if (func_code == 1) { /* ANSWER (not DIAL) */
+  if (func_code == 1) { // ANSWER (not DIAL)
     char *s;
     s = dialaaon ? dialaaon : mp->aa_on_str;
     if (!s) {
       s = "";
     }
     if (*s) {
-      /* Here we would handle caller ID */
+      // Here we would handle caller ID
       ttslow(s, (dialpace > -1) ? wr : mp->dial_rate);
-      if (xx_ok) {      /* Get modem's response */
-        (*xx_ok)(5, 1); /* (but ignore it...) */
+      if (xx_ok) {      // Get modem's response
+        (*xx_ok)(5, 1); // (but ignore it...)
       }
     } else {
       printf(
           "WARNING - I don't know how to enable autoanswer for this modem.\n");
-    } /* And skip all the phone-number & dialing stuff... */
-    alarm(waitct); /* This much time allowed. */
+    } // And skip all the phone-number & dialing stuff...
+    alarm(waitct); // This much time allowed.
     debug(F101, "_dodial ANSWER waitct", "", waitct);
 
-  } else { /* DIAL (not ANSWER) */
+  } else { // DIAL (not ANSWER)
 
-    if (dialsta != DIA_PART) { /* Last dial was not partial */
+    if (dialsta != DIA_PART) { // Last dial was not partial
 
       char *s = "";
       if (s) {
         if (*s) {
           ttslow(s, (dialpace > -1) ? wr : mp->dial_rate);
-          if (xx_ok) {      /* Get modem's response */
-            (*xx_ok)(5, 1); /* (but ignore it...) */
+          if (xx_ok) {      // Get modem's response
+            (*xx_ok)(5, 1); // (but ignore it...)
           }
         }
       }
 
-      /* Put modem into dialing mode, if the modem requires it. */
+      // Put modem into dialing mode, if the modem requires it.
 
       if (mp->dmode_str && *(mp->dmode_str)) {
         ttslow(mp->dmode_str, (dialpace > -1) ? wr : mp->dial_rate);
         savalrm = ck_signal(SIGALRM, dialtime);
         alarm(10);
-        /* Wait for prompt, if any expected */
+        // Wait for prompt, if any expected
         if (mp->dmode_prompt && *(mp->dmode_prompt)) {
           waitfor(mp->dmode_prompt);
           msleep(300);
         }
-        alarm(0);                    /* Turn off alarm on dialing prompts */
-        ck_signal(SIGALRM, savalrm); /* Restore alarm */
+        alarm(0);                    // Turn off alarm on dialing prompts
+        ck_signal(SIGALRM, savalrm); // Restore alarm
       }
     }
-    /* AT-Command-Set non-Generic modem */
+    // AT-Command-Set non-Generic modem
     if (mdmcapas & CKD_AT && mymdmtyp != n_GENERIC && dialsta != DIA_PART) {
-      if (mdmwait > 255) { /* If larger than maximum, */
-        mdmwait = 255;     /* make it maximum. */
+      if (mdmwait > 255) { // If larger than maximum,
+        mdmwait = 255;     // make it maximum.
       }
-      if (dialesc > 0 && /* Modem escape character is set */
-          dialmhu > 0) { /* Hangup method is modem command */
+      if (dialesc > 0 && // Modem escape character is set
+          dialmhu > 0) { // Hangup method is modem command
         int x = dialesc;
         if (dialesc < 0 || dialesc > 127) {
           x = 128;
         }
         sprintf(lbuf, "ATS2=%dS7=%d\015", dialesc ? x : mp->esc_char,
-                mdmwait); /* safe */
+                mdmwait); // safe
       } else {
-        sprintf(lbuf, "ATS7=%d%c", mdmwait, 13); /* safe */
+        sprintf(lbuf, "ATS7=%d%c", mdmwait, 13); // safe
       }
-      ttslow(lbuf, wr);      /* Set it. */
-      mdmstat = getok(5, 1); /* Get response from modem */
-      /* If it gets an error, go ahead anyway */
+      ttslow(lbuf, wr);      // Set it.
+      mdmstat = getok(5, 1); // Get response from modem
+      // If it gets an error, go ahead anyway
       debug(F101, "_dodial S7 mdmstat", "", mdmstat);
     }
-    ttflui();   /* Clear out stuff from modem setup */
-    inited = 1; /* Remember modem is initialized */
+    ttflui();   // Clear out stuff from modem setup
+    inited = 1; // Remember modem is initialized
 
   REDIAL:
     if ((int)strlen(dcmd) + (int)strlen(xnum) > LBUFL) {
       ckstrncpy(lbuf, "NUMBER TOO LONG!", LBUFL);
     } else {
-      dialexpand(lbuf, dcmd, xnum, (int)sizeof(lbuf)); /* [V-20]: no printf */
+      dialexpand(lbuf, dcmd, xnum, (int)sizeof(lbuf)); // [V-20]: no printf
     }
     debug(F110, "dialing", lbuf, 0);
-    /* Send the dialing string */
+    // Send the dialing string
     ttslow(lbuf, dialpace > -1 ? wr : mp->dial_rate);
 
-    fail_code = F_MODEM; /* New default failure code changes */
-    dial_what = DW_DIAL; /* and our state, too. */
-    if (dialdpy) {       /* If showing progress */
-      p = ck_time();     /* get current time; */
+    fail_code = F_MODEM; // New default failure code changes
+    dial_what = DW_DIAL; // and our state, too.
+    if (dialdpy) {       // If showing progress
+      p = ck_time();     // get current time;
       if (*p) {
         printf(" Dialing: %s...\n", p);
       }
     }
-    alarm(waitct); /* This much time allowed. */
+    alarm(waitct); // This much time allowed.
     debug(F101, "_dodial waitct", "", waitct);
 
 #ifndef MINIDIAL
 #ifdef OLDMODEMS
     switch (mymdmtyp) {
-    case n_RACAL: /* Acknowledge dialing string */
+    case n_RACAL: // Acknowledge dialing string
       sleep(3);
       ttflui();
       ttoc('\015');
       break;
     case n_VENTEL:
-      waitfor("\012\012"); /* Ignore the first two strings */
+      waitfor("\012\012"); // Ignore the first two strings
       break;
     default:
       break;
     }
-#endif /* OLDMODEMS */
-#endif /* MINIDIAL */
+#endif // OLDMODEMS
+#endif // MINIDIAL
   }
 
-  /* Check for connection */
+  // Check for connection
 
-  mdmstat = 0;   /* No status yet */
-  lbuf[0] = NUL; /* Default reason for failure */
+  mdmstat = 0;   // No status yet
+  lbuf[0] = NUL; // Default reason for failure
   debug(F101, "dial awaiting response, mymdmtyp", "", mymdmtyp);
 
 #ifndef NOSPL
   modemmsg[0] = NUL;
-#endif                   /* NOSPL */
-  while (mdmstat == 0) { /* Till we get a result or time out */
+#endif                   // NOSPL
+  while (mdmstat == 0) { // Till we get a result or time out
 
-    if ((mdmcapas & CKD_AT) && nonverbal) { /* AT command set */
-      gethrn();                             /* In digit result mode */
+    if ((mdmcapas & CKD_AT) && nonverbal) { // AT command set
+      gethrn();                             // In digit result mode
       if (partial && dialsta == DIA_ERR) {
-        /*
-           If we get an error here, the phone is still
-           off hook so we have to hang it up.
-        */
+        // If we get an error here, the phone is still
+        // off hook so we have to hang it up.
         dialhup();
-        dialsta = DIA_ERR; /* (because dialhup() changes it) */
+        dialsta = DIA_ERR; // (because dialhup() changes it)
       }
       continue;
 
-    } else if (mymdmtyp == n_UNKNOWN) { /* Unknown modem type */
+    } else if (mymdmtyp == n_UNKNOWN) { // Unknown modem type
       int x, y = waitct;
-      mdmstat = D_FAILED; /* Assume failure. */
+      mdmstat = D_FAILED; // Assume failure.
       while (y-- > -1) {
         x = ttchk();
         if (x > 0) {
@@ -5521,10 +5489,10 @@ xdialec:
         } else if (network
 #ifdef TN_COMPORT
                    && !istncomport()
-#endif                         /* TN_COMPORT */
-                   && x < 0) { /* Connection dropped */
+#endif                         // TN_COMPORT
+                   && x < 0) { // Connection dropped
           inited = 0;
-          dialsta = DIA_IO; /* Call it an I/O error */
+          dialsta = DIA_IO; // Call it an I/O error
 #ifdef DYNAMIC
           if (rbuf) {
             free(rbuf);
@@ -5534,37 +5502,35 @@ xdialec:
             free(fbuf);
           }
           fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
           return;
         }
-        x = ttgmdm(); /* Try to read modem signals */
+        x = ttgmdm(); // Try to read modem signals
         if (x < 0) {
-          break; /* Can't, fail. */
+          break; // Can't, fail.
         }
-        if (x & BM_DCD) {      /* Got signals OK.  Carrier present? */
-          mdmstat = CONNECTED; /* Yes, done. */
+        if (x & BM_DCD) {      // Got signals OK.  Carrier present?
+          mdmstat = CONNECTED; // Yes, done.
           break;
-        } /* No, keep waiting. */
+        } // No, keep waiting.
         sleep(1);
       }
       continue;
     }
 
-    for (n = -1; n < LBUFL - 1;) { /* Accumulate modem response */
+    for (n = -1; n < LBUFL - 1;) { // Accumulate modem response
       int xx;
-      c2 = (char)(xx = ddinc(0)); /* Read a character, blocking */
-      if (xx < 1) {               /* Ignore NULs and errors */
-        continue;                 /* (Timeout will handle errors) */
-      } else {                    /* Real character, keep it */
+      c2 = (char)(xx = ddinc(0)); // Read a character, blocking
+      if (xx < 1) {               // Ignore NULs and errors
+        continue;                 // (Timeout will handle errors)
+      } else {                    // Real character, keep it
         lbuf[++n] = (char)(c2 & 0177);
       }
-      dialoc(lbuf[n]);          /* Maybe echo it  */
-      if (mdmcapas & CKD_V25) { /* V.25bis dialing... */
-                                /*
-                                  This assumes that V.25bis indications are all at least 3 characters
-                                  long                         and are terminated by either CRLF or
-                                  LFCR.
-                                */
+      dialoc(lbuf[n]);          // Maybe echo it
+      if (mdmcapas & CKD_V25) { // V.25bis dialing...
+                                // This assumes that V.25bis indications are all
+                                // at least 3 characters long and are terminated
+                                // by either CRLF or LFCR.
         if (mymdmtyp == n_CCITT) {
           if (n < 3) {
             continue;
@@ -5585,20 +5551,20 @@ xdialec:
             continue;
           }
         }
-#endif         /* MINIDIAL */
-      } else { /* All others, break on CR or LF */
+#endif         // MINIDIAL
+      } else { // All others, break on CR or LF
         if (lbuf[n] == CK_CR || lbuf[n] == LF) {
           break;
         }
       }
     }
-    lbuf[++n] = '\0'; /* Terminate response from modem */
+    lbuf[++n] = '\0'; // Terminate response from modem
     debug(F111, "_dodial modem response", lbuf, n);
 #ifndef NOSPL
-    ckstrncpy(modemmsg, lbuf, LBUFL); /* Call result message */
+    ckstrncpy(modemmsg, lbuf, LBUFL); // Call result message
     lbuf[79] = NUL;
     {
-      int x; /* Strip junk from end */
+      int x; // Strip junk from end
       x = (int)strlen(modemmsg) - 1;
       while (x > -1) {
         if (modemmsg[x] < (char)33) {
@@ -5609,22 +5575,22 @@ xdialec:
         x--;
       }
     }
-#endif                       /* NOSPL */
-    if (mdmcapas & CKD_AT) { /* Hayes AT command set */
-      gethrw();              /* in word result mode */
+#endif                       // NOSPL
+    if (mdmcapas & CKD_AT) { // Hayes AT command set
+      gethrw();              // in word result mode
       if (partial && dialsta == DIA_ERR) {
         dialhup();
-        dialsta = DIA_ERR; /* (because dialhup() changes it) */
+        dialsta = DIA_ERR; // (because dialhup() changes it)
       }
       continue;
-    } else if (mdmcapas & CKD_V25) { /* CCITT command set */
-      if (didweget(lbuf, "VAL")) {   /* Dial command confirmation */
+    } else if (mdmcapas & CKD_V25) { // CCITT command set
+      if (didweget(lbuf, "VAL")) {   // Dial command confirmation
 #ifndef MINIDIAL
         if (mymdmtyp == n_CCITT)
-#endif              /* MINIDIAL */
-          continue; /* Go back and read more */
+#endif              // MINIDIAL
+          continue; // Go back and read more
 #ifndef MINIDIAL
-        /* Digitel doesn't give an explicit connect confirmation message */
+        // Digitel doesn't give an explicit connect confirmation message
         else {
           int n;
           for (n = -1; n < LBUFL - 1;) {
@@ -5635,7 +5601,7 @@ xdialec:
               break;
             }
           }
-          mdmstat = CONNECTED; /* Assume we're connected */
+          mdmstat = CONNECTED; // Assume we're connected
           if (dialdpy && carrier != CAR_OFF) {
 #ifdef TN_COMPORT
             if (istncomport()) {
@@ -5651,28 +5617,28 @@ xdialec:
                 }
               }
             } else
-#endif                    /* TN_COMPORT */
-              sleep(1);   /* Wait a second */
-            n = ttgmdm(); /* Try to read modem signals */
+#endif                    // TN_COMPORT
+              sleep(1);   // Wait a second
+            n = ttgmdm(); // Try to read modem signals
             if ((n > -1) && ((n & BM_DCD) == 0)) {
               printf("WARNING - no carrier\n");
             }
           }
         }
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 
-        /* Standard V.25bis stuff */
+        // Standard V.25bis stuff
 
-      } else if (didweget(lbuf, "CNX")) { /* Connected */
+      } else if (didweget(lbuf, "CNX")) { // Connected
         mdmstat = CONNECTED;
       } else if (didweget(lbuf, "INV")) {
-        mdmstat = D_FAILED; /* Command error */
+        mdmstat = D_FAILED; // Command error
         dialsta = DIA_ERR;
         ckstrncpy(lbuf, "INV", LBUFL);
 
-      } else if (didweget(lbuf, "CFI")) { /* Call Failure */
+      } else if (didweget(lbuf, "CFI")) { // Call Failure
 
-        if (didweget(lbuf, "AB")) { /* Interpret reason code */
+        if (didweget(lbuf, "AB")) { // Interpret reason code
           ckstrncpy(lbuf, "AB: Timed out", LBUFL);
           dialsta = DIA_TIMO;
         } else if (didweget(lbuf, "CB")) {
@@ -5707,31 +5673,31 @@ xdialec:
           dialsta = DIA_NOAC;
         }
         mdmstat = D_FAILED;
-      } else if (didweget(lbuf, "INC")) { /* Incoming Call */
+      } else if (didweget(lbuf, "INC")) { // Incoming Call
         ckstrncpy(lbuf, "INC: Incoming call", LBUFL);
         dialsta = DIA_RING;
         mdmstat = D_FAILED;
-      } else if (didweget(lbuf, "DLC")) { /* Delayed Call */
+      } else if (didweget(lbuf, "DLC")) { // Delayed Call
         ckstrncpy(lbuf, "DLC: Delayed call", LBUFL);
         dialsta = DIA_NOAN;
         mdmstat = D_FAILED;
-      } else /* Response was probably an echo. */
+      } else // Response was probably an echo.
 #ifndef MINIDIAL
           if (mymdmtyp == n_CCITT)
-#endif /* MINIDIAL */
+#endif // MINIDIAL
         continue;
 #ifndef MINIDIAL
-      else { /* Digitel: If no error, connect. */
+      else { // Digitel: If no error, connect.
         mdmstat = CONNECTED;
       }
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       break;
 
-    } else if (n) { /* Non-Hayes-compatibles... */
+    } else if (n) { // Non-Hayes-compatibles...
       switch (mymdmtyp) {
 #ifndef MINIDIAL
       case n_ATTMODEM:
-        /* Careful - "Connected" / "Not Connected" */
+        // Careful - "Connected" / "Not Connected"
         if (didweget(lbuf, "Busy")) {
           mdmstat = D_FAILED;
           dialsta = DIA_BUSY;
@@ -5788,19 +5754,19 @@ xdialec:
           dialsta = DIA_NOAC;
         }
 #ifdef DEBUG
-#endif /* DEBUG */
+#endif // DEBUG
         break;
 
 #ifdef OLDMODEMS
       case n_CERMETEK:
         if (didweget(lbuf, "\016A")) {
           mdmstat = CONNECTED;
-          ttslow("\016U 1\015", 200); /* Make transparent*/
+          ttslow("\016U 1\015", 200); // Make transparent
         }
         break;
 
       case n_DF03:
-        /* Because response lacks CR or NL . . . */
+        // Because response lacks CR or NL . . .
         c = (char)(ddinc(0) & 0177);
         dialoc(c);
         debug(F000, "dial df03 got", "", c);
@@ -5812,29 +5778,27 @@ xdialec:
         }
         break;
 
-      case n_DF100: /* DF100 has short response codes */
+      case n_DF100: // DF100 has short response codes
         if (strcmp(lbuf, "A") == 0) {
-          mdmstat = CONNECTED; /* Attached */
+          mdmstat = CONNECTED; // Attached
           dialsta = DIA_OK;
         } else if (strcmp(lbuf, "N") == 0) {
           mdmstat = D_FAILED;
-          dialsta = DIA_NOAN;                /* No answer or no dialtone */
-        } else if (strcmp(lbuf, "E") == 0 || /* Error */
-                   strcmp(lbuf, "R") == 0) { /* "Ready" (?) */
+          dialsta = DIA_NOAN;                // No answer or no dialtone
+        } else if (strcmp(lbuf, "E") == 0 || // Error
+                   strcmp(lbuf, "R") == 0) { // "Ready" (?)
           mdmstat = D_FAILED;
-          dialsta = DIA_ERR; /* Command error */
+          dialsta = DIA_ERR; // Command error
         }
-        /* otherwise fall thru... */
+        // otherwise fall thru...
 
       case n_DF200:
         if (didweget(lbuf, "Attached")) {
           mdmstat = CONNECTED;
           dialsta = DIA_OK;
-          /*
-           * The DF100 will respond with "Attached" even if DTR
-           * and/or carrier are not present.	Another reason to
-           * (also) wait for carrier?
-           */
+          // The DF100 will respond with "Attached" even if DTR
+          // and/or carrier are not present.	Another reason to
+          // (also) wait for carrier?
         } else if (didweget(lbuf, "Busy")) {
           mdmstat = D_FAILED;
           dialsta = DIA_BUSY;
@@ -5854,17 +5818,15 @@ xdialec:
           mdmstat = D_FAILED;
           dialsta = DIA_ERR;
         }
-        /*
-         * It appears that the "Speed:..." response comes after an
-         * "Attached" response, so this is never seen.  HOWEVER,
-         * it would be very handy to detect this and temporarily
-         * reset the speed, since it's a nuisance otherwise.
-         * If we wait for some more input from the modem, how do
-         * we know if it's from the remote host or the modem?
-         * Carrier reportedly doesn't get set until after the
-         * "Speed:..." response (if any) is sent.  Another reason
-         * to (also) wait for carrier.
-         */
+        // It appears that the "Speed:..." response comes after an
+        // "Attached" response, so this is never seen.  HOWEVER,
+        // it would be very handy to detect this and temporarily
+        // reset the speed, since it's a nuisance otherwise.
+        // If we wait for some more input from the modem, how do
+        // we know if it's from the remote host or the modem?
+        // Carrier reportedly doesn't get set until after the
+        // "Speed:..." response (if any) is sent.  Another reason
+        // to (also) wait for carrier.
         break;
 
       case n_GDC:
@@ -5894,7 +5856,7 @@ xdialec:
           mdmstat = D_FAILED;
         }
         break;
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
 
       case n_ROLM:
         if (didweget(lbuf, "CALLING")) {
@@ -5944,10 +5906,10 @@ xdialec:
           dialsta = DIA_NOCA;
         }
         break;
-#endif /* OLDMODEMS */
+#endif // OLDMODEMS
 
       case n_MICROCOM:
-        /* "RINGBACK" means phone line ringing, continue */
+        // "RINGBACK" means phone line ringing, continue
         if (didweget(lbuf, "NO CONNECT")) {
           mdmstat = D_FAILED;
           dialsta = DIA_NOCA;
@@ -5965,11 +5927,11 @@ xdialec:
           dialsta = DIA_NOAC;
         } else if (didweget(lbuf, "CONNECT")) {
           mdmstat = CONNECTED;
-          /* trailing speed ignored */
+          // trailing speed ignored
         }
         break;
 
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       default:
         printf("PROGRAM ERROR - No response handler for modem type %d\n",
                mymdmtyp);
@@ -5977,35 +5939,33 @@ xdialec:
         dialsta = DIA_ERR;
       }
     }
-  } /* while (mdmstat == 0) */
+  } // while (mdmstat == 0)
 
   debug(F101, "_dodial alarm off", "", x);
   alarm(0);
-  if (mdmstat == D_FAILED) { /* Failure detected by modem  */
+  if (mdmstat == D_FAILED) { // Failure detected by modem
     dialfail(F_MODEM);
     return;
-  } else if (mdmstat == D_PARTIAL) { /* Partial dial command OK */
+  } else if (mdmstat == D_PARTIAL) { // Partial dial command OK
     msleep(500);
     debug(F100, "dial partial", "", 0);
-  } else { /* Call was completed */
+  } else { // Call was completed
     int x;
-    msleep(700); /* In case modem signals blink  */
+    msleep(700); // In case modem signals blink
     debug(F100, "dial succeeded", "", 0);
     if (
 #ifndef MINIDIAL
-        mymdmtyp != n_ROLM /* Rolm has weird modem signaling */
+        mymdmtyp != n_ROLM // Rolm has weird modem signaling
 #else
         1
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     ) {
-      alarm(3);                       /* In case ttpkt() gets stuck... */
-      ttpkt(speed, FLO_DIAX, parity); /* Cancel dialing state ioctl */
+      alarm(3);                       // In case ttpkt() gets stuck...
+      ttpkt(speed, FLO_DIAX, parity); // Cancel dialing state ioctl
       alarm(0);
     }
-    /*
-      In case CD went off in the interval between call completion and return
-      from ttpkt()...
-    */
+    // In case CD went off in the interval between call completion and return
+    // from ttpkt()...
     if (carrier != CAR_OFF) {
       if ((x = ttgmdm()) >= 0) {
 #ifdef TN_COMPORT
@@ -6021,17 +5981,17 @@ xdialec:
             }
           }
         }
-#endif /* TN_COMPORT */
+#endif // TN_COMPORT
         if (!(x & BM_DCD)) {
           printf("WARNING: Carrier seems to have dropped...\n");
         }
       }
     }
   }
-  dreset(); /* Reset alarms and signals. */
+  dreset(); // Reset alarms and signals.
   if (!quiet && !backgrd) {
-    if (dialdpy && (p = ck_time())) {  /* If DIAL DISPLAY ON, */
-      printf(" %sall complete: %s.\n", /* include timestamp.  */
+    if (dialdpy && (p = ck_time())) {  // If DIAL DISPLAY ON,
+      printf(" %sall complete: %s.\n", // include timestamp.
              (mdmstat == D_PARTIAL) ? "Partial c" : "C", p);
     } else if (modemmsg[0]) {
       printf(" %sall complete: \"%s\".\n",
@@ -6042,7 +6002,7 @@ xdialec:
   }
 #ifdef CKLOGDIAL
   dologdial(telnbr);
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
 #ifdef DYNAMIC
   if (rbuf) {
@@ -6053,61 +6013,59 @@ xdialec:
     free(fbuf);
   }
   fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
   dialsta = (mdmstat == D_PARTIAL) ? DIA_PART : DIA_OK;
   return;
 }
 
 static void faildial(void *threadinfo)
-/* faildial */ {
+// faildial
+{
   debug(F100, "longjmp returns to dial routine", "", 0);
   dialfail(fail_code);
   return;
 }
 
-/*
-  nbr = number to dial (string)
-  x1  = Retry counter
-  x2  = Number counter
-  fc  = Function code:
-        0 == DIAL
-        1 == ANSWER
-        2 == INIT/CONFIG
-        3 == PARTIAL DIAL
-*/
+// nbr = number to dial (string)
+// x1  = Retry counter
+// x2  = Number counter
+// fc  = Function code:
+//      0 == DIAL
+//      1 == ANSWER
+//      2 == INIT/CONFIG
+//      3 == PARTIAL DIAL
 
 int
 #ifdef OLD_DIAL
 ckdial( char *nbr )
 #else
 ckdial( char *nbr, int x1, int x2, int fc, int redial )
-#endif                       /* OLD_DIAL */
-/* ckdial */ {
-#define ERMSGL 100           /* fdc 13 November 2022 (was 50) */
-  char errmsg[ERMSGL], *erp; /* For error messages */
+#endif                       // OLD_DIAL
+// ckdial 
+ {
+#define ERMSGL 100           // fdc 13 November 2022 (was 50)
+  char errmsg[ERMSGL], *erp; // For error messages
   char *s;
   long spdmax;
 
   char *mmsg = "Sorry, DIAL memory buffer can't be allocated\n";
-  /*
-    A DIAL command implies a SET MODEM TYPE command and therefore enables
-    hanging up by modem commands rather than dropping DTR.
-  */
-  mdmset = 1; /* See mdmhup() */
+  // A DIAL command implies a SET MODEM TYPE command and therefore enables
+  // hanging up by modem commands rather than dropping DTR.
+  mdmset = 1; // See mdmhup()
 
   partial = 0;
-  if (fc == 3) { /* Partial dial requested */
-    partial = 1; /* Set flag */
-    fc = 0;      /* Treat like regular dialing */
+  if (fc == 3) { // Partial dial requested
+    partial = 1; // Set flag
+    fc = 0;      // Treat like regular dialing
   }
-  func_code = fc; /* Make global to this module */
+  func_code = fc; // Make global to this module
   telnbr = nbr;
   xredial = redial;
   debug(F111, "ckdial entry partial", ckitoa(fc), partial);
   debug(F111, "ckdial entry number", nbr, redial);
 
-  if (fc == 1) { /* ANSWER command? */
-    /* Reset caller ID strings */
+  if (fc == 1) { // ANSWER command?
+    // Reset caller ID strings
     if (callid_date) {
       makestr(&callid_date, NULL);
     }
@@ -6134,9 +6092,9 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       modemp[n_TAPI] = &GENERIC;
     }
   } else
-#endif /* CK_TAPI */
+#endif // CK_TAPI
     mymdmtyp = mdmtyp;
-  if (mymdmtyp < 0) { /* Whoa, network dialing... */
+  if (mymdmtyp < 0) { // Whoa, network dialing...
     if (mdmsav > -1) {
       mymdmtyp = mdmsav;
     }
@@ -6146,17 +6104,17 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
     dialsta = DIA_NOMO;
     return (0);
   }
-  dial_what = DW_NOTHING; /* Doing nothing at first. */
+  dial_what = DW_NOTHING; // Doing nothing at first.
   nonverbal = 0;
 
-  /* These are ONLY for the purpose of interpreting numeric result codes. */
+  // These are ONLY for the purpose of interpreting numeric result codes.
 
   is_motorola =
 #ifdef MINIDIAL
       0
 #else
       mymdmtyp == n_SUPRA || mymdmtyp == n_SUPRASON;
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       ;
 
   is_motorola =
@@ -6164,7 +6122,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       0
 #else
       mymdmtyp == n_MOTOROLA || mymdmtyp == n_MONTANA;
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       ;
 
   is_rockwell =
@@ -6175,7 +6133,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       mymdmtyp == n_RWV90 || mymdmtyp == n_BOCA || mymdmtyp == n_TELEPATH ||
       mymdmtyp == n_CARDINAL || mymdmtyp == n_BESTDATA ||
       mymdmtyp == n_CONEXANT || mymdmtyp == n_PCTEL
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       ;
 
   is_hayeshispd =
@@ -6183,7 +6141,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       0
 #else
       mymdmtyp == n_H_ULTRA || mymdmtyp == n_H_ACCURA || mymdmtyp == n_PPI
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       ;
 
   is_supra =
@@ -6191,10 +6149,10 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       0
 #else
       mymdmtyp == n_SUPRA || mymdmtyp == n_SUPRAX || mymdmtyp == n_SUPRASON
-#endif /* MINIDIAL */
+#endif // MINIDIAL
       ;
 
-  mp = modemp[mymdmtyp]; /* Set pointer to modem info */
+  mp = modemp[mymdmtyp]; // Set pointer to modem info
   if (!mp) {
     printf("Sorry, handler for this modem type not yet filled in.\n");
     dialsta = DIA_NOMO;
@@ -6206,8 +6164,8 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
   *lbuf = NUL;
   debug(F101, "DIAL lbuf malloc ok", "", LBUFL + 1);
 
-  if (!rbuf) { /* This one might already have been allocated by getok() */
-    if (!(rbuf = malloc(RBUFL + 1))) { /* Allocate input line buffer */
+  if (!rbuf) { // This one might already have been allocated by getok()
+    if (!(rbuf = malloc(RBUFL + 1))) { // Allocate input line buffer
       printf("%s", mmsg);
       dialsta = DIA_IE;
       return 0;
@@ -6215,7 +6173,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       debug(F101, "DIAL rbuf malloc ok", "", RBUFL + 1);
     }
   }
-  if (!(fbuf = malloc(FULLNUML + 1))) { /* Allocate input line buffer */
+  if (!(fbuf = malloc(FULLNUML + 1))) { // Allocate input line buffer
     printf("%s", mmsg);
     dialsta = DIA_IE;
     if (rbuf) {
@@ -6225,14 +6183,14 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
     return 0;
   }
   debug(F101, "DIAL fbuf malloc ok", "", FULLNUML + 1);
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
-  /* NOTE: mdmtyp, not mymdmtyp */
+  // NOTE: mdmtyp, not mymdmtyp
 
-  if (ttopen(ttname, &local, mdmtyp, 0) < 0) { /* Open, no carrier wait */
+  if (ttopen(ttname, &local, mdmtyp, 0) < 0) { // Open, no carrier wait
     erp = errmsg;
 
-    /* Safe and portable replacement for snprinf() AND sprintf() */
+    // Safe and portable replacement for snprinf() AND sprintf()
     ckmakmsg(erp, ERMSGL, "Sorry, can't open ", ttname, NULL, NULL);
 
     perror(errmsg);
@@ -6246,24 +6204,24 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       free(fbuf);
     }
     fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
     return 0;
   }
 
 #ifdef CK_TAPI
   if (!tttapi) {
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
-    /* Condition console terminal and communication line */
+    // Condition console terminal and communication line
 
-    /* Place line into "clocal" dialing state, */
-    /* important mainly for System V UNIX.     */
+    // Place line into "clocal" dialing state,
+    // important mainly for System V UNIX.
 
     if (ttpkt(speed, FLO_DIAL, parity) < 0) {
-      ttclos(0); /* If ttpkt fails do all this... */
+      ttclos(0); // If ttpkt fails do all this...
       if (ttopen(ttname, &local, mymdmtyp, 0) < 0) {
         erp = errmsg;
-        if ((int)strlen(ttname) < (ERMSGL - 18)) { /* safe, checked */
+        if ((int)strlen(ttname) < (ERMSGL - 18)) { // safe, checked
           sprintf(erp, "Sorry, can't reopen %s", ttname);
         } else {
           sprintf(erp, "Sorry, can't reopen device");
@@ -6279,17 +6237,17 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
           free(fbuf);
         }
         fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
         return 0;
-      } /* And try again. */
+      } // And try again.
       if ((ttpkt(speed, FLO_DIAL, parity) < 0)
 #ifdef UNIX
           && (strcmp(ttname, "/dev/null"))
 #else
-#endif /* UNIX */
+#endif // UNIX
 #ifdef CK_TAPI
           && !tttapi
-#endif /* CK_TAPI */
+#endif // CK_TAPI
       ) {
         printf("Sorry, Can't condition communication line\n");
         printf("Try 'set line %s' again\n", ttname);
@@ -6303,15 +6261,15 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
           free(fbuf);
         }
         fbuf = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
         return 0;
       }
     }
 #ifdef CK_TAPI
   }
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
-  /* Modem's escape sequence... */
+  // Modem's escape sequence...
 
   if (dialesc < 0 || dialesc > 127) {
     c = NUL;
@@ -6320,21 +6278,21 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
   }
   mdmcapas = dialcapas ? dialcapas : mp->capas;
 
-  xx_ok = mp->ok_fn; /* Pointer to response reader */
+  xx_ok = mp->ok_fn; // Pointer to response reader
 
-  if (mdmcapas & CKD_AT) { /* Hayes compatible */
+  if (mdmcapas & CKD_AT) { // Hayes compatible
     escbuf[0] = c;
     escbuf[1] = c;
     escbuf[2] = c;
     escbuf[3] = NUL;
-    /* In case this modem type is user-defined */
+    // In case this modem type is user-defined
     if (!xx_ok) {
       xx_ok = getok;
     }
-  } else { /* Other */
+  } else { // Other
     escbuf[0] = c;
     escbuf[1] = NUL;
-    /* In case user-defined */
+    // In case user-defined
     if (mdmcapas & CKD_V25) {
       if (!xx_ok) {
         xx_ok = getok;
@@ -6342,12 +6300,12 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
     }
   }
 
-  /* Partial dialing */
+  // Partial dialing
 
   if (mdmcapas & CKD_AT
 #ifndef MINIDIAL
       || mymdmtyp == n_MICROCOM
-#endif /* MINIDIAL */
+#endif // MINIDIAL
   ) {
     int x;
     x = (int)strlen(telnbr);
@@ -6356,34 +6314,34 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         partial = 1;
         debug(F110, "ckdial sets partial=1:", telnbr, 0);
       } else if (partial) {
-        ckmakmsg(fbuf, FULLNUML, telnbr, ";", NULL, NULL); /* add one */
+        ckmakmsg(fbuf, FULLNUML, telnbr, ";", NULL, NULL); // add one
         telnbr = fbuf;
       }
     }
   }
   msleep(500);
 
-  debug(F101, "ckdial dialtmo", "", dialtmo); /* Timeout */
+  debug(F101, "ckdial dialtmo", "", dialtmo); // Timeout
 
-  if (fc == 1) { /* ANSWER */
+  if (fc == 1) { // ANSWER
     waitct = (dialatmo > -1) ? dialatmo : 0;
-  } else {             /* DIAL */
-    if (dialtmo < 1) { /* Automatic computation. */
+  } else {             // DIAL
+    if (dialtmo < 1) { // Automatic computation.
 #ifdef CK_TAPI
       if (tttapi && !tapipass) {
-        waitct = 1 * (int)strlen(telnbr); /* Worst case dial time */
-        waitct += 60;                     /* dialtone + completion wait times */
-        for (s = telnbr; *s; s++) {       /* add in pause characters time */
+        waitct = 1 * (int)strlen(telnbr); // Worst case dial time
+        waitct += 60;                     // dialtone + completion wait times
+        for (s = telnbr; *s; s++) {       // add in pause characters time
           if (*s == ',') {
-            waitct += 2; /* unless it was changed in the modem */
+            waitct += 2; // unless it was changed in the modem
           } else if (*s == 'W' || *s == 'w' || *s == '$' || *s == '@') {
             waitct += 8;
           }
         }
       } else {
-#endif /* CK_TAPI */
+#endif // CK_TAPI
         waitct = 1 * (int)strlen(telnbr);
-        /* dialtone + completion wait times */
+        // dialtone + completion wait times
         waitct += mp->dial_time;
         for (s = telnbr; *s; s++) {
           for (p = mp->pause_chars; *p; p++) {
@@ -6395,46 +6353,44 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         }
 #ifdef CK_TAPI
       }
-#endif /* CK_TAPI */
+#endif // CK_TAPI
     } else {
-      waitct = dialtmo; /* User-specified timeout */
+      waitct = dialtmo; // User-specified timeout
     }
     debug(F101, "ckdial waitct A", "", waitct);
   }
 
-  /*
-    waitct is our alarm() timer.
-    mdmwait is how long we tell the modem to wait for carrier.
-    We set mdmwait to be 5 seconds less than waitct, to increase the
-    chance that we get a response from the modem before timing out.
-  */
-  if (waitct <= 0) { /* 0 or negative means wait forever  */
-    waitct = 0;      /* Fixed in 7.0.198. */
+  // waitct is our alarm() timer.
+  // mdmwait is how long we tell the modem to wait for carrier.
+  // We set mdmwait to be 5 seconds less than waitct, to increase the
+  // chance that we get a response from the modem before timing out.
+  if (waitct <= 0) { // 0 or negative means wait forever
+    waitct = 0;      // Fixed in 7.0.198.
     mdmwait = 254;
   } else {
-    if (dialtmo < 1) { /* Automatic computation. */
+    if (dialtmo < 1) { // Automatic computation.
 #ifdef XWAITCT
-      /* Addtl wait slop can be defined at compile time */
+      // Addtl wait slop can be defined at compile time
       waitct += XWAITCT;
-#endif /* XWAITCT */
+#endif // XWAITCT
       if (waitct < 60 + mdmwaitd) {
         waitct = 60 + mdmwaitd;
       }
     }
-    if (mdmcapas & CKD_AT) { /* AT command-set modems */
-      mdmwait = waitct;      /* S7 timeout = what user asked for */
-      waitct += mdmwaitd;    /* Kermit timeout a bit later */
-    } else {                 /* Non-AT */
-      mdmwait = waitct;      /* no difference */
+    if (mdmcapas & CKD_AT) { // AT command-set modems
+      mdmwait = waitct;      // S7 timeout = what user asked for
+      waitct += mdmwaitd;    // Kermit timeout a bit later
+    } else {                 // Non-AT
+      mdmwait = waitct;      // no difference
     }
   }
   debug(F101, "ckdial waitct B", "", waitct);
-  if (fc == 1) { /* ANSWER */
+  if (fc == 1) { // ANSWER
     if (mdmwait <= 0) {
-      mdmwait = 60; /* Always wait 60 seconds. */
+      mdmwait = 60; // Always wait 60 seconds.
     }
   }
-  if (!quiet && !backgrd) { /* Print information messages. */
+  if (!quiet && !backgrd) { // Print information messages.
     if (fc == 1) {
       printf(" Waiting for phone call...\n");
     } else {
@@ -6448,7 +6404,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         if (tttapi && !tapipass) {
           printf(" Device: %s, modem: %s", ttname, "TAPI");
         } else
-#endif /* CK_TAPI */
+#endif // CK_TAPI
           printf(" Device: %s, modem: %s", ttname, gmdmtyp());
         if (speed > -1L) {
           printf(", speed: %ld\n", speed);
@@ -6462,7 +6418,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
       if (hints && !quiet && !network && spdmax > 0L && speed > spdmax
 #ifdef CK_TAPI
           && (!tttapi || tapipass)
-#endif /* CK_TAPI */
+#endif // CK_TAPI
       ) {
         printf("\n*************************\n");
         printf("Interface speed %ld might be too high for this modem type.\n",
@@ -6473,7 +6429,7 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
         printf("*************************\n");
         printf("\n");
       }
-#endif /* NOHINTS */
+#endif // NOHINTS
       printf(" %s timeout: ", fc == 0 ? "Dial" : "Answer");
       if (waitct > 0) {
         printf("%d seconds\n", mdmwait);
@@ -6485,182 +6441,181 @@ ckdial( char *nbr, int x1, int x2, int fc, int redial )
           " To cancel: type your interrupt character (normally Ctrl-C).\n"
 #else
           " To cancel: type Ctrl-C (hold down Ctrl, press C).\n"
-#endif /* UNIX */
+#endif // UNIX
       );
     }
   }
   debug(F111, "ckdial", ttname, (int)(speed / 10L));
   debug(F101, "ckdial timeout", "", waitct);
 
-  /* Set timer and interrupt handlers. */
-  savint = ck_signal(SIGINT, dialint); /* And terminal interrupt handler. */
+  // Set timer and interrupt handlers.
+  savint = ck_signal(SIGINT, dialint); // And terminal interrupt handler.
   cc_alrm_execute(ckjaddr(sjbuf), 0, dialtime, _dodial, faildial);
 
   ck_signal(SIGINT, savint);
   if (dialsta == DIA_PART || dialsta == DIA_OK) {
-    /* This is needed, e.g., for Telnet modem servers */
+    // This is needed, e.g., for Telnet modem servers
     if (reliable != SET_OFF || !setreliable) {
-      reliable = SET_OFF; /* Transport is not reliable */
+      reliable = SET_OFF; // Transport is not reliable
       debug(F101, "ckdial reliable", "", reliable);
     }
-    return (1); /* Dial attempt succeeded */
+    return (1); // Dial attempt succeeded
   } else {
-    return (0); /* Dial attempt failed */
+    return (0); // Dial attempt failed
   }
-} /* ckdial */
+} // ckdial
 
-/*
-  getok() - wait up to n seconds for OK (0) or ERROR (4) response from modem.
-  Use with Hayeslike or CCITT modems for reading the reply to a nondialing
-  command.
-
-  Second argument says whether to be strict about numeric result codes, i.e.
-  to require they be preceded by CR or else be the first character in the
-  response, e.g. to prevent the ATH0<CR> echo from looking like a valid
-  response.  Strict == 0 is needed for ATI on Telebit, which can return the
-  model number concatenated with the numeric response code, e.g. "9620"
-  ("962" is the model number, "0" is the response code).  getok() Returns:
-
-   0 if it timed out,
-   1 if it succeeded,
-  -1 on modem command, i/o, or other error.
-*/
+// getok() - wait up to n seconds for OK (0) or ERROR (4) response from modem.
+// Use with Hayeslike or CCITT modems for reading the reply to a nondialing
+// command.
+//
+// Second argument says whether to be strict about numeric result codes, i.e.
+// to require they be preceded by CR or else be the first character in the
+// response, e.g. to prevent the ATH0<CR> echo from looking like a valid
+// response.  Strict == 0 is needed for ATI on Telebit, which can return the
+// model number concatenated with the numeric response code, e.g. "9620"
+// ("962" is the model number, "0" is the response code).  getok() Returns:
+//
+// 0 if it timed out,
+// 1 if it succeeded,
+// -1 on modem command, i/o, or other error.
 static ckjmpbuf okbuf;
 
-static void oktimo(int foo) /* Alarm handler for getok(). */
-/* oktimo */ {
+static void oktimo(int foo) // Alarm handler for getok().
+                            // oktimo
+{
 
   cklongjmp(okbuf, 1);
-  /* NOTREACHED */
+  // NOTREACHED
   return;
 }
 
 static int okstatus, okn, okstrict;
 
 static void dook(void *threadinfo)
-/* dook */ {
+// dook
+{
   CHAR c;
 
   int i, x;
 #ifdef IKSD
   extern int inserver;
-#endif /* IKSD */
+#endif // IKSD
 #ifdef CK_LOGIN
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
-  if (mdmcapas & CKD_V25) { /* CCITT, easy... */
+  if (mdmcapas & CKD_V25) { // CCITT, easy...
     waitfor("VAL");
     okstatus = 1;
     debug(F111, "Modem_Response(V25)", "VAL", okstatus);
     return;
 #ifndef MINIDIAL
-  } else if (mymdmtyp == n_MICROCOM) { /* Microcom in SX mode, also easy */
-    waitfor(MICROCOM.wake_prompt);     /* (I think...) */
+  } else if (mymdmtyp == n_MICROCOM) { // Microcom in SX mode, also easy
+    waitfor(MICROCOM.wake_prompt);     // (I think...)
     debug(F111, "Modem_Response(Microcom)", MICROCOM.wake_prompt, okstatus);
     okstatus = 1;
     return;
-#endif                            /* MINIDIAL */
-  } else {                        /* Hayes & friends, start here... */
-    okstatus = 0;                 /* No status yet. */
-    for (x = 0; x < RBUFL; x++) { /* Initialize response buffer */
-      rbuf[x] = SP;               /*  to all spaces */
+#endif                            // MINIDIAL
+  } else {                        // Hayes & friends, start here...
+    okstatus = 0;                 // No status yet.
+    for (x = 0; x < RBUFL; x++) { // Initialize response buffer
+      rbuf[x] = SP;               //  to all spaces
     }
-    rbuf[RBUFL] = NUL;      /* and terminate with NUL. */
-    while (okstatus == 0) { /* While no status... */
-      x = ddinc(okn);       /* Read a character */
-      if (x < 0) {          /* I/O error */
+    rbuf[RBUFL] = NUL;      // and terminate with NUL.
+    while (okstatus == 0) { // While no status...
+      x = ddinc(okn);       // Read a character
+      if (x < 0) {          // I/O error
         okstatus = -1;
         return;
       }
-      c = (char)(x & 0x7f); /* Get low order 7 bits */
-      if (!c) {             /* Don't deposit NULs */
-        continue;           /* or else didweget() won't work */
+      c = (char)(x & 0x7f); // Get low order 7 bits
+      if (!c) {             // Don't deposit NULs
+        continue;           // or else didweget() won't work
       }
       if (dialdpy) {
-        conoc((char)c); /* Echo it if requested */
+        conoc((char)c); // Echo it if requested
       }
-      for (i = 0; i < RBUFL - 1; i++) { /* Rotate buffer */
+      for (i = 0; i < RBUFL - 1; i++) { // Rotate buffer
         rbuf[i] = rbuf[i + 1];
       }
-      rbuf[RBUFL - 1] = c;         /* Deposit character at end */
-      switch (c) {                 /* Interpret it. */
-      case CK_CR:                  /* Got a carriage return. */
-        switch (rbuf[RBUFL - 2]) { /* Look at character before it. */
-        case '0':                  /* 0 = OK numeric response */
+      rbuf[RBUFL - 1] = c;         // Deposit character at end
+      switch (c) {                 // Interpret it.
+      case CK_CR:                  // Got a carriage return.
+        switch (rbuf[RBUFL - 2]) { // Look at character before it.
+        case '0':                  // 0 = OK numeric response
           if (!okstrict || rbuf[RBUFL - 3] == CK_CR || rbuf[RBUFL - 3] == SP) {
             nonverbal = 1;
-            okstatus = 1; /* Good response */
+            okstatus = 1; // Good response
           }
           debug(F111, "Modem_Response(Hayes)", "0", okstatus);
           break;
-        case '4': /* 4 = ERROR numeric response */
+        case '4': // 4 = ERROR numeric response
 #ifndef MINIDIAL
-          /* Or Telebit model number 964! */
+                  // Or Telebit model number 964!
           if (mymdmtyp == n_TELEBIT && isdigit(rbuf[RBUFL - 3]) &&
               isdigit(rbuf[RBUFL - 4])) {
             break;
           } else
-#endif /* MINIDIAL */
+#endif // MINIDIAL
             if (!okstrict || rbuf[RBUFL - 3] == CK_CR ||
                 rbuf[RBUFL - 3] == SP) {
               nonverbal = 1;
-              okstatus = -1; /* Bad command */
+              okstatus = -1; // Bad command
             }
           debug(F111, "Modem_Response(Hayes)", "4", okstatus);
           break;
         }
-        if (dialdpy && nonverbal) { /* If numeric results, */
-          conoc(LF);                /* echo a linefeed too. */
+        if (dialdpy && nonverbal) { // If numeric results,
+          conoc(LF);                // echo a linefeed too.
         }
         break;
-      case LF: /* Got a linefeed. */
-        /*
-          Note use of explicit octal codes in the string for
-          CR and LF.  We want real CR and LF here, not whatever
-          the compiler happens to replace \r and \n with...
-        */
-        if (!strcmp(rbuf + RBUFL - 4, "OK\015\012")) { /* Good response */
+      case LF: // Got a linefeed.
+        // Note use of explicit octal codes in the string for
+        // CR and LF.  We want real CR and LF here, not whatever
+        // the compiler happens to replace \r and \n with...
+        if (!strcmp(rbuf + RBUFL - 4, "OK\015\012")) { // Good response
           okstatus = 1;
           debug(F111, "Modem_Response(Hayes)", "OK", okstatus);
         }
-        if (!strcmp(rbuf + RBUFL - 3, "OK\012")) { /* Good response */
+        if (!strcmp(rbuf + RBUFL - 3, "OK\012")) { // Good response
           okstatus = 1;
           debug(F111, "Modem_Response(Hayes)", "OK", okstatus);
-        } else if (!strcmp(rbuf + RBUFL - 7, "ERROR\015\012")) { /* Error */
+        } else if (!strcmp(rbuf + RBUFL - 7, "ERROR\015\012")) { // Error
           okstatus = -1;
           debug(F111, "Modem_Response(Hayes)", "ERROR", okstatus);
-        } else if (!strcmp(rbuf + RBUFL - 6, "ERROR\012")) { /* Error */
+        } else if (!strcmp(rbuf + RBUFL - 6, "ERROR\012")) { // Error
           okstatus = -1;
           debug(F111, "Modem_Response(Hayes)", "ERROR", okstatus);
         }
         break;
-      /* Check whether modem echoes its commands... */
-      case 't':                                    /* Got little t */
-        if (!strcmp(rbuf + RBUFL - 3, "\015at") || /* See if it's "at" */
+      // Check whether modem echoes its commands...
+      case 't':                                    // Got little t
+        if (!strcmp(rbuf + RBUFL - 3, "\015at") || // See if it's "at"
             !strcmp(rbuf + RBUFL - 3, " at")) {
           mdmecho = 1;
         }
-        /* debug(F111,"MDMECHO-t",rbuf+RBUFL-2,mdmecho); */
+        // debug(F111,"MDMECHO-t",rbuf+RBUFL-2,mdmecho);
         break;
-      case 'T':                                    /* Got Big T */
-        if (!strcmp(rbuf + RBUFL - 3, "\015AT") || /* See if it's "AT" */
+      case 'T':                                    // Got Big T
+        if (!strcmp(rbuf + RBUFL - 3, "\015AT") || // See if it's "AT"
             !strcmp(rbuf + RBUFL - 3, " AT")) {
           mdmecho = 1;
         }
-        /* debug(F111,"MDMECHO-T",rbuf+RBUFL-3,mdmecho); */
+        // debug(F111,"MDMECHO-T",rbuf+RBUFL-3,mdmecho);
         break;
-      default: /* Other characters, accumulate. */
+      default: // Other characters, accumulate.
         okstatus = 0;
         break;
       }
     }
   }
-  debug(F101, "getok", "", okstatus); /* <-- It's a lie (why?) */
+  debug(F101, "getok", "", okstatus); // <-- It's a lie (why?)
   return;
 }
 
 static void failok(void *threadinfo)
-/* failok */ {
+// failok
+{
   debug(F100, "longjmp returned to getok()", "", 0);
   debug(F100, "getok timeout", "", 0);
   return;
@@ -6674,85 +6629,83 @@ int getok(int n, int strict) {
 
 #ifdef DYNAMIC
   if (!rbuf) {
-    if (!(rbuf = malloc(RBUFL + 1))) { /* Allocate input line buffer */
+    if (!(rbuf = malloc(RBUFL + 1))) { // Allocate input line buffer
       dialsta = DIA_IE;
       return (-1);
     }
     debug(F101, "GETOK rbuf malloc ok", "", RBUFL + 1);
   }
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
-  mdmecho = 0; /* Assume no echoing of commands */
+  mdmecho = 0; // Assume no echoing of commands
 
   debug(F100, "about to alrm_execute dook()", "", 0);
   alrm_execute(ckjaddr(okbuf), n, oktimo, dook, failok);
   debug(F100, "returning from alrm_execute dook()", "", 0);
 
-  ttflui();          /* Flush input buffer */
-  return (okstatus); /* Return status */
+  ttflui();          // Flush input buffer
+  return (okstatus); // Return status
 }
 
-/*  G E T H R N  --  Get Hayes Result Numeric  */
+//  G E T H R N  --  Get Hayes Result Numeric
 
 static void gethrn() {
   char c;
   int x;
-/*
-  Hayes numeric result codes (Hayes 1200 and higher):
-     0 = OK
-     1 = CONNECT at 300 bps (or 1200 bps on Hayes 1200 with basic code set)
-     2 = RING
-     3 = NO CARRIER
-     4 = ERROR (in command line)
-     5 = CONNECT 1200 (extended code set)
-  Hayes 2400 and higher:
-     6 = NO DIALTONE
-     7 = BUSY
-     8 = NO ANSWER
-     9 = (there is no 9)
-    10 = CONNECT 2400
-  Reportedly, the codes for Hayes V.32 modems are:
-    1x = CONNECT <suffix>
-    5x = CONNECT 1200 <suffix>
-    9x = CONNECT 2400 <suffix>
-   11x = CONNECT 4800 <suffix>
-   12x = CONNECT 9600 <suffix>
-  Where:
-    x:   suffix:
-    R  = RELIABLE
-    RC = RELIABLE COMPRESSED
-    L  = LAPM
-    LC = LAPM COMPRESSED
-  And for Telebits, all the above, except no suffix in numeric mode, plus:
-    11 = CONNECT 4800
-    12 = CONNECT 9600
-    13 = CONNECT 14400
-    14 = CONNECT 19200
-    15 = CONNECT 38400
-    16 = CONNECT 57600
-    20 = CONNECT 300/REL  (= MNP)
-    22 = CONNECT 1200/REL (= MNP)
-    23 = CONNECT 2400/REL (= MNP)
-    46 = CONNECT 7512  (i.e. 75/1200)
-    47 = CONNECT 1275  (i.e. 1200/75)
-    48 = CONNECT 7200
-    49 = CONNECT 12000
-    50 = CONNECT FAST (not on T1600/3000)
-    52 = RRING
-    53 = DIALING
-    54 = NO PROMPTTONE
-    61 = CONNECT FAST/KERM (Kermit spoof)
-    70 = CONNECT FAST/COMP (PEP + compression)
-    71 = CONNECT FAST/KERM/COMP (PEP + compression + Kermit spoof)
-
-  And for others, lots of special cases below...
-*/
+// Hayes numeric result codes (Hayes 1200 and higher):
+//   0 = OK
+//   1 = CONNECT at 300 bps (or 1200 bps on Hayes 1200 with basic code set)
+//   2 = RING
+//   3 = NO CARRIER
+//   4 = ERROR (in command line)
+//   5 = CONNECT 1200 (extended code set)
+// Hayes 2400 and higher:
+//   6 = NO DIALTONE
+//   7 = BUSY
+//   8 = NO ANSWER
+//   9 = (there is no 9)
+//  10 = CONNECT 2400
+// Reportedly, the codes for Hayes V.32 modems are:
+//  1x = CONNECT <suffix>
+//  5x = CONNECT 1200 <suffix>
+//  9x = CONNECT 2400 <suffix>
+// 11x = CONNECT 4800 <suffix>
+// 12x = CONNECT 9600 <suffix>
+// Where:
+//  x:   suffix:
+//  R  = RELIABLE
+//  RC = RELIABLE COMPRESSED
+//  L  = LAPM
+//  LC = LAPM COMPRESSED
+// And for Telebits, all the above, except no suffix in numeric mode, plus:
+//  11 = CONNECT 4800
+//  12 = CONNECT 9600
+//  13 = CONNECT 14400
+//  14 = CONNECT 19200
+//  15 = CONNECT 38400
+//  16 = CONNECT 57600
+//  20 = CONNECT 300/REL  (= MNP)
+//  22 = CONNECT 1200/REL (= MNP)
+//  23 = CONNECT 2400/REL (= MNP)
+//  46 = CONNECT 7512  (i.e. 75/1200)
+//  47 = CONNECT 1275  (i.e. 1200/75)
+//  48 = CONNECT 7200
+//  49 = CONNECT 12000
+//  50 = CONNECT FAST (not on T1600/3000)
+//  52 = RRING
+//  53 = DIALING
+//  54 = NO PROMPTTONE
+//  61 = CONNECT FAST/KERM (Kermit spoof)
+//  70 = CONNECT FAST/COMP (PEP + compression)
+//  71 = CONNECT FAST/KERM/COMP (PEP + compression + Kermit spoof)
+//
+// And for others, lots of special cases below...
 #define NBUFL 8
-  char nbuf[NBUFL + 1]; /* Response buffer */
-  int i = 0, j = 0;     /* Buffer pointers */
+  char nbuf[NBUFL + 1]; // Response buffer
+  int i = 0, j = 0;     // Buffer pointers
 
   debug(F101, "RESPONSE mdmecho", "", mdmecho);
-  if (mdmecho) { /* Sponge up dialing string echo. */
+  if (mdmecho) { // Sponge up dialing string echo.
     while (1) {
       c = (char)(ddinc(0) & 0x7f);
       debug(F000, "SPONGE", "", c);
@@ -6762,35 +6715,33 @@ static void gethrn() {
       }
     }
   }
-  while (mdmstat == 0) {          /* Read response */
-    for (i = 0; i < NBUFL; i++) { /* Clear the buffer */
+  while (mdmstat == 0) {          // Read response
+    for (i = 0; i < NBUFL; i++) { // Clear the buffer
       nbuf[i] = '\0';
     }
-    i = 0;                       /* Reset the buffer pointer. */
-    c = (char)(ddinc(0) & 0177); /* Get first digit of response. */
-                                 /* using an untimed, blocking read. */
+    i = 0;                       // Reset the buffer pointer.
+    c = (char)(ddinc(0) & 0177); // Get first digit of response.
+                                 // using an untimed, blocking read.
     debug(F000, "RESPONSE-A", "", c);
-    dialoc(c);         /* Echo it if requested. */
-    if (!isdigit(c)) { /* If not a digit, keep looking. */
+    dialoc(c);         // Echo it if requested.
+    if (!isdigit(c)) { // If not a digit, keep looking.
       continue;
     }
-    nbuf[i++] = c;                /* Got first digit, save it. */
-    while (c != CK_CR && i < 8) { /* Read chars up to CR */
-      x = ddinc(0) & 0177;        /* Get a character. */
-      c = (char)x;                /* Got it OK. */
+    nbuf[i++] = c;                // Got first digit, save it.
+    while (c != CK_CR && i < 8) { // Read chars up to CR
+      x = ddinc(0) & 0177;        // Get a character.
+      c = (char)x;                // Got it OK.
       debug(F000, "RESPONSE-C", "", c);
-      if (c != CK_CR) { /* If it's not a carriage return, */
-        nbuf[i++] = c;  /*  save it. */
+      if (c != CK_CR) { // If it's not a carriage return,
+        nbuf[i++] = c;  //  save it.
       }
-      dialoc(c); /* Echo it. */
+      dialoc(c); // Echo it.
     }
-    nbuf[i] = '\0'; /* Done, terminate the buffer. */
+    nbuf[i] = '\0'; // Done, terminate the buffer.
     debug(F110, "dial hayesnv lbuf", lbuf, 0);
     debug(F111, "dial hayesnv got", nbuf, i);
-    /*
-       Separate any non-numeric suffix from the numeric
-       result code with a null.
-    */
+    // Separate any non-numeric suffix from the numeric
+    // result code with a null.
     for (j = i - 1; (j > -1) && !isdigit(nbuf[j]); j--) {
       nbuf[j + 1] = nbuf[j];
     }
@@ -6798,71 +6749,71 @@ static void gethrn() {
     nbuf[j++] = '\0';
     debug(F110, "dial hayesnv numeric", nbuf, 0);
     debug(F111, "dial hayesnv suffix ", nbuf + j, j);
-    /* Probably phone number echoing. */
+    // Probably phone number echoing.
     if ((int)strlen(nbuf) > 3) {
       continue;
     }
 
-    /* Now read and interpret the results... */
+    // Now read and interpret the results...
 
-    i = atoi(nbuf); /* Convert to integer */
+    i = atoi(nbuf); // Convert to integer
     switch (i) {
     case 0:
-      mdmstat = D_PARTIAL; /* OK response */
+      mdmstat = D_PARTIAL; // OK response
       break;
-    case 1:                /* CONNECT */
-      mdmstat = CONNECTED; /* Could be any speed */
+    case 1:                // CONNECT
+      mdmstat = CONNECTED; // Could be any speed
       break;
-    case 2: /* RING */
+    case 2: // RING
       if (dialdpy) {
         printf("\r\n Local phone is ringing!\r\n");
       }
       mdmstat = D_FAILED;
       dialsta = DIA_RING;
       break;
-    case 3: /* NO CARRIER */
+    case 3: // NO CARRIER
       if (dialdpy) {
         printf("\r\n No Carrier.\r\n");
       }
       mdmstat = D_FAILED;
       dialsta = DIA_NOCA;
       break;
-    case 4: /* ERROR */
+    case 4: // ERROR
       if (dialdpy) {
         printf("\r\n Modem Command Error.\r\n");
       }
       mdmstat = D_FAILED;
       dialsta = DIA_ERR;
       break;
-    case 5:          /* CONNECT 1200 */
-      spdchg(1200L); /* Change speed if necessary. */
+    case 5:          // CONNECT 1200
+      spdchg(1200L); // Change speed if necessary.
       mdmstat = CONNECTED;
       break;
-    case 6: /* NO DIALTONE */
+    case 6: // NO DIALTONE
 #ifndef MINIDIAL
       if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 49 && dialdpy) {
-        printf("\r\n Dial Locked.\r\n"); /* Germany */
+        printf("\r\n Dial Locked.\r\n"); // Germany
       } else
-#endif /* MINIDIAL */
+#endif // MINIDIAL
         if (dialdpy) {
           printf("\r\n No Dialtone.\r\n");
         }
       mdmstat = D_FAILED;
       dialsta = DIA_NODT;
       break;
-    case 7: /* BUSY */
+    case 7: // BUSY
       if (dialdpy) {
         printf("\r\n Busy.\r\n");
       }
       mdmstat = D_FAILED;
       dialsta = DIA_BUSY;
       break;
-    case 8: /* NO ANSWER */
+    case 8: // NO ANSWER
 #ifndef MINIDIAL
       if (mymdmtyp == n_MICROLINK && atoi(diallcc) == 41 && dialdpy) {
-        printf("\r\n Dial Locked.\r\n"); /* Switzerland */
+        printf("\r\n Dial Locked.\r\n"); // Switzerland
       } else
-#endif /* MINIDIAL */
+#endif // MINIDIAL
         if (dialdpy) {
           printf("\r\n No Answer.\r\n");
         }
@@ -6875,17 +6826,16 @@ static void gethrn() {
       if (mymdmtyp == n_XJACK || mymdmtyp == n_SUPRAX) {
         spdchg(600);
         break;
-      } /* fall thru */
-#endif               /* MINIDIAL */
-    case 10:         /* CONNECT 2400 */
-      spdchg(2400L); /* Change speed if necessary. */
+      } // fall thru
+#endif               // MINIDIAL
+    case 10:         // CONNECT 2400
+      spdchg(2400L); // Change speed if necessary.
       mdmstat = CONNECTED;
       break;
 
 #ifndef MINIDIAL
 
-      /* Starting here, we get different meanings from different manufacturers
-       */
+      // Starting here, we get different meanings from different manufacturers
 
     case 11:
       if (mymdmtyp == n_USR) {
@@ -6893,7 +6843,7 @@ static void gethrn() {
           printf(" Ringing...\r\n");
         }
       } else {
-        spdchg(4800L); /* CONNECT 4800 */
+        spdchg(4800L); // CONNECT 4800
         mdmstat = CONNECTED;
       }
       break;
@@ -6963,13 +6913,13 @@ static void gethrn() {
         spdchg(2400L);
       } else if (mymdmtyp == n_DATAPORT) {
         spdchg(7200L);
-      } else if (mymdmtyp != n_ZYXEL && mymdmtyp != n_INTEL) { /* 12000 */
+      } else if (mymdmtyp != n_ZYXEL && mymdmtyp != n_INTEL) { // 12000
         spdchg(57600L);
       }
       mdmstat = CONNECTED;
       break;
     case 17:
-      if (mymdmtyp != n_DATAPORT || mymdmtyp == n_XJACK) { /* 16800 */
+      if (mymdmtyp != n_DATAPORT || mymdmtyp == n_XJACK) { // 16800
         spdchg(38400L);
       } else if (mymdmtyp == n_ZYXEL || mymdmtyp == n_INTEL) {
         spdchg(14400L);
@@ -7035,7 +6985,7 @@ static void gethrn() {
       if (is_hayeshispd || is_supra || mymdmtyp == n_MULTI ||
           mymdmtyp == n_XJACK) {
         spdchg(8880L);
-      } else if (mymdmtyp != n_DATAPORT && !is_rockwell) { /* 12000 */
+      } else if (mymdmtyp != n_DATAPORT && !is_rockwell) { // 12000
         spdchg(2400L);
       }
       mdmstat = CONNECTED;
@@ -7043,7 +6993,7 @@ static void gethrn() {
     case 24:
       if (is_rockwell || is_supra || mymdmtyp == n_XJACK) {
         mdmstat = D_FAILED;
-        dialsta = DIA_DELA; /* Delayed */
+        dialsta = DIA_DELA; // Delayed
         break;
       } else if (is_hayeshispd || mymdmtyp == n_LUCENT) {
         spdchg(7200L);
@@ -7106,7 +7056,7 @@ static void gethrn() {
       if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(14400L);
         mdmstat = CONNECTED;
-      } /* fall thru on purpose... */
+      } // fall thru on purpose...
     case 31:
       if (mymdmtyp == n_UCOM_AT || mymdmtyp == n_MICROLINK) {
         spdchg(4800L);
@@ -7119,7 +7069,7 @@ static void gethrn() {
     case 32:
       if (is_rockwell || is_supra || mymdmtyp == n_XJACK) {
         mdmstat = D_FAILED;
-        dialsta = DIA_BLCK; /* Blacklisted */
+        dialsta = DIA_BLCK; // Blacklisted
       } else if (mymdmtyp == n_UCOM_AT || mymdmtyp == n_MICROLINK) {
         spdchg(9600L);
         mdmstat = CONNECTED;
@@ -7131,7 +7081,7 @@ static void gethrn() {
         mdmstat = CONNECTED;
       }
       break;
-    case 33: /* FAX connection */
+    case 33: // FAX connection
       if (is_rockwell || is_supra || mymdmtyp == n_ZOLTRIX ||
           mymdmtyp == n_XJACK) {
         mdmstat = D_FAILED;
@@ -7167,7 +7117,7 @@ static void gethrn() {
       } else if (mymdmtyp == n_MICROLINK) {
         spdchg(7200L);
         mdmstat = CONNECTED;
-      } else if (mymdmtyp == n_ZOLTRIX || mymdmtyp == n_XJACK) { /* DATA */
+      } else if (mymdmtyp == n_ZOLTRIX || mymdmtyp == n_XJACK) { // DATA
         mdmstat = CONNECTED;
       }
       break;
@@ -7202,7 +7152,7 @@ static void gethrn() {
       } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(9600L);
         mdmstat = CONNECTED;
-      } /* fall thru on purpose... */
+      } // fall thru on purpose...
     case 39:
       if (mymdmtyp == n_UCOM_AT) {
         spdchg(38400L);
@@ -7238,13 +7188,13 @@ static void gethrn() {
       } else if (is_motorola) {
         spdchg(38400L);
         mdmstat = CONNECTED;
-      } /* fall thru on purpose... */
+      } // fall thru on purpose...
     case 43:
       if (mymdmtyp == n_UCOM_AT) {
         spdchg(57600L);
         mdmstat = CONNECTED;
       } else if (mymdmtyp == n_USRX2) {
-        mdmstat = CONNECTED; /* 168000 */
+        mdmstat = CONNECTED; // 168000
       }
       break;
     case 44:
@@ -7277,7 +7227,7 @@ static void gethrn() {
       } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
         spdchg(4800L);
       } else {
-        spdchg(8880L); /* 75/1200 split speed */
+        spdchg(8880L); // 75/1200 split speed
       }
       mdmstat = CONNECTED;
       break;
@@ -7307,7 +7257,7 @@ static void gethrn() {
       }
       mdmstat = CONNECTED;
       break;
-    case 50: /* CONNECT FAST */
+    case 50: // CONNECT FAST
       if (is_rockwell) {
         spdchg(9600L);
       } else if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) {
@@ -7321,14 +7271,14 @@ static void gethrn() {
         dialsta = DIA_NODT;
       }
       break;
-    case 52: /* RRING */
+    case 52: // RRING
       if (mymdmtyp == n_TELEBIT) {
         if (dialdpy) {
           printf(" Ringing...\r\n");
         }
       }
       break;
-    case 53: /* DIALING */
+    case 53: // DIALING
       if (mymdmtyp == n_TELEBIT) {
         if (dialdpy) {
           printf(" Dialing...\r\n");
@@ -7375,7 +7325,7 @@ static void gethrn() {
       }
       break;
     case 59:
-      if (mymdmtyp == n_INTEL) { /* 12000 */
+      if (mymdmtyp == n_INTEL) { // 12000
         mdmstat = CONNECTED;
       }
       break;
@@ -7419,7 +7369,7 @@ static void gethrn() {
       }
       break;
     case 69:
-      if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) { /* 12000 */
+      if (mymdmtyp == n_INTEL || mymdmtyp == n_KEEPINTOUCH) { // 12000
         mdmstat = CONNECTED;
       }
       break;
@@ -7434,8 +7384,8 @@ static void gethrn() {
         spdchg(115200L);
         mdmstat = CONNECTED;
         break;
-      } /* else fall thru */
-      if (mymdmtyp == n_TELEBIT) { /* Early models only */
+      } // else fall thru
+      if (mymdmtyp == n_TELEBIT) { // Early models only
         mdmstat = CONNECTED;
       }
       break;
@@ -7445,9 +7395,9 @@ static void gethrn() {
       }
       mdmstat = CONNECTED;
       break;
-    case 91:  /* 21600 */
-    case 99:  /* 24000 */
-    case 103: /* 26400 */
+    case 91:  // 21600
+    case 99:  // 24000
+    case 103: // 26400
       if (mymdmtyp == n_USRX2) {
         mdmstat = CONNECTED;
       }
@@ -7458,20 +7408,20 @@ static void gethrn() {
         mdmstat = CONNECTED;
       }
       break;
-    case 151: /* 312000 */
-    case 155: /* 336000 */
+    case 151: // 312000
+    case 155: // 336000
       if (mymdmtyp == n_USRX2) {
         mdmstat = CONNECTED;
       }
       break;
 
-#endif /* MINIDIAL */
+#endif // MINIDIAL
     default:
 #ifndef MINIDIAL
       if (mymdmtyp == n_USR || mymdmtyp == n_USRX2 || is_hayeshispd ||
           is_rockwell)
-#endif                /* MINIDIAL */
-        if (i > 12) { /* There are hundreds of them... */
+#endif                // MINIDIAL
+        if (i > 12) { // There are hundreds of them...
           mdmstat = CONNECTED;
         }
       break;
@@ -7491,11 +7441,11 @@ static void gethrn() {
       }
       printf("\r\n");
     }
-    ckstrncpy(lbuf, nbuf, LBUFL); /* (for messages...) */
+    ckstrncpy(lbuf, nbuf, LBUFL); // (for messages...)
   }
 }
 
-static void /* Get Hayes Result in Word mode */
+static void // Get Hayes Result in Word mode
 gethrw() {
   char *cptr, *s;
   long conspd;
@@ -7508,10 +7458,10 @@ gethrw() {
     cptr = (*s == 'C') ? s : NULL;
     conspd = 0L;
     if ((cptr != NULL) && !strncmp(cptr, "CONNECT ", 8)) {
-      if ((int)strlen(cptr) < 9) {       /* Just CONNECT, */
-        conspd = 300L;                   /* use 300 bps */
-      } else if (isdigit(*(cptr + 8))) { /* not CONNECT FAST */
-        conspd = atol(cptr + 8);         /* CONNECT nnnn */
+      if ((int)strlen(cptr) < 9) {       // Just CONNECT,
+        conspd = 300L;                   // use 300 bps
+      } else if (isdigit(*(cptr + 8))) { // not CONNECT FAST
+        conspd = atol(cptr + 8);         // CONNECT nnnn
       }
       if (conspd != speed) {
         if ((conspd / 10L) > 0) {
@@ -7525,7 +7475,7 @@ gethrw() {
             }
           }
         }
-      } /* Expanded to handle any conceivable speed */
+      } // Expanded to handle any conceivable speed
     }
   }
 #ifndef MINIDIAL
@@ -7538,7 +7488,7 @@ gethrw() {
       return;
     }
   }
-#endif /* MINIDIAL */
+#endif // MINIDIAL
   if (didweget(lbuf, "RRING") || didweget(lbuf, "RINGING") ||
       didweget(lbuf, "DIALING")) {
     mdmstat = 0;
@@ -7582,7 +7532,7 @@ gethrw() {
     mdmstat = D_FAILED;
     dialsta = DIA_FAX;
   } else if (didweget(lbuf, "WAIT - CONNECTING") ||
-             didweget(lbuf, "WAIT-CONNECTING")) { /* AT&T STU-III 19xx */
+             didweget(lbuf, "WAIT-CONNECTING")) { // AT&T STU-III 19xx
     mdmstat = 0;
   } else if (didweget(lbuf, "DELAYED")) {
     mdmstat = D_FAILED;
@@ -7594,79 +7544,79 @@ gethrw() {
     mdmstat = 0;
   } else if (didweget(lbuf, "PROTOCOL")) {
     mdmstat = 0;
-  } else if (didweget(lbuf, "DIAL LOCKED")) { /* Germany, Austria, Schweiz */
+  } else if (didweget(lbuf, "DIAL LOCKED")) { // Germany, Austria, Schweiz
     mdmstat = D_FAILED;
     dialsta = DIA_BLCK;
   } else if (didweget(lbuf, "RING") ||
-             didweget(lbuf, "RING1") || /* Distinctive Ring 1 */
-             didweget(lbuf, "RING2") || /* Distinctive Ring 2 */
+             didweget(lbuf, "RING1") || // Distinctive Ring 1
+             didweget(lbuf, "RING2") || // Distinctive Ring 2
              didweget(lbuf, "RING3")) {
     mdmstat = (func_code == 0) ? D_FAILED : 0;
     dialsta = DIA_RING;
   } else if (didweget(lbuf, "ERROR")) {
     mdmstat = D_FAILED;
     dialsta = DIA_ERR;
-  } else if (didweget(lbuf, "CARRIER")) { /* Boca / Rockwell family */
+  } else if (didweget(lbuf, "CARRIER")) { // Boca / Rockwell family
     mdmstat = 0;
-  } else if (didweget(lbuf, "DATA")) { /* Boca / Rockwell family */
-    /* This message is sent when the modem is in FAX mode  */
-    /* So setting this to CONNECTED may not be appropriate */
-    /* We must send ATO\015 to the modem in response       */
-    /* Then we will get a CONNECTED message                */
+  } else if (didweget(lbuf, "DATA")) { // Boca / Rockwell family
+    // This message is sent when the modem is in FAX mode
+    // So setting this to CONNECTED may not be appropriate
+    // We must send ATO\015 to the modem in response
+    // Then we will get a CONNECTED message
     mdmstat = CONNECTED;
   } else if (didweget(lbuf, "DIGITAL LINE")) {
     mdmstat = D_FAILED;
     dialsta = DIA_DIGI;
-  } else if (didweget(lbuf, "DATE")) { /* Caller ID Date */
+  } else if (didweget(lbuf, "DATE")) { // Caller ID Date
     debug(F110, "CALLID DATE", lbuf, 0);
-    /* Format is "DATE     =   MMDD"   */
+    // Format is "DATE     =   MMDD"
     makestr(&callid_date, lbuf);
-  } else if (didweget(lbuf, "TIME")) { /* Caller ID Time */
-    /* Format is "TIME     =   HHMM"   */
+  } else if (didweget(lbuf, "TIME")) { // Caller ID Time
+    // Format is "TIME     =   HHMM"
     debug(F110, "CALLID TIME", lbuf, 0);
     makestr(&callid_time, lbuf);
-  } else if (didweget(lbuf, "NAME")) { /* Caller ID Name */
-    /* Format is "NAME     =   <listing name>"   */
+  } else if (didweget(lbuf, "NAME")) { // Caller ID Name
+    // Format is "NAME     =   <listing name>"
     debug(F110, "CALLID NAME", lbuf, 0);
     makestr(&callid_name, lbuf);
-  } else if (didweget(lbuf, "NMBR")) { /* Caller ID Number */
-    /* Format is "NMBR     =   <number>, 'P' or 'O'"   */
-    /* 	'P' means Privacy Requested 		   */
-    /*      'O' means Out of Service or Not available  */
+  } else if (didweget(lbuf, "NMBR")) { // Caller ID Number
+    // Format is "NMBR     =   <number>, 'P' or 'O'"
+    // 	'P' means Privacy Requested
+    //      'O' means Out of Service or Not available
     debug(F110, "CALLID NMBR", lbuf, 0);
     makestr(&callid_nmbr, lbuf);
-  } else if (didweget(lbuf, "MESG")) { /* Caller ID Unrecognized Message */
-    /* Format is "MESG     =   <tag><length><data><checksum>"   */
+  } else if (didweget(lbuf, "MESG")) { // Caller ID Unrecognized Message
+    // Format is "MESG     =   <tag><length><data><checksum>"
     debug(F110, "CALLID MESG", lbuf, 0);
     makestr(&callid_mesg, lbuf);
   }
 }
 
-/* Maybe hang up the phone, depending on various SET DIAL parameters. */
+// Maybe hang up the phone, depending on various SET DIAL parameters.
 
 int dialhup() {
   int x = 0;
-  if (dialhng && dialsta != DIA_PART) { /* DIAL HANGUP ON? */
-    x = mdmhup();                       /* Try modem-specific method first */
+  if (dialhng && dialsta != DIA_PART) { // DIAL HANGUP ON?
+    x = mdmhup();                       // Try modem-specific method first
     debug(F101, "dialhup mdmhup", "", x);
-    if (x > 0) { /* If it worked, */
+    if (x > 0) { // If it worked,
       dialsta = DIA_HUP;
       if (dialdpy) {
-        printf(" Modem hangup OK\r\n"); /* fine. */
+        printf(" Modem hangup OK\r\n"); // fine.
       }
-    } else if (network /* If we're telnetted to */
+    } else if (network // If we're telnetted to
 #ifdef TN_COMPORT
-               && !istncomport() /* (without RFC 2217)    */
-#endif                           /* TN_COMPORT */
+               && !istncomport() // (without RFC 2217)
+#endif                           // TN_COMPORT
     ) {
       dialsta = DIA_HANG;
-      if (dialdpy) { /* a modem server, just print a msg */
-        printf(" WARNING - modem hangup failed\r\n"); /* don't hangup! */
+      if (dialdpy) { // a modem server, just print a msg
+        printf(" WARNING - modem hangup failed\r\n"); // don't hangup!
       }
       return (0);
-    } else {        /* Otherwise */
-      x = tthang(); /* Tell the OS to turn off DTR. */
-      if (x > 0) {  /* Yes, tell results from tthang() */
+    } else {        // Otherwise
+      x = tthang(); // Tell the OS to turn off DTR.
+      if (x > 0) {  // Yes, tell results from tthang()
         dialsta = DIA_HUP;
         if (dialdpy) {
           printf(" Hangup OK\r\n");
@@ -7684,24 +7634,22 @@ int dialhup() {
       ttflui();
     }
   } else if (dialdpy) {
-    printf(" Hangup skipped\r\n"); /* DIAL HANGUP OFF */
+    printf(" Hangup skipped\r\n"); // DIAL HANGUP OFF
   }
   return (x);
 }
 
-/*
-  M D M H U P  --
-
-  Sends escape sequence to modem, then sends its hangup command.  Returns:
-   0: If modem type is 0 (direct serial connection),
-      or if modem type is < 0 (network connection),
-      or if no action taken because DIAL MODEM-HANGUP is OFF)
-        or because no hangup string for current modem type,
-      or C-Kermit is in remote mode,
-      or if action taken but there was no positive response from modem;
-   1: Success: modem is in command state and acknowledged the hangup command;
-  -1: On modem command error.
-*/
+// M D M H U P  --
+//
+// Sends escape sequence to modem, then sends its hangup command.  Returns:
+// 0: If modem type is 0 (direct serial connection),
+//    or if modem type is < 0 (network connection),
+//    or if no action taken because DIAL MODEM-HANGUP is OFF)
+//      or because no hangup string for current modem type,
+//    or C-Kermit is in remote mode,
+//    or if action taken but there was no positive response from modem;
+// 1: Success: modem is in command state and acknowledged the hangup command;
+// -1: On modem command error.
 int mdmhup() {
 #ifdef MDMHUP
   int m, x = 0;
@@ -7711,29 +7659,29 @@ int mdmhup() {
   char *s, c;
   MDMINF *mp = NULL;
 
-  debug(F101, "mdmhup dialmhu", "", dialmhu); /* MODEM-HANGUP METHOD */
+  debug(F101, "mdmhup dialmhu", "", dialmhu); // MODEM-HANGUP METHOD
   debug(F101, "mdmhup local", "", local);
 
-  if (dialmhu == 0 || local == 0) { /* If DIAL MODEM-HANGUP is OFF, */
-    return (0);                     /*  or not in local mode, fail. */
+  if (dialmhu == 0 || local == 0) { // If DIAL MODEM-HANGUP is OFF,
+    return (0);                     //  or not in local mode, fail.
   }
 
   debug(F101, "mdmhup dialsta", "", dialsta);
   debug(F101, "mdmhup mdmset", "", mdmset);
 
-  if (dialsta != DIA_OK && !mdmset) { /* It's not a dialed connection */
+  if (dialsta != DIA_OK && !mdmset) { // It's not a dialed connection
     return (0);
   }
 
 #ifdef CK_TAPI
-  if (tttapi && !tapipass) { /* Don't hangup if using TAPI */
+  if (tttapi && !tapipass) { // Don't hangup if using TAPI
     return (0);
   }
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
   debug(F101, "mdmhup dialesc", "", dialesc);
   if (dialesc < 0) {
-    return (0); /* No modem escape-character, fail. */
+    return (0); // No modem escape-character, fail.
   }
 
   savcarr = ttcarr;
@@ -7741,7 +7689,7 @@ int mdmhup() {
   x = ttchk();
   ttcarr = savcarr;
   debug(F101, "mdmhup ttchk", "", x);
-  if (x < 0) { /* There appears to be no connection */
+  if (x < 0) { // There appears to be no connection
     return (0);
   }
   x = 0;
@@ -7749,43 +7697,43 @@ int mdmhup() {
   debug(F111, "mdmhup network", ttname, network);
   debug(F101, "mdmhup mymdmtyp", "", mymdmtyp);
   debug(F101, "mdmhup mdmtyp", "", mdmtyp);
-  /* In case of HANGUP before DIAL */
-  if (network && mdmtyp < 1) { /* SET HOST but no subsequent */
-    return (0);                /* SET MODEM TYPE... */
+  // In case of HANGUP before DIAL
+  if (network && mdmtyp < 1) { // SET HOST but no subsequent
+    return (0);                // SET MODEM TYPE...
   }
   if (mymdmtyp == 0 && mdmtyp > 0) {
     mymdmtyp = mdmtyp;
   }
-  if (mymdmtyp < 1) { /* Not using a modem */
+  if (mymdmtyp < 1) { // Not using a modem
     return (0);
   }
-  if (mymdmtyp > 0) { /* An actual modem... */
+  if (mymdmtyp > 0) { // An actual modem...
     mp = modemp[mymdmtyp];
   }
-  if (!mp) { /* Get pointer to its MDMINF struct */
+  if (!mp) { // Get pointer to its MDMINF struct
     debug(F100, "mdmhup no MDMINF", "", 0);
     return (0);
   }
   mdmcapas = dialcapas ? dialcapas : mp->capas;
-  xx_ok = mp->ok_fn; /* Pointer to response reader */
+  xx_ok = mp->ok_fn; // Pointer to response reader
 
-  s = dialhcmd ? dialhcmd : mp->hup_str; /* Get hangup command */
+  s = dialhcmd ? dialhcmd : mp->hup_str; // Get hangup command
   if (!s) {
     s = "";
   }
   debug(F110, "mdmhup hup_str", s, 0);
   if (!*s) {
-    return (0); /* If none, fail. */
+    return (0); // If none, fail.
   }
 
-  if (ttpkt(speed, FLO_DIAL, parity) < 0) { /* Condition line for dialing */
+  if (ttpkt(speed, FLO_DIAL, parity) < 0) { // Condition line for dialing
     return (-1);
   }
 
-  xparity = parity; /* Set PARITY to NONE temporarily */
+  xparity = parity; // Set PARITY to NONE temporarily
   parity = 0;
 
-  /* In case they gave a SET MODEM ESCAPE command recently... */
+  // In case they gave a SET MODEM ESCAPE command recently...
 
   if (dialesc < 0 || dialesc > 127) {
     c = NUL;
@@ -7793,89 +7741,87 @@ int mdmhup() {
     c = (char)(dialesc ? dialesc : mp->esc_char);
   }
 
-  if (mdmcapas & CKD_AT) { /* Hayes compatible */
+  if (mdmcapas & CKD_AT) { // Hayes compatible
     escbuf[0] = c;
     escbuf[1] = c;
     escbuf[2] = c;
     escbuf[3] = NUL;
-  } else { /* Other */
+  } else { // Other
     escbuf[0] = c;
     escbuf[1] = NUL;
   }
   debug(F110, "mdmhup escbuf", escbuf, 0);
-  if (escbuf[0]) { /* Have escape sequence? */
+  if (escbuf[0]) { // Have escape sequence?
     debug(F101, "mdmhup esc_time", 0, mp->esc_time);
-    if (mp->esc_time) {     /* If we have a guard time */
-      msleep(mp->esc_time); /* Pause for guard time */
+    if (mp->esc_time) {     // If we have a guard time
+      msleep(mp->esc_time); // Pause for guard time
     }
     debug(F100, "mdmhup pause 1 OK", "", 0);
 
-#ifdef NETCONN     /* Send modem's escape sequence */
-    if (network) { /* Must catch errors here. */
+#ifdef NETCONN     // Send modem's escape sequence
+    if (network) { // Must catch errors here.
       if (ttol((CHAR *)escbuf, (int)strlen((char *)escbuf)) < 0) {
         parity = xparity;
         return (-1);
       }
       debug(F110, "mdmhup ttslow net ok", escbuf, 0);
     } else {
-#endif                            /* NETCONN */
-      ttslow((char *)escbuf, wr); /* Send escape sequence */
+#endif                            // NETCONN
+      ttslow((char *)escbuf, wr); // Send escape sequence
       debug(F110, "mdmhup ttslow ok", escbuf, 0);
 #ifdef NETCONN
     }
-#endif /* NETCONN */
+#endif // NETCONN
 
-    if (mp->esc_time) { /* Pause for guard time again */
+    if (mp->esc_time) { // Pause for guard time again
       msleep(mp->esc_time);
     } else {
-      msleep(500); /* Wait half a sec for echoes. */
+      msleep(500); // Wait half a sec for echoes.
     }
     debug(F100, "mdmhup pause 1 OK", "", 0);
   }
-  ttslow(s, wr); /* Now Send hangup string */
+  ttslow(s, wr); // Now Send hangup string
   debug(F110, "mdmhup ttslow ok", s, 0);
-  /*
-    This is not exactly right, but it works.
-    If we are online:
-      the modem says OK when it gets the escape sequence,
-      and it says NO CARRIER when it gets the hangup command.
-    If we are offline:
-      the modem does NOT say OK (or anything else) when it gets the esc
-    sequence, but it DOES say OK (and not NO CARRIER) when it gets the hangup
-    command. So the following function should read the OK in both cases. Of
-    course, this is somewhat Hayes-specific...
-  */
-  if (xx_ok) { /* Look for OK response */
+  // This is not exactly right, but it works.
+  // If we are online:
+  //  the modem says OK when it gets the escape sequence,
+  //  and it says NO CARRIER when it gets the hangup command.
+  // If we are offline:
+  //  the modem does NOT say OK (or anything else) when it gets the esc
+  // sequence, but it DOES say OK (and not NO CARRIER) when it gets the hangup
+  // command. So the following function should read the OK in both cases. Of
+  // course, this is somewhat Hayes-specific...
+  if (xx_ok) { // Look for OK response
     debug(F100, "mdmhup calling response function", "", 0);
-    x = (*xx_ok)(3, 1); /* Give it 3 seconds, be strict. */
+    x = (*xx_ok)(3, 1); // Give it 3 seconds, be strict.
     debug(F101, "mdmhup hangup response", "", x);
-    msleep(500); /* Wait half a sec */
-    ttflui();    /* Get rid of NO CARRIER, if any */
-  } else {       /* No OK function, */
-    x = 1;       /* so assume it worked */
+    msleep(500); // Wait half a sec
+    ttflui();    // Get rid of NO CARRIER, if any
+  } else {       // No OK function,
+    x = 1;       // so assume it worked
     debug(F101, "mdmhup no ok_fn", "", x);
   }
-  parity = xparity; /* Restore prevailing parity */
-  return (x);       /* Return OK function's return code. */
+  parity = xparity; // Restore prevailing parity
+  return (x);       // Return OK function's return code.
 
-#else /* MDMHUP not defined. */
+#else // MDMHUP not defined.
 
   debug(F100, "mdmhup MDMHUP not defined", "", 0);
-  return (0); /* Always fail. */
+  return (0); // Always fail.
 
-#endif /* MDMHUP */
+#endif // MDMHUP
 }
 
-#endif /* NOICP */
-#else  /* NODIAL */
+#endif // NOICP
+#else  // NODIAL
 
-int mdmtyp = 0; /* Default modem type */
+int mdmtyp = 0; // Default modem type
 
-int           /* To allow NODIAL versions to */
-mdmhup() {    /* call mdmhup(), so calls to  */
-  return (0); /* mdmhup() need not be within */
-} /* #ifndef NODIAL conditionals */
-#endif /* NODIAL */
+int           // To allow NODIAL versions to
+mdmhup() {    // call mdmhup(), so calls to
+  return (0); // mdmhup() need not be within
+} // #ifndef NODIAL conditionals
+#endif // NODIAL
 #else
-int mdmtyp = 0; /* Default modem type */
-#endif /* NOLOCAL */
+int mdmtyp = 0; // Default modem type
+#endif // NOLOCAL

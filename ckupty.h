@@ -1,35 +1,33 @@
-/* C K U P T Y . H  --  Includes and definitions for ckupty.c  */
+// C K U P T Y . H  --  Includes and definitions for ckupty.c
 
-/*
-  Copyright 1995 by the Massachusetts Institute of Technology.
-
-  Modified for use in C-Kermit by:
-
-  Jeffrey E Altman <jaltman@secure-endpoints.com>
-    Secure Endpoints Inc., New York City
-  November 1999
-*/
+// Copyright 1995 by the Massachusetts Institute of Technology.
+//
+// Modified for use in C-Kermit by:
+//
+// Jeffrey E Altman <jaltman@secure-endpoints.com>
+//  Secure Endpoints Inc., New York City
+// November 1999
 #ifndef __PTY_INT_H__
 #include <sys/types.h>
 
-/* #define WANT_UTMP */
-/* We don't want all the utmp/wtmp stuff */
+// #define WANT_UTMP
+// We don't want all the utmp/wtmp stuff
 
 #ifdef WANT_UTMP
 #ifdef HAVE_UTMP_H
 #include <utmp.h>
-#endif /* HAVE_UTMP_H */
+#endif // HAVE_UTMP_H
 #ifdef HAVE_UTMPX_H
 #include <utmpx.h>
-#endif /* HAVE_UTMPX_H */
-#endif /* WANT_UTMP */
+#endif // HAVE_UTMPX_H
+#endif // WANT_UTMP
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif /* HAVE_UNISTD_H */
+#endif // HAVE_UNISTD_H
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif /* HAVE_STDLIB_H */
+#endif // HAVE_STDLIB_H
 
 #include <stdio.h>
 
@@ -44,75 +42,74 @@
 #include <sys/time.h>
 
 #ifdef HAVE_SYS_LABEL_H
-/* only SunOS 4? */
+// only SunOS 4?
 #include <pwdadj.h>
 #include <sys/audit.h>
 #include <sys/label.h>
-#endif /* HAVE_SYS_LABEL_H */
+#endif // HAVE_SYS_LABEL_H
 
 #include <signal.h>
 
 #ifdef HAVE_STREAMS
 #include <sys/stream.h>
 #include <sys/stropts.h>
-#endif /* HAVE_STREAMS */
+#endif // HAVE_STREAMS
 
 #ifdef POSIX_TERMIOS
 #include <termios.h>
-#else /* POSIX_TERMIOS */
+#else // POSIX_TERMIOS
 #include <sgtty.h>
-#endif /* POSIX_TERMIOS */
+#endif // POSIX_TERMIOS
 
 #include <netdb.h>
-/* #include <syslog.h> */
+// #include <syslog.h>
 #include <string.h>
-/* #include <sys/param.h> */ /* (now done in ckcdeb.h) */
+// #include <sys/param.h>
+// (now done in ckcdeb.h)
 
 #ifdef HAVE_STREAMS
-/* krlogin doesn't test sys/tty... */
+// krlogin doesn't test sys/tty...
 #ifdef HAVE_SYS_TTY_H
 #include <sys/tty.h>
-#endif /* HAVE_SYS_TTY_H */
+#endif // HAVE_SYS_TTY_H
 
 #ifdef HAVE_SYS_PTYVAR_H
-/* Solaris actually uses packet mode, so the real macros are needed too */
+// Solaris actually uses packet mode, so the real macros are needed too
 #include <sys/ptyvar.h>
-#endif /* HAVE_SYS_PTYVAR_H */
-#endif /* HAVE_STREAMS */
+#endif // HAVE_SYS_PTYVAR_H
+#endif // HAVE_STREAMS
 
 #ifdef HAVE_VHANGUP
 #ifndef OPEN_CTTY_ONLY_ONCE
-/*
-  Breaks under Ultrix and others where you cannot get controlling
-  terminal twice.
-*/
+// Breaks under Ultrix and others where you cannot get controlling
+// terminal twice.
 #define VHANG_first
 #define VHANG_LAST
-#endif /* OPEN_CTTY_ONLY_ONCE */
-#endif /* HAVE_VHANGUP */
+#endif // OPEN_CTTY_ONLY_ONCE
+#endif // HAVE_VHANGUP
 
-/* Internal functions */
+// Internal functions
 long ptyint_void_association(void);
 long ptyint_open_ctty(char *, int *);
 void ptyint_vhangup(void);
 
 #ifdef WANT_UTMP
 long ptyint_update_wtmp(struct utmp *, char *, char *);
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
 #define __PTY_INT_H__
-#endif /* __PTY_INT_H__ */
+#endif // __PTY_INT_H__
 
 #ifndef __LIBPTY_H__
 
 #ifdef WANT_UTMP
-/* Constants for pty_update_utmp */
+// Constants for pty_update_utmp
 #define PTY_LOGIN_PROCESS 0
 #define PTY_USER_PROCESS 1
 #define PTY_DEAD_PROCESS 2
-#define PTY_TTYSLOT_USABLE (0x1) /* flags to update_utmp*/
+#define PTY_TTYSLOT_USABLE (0x1) // flags to update_utmp
 #define PTY_UTMP_USERNAME_VALID (0x2)
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 
 long pty_init(void);
 long pty_getpty(int *, char *, int);
@@ -122,7 +119,7 @@ long pty_initialize_slave(int);
 #ifdef WANT_UTMP
 long pty_update_utmp(int, int, char *, char *, char *, int);
 long pty_logwtmp(char *, char *, char *);
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 long pty_cleanup(char *, int, int);
 
 #define PTY_GETPTY_STREAMS (44806912L)
@@ -138,11 +135,11 @@ long pty_cleanup(char *, int, int);
 #define PTY_OPEN_SLAVE_REVOKEFAIL (44806922L)
 #ifdef WANT_UTMP
 #define PTY_UPDATE_UTMP_PROCTYPE_INVALID (44806923L)
-#endif /* WANT_UTMP */
+#endif // WANT_UTMP
 #define PTY_OPEN_SLAVE_TOOSHORT (44806924L)
 #define ERROR_TABLE_BASE_pty (44806912L)
 
 extern struct error_table et_pty_error_table;
 
 #define __LIBPTY_H__
-#endif /* __LIBPTY_H__ */
+#endif // __LIBPTY_H__

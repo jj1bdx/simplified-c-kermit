@@ -1,148 +1,136 @@
-/* ckcmai.c - Main program for C-Kermit plus some miscellaneous functions */
+// ckcmai.c - Main program for C-Kermit plus some miscellaneous functions
 
-#define EDITDATE "2025/03/22" /* Last edit date ISO format */
+#define EDITDATE "2025/03/22" // Last edit date ISO format
 
-#define EDITNDATE "20250322" /* Keep them in sync */
-/* Thu Aug  8 12:25:04 2024 */
-/*
-  As of 27 September 2022 BETATEST is defined in ckcdeb.h, not here,
-  because it's also used in other modules.
-*/
+#define EDITNDATE "20250322" // Keep them in sync
+// Thu Aug  8 12:25:04 2024
+// As of 27 September 2022 BETATEST is defined in ckcdeb.h, not here,
+// because it's also used in other modules.
 
-/*
-FOR NEW VERSION (development, alpha, beta, release candidate, formal release):
-  . Change the 3 dates just above;
-  . Change ck_cryear = "xxxx"; (copyright year) just below, if necessary;
-  . For test versions change ck_s_test and ck_s_tver (below) appropriately:
-     Dev, Alpha, Pre-Beta, Beta, or RC (Release Candidate);
-  . Change makefile CKVER and BUILDID definitions and timestamp at top.
+// FOR NEW VERSION (development, alpha, beta, release candidate, formal
+// release): . Change the 3 dates just above; . Change ck_cryear = "xxxx";
+// (copyright year) just below, if necessary; . For test versions change
+// ck_s_test and ck_s_tver (below) appropriately:
+//   Dev, Alpha, Pre-Beta, Beta, or RC (Release Candidate);
+// . Change makefile CKVER and BUILDID definitions and timestamp at top.
+//
+// If the version number has changed, also:
+// . Change sccsid[] (below);
+// . Change ck_s_ver, ck_l_ver (below).
+//  (these are version numbers without Dev, Alpha, or Beta test ID)
+// . Increment ck_s_edit -- Must be larger than previous release.
+// . Update the edit number in ck_s_xver to agree with ck_s_edit
+// The ckcdeb.h include was moved up here from further down so BETATEST
+// definition will take effect before it is used.  Previously BETATEST was
+// defined in this module but since it was also used in other modules, it
+// needed to be in ckcdeb.h, which, despite its name, has evolved into the
+// principal C-Kermit header file, the only one that all modules #include.
+// - fdc, 27 September 2022
+// clang-format off
+#include "ckcdeb.h" // Debug & other symbols
+// clang-format on
 
-If the version number has changed, also:
-  . Change sccsid[] (below);
-  . Change ck_s_ver, ck_l_ver (below).
-    (these are version numbers without Dev, Alpha, or Beta test ID)
-  . Increment ck_s_edit -- Must be larger than previous release.
-  . Update the edit number in ck_s_xver to agree with ck_s_edit
-*/
-/*
-  The ckcdeb.h include was moved up here from further down so BETATEST
-  definition will take effect before it is used.  Previously BETATEST was
-  defined in this module but since it was also used in other modules, it
-  needed to be in ckcdeb.h, which, despite its name, has evolved into the
-  principal C-Kermit header file, the only one that all modules #include.
-  - fdc, 27 September 2022
-*/
-/* clang-format off */
-#include "ckcdeb.h" /* Debug & other symbols */
-/* clang-format on */
-
-char *ck_cryear = "2025"; /* C-Kermit copyright year */
-/*
-  Note: initialize ck_s_test to "" if this is not a test version.
-  Use (*ck_s_test != '\0') to decide whether to print test-related messages.
-*/
+char *ck_cryear = "2025"; // C-Kermit copyright year
+// Note: initialize ck_s_test to "" if this is not a test version.
+// Use (*ck_s_test != '\0') to decide whether to print test-related messages.
 
 #ifdef BETATEST
-/* Can also use "Pre-Beta" here for in between "daily" uploads */
-char *ck_s_test = "Beta"; /* "Dev","Alpha","pre-Beta","Beta","RC", or "" */
-char *ck_s_tver = "12";   /* Test version number */
-#else                     /* BETATEST */
-char *ck_s_test = ""; /* Not development */
+// Can also use "Pre-Beta" here for in between "daily" uploads
+char *ck_s_test = "Beta"; // "Dev","Alpha","pre-Beta","Beta","RC", or ""
+char *ck_s_tver = "12";   // Test version number
+#else                     // BETATEST
+char *ck_s_test = ""; // Not development
 char *ck_s_tver = "";
-#endif                    /* BETATEST */
+#endif                    // BETATEST
 
-#ifdef BETADATE             /* Date of this version or edit */
-char *ck_s_date = __DATE__; /* Compilation date */
+#ifdef BETADATE             // Date of this version or edit
+char *ck_s_date = __DATE__; // Compilation date
 #else
-char *ck_s_date = EDITDATE; /* See top */
+char *ck_s_date = EDITDATE; // See top
 
-#endif                     /* BETADATE */
-char *buildid = EDITNDATE; /* See top */
+#endif                     // BETADATE
+char *buildid = EDITNDATE; // See top
 
 #ifdef UNIX
 static char sccsid[] = "@(#)C-Kermit 10.0";
-#endif /* UNIX */
+#endif // UNIX
 
-int offtsize = 0; /* Size of OFF_T */
-/*
-  As of C-Kermit 10.0, we no longer use major.minor.edit version number,
-  just major.minor.
-
-  The C-Kermit Version number is major.minor.edit (integers).
-  Major version always goes up.
-
-  The Minor version is an artifact from the DECSYSTEM-20 versioning
-  system and hasn't been used since C-Kermit 7.1.
-
-  The Edit number is sequential, always goes up, but there can be gaps.
-  For example there might be many edits between releases.  The edit number
-  is no longer shown as of C-Kermit 10.0, but we still need to keep it,
-  and it should always be incremented, for the benefit of packagers like
-  Debian who depend on it.
-
-  Also the custom-format version numbers for the original 1980s Macintosh is
-  gone as there is no more Mac Kermit (for the original Macintosh), just
-  C-Kermit for each platform (except the original Mac) and Kermit 95.
-*/
-char *ck_s_ver = "10.0";      /* C-Kermit version string */
-char *ck_s_edit = "416";      /* Edit number (for Debian package) */
-char *ck_s_xver = "10.0.416"; /* eXtended version string */
-long ck_l_ver = 1000415L;     /* C-Kermit version number */
-char *ck_s_name = "C-Kermit"; /* Name of this program */
-char *ck_s_who = "";          /* Where customized, "" = not. */
-char *ck_patch = "";          /* Patch info, if any. */
+int offtsize = 0; // Size of OFF_T
+// As of C-Kermit 10.0, we no longer use major.minor.edit version number,
+// just major.minor.
+//
+// The C-Kermit Version number is major.minor.edit (integers).
+// Major version always goes up.
+//
+// The Minor version is an artifact from the DECSYSTEM-20 versioning
+// system and hasn't been used since C-Kermit 7.1.
+//
+// The Edit number is sequential, always goes up, but there can be gaps.
+// For example there might be many edits between releases.  The edit number
+// is no longer shown as of C-Kermit 10.0, but we still need to keep it,
+// and it should always be incremented, for the benefit of packagers like
+// Debian who depend on it.
+//
+// Also the custom-format version numbers for the original 1980s Macintosh is
+// gone as there is no more Mac Kermit (for the original Macintosh), just
+// C-Kermit for each platform (except the original Mac) and Kermit 95.
+char *ck_s_ver = "10.0";      // C-Kermit version string
+char *ck_s_edit = "416";      // Edit number (for Debian package)
+char *ck_s_xver = "10.0.416"; // eXtended version string
+long ck_l_ver = 1000415L;     // C-Kermit version number
+char *ck_s_name = "C-Kermit"; // Name of this program
+char *ck_s_who = "";          // Where customized, "" = not.
+char *ck_patch = "";          // Patch info, if any.
 
 long ck_l_xver;
 
 #define CKVERLEN 128
-char versiox[CKVERLEN]; /* Version string buffer  */
-char *versio = versiox; /* These are filled in at */
-long vernum, xvernum;   /* runtime from above.    */
+char versiox[CKVERLEN]; // Version string buffer
+char *versio = versiox; // These are filled in at
+long vernum, xvernum;   // runtime from above.
 
 #define CKCMAI
 
-#include "ckcasc.h" /* ASCII character symbols */
+#include "ckcasc.h" // ASCII character symbols
 
-char *myname = NULL; /* Name this program is called by */
-char *exedir = NULL; /* Directory I was executed from */
+char *myname = NULL; // Name this program is called by
+char *exedir = NULL; // Directory I was executed from
 
-char homedirpath[CKMAXPATH + 1] = {NUL, NUL}; /* Home directory path */
-char *myhome = NULL; /* Home directory override string */
+char homedirpath[CKMAXPATH + 1] = {NUL, NUL}; // Home directory path
+char *myhome = NULL;                          // Home directory override string
 
 #ifdef HAVE_LOCALE
-int nolocale = 0; /* Use Locale */
+int nolocale = 0; // Use Locale
 #else
-int nolocale = 1; /* Don't use Locale */
-#endif /* HAVE_LOCALE */
+int nolocale = 1; // Don't use Locale
+#endif // HAVE_LOCALE
 
-/*  C K C M A I  --  C-Kermit Main program  */
+//  C K C M A I  --  C-Kermit Main program
 
-/*
-  Principal Author: Frank da Cruz
-    Columbia University 1974-2011;
-    the Open Source Kermit Project 2011-2022.
-    fdc@kermitproject.org OR fdc@columbia.edu.
-
-  I am no longer at Columbia University as of 1 July 2011.
-  The new Open Source Kermit Project website is the  definitive
-  source for Kermit software created or updated since that date:
-
-    https://www.kermitproject.org
-
-  The associated FTP site was ftp://ftp.kermitproject.org/ but FTP has been
-  "deprecated" since 2021 so all downloads are now done by HTTP(S) links.
-
-  Note that Columbia University holds the copyright to this software in
-  perpetuity, but as of C-Kermit 9.0 the license has changed from the
-  previous somewhat restrictive one to the Open Source Modified Berkeley
-  3-clause license, text just below (where %s is the year current at the
-  last time this code compiled).
-
-  If you're looking for the program start herald, it's in ckuus5.c,
-  function herald().
-
-COPYRIGHT NOTICE:
-*/
+// Principal Author: Frank da Cruz
+//  Columbia University 1974-2011;
+//  the Open Source Kermit Project 2011-2022.
+//  fdc@kermitproject.org OR fdc@columbia.edu.
+//
+// I am no longer at Columbia University as of 1 July 2011.
+// The new Open Source Kermit Project website is the  definitive
+// source for Kermit software created or updated since that date:
+//
+//  https://www.kermitproject.org
+//
+// The associated FTP site was ftp://ftp.kermitproject.org/ but FTP has been
+// "deprecated" since 2021 so all downloads are now done by HTTP(S) links.
+//
+// Note that Columbia University holds the copyright to this software in
+// perpetuity, but as of C-Kermit 9.0 the license has changed from the
+// previous somewhat restrictive one to the Open Source Modified Berkeley
+// 3-clause license, text just below (where %s is the year current at the
+// last time this code compiled).
+//
+// If you're looking for the program start herald, it's in ckuus5.c,
+// function herald().
+//
+// COPYRIGHT NOTICE:
 char *copyright[] = {
 
     "Copyright (C) 1985, %s,",
@@ -182,364 +170,360 @@ char *copyright[] = {
     "http://www.kermitproject.org/ .",
     ""};
 
-/* Windows IKSD copyright used to be separate */
+// Windows IKSD copyright used to be separate
 char *wiksdcpr = (char *)copyright;
 
-/*
-DOCUMENTATION:
+// DOCUMENTATION:
+//
+// "Using C-Kermit" by Frank da Cruz and Christine M. Gianone,
+// Digital Press / Butterworth-Heinemann, Woburn MA, USA.
+// Second edition (1997), ISBN 1-55558-164-1.
+// Plus updates on the Kermit website:
+//
+//  http://www.kermitproject.org/ck90.html#doc
+//
+// For Kermit 95, also:
+//
+// "Kermit 95" by Christine M. Gianone and Frank da Cruz,
+// Manning Publications, Greenwich CT, USA (1998) - Online here:
+//
+//  http://www.kermitproject.org/k95manual/
+//
+// ACKNOWLEDGMENTS:
+//
+// The Kermit file transfer protocol was developed at the Columbia University
+// Center for Computing Activities (CUCCA), which was since renamed to Columbia
+// University Academic Information Systems (AcIS) and after that Columbia
+// University Information Technology (CUIT).  Kermit is named after Kermit the
+// Frog, star of the television series THE MUPPET SHOW; the name is used by
+// permission of Henson Associates, Inc.
+//
+// Thanks to at least the following people for their contributions to this
+// program over the years, and apologies to anyone who was inadvertantly
+// omitted:
+//
+// Chris Adie, Edinburgh U, Scotland (OS/2)
+// Robert Adsett, University of Waterloo, Canada
+// Larry Afrin, Clemson U
+// Russ Allbery, Stanford U
+// Jeffrey Altman, (formerly of) Columbia University
+// Greg Andrews, Telebit Corp
+// Barry Archer, U of Missouri
+// Robert Andersson, International Systems A/S, Oslo, Norway
+// Chris Armstrong, Brookhaven National Lab (OS/2)
+// William Bader, Software Consulting Services, Nazareth, PA
+// Fuat Baran, Columbia U
+// Stan Barber, Rice U
+// Jim Barbour, U of Colorado
+// Donn Baumgartner, Dell
+// Ian Beckwith, Debian Project
+// Nelson Beebe, U of Utah
+// Gerry Belanger, Cognitronics
+// Edward Berner
+// Karl Berry, UMB
+// Mark Berryman, SAIC
+// Dean W Bettinger, SUNY
+// Gary Bilkus
+// Peter Binderup, Denmark
+// David Bolen, Advanced Networks and Services, Inc.
+// Joop Bonen
+// Marc Boucher, U of Montreal
+// Charles Brooks, EDN
+// Bob Brown
+// Mike Brown, Purdue U
+// Rob Brown
+// Jack Bryans, California State U at Long Beach
+// Mark Buda, DEC (VMS)
+// Fernando Cabral, Padrao iX, Brasilia
+// Bjorn Carlsson, Stockholm University Computer Centre QZ, Sweden
+// Bill Catchings, (formerly of) Columbia U
+// Bob Cattani, Columbia U CS Dept
+// Davide Cervone, Rochester U
+// Seth Chaiklin, Denmark
+// John Chandler, Harvard U / Smithsonian Astronomical Observatory
+// Bernard Chen, UCLA
+// Andrew A Chernov, RELCOM Team, Moscow
+// John L Chmielewski, AT&T, Lisle, IL
+// Howard Chu, U of Michigan
+// Bill Coalson, McDonnell Douglas
+// Bertie Coopersmith, London
+// Christian Corti
+// Chet Creider, U of Western Ontario
+// Alan Crosswell, Columbia U
+// Jeff Damens, (formerly of) Columbia U
+// Mark Davies, Bath U, UK
+// Sin-itirou Dezawa, Fujifilm, Japan
+// Alexey Dokuchaev (FreeBSD)
+// Joe R. Doupnik, Utah State U
+// Frank Dreano, Honeywell
+// John Dunlap, U of Washington
+// Alex Dupuy, SMART.COM
+// David Dyck, John Fluke Mfg Co.
+// Stefaan A. Eeckels, Eurokom, Luxembourg
+// Nick Efthymiou
+// Paul Eggert, Twin Sun, Inc., El Segundo, CA
+// Bernie Eiben, DEC
+// Peter Eichhorn, Assyst International, Munich, Germany
+// Kristoffer Eriksson, Peridot Konsult AB, Oerebro, Sweden
+// John R. Evans, IRS, Kansas City
+// Glenn Everhart, RCA Labs
+// Charlie Finan, Cray Research
+// Herm Fischer, Encino, CA (extensive contributions to version 4.0)
+// Carl Fongheiser, CWRU
+// Mike Freeman, Bonneville Power Authority
+// Carl Friedberg
+// Adam Friedlander
+// Marcello Frutig, Catholic University, Sao Paulo, Brazil (X.25 support)
+// Hirofumi Fujii, Japan Nat'l Lab for High Energy Physics, Tokyo (Kanji)
+// Chuck Fuller, Westinghouse Corporate Computer Services
+// Andy Fyfe, Caltech
+// Christine M. Gianone, Columbia U
+// David Goodwin, NZ
+// John Gilmore, UC Berkeley
+// Madhusudan Giyyarpuram, HP
+// Rainer Glaschick, Siemens AG, Paderborn
+// William H. Glass
+// German Goldszmidt, IBM
+// Chuck Goodhart, NASA
+// Alistair Gorman, New Zealand
+// Richard Gration, ADFA, Australia
+// Chris Green, Essex U, UK
+// Alan Grieg, Dundee Tech, Scotland
+// Yekta Gursel, MIT
+// Jim Guyton, Rand Corp
+// Michael Haertel
+// Bruno Haible
+// Bob Hain, UMN
+// Marion Hakanson, ORST
+// Richard Hamilton
+// John Hamilston, Iowa State U
+// Simon Hania, Netherlands
+// Stan Hanks, Rice U.
+// Ken Harrenstein, SRI
+// Eugenia Harris, Data General (AOS/VS)
+// David Harrison, Kingston Warren Corp
+// Lucas Hart, Oregon State University
+// James Harvey, Indiana/Purdue U (VMS)
+// Rob Healey
+// Chuck Hedrick, Rutgers U
+// Ron Heiby, Technical Systems Division, Motorola Computer Group
+// Steve Hemminger, Tektronix
+// Christian Hemsing, RWTH Aachen, Germany (OS-9)
+// Randolph Herber, US DOE
+// Andrew Herbert, Monash Univ, Australia
+// Marcus Herbert, Germany
+// Mike Hickey, ITI
+// Dan Hildebrand, QNX Software Systems Inc, Kanata, ON (QNX)
+// R E Hill
+// Stephan Hoffman-Emden
+// Sven Holmstrom, ABB Utilities AB, Sweden
+// Bill Homer, Cray Research
+// Ray Hunter, The Wollongong Group
+// Randy Huntziger, National Library of Medicine
+// Larry Jacobs, Transarc
+// Steve Jenkins, Lancaster University, UK
+// Dave Johnson, Gradient Technologies
+// Mark B Johnson, Apple Computer
+// Jyke Jokinen, Tampere University of Technology, Finland (QNX)
+// Eric F Jones, AT&T
+// Luke Jones, AT&T
+// Peter Jones, U of Quebec Montreal
+// Steven M Jones, the Living Computer Museum
+// Phil Julian, SAS Institute
+// Peter Kabal, U of Quebec
+// Mic Kaczmarczik, U of Texas at Austin
+// Sergey Kartashoff, Inst. of Precise Mechanics & Computer Equipment, Moscow
+// Howie Kaye, Columbia U
+// Rob Kedoin, Linotype Co, Hauppauge, NY (OS/2)
+// Phil Keegstra
+// Mark Kennedy, IBM
+// Terry Kennedy, St Peter's College, Jersey City, NJ (VMS and more)
+// "Carlo Kid", Technical University of Delft, Netherlands
+// Tim Kientzle
+// Paul Kimoto, Cornell U
+// Douglas Kingston, morgan.com
+// Lawrence Kirby, Wiltshire, UK
+// Tom Kloos, Sequent Computer Systems
+// Guenter Knauf
+// Jim Knutson, U of Texas at Austin
+// John T. Kohl (BSDI)
+// Scott Kramer, SRI International, Menlo Park, CA
+// John Kraynack, US Postal Service
+// David Kricker, Encore Computer
+// Thomas Krueger, UWM
+// Bo Kullmar, ABC Klubben, Stockholm, and Central Bank of Sweden, Kista
+// R. Brad Kummer, AT&T Bell Labs, Atlanta, GA
+// John Kunze, UC Berkeley
+// David Lane, BSSI / BellSouth (Stratus VOS, X.25)
+// Bob Larson, USC (OS-9)
+// Bert Laverman, Groningen U, Netherlands
+// Steve Layton
+// David Lawyer, UC Irvine
+// Jason Lehr
+// David LeVine, National Semiconductor Corporation
+// Daniel S. Lewart, UIUC
+// S.O. Lidie, Lehigh U
+// Tor Lillqvist, Helsinki U, Finland
+// David-Michael Lincke, U of St Gallen, Switzerland
+// Robert Lipe (for SCO makefile entries & advice)
+// Dr. Eberhard W Lisse, Namibia
+// Dean Long
+// Mike Long, Analog Devices, Norwood MA
+// Kevin Lowey, U of Saskatchewan (OS/2)
+// Andy Lowry, Columbia U
+// James Lummel, Caprica Telecomputing Resources (QNX)
+// Lewis McCarthy
+// David MacKenzie, Environmental Defense Fund, U of Maryland
+// John Mackin, University of Sidney, Australia
+// Martin Maclaren, Bath U, UK
+// Chris Maio, Columbia U CS Dept
+// Montserrat Mane, HP, Grenoble, France
+// Fulvio Marino, Olivetti, Ivrea, Italy
+// Arthur Marsh, dircsa.org.au
+// Peter Mauzey, Lucent Technologies
+// Tye McQueen, Utah State U
+// Ted Medin
+// Hellmuth Michaelis, Hanseatischer Computerservice GmbH, Hamburg, Germany
+// Leslie Mikesell, American Farm Bureau
+// Todd Miller, Courtesan Consulting
+// Gary Mills
+// Martin Minow, DEC (VMS)
+// Pawan Misra, Bellcore
+// Ken Mizialko, IBM, Manassas, VA
+// Wolfgang Moeller, DECUS Germany
+// Ray Moody, Purdue U
+// Bruce J Moore, Allen-Bradley Co, Highland Heights, OH (Atari ST)
+// Steve Morley, Convex
+// Peter Mossel, Columbia U
+// Tony Movshon, NYU
+// Lou Muccioli, Swanson Analysis Systems
+// Dan Murphy
+// Neal P. Murphy, Harsof Systems, Wonder Lake IL
+// Gary Mussar
+// John Nall, FSU
+// Jack Nelson, U of Pittsburgh
+// Jim Noble, Planning Research Corporation (Macintosh)
+// Ian O'Brien, Bath U, UK
+// Melissa O'Neill, SFU
+// John Owens
+// Thomas Pinkl, Health Business Systems Inc.
+// Michael Pins, Iowa Computer Aided Engineering Network
+// Andre' Pirard, University of Liege, Belgium
+// Paul Placeway, Ohio State U
+// Piet W. Plomp, ICCE, Groningen University, Netherlands
+// Ken Poulton, HP Labs
+// Manfred Prange, Oakland U
+// Christopher Pratt, APV Baker, UK
+// Frank Prindle, NADC
+// Tony Querubin, U of Hawaii
+// Jean-Pierre Radley
+// Anton Rang
+// Mike Rechtman
+// Scott Ribe
+// Alan Robiette, Oxford University, UK
+// Michel Robitaille, U of Montreal (Mac)
+// Huw Rogers, Schweizerische Kreditanstalt, Zuerich
+// Nigel Roles, Cambridge, England
+// Kai Uwe Rommel, Technische Universitaet Muenchen (OS/2)
+// Larry Rosenman (Amiga)
+// Jay Rouman, U of Michigan
+// Jack Rouse, SAS Institute (Data General and/or Apollo)
+// Stew Rubenstein, Harvard U (VMS)
+// Gerhard Rueckle, FH Darmstadt, Fb. E/Automatisierungstechnik
+// John Santos, EG&H
+// Mark Sapiro
+// Bill Schilit, Columbia U
+// Ulli Schlueter, RWTH Aachen, Germany (OS-9, etc)
+// Michael Schmidt, U of Paderborn, Germany
+// Eric Schnoebelen, Convex
+// Benn Schreiber, DEC
+// Dan Schullman, DEC (modems, DIAL command, etc)
+// John Schultz, 3M
+// Steven Schultz, Contel (PDP-11)
+// Steven Schweda
+// APPP Scorer, Leeds Polytechnic, UK
+// Gordon Scott, Micro Focus, Newbury UK
+// Gisbert W. Selke, WIdO, Bonn, Germany
+// Kijal Shah
+// David Singer, IBM Almaden Research Labs
+// David Sizeland, U of London Medical School
+// Bruce Skelly
+// Fridrik Skulason, Iceland
+// Rick Sladkey (Linux)
+// Dave Slate
+// Bradley Smith, UCLA
+// Eric Smith
+// Fred Smith, Merk / Computrition
+// Richard S Smith, Cal State
+// Tim Sneddon
+// Bernard Spil
+// Ryan Stanisfer, UNT
+// Bertil Stenstroem, Stockholm University Computer Centre (QZ), Sweden
+// James Sturdevant, CAP GEMENI AMERICA, Minneapolis
+// Peter Svanberg, Royal Techn. HS, Sweden
+// James R. Swenson, Accu-Weather, Inc.
+// Ted T'so, MIT (Linux)
+// Andy Tanenbaum, Vrije U, Amsterdam, Netherlands
+// Seth Theriault, Columbia U
+// Glen Thobe
+// Jake Thompson
+// Markku Toijala, Helsinki U of Technology
+// Teemu Torma, Helsinki U of Technology
+// Linus Torvalds, Helsinki
+// Rick Troxel, NIH
+// Warren Tucker, Tridom Corp, Mountain Park, GA
+// Dave Tweten, AMES-NAS
+// G Uddeborg, Sweden
+// Walter Underwood, Ford Aerospace
+// Pieter Van Der Linden, Centre Mondial, Paris
+// Ge van Geldorp, Netherlands
+// Fred van Kempen, MINIX User Group, Voorhout, Netherlands
+// Wayne Van Pelt, GE/CRD
+// Mark Vasoll, Oklahoma State U (V7 UNIX)
+// Konstantin Vinogradov, ICSTI, Moscow
+// Paul Vixie, DEC
+// Bernie Volz, Process Software
+// Eduard Vopicka, Prague University of Economics, Czech Republic
+// Martin Vorlaender
+// Dimitri Vulis, CUNY
+// Roger Wallace, Raytheon
+// Stephen Walton, Calif State U, Northridge (Amiga)
+// Jamie Watson, Adasoft, Switzerland (AIX)
+// Rick Watson, U of Texas (Macintosh)
+// Eric Weaver, Columbia U
+// Scott Weikart (Association for Progressive Communications)
+// Robert Weiner, Programming Plus, New York City
+// Lauren Weinstein, Vortex Technlogy
+// David Wexelblat, AT&T
+// Clark Wierda, Illuminati Online
+// Joachim Wiesel, U of Karlsruhe
+// Lon Willett, U of Utah
+// Michael Williams, UCLA
+// Nate Williams, U of Montana
+// David Wilson
+// Joellen Windsor, U of Arizona
+// Patrick Wolfe, Kuck & Associates, Inc.
+// Gregg Wonderly, Oklahoma State U (V7 UNIX)
+// Lawrence Woodman
+// Farrell Woods, Concurrent (formerly Masscomp)
+// Dave Woolley, CAP Communication Systems, London
+// Jack Woolley, SCT Corp
+// Frank Wortner
+// Ken Yap, formerly of U of Rochester
+// John Zeeff, Ann Arbor, MI
 
- "Using C-Kermit" by Frank da Cruz and Christine M. Gianone,
-  Digital Press / Butterworth-Heinemann, Woburn MA, USA.
-  Second edition (1997), ISBN 1-55558-164-1.
-  Plus updates on the Kermit website:
-
-    http://www.kermitproject.org/ck90.html#doc
-
-For Kermit 95, also:
-
-  "Kermit 95" by Christine M. Gianone and Frank da Cruz,
-  Manning Publications, Greenwich CT, USA (1998) - Online here:
-
-    http://www.kermitproject.org/k95manual/
-
-ACKNOWLEDGMENTS:
-
-  The Kermit file transfer protocol was developed at the Columbia University
-  Center for Computing Activities (CUCCA), which was since renamed to Columbia
-  University Academic Information Systems (AcIS) and after that Columbia
-  University Information Technology (CUIT).  Kermit is named after Kermit the
-  Frog, star of the television series THE MUPPET SHOW; the name is used by
-  permission of Henson Associates, Inc.
-
-  Thanks to at least the following people for their contributions to this
-  program over the years, and apologies to anyone who was inadvertantly
-  omitted:
-
-   Chris Adie, Edinburgh U, Scotland (OS/2)
-   Robert Adsett, University of Waterloo, Canada
-   Larry Afrin, Clemson U
-   Russ Allbery, Stanford U
-   Jeffrey Altman, (formerly of) Columbia University
-   Greg Andrews, Telebit Corp
-   Barry Archer, U of Missouri
-   Robert Andersson, International Systems A/S, Oslo, Norway
-   Chris Armstrong, Brookhaven National Lab (OS/2)
-   William Bader, Software Consulting Services, Nazareth, PA
-   Fuat Baran, Columbia U
-   Stan Barber, Rice U
-   Jim Barbour, U of Colorado
-   Donn Baumgartner, Dell
-   Ian Beckwith, Debian Project
-   Nelson Beebe, U of Utah
-   Gerry Belanger, Cognitronics
-   Edward Berner
-   Karl Berry, UMB
-   Mark Berryman, SAIC
-   Dean W Bettinger, SUNY
-   Gary Bilkus
-   Peter Binderup, Denmark
-   David Bolen, Advanced Networks and Services, Inc.
-   Joop Bonen
-   Marc Boucher, U of Montreal
-   Charles Brooks, EDN
-   Bob Brown
-   Mike Brown, Purdue U
-   Rob Brown
-   Jack Bryans, California State U at Long Beach
-   Mark Buda, DEC (VMS)
-   Fernando Cabral, Padrao iX, Brasilia
-   Bjorn Carlsson, Stockholm University Computer Centre QZ, Sweden
-   Bill Catchings, (formerly of) Columbia U
-   Bob Cattani, Columbia U CS Dept
-   Davide Cervone, Rochester U
-   Seth Chaiklin, Denmark
-   John Chandler, Harvard U / Smithsonian Astronomical Observatory
-   Bernard Chen, UCLA
-   Andrew A Chernov, RELCOM Team, Moscow
-   John L Chmielewski, AT&T, Lisle, IL
-   Howard Chu, U of Michigan
-   Bill Coalson, McDonnell Douglas
-   Bertie Coopersmith, London
-   Christian Corti
-   Chet Creider, U of Western Ontario
-   Alan Crosswell, Columbia U
-   Jeff Damens, (formerly of) Columbia U
-   Mark Davies, Bath U, UK
-   Sin-itirou Dezawa, Fujifilm, Japan
-   Alexey Dokuchaev (FreeBSD)
-   Joe R. Doupnik, Utah State U
-   Frank Dreano, Honeywell
-   John Dunlap, U of Washington
-   Alex Dupuy, SMART.COM
-   David Dyck, John Fluke Mfg Co.
-   Stefaan A. Eeckels, Eurokom, Luxembourg
-   Nick Efthymiou
-   Paul Eggert, Twin Sun, Inc., El Segundo, CA
-   Bernie Eiben, DEC
-   Peter Eichhorn, Assyst International, Munich, Germany
-   Kristoffer Eriksson, Peridot Konsult AB, Oerebro, Sweden
-   John R. Evans, IRS, Kansas City
-   Glenn Everhart, RCA Labs
-   Charlie Finan, Cray Research
-   Herm Fischer, Encino, CA (extensive contributions to version 4.0)
-   Carl Fongheiser, CWRU
-   Mike Freeman, Bonneville Power Authority
-   Carl Friedberg
-   Adam Friedlander
-   Marcello Frutig, Catholic University, Sao Paulo, Brazil (X.25 support)
-   Hirofumi Fujii, Japan Nat'l Lab for High Energy Physics, Tokyo (Kanji)
-   Chuck Fuller, Westinghouse Corporate Computer Services
-   Andy Fyfe, Caltech
-   Christine M. Gianone, Columbia U
-   David Goodwin, NZ
-   John Gilmore, UC Berkeley
-   Madhusudan Giyyarpuram, HP
-   Rainer Glaschick, Siemens AG, Paderborn
-   William H. Glass
-   German Goldszmidt, IBM
-   Chuck Goodhart, NASA
-   Alistair Gorman, New Zealand
-   Richard Gration, ADFA, Australia
-   Chris Green, Essex U, UK
-   Alan Grieg, Dundee Tech, Scotland
-   Yekta Gursel, MIT
-   Jim Guyton, Rand Corp
-   Michael Haertel
-   Bruno Haible
-   Bob Hain, UMN
-   Marion Hakanson, ORST
-   Richard Hamilton
-   John Hamilston, Iowa State U
-   Simon Hania, Netherlands
-   Stan Hanks, Rice U.
-   Ken Harrenstein, SRI
-   Eugenia Harris, Data General (AOS/VS)
-   David Harrison, Kingston Warren Corp
-   Lucas Hart, Oregon State University
-   James Harvey, Indiana/Purdue U (VMS)
-   Rob Healey
-   Chuck Hedrick, Rutgers U
-   Ron Heiby, Technical Systems Division, Motorola Computer Group
-   Steve Hemminger, Tektronix
-   Christian Hemsing, RWTH Aachen, Germany (OS-9)
-   Randolph Herber, US DOE
-   Andrew Herbert, Monash Univ, Australia
-   Marcus Herbert, Germany
-   Mike Hickey, ITI
-   Dan Hildebrand, QNX Software Systems Inc, Kanata, ON (QNX)
-   R E Hill
-   Stephan Hoffman-Emden
-   Sven Holmstrom, ABB Utilities AB, Sweden
-   Bill Homer, Cray Research
-   Ray Hunter, The Wollongong Group
-   Randy Huntziger, National Library of Medicine
-   Larry Jacobs, Transarc
-   Steve Jenkins, Lancaster University, UK
-   Dave Johnson, Gradient Technologies
-   Mark B Johnson, Apple Computer
-   Jyke Jokinen, Tampere University of Technology, Finland (QNX)
-   Eric F Jones, AT&T
-   Luke Jones, AT&T
-   Peter Jones, U of Quebec Montreal
-   Steven M Jones, the Living Computer Museum
-   Phil Julian, SAS Institute
-   Peter Kabal, U of Quebec
-   Mic Kaczmarczik, U of Texas at Austin
-   Sergey Kartashoff, Inst. of Precise Mechanics & Computer Equipment, Moscow
-   Howie Kaye, Columbia U
-   Rob Kedoin, Linotype Co, Hauppauge, NY (OS/2)
-   Phil Keegstra
-   Mark Kennedy, IBM
-   Terry Kennedy, St Peter's College, Jersey City, NJ (VMS and more)
-   "Carlo Kid", Technical University of Delft, Netherlands
-   Tim Kientzle
-   Paul Kimoto, Cornell U
-   Douglas Kingston, morgan.com
-   Lawrence Kirby, Wiltshire, UK
-   Tom Kloos, Sequent Computer Systems
-   Guenter Knauf
-   Jim Knutson, U of Texas at Austin
-   John T. Kohl (BSDI)
-   Scott Kramer, SRI International, Menlo Park, CA
-   John Kraynack, US Postal Service
-   David Kricker, Encore Computer
-   Thomas Krueger, UWM
-   Bo Kullmar, ABC Klubben, Stockholm, and Central Bank of Sweden, Kista
-   R. Brad Kummer, AT&T Bell Labs, Atlanta, GA
-   John Kunze, UC Berkeley
-   David Lane, BSSI / BellSouth (Stratus VOS, X.25)
-   Bob Larson, USC (OS-9)
-   Bert Laverman, Groningen U, Netherlands
-   Steve Layton
-   David Lawyer, UC Irvine
-   Jason Lehr
-   David LeVine, National Semiconductor Corporation
-   Daniel S. Lewart, UIUC
-   S.O. Lidie, Lehigh U
-   Tor Lillqvist, Helsinki U, Finland
-   David-Michael Lincke, U of St Gallen, Switzerland
-   Robert Lipe (for SCO makefile entries & advice)
-   Dr. Eberhard W Lisse, Namibia
-   Dean Long
-   Mike Long, Analog Devices, Norwood MA
-   Kevin Lowey, U of Saskatchewan (OS/2)
-   Andy Lowry, Columbia U
-   James Lummel, Caprica Telecomputing Resources (QNX)
-   Lewis McCarthy
-   David MacKenzie, Environmental Defense Fund, U of Maryland
-   John Mackin, University of Sidney, Australia
-   Martin Maclaren, Bath U, UK
-   Chris Maio, Columbia U CS Dept
-   Montserrat Mane, HP, Grenoble, France
-   Fulvio Marino, Olivetti, Ivrea, Italy
-   Arthur Marsh, dircsa.org.au
-   Peter Mauzey, Lucent Technologies
-   Tye McQueen, Utah State U
-   Ted Medin
-   Hellmuth Michaelis, Hanseatischer Computerservice GmbH, Hamburg, Germany
-   Leslie Mikesell, American Farm Bureau
-   Todd Miller, Courtesan Consulting
-   Gary Mills
-   Martin Minow, DEC (VMS)
-   Pawan Misra, Bellcore
-   Ken Mizialko, IBM, Manassas, VA
-   Wolfgang Moeller, DECUS Germany
-   Ray Moody, Purdue U
-   Bruce J Moore, Allen-Bradley Co, Highland Heights, OH (Atari ST)
-   Steve Morley, Convex
-   Peter Mossel, Columbia U
-   Tony Movshon, NYU
-   Lou Muccioli, Swanson Analysis Systems
-   Dan Murphy
-   Neal P. Murphy, Harsof Systems, Wonder Lake IL
-   Gary Mussar
-   John Nall, FSU
-   Jack Nelson, U of Pittsburgh
-   Jim Noble, Planning Research Corporation (Macintosh)
-   Ian O'Brien, Bath U, UK
-   Melissa O'Neill, SFU
-   John Owens
-   Thomas Pinkl, Health Business Systems Inc.
-   Michael Pins, Iowa Computer Aided Engineering Network
-   Andre' Pirard, University of Liege, Belgium
-   Paul Placeway, Ohio State U
-   Piet W. Plomp, ICCE, Groningen University, Netherlands
-   Ken Poulton, HP Labs
-   Manfred Prange, Oakland U
-   Christopher Pratt, APV Baker, UK
-   Frank Prindle, NADC
-   Tony Querubin, U of Hawaii
-   Jean-Pierre Radley
-   Anton Rang
-   Mike Rechtman
-   Scott Ribe
-   Alan Robiette, Oxford University, UK
-   Michel Robitaille, U of Montreal (Mac)
-   Huw Rogers, Schweizerische Kreditanstalt, Zuerich
-   Nigel Roles, Cambridge, England
-   Kai Uwe Rommel, Technische Universitaet Muenchen (OS/2)
-   Larry Rosenman (Amiga)
-   Jay Rouman, U of Michigan
-   Jack Rouse, SAS Institute (Data General and/or Apollo)
-   Stew Rubenstein, Harvard U (VMS)
-   Gerhard Rueckle, FH Darmstadt, Fb. E/Automatisierungstechnik
-   John Santos, EG&H
-   Mark Sapiro
-   Bill Schilit, Columbia U
-   Ulli Schlueter, RWTH Aachen, Germany (OS-9, etc)
-   Michael Schmidt, U of Paderborn, Germany
-   Eric Schnoebelen, Convex
-   Benn Schreiber, DEC
-   Dan Schullman, DEC (modems, DIAL command, etc)
-   John Schultz, 3M
-   Steven Schultz, Contel (PDP-11)
-   Steven Schweda
-   APPP Scorer, Leeds Polytechnic, UK
-   Gordon Scott, Micro Focus, Newbury UK
-   Gisbert W. Selke, WIdO, Bonn, Germany
-   Kijal Shah
-   David Singer, IBM Almaden Research Labs
-   David Sizeland, U of London Medical School
-   Bruce Skelly
-   Fridrik Skulason, Iceland
-   Rick Sladkey (Linux)
-   Dave Slate
-   Bradley Smith, UCLA
-   Eric Smith
-   Fred Smith, Merk / Computrition
-   Richard S Smith, Cal State
-   Tim Sneddon
-   Bernard Spil
-   Ryan Stanisfer, UNT
-   Bertil Stenstroem, Stockholm University Computer Centre (QZ), Sweden
-   James Sturdevant, CAP GEMENI AMERICA, Minneapolis
-   Peter Svanberg, Royal Techn. HS, Sweden
-   James R. Swenson, Accu-Weather, Inc.
-   Ted T'so, MIT (Linux)
-   Andy Tanenbaum, Vrije U, Amsterdam, Netherlands
-   Seth Theriault, Columbia U
-   Glen Thobe
-   Jake Thompson
-   Markku Toijala, Helsinki U of Technology
-   Teemu Torma, Helsinki U of Technology
-   Linus Torvalds, Helsinki
-   Rick Troxel, NIH
-   Warren Tucker, Tridom Corp, Mountain Park, GA
-   Dave Tweten, AMES-NAS
-   G Uddeborg, Sweden
-   Walter Underwood, Ford Aerospace
-   Pieter Van Der Linden, Centre Mondial, Paris
-   Ge van Geldorp, Netherlands
-   Fred van Kempen, MINIX User Group, Voorhout, Netherlands
-   Wayne Van Pelt, GE/CRD
-   Mark Vasoll, Oklahoma State U (V7 UNIX)
-   Konstantin Vinogradov, ICSTI, Moscow
-   Paul Vixie, DEC
-   Bernie Volz, Process Software
-   Eduard Vopicka, Prague University of Economics, Czech Republic
-   Martin Vorlaender
-   Dimitri Vulis, CUNY
-   Roger Wallace, Raytheon
-   Stephen Walton, Calif State U, Northridge (Amiga)
-   Jamie Watson, Adasoft, Switzerland (AIX)
-   Rick Watson, U of Texas (Macintosh)
-   Eric Weaver, Columbia U
-   Scott Weikart (Association for Progressive Communications)
-   Robert Weiner, Programming Plus, New York City
-   Lauren Weinstein, Vortex Technlogy
-   David Wexelblat, AT&T
-   Clark Wierda, Illuminati Online
-   Joachim Wiesel, U of Karlsruhe
-   Lon Willett, U of Utah
-   Michael Williams, UCLA
-   Nate Williams, U of Montana
-   David Wilson
-   Joellen Windsor, U of Arizona
-   Patrick Wolfe, Kuck & Associates, Inc.
-   Gregg Wonderly, Oklahoma State U (V7 UNIX)
-   Lawrence Woodman
-   Farrell Woods, Concurrent (formerly Masscomp)
-   Dave Woolley, CAP Communication Systems, London
-   Jack Woolley, SCT Corp
-   Frank Wortner
-   Ken Yap, formerly of U of Rochester
-   John Zeeff, Ann Arbor, MI
-*/
-
-#include "ckcker.h" /* Kermit symbols */
-#include "ckcnet.h" /* Network symbols */
+#include "ckcker.h" // Kermit symbols
+#include "ckcnet.h" // Network symbols
 
 #include "ckuusr.h"
 
 #ifndef NOSERVER
-/* Text message definitions.. each should be 256 chars long, or less. */
+// Text message definitions.. each should be 256 chars long, or less.
 #ifdef OLDMSG
-/*
-  It seems there was a large installation that was using C-Kermit 5A(165)
-  or thereabouts, which had deployed thousands of MS-DOS Kermit scripts in
-  scattered locations that looked for strings in the old server message,
-  which changed in 5A(183), August 1992.
-*/
+// It seems there was a large installation that was using C-Kermit 5A(165)
+// or thereabouts, which had deployed thousands of MS-DOS Kermit scripts in
+// scattered locations that looked for strings in the old server message,
+// which changed in 5A(183), August 1992.
 char *srvtxt = "\r\n\
 C-Kermit server starting.  Return to your local machine by typing\r\n\
 its escape sequence for closing the connection, and issue further\r\n\
@@ -553,262 +537,261 @@ the menus to send commands to the server.  Otherwise, enter the escape\r\n\
 sequence to return to your local Kermit prompt and issue commands from\r\n\
 there.  Use SEND and GET for file transfer.  Use REMOTE HELP for a list of\r\n\
 other available services.  Use BYE or FINISH to end server mode.\r\n\0";
-#endif /* OLDMSG */
-#else  /* server mode disabled */
+#endif // OLDMSG
+#else  // server mode disabled
 char *srvtxt = "";
-#endif /* NOSERVER */
+#endif // NOSERVER
 
-int initflg = 0;             /* sysinit() has executed... */
-int howcalled = I_AM_KERMIT; /* How I was called */
+int initflg = 0;             // sysinit() has executed...
+int howcalled = I_AM_KERMIT; // How I was called
 int hmtopline = 0;
-int quitting = 0; /* I'm in the act of quitting */
+int quitting = 0; // I'm in the act of quitting
 
 #ifdef IKSDCONF
-char *iksdconf = IKSDCONF; /* IKSD configuration file */
-int iksdcf = 0;            /* Has IKSD c.f. been processed? */
-#endif                     /* IKSDCONF */
+char *iksdconf = IKSDCONF; // IKSD configuration file
+int iksdcf = 0;            // Has IKSD c.f. been processed?
+#endif                     // IKSDCONF
 
-int srvcdmsg = 0; /* [Server] CD message */
+int srvcdmsg = 0; // [Server] CD message
 char *cdmsgfile[8] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 char *cdmsgstr = NULL;
 char *ckcdpath = NULL;
 
-#ifdef NLCHAR /* Text-file line terminator */
+#ifdef NLCHAR // Text-file line terminator
 CHAR feol = NLCHAR;
 #else
 CHAR feol = 0;
-#endif /* NLCHAR */
+#endif // NLCHAR
 
-int fblksiz = DBLKSIZ;   /* File blocksize */
-int frecl = DLRECL;      /* File record length */
-int frecfm = XYFF_S;     /* File record format (default = stream) */
-int forg = XYFO_S;       /* File organization (sequential) */
-int fcctrl = XYFP_N;     /* File carriage control (ctrl chars) */
-int filecase = FILECASE; /* Case matters in filenames */
-int stathack = 1;        /* Fast directory lookups by default */
+int fblksiz = DBLKSIZ;   // File blocksize
+int frecl = DLRECL;      // File record length
+int frecfm = XYFF_S;     // File record format (default = stream)
+int forg = XYFO_S;       // File organization (sequential)
+int fcctrl = XYFP_N;     // File carriage control (ctrl chars)
+int filecase = FILECASE; // Case matters in filenames
+int stathack = 1;        // Fast directory lookups by default
 
-char uidbuf[UIDBUFLEN] = {NUL, NUL};     /* User ID buffer */
-int cfilef = 0;                          /* Application ("kerbang") file flag */
-char cmdfil[CKMAXPATH + 1] = {NUL, NUL}; /* Application file name */
-int haveurl = 0;                         /* URL given on command line */
+char uidbuf[UIDBUFLEN] = {NUL, NUL};     // User ID buffer
+int cfilef = 0;                          // Application ("kerbang") file flag
+char cmdfil[CKMAXPATH + 1] = {NUL, NUL}; // Application file name
+int haveurl = 0;                         // URL given on command line
 
 #ifndef NOXFER
-/* Multi-protocol support */
+// Multi-protocol support
 
 struct ck_p ptab[NPROTOS] = {
-    /* Initialize the Kermit part ... */
-    {"Kermit", DRPSIZ, /* Receive packet size */
-     DSPSIZ,           /* Send packet size */
-     0,                /* Send-packet-size-set flag */
-     DFWSIZ,           /* Window size */
+    // Initialize the Kermit part ...
+    {"Kermit", DRPSIZ, // Receive packet size
+     DSPSIZ,           // Send packet size
+     0,                // Send-packet-size-set flag
+     DFWSIZ,           // Window size
 
 #ifdef NEWDEFAULTS
-     PX_CAU, /* Control char unprefixing... */
+     PX_CAU, // Control char unprefixing...
 #else
      PX_ALL,
-#endif /* NEWDEFAULTS */
+#endif // NEWDEFAULTS
 
-     XYFX_B, /* BACKUP for everybody else */
+     XYFX_B, // BACKUP for everybody else
 
-     XYFN_C, /* Converted for others */
+     XYFN_C, // Converted for others
 
-     PATH_OFF,  /* Send pathnames OFF */
-     PATH_AUTO, /* Receive pathnames AUTO */
-     NULL,      /* Host receive initiation string (binary) */
-     NULL,      /* Host receive initiation string (text)   */
-     NULL,      /* Host server string */
-     NULL,      /* External protocol send command (binary) */
-     NULL,      /* External protocol send command (text)   */
-     NULL,      /* External protocol receive command (bin) */
-     NULL}      /* External protocol receive command (txt) */
+     PATH_OFF,  // Send pathnames OFF
+     PATH_AUTO, // Receive pathnames AUTO
+     NULL,      // Host receive initiation string (binary)
+     NULL,      // Host receive initiation string (text)
+     NULL,      // Host server string
+     NULL,      // External protocol send command (binary)
+     NULL,      // External protocol send command (text)
+     NULL,      // External protocol receive command (bin)
+     NULL}      // External protocol receive command (txt)
 };
 
-/* Declarations for Send-Init Parameters */
+// Declarations for Send-Init Parameters
 
-int spsiz = DSPSIZ,     /* Current packet size to send */
-    spmax = DSPSIZ,     /* Biggest packet size we can send */
-    lastspmax = DSPSIZ, /* Send-packet size last used */
-    spsizr = DSPSIZ,    /* Send-packet size requested */
-    spsizf = 0,         /* Flag to override size negotiation */
-    rpsiz = DRPSIZ,     /* Biggest we want to receive */
-    rpsizf = 0,         /* Flag to override size negotiation */
-    urpsiz = DRPSIZ,    /* User-requested receive pkt size */
-    maxrps = MAXRP,     /* Maximum incoming long packet size */
-    maxsps = MAXSP,     /* Maximum outbound l.p. size */
-    maxtry = MAXTRY,    /* Maximum retries per packet */
-    wslots = 1,         /* Window size currently in use */
-    wslotr = DFWSIZ,    /* Window size from SET WINDOW */
-    wslotn = 1,         /* Window size negotiated in S-pkt */
-    timeouts = 0,       /* For statistics reporting */
-    spackets = 0,       /*  ... */
-    rpackets = 0,       /*  ... */
-    retrans = 0,        /*  ... */
-    crunched = 0,       /*  ... */
-    wmax = 0,           /*  ... */
-    wcur = 0,           /*  ... */
-    srvidl = 0,         /* Server idle timeout */
-    srvdis = 1,         /* Server file xfer display */
-    srvtim = DSRVTIM,   /* Server command wait timeout */
-    srvping = 1,        /* Server keepalive */
-                        /*
-                          timint is the timeout interval I use when waiting for a packet.
-                          pkttim is the SET RECEIVE TIMEOUT value, sent to the other Kermit.
-                          rtimo is the SET SEND TIMEOUT value.  rtimo is the initial value of
-                          timint.  timint is changed by the value in the incoming negotiation
-                          packet unless a SET SEND TIMEOUT command was given.
-                        */
-    timint = DMYTIM,    /* Timeout interval I use */
-    pkttim = URTIME,    /* Timeout I want you to use */
-    rtimo = DMYTIM,     /* Normal packet wait timeout */
-    timef = 0,          /* Flag to override what you ask */
+int spsiz = DSPSIZ,     // Current packet size to send
+    spmax = DSPSIZ,     // Biggest packet size we can send
+    lastspmax = DSPSIZ, // Send-packet size last used
+    spsizr = DSPSIZ,    // Send-packet size requested
+    spsizf = 0,         // Flag to override size negotiation
+    rpsiz = DRPSIZ,     // Biggest we want to receive
+    rpsizf = 0,         // Flag to override size negotiation
+    urpsiz = DRPSIZ,    // User-requested receive pkt size
+    maxrps = MAXRP,     // Maximum incoming long packet size
+    maxsps = MAXSP,     // Maximum outbound l.p. size
+    maxtry = MAXTRY,    // Maximum retries per packet
+    wslots = 1,         // Window size currently in use
+    wslotr = DFWSIZ,    // Window size from SET WINDOW
+    wslotn = 1,         // Window size negotiated in S-pkt
+    timeouts = 0,       // For statistics reporting
+    spackets = 0,       //  ...
+    rpackets = 0,       //  ...
+    retrans = 0,        //  ...
+    crunched = 0,       //  ...
+    wmax = 0,           //  ...
+    wcur = 0,           //  ...
+    srvidl = 0,         // Server idle timeout
+    srvdis = 1,         // Server file xfer display
+    srvtim = DSRVTIM,   // Server command wait timeout
+    srvping =
+        1, // Server keepalive
+           // timint is the timeout interval I use when waiting for a packet.
+           // pkttim is the SET RECEIVE TIMEOUT value, sent to the other Kermit.
+           // rtimo is the SET SEND TIMEOUT value.  rtimo is the initial value
+           // of timint.  timint is changed by the value in the incoming
+           // negotiation packet unless a SET SEND TIMEOUT command was given.
+    timint = DMYTIM, // Timeout interval I use
+    pkttim = URTIME, // Timeout I want you to use
+    rtimo = DMYTIM,  // Normal packet wait timeout
+    timef = 0,       // Flag to override what you ask
 #ifdef CK_TIMERS
-    rttflg = 1, /* Use dynamic round-trip timers */
+    rttflg = 1, // Use dynamic round-trip timers
 #else
-    rttflg = 0, /* Use fixed timer */
-#endif           /* CK_TIMERS */
-    mintime = 1, /* Minimum timeout */
-    maxtime = 0, /* Maximum timeout */
+    rttflg = 0, // Use fixed timer
+#endif           // CK_TIMERS
+    mintime = 1, // Minimum timeout
+    maxtime = 0, // Maximum timeout
 
-    npad = MYPADN,   /* How much padding to send */
-    mypadn = MYPADN, /* How much padding to ask for */
-    bctr = DFBCT,    /* Block check type requested */
-    bctu = 1,        /* Block check type used */
-    bctl = 1,        /* Block check length */
-    bctf = 0,        /* Block check type 3 forced on all */
-    c_save = -1,     /* Block check saving and restoring */
-    ss_save = -1,    /* Slow-start saving and restoring */
-    ebq = MYEBQ,     /* 8th bit prefix */
-    ebqflg = 0,      /* 8th-bit quoting flag */
-    rqf = -1,        /* Flag used in 8bq negotiation */
-    rq = 0,          /* Received 8bq bid */
-    sq = 'Y',        /* Sent 8bq bid */
-    rpt = 0,         /* Repeat count */
-    rptq = MYRPTQ,   /* Repeat prefix */
-    rptflg = 0,      /* Repeat processing flag */
-    rptena = 1,      /* Repeat processing enabled */
-    xfrcan = 1,      /* Transfer cancellation enabled */
-    xfrint = 1,      /* Transfer interruption enabled */
-    xfrchr = 3,      /* Transfer cancel char = Ctrl-C */
-    xfrnum = 3,      /* Need three of them by default */
+    npad = MYPADN,   // How much padding to send
+    mypadn = MYPADN, // How much padding to ask for
+    bctr = DFBCT,    // Block check type requested
+    bctu = 1,        // Block check type used
+    bctl = 1,        // Block check length
+    bctf = 0,        // Block check type 3 forced on all
+    c_save = -1,     // Block check saving and restoring
+    ss_save = -1,    // Slow-start saving and restoring
+    ebq = MYEBQ,     // 8th bit prefix
+    ebqflg = 0,      // 8th-bit quoting flag
+    rqf = -1,        // Flag used in 8bq negotiation
+    rq = 0,          // Received 8bq bid
+    sq = 'Y',        // Sent 8bq bid
+    rpt = 0,         // Repeat count
+    rptq = MYRPTQ,   // Repeat prefix
+    rptflg = 0,      // Repeat processing flag
+    rptena = 1,      // Repeat processing enabled
+    xfrcan = 1,      // Transfer cancellation enabled
+    xfrint = 1,      // Transfer interruption enabled
+    xfrchr = 3,      // Transfer cancel char = Ctrl-C
+    xfrnum = 3,      // Need three of them by default
     g_xfrxla = -1;
-char *xfrmsg = NULL; /* Message for f.t. display screen */
-#endif               /* NOXFER */
+char *xfrmsg = NULL; // Message for f.t. display screen
+#endif               // NOXFER
 
 #ifdef NOCSETS
-int xfrxla = 0; /* Character-set translation */
+int xfrxla = 0; // Character-set translation
 #else
-int xfrxla = 1; /* enabled or disabled */
-#endif /* NOCSETS */
+int xfrxla = 1; // enabled or disabled
+#endif // NOCSETS
 
-int havelfs = 0; /* Large file support available */
+int havelfs = 0; // Large file support available
 
 #ifndef NOXFER
-int epktflg = 0; /* E-PACKET command active */
+int epktflg = 0; // E-PACKET command active
 
-int capas = 9,   /* Position of Capabilities */
-    lpcapb = 2,  /* Long Packet capability */
-    lpcapr = 1,  /*  requested */
-    lpcapu = 0,  /*  used */
-    swcapb = 4,  /* Sliding Window capability */
-    swcapr = 1,  /*  requested (allowed) */
-    swcapu = 0,  /*  used */
-    atcapb = 8,  /* Attribute capability */
-    atcapr = 1,  /*  requested */
-    atcapu = 0,  /*  used */
-    rscapb = 16, /* RESEND capability */
-    rscapr = 1,  /*  requested by default */
-    rscapu = 0,  /*  used */
-    lscapb = 32, /* Locking Shift capability */
-    lscapr = 1,  /*  requested by default */
-    lscapu = 0;  /*  used */
+int capas = 9,   // Position of Capabilities
+    lpcapb = 2,  // Long Packet capability
+    lpcapr = 1,  //  requested
+    lpcapu = 0,  //  used
+    swcapb = 4,  // Sliding Window capability
+    swcapr = 1,  //  requested (allowed)
+    swcapu = 0,  //  used
+    atcapb = 8,  // Attribute capability
+    atcapr = 1,  //  requested
+    atcapu = 0,  //  used
+    rscapb = 16, // RESEND capability
+    rscapr = 1,  //  requested by default
+    rscapu = 0,  //  used
+    lscapb = 32, // Locking Shift capability
+    lscapr = 1,  //  requested by default
+    lscapu = 0;  //  used
 
-/* Flags for whether to use particular attributes */
+// Flags for whether to use particular attributes
 
-int atenci = 1,             /* Encoding in */
-    atenco = 1,             /* Encoding out */
-    atdati = 1,             /* Date in */
-    atdato = 1,             /* Date out */
-    atdisi = 1,             /* Disposition in/out */
-    atdiso = 1, atleni = 1, /* Length in/out (both kinds) */
-    atleno = 1, atblki = 1, /* Blocksize in/out */
-    atblko = 1, attypi = 1, /* File type in/out */
-    attypo = 1, atsidi = 1, /* System ID in/out */
-    atsido = 1, atsysi = 1, /* System-dependent parameters in/out */
+int atenci = 1,             // Encoding in
+    atenco = 1,             // Encoding out
+    atdati = 1,             // Date in
+    atdato = 1,             // Date out
+    atdisi = 1,             // Disposition in/out
+    atdiso = 1, atleni = 1, // Length in/out (both kinds)
+    atleno = 1, atblki = 1, // Blocksize in/out
+    atblko = 1, attypi = 1, // File type in/out
+    attypo = 1, atsidi = 1, // System ID in/out
+    atsido = 1, atsysi = 1, // System-dependent parameters in/out
     atsyso = 1;
 
-int dispos = 0; /* Disposition */
+int dispos = 0; // Disposition
 
 #ifdef CK_PERMS
 int atlpri = 1, atlpro = 1, atgpri = 1, atgpro = 1;
-#endif /* CK_PERMS */
+#endif // CK_PERMS
 
-int atfrmi = 1, /* Record Format in/out */
+int atfrmi = 1, // Record Format in/out
     atfrmo = 1;
 
-int sprmlen = -1;  /* Send/Receive protocol parameter */
-int rprmlen = -1;  /* string length limits */
-int sendipkts = 1; /* Send I packets */
+int sprmlen = -1;  // Send/Receive protocol parameter
+int rprmlen = -1;  // string length limits
+int sendipkts = 1; // Send I packets
 
-CHAR padch = MYPADC, /* Padding character to send */
-    mypadc = MYPADC, /* Padding character to ask for */
-    seol = MYEOL,    /* End-Of-Line character to send */
-    eol = MYEOL,     /* End-Of-Line character to look for */
-    ctlq = CTLQ,     /* Control prefix in incoming data */
-    myctlq = CTLQ,   /* Outbound control character prefix */
-    myrptq = MYRPTQ; /* Repeat prefix I want to use */
+CHAR padch = MYPADC, // Padding character to send
+    mypadc = MYPADC, // Padding character to ask for
+    seol = MYEOL,    // End-Of-Line character to send
+    eol = MYEOL,     // End-Of-Line character to look for
+    ctlq = CTLQ,     // Control prefix in incoming data
+    myctlq = CTLQ,   // Outbound control character prefix
+    myrptq = MYRPTQ; // Repeat prefix I want to use
 
-int rptmin = 3; /* Repeat-count minimum */
+int rptmin = 3; // Repeat-count minimum
 
-int usepipes = 0, /* Used for xfer to/from pipes */
+int usepipes = 0, // Used for xfer to/from pipes
     g_usepipes = -1;
 
-/* [V-11] Separate opt-in for the RECEIVE direction: a peer naming a file
-   "!command" asks the local Kermit to execute that command on receipt.
-   usepipes alone (SEND-direction, user-controlled) must not silently also
-   authorize that -- see rcvfil() in ckcfns.c. Default off. */
+// [V-11] Separate opt-in for the RECEIVE direction: a peer naming a file
+// "!command" asks the local Kermit to execute that command on receipt.
+// usepipes alone (SEND-direction, user-controlled) must not silently also
+// authorize that -- see rcvfil() in ckcfns.c. Default off.
 int usepipes_recv = 0;
 
-char *filefile = NULL; /* File containing list of filenames */
-/* CD message filename list */
+char *filefile = NULL; // File containing list of filenames
+// CD message filename list
 
-char whoareu[16] = {NUL, NUL}; /* System ID of other Kermit */
-int sysindex = -1;             /* and index to its system ID struct */
+char whoareu[16] = {NUL, NUL}; // System ID of other Kermit
+int sysindex = -1;             // and index to its system ID struct
 int myindex = -1;
-int wearealike = 0; /* 2 Kermits have compatible sysids */
-char *cksysid =     /* My system ID */
+int wearealike = 0; // 2 Kermits have compatible sysids
+char *cksysid =     // My system ID
 #ifdef UNIX
     "U1"
 #else
     ""
-#endif /* UNIX */
+#endif // UNIX
     ;
 
-int oopts = -1; /* O-Packet Options */
-int omode = -1; /* O-Packet Transfer Mode */
-int oname = -1; /* O-Packet Filename Options */
-int opath = -1; /* O-Packet Pathname Options */
+int oopts = -1; // O-Packet Options
+int omode = -1; // O-Packet Transfer Mode
+int oname = -1; // O-Packet Filename Options
+int opath = -1; // O-Packet Pathname Options
 
-struct zattr iattr; /* Incoming file attributes */
+struct zattr iattr; // Incoming file attributes
 
 int lf_opts = 0;
 
-/* Packet-related variables */
+// Packet-related variables
 
-int pktnum = 0,     /* Current packet number */
-    sndtyp = 0,     /* Type of packet just sent */
-    rcvtyp = 0,     /* Type of packet just received */
-    rsn,            /* Received packet sequence number */
-    rln,            /* Received packet length */
-    size,           /* Current size of output pkt data */
-    osize,          /* Previous output packet data size */
-    maxsize,        /* Max size for building data field */
-    spktl = 0,      /* Length packet being sent */
-    rpktl = 0,      /* Length of packet just received */
-    pktpaus = 0,    /* Interpacket pause interval, msec */
-    rprintf,        /* REMOTE PRINT flag */
-    rmailf,         /* MAIL flag */
-    xferstat = -1,  /* Status of last transaction */
-    filestatus = 0; /* Status of last file transfer */
+int pktnum = 0,     // Current packet number
+    sndtyp = 0,     // Type of packet just sent
+    rcvtyp = 0,     // Type of packet just received
+    rsn,            // Received packet sequence number
+    rln,            // Received packet length
+    size,           // Current size of output pkt data
+    osize,          // Previous output packet data size
+    maxsize,        // Max size for building data field
+    spktl = 0,      // Length packet being sent
+    rpktl = 0,      // Length of packet just received
+    pktpaus = 0,    // Interpacket pause interval, msec
+    rprintf,        // REMOTE PRINT flag
+    rmailf,         // MAIL flag
+    xferstat = -1,  // Status of last transaction
+    filestatus = 0; // Status of last file transfer
 
 CHAR pktmsgbuf[PKTMSGLEN + 1];
 CHAR *epktmsg = pktmsgbuf;
@@ -817,156 +800,155 @@ CHAR *epktmsg = pktmsgbuf;
 int srvcmdlen = MAXRP;
 #else
 int srvcmdlen = 0;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 CHAR
 #ifdef DYNAMIC
-    *srvcmd = (CHAR *)0, /* Where to decode server command */
+    *srvcmd = (CHAR *)0, // Where to decode server command
 #else
     srvcmdbuf[MAXRP + 4],
     *srvcmd = srvcmdbuf,
-#endif                              /* DYNAMIC */
-    padbuf[96],                     /* Buffer for send-padding */
-    *recpkt, *rdatap,               /* Pointer to received packet data */
-                 *data = (CHAR *)0, /* Pointer to send-packet data */
-    *srvptr,                        /* Pointer to srvcmd */
-    mystch = SOH,                   /* Outbound packet-start character */
-    stchr = SOH;                    /* Incoming packet-start character */
+#endif                              // DYNAMIC
+    padbuf[96],                     // Buffer for send-padding
+    *recpkt, *rdatap,               // Pointer to received packet data
+                 *data = (CHAR *)0, // Pointer to send-packet data
+    *srvptr,                        // Pointer to srvcmd
+    mystch = SOH,                   // Outbound packet-start character
+    stchr = SOH;                    // Incoming packet-start character
 
-/* File-related variables */
+// File-related variables
 
-#ifndef NOMSEND                   /* Multiple SEND */
-struct filelist *filehead = NULL; /* SEND list */
+#ifndef NOMSEND                   // Multiple SEND
+struct filelist *filehead = NULL; // SEND list
 struct filelist *filetail = NULL;
 struct filelist *filenext = NULL;
 int addlist = 0;
-#endif /* NOMSEND */
+#endif // NOMSEND
 
-char filnam[CKMAXPATH + 1];  /* Name of current file. */
-char ofilnam[CKMAXPATH + 1]; /* Original name. */
+char filnam[CKMAXPATH + 1];  // Name of current file.
+char ofilnam[CKMAXPATH + 1]; // Original name.
 
-int pipesend = 0; /* Nonzero if sending from pipe */
+int pipesend = 0; // Nonzero if sending from pipe
 #ifdef PIPESEND
-char *sndfilter = NULL; /* Send and receive filters */
+char *sndfilter = NULL; // Send and receive filters
 char *rcvfilter = NULL;
-#endif /* PIPESEND */
+#endif // PIPESEND
 
-char **sndarray = NULL; /* SEND /ARRAY pointer and range */
+char **sndarray = NULL; // SEND /ARRAY pointer and range
 #ifndef NOSPL
 int sndxlo = -1, sndxhi = -1, sndxin = -1;
-#endif /* NOSPL */
-#endif /* NOXFER */
+#endif // NOSPL
+#endif // NOXFER
 
 #ifndef NOSERVER
-int ngetpath = 0; /* GET search path */
+int ngetpath = 0; // GET search path
 int fromgetpath = 0;
 char *getpath[MAXGETPATH];
-char *x_user = NULL; /* Server login information */
+char *x_user = NULL; // Server login information
 char *x_passwd = NULL;
 char *x_acct = NULL;
-#endif /* NOSERVER */
+#endif // NOSERVER
 
-int x_login = 0;  /* Login required */
-int x_logged = 0; /* User is logged in */
+int x_login = 0;  // Login required
+int x_logged = 0; // User is logged in
 
 extern int timelimit;
 
 #ifdef CK_LOGIN
-int logintimo = 300;   /* Login timeout */
-char *userfile = NULL; /* Forbidden user file */
-#endif                 /* CK_LOGIN */
+int logintimo = 300;   // Login timeout
+char *userfile = NULL; // Forbidden user file
+#endif                 // CK_LOGIN
 #ifdef IKSD
-char *anonfile = NULL; /* Anonymous login init file */
-char *anonroot = NULL; /* Anonymous file-system root */
-int iks_timo = 300;    /* 5 minutes idle timo */
-int iks_retry = 3;     /* 3 attempts at login */
-#endif                 /* IKSD */
+char *anonfile = NULL; // Anonymous login init file
+char *anonroot = NULL; // Anonymous file-system root
+int iks_timo = 300;    // 5 minutes idle timo
+int iks_retry = 3;     // 3 attempts at login
+#endif                 // IKSD
 
 #ifdef CKSYSLOG
 extern void zsyslog();
 extern int ckxlogging, ckxsyslog;
-#endif /* CKSYSLOG */
+#endif // CKSYSLOG
 
-CK_OFF_T fsize = (CK_OFF_T)0, /* Size of current file */
-    sendstart = (CK_OFF_T)0,  /* SEND start position */
-    calibrate = (CK_OFF_T)0;  /* Nonzero if calibration run */
+CK_OFF_T fsize = (CK_OFF_T)0, // Size of current file
+    sendstart = (CK_OFF_T)0,  // SEND start position
+    calibrate = (CK_OFF_T)0;  // Nonzero if calibration run
 
-int nzxopts = 0; /* Options for nzxpand() */
-int nfils = 0;   /* Number of files in file group */
-int wildena = 1; /* Wildcard expansion enabled */
+int nzxopts = 0; // Options for nzxpand()
+int nfils = 0;   // Number of files in file group
+int wildena = 1; // Wildcard expansion enabled
 #ifdef UNIX
-int wildxpand = 0; /* Who expands wildcards, 0=Kermit.. */
-#else              /* UNIX */
-#endif             /* UNIX */
-int matchdot = 0;  /* Whether to match dot files */
-int matchfifo = 0; /* Whether to match FIFO "files" */
-int clfils = 0;    /* Flag for command-line files */
-int stayflg = 0;   /* Flag for "stay", i.e. "-S" */
-int xfinish = 0;   /* Flag for FINISH = EXIT */
-long ztusec = -1L; /* Used with ztime() */
-long ztmsec = -1L; /* Ditto */
+int wildxpand = 0; // Who expands wildcards, 0=Kermit..
+#else              // UNIX
+#endif             // UNIX
+int matchdot = 0;  // Whether to match dot files
+int matchfifo = 0; // Whether to match FIFO "files"
+int clfils = 0;    // Flag for command-line files
+int stayflg = 0;   // Flag for "stay", i.e. "-S"
+int xfinish = 0;   // Flag for FINISH = EXIT
+long ztusec = -1L; // Used with ztime()
+long ztmsec = -1L; // Ditto
 
-/* Communication device / connection variables */
+// Communication device / connection variables
 
-char ttname[TTNAMLEN + 1]; /* Name of communication device */
+char ttname[TTNAMLEN + 1]; // Name of communication device
 
-long speed = -1L;        /* Communication device speed */
-int wasclosed = 0;       /* Connection was just closed */
-int whyclosed = WC_REMO; /* why it was closed */
-int qnxportlock = 0;     /* QNX port locking on/off */
+long speed = -1L;        // Communication device speed
+int wasclosed = 0;       // Connection was just closed
+int whyclosed = WC_REMO; // why it was closed
+int qnxportlock = 0;     // QNX port locking on/off
 
 #ifndef CLSONDISC
 #define CLSONDISC 0
-#endif /* CLSONDISC */
+#endif // CLSONDISC
 
-int cxflow[CXT_MAX + 1]; /* See initflow() */
+int cxflow[CXT_MAX + 1]; // See initflow()
 
 #ifndef NOSHOW
-char *floname[] = {/* Flow control names */
-                   "none", "xon/xoff", "rts/cts", "dtr/cd", "etx/ack", "string",
-                   "xxx1", "xxx2",     "dtr/cts", "keep",   "auto"};
+char *floname[] = { // Flow control names
+    "none", "xon/xoff", "rts/cts", "dtr/cd", "etx/ack", "string",
+    "xxx1", "xxx2",     "dtr/cts", "keep",   "auto"};
 int nfloname = (sizeof(floname) / sizeof(char *));
 
-char *cxname[] = {/* Connection type names */
-                  "remote",     "direct-serial", "modem", "tcp/ip",
-                  "x.25",       "decnet",        "lat",   "netbios",
-                  "named-pipe", "ssh",           "pipe"};
+char *cxname[] = { // Connection type names
+    "remote", "direct-serial", "modem",      "tcp/ip", "x.25", "decnet",
+    "lat",    "netbios",       "named-pipe", "ssh",    "pipe"};
 int ncxname = (sizeof(cxname) / sizeof(char *));
-#endif /* NOSHOW */
+#endif // NOSHOW
 
-int parity = DEFPAR,       /* Parity specified, 0,'e','o',etc */
-    hwparity = 0,          /* Hardware parity for serial port */
-    stopbits = -1,         /* Stop bits for serial port */
-    clsondisc = CLSONDISC, /* Serial port close on disconnect */
-    autopar = 0,           /* Automatic parity change flag */
-    sosi = 0,              /* Shift-In/Out flag */
-    flow = 0,              /* Flow control (see initflow()) */
-    autoflow = 1,          /* Automatic flow control */
-    turn = 0,              /* Line turnaround handshake flag */
-    turnch = XON,          /* Line turnaround character */
-    duplex = 0,            /* Duplex, full by default */
-    escape = DFESC,        /* Escape character for connect */
-    ckdelay = DDELAY,      /* Initial delay before sending */
-    tnlm = 0;              /* Terminal newline mode */
+int parity = DEFPAR,       // Parity specified, 0,'e','o',etc
+    hwparity = 0,          // Hardware parity for serial port
+    stopbits = -1,         // Stop bits for serial port
+    clsondisc = CLSONDISC, // Serial port close on disconnect
+    autopar = 0,           // Automatic parity change flag
+    sosi = 0,              // Shift-In/Out flag
+    flow = 0,              // Flow control (see initflow())
+    autoflow = 1,          // Automatic flow control
+    turn = 0,              // Line turnaround handshake flag
+    turnch = XON,          // Line turnaround character
+    duplex = 0,            // Duplex, full by default
+    escape = DFESC,        // Escape character for connect
+    ckdelay = DDELAY,      // Initial delay before sending
+    tnlm = 0;              // Terminal newline mode
 
-/* Networks for SET HOST */
+// Networks for SET HOST
 
 #ifdef BIGBUFOK
 #define MYHOSTL 1024
 #else
 #define MYHOSTL 100
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
 
-char myhost[MYHOSTL];    /* Local host name */
-int network = 0;         /* Network vs serial connection */
-int inserver = 0;        /* Running as an Internet server */
-int isguest = 0;         /* User is anonymous */
-char *clienthost = NULL; /* Peer host name or address */
-int tcp_incoming = 0;    /* Incoming TCP connection? */
+char myhost[MYHOSTL];    // Local host name
+int network = 0;         // Network vs serial connection
+int inserver = 0;        // Running as an Internet server
+int isguest = 0;         // User is anonymous
+char *clienthost = NULL; // Peer host name or address
+int tcp_incoming = 0;    // Incoming TCP connection?
 
 #ifdef NETCONN
 #if defined(TCPSOCKET)
-int nettype = NET_TCPB; /* Default network type */
+int nettype = NET_TCPB; // Default network type
 #elif defined(IBMX25)
 int nettype = NET_IX25;
 #elif defined(HPX25)
@@ -977,217 +959,213 @@ int nettype = NET_DEC;
 int nettype = NET_SLAT;
 #else
 int nettype = NET_NONE;
-#endif /* TCPSOCKET / IBMX25 / HPX25 / DECNET / SUPERLAT */
-#else  /* NETCONN */
+#endif // TCPSOCKET / IBMX25 / HPX25 / DECNET / SUPERLAT
+#else  // NETCONN
 int nettype = NET_NONE;
-#endif /* NETCONN */
+#endif // NETCONN
 
 #ifdef ANYX25
-int revcall = 0;       /* X.25 reverse call not selected */
-int closgr = -1;       /* X.25 closed user group  */
-int cudata = 0;        /* X.25 call user data not specified */
-char udata[MAXCUDATA]; /* X.25 call user data */
+int revcall = 0;       // X.25 reverse call not selected
+int closgr = -1;       // X.25 closed user group
+int cudata = 0;        // X.25 call user data not specified
+char udata[MAXCUDATA]; // X.25 call user data
 
 #ifdef IBMX25
-/*
-  I was unable to find any pre-defined MAX values for x25 addresses - the
-  addresses that I've seen have been around 10-12 characters 32 is probably
-  enough, 64 is hopefully safe for everyone.
-*/
-x25addr_t local_nua = {'\0'};    /* local x.25 address */
-x25addr_t remote_nua = {'\0'};   /* remote x.25 address */
-char x25name[32] = {'\0'};       /* x25 device name, sx25a0 or sx25a1 */
-char x25dev[64] = "/dev/x25pkt"; /* x25 device in /dev */
-int x25port = 0;                 /* port used for X.25 - AIX only */
-#endif                           /* IBMX25 */
+// I was unable to find any pre-defined MAX values for x25 addresses - the
+// addresses that I've seen have been around 10-12 characters 32 is probably
+// enough, 64 is hopefully safe for everyone.
+x25addr_t local_nua = {'\0'};    // local x.25 address
+x25addr_t remote_nua = {'\0'};   // remote x.25 address
+char x25name[32] = {'\0'};       // x25 device name, sx25a0 or sx25a1
+char x25dev[64] = "/dev/x25pkt"; // x25 device in /dev
+int x25port = 0;                 // port used for X.25 - AIX only
+#endif                           // IBMX25
 
 #ifndef IBMX25
-/*
-  This condition is unrelated to the above IBMX25 condition.
-  IBM X.25 doesn't have PAD support.
-*/
-CHAR padparms[MAXPADPARMS + 1]; /* X.3 parameters */
-#endif                          /* IBMX25 */
-#endif                          /* ANYX25 */
+// This condition is unrelated to the above IBMX25 condition.
+// IBM X.25 doesn't have PAD support.
+CHAR padparms[MAXPADPARMS + 1]; // X.3 parameters
+#endif                          // IBMX25
+#endif                          // ANYX25
 
-/* Other items */
+// Other items
 
-int isinterrupted = 0; /* Used in exception handling */
-int what = W_INIT;     /* What I am doing */
-int lastxfer = 0;      /* Last transfer (send or receive) */
+int isinterrupted = 0; // Used in exception handling
+int what = W_INIT;     // What I am doing
+int lastxfer = 0;      // Last transfer (send or receive)
 
-extern int mdmtyp; /* Modem (/network) type */
+extern int mdmtyp; // Modem (/network) type
 
-/* Terminal screen size, if known, -1 means unknown. */
+// Terminal screen size, if known, -1 means unknown.
 
-int tt_rows = -1;                 /* Rows (height) */
-int tt_cols = -1;                 /* Columns (width) */
-int cmd_rows = 24, cmd_cols = 80; /* Command/console screen dimensions */
-int tt_bell = XYB_AUD;            /* BELL ON */
+int tt_rows = -1;                 // Rows (height)
+int tt_cols = -1;                 // Columns (width)
+int cmd_rows = 24, cmd_cols = 80; // Command/console screen dimensions
+int tt_bell = XYB_AUD;            // BELL ON
 
-int tt_print = 0;  /* Transparent print disabled */
-int tt_escape = 1; /* Escaping back is enabled */
-int tt_scroll = 1; /* Scrolling operations are enabled */
+int tt_print = 0;  // Transparent print disabled
+int tt_escape = 1; // Escaping back is enabled
+int tt_scroll = 1; // Scrolling operations are enabled
 
-int tn_exit = 0; /* Exit on disconnect */
+int tn_exit = 0; // Exit on disconnect
 
-int exitonclose = 0; /* Exit on close */
-int exithangup = 1;  /* Hangup on exit */
-int haveline = 0;    /* SET LINE or SET HOST in effect */
-int tlevel = -1;     /* Take-file command level */
-int hints = 1;       /* Whether to give hints */
+int exitonclose = 0; // Exit on close
+int exithangup = 1;  // Hangup on exit
+int haveline = 0;    // SET LINE or SET HOST in effect
+int tlevel = -1;     // Take-file command level
+int hints = 1;       // Whether to give hints
 
 #ifdef NOLOCAL
-int remonly = 1; /* Remote-mode-only advisory (-R) */
-int nolocal = 1; /* Remote-only strictly enforced */
+int remonly = 1; // Remote-mode-only advisory (-R)
+int nolocal = 1; // Remote-only strictly enforced
 #else
 int remonly = 0;
 int nolocal = 0;
-int cx_status = 0; /* CONNECT return status */
-#endif /* NOLOCAL */
+int cx_status = 0; // CONNECT return status
+#endif // NOLOCAL
 
 #ifndef NOSPL
-extern int cmdlvl; /* Command level */
-extern int maclvl; /* Macro invocation level */
-#endif             /* NOSPL */
+extern int cmdlvl; // Command level
+extern int maclvl; // Macro invocation level
+#endif             // NOSPL
 
-int protocol = PROTO_K; /* File transfer protocol = Kermit */
+int protocol = PROTO_K; // File transfer protocol = Kermit
 
 #ifdef NEWDEFAULTS
 int prefixing = PX_CAU;
 #else
 int prefixing = PX_ALL;
-#endif /* NEWDEFAULTS */
+#endif // NEWDEFAULTS
 
-extern short ctlp[]; /* Control-prefix table */
+extern short ctlp[]; // Control-prefix table
 
-int carrier = CAR_AUT;  /* Pay attention to carrier signal */
-int cdtimo = 0;         /* Carrier wait timeout */
-int xitsta = GOOD_EXIT; /* Program exit status */
+int carrier = CAR_AUT;  // Pay attention to carrier signal
+int cdtimo = 0;         // Carrier wait timeout
+int xitsta = GOOD_EXIT; // Program exit status
 
-int fncact = XYFX_B; /* BACKUP for everybody else */
+int fncact = XYFX_B; // BACKUP for everybody else
 
-int fncsav = -1; /* For saving & restoring the above */
-int bgset = -1;  /* BACKGROUND mode set explicitly */
+int fncsav = -1; // For saving & restoring the above
+int bgset = -1;  // BACKGROUND mode set explicitly
 
-int cmdint = 1; /* Interrupts are allowed */
+int cmdint = 1; // Interrupts are allowed
 #ifdef UNIX
-int xsuspend = DFSUSP; /* Whether SUSPEND command, etc, */
-#else                  /* is to be allowed. */
+int xsuspend = DFSUSP; // Whether SUSPEND command, etc,
+#else                  // is to be allowed.
 int xsuspend = 0;
-#endif                 /* UNIX */
+#endif                 // UNIX
 
-/* Statistics variables */
+// Statistics variables
 
 CK_OFF_T
-flci,     /* Characters from line, current file */
-    flco, /* Chars to line, current file  */
-    tlci, /* Chars from line in transaction */
-    tlco, /* Chars to line in transaction */
-    ffc,  /* Chars to/from current file */
-    tfc;  /* Chars to/from files in transaction */
+flci,     // Characters from line, current file
+    flco, // Chars to line, current file
+    tlci, // Chars from line in transaction
+    tlco, // Chars to line in transaction
+    ffc,  // Chars to/from current file
+    tfc;  // Chars to/from files in transaction
 
-long filcnt,      /* Number of files in transaction */
-    filrej,       /* Number of files rejected in transaction */
-    cps = 0L,     /* Chars/sec last transfer */
-    peakcps = 0L, /* Peak chars/sec last transfer */
-    ccu,          /* Control chars unprefixed in transaction */
-    ccp,          /* Control chars prefixed in transaction */
-    rptn;         /* Repeated characters compressed */
+long filcnt,      // Number of files in transaction
+    filrej,       // Number of files rejected in transaction
+    cps = 0L,     // Chars/sec last transfer
+    peakcps = 0L, // Peak chars/sec last transfer
+    ccu,          // Control chars unprefixed in transaction
+    ccp,          // Control chars prefixed in transaction
+    rptn;         // Repeated characters compressed
 
-int tsecs = 0; /* Seconds for transaction */
-int fsecs = 0; /* Per-file timer */
+int tsecs = 0; // Seconds for transaction
+int fsecs = 0; // Per-file timer
 
 #ifdef GFTIMER
 CKFLOAT
-fpfsecs = 0.0,     /* Floating point per-file timer */
-    fptsecs = 0.0; /* and per-transaction timer */
-#endif             /* GFTIMER */
+fpfsecs = 0.0,     // Floating point per-file timer
+    fptsecs = 0.0; // and per-transaction timer
+#endif             // GFTIMER
 
-/* Flags */
+// Flags
 
-int deblog = 0,         /* Debug log is open */
-    debok = 1,          /* Debug log is not disabled */
-    debxlen = 54,       /* Default length for debug strings */
-    debses = 0,         /* Flag for DEBUG SESSION */
-    debtim = 0,         /* Include timestamp in debug log */
-    debmsg = 0,         /* Debug messages on/off */
-    pktlog = 0,         /* Flag for packet logging */
-    seslog = 0,         /* Session logging */
-    dialog = 0,         /* DIAL logging */
-    tralog = 0,         /* Transaction logging */
-    tlogfmt = 1,        /* Transaction log format (verbose) */
-    tlogsep = (int)',', /* Transaction log field separator */
-    displa = 0,         /* File transfer display on/off */
-    stdouf = 0,         /* Flag for output to stdout */
-    stdinf = 0,         /* Flag for input from stdin */
-    xflg = 0,           /* Flag for X instead of F packet */
-    hcflg = 0,          /* Doing Host command */
-    dest = DEST_D,      /* Destination for packet data */
-    zchkod = 0,         /* zchko() should work for dirs too? */
-    zchkid = 0,         /* zchki() should work for dirs too? */
+int deblog = 0,         // Debug log is open
+    debok = 1,          // Debug log is not disabled
+    debxlen = 54,       // Default length for debug strings
+    debses = 0,         // Flag for DEBUG SESSION
+    debtim = 0,         // Include timestamp in debug log
+    debmsg = 0,         // Debug messages on/off
+    pktlog = 0,         // Flag for packet logging
+    seslog = 0,         // Session logging
+    dialog = 0,         // DIAL logging
+    tralog = 0,         // Transaction logging
+    tlogfmt = 1,        // Transaction log format (verbose)
+    tlogsep = (int)',', // Transaction log field separator
+    displa = 0,         // File transfer display on/off
+    stdouf = 0,         // Flag for output to stdout
+    stdinf = 0,         // Flag for input from stdin
+    xflg = 0,           // Flag for X instead of F packet
+    hcflg = 0,          // Doing Host command
+    dest = DEST_D,      // Destination for packet data
+    zchkod = 0,         // zchko() should work for dirs too?
+    zchkid = 0,         // zchki() should work for dirs too?
 
-    /* If you change this, also see struct ptab above... */
+    // If you change this, also see struct ptab above...
 
-    fncnv = XYFN_C,  /* elsewhere Convert them */
-    f_save = XYFN_C, /* (ditto) */
+    fncnv = XYFN_C,  // elsewhere Convert them
+    f_save = XYFN_C, // (ditto)
 
-    fnspath = PATH_OFF,  /* Send file path */
-    fnrpath = PATH_AUTO, /* Receive file path */
-    fackpath = 1,        /* Send back path in ACK to F */
-    binary = XYFT_B,     /* Default file transfer mode */
-    b_save = XYFT_B,     /* Saved file mode */
-    eofmethod = 0,       /* EOF detection method (length) */
+    fnspath = PATH_OFF,  // Send file path
+    fnrpath = PATH_AUTO, // Receive file path
+    fackpath = 1,        // Send back path in ACK to F
+    binary = XYFT_B,     // Default file transfer mode
+    b_save = XYFT_B,     // Saved file mode
+    eofmethod = 0,       // EOF detection method (length)
 
-    xfermode = XMODE_A,  /* Transfer mode, manual or auto */
-    xfiletype = -1,      /* Transfer only text (or binary) */
-    recursive = 0,       /* Recursive directory traversal */
-    nolinks = 2,         /* Don't follow symbolic links */
-    skipbup = 0,         /* Skip backup files when sending */
-    sendmode = SM_SEND,  /* Which type of SEND operation */
-    slostart = 1,        /* Slow start (grow packet lengths) */
-    cmask = 0377,        /* CONNECT (terminal) byte mask */
-    fmask = 0377,        /* File byte mask */
-    ckwarn = 0,          /* Flag for file warning */
-    quiet = 0,           /* Be quiet during file transfer */
-    local = 0,           /* 1 = local mode, 0 = remote mode */
-    cxtype = CXT_REMOTE, /* Connection type */
-    server = 0,          /* Flag for I Am Server */
-    query = 0,           /* Flag for Query active */
-    justone = 0,         /* Server should do Just One command */
-    urserver = 0,        /* Flag for You Are Server */
-    bye_active = 0,      /* Flag for BYE command active */
-    diractive = 0,       /* Flag for DIRECTORY command active */
-    cdactive = 0,        /* Flag for CD command active */
-    cflg = 0,            /* Connect before transaction */
-    cnflg = 0,           /* Connect after transaction */
-    cxseen = 0,          /* Flag for cancelling a file */
-    czseen = 0,          /* Flag for cancelling file group */
-    fatalio = 0,         /* Flag for fatal i/o error */
-    discard = 0,         /* Flag for file to be discarded */
-    keep = SET_AUTO,     /* Keep incomplete files = AUTO */
-    unkcs = 1,           /* Keep file w/unknown character set */
+    xfermode = XMODE_A,  // Transfer mode, manual or auto
+    xfiletype = -1,      // Transfer only text (or binary)
+    recursive = 0,       // Recursive directory traversal
+    nolinks = 2,         // Don't follow symbolic links
+    skipbup = 0,         // Skip backup files when sending
+    sendmode = SM_SEND,  // Which type of SEND operation
+    slostart = 1,        // Slow start (grow packet lengths)
+    cmask = 0377,        // CONNECT (terminal) byte mask
+    fmask = 0377,        // File byte mask
+    ckwarn = 0,          // Flag for file warning
+    quiet = 0,           // Be quiet during file transfer
+    local = 0,           // 1 = local mode, 0 = remote mode
+    cxtype = CXT_REMOTE, // Connection type
+    server = 0,          // Flag for I Am Server
+    query = 0,           // Flag for Query active
+    justone = 0,         // Server should do Just One command
+    urserver = 0,        // Flag for You Are Server
+    bye_active = 0,      // Flag for BYE command active
+    diractive = 0,       // Flag for DIRECTORY command active
+    cdactive = 0,        // Flag for CD command active
+    cflg = 0,            // Connect before transaction
+    cnflg = 0,           // Connect after transaction
+    cxseen = 0,          // Flag for cancelling a file
+    czseen = 0,          // Flag for cancelling file group
+    fatalio = 0,         // Flag for fatal i/o error
+    discard = 0,         // Flag for file to be discarded
+    keep = SET_AUTO,     // Keep incomplete files = AUTO
+    unkcs = 1,           // Keep file w/unknown character set
 #ifdef datgeneral
     filepeek = 0,
 #else
     filepeek = 1,
-#endif                   /* datageneral */
-    nakstate = 0,        /* In a state where we can send NAKs */
-    dblchar = -1,        /* Character to double when sending */
-    moving = 0,          /* MOVE = send, then delete */
-    reliable = SET_AUTO, /* Nonzero if transport is reliable */
+#endif                   // datageneral
+    nakstate = 0,        // In a state where we can send NAKs
+    dblchar = -1,        // Character to double when sending
+    moving = 0,          // MOVE = send, then delete
+    reliable = SET_AUTO, // Nonzero if transport is reliable
     xreliable = -1, setreliable = 0,
-    urclear = 0,                /* Nonzero for clear channel to you */
-    clearrq = SET_AUTO,         /* SET CLEARCHANEL value */
-    cleared = 0, streaming = 0, /* Nonzero if streaming is active */
-    streamok = 0,               /* Nonzero if streaming negotiated */
-    streamrq = SET_AUTO,        /* SET STREAMING value */
-    streamed = -1;              /* Whether we streamed last time */
+    urclear = 0,                // Nonzero for clear channel to you
+    clearrq = SET_AUTO,         // SET CLEARCHANEL value
+    cleared = 0, streaming = 0, // Nonzero if streaming is active
+    streamok = 0,               // Nonzero if streaming negotiated
+    streamrq = SET_AUTO,        // SET STREAMING value
+    streamed = -1;              // Whether we streamed last time
 
-char *snd_move = NULL;   /* Move file after sending it */
-char *snd_rename = NULL; /* Rename file after sending it */
-char *rcv_move = NULL;   /* Move file after receiving it */
-char *rcv_rename = NULL; /* Rename file after receiving it */
+char *snd_move = NULL;   // Move file after sending it
+char *snd_rename = NULL; // Rename file after sending it
+char *rcv_move = NULL;   // Move file after receiving it
+char *rcv_rename = NULL; // Rename file after receiving it
 
 char *g_snd_move = NULL;
 char *g_snd_rename = NULL;
@@ -1198,28 +1176,28 @@ char *g_rcv_rename = NULL;
 char *tt_trigger[TRIGGERS] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 CHAR *tt_trmatch[TRIGGERS] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 char *triggerval = NULL;
-#endif /* CK_TRIGGER */
+#endif // CK_TRIGGER
 
-int ckxlogging = 0; /* Flag for syslogging active */
-int ikdbopen = 0;   /* Flag for IKSD database active */
-int dbinited = 0;   /* Flag for IKSDB record init'd */
+int ckxlogging = 0; // Flag for syslogging active
+int ikdbopen = 0;   // Flag for IKSD database active
+int dbinited = 0;   // Flag for IKSDB record init'd
 #ifndef CKSYSLOG
-int ckxsyslog = 0; /* Logging level 0 */
+int ckxsyslog = 0; // Logging level 0
 #else
 #ifdef SYSLOGLEVEL
-int ckxsyslog = SYSLOGLEVEL; /* Logging level specified */
+int ckxsyslog = SYSLOGLEVEL; // Logging level specified
 #else
-int ckxsyslog = SYSLG_DF; /* Default logging level */
-#endif /* SYSLOGLEVEL */
-#endif /* CKSYSLOG */
+int ckxsyslog = SYSLG_DF; // Default logging level
+#endif // SYSLOGLEVEL
+#endif // CKSYSLOG
 
 #ifndef NOHELP
 #ifndef NOCMDL
-void iniopthlp(void); /* Command-line help initializer */
-#endif                /* NOCMDL */
-#endif                /* NOHELP */
+void iniopthlp(void); // Command-line help initializer
+#endif                // NOCMDL
+#endif                // NOHELP
 
-void initfloat(void); /* Floating-point initializer */
+void initfloat(void); // Floating-point initializer
 
 void makever(void);
 void getexedir(void);
@@ -1230,122 +1208,118 @@ void doiksdinit(void);
 void iksdinit(void);
 void doiklog(void);
 int dbinit(void);
-#endif /* IKSD */
+#endif // IKSD
 
-/* Variables passed from command parser to protocol module */
+// Variables passed from command parser to protocol module
 
 #ifndef NOSPL
 #ifndef NOICP
 #ifdef CK_APC
 void apconect(void);
-#endif               /* CK_APC */
-#endif               /* NOICP */
-#endif               /* NOSPL */
-char *clcmds = NULL; /* Pointer to command-line commands */
+#endif               // CK_APC
+#endif               // NOICP
+#endif               // NOSPL
+char *clcmds = NULL; // Pointer to command-line commands
 
 #ifndef NOSETKEY
 extern KEY *keymap;
 extern MACRO *macrotab;
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 #ifndef NOPUSH
-int nopush = 0; /* PUSH enabled */
+int nopush = 0; // PUSH enabled
 #else
-int nopush = 1; /* PUSH disabled */
-#endif /* NOPUSH */
+int nopush = 1; // PUSH disabled
+#endif // NOPUSH
 
-CHAR sstate = (CHAR)0;    /* Starting state for automaton */
-CHAR zstate = (CHAR)0;    /* For remembering sstate */
-char *printername = NULL; /* NULL if printer not redirected */
-int printpipe = 0;        /* For SET PRINTER */
+CHAR sstate = (CHAR)0;    // Starting state for automaton
+CHAR zstate = (CHAR)0;    // For remembering sstate
+char *printername = NULL; // NULL if printer not redirected
+int printpipe = 0;        // For SET PRINTER
 int noprinter = 0;
 
 #ifndef NOXFER
-char *cmarg = "";  /* Pointer to command data */
-char *cmarg2 = ""; /* Pointer to 2nd command data */
-char **cmlist;     /* Pointer to file list in argv */
+char *cmarg = "";  // Pointer to command data
+char *cmarg2 = ""; // Pointer to 2nd command data
+char **cmlist;     // Pointer to file list in argv
 
-#ifdef CK_AUTODL /* Autodownload */
-int autodl = 1;  /* Enabled by default */
+#ifdef CK_AUTODL // Autodownload
+int autodl = 1;  // Enabled by default
 #else
-int autodl = 0; /* (or if not implemented). */
-#endif           /* CK_AUTODL */
-int adl_err = 1; /* 1 = stop on error */
-int adl_ask = 0; /* 0 = no file dialog */
+int autodl = 0; // (or if not implemented).
+#endif           // CK_AUTODL
+int adl_err = 1; // 1 = stop on error
+int adl_ask = 0; // 0 = no file dialog
 
-int remfile = 0, rempipe = 0, remappd = 0; /* REMOTE output redirection */
+int remfile = 0, rempipe = 0, remappd = 0; // REMOTE output redirection
 char *remdest = NULL;
 
 #ifndef NOSERVER
-/*
-  Server services:
-   0 = disabled
-   1 = enabled in local mode
-   2 = enabled in remote mode
-   3 = enabled in both local and remote modes
-  only as initial (default) values.
-*/
-int en_xit = 2; /* EXIT */
-int en_cwd = 3; /* CD/CWD */
-int en_cpy = 3; /* COPY   */
-int en_del = 2; /* DELETE */
-int en_mkd = 3; /* MKDIR */
-int en_rmd = 2; /* RMDIR */
-int en_dir = 3; /* DIRECTORY */
-int en_fin = 3; /* FINISH */
-int en_get = 3; /* GET */
+// Server services:
+// 0 = disabled
+// 1 = enabled in local mode
+// 2 = enabled in remote mode
+// 3 = enabled in both local and remote modes
+// only as initial (default) values.
+int en_xit = 2; // EXIT
+int en_cwd = 3; // CD/CWD
+int en_cpy = 3; // COPY
+int en_del = 2; // DELETE
+int en_mkd = 3; // MKDIR
+int en_rmd = 2; // RMDIR
+int en_dir = 3; // DIRECTORY
+int en_fin = 3; // FINISH
+int en_get = 3; // GET
 #ifndef NOPUSH
-int en_hos = 2; /* HOST enabled */
+int en_hos = 2; // HOST enabled
 #else
-int en_hos = 0; /* HOST disabled */
-#endif          /* NOPUSH */
-int en_ren = 3; /* RENAME */
-int en_sen = 3; /* SEND */
-int en_set = 3; /* SET */
-int en_spa = 3; /* SPACE */
-int en_typ = 3; /* TYPE */
-int en_who = 3; /* WHO */
-int en_bye = 2; /* PCs in local mode... */
-int en_asg = 3; /* ASSIGN */
-int en_que = 3; /* QUERY */
-int en_ret = 2; /* RETRIEVE */
-int en_mai = 3; /* MAIL */
-int en_pri = 3; /* PRINT */
-int en_ena = 3; /* ENABLE */
+int en_hos = 0; // HOST disabled
+#endif          // NOPUSH
+int en_ren = 3; // RENAME
+int en_sen = 3; // SEND
+int en_set = 3; // SET
+int en_spa = 3; // SPACE
+int en_typ = 3; // TYPE
+int en_who = 3; // WHO
+int en_bye = 2; // PCs in local mode...
+int en_asg = 3; // ASSIGN
+int en_que = 3; // QUERY
+int en_ret = 2; // RETRIEVE
+int en_mai = 3; // MAIL
+int en_pri = 3; // PRINT
+int en_ena = 3; // ENABLE
 #else
 int en_xit = 0, en_cwd = 0, en_cpy = 0, en_del = 0, en_mkd = 0, en_rmd = 0,
     en_dir = 0, en_fin = 0, en_get = 0, en_hos = 0, en_ren = 0, en_sen = 0,
     en_set = 0, en_spa = 0, en_typ = 0, en_who = 0, en_bye = 0, en_asg = 0,
     en_que = 0, en_ret = 0, en_mai = 0, en_pri = 0, en_ena = 0;
-#endif /* NOSERVER */
-#endif /* NOXFER */
+#endif // NOSERVER
+#endif // NOXFER
 
-/* Miscellaneous */
+// Miscellaneous
 
-char **xargv;   /* Global copies of argv */
-int xargc;      /* and argc  */
-int xargs;      /* an immutable copy of argc */
-char *xarg0;    /* and of argv[0] */
-char *pipedata; /* Pointer to -P (pipe) data */
+char **xargv;   // Global copies of argv
+int xargc;      // and argc
+int xargs;      // an immutable copy of argc
+char *xarg0;    // and of argv[0]
+char *pipedata; // Pointer to -P (pipe) data
 
-extern char *dftty; /* Default tty name from ck?tio.c */
-extern int dfloc;   /* Default location: remote/local */
-extern int dfprty;  /* Default parity */
-extern int dfflow;  /* Default flow control */
+extern char *dftty; // Default tty name from ck?tio.c
+extern int dfloc;   // Default location: remote/local
+extern int dfprty;  // Default parity
+extern int dfflow;  // Default flow control
 
 #ifdef TNCODE
 extern int tn_deb;
-#endif /* TNCODE */
-/*
-  Buffered file input and output buffers.  See getpkt() in ckcfns.c
-  and zoutdump() in the system-dependent file i/o module (usually ck?fio.c).
-*/
+#endif // TNCODE
+// Buffered file input and output buffers.  See getpkt() in ckcfns.c
+// and zoutdump() in the system-dependent file i/o module (usually ck?fio.c).
 #ifndef DYNAMIC
-/* Now we allocate them dynamically, see getiobs() at bottom. */
+// Now we allocate them dynamically, see getiobs() at bottom.
 char zinbuffer[INBUFSIZE], zoutbuffer[OBUFSIZE];
 #else
 char *zinbuffer = NULL, *zoutbuffer = NULL;
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 char *zinptr, *zoutptr;
 int zincnt, zoutcnt;
 int zobufsize = OBUFSIZE;
@@ -1354,11 +1328,11 @@ int zofblock = 1;
 
 #ifdef SESLIMIT
 int seslimit = 0;
-#endif /* SESLIMIT */
+#endif // SESLIMIT
 
 int getiobs(void);
 
-/*  M A I N  --  C-Kermit main program  */
+//  M A I N  --  C-Kermit main program
 
 #include <signal.h>
 
@@ -1366,49 +1340,47 @@ int getiobs(void);
 #include "ckcsig.h"
 #include <setjmp.h>
 ckjmpbuf cmjbuf;
-#endif /* NOCCTRAP */
+#endif // NOCCTRAP
 
 #ifdef TIMEH
-/* This had to be added for NetBSD 6.1 - it might have "effects" elsewhere */
-/* Tue Sep  3 17:03:42 2013 */
+// This had to be added for NetBSD 6.1 - it might have "effects" elsewhere
+// Tue Sep  3 17:03:42 2013
 #include <time.h>
-#endif /* TIMEH */
+#endif // TIMEH
 
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcfnp.h" // Prototypes (must be last)
 
 #ifndef NOXFER
-/* Info associated with a system ID */
+// Info associated with a system ID
 
-struct sysdata sysidlist[] = {/* Add others as needed... */
-                              {"0", "anonymous", 0, NUL, 0, 0, 0},
-                              {"A1", "Apple II", 0, NUL, 0, 0,
-                               3}, /* fix this */
-                              {"A3", "Macintosh", 1, ':', 0, 2, 1},
-                              {"D7", "VMS", 0, ']', 1, 0, 0},
-                              {"DA", "RSTS/E", 0, ']', 1, 0,
-                               3}, /* (i think...) */
-                              {"DB", "RT11", 0, NUL, 1, 0, 3}, /* (maybe...) */
-                              {"F3", "AOS/VS", 1, ':', 0, 0, 2},
-                              {"I1", "VM/CMS", 0, NUL, 0, 0, 0},
-                              {"I2", "MVS/TSO", 0, NUL, 0, 0, 0},
-                              {"I4", "MUSIC", 0, NUL, 0, 0, 0},
-                              {"I7", "CICS", 0, NUL, 0, 0, 0},
-                              {"I9", "MVS/ROSCOE", 0, NUL, 0, 0, 0},
-                              {"K2", "Atari ST", 1, '\\', 1, 0, 3},
-                              {"L3", "Amiga", 1, '/', 1, 0, 2},
-                              {"MV", "Stratus VOS", 1, '>', 0, 1, 0},
-                              {"N3", "Apollo Aegis", 1, '/', 0, 3, 2},
-                              {"U1", "UNIX", 1, '/', 0, 3, 2},
-                              {"U8", "MS-DOS", 1, '\\', 1, 0, 3},
-                              {"UD", "OS-9", 1, '/', 0, 3, 2},
-                              {"UN", "MS-Windows", 1, '\\', 1, 2, 3},
-                              {"UO", "OS/2", 1, '\\', 1, 2, 3}};
+struct sysdata sysidlist[] = { // Add others as needed...
+    {"0", "anonymous", 0, NUL, 0, 0, 0},
+    {"A1", "Apple II", 0, NUL, 0, 0, 3}, // fix this
+    {"A3", "Macintosh", 1, ':', 0, 2, 1},
+    {"D7", "VMS", 0, ']', 1, 0, 0},
+    {"DA", "RSTS/E", 0, ']', 1, 0, 3}, // (i think...)
+    {"DB", "RT11", 0, NUL, 1, 0, 3},   // (maybe...)
+    {"F3", "AOS/VS", 1, ':', 0, 0, 2},
+    {"I1", "VM/CMS", 0, NUL, 0, 0, 0},
+    {"I2", "MVS/TSO", 0, NUL, 0, 0, 0},
+    {"I4", "MUSIC", 0, NUL, 0, 0, 0},
+    {"I7", "CICS", 0, NUL, 0, 0, 0},
+    {"I9", "MVS/ROSCOE", 0, NUL, 0, 0, 0},
+    {"K2", "Atari ST", 1, '\\', 1, 0, 3},
+    {"L3", "Amiga", 1, '/', 1, 0, 2},
+    {"MV", "Stratus VOS", 1, '>', 0, 1, 0},
+    {"N3", "Apollo Aegis", 1, '/', 0, 3, 2},
+    {"U1", "UNIX", 1, '/', 0, 3, 2},
+    {"U8", "MS-DOS", 1, '\\', 1, 0, 3},
+    {"UD", "OS-9", 1, '/', 0, 3, 2},
+    {"UN", "MS-Windows", 1, '\\', 1, 2, 3},
+    {"UO", "OS/2", 1, '\\', 1, 2, 3}};
 static int nxxsysids = (sizeof(sysidlist) / sizeof(struct sysdata));
 
-/* Given a Kermit system ID code, return the associated name string */
-/* and some properties of the filenames... */
+// Given a Kermit system ID code, return the associated name string
+// and some properties of the filenames...
 
-char *getsysid(char *s) /* Get system-type name */
+char *getsysid(char *s) // Get system-type name
 {
   int i;
   if (!s) {
@@ -1422,7 +1394,7 @@ char *getsysid(char *s) /* Get system-type name */
   return (s);
 }
 
-int getsysix(char *s) { /* Get system-type index */
+int getsysix(char *s) { // Get system-type index
   int i;
   if (!s) {
     return (-1);
@@ -1434,11 +1406,11 @@ int getsysix(char *s) { /* Get system-type index */
   }
   return (-1);
 }
-#endif /* NOXFER */
+#endif // NOXFER
 
-/* Tell if a pathname is absolute (versus relative) */
-/* This should be parceled out to each of the ck*fio.c modules... */
-/* VMS isabsolute() is now in ckvfio.c. */
+// Tell if a pathname is absolute (versus relative)
+// This should be parceled out to each of the ck*fio.c modules...
+// VMS isabsolute() is now in ckvfio.c.
 int isabsolute(char *path) {
   int rc = 0;
   int x;
@@ -1454,16 +1426,16 @@ int isabsolute(char *path) {
   if (*path == '/'
 #ifdef DTILDE
       || *path == '~'
-#endif /* DTILDE */
+#endif // DTILDE
   )
     rc = 1;
-#else  /* def UNIX */
-#endif /* UNIX */
+#else  // def UNIX
+#endif // UNIX
   debug(F101, "isabsolute rc", "", rc);
   return (rc);
 }
 
-/*  See if I have direct access to the keyboard  */
+//  See if I have direct access to the keyboard
 
 int is_a_tty(int n) {
 #ifdef UNIX
@@ -1471,12 +1443,12 @@ int is_a_tty(int n) {
   if (ttfdflg > 0) {
     return (1);
   }
-#endif /* UNIX */
+#endif // UNIX
 #ifdef IKSD
   if (inserver) {
     return (1);
   } else
-#endif /* IKSD */
+#endif // IKSD
     return (isatty(n));
 }
 
@@ -1489,54 +1461,55 @@ void initxlist(void) {
     rcvexcept[i] = NULL;
   }
 }
-#endif /* NOXFER */
+#endif // NOXFER
 
-/* Initialize flow control table */
+// Initialize flow control table
 
 void initflow(void)
 
-{ /* Default values for flow control */
-  /* The temptation is to make this one FLO_KEEP but don't!!! */
-  /* It totally wrecks binary-file transfer when coming in via Telnet. */
-  /* In UNIX at least... */
+{ // Default values for flow control
+  // The temptation is to make this one FLO_KEEP but don't!!!
+  // It totally wrecks binary-file transfer when coming in via Telnet.
+  // In UNIX at least...
   cxflow[CXT_REMOTE] = FLO_NONE;
 
   cxflow[CXT_DIRECT] = FLO_NONE;
 
 #ifdef CK_RTSCTS
-  cxflow[CXT_MODEM] = FLO_RTSC; /* Modem connections... */
+  cxflow[CXT_MODEM] = FLO_RTSC; // Modem connections...
 #else
   cxflow[CXT_MODEM] = FLO_NONE;
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
 
   cxflow[CXT_TCPIP] = FLO_NONE;
 
   cxflow[CXT_SSH] = FLO_NONE;
-  cxflow[CXT_X25] = FLO_NONE; /* Other kinds of networks... */
+  cxflow[CXT_X25] = FLO_NONE; // Other kinds of networks...
   cxflow[CXT_DECNET] = FLO_XONX;
   cxflow[CXT_LAT] = FLO_XONX;
   cxflow[CXT_NETBIOS] = FLO_NONE;
   cxflow[CXT_NPIPE] = FLO_NONE;
   cxflow[CXT_PIPE] = FLO_NONE;
-  flow = cxflow[cxtype]; /* Initial flow setting. */
+  flow = cxflow[cxtype]; // Initial flow setting.
   debug(F101, "initflow", "", flow);
 }
 
 #ifndef NOXFER
-/* Initialize file transfer protocols */
+// Initialize file transfer protocols
 
 void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
                char *sndtstr, char *rcvbstr, char *rcvtstr)
-/* initproto */ {
+// initproto
+{
 
-  if (upbstr) {     /* Convert null strings */
-    if (!*upbstr) { /* to null pointers */
+  if (upbstr) {     // Convert null strings
+    if (!*upbstr) { // to null pointers
       upbstr = NULL;
     }
   }
 
-  if (uptstr) {     /* Convert null strings */
-    if (!*uptstr) { /* to null pointers */
+  if (uptstr) {     // Convert null strings
+    if (!*uptstr) { // to null pointers
       uptstr = NULL;
     }
   }
@@ -1571,7 +1544,7 @@ void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
     }
   }
 
-  protocol = y; /* Set protocol */
+  protocol = y; // Set protocol
 
   if (ptab[protocol].rpktlen > -1) {
     urpsiz = ptab[protocol].rpktlen;
@@ -1614,25 +1587,25 @@ void initproto(int y, char *upbstr, char *uptstr, char *srvstr, char *sndbstr,
   makestr(&(ptab[protocol].p_b_rcmd), rcvbstr);
   makestr(&(ptab[protocol].p_t_rcmd), rcvtstr);
 }
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOCMDL
 void docmdline(void *threadinfo) {
 #ifdef CK_LOGIN
-#endif          /* CK_LOGIN */
-  proto();      /* Take any requested action, then */
-  if (!quiet) { /* put cursor back at left margin, */
+#endif          // CK_LOGIN
+  proto();      // Take any requested action, then
+  if (!quiet) { // put cursor back at left margin,
     conoll("");
   }
 #ifndef NOLOCAL
-  if (cnflg) { /* Re-connect if requested */
+  if (cnflg) { // Re-connect if requested
     cnflg = 0;
     doconect(0, 0);
     if (ttchk() < 0) {
       dologend();
     }
   }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
   return;
 }
@@ -1640,47 +1613,47 @@ void docmdline(void *threadinfo) {
 void ikslogin(void) {
   if (sstelnet
 #ifdef IKSD
-      || inserver /* Internet server */
-#endif            /* IKSD */
+      || inserver // Internet server
+#endif            // IKSD
   ) {
     char *s;
-    extern int fdispla;    /* File-transfer display format */
-    extern char *ikprompt; /* IKSD prompt */
+    extern int fdispla;    // File-transfer display format
+    extern char *ikprompt; // IKSD prompt
 
 #ifdef IKSD
 #ifdef CK_LOGIN
     if (inserver) {
-      x_login = 1;      /* Login required */
-      x_logged = 0;     /* Not logged in yet */
-      cmsetp(ikprompt); /* Set up IKSD's prompt */
+      x_login = 1;      // Login required
+      x_logged = 0;     // Not logged in yet
+      cmsetp(ikprompt); // Set up IKSD's prompt
 #ifndef NOSERVER
-      en_mai = 0; /* MAIL is disabled */
-      en_who = 0; /* REMOTE WHO is disabled */
-      en_hos = 0; /* REMOTE HOST is disabled */
-      en_pri = 0; /* PRINT is disabled */
-#endif            /* NOSERVER */
+      en_mai = 0; // MAIL is disabled
+      en_who = 0; // REMOTE WHO is disabled
+      en_hos = 0; // REMOTE HOST is disabled
+      en_pri = 0; // PRINT is disabled
+#endif            // NOSERVER
     } else {
-      x_login = 0;  /* Login not required */
-      x_logged = 1; /* Already logged in */
+      x_login = 0;  // Login not required
+      x_logged = 1; // Already logged in
     }
-#endif                /* CK_LOGIN */
-#endif                /* IKSD */
-    nolocal = 1;      /* SET LINE/HOST not allowed */
-    fdispla = XYFD_N; /* No file-transfer display */
+#endif                // CK_LOGIN
+#endif                // IKSD
+    nolocal = 1;      // SET LINE/HOST not allowed
+    fdispla = XYFD_N; // No file-transfer display
 #ifdef IKSD
-    clienthost = ckgetpeer(); /* Get client's hostname */
+    clienthost = ckgetpeer(); // Get client's hostname
     debug(F110, "ikslogin clienthost", clienthost, 0);
-#endif         /* IKSD */
-    ztime(&s); /* Get current date and time */
+#endif         // IKSD
+    ztime(&s); // Get current date and time
 
 #ifdef CK_LOGIN
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
 #ifdef IKSD
     if (inserver) {
       printf("\r\nInternet Kermit Service ready at %s%s\r\n", s, versio);
     } else
-#endif /* IKSD */
+#endif // IKSD
       printf("\r\nC-Kermit ready at %s%s\r\n", s, versio);
     if (*myhost) {
       printf("%s\r\n", myhost);
@@ -1691,143 +1664,142 @@ void ikslogin(void) {
 #ifdef IKSD
   if (inserver) {
     int i;
-    extern int arg_x; /* Flag for '-x' on command line */
+    extern int arg_x; // Flag for '-x' on command line
 #ifndef NOSPL
-    extern struct mtab *mactab; /* For ON_LOGIN macro. */
+    extern struct mtab *mactab; // For ON_LOGIN macro.
     extern int nmac;
-#endif /* NOSPL */
+#endif // NOSPL
 
     debug(F110, "MAIN clienthost", clienthost, 0);
-    srvidl = timelimit = logintimo;                /* For interactive login */
-    rtimer();                                      /* Reset timer */
-    for (i = 0; i < iks_retry && !x_logged; i++) { /* Count retries */
+    srvidl = timelimit = logintimo;                // For interactive login
+    rtimer();                                      // Reset timer
+    for (i = 0; i < iks_retry && !x_logged; i++) { // Count retries
       if (gtimer() > logintimo) {
         break;
       }
 #ifdef TNCODE
       tn_wait("login loop");
       tn_push();
-#endif /* TNCODE */
+#endif // TNCODE
       debug(F101, "MAIN LOGIN try", "", i);
-      what = W_NOTHING; /* Because proto() changes this */
+      what = W_NOTHING; // Because proto() changes this
 
 #ifdef IKS_OPTION
       debug(F111, "MAIN LOGIN", "TELOPT_SB(TELOPT_KERMIT).kermit.me_start",
             TELOPT_SB(TELOPT_KERMIT).kermit.me_start);
-      /* Kermit server negotiated */
+      // Kermit server negotiated
       if (TELOPT_SB(TELOPT_KERMIT).kermit.me_start) {
         debug(F101, "IKSD starting in server mode", "", 0);
-        arg_x = 1; /* Enter server mode */
+        arg_x = 1; // Enter server mode
         sstate = 'x';
 #ifdef IKSDPOPBACK
-        justone = 1;    /* Execute one command at a time. */
-#endif                  /* IKSDPOPBACK */
-        proto();        /* Enter protocol if requested. */
-        if (x_logged) { /* Logged in */
+        justone = 1;    // Execute one command at a time.
+#endif                  // IKSDPOPBACK
+        proto();        // Enter protocol if requested.
+        if (x_logged) { // Logged in
           break;
         }
-      } else { /* Not in client/server mode */
-#endif         /* IKS_OPTION */
+      } else { // Not in client/server mode
+#endif         // IKS_OPTION
         debug(F101, "IKSD starting with Username prompt", "", 0);
         x_logged = ckxlogin((CHAR *)uidbuf, NULL, NULL, 1);
-        if (sstate) { /* Received a packet at prompt */
+        if (sstate) { // Received a packet at prompt
 #ifdef IKSDPOPBACK
-          justone = 1; /* Go handle it */
-#endif                 /* IKSDPOPBACK */
+          justone = 1; // Go handle it
+#endif                 // IKSDPOPBACK
           proto();
         }
-        if (!x_logged) { /* In case we are at the prompt... */
+        if (!x_logged) { // In case we are at the prompt...
           printf("Access denied.\n");
-          uidbuf[0] = '\0'; /* Forget the name if we have one */
+          uidbuf[0] = '\0'; // Forget the name if we have one
         }
 #ifdef IKS_OPTION
       }
-#endif /* IKS_OPTION */
+#endif // IKS_OPTION
     }
-    srvidl = timelimit = iks_timo; /* Reset command timelimit */
+    srvidl = timelimit = iks_timo; // Reset command timelimit
     debug(F101, "MAIN LOGIN", "", x_logged);
-    if (!x_logged) { /* Logins failed. */
+    if (!x_logged) { // Logins failed.
       if (TELOPT_SB(TELOPT_KERMIT).kermit.me_start) {
         errpkt((CHAR *)"Login Timeout");
       }
       msleep(500);
       doexit(BAD_EXIT, 0);
     }
-    what = W_NOTHING; /* Stay in known state */
+    what = W_NOTHING; // Stay in known state
 #ifndef NOSERVER
     if (isguest) {
-      en_pri = 0; /* No printing for anonymous users */
-      en_mai = 0; /* No email for anonymous users */
-      en_mkd = 0; /* Or directory creation */
-      en_rmd = 0; /* Or directory removal */
-      en_ena = 0; /* Or ENABLing DISABLEd items */
+      en_pri = 0; // No printing for anonymous users
+      en_mai = 0; // No email for anonymous users
+      en_mkd = 0; // Or directory creation
+      en_rmd = 0; // Or directory removal
+      en_ena = 0; // Or ENABLing DISABLEd items
     }
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 #ifndef NOSPL
-    /*
-      If a macro named "on_login" is defined, execute it.  Also remove it from
-      the macro table so the user cannot see what it does.  Execute it as part
-      of the iksd.conf file.
-    */
-    if (nmac) {                     /* Any macros defined? */
-      int k;                        /* Yes */
-      char *cmd = "on_login";       /* MSVC 2.x compiler error */
-      k = mlook(mactab, cmd, nmac); /* Look up "on_login" */
-      if (k >= 0) {                 /* If found, */
+    // If a macro named "on_login" is defined, execute it.  Also remove it from
+    // the macro table so the user cannot see what it does.  Execute it as part
+    // of the iksd.conf file.
+    if (nmac) {                     // Any macros defined?
+      int k;                        // Yes
+      char *cmd = "on_login";       // MSVC 2.x compiler error
+      k = mlook(mactab, cmd, nmac); // Look up "on_login"
+      if (k >= 0) {                 // If found,
 #ifdef IKSDCONF
         int saved = iksdcf;
         iksdcf = 0;
-#endif                             /* IKSDCONF */
-        if (dodo(k, "", 0) > -1) { /* set it up, */
-          parser(1);               /* execute it */
+#endif                             // IKSDCONF
+        if (dodo(k, "", 0) > -1) { // set it up,
+          parser(1);               // execute it
         }
 #ifdef IKSDCONF
         iksdcf = saved;
-#endif                  /* IKSDCONF */
-        delmac(cmd, 1); /* and delete it */
+#endif                  // IKSDCONF
+        delmac(cmd, 1); // and delete it
       }
     }
-#endif /* NOSPL */
-  } /* if (inserver) */
-#else /* CK_LOGIN */
+#endif // NOSPL
+  } // if (inserver)
+#else // CK_LOGIN
 #ifdef IKSD
   if (inserver) {
-    srvidl = timelimit = iks_timo; /* Set idle limits for IKS */
+    srvidl = timelimit = iks_timo; // Set idle limits for IKS
   }
-#endif /* IKSD */
-#endif /* CK_LOGIN */
-#endif /* IKSD */
+#endif // IKSD
+#endif // CK_LOGIN
+#endif // IKSD
 }
 
 void failcmdline(void *foo) {
 #ifndef NOLOCAL
   if (cnflg) {
-    doconect(0, 0); /* connect again if requested. */
+    doconect(0, 0); // connect again if requested.
   }
   if (ttchk() < 0) {
     dologend();
   }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 }
-#endif /* NOCMDL */
+#endif // NOCMDL
 
 #ifndef NOICP
-void dotakeini(void *threadinfo) /* Execute init file. */
-/* dotakeini */ {
+void dotakeini(void *threadinfo) // Execute init file.
+                                 // dotakeini
+{
 #ifdef CK_LOGIN
-#endif      /* CK_LOGIN */
-  cmdini(); /* Sets tlevel */
+#endif      // CK_LOGIN
+  cmdini(); // Sets tlevel
 
   debug(F111, "dotakeini", "inserver", inserver);
   debug(F111, "dotakeini", "sstelnet", sstelnet);
 
-  doinit(); /* Now do the initialization file */
+  doinit(); // Now do the initialization file
   debug(F101, "main executing init file", "", tlevel);
   while (tlevel > -1) {
-    sstate = (CHAR)parser(1); /* Execute one command at a time. */
+    sstate = (CHAR)parser(1); // Execute one command at a time.
     if (sstate) {
-      proto(); /* Enter protocol if requested. */
+      proto(); // Enter protocol if requested.
     }
   }
   debug(F101, "main exits init file", "", tlevel);
@@ -1836,76 +1808,77 @@ void dotakeini(void *threadinfo) /* Execute init file. */
 }
 
 void failtakeini(void *threadinfo)
-/* failtakeini */ {
+// failtakeini
+{
   fixcmd();
   if (!cfilef) {
     conoll("Interrupted during initialization or \
 command-line processing.");
     conoll("C-Kermit quitting...");
   }
-  doexit(BAD_EXIT, -1); /* Exit with bad status. */
+  doexit(BAD_EXIT, -1); // Exit with bad status.
 }
 
 void doicp(void *threadinfo)
-/* doicp */ {
+// doicp
+{
 #ifdef CK_LOGIN
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
 #ifndef NOSPL
-  /*
-    If interactive commands were given on the command line (using the
-    -C "command, command, ..." option), assign them to a macro called
-    "cl_commands", then execute the macro and leave it defined for
-    subsequent re-execution if desired.
-  */
-  if (clcmds) { /* Check for -C commands */
+  // If interactive commands were given on the command line (using the
+  // -C "command, command, ..." option), assign them to a macro called
+  // "cl_commands", then execute the macro and leave it defined for
+  // subsequent re-execution if desired.
+  if (clcmds) { // Check for -C commands
     int x;
-    x = addmac("cl_commands", clcmds); /* Put macro in table */
-    if (x > -1) {                      /* If successful, */
-      dodo(x, NULL, CF_CMDL);          /* set up for macro execution */
-      while (maclvl > -1) {            /* Loop getting macro commands. */
+    x = addmac("cl_commands", clcmds); // Put macro in table
+    if (x > -1) {                      // If successful,
+      dodo(x, NULL, CF_CMDL);          // set up for macro execution
+      while (maclvl > -1) {            // Loop getting macro commands.
         sstate = (CHAR)parser(1);
         if (sstate) {
-          proto(); /* Enter protocol if requested. */
+          proto(); // Enter protocol if requested.
         }
       }
     }
   }
-#endif        /* NOSPL */
-  while (1) { /* Loop getting commands. */
+#endif        // NOSPL
+  while (1) { // Loop getting commands.
     sstate = (CHAR)parser(0);
     if (sstate) {
-      proto(); /* Enter protocol if requested. */
+      proto(); // Enter protocol if requested.
     }
   }
 }
 
 void failicp(void *threadinfo) {
-  fixcmd(); /* Pop command stacks, etc. */
+  fixcmd(); // Pop command stacks, etc.
   clcmds = NULL;
   debug(F100, "ckcmai got interrupt", "", 0);
 }
-#endif /* NOICP */
+#endif // NOICP
 
 #ifndef NOICP
-void docmdfile(void *threadinfo) /* Execute application file */
-/* docmdfile */ {
+void docmdfile(void *threadinfo) // Execute application file
+                                 // docmdfile
+{
 #ifdef CK_LOGIN
 #ifdef IKSD
-#endif /* IKSD */
-#endif /* CK_LOGIN */
+#endif // IKSD
+#endif // CK_LOGIN
   debug(F110, "main cmdfil", cmdfil, 0);
 #ifndef NOSPL
   addmac("\\%0", cmdfil);
-#endif               /* NOSPL */
-  dotake(cmdfil);    /* Set up the command file */
-  if (tlevel > -1) { /* Remember we did this */
+#endif               // NOSPL
+  dotake(cmdfil);    // Set up the command file
+  if (tlevel > -1) { // Remember we did this
     cfilef = 1;
   }
-  while (tlevel > -1) { /* Execute it until it runs out. */
-    sstate = parser(1); /* Loop getting commands. */
+  while (tlevel > -1) { // Execute it until it runs out.
+    sstate = parser(1); // Loop getting commands.
     if (sstate) {
-      proto(); /* Enter protocol if requested. */
+      proto(); // Enter protocol if requested.
     }
   }
 
@@ -1913,16 +1886,17 @@ void docmdfile(void *threadinfo) /* Execute application file */
 }
 
 void failcmdfile(void *threadinfo)
-/* failcmdfile */ {
+// failcmdfile
+{
   fixcmd();
   if (!cfilef) {
     conoll("Interrupted during initialization or \
 command-line processing.");
     conoll("C-Kermit quitting...");
   }
-  doexit(BAD_EXIT, -1); /* Exit with bad status. */
+  doexit(BAD_EXIT, -1); // Exit with bad status.
 }
-#endif /* NOICP */
+#endif // NOICP
 
 #ifndef NOXFER
 
@@ -1934,15 +1908,15 @@ void setprefix(int z) {
   ptab[protocol].prefix = prefixing;
   debug(F101, "setprefix", "", prefixing);
   switch (z) {
-  case PX_ALL: /* All */
-  case PX_NON: /* None */
+  case PX_ALL: // All
+  case PX_NON: // None
     val = (z == PX_ALL) ? 1 : 0;
     for (i =
 #ifdef UNPREFIXZERO
              0
 #else
              1
-#endif /* UNPREFIXZERO */
+#endif // UNPREFIXZERO
          ;
          i < 32; i++)
       ctlp[i] = val;
@@ -1950,75 +1924,75 @@ void setprefix(int z) {
       ctlp[i] = val;
     }
     ctlp[(unsigned)255] = val;
-    if (z == PX_NON) {              /* These are never safe */
-      if (network) {                /* Assume network = telnet or rlogin */
-        ctlp[CK_CR] = 1;            /* Prefix CR because of NVT rules */
-        ctlp[XON] = ctlp[XOFF] = 1; /* Because of Telnet server */
-        ctlp[127] = ctlp[255] = 1;  /* Telnet IAC */
-        ctlp[mystch] = ctlp[mystch + 128] = 1; /* Kermit packet start */
+    if (z == PX_NON) {              // These are never safe
+      if (network) {                // Assume network = telnet or rlogin
+        ctlp[CK_CR] = 1;            // Prefix CR because of NVT rules
+        ctlp[XON] = ctlp[XOFF] = 1; // Because of Telnet server
+        ctlp[127] = ctlp[255] = 1;  // Telnet IAC
+        ctlp[mystch] = ctlp[mystch + 128] = 1; // Kermit packet start
       } else {
         ctlp[CK_CR] = ctlp[255] = ctlp[mystch] = ctlp[mystch + 128] = 1;
-        if (flow == FLO_XONX) { /* Xon/Xoff forces prefixing */
+        if (flow == FLO_XONX) { // Xon/Xoff forces prefixing
           ctlp[XON] = ctlp[XOFF] = ctlp[XON + 128] = ctlp[XOFF + 128] = 1;
         }
       }
     }
     break;
 
-  case PX_CAU:   /* Cautious or Minimal */
-  case PX_WIL:   /* Minimal ("wild") */
-    ctlp[0] = 1; /* Does not include 0 */
+  case PX_CAU:   // Cautious or Minimal
+  case PX_WIL:   // Minimal ("wild")
+    ctlp[0] = 1; // Does not include 0
     for (i = 1; i < 32; i++) {
       ctlp[i] = 0;
     }
     for (i = 127; i < 160; i++) {
       ctlp[i] = 0;
     }
-    ctlp[mystch] = ctlp[mystch + 128] = 1; /* Kermit start of packet */
+    ctlp[mystch] = ctlp[mystch + 128] = 1; // Kermit start of packet
     if (seol != 13) {
-      ctlp[seol] = ctlp[seol + 128] = 1; /* Kermit end */
+      ctlp[seol] = ctlp[seol + 128] = 1; // Kermit end
     }
-    ctlp[13] = ctlp[141] = 1; /* In case of TELNET (NVT rules) */
-    ctlp[(unsigned)255] = 1;  /* Ditto */
+    ctlp[13] = ctlp[141] = 1; // In case of TELNET (NVT rules)
+    ctlp[(unsigned)255] = 1;  // Ditto
 
-    /* ^D, ^J, ^M, or ^U followed by tilde trigger Rlogin escape */
+    // ^D, ^J, ^M, or ^U followed by tilde trigger Rlogin escape
 
-    ctlp[4] = ctlp[4 + 128] = 1;   /* In case of RLOGIN */
-    ctlp[10] = ctlp[10 + 128] = 1; /* In case of RLOGIN */
-    ctlp[21] = ctlp[21 + 128] = 1; /* In case of RLOGIN */
+    ctlp[4] = ctlp[4 + 128] = 1;   // In case of RLOGIN
+    ctlp[10] = ctlp[10 + 128] = 1; // In case of RLOGIN
+    ctlp[21] = ctlp[21 + 128] = 1; // In case of RLOGIN
 
-    if (flow == FLO_XONX ||    /* Xon/Xoff forces prefixing these */
-        prefixing == PX_CAU || /* So does CAUTIOUS */
-        network) {             /* Networks too... */
+    if (flow == FLO_XONX ||    // Xon/Xoff forces prefixing these
+        prefixing == PX_CAU || // So does CAUTIOUS
+        network) {             // Networks too...
       ctlp[XON] = ctlp[XOFF] = ctlp[XON + 128] = ctlp[XOFF + 128] = 1;
     }
-    if (prefixing == PX_CAU) { /* Cautious - add some more */
+    if (prefixing == PX_CAU) { // Cautious - add some more
 #ifdef UNPREFIXZERO
       ctlp[0] = 1;
-#endif                                       /* UNPREFIXZERO */
-      ctlp[3] = ctlp[16] = 1;                /* ^C, DLE */
-      ctlp[14] = ctlp[15] = 1;               /* SO/SI */
-      ctlp[24] = ctlp[25] = 1;               /* VMS might need these */
-      ctlp[26] = ctlp[26 + 128] = 1;         /* UNIX suspend */
-      ctlp[28] = ctlp[29] = ctlp[30] = 1;    /* Assorted esc chars */
-      ctlp[131] = ctlp[141] = ctlp[144] = 1; /* and 8-bit versions */
+#endif                                       // UNPREFIXZERO
+      ctlp[3] = ctlp[16] = 1;                // ^C, DLE
+      ctlp[14] = ctlp[15] = 1;               // SO/SI
+      ctlp[24] = ctlp[25] = 1;               // VMS might need these
+      ctlp[26] = ctlp[26 + 128] = 1;         // UNIX suspend
+      ctlp[28] = ctlp[29] = ctlp[30] = 1;    // Assorted esc chars
+      ctlp[131] = ctlp[141] = ctlp[144] = 1; // and 8-bit versions
       ctlp[(unsigned)255] = ctlp[156] = ctlp[157] = ctlp[158] = 1;
     }
     break;
   }
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 }
-#endif /* NOXFER */
+#endif // NOXFER
 
 #define MAXHERALDLEN 200
-char myherald[MAXHERALDLEN + 2]; /* for \v(herald) */
-char myoptions[MAXHERALDLEN];    /* and extra bits like SSL etc */
+char myherald[MAXHERALDLEN + 2]; // for \v(herald)
+char myoptions[MAXHERALDLEN];    // and extra bits like SSL etc
 
 void makever(void) {
   extern int noherald, backgrd;
   extern char *ckxsys;
   int x, y;
-  char *ssl; /* These moved from herald() */
+  char *ssl; // These moved from herald()
   char *krb4;
   char *krb5;
   char *b64;
@@ -2082,25 +2056,25 @@ void makever(void) {
   b64 = " (64-bit)";
 #else
   b64 = "";
-#endif /* CK_64BIT */
+#endif // CK_64BIT
 
   if (x == 0) {
     extern char *ck_s_name;
     extern char *ck_s_ver;
-    ckmakxmsg(myherald, /* for \v(herald) */
+    ckmakxmsg(myherald, // for \v(herald)
               MAXHERALDLEN, versio, ", for", ckxsys, ssl, krb4, krb5, b64, "",
               "", "", "", "");
   }
 }
 
-union ck_short shortbytes; /* For determining byte order */
-int byteorder = 0;         /* 0 = Big Endian; 1 = Little Endian */
+union ck_short shortbytes; // For determining byte order
+int byteorder = 0;         // 0 = Big Endian; 1 = Little Endian
 int bigendian = 1;
-/* NOTE: MUST BE 0 or 1 - nothing else */
+// NOTE: MUST BE 0 or 1 - nothing else
 
 #ifndef NOSPL
 #define SCRIPTLEN 10240
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef NETCONN
 #ifndef NOTCPIP
@@ -2156,12 +2130,12 @@ void dourl(void) {
       exitonclose = 1;
 #ifdef CKLOGDIAL
       dolognet();
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
     } else {
       printf("?Connection failed: %s\n", g_url.sav);
       doexit(BAD_EXIT, 1);
     }
-    /* Also need to check here for secure authentication already done */
+    // Also need to check here for secure authentication already done
 
 #ifdef NOSPL
     cflg = 1;
@@ -2171,20 +2145,20 @@ void dourl(void) {
       if (!(script = (char *)malloc(SCRIPTLEN))) {
         fatal("dourl: out of memory");
       }
-      if (!g_url.pth) { /* Write the appropriate script */
+      if (!g_url.pth) { // Write the appropriate script
         cflg = 1;
         ckmakxmsg(script, SCRIPTLEN, "if not eq {\\v(authstate)} {user} ",
                   "if not eq {\\v(authstate)} {valid} { ",
-                  "remote login ", /* No path */
-                  g_url.usr,       /* Just log in and CONNECT */
+                  "remote login ", // No path
+                  g_url.usr,       // Just log in and CONNECT
                   " ", g_url.psw, ", if fail exit 1 {IKSD login failed} }",
                   ", connect", NULL, NULL, NULL, NULL);
-        /* printf("CLCMDS 1: %s\n",script); */
+        // printf("CLCMDS 1: %s\n",script);
       } else {
-        /* does the path specify a file or a directory? */
+        // does the path specify a file or a directory?
         int len = strlen(g_url.pth);
         if (ISDIRSEP(g_url.pth[len - 1])) {
-          ckmakxmsg(script, SCRIPTLEN, /* Directory name given */
+          ckmakxmsg(script, SCRIPTLEN, // Directory name given
                     "if not eq {\\v(authstate)} {user} \
 if not eq {\\v(authstate)} {valid} { remote login ",
                     g_url.usr, " ", g_url.psw,
@@ -2192,9 +2166,9 @@ if not eq {\\v(authstate)} {valid} { remote login ",
                     ", set macro error on", ", set xfer displ brief",
                     ", set xfer bell off", ", remote cd ", g_url.pth,
                     ", lineout directory", ", connect");
-          /* printf("CLCMDS 2: %s\n",script); */
+          // printf("CLCMDS 2: %s\n",script);
         } else {
-          ckmakxmsg(script, SCRIPTLEN, /* Path given, try to GET */
+          ckmakxmsg(script, SCRIPTLEN, // Path given, try to GET
                     "if not eq {\\v(authstate)} {user} \
 if not eq {\\v(authstate)} {valid} { remote login ",
                     g_url.usr, " ", g_url.psw,
@@ -2202,62 +2176,60 @@ if not eq {\\v(authstate)} {valid} { remote login ",
                     ", set xfer displ brief", ", set xfer bell off", ", get ",
                     g_url.pth, ", .rc := \\v(status)",
                     ", if open connection bye", ", exit \\m(rc)");
-          /* printf("CLCMDS 2: %s\n",script); */
+          // printf("CLCMDS 2: %s\n",script);
         }
       }
-      clcmds = script; /* Make this our -C cmdline macro */
-                       /* printf("HAVEURL=%d\n",haveurl); */
+      clcmds = script; // Make this our -C cmdline macro
+                       // printf("HAVEURL=%d\n",haveurl);
     }
-#endif /* NOSPL */
+#endif // NOSPL
   } else {
     if (ckstrcmp(g_url.svc, "telnet", -1, 0) &&
 #ifdef SSHBUILTIN
         ckstrcmp(g_url.svc, "ssh", -1, 0) &&
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
         ckstrcmp(g_url.svc, "ftp", -1, 0)) {
       printf("?Sorry, %s URLs not supported\n", g_url.svc ? g_url.svc : "");
       doexit(BAD_EXIT, 1);
     }
   }
 }
-#endif /* NOURL */
-#endif /* NOCMDL */
-#endif /* NOTCPIP */
-#endif /* NETCONN */
+#endif // NOURL
+#endif // NOCMDL
+#endif // NOTCPIP
+#endif // NETCONN
 
-/*
-  main()...    What is its name and what does it return?
-
-  03 May 2023: This is a major restructuring of the main routine declaration.
-  All the complicated multilevel #ifdefs that have been here for decades
-  were moved to the new C-Kermit 10.0 prototypes header, ckcfnp.h, which
-  #defines MAINNAME and typedefs MAINTYPE.
-
-  If when building C-Kermit you get a complaint about main()'s return type,
-  edit MAINTYPE section ckcfnp.h.
-
-  If you get "Attempt to return a value from a function of type void" then
-  add -DMAINISVOID to the make command line.
-*/
+// main()...    What is its name and what does it return?
+//
+// 03 May 2023: This is a major restructuring of the main routine declaration.
+// All the complicated multilevel #ifdefs that have been here for decades
+// were moved to the new C-Kermit 10.0 prototypes header, ckcfnp.h, which
+// #defines MAINNAME and typedefs MAINTYPE.
+//
+// If when building C-Kermit you get a complaint about main()'s return type,
+// edit MAINTYPE section ckcfnp.h.
+//
+// If you get "Attempt to return a value from a function of type void" then
+// add -DMAINISVOID to the make command line.
 MAINTYPE
 MAINNAME(int argc, char **argv) {
   char *p;
 
 #ifndef NOSETKEY
   int i;
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 #ifdef UNIX
-  int unbuf = 0; /* nonzero for unbuffered stdout */
+  int unbuf = 0; // nonzero for unbuffered stdout
 
-  /* setbuf has to be called on the file descriptor before it is used */
+  // setbuf has to be called on the file descriptor before it is used
 
-#ifdef NONOSETBUF /* Unbuffered console i/o */
-  unbuf++;        /* as a compile-time option */
-#endif            /* NONOSETBUF */
-  if (!unbuf) {   /* Or as a command-line selection */
-    int i, n;     /* We have to pre-pre-scan for */
-    char *s;      /* this one. */
+#ifdef NONOSETBUF // Unbuffered console i/o
+  unbuf++;        // as a compile-time option
+#endif            // NONOSETBUF
+  if (!unbuf) {   // Or as a command-line selection
+    int i, n;     // We have to pre-pre-scan for
+    char *s;      // this one.
     for (i = 1; i < argc; i++) {
       s = argv[i];
       if (!s) {
@@ -2276,10 +2248,10 @@ MAINNAME(int argc, char **argv) {
   if (unbuf) {
     setbuf(stdout, NULL);
   }
-#endif /* UNIX */
+#endif // UNIX
 
-  {                      /* Get OFF_T size for printf - fdc 06 Jan 2024 */
-    extern int offtsize; /* MUST be executed, which is why it's here */
+  {                      // Get OFF_T size for printf - fdc 06 Jan 2024
+    extern int offtsize; // MUST be executed, which is why it's here
     short x1 = 1;
     int x2 = 2;
     long x3 = 3;
@@ -2292,12 +2264,12 @@ MAINNAME(int argc, char **argv) {
     debug(F101, "main offtsize", "", offtsize);
   }
 
-  /* Do some initialization */
+  // Do some initialization
 
-  xargc = xargs = argc; /* Make global copies of argc */
-  xargv = argv;         /* ...and argv. */
+  xargc = xargs = argc; // Make global copies of argc
+  xargv = argv;         // ...and argv.
   xarg0 = argv[0];
-  zstrip(argv[0], &p); /* Get name we were invoked with */
+  zstrip(argv[0], &p); // Get name we were invoked with
   makestr(&myname, p);
   if (!ckstrcmp(myname, "telnet", -1, 0)) {
     howcalled = I_AM_TELNET;
@@ -2308,30 +2280,30 @@ MAINNAME(int argc, char **argv) {
   else if (!ckstrcmp(myname, "http", -1, 0)) {
     howcalled = I_AM_HTTP;
   }
-#endif /* NOHTTP */
+#endif // NOHTTP
   else if (!ckstrcmp(myname, "kermit-sshsub", -1, 0)) {
     howcalled = I_AM_SSHSUB;
   }
 
 #ifndef NOICP
-  cmdini(); /* Must come before prescan */
+  cmdini(); // Must come before prescan
   debug(F100, "main cmdini() done", "", 0);
-#endif        /* NOICP */
-  prescan(0); /* Pre-Check for debugging, etc */
+#endif        // NOICP
+  prescan(0); // Pre-Check for debugging, etc
   debug(F101, "MAIN feol", "", feol);
-  makever(); /* Put together version strings */
+  makever(); // Put together version strings
 #ifndef NOSPL
   {
     char scratch[TMPBUFSIZ];
-    extern char *tempdir; /* Initialize temporary directory */
+    extern char *tempdir; // Initialize temporary directory
     char *tp = scratch;
     int x = TMPBUFSIZ;
-    (void)zzstring("\\v(tmpdir)", &tp, &x); /* Expand builtin variable */
+    (void)zzstring("\\v(tmpdir)", &tp, &x); // Expand builtin variable
     makestr(&tempdir, scratch);
   }
-#endif           /* NOSPL */
-#ifndef NOSETKEY /* Allocate & initialize the keymap */
-  /* This code was moved to before sysinit() for K95G */
+#endif           // NOSPL
+#ifndef NOSETKEY // Allocate & initialize the keymap
+  // This code was moved to before sysinit() for K95G
   if (!(keymap = (KEY *)malloc(sizeof(KEY) * KMSIZE))) {
     fatal("main: no memory for keymap");
   }
@@ -2342,32 +2314,32 @@ MAINNAME(int argc, char **argv) {
     keymap[i] = (KEY)i;
     macrotab[i] = NULL;
   }
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
-  shortbytes.x_short = 0xABCD;        /* Get Endianness */
-  if (shortbytes.x_char[0] == 0xCD) { /* 0 = Big Endian */
-    byteorder = 1;                    /* 1 = Little Endian */
-    bigendian = 0;                    /* (for clarity in programming) */
+  shortbytes.x_short = 0xABCD;        // Get Endianness
+  if (shortbytes.x_char[0] == 0xCD) { // 0 = Big Endian
+    byteorder = 1;                    // 1 = Little Endian
+    bigendian = 0;                    // (for clarity in programming)
   } else {
-    byteorder = 0; /* Big Endian */
+    byteorder = 0; // Big Endian
     bigendian = 1;
   }
-  if (sizeof(CK_OFF_T) == 8) { /* Large files and ints? */
+  if (sizeof(CK_OFF_T) == 8) { // Large files and ints?
     havelfs = 1;
   }
 
-  if (sysinit() < 0) { /* System-dependent initialization. */
+  if (sysinit() < 0) { // System-dependent initialization.
     fatal("Can't initialize!");
   } else {
-    initflg = 1; /* Remember we did. */
+    initflg = 1; // Remember we did.
   }
 
 #ifdef HAVE_LOCALE
-  setlocale(LC_ALL, ""); /* Enable using non-C locales */
-#endif                   /* HAVE_LOCALE */
+  setlocale(LC_ALL, ""); // Enable using non-C locales
+#endif                   // HAVE_LOCALE
 
   debug(F111, "ckcmai myname", myname, howcalled);
-  { /* Get home directory path */
+  { // Get home directory path
     char *h;
     char *homedir(void);
     h = homepath();
@@ -2376,115 +2348,113 @@ MAINNAME(int argc, char **argv) {
     }
   }
 #ifdef GETEXEDIR
-  getexedir(); /* Compute exedir variable */
-#endif         /* def GETEXEDIR */
+  getexedir(); // Compute exedir variable
+#endif         // def GETEXEDIR
 
 #ifdef CKSYSLOG
 #ifdef SYSLOGLEVEL
-  /*
-    If built with -DSYSLOGLEVEL on cc command line, this means we always
-    do syslogging at the indicated level.
-  */
-  zsyslog(); /* Open syslog */
-#else        /* SYSLOGLEVEL */
+  // If built with -DSYSLOGLEVEL on cc command line, this means we always
+  // do syslogging at the indicated level.
+  zsyslog(); // Open syslog
+#else        // SYSLOGLEVEL
 #ifdef IKSD
   if (inserver) {
-    zsyslog(); /* Open syslog */
+    zsyslog(); // Open syslog
   }
-#endif /* IKSD */
-#endif /* SYSLOGLEVEL */
-#endif /* CKSYSLOG */
+#endif // IKSD
+#endif // SYSLOGLEVEL
+#endif // CKSYSLOG
 
 #ifdef TNCODE
-  tn_set_modes(); /* Init Telnet Option tables */
-#endif            /* TNCODE */
+  tn_set_modes(); // Init Telnet Option tables
+#endif            // TNCODE
 
-#ifdef CK_TTGWSIZ /* Initialize screen dimensions */
+#ifdef CK_TTGWSIZ // Initialize screen dimensions
   if (ttgwsiz() > 0) {
     if (tt_rows > 0 && tt_cols > 0) {
       cmd_rows = tt_rows;
       cmd_cols = tt_cols;
     }
   }
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
 
 #ifdef TCPSOCKET
 #ifdef CK_SOCKS
-  SOCKSinit(argv[0]); /* Internet relay package... */
-#endif                /* CK_SOCKS */
-#endif                /* TCPSOCKET */
+  SOCKSinit(argv[0]); // Internet relay package...
+#endif                // CK_SOCKS
+#endif                // TCPSOCKET
 
-  initflow(); /* Initialize flow-control table */
+  initflow(); // Initialize flow-control table
 
 #ifndef NOSPL
 #ifdef CKFLOAT
-  initfloat(); /* Deduce floating-point precision */
-#endif         /* CKFLOAT */
-#endif         /* NOSPL */
+  initfloat(); // Deduce floating-point precision
+#endif         // CKFLOAT
+#endif         // NOSPL
 
 #ifndef NOXFER
-  initxlist(); /* Init exception lists */
+  initxlist(); // Init exception lists
 
   initproto(PROTO_K, "kermit -ir", "kermit -r", "kermit -x", NULL, NULL, NULL,
             NULL);
 
-#endif /* NOXFER */
+#endif // NOXFER
 
-  connoi(); /* Console interrupts off */
+  connoi(); // Console interrupts off
 
 #ifndef NOXFER
 
 #ifdef PATTERNS
-  initpat(); /* Initialize filename patterns */
-#endif       /* PATTERNS */
-#endif       /* NOXFER */
+  initpat(); // Initialize filename patterns
+#endif       // PATTERNS
+#endif       // NOXFER
 
 #ifndef NOCSETS
-  initcsets(); /* Initialize character sets */
-#endif         /* NOCSETS */
+  initcsets(); // Initialize character sets
+#endif         // NOCSETS
 
 #ifndef NOICP
 #ifdef DFCDMSG
   makestr(&cdmsgstr, DFCDMSG);
-  makelist(cdmsgstr, cdmsgfile, 8); /* Initialize CD message filenames */
-#endif                              /* DFCDMSG */
-#endif                              /* NOICP */
+  makelist(cdmsgstr, cdmsgfile, 8); // Initialize CD message filenames
+#endif                              // DFCDMSG
+#endif                              // NOICP
 
-  sstate = 0; /* No default start state. */
+  sstate = 0; // No default start state.
 #ifdef DYNAMIC
   if (getiobs() < 0) {
     fatal("Can't allocate i/o buffers!");
   }
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 #ifndef NOSPL
 #ifndef NORANDOM
   {
     char stackdata[256];
     unsigned int c = 1234, n;
-    /* try to make a random unsigned int to feed srand() */
-    c = time(NULL); /* Get current time */
-    c *= getpid();  /* multiply it by our PID */
-                    /* Referenced before set... DELIBERATELY */
-    for (n = 0; n < sizeof(stackdata); n++) { /* IGNORE WARNING */
-      c += stackdata[n];                      /* DELIBERATELY USED BEFORE SET */
+    // try to make a random unsigned int to feed srand()
+    c = time(NULL); // Get current time
+    c *= getpid();  // multiply it by our PID
+                    // Referenced before set... DELIBERATELY
+    for (n = 0; n < sizeof(stackdata); n++) { // IGNORE WARNING
+      c += stackdata[n];                      // DELIBERATELY USED BEFORE SET
     }
     srand((unsigned int)c);
   }
-#endif /* NORANDOM */
-#endif /* NOSPL */
+#endif // NORANDOM
+#endif // NOSPL
 
-  ckhost(myhost, MYHOSTL); /* Name of local host */
+  ckhost(myhost, MYHOSTL); // Name of local host
   debug(F110, "main ckhost", myhost, 0);
 #ifdef IKSD
   if (!inserver) {
-#endif                                  /* IKSD */
-    ckstrncpy(ttname, dftty, TTNAMLEN); /* Set up default tty name. */
-    local = nolocal ? 0 : dfloc;        /* And whether it's local or remote. */
-    parity = dfprty;                    /* Set initial parity, */
+#endif                                  // IKSD
+    ckstrncpy(ttname, dftty, TTNAMLEN); // Set up default tty name.
+    local = nolocal ? 0 : dfloc;        // And whether it's local or remote.
+    parity = dfprty;                    // Set initial parity,
 #ifndef NOXFER
-    myindex = getsysix(cksysid); /* System index */
-#endif                           /* NOXFER */
+    myindex = getsysix(cksysid); // System index
+#endif                           // NOXFER
     if (local) {
       if (ttopen(ttname, &local, 0, 0) < 0) {
         conol("Can't open device: ");
@@ -2493,104 +2463,104 @@ MAINNAME(int argc, char **argv) {
         ckstrncpy(ttname, CTTNAM, TTNAMLEN);
       }
     }
-    setflow();        /* Set appropriate flow control */
-    speed = ttgspd(); /* Get transmission speed. */
+    setflow();        // Set appropriate flow control
+    speed = ttgspd(); // Get transmission speed.
 #ifdef IKSD
   }
-#endif /* IKSD */
+#endif // IKSD
 
-#ifdef ANYX25  /* All X.25 implementations */
-#ifndef IBMX25 /* except IBM have PAD support */
-  initpad();   /* Initialize X.25 PAD */
-#endif         /* IBMX25 */
-#endif         /* ANYX25 */
+#ifdef ANYX25  // All X.25 implementations
+#ifndef IBMX25 // except IBM have PAD support
+  initpad();   // Initialize X.25 PAD
+#endif         // IBMX25
+#endif         // ANYX25
 
 #ifndef NOXFER
-  if (inibufs(SBSIZ, RBSIZ) < 0) { /* Allocate packet buffers */
+  if (inibufs(SBSIZ, RBSIZ) < 0) { // Allocate packet buffers
     fatal("Can't allocate packet buffers!");
   }
 #ifndef NOCKSPEED
-  setprefix(prefixing); /* Set up control char prefixing */
-#endif                  /* NOCKSPEED */
-#endif                  /* NOXFER */
+  setprefix(prefixing); // Set up control char prefixing
+#endif                  // NOCKSPEED
+#endif                  // NOXFER
 
 #ifndef NOTCPIP
 #ifndef NOICP
   if (sstelnet
 #ifdef IKSD
       || inserver
-#endif /* IKSD */
+#endif // IKSD
   ) {
     extern int ckxech, ttnet, ttnproto, cmdmsk;
 #ifdef SO_SNDBUF
     extern int tcp_sendbuf;
-#endif /* SO_SNDBUF */
+#endif // SO_SNDBUF
 #ifdef SO_RCVBUF
     extern int tcp_recvbuf;
-#endif /* SO_RCVBUF */
+#endif // SO_RCVBUF
 #ifdef SO_KEEPALIVE
     extern int tcp_keepalive;
-#endif /* SO_KEEPALIVE */
+#endif // SO_KEEPALIVE
 #ifdef SO_LINGER
     extern int tcp_linger, tcp_linger_tmo;
-#endif /* SO_LINGER */
+#endif // SO_LINGER
 #ifdef SO_DONTROUTE
     extern int tcp_dontroute;
-#endif /* SO_DONTROUTE */
+#endif // SO_DONTROUTE
 #ifdef TCP_NODELAY
     extern int tcp_nodelay;
-#endif /* TCP_NODELAY */
+#endif // TCP_NODELAY
 #ifdef IKSD
     extern int iklogopen;
-#endif /* IKSD */
+#endif // IKSD
     extern int ttmdm;
 
 #ifdef UNIX
     if (isatty(0)) {
       fatal("Internet Kermit Service cannot be started at a terminal.");
     }
-#endif /* UNIX */
+#endif // UNIX
 
-    reliable = xreliable = SET_ON; /* IKSD has reliable connection */
-    flow = 0;                      /* No flow control needed */
-    bgset = 0;                     /* Not in background */
-    nopush = 1;                    /* No external processes */
-    parity = 0;                    /* 8 bits ... */
-    cmdmsk = 0xff;                 /* all the way */
+    reliable = xreliable = SET_ON; // IKSD has reliable connection
+    flow = 0;                      // No flow control needed
+    bgset = 0;                     // Not in background
+    nopush = 1;                    // No external processes
+    parity = 0;                    // 8 bits ...
+    cmdmsk = 0xff;                 // all the way
     cmask = 0xff;
 
 #ifdef IKSD
-    if (inserver) { /* If IKSD */
-      doiksdinit(); /* Execute IKSD configuration file */
+    if (inserver) { // If IKSD
+      doiksdinit(); // Execute IKSD configuration file
       while (tlevel > -1) {
-        parser(1); /* (Ignore any file-xfer commands) */
+        parser(1); // (Ignore any file-xfer commands)
       }
-      iksdcf = 1; /* IKSD c.f. has been processed */
+      iksdcf = 1; // IKSD c.f. has been processed
     }
     if (!iklogopen) {
-      (void)doiklog(); /* Open Kermit-specific log */
+      (void)doiklog(); // Open Kermit-specific log
     }
-#endif /* IKSD */
+#endif // IKSD
 
 #ifdef UNIX
-    setbuf(stdout, NULL);             /* Don't buffer the output */
-    ckstrncpy(ttname, "0", TTNAMLEN); /* not "/dev/tty"... */
-#endif                                /* UNIX */
-    local = 0;                        /* We are in remote mode */
-    ckxech = 1;                       /* We will echo */
+    setbuf(stdout, NULL);             // Don't buffer the output
+    ckstrncpy(ttname, "0", TTNAMLEN); // not "/dev/tty"...
+#endif                                // UNIX
+    local = 0;                        // We are in remote mode
+    ckxech = 1;                       // We will echo
     debug(F100, "main about to call ttopen() inserver", "", 0);
-    if (ttopen(ttname, &local, mdmtyp, 0) < 0) { /* Open comm channel */
+    if (ttopen(ttname, &local, mdmtyp, 0) < 0) { // Open comm channel
       fatal("can't initialize i/o");
     }
-    network = 0;  /* Does not use networking code */
-    ttmdm = -1;   /* Does not use a modem */
-    sstelnet = 1; /* Do server-side Telnet negotations */
+    network = 0;  // Does not use networking code
+    ttmdm = -1;   // Does not use a modem
+    sstelnet = 1; // Do server-side Telnet negotations
     debug(F111, "MAIN", "sstelnet", sstelnet);
-    ttnet = NET_TCPB;     /* Network type is TCP sockets */
-    ttnproto = NP_TELNET; /* Netword protocol is Telnet */
+    ttnet = NET_TCPB;     // Network type is TCP sockets
+    ttnproto = NP_TELNET; // Netword protocol is Telnet
 #ifdef IKSDB
-    dbinit(); /* Initialize database record */
-#endif        /* IKSDB */
+    dbinit(); // Initialize database record
+#endif        // IKSDB
 
 #ifdef NON_BLOCK_IO
     {
@@ -2599,7 +2569,7 @@ MAINNAME(int argc, char **argv) {
       x = socket_ioctl(0, FIONBIO, &on);
       debug(F101, "main FIONBIO", "", x);
     }
-#endif /* NON_BLOCK_IO */
+#endif // NON_BLOCK_IO
 #ifdef SO_OOBINLINE
     {
       int on, x;
@@ -2607,209 +2577,207 @@ MAINNAME(int argc, char **argv) {
       x = setsockopt(0, SOL_SOCKET, SO_OOBINLINE, (char *)&on, sizeof(on));
       debug(F101, "main SO_OOBINLINE", "", x);
     }
-#endif /* SO_OOBINLINE */
+#endif // SO_OOBINLINE
 
 #ifndef NOTCPOPTS
 #ifdef SOL_SOCKET
 #ifdef TCP_NODELAY
     no_delay(0, tcp_nodelay);
-#endif /* TCP_NODELAY */
+#endif // TCP_NODELAY
 #ifdef SO_KEEPALIVE
     keepalive(0, tcp_keepalive);
-#endif /* SO_KEEPALIVE */
+#endif // SO_KEEPALIVE
 #ifdef SO_LINGER
     ck_linger(0, tcp_linger, tcp_linger_tmo);
-#endif /* SO_LINGER */
+#endif // SO_LINGER
 #ifdef SO_DONTROUTE
     dontroute(0, tcp_dontroute);
-#endif /* SO_DONTROUTE */
+#endif // SO_DONTROUTE
 #ifdef SO_SNDBUF
     sendbuf(0, tcp_sendbuf);
-#endif /* SO_SNDBUF */
+#endif // SO_SNDBUF
 #ifdef SO_RCVBUF
     recvbuf(0, tcp_recvbuf);
-#endif /* SO_RCVBUF */
-#endif /* SOL_SOCKET */
-#endif /* NOTCPOPTS */
+#endif // SO_RCVBUF
+#endif // SOL_SOCKET
+#endif // NOTCPOPTS
 
 #ifdef TNCODE
-    tn_ini(); /* Start Telnet negotiation now */
-#endif        /* TNCODE */
+    tn_ini(); // Start Telnet negotiation now
+#endif        // TNCODE
   }
-#endif /* NOTCPIP */
+#endif // NOTCPIP
   debug(F101, "main argc after prescan()", "", argc);
 
-  /* Now process any relevant environment variables */
+  // Now process any relevant environment variables
 
 #ifndef NODIAL
-  getdialenv(); /* Dialing */
+  getdialenv(); // Dialing
 #ifdef NETCONN
-  ndinit();    /* Initialize network directory info */
-  getnetenv(); /* Network directories */
-#endif         /* NETCONN */
-#endif         /* NODIAL */
+  ndinit();    // Initialize network directory info
+  getnetenv(); // Network directories
+#endif         // NETCONN
+#endif         // NODIAL
 
 #ifndef NOXFER
 #ifdef CK_FAST
-  dofast(); /* By now FAST defaults should be OK */
-#endif      /* CK_FAST */
-#endif      /* NOXFER */
+  dofast(); // By now FAST defaults should be OK
+#endif      // CK_FAST
+#endif      // NOXFER
 
 #ifndef NOCMDL
 #ifdef CK_LOGIN
 #ifdef IKSD
-  ikslogin(); /* IKSD Login and other stuff */
-#endif        /* IKSD */
-#endif        /* CK_LOGIN */
-#endif        /* NOCMDL */
+  ikslogin(); // IKSD Login and other stuff
+#endif        // IKSD
+#endif        // CK_LOGIN
+#endif        // NOCMDL
 
   if (howcalled == I_AM_SSHSUB) {
-    reliable = 1;    /* We say the connection is reliable */
-    xreliable = 1;   /* And that we said it was */
-    setreliable = 1; /* And pretend the "user" did too */
-    xfinish = 1;     /* For REMOTE HELP response */
-    mdmtyp = 0;      /* For ttopen() */
-    ckstrncpy(ttname, "0", TTNAMLEN + 1); /* Use file descriptor 0 */
-    local = 0;                            /* And force remote mode */
-    ttopen(ttname, &local, mdmtyp, 0);    /* Open the "connection" */
-    sstate = 'x';                         /* Initial state is Server */
-    proto();                              /* Enter protocol */
-    doexit(GOOD_EXIT, xitsta);            /* Exit when done */
+    reliable = 1;                         // We say the connection is reliable
+    xreliable = 1;                        // And that we said it was
+    setreliable = 1;                      // And pretend the "user" did too
+    xfinish = 1;                          // For REMOTE HELP response
+    mdmtyp = 0;                           // For ttopen()
+    ckstrncpy(ttname, "0", TTNAMLEN + 1); // Use file descriptor 0
+    local = 0;                            // And force remote mode
+    ttopen(ttname, &local, mdmtyp, 0);    // Open the "connection"
+    sstate = 'x';                         // Initial state is Server
+    proto();                              // Enter protocol
+    doexit(GOOD_EXIT, xitsta);            // Exit when done
   }
   debug(F111, "howcalled", myname, howcalled);
 
 #ifndef NOICP
 #ifdef NOCCTRAP
   dotakeini(0);
-#else  /* NOCCTRAP */
+#else  // NOCCTRAP
   debug(F100, "main about to cc_execute", "", 0);
   setint();
   cc_execute(ckjaddr(cmjbuf), dotakeini, failtakeini);
-#endif /* NOCCTRAP */
-#endif /* NOICP */
+#endif // NOCCTRAP
+#endif // NOICP
 
   debug(F111, "main 2 cfilef", cmdfil, cfilef);
-  if (cmdfil[0]) { /* If we got one (see prescan())... */
+  if (cmdfil[0]) { // If we got one (see prescan())...
 #ifndef NOICP
 #ifdef NOCCTRAP
-    docmdfile(0); /* execute it. */
-#else             /* NOCCTRAP */
+    docmdfile(0); // execute it.
+#else             // NOCCTRAP
     setint();
     cc_execute(ckjaddr(cmjbuf), docmdfile, failcmdfile);
-#endif            /* NOCCTRAP */
-#endif            /* NOICP */
+#endif            // NOCCTRAP
+#endif            // NOICP
   }
-  *cmdfil = '\0'; /* Done, nullify the file name */
-#endif            /* NOICP */
+  *cmdfil = '\0'; // Done, nullify the file name
+#endif            // NOICP
 
 #ifndef NOCMDL
-  /* Look for a UNIX-style command line... */
+  // Look for a UNIX-style command line...
 
   what = W_NOTHING;
 
   debug(F101, "main argc", "", argc);
 #ifndef NOHELP
-  iniopthlp();               /* Initialize cmdline arg help */
-#endif                       /* NOHELP */
-  if (argc > 1) {            /* Command line arguments? */
-    sstate = (CHAR)cmdlin(); /* Yes, parse. */
+  iniopthlp();               // Initialize cmdline arg help
+#endif                       // NOHELP
+  if (argc > 1) {            // Command line arguments?
+    sstate = (CHAR)cmdlin(); // Yes, parse.
 
 #ifdef NETCONN
 #ifdef HAVE_LOCALE
-    if (nolocale) {           /* --nolocale option on command line */
-      setlocale(LC_ALL, "C"); /* Restore our locale to default */
+    if (nolocale) {           // --nolocale option on command line
+      setlocale(LC_ALL, "C"); // Restore our locale to default
     }
-#endif /* HAVE_LOCALE */
+#endif // HAVE_LOCALE
 
 #ifndef NOTCPIP
 #ifndef NOURL
-    if (haveurl) { /* Was a URL given? */
-      dourl();     /* if so, do it. */
+    if (haveurl) { // Was a URL given?
+      dourl();     // if so, do it.
     }
-#endif /* NOURL */
-#endif /* NOTCPIP */
-#endif /* NETCONN */
+#endif // NOURL
+#endif // NOTCPIP
+#endif // NETCONN
 
 #ifndef NOXFER
-    zstate = sstate; /* Remember sstate around protocol */
+    zstate = sstate; // Remember sstate around protocol
     debug(F101, "main zstate", "", zstate);
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOLOCAL
-    if (cflg) { /* Connect first if requested */
+    if (cflg) { // Connect first if requested
       doconect(0, 0);
       if (ttchk() < 0) {
         dologend();
       }
       cflg = 0;
     }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOXFER
     if (sstate) {
 #ifndef NOLOCAL
       if (displa) {
-        concb((char)escape); /* (for console "interrupts") */
+        concb((char)escape); // (for console "interrupts")
       }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifdef NOCCTRAP
       docmdline(1);
-#else  /* NOCCTRAP */
+#else  // NOCCTRAP
       setint();
       cc_execute(ckjaddr(cmjbuf), docmdline, failcmdline);
-#endif /* NOCCTRAP */
+#endif // NOCCTRAP
     }
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOICP
-    /*
-      If a command-line action argument was given and -S ("stay") was not given,
-      exit now.
-    */
+    // If a command-line action argument was given and -S ("stay") was not
+    // given, exit now.
     if ((cflg || cnflg || zstate) && !stayflg)
-#endif                           /* NOICP */
-      doexit(GOOD_EXIT, xitsta); /* Exit with good status */
+#endif                           // NOICP
+      doexit(GOOD_EXIT, xitsta); // Exit with good status
 
 #ifndef NOLOCAL
 #ifndef NOICP
     if (local) {
 #ifdef NETCONN
       if ((cflg || cnflg) && tn_exit && ttchk() < 0) {
-        doexit(GOOD_EXIT, xitsta); /* Exit with good status */
+        doexit(GOOD_EXIT, xitsta); // Exit with good status
       }
-#endif /* NETCONN */
+#endif // NETCONN
       if (exitonclose && !network &&
           (carrier != CAR_OFF && (ttgmdm() & BM_DCD) == 0)) {
-        doexit(GOOD_EXIT, xitsta); /* Exit with good status */
+        doexit(GOOD_EXIT, xitsta); // Exit with good status
       }
       if (exitonclose && network && ttchk() < 0) {
-        doexit(GOOD_EXIT, xitsta); /* Exit with good status */
+        doexit(GOOD_EXIT, xitsta); // Exit with good status
       }
     }
-#endif /* NOICP */
-#endif /* NOLOCAL */
+#endif // NOICP
+#endif // NOLOCAL
   }
-#endif /* NOCMDL */
+#endif // NOCMDL
 
-#ifdef NOICP /* No interactive command parser */
+#ifdef NOICP // No interactive command parser
 #ifndef NOCMDL
   else {
 
-    /* Command-line-only version */
+    // Command-line-only version
     fatal("?No command-line options given - type 'kermit -h' for help");
   }
-#else /* Neither one! */
+#else // Neither one!
   sstate = 'x';
   justone = 0;
-  proto();                   /* So go into server mode */
-  doexit(GOOD_EXIT, xitsta); /* exit with good status */
+  proto();                   // So go into server mode
+  doexit(GOOD_EXIT, xitsta); // exit with good status
 
-#endif /* NOCMDL */
-#else  /* not NOICP */
+#endif // NOCMDL
+#else  // not NOICP
 #ifdef HAVE_LOCALE
   if (!nolocale) {
-    /* Can also disable locale processing by setting K_NOLOCALE=1 */
-    char *s = getenv("K_NOLOCALE"); /* environment variable */
+    // Can also disable locale processing by setting K_NOLOCALE=1
+    char *s = getenv("K_NOLOCALE"); // environment variable
     if (s) {
       if (rdigits(s)) {
         if (atoi(s) != 0) {
@@ -2817,38 +2785,36 @@ MAINNAME(int argc, char **argv) {
         }
       }
     }
-    if (!nolocale) {         /* Locale not disabled */
-      setlocale(LC_ALL, ""); /* Enable using non-C locales */
+    if (!nolocale) {         // Locale not disabled
+      setlocale(LC_ALL, ""); // Enable using non-C locales
     }
   }
-#endif /* HAVE_LOCALE */
+#endif // HAVE_LOCALE
 
-  herald(); /* Display program herald (maybe) */
-/*
-  If no action requested on command line, or if -S ("stay") was included,
-  enter the interactive command parser.
-*/
+  herald(); // Display program herald (maybe)
+// If no action requested on command line, or if -S ("stay") was included,
+// enter the interactive command parser.
 #ifdef NOCCTRAP
   debug(F100, "main NOCCTRAP setting interrupt trap", "", 0);
-  setint(); /* Set up command interrupt traps */
+  setint(); // Set up command interrupt traps
   doicp(NULL);
-#else  /* NOCCTRAP */
+#else  // NOCCTRAP
   while (1) {
     debug(F100, "main setting interrupt trap", "", 0);
-    setint(); /* Set up command interrupt traps */
+    setint(); // Set up command interrupt traps
     if (!cc_execute(ckjaddr(cmjbuf), doicp, failicp)) {
       break;
     }
   }
-#endif /* NOCCTRAP */
-#endif /* NOICP */
+#endif // NOCCTRAP
+#endif // NOICP
 #ifndef MAINISVOID
   return (1);
-#endif /* MAINISVOID */
+#endif // MAINISVOID
 }
 
 #ifdef DYNAMIC
-/* Allocate file i/o buffers */
+// Allocate file i/o buffers
 
 int getiobs(void) {
   zinbuffer = (char *)malloc(INBUFSIZE);
@@ -2863,4 +2829,4 @@ int getiobs(void) {
   debug(F100, "getiobs ok", "", 0);
   return (0);
 }
-#endif /* DYNAMIC */
+#endif // DYNAMIC

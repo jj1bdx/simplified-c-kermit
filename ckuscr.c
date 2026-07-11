@@ -1,42 +1,40 @@
-/* clang-format off */
+// clang-format off
 #include "ckcdeb.h"
-/* clang-format on */
+// clang-format on
 
 #ifndef NOICP
 #ifndef NOSCRIPT
 char *loginv = "Script Command, 10.0.033, 15 Apr 2023";
 
-/*  C K U S C R  --  expect-send script implementation  */
+//  C K U S C R  --  expect-send script implementation
 
-/*
-  Copyright (C) 1985, 2023,
-    Trustees of Columbia University in the City of New York.
-    All rights reserved.  See the C-Kermit COPYING.TXT file or the
-    copyright text in the ckcmai.c module for disclaimer and permissions.
-
-  Original (version 1, 1985) author: Herm Fischer, Encino, CA.
-  Contributed to Columbia University in 1985 for inclusion in C-Kermit 4.0.
-  Maintained since 1985 by Frank da Cruz, fdc@columbia.edu.
-
-  The module takes a UUCP-style script of the "expect send [expect send] ..."
-  format.  It is intended to operate similarly to the way the common
-  UUCP L.sys login entries work.  Conditional responses are supported:
-  expect[-send-expect[...]], as with UUCP.  The send keyword EOT sends a
-  Control-d, and the keyword BREAK sends a break.  Letters prefixed
-  by '~' are '~b' backspace, '~s' space, '~n' linefeed, '~r' return, '~x' xon,
-  '~t' tab, '~q' ? (not allowed on kermit command lines), '~' ~, '~'',
-  '~"', '~c' don't append return, '~o[o[o]]' octal character.  As with
-  some uucp systems, sent strings are followed by ~r (not ~n) unless they
-  end with ~c. Null expect strings (e.g., ~0 or --) cause a short
-  delay, and are useful for sending sequences requiring slight pauses.
-
-  This module calls externally defined system-dependent functions for
-  communications i/o, as defined in ckcplm.txt, the C-Kermit Program Logic
-  Manual, and thus should be portable to all systems that implement those
-  functions, and where alarm() and signal() work as they do in UNIX.
-*/
+// Copyright (C) 1985, 2023,
+//  Trustees of Columbia University in the City of New York.
+//  All rights reserved.  See the C-Kermit COPYING.TXT file or the
+//  copyright text in the ckcmai.c module for disclaimer and permissions.
+//
+// Original (version 1, 1985) author: Herm Fischer, Encino, CA.
+// Contributed to Columbia University in 1985 for inclusion in C-Kermit 4.0.
+// Maintained since 1985 by Frank da Cruz, fdc@columbia.edu.
+//
+// The module takes a UUCP-style script of the "expect send [expect send] ..."
+// format.  It is intended to operate similarly to the way the common
+// UUCP L.sys login entries work.  Conditional responses are supported:
+// expect[-send-expect[...]], as with UUCP.  The send keyword EOT sends a
+// Control-d, and the keyword BREAK sends a break.  Letters prefixed
+// by '~' are '~b' backspace, '~s' space, '~n' linefeed, '~r' return, '~x' xon,
+// '~t' tab, '~q' ? (not allowed on kermit command lines), '~' ~, '~'',
+// '~"', '~c' don't append return, '~o[o[o]]' octal character.  As with
+// some uucp systems, sent strings are followed by ~r (not ~n) unless they
+// end with ~c. Null expect strings (e.g., ~0 or --) cause a short
+// delay, and are useful for sending sequences requiring slight pauses.
+//
+// This module calls externally defined system-dependent functions for
+// communications i/o, as defined in ckcplm.txt, the C-Kermit Program Logic
+// Manual, and thus should be portable to all systems that implement those
+// functions, and where alarm() and signal() work as they do in UNIX.
 #include "ckcasc.h"
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcfnp.h" // Prototypes (must be last)
 #include "ckcker.h"
 #include "ckcnet.h"
 #include "ckcsig.h"
@@ -58,60 +56,59 @@ extern char ttname[];
 
 #ifdef IKSD
 extern int inserver;
-#endif /* IKSD */
+#endif // IKSD
 
-static int is_tn = 0; /* Do Telnet negotiations */
+static int is_tn = 0; // Do Telnet negotiations
 
 #ifndef NOSPL
 #ifdef DCMDBUF
 extern struct cmdptr *cmdstk;
 #else
 extern struct cmdptr cmdstk[];
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 extern int techo, cmdlvl;
 extern int mecho;
-#endif /* NOSPL */
+#endif // NOSPL
 
-static int scr_echo; /* Whether to echo script commands */
+static int scr_echo; // Whether to echo script commands
 
-static int exp_alrm = 15; /* Time to wait for expect string */
-#define SND_ALRM 15       /* Time to allow for sending string */
-#define NULL_EXP 2        /* Time to pause on null expect strg*/
-#define DEL_MSEC 300      /* Milliseconds to pause on ~d */
+static int exp_alrm = 15; // Time to wait for expect string
+#define SND_ALRM 15       // Time to allow for sending string
+#define NULL_EXP 2        // Time to pause on null expect strg
+#define DEL_MSEC 300      // Milliseconds to pause on ~d
 
 #define SBUFL 512
-static char seq_buf[SBUFL + 2], *s; /* expect-send sequence buffer */
+static char seq_buf[SBUFL + 2], *s; // expect-send sequence buffer
 static int got_it, no_cr;
 
-/*  Connect state parent/child communication signal handlers */
+//  Connect state parent/child communication signal handlers
 
 static ckjmpbuf alrmrng;
 
-static void scrtime(int foo) /* modem read failure handler, */
-/* scrtime */ {
+static void scrtime(int foo) // modem read failure handler,
+                             // scrtime
+{
 
   cklongjmp(alrmrng, 1);
   return;
 }
 
-/*
- Sequence interpreter -- pick up next sequence from command string,
- decode escapes and place into seq_buf.
-
- If string contains a ~d (delay) then sequenc() returns a 1 expecting
- to be called again after the ~d executes.
-*/
+// Sequence interpreter -- pick up next sequence from command string,
+// decode escapes and place into seq_buf.
+//
+// If string contains a ~d (delay) then sequenc() returns a 1 expecting
+// to be called again after the ~d executes.
 static int sequenc() {
   int i;
   char c, oct_char;
 
-  no_cr = 0; /* output needs cr appended */
+  no_cr = 0; // output needs cr appended
   for (i = 0; i < SBUFL;) {
-    if (*s == '\0' || *s == '-' || isspace(*s)) { /* done */
+    if (*s == '\0' || *s == '-' || isspace(*s)) { // done
       seq_buf[i] = '\0';
       return (0);
     }
-    if (*s == '~') { /* escape character */
+    if (*s == '~') { // escape character
       s++;
       switch (c = *s) {
       case 'n':
@@ -144,14 +141,14 @@ static int sequenc() {
       case 'c':
         no_cr = 1;
         break;
-      case 'd': {          /* send what we have & then */
-        seq_buf[i] = '\0'; /* expect to send rest after */
-        no_cr = 1;         /* sender delays a little */
+      case 'd': {          // send what we have & then
+        seq_buf[i] = '\0'; // expect to send rest after
+        no_cr = 1;         // sender delays a little
         s++;
         return (1);
       }
-      case 'w': {      /* wait count */
-        exp_alrm = 15; /* default to 15 sec */
+      case 'w': {      // wait count
+        exp_alrm = 15; // default to 15 sec
         if (isdigit(*(s + 1))) {
           s++;
           exp_alrm = *s & 15;
@@ -163,8 +160,8 @@ static int sequenc() {
         break;
       }
       default:
-        if (isdigit(c)) {           /* octal character */
-          oct_char = (char)(c & 7); /* most significant digit */
+        if (isdigit(c)) {           // octal character
+          oct_char = (char)(c & 7); // most significant digit
           if (isdigit(*(s + 1))) {
             s++;
             oct_char = (char)((oct_char << 3) | (*s & 7));
@@ -176,25 +173,25 @@ static int sequenc() {
           seq_buf[i++] = oct_char;
           break;
         } else {
-          seq_buf[i++] = *s; /* Treat ~ as quote */
+          seq_buf[i++] = *s; // Treat ~ as quote
         }
       }
     } else {
-      seq_buf[i++] = *s; /* Plain old character */
+      seq_buf[i++] = *s; // Plain old character
     }
     s++;
   }
   seq_buf[i] = '\0';
-  return (0); /* end of space, return anyway */
+  return (0); // end of space, return anyway
 }
 
-/* Output buffering for "recvseq" and "flushi" */
+// Output buffering for "recvseq" and "flushi"
 
-#define MAXBURST 256          /* maximum size of input burst */
-static CHAR conbuf[MAXBURST]; /* buffer to hold output for console */
-static int concnt = 0;        /* number of characters buffered */
-static CHAR sesbuf[MAXBURST]; /* buffer to hold output for session log */
-static int sescnt = 0;        /* number of characters buffered */
+#define MAXBURST 256          // maximum size of input burst
+static CHAR conbuf[MAXBURST]; // buffer to hold output for console
+static int concnt = 0;        // number of characters buffered
+static CHAR sesbuf[MAXBURST]; // buffer to hold output for session log
+static int sescnt = 0;        // number of characters buffered
 
 static void myflsh() {
   if (concnt > 0) {
@@ -207,35 +204,36 @@ static void myflsh() {
   }
 }
 
-/* these variables are used to pass data between the recvseq() */
-/* and the dorseq().  They are necessary because in some versions */
-/* dorseq() is executed in a separate thread and data cannot be */
-/* passed by parameter. */
+// these variables are used to pass data between the recvseq()
+// and the dorseq().  They are necessary because in some versions
+// dorseq() is executed in a separate thread and data cannot be
+// passed by parameter.
 
 static char *rseqe, *rseqgot, *rseqtrace;
 static int rseql;
 
 static void dorseq(void *threadinfo)
-/* dorseq */ {
+// dorseq
+{
   int i, x;
-  int burst = 0; /* chars remaining in input burst */
+  int burst = 0; // chars remaining in input burst
 
 #ifdef CK_LOGIN
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
   while (!got_it) {
     for (i = 0; i < rseql - 1; i++) {
       rseqgot[i] = rseqgot[i + 1];
     }
-    x = ttinc(0); /* Read a character */
+    x = ttinc(0); // Read a character
     debug(F101, "recvseq", "", x);
     if (x < 0) {
-      return; /* Check for error */
+      return; // Check for error
     }
 #ifdef NETCONN
 #ifdef TNCODE
-    /* Check for telnet protocol negotiation */
-    if (((x & 0xff) == IAC) && is_tn) { /* Telnet negotiation */
+    // Check for telnet protocol negotiation
+    if (((x & 0xff) == IAC) && is_tn) { // Telnet negotiation
       myflsh();
       burst = 0;
       switch (tn_doop((CHAR)(x & 0xff), duplex, ttinc)) {
@@ -248,31 +246,31 @@ static void dorseq(void *threadinfo)
         continue;
       }
     }
-#endif                                     /* TNCODE */
-#endif                                     /* NETCONN */
-    rseqgot[rseql - 1] = (char)(x & 0x7f); /* Got a character */
-    burst--;                               /* One less waiting */
+#endif                                     // TNCODE
+#endif                                     // NETCONN
+    rseqgot[rseql - 1] = (char)(x & 0x7f); // Got a character
+    burst--;                               // One less waiting
     if (scr_echo) {
-      conbuf[concnt++] = rseqgot[rseql - 1]; /* Buffer it */
+      conbuf[concnt++] = rseqgot[rseql - 1]; // Buffer it
     }
-    if (seslog) /* Log it in session log */
+    if (seslog) // Log it in session log
 #ifdef UNIX
       if (sessft != 0 || rseqgot[rseql - 1] != '\r')
 #else
-#endif                            /* UNIX */
-        if (rseqgot[rseql - 1]) { /* Filter out NULs */
+#endif                            // UNIX
+        if (rseqgot[rseql - 1]) { // Filter out NULs
           sesbuf[sescnt++] = rseqgot[rseql - 1];
         }
     if ((int)strlen(rseqtrace) < SBUFL - 2) {
       strcat(rseqtrace, dbchr(rseqgot[rseql - 1]));
     }
     got_it = (!strncmp(rseqe, rseqgot, rseql));
-    if (burst <= 0) { /* Flush buffered output */
+    if (burst <= 0) { // Flush buffered output
       myflsh();
-      if ((burst = ttchk()) < 0) { /* Get size of next input burst */
+      if ((burst = ttchk()) < 0) { // Get size of next input burst
         return;
       }
-      /* prevent overflow of "conbuf" and "sesbuf" */
+      // prevent overflow of "conbuf" and "sesbuf"
       if (burst > MAXBURST) {
         burst = MAXBURST;
       }
@@ -282,27 +280,26 @@ static void dorseq(void *threadinfo)
 }
 
 static void failrseq(void *threadinfo)
-/* failrseq */ {
-  got_it = 0; /* Timed out here */
+// failrseq
+{
+  got_it = 0; // Timed out here
   return;
 }
 
-/*
-  Receive sequence -- see if expected response comes,
-  return success (or failure) in got_it.
-*/
+// Receive sequence -- see if expected response comes,
+// return success (or failure) in got_it.
 static void recvseq() {
   char *e, got[7], trace[SBUFL];
   int i, l;
 
   sequenc();
-  l = (int)strlen(e = seq_buf); /* no more than 7 chars allowed */
+  l = (int)strlen(e = seq_buf); // no more than 7 chars allowed
   if (l > 7) {
     e += l - 7;
     l = 7;
   }
   tlog(F111, "expecting sequence", e, (long)l);
-  if (l == 0) { /* null sequence, delay a little */
+  if (l == 0) { // null sequence, delay a little
     sleep(NULL_EXP);
     got_it = 1;
     tlog(F100, "got it (null sequence)", "", 0L);
@@ -322,28 +319,26 @@ static void recvseq() {
 
   tlog(F110, "received sequence: ", trace, 0L);
   tlog(F101, "returning with got-it code", "", (long)got_it);
-  myflsh(); /* Flush buffered output */
+  myflsh(); // Flush buffered output
   return;
 }
 
-/*
- Output A Sequence starting at pointer s,
- return 0 if okay,
- 1 if failed to read (modem hangup or whatever)
-*/
-static int oseqret = 0; /* Return code for outseq */
-                        /* Out here to prevent clobbering */
-                        /* by longjmp. */
+// Output A Sequence starting at pointer s,
+// return 0 if okay,
+// 1 if failed to read (modem hangup or whatever)
+static int oseqret = 0; // Return code for outseq
+                        // Out here to prevent clobbering
+                        // by longjmp.
 
 static void dooseq(void *threadinfo) {
   int l;
   char *sb;
 #ifdef TCPSOCKET
   extern int tn_nlm, tn_b_nlm;
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
 #ifdef CK_LOGIN
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
   l = (int)strlen(seq_buf);
   tlog(F111, "sending sequence ", seq_buf, (long)l);
@@ -368,15 +363,15 @@ static void dooseq(void *threadinfo) {
   } else {
     if (l > 0) {
       for (sb = seq_buf; *sb; sb++) {
-        *sb = dopar(*sb); /* add parity */
+        *sb = dopar(*sb); // add parity
       }
-      ttol((CHAR *)seq_buf, l); /* send it */
+      ttol((CHAR *)seq_buf, l); // send it
       if (scr_echo && duplex) {
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
         conxo(l, seq_buf);
       }
-      if (seslog && duplex) { /* log it */
+      if (seslog && duplex) { // log it
         logstr(seq_buf, strlen(seq_buf));
       }
     }
@@ -391,7 +386,7 @@ static void dooseq(void *threadinfo) {
           ttoc((char)((tn_b_nlm == TNL_CRLF) ? dopar(LF) : dopar(NUL)));
         }
       }
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
       if (seslog && duplex) {
         logchar(dopar(CK_CR));
       }
@@ -401,15 +396,16 @@ static void dooseq(void *threadinfo) {
 }
 
 void failoseq(void *threadinfo)
-/* failoseq */ {
-  oseqret = -1; /* else -- alarm rang */
+// failoseq
+{
+  oseqret = -1; // else -- alarm rang
   return;
 }
 
 static int outseq() {
   int delay;
 
-  oseqret = 0; /* Initialize return code */
+  oseqret = 0; // Initialize return code
   while (1) {
     delay = sequenc();
     alrm_execute(ckjaddr(alrmrng), SND_ALRM, scrtime, dooseq, failoseq);
@@ -417,17 +413,17 @@ static int outseq() {
     if (!delay) {
       return (oseqret);
     }
-    msleep(DEL_MSEC); /* delay, loop to next send */
+    msleep(DEL_MSEC); // delay, loop to next send
   }
 }
 
-/*  L O G I N  --  (historical misnomer) Execute the SCRIPT command */
+//  L O G I N  --  (historical misnomer) Execute the SCRIPT command
 
 int dologin(char *cmdstr) {
-  ck_sig_t savealm; /* Save incoming alarm function */
+  ck_sig_t savealm; // Save incoming alarm function
   char *e;
 
-  s = cmdstr; /* Make global to this module */
+  s = cmdstr; // Make global to this module
 
   tlog(F100, loginv, "", 0L);
 
@@ -439,7 +435,7 @@ int dologin(char *cmdstr) {
     perror(seq_buf);
     return (0);
   }
-  /* Whether to echo script commands ... */
+  // Whether to echo script commands ...
   scr_echo = (!quiet && !backgrd && secho);
 #ifndef NOSPL
   if (scr_echo && cmdlvl > 1) {
@@ -450,19 +446,19 @@ int dologin(char *cmdstr) {
       scr_echo = mecho;
     }
   }
-#endif /* NOSPL */
+#endif // NOSPL
   if (scr_echo) {
 #ifdef NETCONN
     if (network) {
       printf("Executing SCRIPT to host %s.\n", ttname);
     } else
-#endif /* NETCONN */
+#endif // NETCONN
       printf("Executing SCRIPT through %s, speed %ld.\n", ttname, speed);
   }
 #ifdef TNCODE
-  /* TELNET input must be scanned for IAC */
+  // TELNET input must be scanned for IAC
   is_tn = (local && network && IS_TELNET()) || (!local && sstelnet);
-#endif /* TNCODE */
+#endif // TNCODE
 
   *seq_buf = 0;
   for (e = s; *e; e++) {
@@ -470,51 +466,51 @@ int dologin(char *cmdstr) {
   }
   tlog(F110, "SCRIPT string: ", seq_buf, 0L);
 
-  /* Condition console terminal and communication line... */
+  // Condition console terminal and communication line...
 
   if (ttvt(speed, flow) < 0) {
     printf("Sorry, Can't condition communication line\n");
     return (0);
   }
-  /* Save initial timer interrupt value */
+  // Save initial timer interrupt value
   savealm = ck_signal(SIGALRM, SIG_IGN);
 
-  flushi(); /* Flush stale input */
+  flushi(); // Flush stale input
 
-  /* start expect - send sequence */
+  // start expect - send sequence
 
-  while (*s) { /* While not done with buffer */
+  while (*s) { // While not done with buffer
 
     while (*s && isspace(*s)) {
-      s++; /* Skip over separating whitespaces */
+      s++; // Skip over separating whitespaces
     }
-    /* Gather up expect sequence */
+    // Gather up expect sequence
     got_it = 0;
     recvseq();
 
-    while (!got_it) {    /* Have it yet? */
-      if (*s++ != '-') { /* No, is there a conditional send? */
-        goto failret;    /* No, return failure */
+    while (!got_it) {    // Have it yet?
+      if (*s++ != '-') { // No, is there a conditional send?
+        goto failret;    // No, return failure
       }
-      flushi();       /* Yes, flush out input buffer */
-      if (outseq()) { /* If unable to send, */
-        goto failret; /* return failure. */
+      flushi();       // Yes, flush out input buffer
+      if (outseq()) { // If unable to send,
+        goto failret; // return failure.
       }
-      if (*s++ != '-') { /* If no conditional response here, */
-        goto failret;    /* return failure. */
+      if (*s++ != '-') { // If no conditional response here,
+        goto failret;    // return failure.
       }
-      recvseq(); /* All OK, read response from host. */
-    } /* Loop back and check got_it */
+      recvseq(); // All OK, read response from host.
+    } // Loop back and check got_it
 
     while (*s && !isspace(*s++))
-      ; /* Skip over conditionals */
+      ; // Skip over conditionals
     while (*s && isspace(*s)) {
-      s++; /* Skip over separating whitespaces */
+      s++; // Skip over separating whitespaces
     }
-    flushi(); /* Flush */
+    flushi(); // Flush
     if (*s) {
       if (outseq()) {
-        goto failret; /* If any */
+        goto failret; // If any
       }
     }
   }
@@ -534,33 +530,33 @@ failret:
   return (0);
 }
 
-/*  F L U S H I  --  Flush, but log, SCRIPT input buffer  */
+//  F L U S H I  --  Flush, but log, SCRIPT input buffer
 
 void flushi() {
   int n, x;
-  if (seslog      /* Logging session? */
-      || scr_echo /* Or console echoing? */
+  if (seslog      // Logging session?
+      || scr_echo // Or console echoing?
 #ifdef NETCONN
 #ifdef TNCODE
-      /* TELNET input must be scanned for IAC */
+      // TELNET input must be scanned for IAC
       || is_tn
-#endif /* TNCODE */
-#endif /* NETCONN */
+#endif // TNCODE
+#endif // NETCONN
   ) {
-    if ((n = ttchk()) < 0) { /* Yes, anything in buffer? */
+    if ((n = ttchk()) < 0) { // Yes, anything in buffer?
       return;
     }
     if (n > MAXBURST) {
-      n = MAXBURST; /* Make sure not too much, */
+      n = MAXBURST; // Make sure not too much,
     }
-    myflsh(); /* and that buffers are empty. */
+    myflsh(); // and that buffers are empty.
     while (n-- > 0) {
-      x = ttinc(0); /* Collect a character */
+      x = ttinc(0); // Collect a character
 #ifdef NETCONN
 #ifdef TNCODE
-      /* Check for telnet protocol negotiation */
+      // Check for telnet protocol negotiation
       if (is_tn && ((x & 0xff) == IAC)) {
-        myflsh(); /* Sync output */
+        myflsh(); // Sync output
         switch (tn_doop((CHAR)(x & 0xff), duplex, ttinc)) {
         case 2:
           duplex = 0;
@@ -571,7 +567,7 @@ void flushi() {
           break;
         }
 
-        /* Recalculate flush count */
+        // Recalculate flush count
         if ((n = ttchk()) < 0) {
           return;
         }
@@ -580,25 +576,25 @@ void flushi() {
         }
         continue;
       }
-#endif /* TNCODE */
-#endif /* NETCONN */
+#endif // TNCODE
+#endif // NETCONN
       if (scr_echo) {
-        conbuf[concnt++] = (CHAR)x; /* buffer for console */
+        conbuf[concnt++] = (CHAR)x; // buffer for console
       }
       if (seslog)
 #ifdef UNIX
         if (sessft != 0 || x != '\r')
 #else
-#endif                                /* UNIX */
-          sesbuf[sescnt++] = (CHAR)x; /* buffer for session log */
+#endif                                // UNIX
+          sesbuf[sescnt++] = (CHAR)x; // buffer for session log
     }
     myflsh();
   } else {
-    ttflui(); /* Otherwise just flush. */
+    ttflui(); // Otherwise just flush.
   }
 }
 
-#else  /* NOSCRIPT */
+#else  // NOSCRIPT
 char *loginv = "Script Command Disabled";
-#endif /* NOSCRIPT */
-#endif /* NOICP */
+#endif // NOSCRIPT
+#endif // NOICP

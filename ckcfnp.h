@@ -1,65 +1,61 @@
-/*
-  ckcfnp.h, new to C-Kermit 10.0 as of 23 March 2023.
-
-    Frank da Cruz
-    Most recent update: 5 February 2024 (remove locate_srv_dns())
-
-  Prototypes for functions that previously were not prototyped.
-  Used only for ANSI-C builds in which __STDC__ is defined.
-  ckcfnp.h was historically included as the LAST #include in each C source
-  file, because it references types and symbols defined in other headers.
-  That ordering is no longer required: as of the 2023 updates noted below it
-  self-includes its own dependencies (ckcdeb.h, ckcker.h, ckucmd.h, ckuusr.h,
-  all guarded against multiple inclusion), so it is self-contained regardless
-  of include position.  This matters because clang-format's SortIncludes
-  (enabled 2026-06-15) may sort it ahead of those headers at the include site.
-  Prototype format: return-type function-name ( arguments );
-  If no arguments, "void" appears in the parentheses, e.g. "( void )".
-  If one argument, its type appears, e.g. "( int )".
-  If more than one argument, the type of each, separated by commas.
-  The argument names are omitted; K&R second edition says:
-  "Parameter names need not agree (and) are optional".
-
-  Note: Functions that *were* already prototyped are scattered
-  throughout the ck*.c and ck*.h files using a macro _PROTOTYP; I'm
-  not changing those, they've been working just fine on both K&R and
-  ANSI builds for decades, they coexist with this file, and we don't
-  "fix what ain't broke".
-*/
+// ckcfnp.h, new to C-Kermit 10.0 as of 23 March 2023.
+//
+//  Frank da Cruz
+//  Most recent update: 5 February 2024 (remove locate_srv_dns())
+//
+// Prototypes for functions that previously were not prototyped.
+// Used only for ANSI-C builds in which __STDC__ is defined.
+// ckcfnp.h was historically included as the LAST #include in each C source
+// file, because it references types and symbols defined in other headers.
+// That ordering is no longer required: as of the 2023 updates noted below it
+// self-includes its own dependencies (ckcdeb.h, ckcker.h, ckucmd.h, ckuusr.h,
+// all guarded against multiple inclusion), so it is self-contained regardless
+// of include position.  This matters because clang-format's SortIncludes
+// (enabled 2026-06-15) may sort it ahead of those headers at the include site.
+// Prototype format: return-type function-name ( arguments );
+// If no arguments, "void" appears in the parentheses, e.g. "( void )".
+// If one argument, its type appears, e.g. "( int )".
+// If more than one argument, the type of each, separated by commas.
+// The argument names are omitted; K&R second edition says:
+// "Parameter names need not agree (and) are optional".
+//
+// Note: Functions that *were* already prototyped are scattered
+// throughout the ck*.c and ck*.h files using a macro _PROTOTYP; I'm
+// not changing those, they've been working just fine on both K&R and
+// ANSI builds for decades, they coexist with this file, and we don't
+// "fix what ain't broke".
 #ifndef CKCFNP_H
 #define CKCFNP_H
 
 #ifdef __STDC__
-/*
-  #include ckcker.h was added 27 April 2023 because certain builds (like
-  "linux+ssl") were failing.  ckcker.h defines data types and other symbols
-  referenced in this file.  It should be included by every module before
-  including this one.  But just in case there's an omission, including it here
-  too does no harm because the ck*.h files protect themselves against multiple
-  inclusion.  ckcdeb.h added 3 may 2023, because the mainname definition was
-  moved from here (where non-ansi builds would never see it) to ckcdeb.h.
-  ckuusr.h added 12 May 2023 for MINIX / ckucon.c / struct m[x,xx]tab.
-*/
-/* clang-format off */
+// #include ckcker.h was added 27 April 2023 because certain builds (like
+// "linux+ssl") were failing.  ckcker.h defines data types and other symbols
+// referenced in this file.  It should be included by every module before
+// including this one.  But just in case there's an omission, including it here
+// too does no harm because the ck*.h files protect themselves against multiple
+// inclusion.  ckcdeb.h added 3 may 2023, because the mainname definition was
+// moved from here (where non-ansi builds would never see it) to ckcdeb.h.
+// ckuusr.h added 12 May 2023 for MINIX / ckucon.c / struct m[x,xx]tab.
+// clang-format off
 #include "ckcdeb.h"
-/* clang-format on */
+// clang-format on
 #include "ckcker.h"
 #include "ckucmd.h"
 #include "ckuusr.h"
 
-/* Prototype for main()/Main() */
+// Prototype for main()/Main()
 MAINTYPE MAINNAME(int argc, char **argv);
 
-/* PROTOTYPES ADDED 6 May 2023... */
+// PROTOTYPES ADDED 6 May 2023...
 
-/* PROTOTYPES ADDED 11-14 April 2023... */
+// PROTOTYPES ADDED 11-14 April 2023...
 
 int hasnopath(char *);
 void puschcmd(char *);
 void newerrmsg(char *);
 char *getdm(int);
 
-/* PROTOTYPES ADDED 26 March 2023... */
+// PROTOTYPES ADDED 26 March 2023...
 
 void docmdline(void *);
 void failcmdline(void *);
@@ -81,11 +77,11 @@ void dourl(void);
 int getiobs(void);
 
 #ifndef NOSPL
-/* struct mtab [] exists only if NOSPL isn't defined */
+// struct mtab [] exists only if NOSPL isn't defined
 int mlook(struct mtab[], char *, int);
 int mxlook(struct mtab[], char *, int);
 int mxxlook(struct mtab[], char *, int);
-#endif /* NOSPL */
+#endif // NOSPL
 
 int savhistory(char *, int);
 char *ckltoa(long);
@@ -110,7 +106,7 @@ int ckhexbytetoint(char *s);
 struct stringarray *cksplit(int fc, int n1, char *s1, char *s2, char *s3,
                             int n2, int n3, int n4, int n5);
 
-/* PROTOTYPES ADDED 24 March 2023... */
+// PROTOTYPES ADDED 24 March 2023...
 
 CK_OFF_T z_count(int, int);
 CK_OFF_T z_getline(int);
@@ -295,7 +291,7 @@ int gettcs(int, int);
 int gettoken(FILE *);
 int getyesno(char *, int);
 int gnirts(char *, char *, int);
-int hash(char *); /* Conflicts with SRP support on Windows and OS/2 */
+int hash(char *); // Conflicts with SRP support on Windows and OS/2
 int hmsg(char *);
 int hmsga(char *[]);
 int http_inc(int);
@@ -408,7 +404,7 @@ int untabify(char *, char *, int);
 int updslot(int);
 #ifndef NOURL
 int urlparse(char *, struct urldata *);
-#endif /* NOURL */
+#endif // NOURL
 int varval(char *, CK_OFF_T *);
 int window(int);
 int xarray(char *);
@@ -456,7 +452,7 @@ int zxin(int, char *, int);
 int zzstring(char *, char **, int *);
 #ifndef NOLOCAL
 long dologshow(int);
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 long hextoulong(char *, int);
 long mjd(char *);
 long pty_cleanup(char *, int, int);
@@ -493,7 +489,7 @@ void freelocal(int);
 void freerpkt(int);
 #ifndef NOLOCAL
 void fxdinit(int);
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 void init_termbuf(int);
 void initial(FILE *, FILE *);
 void initmdm(int);
@@ -544,5 +540,5 @@ void zrtol(char *, char *);
 void zstrip(char *, char **);
 void ztime(char **);
 
-#endif /* __STDC__ */
-#endif /* CKCFNP_H */
+#endif // __STDC__
+#endif // CKCFNP_H

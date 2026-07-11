@@ -3,73 +3,71 @@ int xcmdsrc = 0;
 
 #ifdef NOICP
 int cmdsrc() { return (0); }
-#endif /* NOICP */
+#endif // NOICP
 
-/*  C K U U S 5 --  "User Interface" for C-Kermit, part 5  */
+//  C K U U S 5 --  "User Interface" for C-Kermit, part 5
 
-/*
-  Authors:
-    Frank da Cruz <fdc@columbia.edu>,
-      The Kermit Project, New York City
-    Jeffrey E Altman <jaltman@secure-endpoints.com>
-      Secure Endpoints Inc., New York City
-    Update: Jun 24 2023 (David Goodwin)
-    Update: Oct 10-11 2022 (fdc and sms)
-    Update: Dec 02 2022 (David Goodwin - SHOW MOUSE)
-    Update: Dec 13 2022 (David Goodwin - missing break + K95 arrow keys)
-    Update: Apr 14 2023 (ANSI function declarations and prototypes)
-    Update: May 16 2023 (Jeff Johnson fix for iksd.conf diagnostic)
-    Update: May 16 2023 (Jeff Johnson fix for \v(startup) vs \v(exedir))
-    Update: Jun 25 2023 (Added Clang support to SHOW FEATURES - fdc)
+// Authors:
+//  Frank da Cruz <fdc@columbia.edu>,
+//    The Kermit Project, New York City
+//  Jeffrey E Altman <jaltman@secure-endpoints.com>
+//    Secure Endpoints Inc., New York City
+//  Update: Jun 24 2023 (David Goodwin)
+//  Update: Oct 10-11 2022 (fdc and sms)
+//  Update: Dec 02 2022 (David Goodwin - SHOW MOUSE)
+//  Update: Dec 13 2022 (David Goodwin - missing break + K95 arrow keys)
+//  Update: Apr 14 2023 (ANSI function declarations and prototypes)
+//  Update: May 16 2023 (Jeff Johnson fix for iksd.conf diagnostic)
+//  Update: May 16 2023 (Jeff Johnson fix for \v(startup) vs \v(exedir))
+//  Update: Jun 25 2023 (Added Clang support to SHOW FEATURES - fdc)
+//
+// Copyright (C) 1985, 2023,
+//  Trustees of Columbia University in the City of New York.
+//  All rights reserved.  See the C-Kermit COPYING.TXT file or the
+//  copyright text in the ckcmai.c module for disclaimer and permissions.
 
-  Copyright (C) 1985, 2023,
-    Trustees of Columbia University in the City of New York.
-    All rights reserved.  See the C-Kermit COPYING.TXT file or the
-    copyright text in the ckcmai.c module for disclaimer and permissions.
-*/
+// Includes
 
-/* Includes */
-
-/* clang-format off */
+// clang-format off
 #include "ckcdeb.h"
-/* clang-format on */
+// clang-format on
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckuusr.h"
 
 #ifdef DCMDBUF
-char *line; /* Character buffer for anything */
+char *line; // Character buffer for anything
 char *tmpbuf;
 #else
 char line[LINBUFSIZ + 1];
-char tmpbuf[TMPBUFSIZ + 1]; /* Temporary buffer */
-#endif                            /* DCMDBUF */
-char lasttakeline[TMPBUFSIZ + 1]; /* Last TAKE-file line */
+char tmpbuf[TMPBUFSIZ + 1]; // Temporary buffer
+#endif                            // DCMDBUF
+char lasttakeline[TMPBUFSIZ + 1]; // Last TAKE-file line
 
-int noherald = 0; /* Whether to print the program herald on startup */
+int noherald = 0; // Whether to print the program herald on startup
 #ifndef NOICP
 
 #include "ckcnet.h"
 #ifndef NOCSETS
 #include "ckcxla.h"
-#endif /* NOCSETS */
+#endif // NOCSETS
 
-extern char *ck_cryear; /* (ckcmai.c) Latest C-Kermit copyright year */
+extern char *ck_cryear; // (ckcmai.c) Latest C-Kermit copyright year
 
-/* 2010-03-09 SMS.  VAX C V3.1-051 needs <stat.h> for off_t. */
+// 2010-03-09 SMS.  VAX C V3.1-051 needs <stat.h> for off_t.
 
-#include "ckcfnp.h" /* Prototypes (must be last) */
+#include "ckcfnp.h" // Prototypes (must be last)
 
-/* prototypes for static functions - fdc 30 November 2022 */
+// prototypes for static functions - fdc 30 November 2022
 static char *cmddisplay(char *, int);
 static char *vardef(char *, int *, int *, int *);
 static int isaa(char *);
 static int iseom(char *);
 static int traceval(char *, char *);
 
-/* For formatted screens, "more?" prompting, etc. */
+// For formatted screens, "more?" prompting, etc.
 
-/* External variables */
+// External variables
 
 extern int carrier, cdtimo, local, quiet, backgrd, bgset, sosi, xsuspend,
     binary, escape, xargs, flow, cmdmsk, duplex, ckxech, seslog, what, inserver,
@@ -80,31 +78,31 @@ extern int carrier, cdtimo, local, quiet, backgrd, bgset, sosi, xsuspend,
 
 #ifdef LOCUS
 extern int locus, autolocus;
-#endif /* LOCUS */
+#endif // LOCUS
 
 #ifndef NOMSEND
 extern int addlist;
-#endif /* NOMSEND */
+#endif // NOMSEND
 
 #ifdef CK_SPEED
 extern int prefixing;
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
 extern int g_matchdot;
 
 #ifdef RECURSIVE
 extern int recursive;
-#endif /* RECURSIVE */
+#endif // RECURSIVE
 extern int xfiletype;
 
 #ifdef IKSDCONF
 extern char *iksdconf;
 extern int iksdcf;
-#endif /* IKSDCONF */
+#endif // IKSDCONF
 
 #ifdef CK_RECALL
 extern int on_recall;
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 
 extern int ngetpath, exitonclose;
 extern char *getpath[];
@@ -127,7 +125,7 @@ extern char unm_mod[];
 extern char unm_nam[];
 extern char unm_rel[];
 extern char unm_ver[];
-#endif /* CK_UTSNAME */
+#endif // CK_UTSNAME
 
 #ifndef NOPUSH
 #ifndef NOFRILLS
@@ -138,28 +136,28 @@ extern char editopts[];
 extern char browser[];
 extern char browsopts[];
 extern char browsurl[];
-#endif /* BROWSER */
-#endif /*  NOFRILLS */
-#endif /* NOPUSH */
+#endif // BROWSER
+#endif //  NOFRILLS
+#endif // NOPUSH
 
 #ifndef NOFRILLS
 #ifndef NORENAME
 void shorename(void);
-#endif /* NORENAME */
-#endif /* NOFRILLS */
+#endif // NORENAME
+#endif // NOFRILLS
 
 #ifndef NOSERVER
 extern char *x_user, *x_passwd, *x_acct;
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 #ifdef CKLOGDIAL
 extern int dialog;
 extern char diafil[];
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
 #ifdef CKROOT
 extern int ckrooterr;
-#endif /* CKROOT */
+#endif // CKROOT
 
 #ifndef NOSPL
 extern int cfilef, xxdot, vareval;
@@ -181,59 +179,59 @@ static void simple(void);
 static void simpler(void);
 static void simplest(void);
 static CK_OFF_T xparse(void);
-#endif /* NOSPL */
+#endif // NOSPL
 #ifndef NOSHOW
 int sho_iks(void);
-#endif /* NOSHOW */
+#endif // NOSHOW
 
 #ifdef NOSPL
 char *ckprompt = "C-Kermit>";
 char *ikprompt = "IKSD>";
-#else /* NOSPL */
+#else // NOSPL
 #ifdef UNIX
-/* Note: parens, not brackets, because of ISO646 */
-/* Collapse long paths using ~ notation if in home directory tree */
+// Note: parens, not brackets, because of ISO646
+// Collapse long paths using ~ notation if in home directory tree
 char *ckprompt = "(\\freplace(\\v(dir),\\fpathname(\\v(home)),~/)) C-Kermit>";
 char *ikprompt = "(\\freplace(\\v(dir),\\fpathname(\\v(home)),~/)) IKSD>";
 #else
-/* Default prompt for other platforms */
-char *ckprompt = "(\\v(dir)) C-Kermit>"; /* Default prompt for others */
+// Default prompt for other platforms
+char *ckprompt = "(\\v(dir)) C-Kermit>"; // Default prompt for others
 char *ikprompt = "(\\v(dir)) IKSD>";
-#endif /* UNIX */
-#endif /* NOSPL */
+#endif // UNIX
+#endif // NOSPL
 
 #ifndef CCHMAXPATH
 #define CCHMAXPATH 257
-#endif                                /* CCHMAXPATH */
-char inidir[CCHMAXPATH] = {NUL, NUL}; /* Directory INI file executed from */
+#endif                                // CCHMAXPATH
+char inidir[CCHMAXPATH] = {NUL, NUL}; // Directory INI file executed from
 
 #ifdef TNCODE
-extern int tn_b_nlm; /* TELNET BINARY newline mode */
-#endif               /* TNCODE */
+extern int tn_b_nlm; // TELNET BINARY newline mode
+#endif               // TNCODE
 
 #ifndef NOKVERBS
-extern struct keytab kverbs[]; /* Table of \Kverbs */
-extern int nkverbs;            /* Number of \Kverbs */
-#endif                         /* NOKVERBS */
+extern struct keytab kverbs[]; // Table of \Kverbs
+extern int nkverbs;            // Number of \Kverbs
+#endif                         // NOKVERBS
 
 #ifndef NOPUSH
 extern int nopush;
-#endif /* NOPUSH */
+#endif // NOPUSH
 
 #ifdef CK_RECALL
 extern int cm_recall;
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 
 extern char *ccntab[];
 
-/* Printer stuff */
+// Printer stuff
 
 extern char *printername;
 extern int printpipe;
 #ifdef BPRINT
 extern int printbidi, pportparity, pportflow;
 extern long pportspeed;
-#endif /* BPRINT */
+#endif // BPRINT
 
 extern long vernum;
 extern int inecho, insilence, inbufsize, nvars, inintr;
@@ -244,31 +242,31 @@ extern char *protv, *fnsv, *cmdv, *userv, *ckxv, *ckzv, *ckzsys, *xlav, *cknetv,
 extern char *cksshv;
 #ifdef SFTP_BUILTIN
 extern char *cksftpv;
-#endif /* SFTP_BUILTIN */
+#endif // SFTP_BUILTIN
 #include "ckossh.h"
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
 
 #ifdef TNCODE
 extern char *cktelv;
-#endif /* TNCODE */
+#endif // TNCODE
 
 extern int srvidl;
 
 #ifndef NOLOCAL
 extern char *connv;
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifndef NODIAL
 extern char *dialv;
-#endif /* NODIAL */
+#endif // NODIAL
 #ifndef NOSCRIPT
 extern char *loginv;
 extern int secho;
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
 
 #ifndef NODIAL
 extern int nmdm, dirline;
 extern struct keytab mdmtab[];
-#endif /* NODIAL */
+#endif // NODIAL
 
 extern int network, nettype, ttnproto;
 
@@ -279,41 +277,41 @@ extern int tt_rows, tt_cols;
 extern int cmd_rows, cmd_cols;
 
 #ifdef CK_TMPDIR
-extern int f_tmpdir;  /* Directory changed temporarily */
-extern char savdir[]; /* Temporary directory */
-#endif                /* CK_TMPDIR */
+extern int f_tmpdir;  // Directory changed temporarily
+extern char savdir[]; // Temporary directory
+#endif                // CK_TMPDIR
 
 #ifndef NOLOCAL
 extern int tt_crd, tt_lfd, tt_escape;
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOCSETS
 extern int language, nfilc, tcsr, tcsl, tcs_transp, fcharset;
 extern struct keytab fcstab[];
 extern struct csinfo fcsinfo[];
 extern struct keytab ttcstab[];
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 extern long speed;
 
 #ifndef NOXMIT
 extern int xmitf, xmitl, xmitp, xmitx, xmits, xmitw, xmitt;
 extern char xmitbuf[];
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 extern char **xargv, *versio, *ckxsys, *dftty, *lp;
 
 #ifdef DCMDBUF
-extern char *cmdbuf, *atmbuf; /* Command buffers */
+extern char *cmdbuf, *atmbuf; // Command buffers
 #ifndef NOSPL
-extern char *savbuf; /* Command buffers */
-#endif               /* NOSPL */
+extern char *savbuf; // Command buffers
+#endif               // NOSPL
 #else
-extern char cmdbuf[], atmbuf[]; /* Command buffers */
+extern char cmdbuf[], atmbuf[]; // Command buffers
 #ifndef NOSPL
-extern char savbuf[]; /* Command buffers */
-#endif /* NOSPL */
-#endif /* DCMDBUF */
+extern char savbuf[]; // Command buffers
+#endif // NOSPL
+#endif // DCMDBUF
 
 extern char toktab[], ttname[], psave[];
 extern CHAR sstate, feol;
@@ -325,7 +323,7 @@ KEY *keymap;
 #define mapkey(x) keymap[x]
 MACRO *macrotab;
 void shostrdef(CHAR *);
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 extern int cmdlvl;
 
@@ -334,25 +332,25 @@ extern struct mtab *mactab;
 extern struct keytab mackey[];
 extern struct keytab vartab[], fnctab[], iftab[];
 extern int maclvl, nmac, mecho, fndiags, fnerror, fnsuccess, nif;
-#endif /* NOSPL */
+#endif // NOSPL
 
-FILE *tfile[MAXTAKE];      /* TAKE file stack */
-char *tfnam[MAXTAKE];      /* Name of TAKE file */
-int tfline[MAXTAKE];       /* Current line number */
-int tfblockstart[MAXTAKE]; /* Current block-start line */
+FILE *tfile[MAXTAKE];      // TAKE file stack
+char *tfnam[MAXTAKE];      // Name of TAKE file
+int tfline[MAXTAKE];       // Current line number
+int tfblockstart[MAXTAKE]; // Current block-start line
 
-int topcmd = -1; /* cmdtab index of current command */
+int topcmd = -1; // cmdtab index of current command
 int havetoken = 0;
-extern int dblquo; /* Doublequoting enabled */
+extern int dblquo; // Doublequoting enabled
 
-#ifdef DCMDBUF /* Initialization filespec */
+#ifdef DCMDBUF // Initialization filespec
 char *kermrc = NULL;
 #else
 char kermrcb[KERMRCL];
 char *kermrc = kermrcb;
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 
-int cm_retry = 1; /* Command retry enabled */
+int cm_retry = 1; // Command retry enabled
 xx_strp xxstring = zzstring;
 
 #ifndef NOXFER
@@ -363,28 +361,28 @@ extern int displa, bye_active, protocol, pktlog, remfile, rempipe, unkcs, keep,
 
 #ifdef CK_AUTODL
 extern int inautodl, cmdadl;
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 
 #ifndef NOSERVER
 extern int en_asg, en_cwd, en_cpy, en_del, en_dir, en_fin, en_bye, en_ret,
     en_get, en_hos, en_que, en_ren, en_sen, en_set, en_spa, en_typ, en_who,
     en_mai, en_pri, en_mkd, en_rmd, en_xit, en_ena;
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 extern int atcapr, atenci, atenco, atdati, atdato, atleni, atleno, atblki,
     atblko, attypi, attypo, atsidi, atsido, atsysi, atsyso, atdisi, atdiso;
 
 #ifdef CK_PERMS
 extern int atlpri, atlpro, atgpri, atgpro;
-#endif /* CK_PERMS */
+#endif // CK_PERMS
 
 #ifdef CK_LOGIN
-extern char *anonfile; /* Anonymous login init file */
-extern char *anonroot; /* Anonymous file-system root */
-extern char *userfile; /* Forbidden user file */
-extern int isguest;    /* Flag for anonymous user */
-#endif                 /* CK_LOGIN */
-#endif                 /* NOXFER */
+extern char *anonfile; // Anonymous login init file
+extern char *anonroot; // Anonymous file-system root
+extern char *userfile; // Forbidden user file
+extern int isguest;    // Flag for anonymous user
+#endif                 // CK_LOGIN
+#endif                 // NOXFER
 
 #ifdef DCMDBUF
 int *xquiet = NULL;
@@ -392,7 +390,7 @@ int *xvarev = NULL;
 #else
 int xquiet[CMDSTKL];
 int xvarev[CMDSTKL];
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 
 char *prstring[CMDSTKL];
 
@@ -401,18 +399,18 @@ char *prstring[CMDSTKL];
 extern long ck_alarm;
 extern char alrm_date[], alrm_time[];
 
-/* Local declarations */
+// Local declarations
 
-static int nulcmd = 0; /* Flag for next cmd to be ignored */
+static int nulcmd = 0; // Flag for next cmd to be ignored
 
-/* Definitions for predefined macros */
+// Definitions for predefined macros
 
-/* First, the single-line macros, installed with addmac()... */
+// First, the single-line macros, installed with addmac()...
 
-/* IBM-LINEMODE macro */
+// IBM-LINEMODE macro
 char *m_ibm = "set parity mark, set dupl half, set handsh xon, set flow none";
 
-/* FATAL macro */
+// FATAL macro
 char *m_fat = "if def \\%1 echo \\%1, if not = \\v(local) 0 hangup, stop 1";
 
 #ifdef CK_SPEED
@@ -420,64 +418,58 @@ char *m_fat = "if def \\%1 echo \\%1, if not = \\v(local) 0 hangup, stop 1";
 char *m_fast = "set win 30, set rec pack 4000, set prefix cautious";
 #else
 char *m_fast = "set win 4, set rec pack 2200, set prefix cautious";
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
 char *m_cautious = "set win 4, set rec pack 1000, set prefixing cautious";
 char *m_robust = "set win 1, set rec pack 90, set prefixing all, \
 set reliable off, set clearchannel off, set send timeout 20 fixed";
 #else
 #ifdef BIGBUFOK
 char *m_fast = "set win 30, set rec pack 4000";
-#else  /* Not BIGBUFOK */
+#else  // Not BIGBUFOK
 char *m_fast = "set win 4, set rec pack 2200";
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
 char *m_cautious = "set win 4, set rec pack 1000";
 char *m_robust = "set win 1, set rec pack 90, set reliable off,\
  set send timeout 20 fixed";
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
-/* Now the multiline macros, defined with addmmac()... */
+// Now the multiline macros, defined with addmmac()...
 
-/*
-  Kermit's scripting language is so much more powerful than C that it was
-  about a thousand time easier to implement FOR, WHILE, IF, and SWITCH
-  commands as internal Kermit macros.  This was done in 1996 for C-Kermit 6.0.
+// Kermit's scripting language is so much more powerful than C that it was
+// about a thousand time easier to implement FOR, WHILE, IF, and SWITCH
+// commands as internal Kermit macros.  This was done in 1996 for C-Kermit 6.0.
+//
+// The following definitions, down to #ifdef COMMENT, are from C-Kermit
+// 9.0.304 Dev.22, April 2017, where the command parser was changed to not
+// evaluate macro arguments on the DO command line, but to defer evaluation
+// until after the arguments had been separated and counted.  This change
+// required subtle modifications to the internal macro templates.
+//
+// IMPORTANT: Internal macros must have names that start with '_', followed
+// by three letters, e.g. _whi for WHILE.  The definitions below are just
+// templates for some other code that constructs the actual menu to be
+// executed by filling in the \%x variables.  The generated macros have names
+// like _whil2, _whil3, etc, where the trailing number is the execution stack
+// level.  The reason for the strict naming convention is so internal macros
+// can be parsed differently than regular ones.  See
+// ckuusr.c:isinternalmacro(), which determines the type of macro.
 
-  The following definitions, down to #ifdef COMMENT, are from C-Kermit
-  9.0.304 Dev.22, April 2017, where the command parser was changed to not
-  evaluate macro arguments on the DO command line, but to defer evaluation
-  until after the arguments had been separated and counted.  This change
-  required subtle modifications to the internal macro templates.
-
-  IMPORTANT: Internal macros must have names that start with '_', followed
-  by three letters, e.g. _whi for WHILE.  The definitions below are just
-  templates for some other code that constructs the actual menu to be
-  executed by filling in the \%x variables.  The generated macros have names
-  like _whil2, _whil3, etc, where the trailing number is the execution stack
-  level.  The reason for the strict naming convention is so internal macros
-  can be parsed differently than regular ones.  See
-  ckuusr.c:isinternalmacro(), which determines the type of macro.
-*/
-
-/*
- The WHILE macro:
- \%1 = Loop condition
- \%2 = Loop body
-*/
+// The WHILE macro:
+// \%1 = Loop condition
+// \%2 = Loop body
 char *whil_def[] = {"_assign _whi\\v(cmdlevel) {_getargs,",
                     ":_..inc,\\fcontents(\\%1),\\fcontents(\\%2),goto "
                     "_..inc,:_..bot,_putargs},",
                     "_define break goto _..bot, _define continue goto _..inc,",
                     "do _whi\\v(cmdlevel),_assign _whi\\v(cmdlevel)", ""};
 
-/*
- FOR macro for \%i-style loop variables (see dofor()...)
- \%1 = Loop variable
- \%2 = Initial value (can be an expression)
- \%3 = Loop exit value
- \%4 = Loop increment
- \%5 = > or <
- \%6 = Loop body
-*/
+// FOR macro for \%i-style loop variables (see dofor()...)
+// \%1 = Loop variable
+// \%2 = Initial value (can be an expression)
+// \%3 = Loop exit value
+// \%4 = Loop increment
+// \%5 = > or <
+// \%6 = Loop body
 char *for_def[] = {
     "_assign _for\\v(cmdlevel) { _getargs,",
     "define \\\\\\%1 \\feval(\\%2),:_..top,if \\%5 \\\\\\%1 \\%3 goto _..bot,",
@@ -488,10 +480,8 @@ char *for_def[] = {
     "_for\\v(cmdlevel)",
     ""};
 
-/*
-  FOR macro when the loop variable is itself a macro, with same arguments
-  but slightly different quoting.
-*/
+// FOR macro when the loop variable is itself a macro, with same arguments
+// but slightly different quoting.
 char *foz_def[] = {
     "_assign _for\\v(cmdlevel) { _getargs,",
     "def \\%1 \\feval(\\%2),:_..top,if \\%5 \\%1 \\%3 goto _..bot,",
@@ -501,29 +491,23 @@ char *foz_def[] = {
     "_for\\v(cmdlevel)",
     ""};
 
-/*
- SWITCH macro
- \%1 = Switch variable
- \%2 = Switch body
-*/
+// SWITCH macro
+// \%1 = Switch variable
+// \%2 = Switch body
 char *sw_def[] = {"_assign _sw_\\v(cmdlevel) {_getargs,",
                   "_forward "
                   "{\\fcontents(\\%1)},\\fcontents(\\%2),:default,:_..bot,_"
                   "putargs},_def break goto _..bot,",
                   "do _sw_\\v(cmdlevel),_assign _sw_\\v(cmdlevel)", ""};
 
-/*
-  IF macro
-  /%1 = Commands to execute (IF part and ELSE part if any)
-*/
+// IF macro
+// /%1 = Commands to execute (IF part and ELSE part if any)
 char *xif_def[] = {
     "_assign _if_\\v(cmdlevel) {_getargs,\\fcontents(\\%1),_putargs},",
     "do _if_\\v(cmdlevel),_assign _if\\v(cmdlevel)", ""};
 
-/*
-  Variables declared here for use by other ckuus*.c modules.
-  Space is allocated here to save room in ckuusr.c.
-*/
+// Variables declared here for use by other ckuus*.c modules.
+// Space is allocated here to save room in ckuusr.c.
 #ifdef DCMDBUF
 struct cmdptr *cmdstk;
 int *ifcmd = NULL, *count = NULL, *iftest = NULL, *intime = NULL,
@@ -532,103 +516,99 @@ int *ifcmd = NULL, *count = NULL, *iftest = NULL, *intime = NULL,
 struct cmdptr cmdstk[CMDSTKL];
 int ifcmd[CMDSTKL], count[CMDSTKL], iftest[CMDSTKL], intime[CMDSTKL],
     inpcas[CMDSTKL], takerr[CMDSTKL], merror[CMDSTKL];
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 
-/* Macro stack */
+// Macro stack
 
-char **m_xarg[MACLEVEL];      /* Pointers to arg vector arrays */
-int n_xarg[MACLEVEL];         /* Sizes of arg vector arrays */
-char *m_arg[MACLEVEL][NARGS]; /* Args of each level */
-int macargc[MACLEVEL];        /* Argc of each level */
-char *macp[MACLEVEL];         /* Current position in each macro */
-char *macx[MACLEVEL];         /* Beginning of each macro def */
-char *mrval[MACLEVEL];        /* RETURN value at each level */
-int lastcmd[MACLEVEL];        /* Last command at each level */
-int topargc = 0;              /* Argc at top level */
-char **topxarg = NULL;        /* Argv at top level */
+char **m_xarg[MACLEVEL];      // Pointers to arg vector arrays
+int n_xarg[MACLEVEL];         // Sizes of arg vector arrays
+char *m_arg[MACLEVEL][NARGS]; // Args of each level
+int macargc[MACLEVEL];        // Argc of each level
+char *macp[MACLEVEL];         // Current position in each macro
+char *macx[MACLEVEL];         // Beginning of each macro def
+char *mrval[MACLEVEL];        // RETURN value at each level
+int lastcmd[MACLEVEL];        // Last command at each level
+int topargc = 0;              // Argc at top level
+char **topxarg = NULL;        // Argv at top level
 char *toparg[MAXARGLIST + 2];
 
-/* Global Variables */
+// Global Variables
 
-char *g_var[GVARS + 1]; /* Global \%a..z pointers */
-extern char varnam[];   /* \%x variable name buffer */
+char *g_var[GVARS + 1]; // Global \%a..z pointers
+extern char varnam[];   // \%x variable name buffer
 
-/* Arrays -- Dimension must be 'z' - ARRAYBASE + 1 */
-/* Note: a_link[x] < 0 means no link; >= 0 is a link */
+// Arrays -- Dimension must be 'z' - ARRAYBASE + 1
+// Note: a_link[x] < 0 means no link; >= 0 is a link
 
-char **a_ptr[32]; /* Array pointers, for arrays a-z */
-int a_dim[32];    /* Dimensions for each array */
-int a_link[32];   /* Link (index of linked-to-array) */
+char **a_ptr[32]; // Array pointers, for arrays a-z
+int a_dim[32];    // Dimensions for each array
+int a_link[32];   // Link (index of linked-to-array)
 
-char **aa_ptr[CMDSTKL][32]; /* Array stack for automatic arrays */
-int aa_dim[CMDSTKL][32];    /* Dimensions for each array */
+char **aa_ptr[CMDSTKL][32]; // Array stack for automatic arrays
+int aa_dim[CMDSTKL][32];    // Dimensions for each array
 
-/* INPUT command buffers and variables */
+// INPUT command buffers and variables
 
-char *inpbuf = NULL;         /* Buffer for INPUT and REINPUT */
-extern char *inpbp;          /* Global/static pointer to it  */
-char inchar[2] = {NUL, NUL}; /* Last character that was INPUT */
-int incount = 0;             /* INPUT character count */
-extern int instatus;         /* INPUT status */
-static char *i_text[] = {    /* INPUT status text */
-                         "success", "timeout", "interrupted", "internal error",
-                         "i/o error"};
+char *inpbuf = NULL;         // Buffer for INPUT and REINPUT
+extern char *inpbp;          // Global/static pointer to it
+char inchar[2] = {NUL, NUL}; // Last character that was INPUT
+int incount = 0;             // INPUT character count
+extern int instatus;         // INPUT status
+static char *i_text[] = {    // INPUT status text
+    "success", "timeout", "interrupted", "internal error", "i/o error"};
 
-char lblbuf[LBLSIZ]; /* Buffer for labels */
+char lblbuf[LBLSIZ]; // Buffer for labels
 
-#else  /* NOSPL */
+#else  // NOSPL
 
 int takerr[MAXTAKE];
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *prevdir = NULL;
 
-int pacing = 0; /* OUTPUT pacing */
+int pacing = 0; // OUTPUT pacing
 
-char *tp; /* Temporary buffer pointer */
+char *tp; // Temporary buffer pointer
 
-int timelimit = 0, asktimer = 0; /* Timers for time-limited commands */
+int timelimit = 0, asktimer = 0; // Timers for time-limited commands
 
-#ifdef CK_APC /* Application Program Command (APC) */
+#ifdef CK_APC // Application Program Command (APC)
 int apcactive = APC_INACTIVE;
-int apcstatus = APC_OFF; /* OFF by default everywhere */
+int apcstatus = APC_OFF; // OFF by default everywhere
 #ifdef DCMDBUF
 char *apcbuf;
 #else
 char apcbuf[APCBUFLEN];
-#endif /* DCMDBUF */
-#endif /* CK_APC */
+#endif // DCMDBUF
+#endif // CK_APC
 
 extern char pktfil[],
 #ifdef DEBUG
     debfil[],
-#endif /* DEBUG */
+#endif // DEBUG
 #ifdef TLOG
     trafil[],
-#endif /* TLOG */
+#endif // TLOG
     sesfil[];
 
 #ifndef NOFRILLS
-extern int rmailf, rprintf; /* REMOTE MAIL & PRINT items */
+extern int rmailf, rprintf; // REMOTE MAIL & PRINT items
 extern char optbuf[];
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
-extern int noinit; /* Flat to skip init file */
+extern int noinit; // Flat to skip init file
 
 #ifndef NOSPL
-static struct keytab kcdtab[] = {/* Symbolic directory names */
-                                 {"download", VN_DLDIR, 0},
-                                 {"exedir", VN_EXEDIR, 0},
-                                 {"home", VN_HOME, 0},
-                                 {"inidir", VN_INI, 0},
+static struct keytab kcdtab[] = { // Symbolic directory names
+    {"download", VN_DLDIR, 0}, {"exedir", VN_EXEDIR, 0},
+    {"home", VN_HOME, 0},      {"inidir", VN_INI, 0},
 #ifdef UNIX
-                                 {"lockdir", VN_LCKDIR, 0},
-#endif /* UNIX */
-                                 {"startup", VN_STAR, 0},
-                                 {"textdir", VN_TXTDIR, 0},
-                                 {"tmpdir", VN_TEMP, 0}};
+    {"lockdir", VN_LCKDIR, 0},
+#endif // UNIX
+    {"startup", VN_STAR, 0},   {"textdir", VN_TXTDIR, 0},
+    {"tmpdir", VN_TEMP, 0}};
 static int nkcdtab = (sizeof(kcdtab) / sizeof(struct keytab));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
 void freelocal(int);
@@ -636,8 +616,8 @@ static CK_OFF_T expon(CK_OFF_T, CK_OFF_T);
 static CK_OFF_T gcd(CK_OFF_T, CK_OFF_T);
 static CK_OFF_T fact(CK_OFF_T);
 
-int        /* Initialize macro data structures. */
-macini() { /* Allocate mactab and preset the first element. */
+int        // Initialize macro data structures.
+macini() { // Allocate mactab and preset the first element.
   int i;
   if (!(mactab = (struct mtab *)malloc(sizeof(struct mtab) * MAC_MAX))) {
     return (-1);
@@ -650,16 +630,14 @@ macini() { /* Allocate mactab and preset the first element. */
   }
   return (0);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/*  C M D S R C  --  Returns current command source  */
+//  C M D S R C  --  Returns current command source
 
-/*  0 = top level, 1 = file, 2 = macro, -1 = error (shouldn't happen) */
+//  0 = top level, 1 = file, 2 = macro, -1 = error (shouldn't happen)
 
-/*
-  As of 19 Aug 2000 this routine is obsolete.  The scalar global variable
-  xcmdsrc can be checked instead to save the overhead of a function call.
-*/
+// As of 19 Aug 2000 this routine is obsolete.  The scalar global variable
+// xcmdsrc can be checked instead to save the overhead of a function call.
 int cmdsrc() {
 #ifndef NOSPL
   if (cmdlvl == 0) {
@@ -677,51 +655,49 @@ int cmdsrc() {
   } else {
     return (1);
   }
-#endif /* NOSPL */
+#endif // NOSPL
 }
 
-/*  C M D I N I  --  Initialize the interactive command parser  */
+//  C M D I N I  --  Initialize the interactive command parser
 
-static int cmdinited = 0; /* Command parser initialized */
-extern int cmdint;        /* Interrupts are allowed */
+static int cmdinited = 0; // Command parser initialized
+extern int cmdint;        // Interrupts are allowed
 #ifdef CK_AUTODL
-int cmdadl = 1; /* Autodownload */
+int cmdadl = 1; // Autodownload
 #else
 int cmdadl = 0;
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 
-char *k_info_dir = NULL; /* Where to find text files */
+char *k_info_dir = NULL; // Where to find text files
 #ifdef UNIX
 static char *txtdir[] = {
-    "/usr/local/doc/",                       /* Linux, SunOS, ... */
-    "/usr/share/lib/",                       /* HP-UX 10.xx... */
-    "/usr/share/doc/",                       /* Other possibilities... */
-    "/usr/local/lib/",                       /* NOTE: Each of these is tried */
-    "/usr/local/share/",                     /* as is, and also with a kermit */
-    "/usr/local/share/doc/",                 /* subdirectory. */
-    "/usr/local/share/lib/", "/opt/kermit/", /* Solaris */
+    "/usr/local/doc/",                       // Linux, SunOS, ...
+    "/usr/share/lib/",                       // HP-UX 10.xx...
+    "/usr/share/doc/",                       // Other possibilities...
+    "/usr/local/lib/",                       // NOTE: Each of these is tried
+    "/usr/local/share/",                     // as is, and also with a kermit
+    "/usr/local/share/doc/",                 // subdirectory.
+    "/usr/local/share/lib/", "/opt/kermit/", // Solaris
     "/opt/kermit/doc/",      "/opt/",        "/usr/doc/", "/doc/", ""};
-#endif /* UNIX */
+#endif // UNIX
 
-/*
-  lookup() cache to speed up script execution.
-
-  This is a static cache.  Items are stored in decreasing frequency of
-  reference based on statistics from a range of scripts.  This gives
-  better performance than a dynamic cache, which would require a lot more
-  code and also would require system-dependent elements including system
-  calls (e.g. to get subsecond times for entry aging).
-*/
-#ifdef USE_LUCACHE /* Set in ckuusr.h */
-#define LUCACHE 32 /* Change this to reduce cache size */
+// lookup() cache to speed up script execution.
+//
+// This is a static cache.  Items are stored in decreasing frequency of
+// reference based on statistics from a range of scripts.  This gives
+// better performance than a dynamic cache, which would require a lot more
+// code and also would require system-dependent elements including system
+// calls (e.g. to get subsecond times for entry aging).
+#ifdef USE_LUCACHE // Set in ckuusr.h
+#define LUCACHE 32 // Change this to reduce cache size
 int lusize = 0;
 char *lucmd[LUCACHE];
 int luval[LUCACHE];
 int luidx[LUCACHE];
 struct keytab *lutab[LUCACHE];
-#endif /* USE_LUCACHE */
+#endif // USE_LUCACHE
 
-static void luinit() { /* Initialize lookup() cache */
+static void luinit() { // Initialize lookup() cache
   int x, y;
 
 #ifdef USE_LUCACHE
@@ -874,7 +850,7 @@ static void luinit() { /* Initialize lookup() cache */
   luval[lusize] = x;
   luidx[lusize] = y;
   lutab[lusize] = cmdtab;
-#endif /* USE_LUCACHE */
+#endif // USE_LUCACHE
 }
 
 void cmdini() {
@@ -884,34 +860,32 @@ void cmdini() {
   long *ss = NULL;
   extern int nspd;
   extern struct keytab *spdtab;
-#endif /* TTSPDLIST */
+#endif // TTSPDLIST
 
 #ifndef NOSPL
-  /*
-    On stack to allow recursion!
-  */
-  char vnambuf[VNAML]; /* Buffer for variable names */
-#endif                 /* NOSPL */
+  // On stack to allow recursion!
+  char vnambuf[VNAML]; // Buffer for variable names
+#endif                 // NOSPL
 
-  if (cmdinited) { /* Already initialized */
-    return;        /* Don't do it again */
+  if (cmdinited) { // Already initialized
+    return;        // Don't do it again
   }
 
-  for (i = 0; i < CMDSTKL; i++) { /* Prompt strings for each */
-    prstring[i] = NULL;           /* command level */
+  for (i = 0; i < CMDSTKL; i++) { // Prompt strings for each
+    prstring[i] = NULL;           // command level
   }
 
 #ifndef NOCSETS
-  p = getenv("K_CHARSET"); /* Set default file character set */
-  if (p) {                 /* from environment */
+  p = getenv("K_CHARSET"); // Set default file character set
+  if (p) {                 // from environment
     x = lookup(fcstab, p, nfilc, &y);
     if (x > -1) {
       fcharset = x;
     }
   }
-#endif /* NOCSETS */
+#endif // NOCSETS
 
-  p = getenv("K_INFO_DIRECTORY"); /* Find Kermit info directory */
+  p = getenv("K_INFO_DIRECTORY"); // Find Kermit info directory
   if (p && *p && strlen(p) <= CKMAXPATH) {
     makestr(&k_info_dir, p);
   }
@@ -922,7 +896,7 @@ void cmdini() {
     }
   }
 #ifdef UNIX
-  if (k_info_dir) { /* Look for Kermit docs directory */
+  if (k_info_dir) { // Look for Kermit docs directory
     if (zchki(k_info_dir) == -2) {
       char xbuf[CKMAXPATH + 32], *s = "";
       if (ckrchar(k_info_dir) != '/') {
@@ -959,7 +933,7 @@ void cmdini() {
         break;
       }
     }
-    if (k_info_dir) { /* Make sure it ends with "/" */
+    if (k_info_dir) { // Make sure it ends with "/"
       if (ckrchar(k_info_dir) != '/') {
         char xbuf[CKMAXPATH + 32];
         ckmakmsg(xbuf, CKMAXPATH + 32, k_info_dir, "/", NULL, NULL);
@@ -968,20 +942,20 @@ void cmdini() {
     }
   }
 #else
-#endif /* UNIX */
+#endif // UNIX
 
 #ifdef TTSPDLIST
-  if (!spdtab && (ss = ttspdlist())) { /* Get speed list if necessary */
-    int j, k, m = 0, n;                /* Create sorted keyword table */
+  if (!spdtab && (ss = ttspdlist())) { // Get speed list if necessary
+    int j, k, m = 0, n;                // Create sorted keyword table
     char buf[16];
     char *p;
     if ((spdtab = (struct keytab *)malloc(sizeof(struct keytab) * ss[0]))) {
-      for (i = 1; i <= ss[0]; i++) { /* ss[0] = number of elements */
+      for (i = 1; i <= ss[0]; i++) { // ss[0] = number of elements
         if (ss[i] < 1L) {
-          break; /* Shouldn't happen */
+          break; // Shouldn't happen
         }
-        buf[0] = NUL;               /* Make string */
-        sprintf(buf, "%ld", ss[i]); /* SAFE */
+        buf[0] = NUL;               // Make string
+        sprintf(buf, "%ld", ss[i]); // SAFE
         if (ss[i] == 8880L) {
           ckstrncpy(buf, "75/1200", sizeof(buf));
         }
@@ -989,70 +963,66 @@ void cmdini() {
           ckstrncat(buf, ".5", 16);
         }
         n = strlen(buf);
-        if ((n > 0) && (p = (char *)malloc(20 + 2))) { /* match maxspeedlen+2 */
-          if (m > 0) {  /* Have at least one in list */
-            for (j = 0; /* Find slot */
+        if ((n > 0) && (p = (char *)malloc(20 + 2))) { // match maxspeedlen+2
+          if (m > 0) {  // Have at least one in list
+            for (j = 0; // Find slot
                  j < m && strcmp(buf, spdtab[j].kwd) > 0; j++)
               ;
-            if (j < m) {                     /* Must insert */
-              for (k = m - 1; k >= j; k--) { /* Move others down */
+            if (j < m) {                     // Must insert
+              for (k = m - 1; k >= j; k--) { // Move others down
                 spdtab[k + 1].kwd = spdtab[k].kwd;
                 spdtab[k + 1].flgs = spdtab[k].flgs;
                 spdtab[k + 1].kwval = spdtab[k].kwval;
               }
             }
-          } else { /* First one */
+          } else { // First one
             j = 0;
           }
-          ckstrncpy(p, buf, n + 1); /* Add new speed */
+          ckstrncpy(p, buf, n + 1); // Add new speed
           spdtab[j].kwd = p;
           spdtab[j].flgs = 0;
           spdtab[j].kwval = (int)ss[i] / 10;
-          m++; /* Count this one */
+          m++; // Count this one
         }
       }
     }
     nspd = m;
   }
 #ifndef NOSORTSPEEDS
-  /*
-    In C-Kermit 10.0 the list of serial speeds is potentially much longer than
-    in earlier releases because of the new high-speed UARTs.  When the user
-    types "set speed ?" the result is a confusing jumble because it's in
-    "alphabetic" order rather than numeric.  This code sorts the list into
-    numeric order so a sensible result is obtained. -fdc 10 October 2022
-  */
+  // In C-Kermit 10.0 the list of serial speeds is potentially much longer than
+  // in earlier releases because of the new high-speed UARTs.  When the user
+  // types "set speed ?" the result is a confusing jumble because it's in
+  // "alphabetic" order rather than numeric.  This code sorts the list into
+  // numeric order so a sensible result is obtained. -fdc 10 October 2022
   if (1) {
     int i = 0;
     int k = 0;
     int x = 0;
     int maxspeedlen = 20;
-    int n = maxspeedlen + 2; /* Bug fix: was sizeof spdtab (a pointer!) + 2 */
+    int n = maxspeedlen + 2; // Bug fix: was sizeof spdtab (a pointer!) + 2
 
-    /*
-      Fix by SMS 2022-10-11: Use constant array dimensions;
-      non-constant array dimensions are a C99 feature.
-    */
+    // Fix by SMS 2022-10-11: Use constant array dimensions;
+    // non-constant array dimensions are a C99 feature.
     char **speeds;
     struct keytab *tmp;
 
     speeds = malloc(sizeof(char *) * (nspd + 2));
     tmp = malloc(sizeof(struct keytab) * (nspd + 2));
 
-    for (i = 0; i < nspd; i++) { /* Allocate string storage */
-      speeds[i] = malloc(n);     /* Was malloc(n+2)=12 bytes, too small */
+    for (i = 0; i < nspd; i++) { // Allocate string storage
+      speeds[i] = malloc(n);     // Was malloc(n+2)=12 bytes, too small
       tmp[i].kwd = malloc(n);
     }
-    for (i = 0; i < nspd; i++) { /* Copy speeds into a sortable array */
+    for (i = 0; i < nspd; i++) { // Copy speeds into a sortable array
       ckstrncpy(speeds[i], spdtab[i].kwd, n);
     }
 
-    /* Sort the array (sh_sort() doesn't sort structs) */
+    // Sort the array (sh_sort() doesn't sort structs)
     (void)sh_sort(speeds, NULL, nspd, 0, 0, 2);
 
-    /* Create new sorted array of structs */
-    for (i = 0; i < nspd; i++) {   /* i = index to sorted speeds */
-      for (k = 0; k < nspd; k++) { /* k = index to original list */
+    // Create new sorted array of structs
+    for (i = 0; i < nspd; i++) {   // i = index to sorted speeds
+      for (k = 0; k < nspd; k++) { // k = index to original list
         if (!strcmp(spdtab[k].kwd, speeds[i])) {
           ckstrncpy(tmp[i].kwd, spdtab[k].kwd, n);
           tmp[i].flgs = spdtab[k].flgs;
@@ -1069,22 +1039,22 @@ void cmdini() {
     free(tmp);
     free(speeds);
   }
-#endif /* NOSORTSPEEDS */
-#endif /* TTSPDLIST */
+#endif // NOSORTSPEEDS
+#endif // TTSPDLIST
 
 #ifndef NOSPL
-  /* Allocate INPUT command buffer */
+  // Allocate INPUT command buffer
   if (!inpbuf) {
     if (!(inpbuf = (char *)malloc(INPBUFSIZ + 8))) {
       fatal("cmdini: no memory for INPUT buffer");
     }
   }
-  for (x = 0; x < INPBUFSIZ; x++) { /* Initialize it */
+  for (x = 0; x < INPBUFSIZ; x++) { // Initialize it
     inpbuf[x] = NUL;
   }
-  inpbp = inpbuf;        /* Initialize pointer */
-  inbufsize = INPBUFSIZ; /* and size. */
-#endif                   /* NOSPL */
+  inpbp = inpbuf;        // Initialize pointer
+  inbufsize = INPBUFSIZ; // and size.
+#endif                   // NOSPL
 
 #ifdef DCMDBUF
   if (cmsetup() < 0) {
@@ -1092,7 +1062,7 @@ void cmdini() {
   }
 
 #ifndef NOSPL
-  /* Allocate command stack allowing command parser to call itself */
+  // Allocate command stack allowing command parser to call itself
 
   if (!(cmdstk = (struct cmdptr *)malloc(sizeof(struct cmdptr) * CMDSTKL))) {
     fatal("cmdini: no memory for cmdstk");
@@ -1130,15 +1100,14 @@ void cmdini() {
     }
   }
 #ifdef CK_APC
-  /* Application Program Command buffer */
+  // Application Program Command buffer
   if (!(apcbuf = malloc(APCBUFLEN + 1))) {
     fatal("cmdini: no memory for apcbuf");
   }
-#endif /* CK_APC */
-#endif /* NOSPL */
+#endif // CK_APC
+#endif // NOSPL
 
-  /* line[] and tmpbuf[] are the two string buffers used by the command parser
-   */
+  // line[] and tmpbuf[] are the two string buffers used by the command parser
 
   if (!(line = malloc(LINBUFSIZ + 1))) {
     fatal("cmdini: no memory for line");
@@ -1146,115 +1115,113 @@ void cmdini() {
   if (!(tmpbuf = malloc(LINBUFSIZ + 1))) {
     fatal("cmdini: no memory for tmpbuf");
   }
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 
 #ifndef NOSPL
 #ifdef CK_MINPUT
-  { /* Initialize MINPUT pointers */
+  { // Initialize MINPUT pointers
     int i;
     extern char *ms[];
     for (i = 0; i < MINPMAX; i++) {
       ms[i] = NULL;
     }
   }
-#endif /* CK_MINPUT */
+#endif // CK_MINPUT
 
-  if (macini() < 0) { /* Allocate macro buffers */
+  if (macini() < 0) { // Allocate macro buffers
     fatal("Can't allocate macro buffers!");
   }
 
-  ifcmd[0] = 0;  /* Command-level related variables. */
-  iftest[0] = 0; /* Initialize variables at top level */
-  count[0] = 0;  /* of stack... */
+  ifcmd[0] = 0;  // Command-level related variables.
+  iftest[0] = 0; // Initialize variables at top level
+  count[0] = 0;  // of stack...
   intime[0] = 0;
   inpcas[0] = 0;
   takerr[0] = 0;
   merror[0] = 0;
   xquiet[0] = quiet;
   xvarev[0] = vareval;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
-  cmdlvl = 0; /* Initialize the command stack */
+  cmdlvl = 0; // Initialize the command stack
   xcmdsrc = CMD_KB;
-  cmdstk[cmdlvl].src = CMD_KB; /* Source is console */
-  cmdstk[cmdlvl].lvl = 0;      /* Level is 0 */
-  cmdstk[cmdlvl].ccflgs = 0;   /* No flags */
-#endif                         /* NOSPL */
+  cmdstk[cmdlvl].src = CMD_KB; // Source is console
+  cmdstk[cmdlvl].lvl = 0;      // Level is 0
+  cmdstk[cmdlvl].ccflgs = 0;   // No flags
+#endif                         // NOSPL
 
-  tlevel = -1;                    /* Take file level = keyboard */
-  for (i = 0; i < MAXTAKE; i++) { /* Initialize command file names */
+  tlevel = -1;                    // Take file level = keyboard
+  for (i = 0; i < MAXTAKE; i++) { // Initialize command file names
     tfnam[i] = NULL;
   }
 
-  cmsetp(ckprompt); /* Set up C-Kermit's prompt */
-                    /* Can't set IKSD prompt here since */
-                    /* we do not yet know if we are IKSD */
+  cmsetp(ckprompt); // Set up C-Kermit's prompt
+                    // Can't set IKSD prompt here since
+                    // we do not yet know if we are IKSD
 #ifndef NOSPL
 
-  initmac(); /* Initialize macro table */
+  initmac(); // Initialize macro table
 
-  /* Predefine built-in one-line macros */
+  // Predefine built-in one-line macros
 
-  addmac("ibm-linemode", m_ibm);  /* IBM-LINEMODE */
-  addmac("fatal", m_fat);         /* FATAL macro */
-  y = addmac("fast", m_fast);     /* FAST macro */
-  addmac("cautious", m_cautious); /* CAUTIOUS macro */
-  addmac("robust", m_robust);     /* ROBUST macro */
+  addmac("ibm-linemode", m_ibm);  // IBM-LINEMODE
+  addmac("fatal", m_fat);         // FATAL macro
+  y = addmac("fast", m_fast);     // FAST macro
+  addmac("cautious", m_cautious); // CAUTIOUS macro
+  addmac("robust", m_robust);     // ROBUST macro
 
-  /*
-    Predefine built-in multiline macros; these are top-level commands
-    that are implemented internally as macros.  NOTE: When adding a new
-    one of these, remember to update the END and RETURN commands to
-    account for it, or else END and RETURN from within it won't work right.
-  */
-  x = addmmac("_forx", for_def); /* FOR macro */
+  // Predefine built-in multiline macros; these are top-level commands
+  // that are implemented internally as macros.  NOTE: When adding a new
+  // one of these, remember to update the END and RETURN commands to
+  // account for it, or else END and RETURN from within it won't work right.
+  x = addmmac("_forx", for_def); // FOR macro
   if (x > -1) {
     mactab[x].flgs = CM_INV;
   }
-  x = addmmac("_forz", foz_def); /* Other FOR macro */
+  x = addmmac("_forz", foz_def); // Other FOR macro
   if (x > -1) {
     mactab[x].flgs = CM_INV;
   }
-  x = addmmac("_xif", xif_def); /* XIF macro */
+  x = addmmac("_xif", xif_def); // XIF macro
   if (x > -1) {
     mactab[x].flgs = CM_INV;
   }
-  x = addmmac("_while", whil_def); /* WHILE macro */
+  x = addmmac("_while", whil_def); // WHILE macro
   if (x > -1) {
     mactab[x].flgs = CM_INV;
   }
-  x = addmmac("_switx", sw_def); /* SWITCH macro */
+  x = addmmac("_switx", sw_def); // SWITCH macro
   if (x > -1) {
     mactab[x].flgs = CM_INV;
   }
 
-  /* Fill in command-line argument vector */
+  // Fill in command-line argument vector
 
-  sprintf(vnambuf, "\\&@[%d]", xargs); /* SAFE */
-  if (inserver) {                      /* But hidden in IKSD */
+  sprintf(vnambuf, "\\&@[%d]", xargs); // SAFE
+  if (inserver) {                      // But hidden in IKSD
     y = -1;
     xargs = 0;
   } else {
-    y = arraynam(vnambuf, &x, &z); /* goes in array \&@[] */
+    y = arraynam(vnambuf, &x, &z); // goes in array \&@[]
   }
 
   tmpbuf[0] = NUL;
   if (y > -1) {
     int j = -1;
     int yy = 0;
-    dclarray((char)x, z); /* Declare the array */
+    dclarray((char)x, z); // Declare the array
 #ifndef NOTAKEARGS
-    /* Macro argument vector */
-    sprintf(vnambuf, "\\&_[%d]", z); /* SAFE */
-    yy = arraynam(vnambuf, &x, &z);  /* goes in array \&_[] */
-    if (yy > -1) {                   /* Name is OK */
-      dclarray((char)x, z);          /* Declare the array */
+    // Macro argument vector
+    sprintf(vnambuf, "\\&_[%d]", z); // SAFE
+    yy = arraynam(vnambuf, &x, &z);  // goes in array \&_[]
+    if (yy > -1) {                   // Name is OK
+      dclarray((char)x, z);          // Declare the array
     }
-#endif /* NOTAKEARGS */
+#endif // NOTAKEARGS
     skip = 0;
-    for (i = 0; i < xargs; i++) {      /* Fill the arrays */
-      sprintf(vnambuf, "\\&@[%d]", i); /* SAFE */
+    for (i = 0; i < xargs; i++) {      // Fill the arrays
+      sprintf(vnambuf, "\\&@[%d]", i); // SAFE
       addmac(vnambuf, xargv[i]);
       if (cfilef && i == 0) {
         continue;
@@ -1265,17 +1232,17 @@ void cmdini() {
         skip = 0;
         continue;
       }
-#endif             /* KERBANG */
-      if (j < 0 && /* Assign items after "=" or "--"*/
+#endif             // KERBANG
+      if (j < 0 && // Assign items after "=" or "--"
           (!strcmp(xargv[i], "=") || !strcmp(xargv[i], "--"))) {
-        j = 0; /* to \%1..\%9 */
+        j = 0; // to \%1..\%9
 #ifdef KERBANG
       } else if (j < 0 &&
                  (!strcmp(xargv[i], "+") || !strncmp(xargv[i], "+ ", 2) ||
                   !strncmp(xargv[i], "+\t", 2))) {
         skip = 1;
         continue;
-#endif /* KERBANG */
+#endif // KERBANG
       } else if (j > -1) {
         j++;
         if (j <= 9) {
@@ -1330,11 +1297,11 @@ void cmdini() {
     debug(F111, "a_dim[0]", "A", a_dim[0]);
   }
   *vnambuf = NUL;
-#endif /* NOSPL */
+#endif // NOSPL
 
-  luinit(); /* Initialize lookup() cache */
+  luinit(); // Initialize lookup() cache
 
-  /* Get our home directory now.  This needed in lots of places. */
+  // Get our home directory now.  This needed in lots of places.
 
   cmdinited = 1;
 }
@@ -1342,25 +1309,23 @@ void cmdini() {
 void doinit() {
 #ifdef CKROOT
   extern int ckrooterr;
-#endif /* CKROOT */
+#endif // CKROOT
   int x = 0, ok = 0;
 
   if (!cmdinited) {
     cmdini();
   }
 
-  /* If skipping init file ('-Y' on Kermit command line), return now. */
+  // If skipping init file ('-Y' on Kermit command line), return now.
 
   if (noinit) {
     kermrc[0] = '\0';
     inidir[0] = '\0';
-    /*
-      But returning from here results in inidir[] never being set to anything.
-      Instead it should be set to wherever the init file *would* have been
-      executed from.  So this bit of code should be removed, and then we should
-      sprinkle "if (noinit)" tests throughout the following code until we have
-      set inidir[], and then return without actually taking the init file.
-    */
+    // But returning from here results in inidir[] never being set to anything.
+    // Instead it should be set to wherever the init file *would* have been
+    // executed from.  So this bit of code should be removed, and then we should
+    // sprinkle "if (noinit)" tests throughout the following code until we have
+    // set inidir[], and then return without actually taking the init file.
     return;
   }
 
@@ -1372,20 +1337,20 @@ void doinit() {
   if (isguest) {
     ckstrncpy(lp, anonfile ? anonfile : kermrc, LINBUFSIZ);
   } else
-#endif                                  /* CK_LOGIN */
-    if (rcflag) {                       /* If init file name from cmd line */
-      ckstrncpy(lp, kermrc, LINBUFSIZ); /* use it, */
-    } else {                            /* otherwise... */
-#ifdef CK_INI_A                         /* If we've a system-wide init file */
-      /* And it takes precedence over the user's... */
-      ckstrncpy(lp, CK_SYSINI, KERMRCL); /* Use it */
-      if (zchki(lp) < 0) {               /* (if it exists...) */
-#endif                                   /* CK_INI_A */
+#endif                                  // CK_LOGIN
+    if (rcflag) {                       // If init file name from cmd line
+      ckstrncpy(lp, kermrc, LINBUFSIZ); // use it,
+    } else {                            // otherwise...
+#ifdef CK_INI_A                         // If we've a system-wide init file
+      // And it takes precedence over the user's...
+      ckstrncpy(lp, CK_SYSINI, KERMRCL); // Use it
+      if (zchki(lp) < 0) {               // (if it exists...)
+#endif                                   // CK_INI_A
         char *homdir;
         char *env = 0;
         line[0] = NUL;
 
-        /* Add support for environment variable */
+        // Add support for environment variable
         env = getenv("CKERMIT.INI");
         if (!env) {
           env = getenv("CKERMIT_INI");
@@ -1396,32 +1361,32 @@ void doinit() {
 
         if (lp[0] == 0) {
           homdir = zhome();
-          if (homdir) { /* Home directory for init file. */
+          if (homdir) { // Home directory for init file.
             ckstrncpy(lp, homdir, KERMRCL);
             if (lp[0] == '/') {
               ckstrncat(lp, "/", KERMRCL);
             }
           }
-          ckstrncat(lp, kermrc, KERMRCL); /* Append default file name */
+          ckstrncat(lp, kermrc, KERMRCL); // Append default file name
         }
 #ifdef CK_INI_A
       }
-#endif          /* CK_INI_A */
-#ifdef CK_INI_B /* System-wide init defined? */
-      /* But user's ini file takes precedence */
-      if (zchki(lp) < 0) {                 /* If user doesn't have her own, */
-        ckstrncpy(lp, CK_SYSINI, KERMRCL); /* use system-wide one. */
+#endif          // CK_INI_A
+#ifdef CK_INI_B // System-wide init defined?
+      // But user's ini file takes precedence
+      if (zchki(lp) < 0) {                 // If user doesn't have her own,
+        ckstrncpy(lp, CK_SYSINI, KERMRCL); // use system-wide one.
       }
-#endif /* CK_INI_B */
+#endif // CK_INI_B
     }
 
 #ifdef USE_CUSTOM
-  /* If no init file was found, execute the customization file */
+  // If no init file was found, execute the customization file
   debug(F111, "CUSTOM 1", line, rcflag);
   if ((!line[0] || zchki(line) < 0) && !rcflag) {
     int x;
     x = ckstrncpy(line, zhome(), LINBUFSIZ);
-    /* VMS zhome() returns "SYS$LOGIN:" */
+    // VMS zhome() returns "SYS$LOGIN:"
     if (line[x - 1] != DIRSEP) {
       line[x++] = DIRSEP;
       line[x] = NUL;
@@ -1430,23 +1395,23 @@ void doinit() {
     debug(F111, "CUSTOM 4", line, x);
   }
   debug(F110, "CUSTOM 5", line, 0);
-#endif /* USE_CUSTOM */
+#endif // USE_CUSTOM
 
 #ifdef CKROOT
   if (!zinroot(line)) {
     debug(F110, "doinit setroot violation", line, 0);
     return;
   }
-#endif /* CKROOT */
+#endif // CKROOT
 
   debug(F110, "doinit ini file is", line, 0);
-  if ((tfile[0] = fopen(line, "r")) != NULL) { /* Try to open init file. */
+  if ((tfile[0] = fopen(line, "r")) != NULL) { // Try to open init file.
     ok = 1;
     tlevel = 0;
     tfline[tlevel] = 0;
     tfblockstart[tlevel] = 1;
     if ((tfnam[tlevel] = malloc(strlen(line) + 1))) {
-      strcpy(tfnam[tlevel], line); /* safe */
+      strcpy(tfnam[tlevel], line); // safe
     }
 
     ckstrncpy(kermrc, line, KERMRCL);
@@ -1455,7 +1420,7 @@ void doinit() {
     cmdlvl++;
     ifcmd[cmdlvl] = 0;
     iftest[cmdlvl] = 0;
-    count[cmdlvl] = count[cmdlvl - 1]; /* Inherit from previous level */
+    count[cmdlvl] = count[cmdlvl - 1]; // Inherit from previous level
     intime[cmdlvl] = intime[cmdlvl - 1];
     inpcas[cmdlvl] = inpcas[cmdlvl - 1];
     takerr[cmdlvl] = takerr[cmdlvl - 1];
@@ -1467,13 +1432,13 @@ void doinit() {
     cmdstk[cmdlvl].src = CMD_TF;
     cmdstk[cmdlvl].lvl = tlevel;
     cmdstk[cmdlvl].ccflgs = 0;
-#endif /* NOSPL */
+#endif // NOSPL
   } else if (rcflag) {
-    /* Print an error message only if a specific file was asked for. */
+    // Print an error message only if a specific file was asked for.
     printf("?%s - %s\n", ck_errstr(), line);
   }
 
-  /* Assign value to inidir */
+  // Assign value to inidir
 
   if (!ok) {
     inidir[0] = NUL;
@@ -1515,59 +1480,55 @@ void doiksdinit() {
     cmdstk[cmdlvl].ccflgs = 0;
     ifcmd[cmdlvl] = 0;
     iftest[cmdlvl] = 0;
-    count[cmdlvl] = count[cmdlvl - 1]; /* Inherit from previous level */
+    count[cmdlvl] = count[cmdlvl - 1]; // Inherit from previous level
     intime[cmdlvl] = intime[cmdlvl - 1];
     inpcas[cmdlvl] = inpcas[cmdlvl - 1];
     takerr[cmdlvl] = takerr[cmdlvl - 1];
     merror[cmdlvl] = merror[cmdlvl - 1];
     xquiet[cmdlvl] = quiet;
     xvarev[cmdlvl] = vareval;
-#endif /* NOSPL */
+#endif // NOSPL
     debug(F110, "doiksdinit file ok", tfnam[tlevel], 0);
   } else {
     debug(F110, "doiksdinit open failed", tfnam[tlevel], 0);
   }
-#endif /* IKSDCONF */
+#endif // IKSDCONF
 }
 
 #ifndef NOSPL
-/*
-  G E T N C M
-
-  Get next command from current macro definition.  Command is copied
-  into string pointed to by argument s, max length n.   Returns:
-   0 if a string was copied;
-  -1 if there was no string to copy.
-*/
+// G E T N C M
+//
+// Get next command from current macro definition.  Command is copied
+// into string pointed to by argument s, max length n.   Returns:
+// 0 if a string was copied;
+// -1 if there was no string to copy.
 int getncm(char *s, int n) {
-  int y = 0; /* Character counter */
+  int y = 0; // Character counter
   int quote = 0;
-  int kp = 0; /* Brace up-down counter */
-  int pp = 0; /* Parenthesis up-down counter */
+  int kp = 0; // Brace up-down counter
+  int pp = 0; // Parenthesis up-down counter
 #ifndef NODQMACRO
-  int dq = 0; /* Doublequote counter */
-#endif        /* NODQMACRO */
-  char *s2;   /* Copy of destination pointer */
+  int dq = 0; // Doublequote counter
+#endif        // NODQMACRO
+  char *s2;   // Copy of destination pointer
 
-  s2 = s;   /* Initialize string pointers */
-  *s = NUL; /* and destination buffer */
+  s2 = s;   // Initialize string pointers
+  *s = NUL; // and destination buffer
 
-  /* debug(F010,"getncm entry",macp[maclvl],0); */
+  // debug(F010,"getncm entry",macp[maclvl],0);
 
-  for (y = 0; /* Loop for n bytes max */
+  for (y = 0; // Loop for n bytes max
        macp[maclvl] && *macp[maclvl] && y < n; y++, s++, macp[maclvl]++) {
 
-    *s = *macp[maclvl]; /* Get next char from macro def */
+    *s = *macp[maclvl]; // Get next char from macro def
 
-    /*
-      This is to allow quoting of parentheses, commas, etc, in function
-      arguments, but it breaks just about everything else.  DON'T REMOVE THIS
-      COMMENT!  (Otherwise you'll wind up adding the same code again and
-      breaking everything again.)  <-- The preceding warning should be obsolete
-      since the statements below have been fixed, but in case of fire, remove
-      the "n" from the <#>ifndef above.  NEW WARNING: code added 12 Apr 2002 to
-      exempt the opening brace in \{nnn} from being treated as a quoted brace.
-    */
+    // This is to allow quoting of parentheses, commas, etc, in function
+    // arguments, but it breaks just about everything else.  DON'T REMOVE THIS
+    // COMMENT!  (Otherwise you'll wind up adding the same code again and
+    // breaking everything again.)  <-- The preceding warning should be obsolete
+    // since the statements below have been fixed, but in case of fire, remove
+    // the "n" from the <#>ifndef above.  NEW WARNING: code added 12 Apr 2002 to
+    // exempt the opening brace in \{nnn} from being treated as a quoted brace.
     if (!quote && *s == CMDQ) {
       quote = 1;
       continue;
@@ -1575,7 +1536,7 @@ int getncm(char *s, int n) {
     if (quote) {
       int notquote = 0;
       quote = 0;
-      if (*s == '{') { /* Check for \{nnn} (8.0.203) */
+      if (*s == '{') { // Check for \{nnn} (8.0.203)
         char c, *p;
         p = macp[maclvl] + 1;
         while ((c = *p++)) {
@@ -1594,117 +1555,113 @@ int getncm(char *s, int n) {
       }
     }
 
-    /*
-      Allow braces around macro definition to prevent commas from being turned
-      to end-of-lines and also treat any commas within parens as text so that
-      multiple-argument functions won't cause the command to break prematurely.
-      19 Oct 2001: Similar treatment was added for doublequotes, so
-
-         define foo { echo "one, two, three" }
-
-      would work as expected.  This doesn't seem to have broken anything but
-      if something comes up later, rebuild with NODQMACRO defined.
-    */
+    // Allow braces around macro definition to prevent commas from being turned
+    // to end-of-lines and also treat any commas within parens as text so that
+    // multiple-argument functions won't cause the command to break prematurely.
+    // 19 Oct 2001: Similar treatment was added for doublequotes, so
+    //
+    //   define foo { echo "one, two, three" }
+    //
+    // would work as expected.  This doesn't seem to have broken anything but
+    // if something comes up later, rebuild with NODQMACRO defined.
     if (*s == '{') {
-      kp++; /* Count braces */
+      kp++; // Count braces
     }
     if (*s == '}' && kp > 0) {
       kp--;
     }
     if (*s == '(') {
-      pp++; /* Count parentheses. */
+      pp++; // Count parentheses.
     }
     if (*s == ')' && pp > 0) {
       pp--;
     }
 #ifndef NODQMACRO
-    /* Too many false positives */
-    /* No, not really -- this is indeed the best we can do */
-    /* Reverted to this method Sun May 11 18:43:45 2003 */
+    // Too many false positives
+    // No, not really -- this is indeed the best we can do
+    // Reverted to this method Sun May 11 18:43:45 2003
     if (*s == '"') {
-      dq = 1 - dq; /* Account for doublequotes */
+      dq = 1 - dq; // Account for doublequotes
     }
-#endif /* NODQMACRO */
+#endif // NODQMACRO
     if (*s == ',' && pp <= 0 && kp <= 0
 #ifndef NODQMACRO
         && dq == 0
-#endif /* NODQMACRO */
+#endif // NODQMACRO
     ) {
-      macp[maclvl]++; /* Comma not in {} or () */
-      /* debug(F110,"next cmd",s,0); */
-      kp = pp = 0; /* so we have the next command */
+      macp[maclvl]++; // Comma not in {} or ()
+      // debug(F110,"next cmd",s,0);
+      kp = pp = 0; // so we have the next command
       break;
     }
-  } /* Reached end. */
-  if (*s2 == NUL) { /* If nothing was copied, */
-    /* debug(F100,"getncm eom","",0); */
-    popclvl(); /* pop command level. */
+  } // Reached end.
+  if (*s2 == NUL) { // If nothing was copied,
+    // debug(F100,"getncm eom","",0);
+    popclvl(); // pop command level.
     return (-1);
-  } else { /* otherwise, tack CR onto end */
+  } else { // otherwise, tack CR onto end
     *s++ = CK_CR;
     *s = '\0';
-    /* debug(F110,"getncm OK",s,0); */
-    if (mecho && pflag) { /* If MACRO ECHO ON, echo the cmd */
+    // debug(F110,"getncm OK",s,0);
+    if (mecho && pflag) { // If MACRO ECHO ON, echo the cmd
       printf("%s\n", s2);
     }
   }
   return (0);
 }
 
-/*  D O M A C  --  Define and then execute a macro */
+//  D O M A C  --  Define and then execute a macro
 
 int domac(char *name, char *def, int flags) {
   int x, m;
 #ifndef NOLOCAL
-#endif                    /* NOLOCAL */
-  m = maclvl;             /* Current macro stack level */
-  x = addmac(name, def);  /* Define a new macro */
-  if (x > -1) {           /* If successful, */
-    dodo(x, NULL, flags); /* start it (increments maclvl). */
-    while (maclvl > m) {  /* Keep going till done with it, */
+#endif                    // NOLOCAL
+  m = maclvl;             // Current macro stack level
+  x = addmac(name, def);  // Define a new macro
+  if (x > -1) {           // If successful,
+    dodo(x, NULL, flags); // start it (increments maclvl).
+    while (maclvl > m) {  // Keep going till done with it,
       debug(F101, "domac loop maclvl 1", "", maclvl);
-      sstate = (CHAR)parser(1); /* parsing & executing each command, */
+      sstate = (CHAR)parser(1); // parsing & executing each command,
       debug(F101, "domac loop maclvl 2", "", maclvl);
       if (sstate) {
-        proto(); /* including protocol commands. */
+        proto(); // including protocol commands.
       }
     }
     debug(F101, "domac loop exit maclvl", "", maclvl);
   }
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
   return (success);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/*
-  G E T N C T
-
-  Get next command from TAKE (command) file.
-
-  Call with:
-   s     Pointer to buffer to read into
-   n     Length of buffer
-   f     File descriptor of file to read from
-   flag  0 == keep line terminator on and allow continuation
-         1 == discard line terminator and don't allow continuation
-
-  Call with flag == 0 to read a command from a TAKE file;
-  Call with flag != 0 to read a line from a dialing or network directory.
-
-  In both cases, trailing comments and/or trailing whitespace is/are stripped.
-  If flag == 0, continued lines are combined into one line.  A continued line
-  is one that ends in hypen, or any line in a "block", which starts with "{"
-  at the end of a line and ends with a matching "}" at the beginning of a
-  subsequent line; blocks may be nested.
-
-  Returns:
-   0 if a string was copied,
-  -1 on EOF,
-  -2 on malloc failure
-  -3 if line is not properly terminated
-  -4 if (possibly continued) line is too long.
-*/
+// G E T N C T
+//
+// Get next command from TAKE (command) file.
+//
+// Call with:
+// s     Pointer to buffer to read into
+// n     Length of buffer
+// f     File descriptor of file to read from
+// flag  0 == keep line terminator on and allow continuation
+//       1 == discard line terminator and don't allow continuation
+//
+// Call with flag == 0 to read a command from a TAKE file;
+// Call with flag != 0 to read a line from a dialing or network directory.
+//
+// In both cases, trailing comments and/or trailing whitespace is/are stripped.
+// If flag == 0, continued lines are combined into one line.  A continued line
+// is one that ends in hypen, or any line in a "block", which starts with "{"
+// at the end of a line and ends with a matching "}" at the beginning of a
+// subsequent line; blocks may be nested.
+//
+// Returns:
+// 0 if a string was copied,
+// -1 on EOF,
+// -2 on malloc failure
+// -3 if line is not properly terminated
+// -4 if (possibly continued) line is too long.
 static int lpxlen = 0;
 
 int getnct(char *s, int n, FILE *f, int flag) {
@@ -1712,28 +1669,28 @@ int getnct(char *s, int n, FILE *f, int flag) {
   char c = NUL, cc = NUL, ccl = NUL, ccx = NUL, *s2 = NULL;
   char *lp = NULL, *lpx = NULL, *lp2 = NULL, *lp3 = NULL, *lastcomma = NULL;
   char *prev = NULL;
-  int bc = 0; /* Block counter */
+  int bc = 0; // Block counter
   int firstread = 1;
 
-  s2 = s;     /* Remember original pointer */
-  prev = s2;  /* Here too */
-  buflen = n; /* Remember original buffer length */
+  s2 = s;     // Remember original pointer
+  prev = s2;  // Here too
+  buflen = n; // Remember original buffer length
 
   if (n < 0) {
     return (-2);
   }
 
-  /* Allocate a line buffer only if we don't have one that's big enough */
+  // Allocate a line buffer only if we don't have one that's big enough
 
   debug(F111, "getnct", ckitoa(lpxlen), n);
 
-  if (lpx && (n > lpxlen)) { /* Have one already */
+  if (lpx && (n > lpxlen)) { // Have one already
     debug(F101, "getnct new buffer", "", lpxlen);
-    free(lpx);  /* But it's not big enough */
-    lpx = NULL; /* Free current one */
+    free(lpx);  // But it's not big enough
+    lpx = NULL; // Free current one
     lpxlen = 0;
   }
-  if (!lpx) { /* Get new one */
+  if (!lpx) { // Get new one
     if (!(lpx = (char *)malloc(n))) {
       debug(F101, "getnct malloc failure", "", 0);
       printf("?Memory allocation failure [getnct:%d]\n", n);
@@ -1743,108 +1700,108 @@ int getnct(char *s, int n, FILE *f, int flag) {
   }
   lp2 = lpx;
 #ifdef KLUDGE
-  /* NOTE: No longer used as of 14 Aug 2000 */
+  // NOTE: No longer used as of 14 Aug 2000
   lp2++;
-#endif /* KLUDGE */
+#endif // KLUDGE
 
-  while (1) { /* Loop to read lines from file */
+  while (1) { // Loop to read lines from file
     debug(F101, "getnct while (1)", "", n);
-    if (fgets(lp2, n, f) == NULL) {     /* Read a line into lp2 */
-      debug(F110, "getnct EOF", s2, 0); /* EOF */
-      free(lpx);                        /* Free temporary storage */
+    if (fgets(lp2, n, f) == NULL) {     // Read a line into lp2
+      debug(F110, "getnct EOF", s2, 0); // EOF
+      free(lpx);                        // Free temporary storage
       lpx = NULL;
-      *s = NUL;    /* Make destination be empty */
-      return (-1); /* Return failure code */
+      *s = NUL;    // Make destination be empty
+      return (-1); // Return failure code
     }
-    if (firstread) { /* Beginning of a block or statement */
+    if (firstread) { // Beginning of a block or statement
       tfblockstart[tlevel] = tfline[tlevel];
       firstread = 0;
     }
 #ifndef NODIAL
-    if (flag) { /* Count this line */
+    if (flag) { // Count this line
       dirline++;
     } else
-#endif /* NODIAL */
+#endif // NODIAL
       tfline[tlevel]++;
-    len = strlen(lp2) - 1;            /* Position of line terminator */
-    if (len == 0 && lp2[0] != '\n') { /* Last line in file has one char */
-      lp2[++len] = '\n';              /* that is not a newline */
+    len = strlen(lp2) - 1;            // Position of line terminator
+    if (len == 0 && lp2[0] != '\n') { // Last line in file has one char
+      lp2[++len] = '\n';              // that is not a newline
       lp2[len] = NUL;
     }
     debug(F010, "getnct", lp2, 0);
     if (len < 0) {
       len = 0;
     }
-    if (techo && pflag) { /* If TAKE ECHO ON, */
+    if (techo && pflag) { // If TAKE ECHO ON,
       if (flag) {
         printf("%3d. %s",
 #ifndef NODIAL
                flag ? dirline :
-#endif /* NODIAL */
+#endif // NODIAL
                     tfline[tlevel],
                lp2);
       } else {
         printf("%3d. %3d. %s", tfline[tlevel], tfblockstart[tlevel], lp2);
       }
     }
-    lp3 = lp2; /* Working pointer */
-    i = len;   /* Get first nonwhitespace character */
+    lp3 = lp2; // Working pointer
+    i = len;   // Get first nonwhitespace character
     while (i > 0 && (*lp3 == SP || *lp3 == HT)) {
       i--;
       lp3++;
     }
-    if (i == 0 && bc > 0) { /* Blank line in {...} block */
+    if (i == 0 && bc > 0) { // Blank line in {...} block
       continue;
     }
 
-    /* Isolate, remove, and check terminator */
+    // Isolate, remove, and check terminator
 
-    c = lp2[len]; /* Value of line terminator */
-    /* debug(F101,"getnct terminator","",c); */
-    if (c < LF || c > CK_CR) { /* It's not a terminator */
-      /* debug(F111,"getnct bad line",lp2,c); */
+    c = lp2[len]; // Value of line terminator
+    // debug(F101,"getnct terminator","",c);
+    if (c < LF || c > CK_CR) { // It's not a terminator
+      // debug(F111,"getnct bad line",lp2,c);
       if (feof(f) && len > 0 && len < n) {
-        /* Kludge Alert... */
+        // Kludge Alert...
         if (!quiet) {
           printf("WARNING: Last line of %s lacks terminator\n",
                  s2 == cmdbuf ? "command file" : "directory file");
         }
-        c = lp2[++len] = '\n'; /* No big deal - supply one. */
-      } else {                 /* Something's wrong, fail. */
+        c = lp2[++len] = '\n'; // No big deal - supply one.
+      } else {                 // Something's wrong, fail.
         free(lpx);
         lpx = NULL;
         return (-3);
       }
     }
-    /* Trim trailing whitespace */
+    // Trim trailing whitespace
 
-    for (i = len - 1; i > -1 && lp2[i] <= SP; i--) /* Trim */
+    for (i = len - 1; i > -1 && lp2[i] <= SP; i--) // Trim
       ;
-    /* debug(F101,"getnct i","",i); */
-    lp2[i + 1] = NUL; /* Terminate the string */
-    /* debug(F110,"getnct lp2",lp2,0); */
-    lp = lp2; /* Make a working pointer */
+    // debug(F101,"getnct i","",i);
+    lp2[i + 1] = NUL; // Terminate the string
+    // debug(F110,"getnct lp2",lp2,0);
+    lp = lp2; // Make a working pointer
 
-    /* Remove trailing or full-line comment */
+    // Remove trailing or full-line comment
 
     while ((cc = *lp)) {
-      if (cc == ';' || cc == '#') { /* Comment introducer? */
-        if (lp == lp2) {            /* First char on line */
+      if (cc == ';' || cc == '#') { // Comment introducer?
+        if (lp == lp2) {            // First char on line
           *lp = NUL;
           break;
         } else if (*(lp - 1) == SP || *(lp - 1) == HT) {
           lp--;
-          *lp = NUL; /* Or preceded by whitespace */
+          *lp = NUL; // Or preceded by whitespace
           break;
         }
       }
       lp++;
     }
     if (lp > lp2) {
-      lp--; /* Back up over the NUL */
+      lp--; // Back up over the NUL
     }
 
-    /* Now trim any space that preceded the comment */
+    // Now trim any space that preceded the comment
 
     while ((*lp == SP || *lp == HT) && lp >= lp2) {
       *lp = NUL;
@@ -1853,25 +1810,23 @@ int getnct(char *s, int n, FILE *f, int flag) {
       }
       lp--;
     }
-    /* debug(F110,"getnct comment trimmed",lp2,0); */
+    // debug(F110,"getnct comment trimmed",lp2,0);
 
-    len = strlen(lp2); /* Length after trimming */
+    len = strlen(lp2); // Length after trimming
 
-    if (n - len < 2) { /* Check remaining space */
+    if (n - len < 2) { // Check remaining space
       debug(F111, "getnct command too long", s2, buflen);
       printf("?Line too long, maximum length: %d.\n", buflen);
       free(lpx);
       return (-4);
     }
-    ccl = (len > 0) ? lp2[len - 1] : 0; /* Last character in line */
-    ccx = (len > 1) ? lp2[len - 2] : 0; /* Penultimate char in line */
+    ccl = (len > 0) ? lp2[len - 1] : 0; // Last character in line
+    ccx = (len > 1) ? lp2[len - 2] : 0; // Penultimate char in line
 
 #ifdef KLUDGE
-    /*
-      If it is a command and it begins with a token (like ! or .) that is not
-      followed by a space, insert a space now; otherwise cmkey() can get mighty
-      confused.
-    */
+    // If it is a command and it begins with a token (like ! or .) that is not
+    // followed by a space, insert a space now; otherwise cmkey() can get mighty
+    // confused.
     if (s == s2 && !flag) {
       char *p = toktab;
       while (*p) {
@@ -1889,47 +1844,47 @@ int getnct(char *s, int n, FILE *f, int flag) {
         }
       }
     }
-#endif /* KLUDGE */
+#endif // KLUDGE
     lp = lp2;
 
-    while ((*s++ = *lp++)) { /* Copy result to target buffer */
-      n--;                   /* accounting for length */
+    while ((*s++ = *lp++)) { // Copy result to target buffer
+      n--;                   // accounting for length
     }
-    s--; /* Back up over the NUL */
+    s--; // Back up over the NUL
 
-    /* Check whether this line is continued */
+    // Check whether this line is continued
 
-    if (flag) { /* No line continuation when flag=1 */
-      break;    /* So break out of read-lines loop */
-    }
-
-    if (bc > 0 && *lp3 == '}') { /* First char on line is '}' */
-      bc--;                      /* Decrement block counter */
+    if (flag) { // No line continuation when flag=1
+      break;    // So break out of read-lines loop
     }
 
-    if (bc == 0 &&    /* Line is continued if bc > 0 */
-        ccl != '-' && /* or line ends with dash */
-        ccl != '{') { /* or line ends with opening brace */
-      break;          /* None of those, we're done. */
+    if (bc > 0 && *lp3 == '}') { // First char on line is '}'
+      bc--;                      // Decrement block counter
     }
-    if (ccl == '-' || ccl == '{') { /* Continuation character */
-      if (ccx == CMDQ) {            /* But it's quoted */
-        break;                      /* so ignore it */
+
+    if (bc == 0 &&    // Line is continued if bc > 0
+        ccl != '-' && // or line ends with dash
+        ccl != '{') { // or line ends with opening brace
+      break;          // None of those, we're done.
+    }
+    if (ccl == '-' || ccl == '{') { // Continuation character
+      if (ccx == CMDQ) {            // But it's quoted
+        break;                      // so ignore it
       }
     }
 
-    if (ccl == '{') {        /* Last char on line is '{'? */
-      bc++;                  /* Count the block opener. */
-    } else if (ccl == '-') { /* Explicit continue? */
+    if (ccl == '{') {        // Last char on line is '{'?
+      bc++;                  // Count the block opener.
+    } else if (ccl == '-') { // Explicit continue?
       char c, *ss;
       int state = 0, nn;
-      s--;    /* Yes, back up over terminators */
-      n++;    /* and over continuation character */
-      nn = n; /* Save current count */
-      ss = s; /* and pointer */
-      s--;    /* Back up over dash */
+      s--;    // Yes, back up over terminators
+      n++;    // and over continuation character
+      nn = n; // Save current count
+      ss = s; // and pointer
+      s--;    // Back up over dash
       n++;
-      while (state < 2 && s >= prev) { /* Check for "{,-" */
+      while (state < 2 && s >= prev) { // Check for "{,-"
         n++;
         c = *s--;
         if (c <= SP) {
@@ -1939,12 +1894,12 @@ int getnct(char *s, int n, FILE *f, int flag) {
           break;
         }
         switch (state) {
-        case 0: /* Looking for comma */
+        case 0: // Looking for comma
           if (c == ',') {
             state = 1;
           }
           break;
-        case 1: /* Looking for left brace */
+        case 1: // Looking for left brace
           if (c == '{') {
             state = 2;
             s += 2;
@@ -1959,47 +1914,45 @@ int getnct(char *s, int n, FILE *f, int flag) {
         n = nn;
       }
       *s = NUL;
-    } else { /* None of those but (bc > 0) */
+    } else { // None of those but (bc > 0)
       lastcomma = s;
-      *s++ = ','; /* and insert a comma */
+      *s++ = ','; // and insert a comma
       n--;
     }
 
     *s = NUL;
     prev = s;
 
-  } /* read-lines while loop */
+  } // read-lines while loop
 
   if (lastcomma) {
     *lastcomma = SP;
   }
-  if (!flag) { /* Tack line terminator back on */
+  if (!flag) { // Tack line terminator back on
     *s++ = c;
   }
-  *s++ = NUL; /* Terminate the string */
-  untab(s2);  /* Done, convert tabs to spaces */
+  *s++ = NUL; // Terminate the string
+  untab(s2);  // Done, convert tabs to spaces
 #ifdef DEBUG
   if (!flag) {
     debug(F010, "CMD(F)", s2, 0);
   }
-#endif /* DEBUG */
+#endif // DEBUG
   {
     int i = 0;
     char *s = s2;
     char prev = '\0';
     char c = '\0';
-    /*
-      Next line from Jeff Johnson, to fix garbled message when iksd.conf
-      has an invalide line that is shorter than a previous line that is
-      valid - 16 May 2023
-    */
+    // Next line from Jeff Johnson, to fix garbled message when iksd.conf
+    // has an invalide line that is shorter than a previous line that is
+    // valid - 16 May 2023
     memset(lasttakeline, '\0', sizeof(char) * TMPBUFSIZ + 1);
-    while (*s) { /* Save beginning of this command for error messages */
+    while (*s) { // Save beginning of this command for error messages
       c = *s++;
       if (c == '\n' || c == '\r') {
         c = SP;
       }
-      if (c == SP && prev == SP) { /* Squeeze spaces */
+      if (c == SP && prev == SP) { // Squeeze spaces
         continue;
       }
       lasttakeline[i++] = c;
@@ -2013,16 +1966,16 @@ int getnct(char *s, int n, FILE *f, int flag) {
       }
     }
     i = (int)strlen((char *)lasttakeline) - 1;
-    while (i > 0 && lasttakeline[i] == SP) { /* Trim treailing spaces */
+    while (i > 0 && lasttakeline[i] == SP) { // Trim treailing spaces
       lasttakeline[i] = NUL;
       i--;
     }
   }
-  free(lpx);  /* Free temporary storage */
-  return (0); /* Return success */
+  free(lpx);  // Free temporary storage
+  return (0); // Return success
 }
 
-void shostack() { /* Dump the command stack */
+void shostack() { // Dump the command stack
   int i;
   char *p;
 #ifndef NOSPL
@@ -2035,10 +1988,10 @@ void shostack() { /* Dump the command stack */
       printf(" %2d. File  : %s (line %d)\n", i, p, tfline[cmdstk[i].lvl]);
     } else if (cmdstk[i].src == CMD_MD) {
       char *m;
-      m = m_arg[cmdstk[i].lvl][0];       /* Name of this macro */
-      if (i > 0) {                       /* Special handling for 2-level */
-        char *s;                         /* built-in macros... */
-        s = m_arg[cmdstk[i - 1].lvl][0]; /* Name next level up */
+      m = m_arg[cmdstk[i].lvl][0];       // Name of this macro
+      if (i > 0) {                       // Special handling for 2-level
+        char *s;                         // built-in macros...
+        s = m_arg[cmdstk[i - 1].lvl][0]; // Name next level up
         if (s && cmdstk[i - 1].src == CMD_MD) {
           if (!strcmp(s, "_forx")) {
             m = "FOR";
@@ -2066,78 +2019,76 @@ void shostack() { /* Dump the command stack */
     }
     printf(" %2d. File  : %s (line %d)\n", i, p, tfline[i]);
   }
-#endif /* NOSPL */
+#endif // NOSPL
   if (i == 0) {
     printf(" %2d. Prompt: (top level)\n", 0);
   }
 }
 
-/* For command error messages - avoid dumping out the contents of some */
-/* some huge FOR loop if it contains a syntax error. */
+// For command error messages - avoid dumping out the contents of some
+// some huge FOR loop if it contains a syntax error.
 
 static char *cmddisplay(char *s, int cx) {
   static char buf[80];
   if ((int)strlen(s) > 70) {
-    sprintf(buf, "%.64s...", s); /* SAFE */
+    sprintf(buf, "%.64s...", s); // SAFE
     s = buf;
   }
   return (s);
 }
 
-/*  P A R S E R  --  Top-level interactive command parser.  */
+//  P A R S E R  --  Top-level interactive command parser.
 
-/*
-  Call with:
-    m = 0 for normal behavior: keep parsing and executing commands
-          until an action command is parsed, then return with a
-          Kermit start-state as the value of this function.
-    m = 1 to parse only one command, can also be used to call parser()
-          recursively.
-    m = 2 to read but do not execute one command.
-  In all cases, parser() returns:
-    0     if no Kermit protocol action required
-    > 0   with a Kermit protocol start-state.
-    < 0   upon error.
-*/
+// Call with:
+//  m = 0 for normal behavior: keep parsing and executing commands
+//        until an action command is parsed, then return with a
+//        Kermit start-state as the value of this function.
+//  m = 1 to parse only one command, can also be used to call parser()
+//        recursively.
+//  m = 2 to read but do not execute one command.
+// In all cases, parser() returns:
+//  0     if no Kermit protocol action required
+//  > 0   with a Kermit protocol start-state.
+//  < 0   upon error.
 int parser(int m) {
-  int tfcode, xx, yy, zz; /* Workers */
+  int tfcode, xx, yy, zz; // Workers
   int is_tn = 0;
   int cdlost = 0;
 
 #ifndef NOSPL
-  int inlevel; /* Level we were called at */
+  int inlevel; // Level we were called at
   extern int askflag, echostars;
-#endif       /* NOSPL */
-  char *cbp; /* Command buffer pointer */
+#endif       // NOSPL
+  char *cbp; // Command buffer pointer
   extern int interrupted;
 #ifndef NOXFER
   extern int sndcmd, getcmd, fatalio, clearrq;
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifdef IKSDB
   if (ikdbopen) {
-    slotstate(what, "COMMAND PROMPT", "", ""); /* IKSD database */
+    slotstate(what, "COMMAND PROMPT", "", ""); // IKSD database
   }
-#endif /* IKSDB */
+#endif // IKSDB
 
   is_tn = (local && network && IS_TELNET()) || (!local && sstelnet);
 
-  if (!xcmdsrc) {        /* If at top (interactive) level ... */
-    concb((char)escape); /* put console in 'cbreak' mode. */
+  if (!xcmdsrc) {        // If at top (interactive) level ...
+    concb((char)escape); // put console in 'cbreak' mode.
   }
 
 #ifdef CK_TMPDIR
-  /* If we were cd'd temporarily to another device or directory ... */
+  // If we were cd'd temporarily to another device or directory ...
   if (f_tmpdir) {
     int x;
-    x = zchdir((char *)savdir); /* ... restore previous directory */
-    f_tmpdir = 0;               /* and remember we did it. */
+    x = zchdir((char *)savdir); // ... restore previous directory
+    f_tmpdir = 0;               // and remember we did it.
     debug(F111, "parser tmpdir restoring", savdir, x);
   }
-#endif /* CK_TMPDIR */
+#endif // CK_TMPDIR
 
 #ifndef NOSPL
-  inlevel = cmdlvl; /* Current macro level */
+  inlevel = cmdlvl; // Current macro level
 #ifdef DEBUG
   if (deblog) {
     debug(F101, "&parser entry maclvl", "", maclvl);
@@ -2146,28 +2097,27 @@ int parser(int m) {
     debug(F101, "&parser entry cmdlvl", "", cmdlvl);
     debug(F101, "&parser entry m", "", m);
   }
-#endif /* DEBUG */
-#endif /* NOSPL */
+#endif // DEBUG
+#endif // NOSPL
 
 #ifndef NOXFER
-  ftreset();  /* Reset global file settings */
-#endif        /* NOXFER */
-              /*
-                sstate becomes nonzero when a command has been parsed that requires some
-                action from the protocol module.  Any non-protocol actions, such as local
-                directory listing or terminal emulation, are invoked directly from below.
-              */
-  sstate = 0; /* Start with no start state. */
+  ftreset(); // Reset global file settings
+#endif       // NOXFER
+       // sstate becomes nonzero when a command has been parsed that requires
+       // some action from the protocol module.  Any non-protocol actions, such
+       // as local directory listing or terminal emulation, are invoked directly
+       // from below.
+  sstate = 0; // Start with no start state.
 
 #ifndef NOXFER
 #ifndef NOSPL
-  query = 0; /* QUERY not active */
-#endif       /* NOSPL */
+  query = 0; // QUERY not active
+#endif       // NOSPL
 #ifndef NOHINTS
   if (!success) {
     if (local && !network && carrier != CAR_OFF) {
-      int x;        /* Serial connection */
-      x = ttgmdm(); /* with carrier checking */
+      int x;        // Serial connection
+      x = ttgmdm(); // with carrier checking
       if (x > -1) {
         if (!(x & BM_DCD)) {
           cdlost = 1;
@@ -2184,7 +2134,7 @@ int parser(int m) {
     debug(F101, "parser top sndcmd", "", sndcmd);
     debug(F101, "parser top getcmd", "", getcmd);
   }
-#endif /* DEBUG */
+#endif // DEBUG
   if (cdlost && !interrupted && (sndcmd || getcmd)) {
     printf("?Connection broken (carrier signal lost)\n");
   }
@@ -2210,8 +2160,8 @@ int parser(int m) {
       }
     }
     if (local && !network && carrier != CAR_OFF) {
-      int xx;        /* Serial connection */
-      xx = ttgmdm(); /* with carrier checking */
+      int xx;        // Serial connection
+      xx = ttgmdm(); // with carrier checking
       if (xx > -1) {
         if (!(xx & BM_DCD)) {
           cdlost = 1;
@@ -2221,7 +2171,7 @@ int parser(int m) {
 
 #ifdef UNIX
     if (errno != 0)
-#endif /* UNIX */
+#endif // UNIX
     {
       printf(" Most recent local OS error: \"%s\"\n", ck_errstr());
       n++;
@@ -2249,7 +2199,7 @@ int parser(int m) {
       }
     }
     x++;
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
     if ((3 * timeouts) > spackets) {
       printf(" . Adjust the timeout method (see HELP SET SEND).\n");
@@ -2263,7 +2213,7 @@ int parser(int m) {
       printf(" . Try it again with: SET PREFIXING ALL\n");
       x++;
     }
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 #ifdef STREAMING
     if (streamed) {
       printf(" . Try it again with: SET STREAMING OFF\n");
@@ -2272,14 +2222,14 @@ int parser(int m) {
       printf(" . Try it again with: SET RELIABLE OFF\n");
       x++;
     }
-#endif /* STREAMING */
+#endif // STREAMING
 
 #ifdef CK_SPEED
     if (clearrq > 0 && prefixing == PX_NON) {
       printf(" . Try it again with: SET CLEAR-CHANNEL OFF\n");
       x++;
     }
-#endif /* CK_SPEED */
+#endif // CK_SPEED
     if (!parity) {
       printf(" . Try it again with: SET PARITY SPACE\n");
       x++;
@@ -2289,9 +2239,7 @@ int parser(int m) {
     printf("Also:\n");
     printf(" . Be sure the source file has read permission.\n");
     printf(" . Be sure the target directory has write permission.\n");
-    /*
-            if the file was 2G or larger make sure other Kermit supports LFs...
-    */
+    //      if the file was 2G or larger make sure other Kermit supports LFs...
     printf(" . Be sure the target disk has sufficient space.\n");
     printf("(Use SET HINTS OFF to suppress hints.)\n");
     printf("*************************\n\n");
@@ -2319,7 +2267,7 @@ int parser(int m) {
     }
 #ifdef UNIX
     if (errno != 0)
-#endif /* UNIX */
+#endif // UNIX
     {
       (void)ckstrncpy(tmpbuf, ck_errstr(), TMPBUFSIZ);
       printf(" Most recent local error: \"%s\"\n", tmpbuf);
@@ -2334,17 +2282,17 @@ int parser(int m) {
     printf("(Use SET HINTS OFF to suppress hints.)\n");
     printf("*************************\n\n");
   }
-#endif /* NOHINTS */
+#endif // NOHINTS
   getcmd = 0;
   sndcmd = 0;
   interrupted = 0;
-#endif /* NOXFER */
+#endif // NOXFER
 
-  while (sstate == 0) { /* Parse cmds until action requested */
+  while (sstate == 0) { // Parse cmds until action requested
     debug(F100, "parse top", "", 0);
-    what = W_COMMAND; /* Now we're parsing commands. */
-    rcdactive = 0;    /* REMOTE CD not active */
-    keepallchars = 0; /* MINPUT not active */
+    what = W_COMMAND; // Now we're parsing commands.
+    rcdactive = 0;    // REMOTE CD not active
+    keepallchars = 0; // MINPUT not active
 
 #ifdef IKS_OPTION
     if ((local && !xcmdsrc && is_tn && TELOPT_ME(TELOPT_KERMIT) &&
@@ -2353,23 +2301,23 @@ int parser(int m) {
          TELOPT_SB(TELOPT_KERMIT).kermit.me_start)) {
       tn_siks(KERMIT_STOP);
     }
-#endif /* IKS_OPTION */
+#endif // IKS_OPTION
 
 #ifndef NOXFER
     if (autopath) {
       fnrpath = PATH_AUTO;
       autopath = 0;
     }
-    remfile = 0; /* Clear these in case REMOTE */
-    remappd = 0; /* command was interrupted... */
+    remfile = 0; // Clear these in case REMOTE
+    remappd = 0; // command was interrupted...
     rempipe = 0;
-    makestr(&snd_move, g_snd_move); /* Restore these */
+    makestr(&snd_move, g_snd_move); // Restore these
     makestr(&rcv_move, g_rcv_move);
     makestr(&snd_rename, g_snd_rename);
     makestr(&rcv_rename, g_rcv_rename);
-#endif /* NOXFER */
+#endif // NOXFER
 
-    /* Take requested action if there was an error in the previous command */
+    // Take requested action if there was an error in the previous command
 
     setint();
     debug(F101, "parser tlevel", "", tlevel);
@@ -2377,22 +2325,22 @@ int parser(int m) {
 
 #ifndef NOLOCAL
     debug(F101, "parser wasclosed", "", wasclosed);
-    if (wasclosed) { /* If connection was just closed */
+    if (wasclosed) { // If connection was just closed
 #ifndef NOSPL
       int k;
-      k = mlook(mactab, "on_close", nmac); /* Look up "on_close" */
-      if (k >= 0) {                        /* If found, */
-        /* printf("ON_CLOSE CMD LOOP\n"); */
-        dodo(k, ckitoa(whyclosed), 0); /* Set it up */
+      k = mlook(mactab, "on_close", nmac); // Look up "on_close"
+      if (k >= 0) {                        // If found,
+        // printf("ON_CLOSE CMD LOOP\n");
+        dodo(k, ckitoa(whyclosed), 0); // Set it up
       }
-#endif /* NOSPL */
+#endif // NOSPL
       whyclosed = WC_REMO;
       wasclosed = 0;
     }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOSPL
-    xxdot = 0; /* Clear this... */
+    xxdot = 0; // Clear this...
 
     debug(F101, "parser success", "", success);
     if (success == 0) {
@@ -2417,48 +2365,48 @@ int parser(int m) {
     if (success == 0 && tlevel > -1 && takerr[tlevel]) {
       printf("Command file terminated by error.\n");
       popclvl();
-      cmini(ckxech);    /* Clear the cmd buffer. */
-      if (tlevel < 0) { /* Just popped out of cmd files? */
-        return (0);     /* End of init file or whatever. */
+      cmini(ckxech);    // Clear the cmd buffer.
+      if (tlevel < 0) { // Just popped out of cmd files?
+        return (0);     // End of init file or whatever.
       }
     }
-#endif /* NOSPL */
+#endif // NOSPL
 
-    /* If in TAKE file, check for EOF */
+    // If in TAKE file, check for EOF
 #ifndef NOSPL
-    while ((cmdstk[cmdlvl].src == CMD_TF) /* If end of take file */
+    while ((cmdstk[cmdlvl].src == CMD_TF) // If end of take file
            && (tlevel > -1) && feof(tfile[tlevel])) {
-      popclvl();         /* pop command level */
-      cmini(ckxech);     /* and clear the cmd buffer. */
-      if (cmdlvl == 0) { /* Just popped out of all cmd files? */
-        return (0);      /* End of init file or whatever. */
+      popclvl();         // pop command level
+      cmini(ckxech);     // and clear the cmd buffer.
+      if (cmdlvl == 0) { // Just popped out of all cmd files?
+        return (0);      // End of init file or whatever.
       }
     }
 
-#else  /* NOSPL */
-    if ((tlevel > -1) && feof(tfile[tlevel])) { /* If end of take */
-      popclvl();                                /* Pop up one level. */
-      cmini(ckxech);                            /* and clear the cmd buffer. */
-      if (tlevel < 0) { /* Just popped out of cmd files? */
-        return (0);     /* End of init file or whatever. */
+#else  // NOSPL
+    if ((tlevel > -1) && feof(tfile[tlevel])) { // If end of take
+      popclvl();                                // Pop up one level.
+      cmini(ckxech);                            // and clear the cmd buffer.
+      if (tlevel < 0) {                         // Just popped out of cmd files?
+        return (0);                             // End of init file or whatever.
       }
     }
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
     debug(F101, "parser cmdlvl", "", cmdlvl);
     debug(F101, "parser cmdsrc", "", cmdstk[cmdlvl].src);
 
-    if (cmdstk[cmdlvl].src == CMD_MD) { /* Executing a macro? */
+    if (cmdstk[cmdlvl].src == CMD_MD) { // Executing a macro?
       debug(F100, "parser macro", "", 0);
-      maclvl = cmdstk[cmdlvl].lvl; /* Get current level */
+      maclvl = cmdstk[cmdlvl].lvl; // Get current level
       debug(F101, "parser maclvl", "", maclvl);
-      cbp = cmdbuf; /* Copy next cmd to command buffer. */
+      cbp = cmdbuf; // Copy next cmd to command buffer.
       *cbp = NUL;
-      if (*savbuf) {                   /* In case then-part of 'if' command */
-        ckstrncpy(cbp, savbuf, CMDBL); /* was saved, restore it. */
+      if (*savbuf) {                   // In case then-part of 'if' command
+        ckstrncpy(cbp, savbuf, CMDBL); // was saved, restore it.
         *savbuf = '\0';
-      } else { /* Else get next cmd from macro def */
+      } else { // Else get next cmd from macro def
         if (getncm(cbp, CMDBL) < 0) {
 #ifdef DEBUG
           if (deblog) {
@@ -2466,10 +2414,10 @@ int parser(int m) {
             debug(F101, "parser end of macro cmdlvl", "", cmdlvl);
             debug(F101, "parser end of macro inlevel", "", inlevel);
           }
-#endif /* DEBUG */
+#endif // DEBUG
           if (m && (cmdlvl < inlevel)) {
             return ((int)sstate);
-          } else { /* if (!m) */
+          } else { // if (!m)
             continue;
           }
         }
@@ -2479,108 +2427,108 @@ int parser(int m) {
     } else if (cmdstk[cmdlvl].src == CMD_TF)
 #else
     if (tlevel > -1)
-#endif /* NOSPL */
+#endif // NOSPL
     {
 #ifndef NOSPL
       debug(F111, "parser savbuf", savbuf, tlevel);
-      if (*savbuf) {                      /* In case THEN-part of IF command */
-        ckstrncpy(cmdbuf, savbuf, CMDBL); /* was saved, restore it. */
+      if (*savbuf) {                      // In case THEN-part of IF command
+        ckstrncpy(cmdbuf, savbuf, CMDBL); // was saved, restore it.
         *savbuf = '\0';
       } else
-#endif /* NOSPL */
+#endif // NOSPL
 
-        /* Get next line from TAKE file */
+        // Get next line from TAKE file
 
         if ((tfcode = getnct(cmdbuf, CMDBL, tfile[tlevel], 0)) < 0) {
           debug(F111, "parser tfcode", tfile[tlevel], tfcode);
-          if (tfcode < -1) { /* Error */
+          if (tfcode < -1) { // Error
             printf("?Error in TAKE command file: %s\n",
                    (tfcode == -2) ? "Memory allocation failure"
                                   : "Line too long or contains NUL characters");
             dostop();
           }
-          continue; /* -1 means EOF */
+          continue; // -1 means EOF
         }
 
-      /* If interactive, get next command from user. */
+      // If interactive, get next command from user.
 
-    } else { /* User types it in. */
+    } else { // User types it in.
       if (pflag) {
         prompt(xxstring);
       }
       cmini(ckxech);
     }
 
-    /* Now we know where next command is coming from. Parse and execute it. */
+    // Now we know where next command is coming from. Parse and execute it.
 
-    repars = 1; /* 1 = command needs parsing */
+    repars = 1; // 1 = command needs parsing
 #ifndef NOXFER
-    displa = 0; /* Assume no file transfer display */
-#endif          /* NOXFER */
+    displa = 0; // Assume no file transfer display
+#endif          // NOXFER
 
-    while (repars) { /* Parse this cmd until entered. */
+    while (repars) { // Parse this cmd until entered.
 
       debug(F101, "parser top of while loop", "", 0);
-      xaskmore = saveask; /* Restore global more-prompting */
-      diractive = 0;      /* DIR command not active */
-      cdactive = 0;       /* CD command not active */
+      xaskmore = saveask; // Restore global more-prompting
+      diractive = 0;      // DIR command not active
+      cdactive = 0;       // CD command not active
 #ifndef NOSPL
-      askflag = 0;   /* ASK command not active */
-      echostars = 0; /* Nor ASKQ */
-      debok = 1;     /* Undisable debugging */
-#endif               /* NOSPL */
+      askflag = 0;   // ASK command not active
+      echostars = 0; // Nor ASKQ
+      debok = 1;     // Undisable debugging
+#endif               // NOSPL
 
 #ifdef RECURSIVE
-      /* In case of "send /recursive ./?<Ctrl-U>" etc */
-      recursive = 0;  /* This is never sticky */
-#endif                /* RECURSIVE */
-      xfiletype = -1; /* Reset this between each command */
+      // In case of "send /recursive ./?<Ctrl-U>" etc
+      recursive = 0;  // This is never sticky
+#endif                // RECURSIVE
+      xfiletype = -1; // Reset this between each command
 #ifndef NOMSEND
       addlist = 0;
-#endif /* NOMSEND */
+#endif // NOMSEND
 #ifdef CK_RECALL
       on_recall = 1;
-#endif /* CK_RECALL */
-      /* This might have been changed by a switch */
+#endif // CK_RECALL
+      // This might have been changed by a switch
       if (g_matchdot > -1) {
         matchdot = g_matchdot;
         g_matchdot = -1;
       }
-      cmres(); /* Reset buffer pointers. */
+      cmres(); // Reset buffer pointers.
 
 #ifndef NOXFER
       bye_active = 0;
-#endif /* NOXFER */
+#endif // NOXFER
       havetoken = 0;
       xx = cmkey2(cmdtab, ncmd, "Command", "", toktab, xxstring, 1);
       debug(F101, "top-level cmkey2", "", xx);
       if (xx == -5) {
         yy = chktok(toktab);
         debug(F101, "top-level cmkey token", "", yy);
-        /* Either way makes absolutely no difference */
+        // Either way makes absolutely no difference
         debug(F110, "NO UNGWORD", atmbuf, 0);
-        /* ungword(); */
+        // ungword();
         switch (yy) {
         case '#':
           xx = XXCOM;
-          break; /* Comment */
+          break; // Comment
         case ';':
           xx = XXCOM;
-          break; /* Comment */
+          break; // Comment
 #ifndef NOSPL
         case '.':
           xx = XXDEF;
           xxdot = 1;
-          break; /* Assignment */
+          break; // Assignment
         case ':':
           xx = XXLBL;
-          break; /* GOTO label */
-#endif           /* NOSPL */
+          break; // GOTO label
+#endif           // NOSPL
 
 #ifndef NOPUSH
 #ifdef CK_REDIR
         case '<':
-#endif /* CK_REDIR */
+#endif // CK_REDIR
         case '@':
         case '!':
           if (nopush) {
@@ -2596,21 +2544,21 @@ int parser(int m) {
 #ifdef CK_REDIR
             case '<':
               xx = XXFUN;
-              break; /* REDIRECT */
-#endif               /* CK_REDIR */
+              break; // REDIRECT
+#endif               // CK_REDIR
             case '@':
             case '!':
               xx = XXSHE;
-              break; /* Shell escape */
+              break; // Shell escape
             }
           }
           break;
-#endif /* NOPUSH */
+#endif // NOPUSH
 #ifdef CK_RECALL
         case '^':
           xx = XXREDO;
           break;
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 #ifndef NOSPL
         case '{':
           xx = XXMACRO;
@@ -2618,13 +2566,14 @@ int parser(int m) {
         case '(':
           xx = XXSEXP;
           break;
-#endif /* NOSPL */
+#endif // NOSPL
 
         default:
           if (!quiet && !cmd_err) {
             printf("\n?Not a valid command or token - \"%s\"\n",
                    cmddisplay((char *)cmdbuf, xx));
-            /* cmderr(); */ newerrmsg("");
+            // cmderr();
+            newerrmsg("");
           }
           xx = -2;
         }
@@ -2632,44 +2581,44 @@ int parser(int m) {
         debug(F101, "HAVE TOKEN", "", xx);
       }
       if (xx > -1) {
-        topcmd = xx; /* Top-level command index */
+        topcmd = xx; // Top-level command index
 #ifndef NOSPL
         if (maclvl > -1) {
           lastcmd[maclvl] = xx;
         }
-#endif /* NOSPL */
+#endif // NOSPL
         debug(F101, "topcmd", "", topcmd);
         debug(F101, "cmflgs", "", cmflgs);
       }
 
 #ifndef NOSPL
-      /* Special handling for IF..ELSE */
+      // Special handling for IF..ELSE
 
       debug(F101, "cmdlvl", "", cmdlvl);
       debug(F101, "ifcmd[cmdlvl]", "", ifcmd[cmdlvl]);
 
-      if (ifcmd[cmdlvl]) { /* Count stmts after IF */
+      if (ifcmd[cmdlvl]) { // Count stmts after IF
         ifcmd[cmdlvl]++;
       }
       if (ifcmd[cmdlvl] > 2 && xx != XXELS && xx != XXCOM) {
         ifcmd[cmdlvl] = 0;
       }
 
-      /* Execute the command and take action based on return code. */
+      // Execute the command and take action based on return code.
 
-      if (nulcmd) { /* Ignoring this command? */
-        xx = XXCOM; /* Make this command a comment. */
+      if (nulcmd) { // Ignoring this command?
+        xx = XXCOM; // Make this command a comment.
       }
-      fnsuccess = 1; /* For catching \function() errors */
-#endif               /* NOSPL */
+      fnsuccess = 1; // For catching \function() errors
+#endif               // NOSPL
 
       debug(F101, "calling docmd()", "", xx);
-      zz = docmd(xx); /* Parse rest of command & execute. */
+      zz = docmd(xx); // Parse rest of command & execute.
 
 #ifndef NOSPL
-      { /* For \v(lastcommand) */
+      { // For \v(lastcommand)
         extern char *prevcmd;
-        /* The exception list kind of a hack but let's try it... */
+        // The exception list kind of a hack but let's try it...
         if (ckstrcmp(cmdbuf, "_getarg", 7, 0) &&
             ckstrcmp(cmdbuf, "if ", 3, 0) && ckstrcmp(cmdbuf, "xif ", 4, 0) &&
             ckstrcmp(cmdbuf, "do _if", 6, 0) &&
@@ -2677,40 +2626,39 @@ int parser(int m) {
           ckstrncpy(prevcmd, cmdbuf, CMDBL);
         }
       }
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
       if (fnerror && !fnsuccess) {
         success = 0;
       }
-#endif /* NOSPL */
+#endif // NOSPL
       debug(F101, "docmd returns", "", zz);
-      /* debug(F011,"cmdbuf",cmdbuf,30); */
-      /* debug(F011,"atmbuf",atmbuf,30); */
+      // debug(F011,"cmdbuf",cmdbuf,30);
+      // debug(F011,"atmbuf",atmbuf,30);
 
       switch (zz) {
-      case -4:                     /* EOF (e.g. on redirected stdin) */
-        doexit(GOOD_EXIT, xitsta); /* ...exit successfully */
-      case -1:                     /* Reparse needed */
-        repars = 1;                /* Just set reparse flag and... */
+      case -4:                     // EOF (e.g. on redirected stdin)
+        doexit(GOOD_EXIT, xitsta); // ...exit successfully
+      case -1:                     // Reparse needed
+        repars = 1;                // Just set reparse flag and...
         continue;
-        /*
-          Changed 2013-12-06 fdc: Previously the failing command was echoed only
-          in the -6 and -9 cases.  This made it difficult to know exactly which
-          command had failed when a macro or command file was being executed and
-          the failing command had already issued its own error message and
-          returned -9.  Now we include -9 in the caselist for this code, but we
-          echo the failing command only if Kermit is not at top level.  So now,
-          even though the error message is imprecise about *where* the failing
-          command was, at least it shows the failing command.
-        */
-      case -9: /* Bad, error message already done */
-      case -6: /* Invalid command given w/no args */
-      case -2: /* Invalid command given w/args */
+        // Changed 2013-12-06 fdc: Previously the failing command was echoed
+        // only in the -6 and -9 cases.  This made it difficult to know exactly
+        // which command had failed when a macro or command file was being
+        // executed and the failing command had already issued its own error
+        // message and returned -9.  Now we include -9 in the caselist for this
+        // code, but we echo the failing command only if Kermit is not at top
+        // level.  So now, even though the error message is imprecise about
+        // *where* the failing command was, at least it shows the failing
+        // command.
+      case -9: // Bad, error message already done
+      case -6: // Invalid command given w/no args
+      case -2: // Invalid command given w/args
         if (zz == -2 || zz == -6 || (zz == -9 && cmdlvl > 0)) {
           int x = 0;
 
-          x = strlen(cmdbuf); /* Avoid blank line */
+          x = strlen(cmdbuf); // Avoid blank line
 
           if (x > 0) {
             newerrmsg("Syntax error");
@@ -2718,62 +2666,61 @@ int parser(int m) {
         }
         success = 0;
         debug(F110, "top-level cmkey failed", cmdbuf, 0);
-        /* If in background w/ commands coming stdin, terminate */
+        // If in background w/ commands coming stdin, terminate
         if (pflag == 0 && tlevel < 0) {
           fatal("Kermit command error in background execution");
         }
-/*
-  Command retry feature, edit 190.  If we're at interactive prompting level,
-  reprompt the user with as much of the command as didn't fail.
-*/
+// Command retry feature, edit 190.  If we're at interactive prompting level,
+// reprompt the user with as much of the command as didn't fail.
 #ifdef CK_RECALL
-        if (cm_retry && !xcmdsrc) { /* If at top level */
+        if (cm_retry && !xcmdsrc) { // If at top level
           int len;
           char *p, *s;
-          len = strlen(cmdbuf); /* Length of command buffer */
-          p = malloc(len + 1);  /* Allocate space for copy */
-          if (p) {              /* If we got the space copy */
-            strcpy(p, cmdbuf);  /* the command buffer (SAFE). */
-            /* Chop off final field, the one that failed. */
-            s = p + len - 1;            /* Point to end */
-            while (*s == SP && s > p) { /* Trim blanks */
+          len = strlen(cmdbuf); // Length of command buffer
+          p = malloc(len + 1);  // Allocate space for copy
+          if (p) {              // If we got the space copy
+            strcpy(p, cmdbuf);  // the command buffer (SAFE).
+            // Chop off final field, the one that failed.
+            s = p + len - 1;            // Point to end
+            while (*s == SP && s > p) { // Trim blanks
               s--;
             }
-            while (*s != SP && s > p) { /* Trim last field */
+            while (*s != SP && s > p) { // Trim last field
               s--;
             }
-            if (s > p) { /* Keep the space */
-              s++;       /* after last good field */
+            if (s > p) { // Keep the space
+              s++;       // after last good field
             }
-            if (s >= p) { /* Cut off remainder */
+            if (s >= p) { // Cut off remainder
               *s = NUL;
             }
-            cmini(ckxech);               /* Reinitialize the parser */
-            ckstrncpy(cmdbuf, p, CMDBL); /* Copy result back */
-            free(p);                     /* Free temporary storage */
+            cmini(ckxech);               // Reinitialize the parser
+            ckstrncpy(cmdbuf, p, CMDBL); // Copy result back
+            free(p);                     // Free temporary storage
             p = NULL;
-            prompt(xxstring);     /* Reprint the prompt */
-            printf("%s", cmdbuf); /* Reprint partial command */
-            repars = 1;           /* Force reparse */
+            prompt(xxstring);     // Reprint the prompt
+            printf("%s", cmdbuf); // Reprint partial command
+            repars = 1;           // Force reparse
             continue;
           }
         } else
-#endif /* CK_RECALL */
-          /* cmderr(); */ newerrmsg("");
+#endif // CK_RECALL
+       // cmderr();
+          newerrmsg("");
 
-        cmini(ckxech); /* (fall thru) */
+        cmini(ckxech); // (fall thru)
 
-      case -3:      /* Empty command OK at top level */
-        repars = 0; /* Don't need to reparse. */
-        continue;   /* Go back and get another command. */
+      case -3:      // Empty command OK at top level
+        repars = 0; // Don't need to reparse.
+        continue;   // Go back and get another command.
 
-      default: /* Command was successful. */
+      default: // Command was successful.
 #ifndef NOSPL
         debug(F101, "parser preparing to continue", "", maclvl);
-#endif /* NOSPL */
+#endif // NOSPL
         debug(F101, "parser success", "", success);
-        repars = 0; /* Don't need to reparse. */
-        continue;   /* Go back and get another command. */
+        repars = 0; // Don't need to reparse.
+        continue;   // Go back and get another command.
       }
     }
 #ifndef NOSPL
@@ -2781,51 +2728,50 @@ int parser(int m) {
     if (m && (cmdlvl < inlevel)) {
       return ((int)sstate);
     }
-#endif /* NOSPL */
+#endif // NOSPL
   }
 
-  /* Got an action command, return start state. */
+  // Got an action command, return start state.
 
   return ((int)sstate);
 }
 
 #ifndef NOSPL
-/*
-  OUTPUT command.
-  Buffering and pacing added by L.I. Kirby, 5A(189), June 1993.
-*/
-#define OBSIZE 80 /* Size of local character buffer */
+// OUTPUT command.
+// Buffering and pacing added by L.I. Kirby, 5A(189), June 1993.
+#define OBSIZE 80 // Size of local character buffer
 
-static int obn;               /* Buffer offset (high water mark) */
-static char obuf[OBSIZE + 1]; /* OUTPUT buffer. */
-static char *obp;             /* Pointer to output buffer. */
+static int obn;               // Buffer offset (high water mark)
+static char obuf[OBSIZE + 1]; // OUTPUT buffer.
+static char *obp;             // Pointer to output buffer.
 static int oboc(char);
 static int xxout(char *, int);
 
 static int xxout(char *obuf, int obsize)
-/* xxout */ { /* OUTPUT command's output function */
+// xxout
+{ // OUTPUT command's output function
   int i, rc;
 
   debug(F101, "xxout obsize", "", obsize);
   debug(F101, "xxout pacing", "", pacing);
   debug(F111, "xxout string", obuf, strlen(obuf));
 
-  rc = 0;                       /* Initial return code. */
-  if (!obuf || (obsize <= 0)) { /* Nothing to output. */
-    goto xxout_x;               /* Return successfully */
+  rc = 0;                       // Initial return code.
+  if (!obuf || (obsize <= 0)) { // Nothing to output.
+    goto xxout_x;               // Return successfully
   }
 
-  rc = -1;           /* Now assume failure */
-  if (pacing == 0) { /* Is pacing enabled? */
-    if ((local ?     /* No, write entire string at once */
+  rc = -1;           // Now assume failure
+  if (pacing == 0) { // Is pacing enabled?
+    if ((local ?     // No, write entire string at once
              ttol((CHAR *)obuf, obsize)
-               :                  /* to communications device */
-             conxo(obsize, obuf)) /* or to console */
+               :                  // to communications device
+             conxo(obsize, obuf)) // or to console
         != obsize) {
       goto xxout_x;
     }
   } else {
-    for (i = 0; i < obsize; i++) { /* Write individual chars */
+    for (i = 0; i < obsize; i++) { // Write individual chars
       if ((local ? ttoc(obuf[i]) : conoc(obuf[i])) < 0) {
         goto xxout_x;
       }
@@ -2840,51 +2786,52 @@ static int xxout(char *obuf, int obsize)
       conxo(obsize, obuf);
     }
   }
-  rc = 0; /* Success */
+  rc = 0; // Success
 xxout_x:
-  obn = 0;     /* Reset count */
-  obp = obuf;  /* and pointers */
-  return (rc); /* return our return code */
+  obn = 0;     // Reset count
+  obp = obuf;  // and pointers
+  return (rc); // return our return code
 }
 
 static int oboc(char c)
-/* oboc */ { /* OUTPUT command's output function */
+// oboc
+{ // OUTPUT command's output function
 
-  *obp++ = c; /* Deposit character */
-  *obp = NUL; /* Flush buffer if it's now full */
+  *obp++ = c; // Deposit character
+  *obp = NUL; // Flush buffer if it's now full
 
   return (((++obn) >= OBSIZE) ? xxout(obuf, obn) : 0);
 }
 
-/*  Routines for handling local variables -- also see popclvl().  */
+//  Routines for handling local variables -- also see popclvl().
 
-void freelocal(int m) /* Free local variables */
+void freelocal(int m) // Free local variables
 {
-  struct localvar *v, *tv; /* at macro level m... */
+  struct localvar *v, *tv; // at macro level m...
   debug(F101, "freelocal level", "", m);
   if (m < 0) {
     return;
   }
-  v = localhead[m]; /* List head for level m */
+  v = localhead[m]; // List head for level m
   while (v) {
-    if (v->lv_name) { /* Variable name */
+    if (v->lv_name) { // Variable name
       free(v->lv_name);
     }
-    if (v->lv_value) { /* Value */
+    if (v->lv_value) { // Value
       free(v->lv_value);
     }
-    tv = v;         /* Save pointer to this node */
-    v = v->lv_next; /* Get next one */
-    if (tv) {       /* Free this one */
+    tv = v;         // Save pointer to this node
+    v = v->lv_next; // Get next one
+    if (tv) {       // Free this one
       free((char *)tv);
     }
   }
-  localhead[m] = (struct localvar *)NULL; /* Done, set list head to NULL */
+  localhead[m] = (struct localvar *)NULL; // Done, set list head to NULL
 }
 
 #define MAXLOCALVAR 64
 
-/* Return a pointer to the definition of a user-defined variable */
+// Return a pointer to the definition of a user-defined variable
 
 static char *vardef(char *s, int *isarray, int *x1, int *x2) {
   char *p;
@@ -2902,29 +2849,29 @@ static char *vardef(char *s, int *isarray, int *x1, int *x2) {
     if (!*p) {
       return (NULL);
     }
-    if ((c = *p) == '%') { /* Scalar variable. */
-      c = *++p;            /* Get ID character. */
-      p = "";              /* Assume definition is empty */
+    if ((c = *p) == '%') { // Scalar variable.
+      c = *++p;            // Get ID character.
+      p = "";              // Assume definition is empty
       if (!c) {
         return (NULL);
       }
-      if (c >= '0' && c <= '9') {          /* Digit for macro arg */
-        if (maclvl < 0) {                  /* Digit variables are global */
-          return (g_var[c]);               /* if no macro is active */
-        } else {                           /* otherwise */
-          return (m_arg[maclvl][c - '0']); /* they're on the stack */
+      if (c >= '0' && c <= '9') {          // Digit for macro arg
+        if (maclvl < 0) {                  // Digit variables are global
+          return (g_var[c]);               // if no macro is active
+        } else {                           // otherwise
+          return (m_arg[maclvl][c - '0']); // they're on the stack
         }
       } else if (isalpha(c)) {
         if (isupper(c)) {
           c -= ('a' - 'A');
         }
-        return (g_var[c]); /* Letter for global variable */
+        return (g_var[c]); // Letter for global variable
       } else {
         return (NULL);
       }
-    } else if (c == '&') { /* Array reference. */
+    } else if (c == '&') { // Array reference.
       int x, vbi, d;
-      x = arraynam(p, &vbi, &d); /* Get name and subscript */
+      x = arraynam(p, &vbi, &d); // Get name and subscript
       if (x > -1 || d == -17) {
         *isarray = 1;
         *x1 = vbi;
@@ -2933,9 +2880,9 @@ static char *vardef(char *s, int *isarray, int *x1, int *x2) {
       if (x < 0) {
         return (NULL);
       }
-      if (chkarray(vbi, d) >= 0) { /* Array is declared? */
-        vbi -= ARRAYBASE;          /* Convert name to index */
-        if (a_dim[vbi] >= d) {     /* If subscript in range */
+      if (chkarray(vbi, d) >= 0) { // Array is declared?
+        vbi -= ARRAYBASE;          // Convert name to index
+        if (a_dim[vbi] >= d) {     // If subscript in range
           char **ap;
           ap = a_ptr[vbi];
           return ((ap) ? ap[d] : NULL);
@@ -2959,16 +2906,16 @@ int addlocal(char *p) {
 
   tra_tmp = tra_asg;
 
-  s = vardef(p, &isarray, &x, &z); /* Get definition of variable */
-  if (isarray) {                   /* Arrays are handled specially */
+  s = vardef(p, &isarray, &x, &z); // Get definition of variable
+  if (isarray) {                   // Arrays are handled specially
     pusharray(x, z);
     return (0);
   }
   if (!s) {
     s = "";
   }
-  if ((v = localhead[cmdlvl])) { /* Already have some at this level? */
-    while (v) {                  /* Find end of list */
+  if ((v = localhead[cmdlvl])) { // Already have some at this level?
+    while (v) {                  // Find end of list
       prev = v;
       v = v->lv_next;
     }
@@ -2978,49 +2925,49 @@ int addlocal(char *p) {
     printf("?Failure to allocate storage for local variables");
     return (-9);
   }
-  if (!localhead[cmdlvl]) { /* If first, set list head */
+  if (!localhead[cmdlvl]) { // If first, set list head
     localhead[cmdlvl] = v;
-  } else { /* Otherwise link previous to this */
+  } else { // Otherwise link previous to this
     prev->lv_next = v;
   }
-  prev = v;                             /* And make this previous */
-  v->lv_next = (struct localvar *)NULL; /* No next yet */
+  prev = v;                             // And make this previous
+  v->lv_next = (struct localvar *)NULL; // No next yet
 
   if (!(v->lv_name = (char *)malloc((int)strlen(p) + 1))) {
     return (-1);
   }
-  strcpy(v->lv_name, p); /* Copy name into new node (SAFE) */
+  strcpy(v->lv_name, p); // Copy name into new node (SAFE)
 
   if (*s) {
     if (!(v->lv_value = (char *)malloc((int)strlen(s) + 1))) {
       return (-1);
     }
-    strcpy(v->lv_value, s); /* Copy value into new node (SAFE) */
+    strcpy(v->lv_value, s); // Copy value into new node (SAFE)
   } else {
     v->lv_value = NULL;
   }
 
   tra_asg = 0;
-  delmac(p, 1); /* Delete the original macro */
+  delmac(p, 1); // Delete the original macro
   tra_asg = tra_tmp;
   return (0);
 }
 
-int dolocal(void) /* Do the LOCAL command */
+int dolocal(void) // Do the LOCAL command
 {
   int i, x;
   char *s;
-  char *list[MAXLOCALVAR + 2]; /* Up to 64 variables per line */
+  char *list[MAXLOCALVAR + 2]; // Up to 64 variables per line
 
   if ((x = cmtxt("Variable name(s)", "", &s, NULL)) < 0) {
     return (x);
   }
 
-  xwords(s, MAXLOCALVAR, list, 0); /* Break up line into "words" */
+  xwords(s, MAXLOCALVAR, list, 0); // Break up line into "words"
 
-  /* Note: Arrays do not use the localhead list, but have their own stack */
+  // Note: Arrays do not use the localhead list, but have their own stack
 
-  for (i = 1; i < MAXLOCALVAR && list[i]; i++) { /* Go through the list */
+  for (i = 1; i < MAXLOCALVAR && list[i]; i++) { // Go through the list
     if (addlocal(list[i]) < 0) {
       goto localbad;
     }
@@ -3033,7 +2980,7 @@ localbad:
   return (-9);
 }
 
-/*  D O O U T P U T  --  Returns 0 on failure, 1 on success */
+//  D O O U T P U T  --  Returns 0 on failure, 1 on success
 
 #ifndef NOKVERBS
 #define K_BUFLEN 30
@@ -3046,22 +2993,22 @@ localbad:
       sendndx = 0;                                                             \
     }                                                                          \
   }
-#endif /* NOKVERBS */
+#endif // NOKVERBS
 
-int outesc = 1; /* Process special OUTPUT escapes */
+int outesc = 1; // Process special OUTPUT escapes
 
 int dooutput(char *s, int cx) {
 #ifdef SSHBUILTIN
   const char *ssh_cmd;
-#endif                 /* SSHBUILTIN */
-  int x, xx, y, quote; /* Workers */
+#endif                 // SSHBUILTIN
+  int x, xx, y, quote; // Workers
   int is_tn = 0;
 
   is_tn = (local && network && IS_TELNET()) || (!local && sstelnet);
 
   debug(F111, "dooutput s", s, (int)strlen(s));
 
-  if (local) { /* Condition external line */
+  if (local) { // Condition external line
 #ifdef NOLOCAL
     goto outerr;
 #else
@@ -3089,7 +3036,7 @@ int dooutput(char *s, int cx) {
       printf("?OUTPUT initialization error\n");
       return (0);
     }
-#endif /* NOLOCAL */
+#endif // NOLOCAL
   }
 #ifdef SSHBUILTIN
   ssh_cmd = ssh_get_sparam(SSH_SPARAM_CMD);
@@ -3100,24 +3047,24 @@ int dooutput(char *s, int cx) {
     }
     return (0);
   }
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
 
-  if (!cmdgquo()) { /* COMMAND QUOTING OFF */
-    x = strlen(s);  /* Just send the string literally */
+  if (!cmdgquo()) { // COMMAND QUOTING OFF
+    x = strlen(s);  // Just send the string literally
     xx = local ? ttol((CHAR *)s, x) : conxo(x, s);
     return (success = (xx == x) ? 1 : 0);
   }
-  quote = 0;  /* Initialize backslash (\) quote */
-  obn = 0;    /* Reset count */
-  obp = obuf; /* and pointers */
+  quote = 0;  // Initialize backslash (\) quote
+  obn = 0;    // Reset count
+  obp = obuf; // and pointers
 
 outagain:
-  while ((x = *s++)) { /* Loop through the string */
-    y = 0;             /* Error code, 0 = no error. */
+  while ((x = *s++)) { // Loop through the string
+    y = 0;             // Error code, 0 = no error.
     debug(F000, "dooutput", "", x);
-    if (quote) { /* This character is quoted */
+    if (quote) { // This character is quoted
 #ifndef NOKVERBS
-      if (x == 'k' || x == 'K') { /* \k or \K */
+      if (x == 'k' || x == 'K') { // \k or \K
         extern struct keytab kverbs[];
         extern int nkverbs;
         extern char *keydefptr;
@@ -3125,24 +3072,22 @@ outagain:
         extern int keymacx;
         int x, y, brace = 0;
         char *p;
-        char kbuf[K_BUFLEN + 1]; /* Key verb name buffer */
+        char kbuf[K_BUFLEN + 1]; // Key verb name buffer
         char osendbuf[SEND_BUFLEN + 1];
         int sendndx = 0;
 
-        if (xxout(obuf, obn) < 0) { /* Flush buffer */
+        if (xxout(obuf, obn) < 0) { // Flush buffer
           goto outerr;
         }
-        debug(F100, "OUTPUT KVERB", "", 0); /* Send a KVERB */
-        {                                   /* Have K verb? */
+        debug(F100, "OUTPUT KVERB", "", 0); // Send a KVERB
+        {                                   // Have K verb?
           if (!*s) {
             break;
           }
-          /*
-            We assume that the verb name is {braced}, or it extends to the end
-            of the string, s, or it ends with a space, control character, or
-            backslash.
-          */
-          p = kbuf; /* Copy verb name into local buffer */
+          // We assume that the verb name is {braced}, or it extends to the end
+          // of the string, s, or it ends with a space, control character, or
+          // backslash.
+          p = kbuf; // Copy verb name into local buffer
           x = 0;
           while ((x++ < K_BUFLEN) && (*s > SP) && (*s != CMDQ)) {
             if (brace && *s == '}') {
@@ -3150,14 +3095,14 @@ outagain:
             }
             *p++ = *s++;
           }
-          if (*s && !brace) { /* If we broke because of \, etc, */
-            s--;              /*  back up so we get another look. */
+          if (*s && !brace) { // If we broke because of \, etc,
+            s--;              //  back up so we get another look.
           }
           brace = 0;
-          *p = NUL; /* Terminate. */
-          p = kbuf; /* Point back to beginning */
+          *p = NUL; // Terminate.
+          p = kbuf; // Point back to beginning
           debug(F110, "dooutput kverb", p, 0);
-          y = xlookup(kverbs, p, nkverbs, &x); /* Look it up */
+          y = xlookup(kverbs, p, nkverbs, &x); // Look it up
           debug(F101, "dooutput lookup", 0, y);
           if (y > -1) {
             if (sendndx) {
@@ -3166,29 +3111,29 @@ outagain:
             }
             dokverb(VCMD, y);
 #ifndef NOSPL
-          } else { /* Is it a macro? */
+          } else { // Is it a macro?
             y = mxlook(mactab, p, nmac);
             if (y > -1) {
               cmpush();
-              keymac = 1;    /* Flag for key macro active */
-              keymacx = y;   /* Key macro index */
-              keydefptr = s; /* Where to resume next time */
+              keymac = 1;    // Flag for key macro active
+              keymacx = y;   // Key macro index
+              keydefptr = s; // Where to resume next time
               debug(F111, "dooutput mxlook", keydefptr, y);
               parser(1);
               cmpop();
             }
-#endif /* NOSPL */
+#endif // NOSPL
           }
         }
         quote = 0;
         continue;
       } else
-#endif                                          /* NOKVERBS */
-        if (outesc && (x == 'n' || x == 'N')) { /* \n or \N */
-          if (xxout(obuf, obn) < 0) {           /* Flush buffer */
+#endif                                          // NOKVERBS
+        if (outesc && (x == 'n' || x == 'N')) { // \n or \N
+          if (xxout(obuf, obn) < 0) {           // Flush buffer
             goto outerr;
           }
-          debug(F100, "OUTPUT NUL", "", 0); /* Send a NUL */
+          debug(F100, "OUTPUT NUL", "", 0); // Send a NUL
           if (local) {
             ttoc(NUL);
           } else {
@@ -3197,77 +3142,77 @@ outagain:
           quote = 0;
           continue;
 
-        } else if (outesc && (x == 'b' || x == 'B')) { /* \b or \B */
+        } else if (outesc && (x == 'b' || x == 'B')) { // \b or \B
 
-          if (xxout(obuf, obn) < 0) { /* Flush buffer first */
+          if (xxout(obuf, obn) < 0) { // Flush buffer first
             goto outerr;
           }
           debug(F100, "OUTPUT BREAK", "", 0);
 #ifndef NOLOCAL
-          ttsndb(); /* Send BREAK signal */
+          ttsndb(); // Send BREAK signal
 #else
         if (local) {
           ttoc(NUL);
         } else {
           conoc(NUL);
         }
-#endif               /* NOLOCAL */
-          quote = 0; /* Turn off quote flag */
-          continue;  /* and not the b or B */
+#endif               // NOLOCAL
+          quote = 0; // Turn off quote flag
+          continue;  // and not the b or B
 #ifdef CK_LBRK
-        } else if (outesc && (x == 'l' || x == 'L')) { /* \l or \L */
-          if (xxout(obuf, obn) < 0) {                  /* Flush buffer first */
+        } else if (outesc && (x == 'l' || x == 'L')) { // \l or \L
+          if (xxout(obuf, obn) < 0) {                  // Flush buffer first
             goto outerr;
           }
           debug(F100, "OUTPUT Long BREAK", "", 0);
 #ifndef NOLOCAL
-          ttsndlb(); /* Send Long BREAK signal */
+          ttsndlb(); // Send Long BREAK signal
 #else
           if (local) {
             ttoc(NUL);
           } else {
             conoc(NUL);
           }
-#endif               /* NOLOCAL */
-          quote = 0; /* Turn off quote flag */
-          continue;  /* and not the l or L */
-#endif               /* CK_LBRK */
+#endif               // NOLOCAL
+          quote = 0; // Turn off quote flag
+          continue;  // and not the l or L
+#endif               // CK_LBRK
 
-        } else if (x == CMDQ) { /* Backslash itself */
+        } else if (x == CMDQ) { // Backslash itself
           debug(F100, "OUTPUT CMDQ", "", 0);
-          xx = oboc(dopar(CMDQ)); /* Output the backslash. */
+          xx = oboc(dopar(CMDQ)); // Output the backslash.
           if (xx < 0) {
             goto outerr;
           }
           quote = 0;
           continue;
 
-        } else { /* if \ not followed by special esc */
-                 /* Note: Atari ST compiler won't allow macro call in "if ()" */
-          xx = oboc(dopar(CMDQ)); /* Output the backslash. */
+        } else { // if \ not followed by special esc
+                 // Note: Atari ST compiler won't allow macro call in "if ()"
+          xx = oboc(dopar(CMDQ)); // Output the backslash.
           if (xx < 0) {
             goto outerr;
           }
-          quote = 0; /* Turn off quote flag */
+          quote = 0; // Turn off quote flag
         }
-    } else if (x == CMDQ) { /* This is the quote character */
-      quote = 1;            /* Go back and get next character */
-      continue;             /* which is quoted */
+    } else if (x == CMDQ) { // This is the quote character
+      quote = 1;            // Go back and get next character
+      continue;             // which is quoted
     }
-    xx = oboc(dopar((char)x)); /* Output this character */
+    xx = oboc(dopar((char)x)); // Output this character
     debug(F111, "dooutput", obuf, obn);
     if (xx < 0) {
       goto outerr;
     }
-    if (x == '\015') { /* String contains carriage return */
+    if (x == '\015') { // String contains carriage return
       int stuff = -1, stuff2 = -1;
-      if (tnlm) {   /* TERMINAL NEWLINE ON */
-        stuff = LF; /* Stuff LF */
+      if (tnlm) {   // TERMINAL NEWLINE ON
+        stuff = LF; // Stuff LF
       }
 #ifdef TNCODE
-      /* TELNET NEWLINE ON/OFF/RAW */
+      // TELNET NEWLINE ON/OFF/RAW
       if (is_tn) {
-        switch (TELOPT_ME(TELOPT_BINARY) ? /* NVT or BINARY */
+        switch (TELOPT_ME(TELOPT_BINARY) ? // NVT or BINARY
                     tn_b_nlm
                                          : tn_nlm) {
         case TNL_CR:
@@ -3282,20 +3227,20 @@ outagain:
           break;
         }
       }
-#endif                  /* TNCODE */
-      if (stuff > -1) { /* Stuffing another character... */
+#endif                  // TNCODE
+      if (stuff > -1) { // Stuffing another character...
         xx = oboc(dopar((CHAR)stuff));
         if (xx < 0) {
           goto outerr;
         }
       }
-      if (stuff2 > -1) { /* Stuffing another character... */
+      if (stuff2 > -1) { // Stuffing another character...
         xx = oboc(dopar((CHAR)stuff2));
         if (xx < 0) {
           goto outerr;
         }
       }
-      if (xxout(obuf, obn) < 0) { /* Flushing is required here! */
+      if (xxout(obuf, obn) < 0) { // Flushing is required here!
         goto outerr;
       }
     }
@@ -3305,28 +3250,28 @@ outagain:
     cx = 0;
     goto outagain;
   }
-  if (quote == 1) { /* String ended with backslash */
+  if (quote == 1) { // String ended with backslash
     xx = oboc(dopar(CMDQ));
   }
 
-  if (obn > 0) {                /* OUTPUT done */
-    if (xxout(obuf, obn) < 0) { /* Flush the buffer if necessary. */
+  if (obn > 0) {                // OUTPUT done
+    if (xxout(obuf, obn) < 0) { // Flush the buffer if necessary.
       goto outerr;
     }
   }
   return (1);
 
-outerr: /* OUTPUT command error handler */
+outerr: // OUTPUT command error handler
   if (msgflg) {
     printf("?OUTPUT execution error\n");
   }
   return (0);
 
-  /* Remove "local" OUTPUT macro defininitions */
+  // Remove "local" OUTPUT macro defininitions
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/* Display version herald */
+// Display version herald
 
 void herald() {
   extern char myherald[];
@@ -3354,7 +3299,7 @@ void herald() {
       return;
     }
   }
-#endif /* NOCMDL */
+#endif // NOCMDL
 
   if (!noherald) {
     printf("%s\n", myherald);
@@ -3378,7 +3323,7 @@ void herald() {
   }
 }
 
-/*  G F M O D E  --  Get File (transfer) Mode  */
+//  G F M O D E  --  Get File (transfer) Mode
 
 char *gfmode(int binary, int upcase) {
   char *s;
@@ -3393,7 +3338,7 @@ char *gfmode(int binary, int upcase) {
   case XYFT_L:
     s = upcase ? "LABELED" : "labeled";
     break;
-#endif /* CK_LABELED */
+#endif // CK_LABELED
   case XYFT_X:
     s = upcase ? "TENEX" : "tenex";
     break;
@@ -3404,7 +3349,7 @@ char *gfmode(int binary, int upcase) {
 }
 
 #ifndef NOSPL
-static int isaa(char *s) /* Is associative array */
+static int isaa(char *s) // Is associative array
 {
   char c;
   int x;
@@ -3424,28 +3369,26 @@ static int isaa(char *s) /* Is associative array */
   return (0);
 }
 
-/*  M L O O K  --  Lookup the macro name in the macro table  */
+//  M L O O K  --  Lookup the macro name in the macro table
 
-/*
-  Call this way:  v = mlook(table,word,n);
-
-    table - a 'struct mtab' table.
-    word  - the target string to look up in the table.
-    n     - the number of elements in the table.
-
-  The keyword table must be arranged in ascending alphabetical order, and
-  all letters must be lowercase.
-
-  Returns the table index, 0 or greater, if the name was found, or:
-
-   -3 if nothing to look up (target was null),
-   -2 if ambiguous,
-   -1 if not found.
-
-  A match is successful if the target matches a keyword exactly, or if
-  the target is a prefix of exactly one keyword.  It is ambiguous if the
-  target matches two or more keywords from the table.
-*/
+// Call this way:  v = mlook(table,word,n);
+//
+//  table - a 'struct mtab' table.
+//  word  - the target string to look up in the table.
+//  n     - the number of elements in the table.
+//
+// The keyword table must be arranged in ascending alphabetical order, and
+// all letters must be lowercase.
+//
+// Returns the table index, 0 or greater, if the name was found, or:
+//
+// -3 if nothing to look up (target was null),
+// -2 if ambiguous,
+// -1 if not found.
+//
+// A match is successful if the target matches a keyword exactly, or if
+// the target is a prefix of exactly one keyword.  It is ambiguous if the
+// target matches two or more keywords from the table.
 int mlook(struct mtab table[], char *cmd, int n) {
   register int i;
   int v, w, cmdlen = 0;
@@ -3455,7 +3398,7 @@ int mlook(struct mtab table[], char *cmd, int n) {
   }
 
   for (s = cmd; *s; s++) {
-    cmdlen++; /* (instead of strlen) */
+    cmdlen++; // (instead of strlen)
   }
   debug(F111, "MLOOK", cmd, cmdlen);
 
@@ -3467,11 +3410,11 @@ int mlook(struct mtab table[], char *cmd, int n) {
     return (-3);
   }
 
-  /* Not null, look it up */
+  // Not null, look it up
 
-  if (n < 12) { /* Not worth it for small tables */
+  if (n < 12) { // Not worth it for small tables
     i = 0;
-  } else { /* Binary search for where to start */
+  } else { // Binary search for where to start
     int lo = 0;
     int hi = n;
     int count = 0;
@@ -3495,32 +3438,32 @@ int mlook(struct mtab table[], char *cmd, int n) {
       s = "";
     }
     if (!*s) {
-      continue; /* Empty table entry */
+      continue; // Empty table entry
     }
     c = *s;
     if (isupper(c)) {
       c = tolower(c);
     }
     if (c1 != c) {
-      continue; /* First char doesn't match */
+      continue; // First char doesn't match
     }
-    if (!ckstrcmp(s, cmd, -1, 0)) { /* Have exact match? */
+    if (!ckstrcmp(s, cmd, -1, 0)) { // Have exact match?
       return (i);
     }
     v = !ckstrcmp(s, cmd, cmdlen, 0);
     w = ckstrcmp(table[i + 1].kwd, cmd, cmdlen, 0);
-    if (v && w) { /* Have abbreviated match? */
+    if (v && w) { // Have abbreviated match?
       return (i);
     }
-    if (v) { /* Ambiguous? */
+    if (v) { // Ambiguous?
       return (-2);
     }
-    if (w > 0) { /* Past our alphabetic area? */
+    if (w > 0) { // Past our alphabetic area?
       return (-1);
     }
   }
 
-  /* Last (or only) element */
+  // Last (or only) element
 
   if (!ckstrcmp(table[n - 1].kwd, cmd, cmdlen, 0)) {
     return (n - 1);
@@ -3529,7 +3472,7 @@ int mlook(struct mtab table[], char *cmd, int n) {
   return (-1);
 }
 
-/* mxlook is like mlook, but an exact full-length match is required */
+// mxlook is like mlook, but an exact full-length match is required
 
 int mxlook(struct mtab table[], char *cmd, int n) {
   register int i;
@@ -3537,29 +3480,29 @@ int mxlook(struct mtab table[], char *cmd, int n) {
   register char c = 0, c1, *s;
 
   if (!cmd) {
-    cmd = ""; /* Check args */
+    cmd = ""; // Check args
   }
 
   for (s = cmd; *s; s++) {
-    cmdlen++; /* (instead of strlen) */
+    cmdlen++; // (instead of strlen)
   }
   debug(F111, "MXLOOK", cmd, cmdlen);
 
-  c1 = *cmd; /* First char of string to look up */
+  c1 = *cmd; // First char of string to look up
   if (isupper(c1)) {
     c1 = tolower(c1);
   }
-  if (!*(cmd + 1)) { /* Special handling for 1-char names */
+  if (!*(cmd + 1)) { // Special handling for 1-char names
     one = 1;
   }
 
-  if (cmdlen < 1) { /* Nothing to look up */
+  if (cmdlen < 1) { // Nothing to look up
     return (-3);
   }
 
-  if (n < 12) { /* Not worth it for small tables */
+  if (n < 12) { // Not worth it for small tables
     i = 0;
-  } else { /* Binary search for where to start */
+  } else { // Binary search for where to start
     int lo = 0;
     int hi = n;
     int count = 0;
@@ -3577,24 +3520,24 @@ int mxlook(struct mtab table[], char *cmd, int n) {
     }
     i = (c < c1) ? lo + 1 : lo;
   }
-  for (; i < n; i++) { /* Look thru table */
-    s = table[i].kwd;  /* This entry */
+  for (; i < n; i++) { // Look thru table
+    s = table[i].kwd;  // This entry
     if (!s) {
       s = "";
     }
     if (!*s) {
-      continue; /* Empty table entry */
+      continue; // Empty table entry
     }
     c = *s;
     if (isupper(c)) {
       c = tolower(c);
     }
     if (c1 != c) {
-      continue; /* First char doesn't match */
+      continue; // First char doesn't match
     }
-    if (one) { /* Name is one char long */
+    if (one) { // Name is one char long
       if (!*(s + 1)) {
-        return (i); /* So is table entry */
+        return (i); // So is table entry
       }
     }
     w = ckstrcmp(s, cmd, -1, 0);
@@ -3609,7 +3552,7 @@ int mxlook(struct mtab table[], char *cmd, int n) {
   return (-1);
 }
 
-/* mxxlook is like mxlook, but case-sensitive */
+// mxxlook is like mxlook, but case-sensitive
 
 int mxxlook(struct mtab table[], char *cmd, int n) {
   int i, cmdlen;
@@ -3619,7 +3562,7 @@ int mxxlook(struct mtab table[], char *cmd, int n) {
   if (((cmdlen = strlen(cmd)) < 1) || (n < 1)) {
     return (-3);
   }
-  /* debug(F111,"mxxlook target",cmd,n); */
+  // debug(F111,"mxxlook target",cmd,n);
   for (i = 0; i < n; i++) {
     if (((int)strlen(table[i].kwd) == cmdlen) &&
         (!strncmp(table[i].kwd, cmd, cmdlen))) {
@@ -3629,7 +3572,7 @@ int mxxlook(struct mtab table[], char *cmd, int n) {
   return (-1);
 }
 
-static int traceval(char *nam, char *val) /* For TRACE command */
+static int traceval(char *nam, char *val) // For TRACE command
 {
   if (val) {
     printf(">>> %s: \"%s\"\n", nam, val);
@@ -3639,55 +3582,54 @@ static int traceval(char *nam, char *val) /* For TRACE command */
   return (0);
 }
 
-#ifdef USE_VARLEN /* Not used */
+#ifdef USE_VARLEN // Not used
 
-/*  V A R L E N  --  Get length of variable's value.
-
-  Given a variable name, return the length of its definition or 0 if the
-  variable is not defined.  If it is defined, set argument s to point to its
-  definition.  Otherwise set s to NULL.
-*/
+//  V A R L E N  --  Get length of variable's value.
+//
+// Given a variable name, return the length of its definition or 0 if the
+// variable is not defined.  If it is defined, set argument s to point to its
+// definition.  Otherwise set s to NULL.
 int varlen(nam, s)
 char *nam;
 char **s;
-{ /* Length of value of variable */
+{ // Length of value of variable
   int x, z;
   char *p = NULL, c;
 
   *s = NULL;
   if (!nam) {
-    return (0); /* Watch out for null pointer */
+    return (0); // Watch out for null pointer
   }
   if (*nam == CMDQ) {
     nam++;
-    if (*nam == '%') { /* If it's a variable name */
+    if (*nam == '%') { // If it's a variable name
       if (!(c = *(nam + 1))) {
-        return (0); /* Get letter or digit */
+        return (0); // Get letter or digit
       }
-      p = (char *)0;                             /* Initialize value pointer */
-      if (maclvl > -1 && c >= '0' && c <= '9') { /* Digit? */
-        p = m_arg[maclvl][c - '0']; /* Pointer from macro-arg table */
-      } else {                      /* It's a global variable */
+      p = (char *)0;                             // Initialize value pointer
+      if (maclvl > -1 && c >= '0' && c <= '9') { // Digit?
+        p = m_arg[maclvl][c - '0'];              // Pointer from macro-arg table
+      } else {                                   // It's a global variable
         if (c < 33 || c > GVARS) {
           return (0);
         }
-        p = g_var[c]; /* Get pointer from global-var table */
+        p = g_var[c]; // Get pointer from global-var table
       }
-    } else if (*nam == '&') { /* An array reference? */
+    } else if (*nam == '&') { // An array reference?
       char **q;
-      if (arraynam(nam, &x, &z) < 0) { /* If syntax is bad */
-        return (-1);                   /* return -1. */
+      if (arraynam(nam, &x, &z) < 0) { // If syntax is bad
+        return (-1);                   // return -1.
       }
-      x -= ARRAYBASE;               /* Convert name to number. */
-      if ((q = a_ptr[x]) == NULL) { /* If array not declared, */
-        return (0);                 /* return -2. */
+      x -= ARRAYBASE;               // Convert name to number.
+      if ((q = a_ptr[x]) == NULL) { // If array not declared,
+        return (0);                 // return -2.
       }
-      if (z > a_dim[x]) { /* If subscript out of range, */
-        return (0);       /* return -3. */
+      if (z > a_dim[x]) { // If subscript out of range,
+        return (0);       // return -3.
       }
       p = q[z];
     }
-  } else { /* Macro */
+  } else { // Macro
     z = isaa(nam);
     x = z ? mxxlook(mactab, nam, nmac) : mlook(mactab, nam, nmac);
     if (x < 0) {
@@ -3702,22 +3644,20 @@ char **s;
   }
   return ((int)strlen(p));
 }
-#endif /* USE_VARLEN */
+#endif // USE_VARLEN
 
-/*
-  This routine is for the benefit of those compilers that can't handle
-  long string constants or continued lines within them.  Long predefined
-  macros like FOR, WHILE, and XIF have their contents broken up into
-  arrays of string pointers.  This routine concatenates them back into a
-  single string again, and then calls the real addmac() routine to enter
-  the definition into the macro table.
-*/
-int addmmac(char *nam, char *s[]) /* Add a multiline macro definition */
+// This routine is for the benefit of those compilers that can't handle
+// long string constants or continued lines within them.  Long predefined
+// macros like FOR, WHILE, and XIF have their contents broken up into
+// arrays of string pointers.  This routine concatenates them back into a
+// single string again, and then calls the real addmac() routine to enter
+// the definition into the macro table.
+int addmmac(char *nam, char *s[]) // Add a multiline macro definition
 {
   int i, x, y;
   char *p;
-  x = 0;                                          /* Length counter */
-  for (i = 0; (y = (int)strlen(s[i])) > 0; i++) { /* Add up total length */
+  x = 0;                                          // Length counter
+  for (i = 0; (y = (int)strlen(s[i])) > 0; i++) { // Add up total length
     debug(F111, "addmmac line", s[i], y);
     x += y;
   }
@@ -3728,26 +3668,26 @@ int addmmac(char *nam, char *s[]) /* Add a multiline macro definition */
     return (-1);
   }
 
-  p = malloc(x + 1); /* Allocate space for all of it. */
+  p = malloc(x + 1); // Allocate space for all of it.
   if (!p) {
     printf("?addmmac malloc error: %s\n", nam);
     debug(F110, "addmmac malloc error", nam, 0);
     return (-1);
   }
-  *p = '\0';                /* Start off with null string. */
-  for (i = 0; *s[i]; i++) { /* Concatenate them all together. */
+  *p = '\0';                // Start off with null string.
+  for (i = 0; *s[i]; i++) { // Concatenate them all together.
     ckstrncat(p, s[i], x + 1);
   }
-  y = (int)strlen(p); /* Final precaution. */
+  y = (int)strlen(p); // Final precaution.
   debug(F111, "addmmac constructed string", p, y);
   if (y == x) {
-    y = addmac(nam, p); /* Add result to the macro table. */
+    y = addmac(nam, p); // Add result to the macro table.
   } else {
     debug(F100, "addmmac length mismatch", "", 0);
     printf("\n!addmmac internal error!\n");
     y = -1;
   }
-  free(p); /* Free the temporary copy. */
+  free(p); // Free the temporary copy.
   return (y);
 }
 
@@ -3760,20 +3700,20 @@ void evalmacroarg(char **p) {
   *p = evalmacrobuf;
 }
 
-/* Here is the real addmac routine. */
+// Here is the real addmac routine.
 
-/* Returns -1 on failure, macro table index >= 0 on success. */
+// Returns -1 on failure, macro table index >= 0 on success.
 
 int mtchanged = 0;
 
-int addmac(char *nam, char *def) /* Add a macro to the macro table */
+int addmac(char *nam, char *def) // Add a macro to the macro table
 {
   int i, x, y, z, namlen, deflen, flag = 0;
   int replacing = 0, deleting = 0;
   char *p = NULL, c;
 #ifdef USE_VARLEN
   char *s;
-#endif /* USE_VARLEN */
+#endif // USE_VARLEN
   extern int tra_asg;
   int tra_tmp;
 
@@ -3788,114 +3728,114 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
   if (inserver &&
 #ifdef IKSDCONF
       iksdcf
-#else  /* IKSDCONF */
+#else  // IKSDCONF
       1
-#endif /* IKSDCONF */
+#endif // IKSDCONF
   ) {
     if (!ckstrcmp("on_exit", nam, -1, 0) ||
         !ckstrcmp("on_logout", nam, -1, 0)) {
       return (-1);
     }
   }
-#endif /* IKSD */
+#endif // IKSD
 
   namlen = 0;
   p = nam;
   while (*p++) {
-    namlen++; /* (instead of strlen) */
+    namlen++; // (instead of strlen)
   }
 
-  tra_tmp = tra_asg; /* trace... */
+  tra_tmp = tra_asg; // trace...
   debug(F111, "addmac nam", nam, namlen);
-  if (!def) { /* Watch out for null pointer */
+  if (!def) { // Watch out for null pointer
     deflen = 0;
     debug(F111, "addmac def", "(null pointer)", deflen);
   } else {
     deflen = 0;
     p = def;
     while (*p++) {
-      deflen++; /* (instead of strlen) */
+      deflen++; // (instead of strlen)
     }
     debug(F010, "addmac def", def, 0);
   }
-#ifdef USE_VARLEN /* NOT USED */
-  /* This does not boost performance much because varlen() does a lot */
+#ifdef USE_VARLEN // NOT USED
+  // This does not boost performance much because varlen() does a lot
   x = varlen(nam, &s);
   if (x > 0 && x >= deflen) {
-    strcpy(s, def); /* NOT USED */
+    strcpy(s, def); // NOT USED
     flag = 1;
     p = s;
   }
-#endif /* USE_VARLEN */
+#endif // USE_VARLEN
 
   if (*nam == CMDQ) {
-    nam++; /* Backslash quote? */
+    nam++; // Backslash quote?
   }
-  if (*nam == '%') { /* Yes, if it's a variable name, */
+  if (*nam == '%') { // Yes, if it's a variable name,
     if (!(c = *(nam + 1))) {
-      return (-1); /* Variable name letter or digit */
+      return (-1); // Variable name letter or digit
     }
     if (!flag) {
       tra_asg = 0;
-      delmac(nam, 0); /* Delete any old value. */
+      delmac(nam, 0); // Delete any old value.
       tra_asg = tra_tmp;
     }
-    if (deflen < 1) {         /* Null definition */
-      p = NULL;               /* Better not malloc or strcpy! */
-    } else if (!flag) {       /* A substantial definition */
-      p = malloc(deflen + 1); /* Allocate space for it */
+    if (deflen < 1) {         // Null definition
+      p = NULL;               // Better not malloc or strcpy!
+    } else if (!flag) {       // A substantial definition
+      p = malloc(deflen + 1); // Allocate space for it
       if (!p) {
         printf("?addmac malloc error 2\n");
         return (-1);
       } else {
-        strcpy(p, def); /* Copy def into new space (SAFE) */
+        strcpy(p, def); // Copy def into new space (SAFE)
       }
     }
 
-    /* Now p points to the definition, or is a null pointer */
+    // Now p points to the definition, or is a null pointer
 
-    if (c >= '0' && c <= '9') {         /* \%0-9 variable */
-      if (maclvl < 0) {                 /* Are we calling or in a macro? */
-        g_var[c] = p;                   /* No, it's top level one */
-        makestr(&(toparg[c - '0']), p); /* Take care \&_[] too */
-      } else {                          /* Yes, it's a macro argument */
-        m_arg[maclvl][c - '0'] = p;     /* Assign the value */
-        makestr(&(m_xarg[maclvl][c - '0']), p); /* And a copy here */
+    if (c >= '0' && c <= '9') {                 // \%0-9 variable
+      if (maclvl < 0) {                         // Are we calling or in a macro?
+        g_var[c] = p;                           // No, it's top level one
+        makestr(&(toparg[c - '0']), p);         // Take care \&_[] too
+      } else {                                  // Yes, it's a macro argument
+        m_arg[maclvl][c - '0'] = p;             // Assign the value
+        makestr(&(m_xarg[maclvl][c - '0']), p); // And a copy here
       }
-    } else { /* It's a \%a-z variable */
+    } else { // It's a \%a-z variable
       if (c < 33 || (unsigned int)c > GVARS) {
         return (-1);
       }
       if (isupper(c)) {
         c = (char)tolower(c);
       }
-      g_var[c] = p; /* Put pointer in global-var table */
+      g_var[c] = p; // Put pointer in global-var table
     }
     if (tra_asg) {
       traceval(nam, p);
     }
     return (0);
-  } else if (*nam == '&') { /* An array reference? */
+  } else if (*nam == '&') { // An array reference?
     char **q = NULL;
     int rc = 0;
-    if ((y = arraynam(nam, &x, &z)) < 0) { /* If syntax is bad */
-      return (-1);                         /* return -1. */
+    if ((y = arraynam(nam, &x, &z)) < 0) { // If syntax is bad
+      return (-1);                         // return -1.
     }
-    if (chkarray(x, z) < 0) { /* If array not declared or */
-      rc = -2;                /* subscript out of range, ret -2 */
+    if (chkarray(x, z) < 0) { // If array not declared or
+      rc = -2;                // subscript out of range, ret -2
     }
     if (!flag) {
       tra_asg = 0;
-      delmac(nam, 0); /* Delete any old value. */
+      delmac(nam, 0); // Delete any old value.
       tra_asg = tra_tmp;
     }
-    x -= ARRAYBASE; /* Convert name letter to index. */
+    x -= ARRAYBASE; // Convert name letter to index.
     if (x > 'z' - ARRAYBASE + 1) {
       rc = -1;
     }
     if (rc != -1) {
-      if ((q = a_ptr[x]) == NULL) { /* If array not declared, */
-        return (-3);                /* return -3. */
+      if ((q = a_ptr[x]) == NULL) { // If array not declared,
+        return (-3);                // return -3.
       }
     }
     if (rc < 0) {
@@ -3903,19 +3843,19 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
     }
     if (!flag) {
       if (deflen > 0) {
-        if ((p = malloc(deflen + 1)) == NULL) { /* Allocate space */
+        if ((p = malloc(deflen + 1)) == NULL) { // Allocate space
           printf("addmac macro error 7: %s\n", nam);
-          return (-4); /* for new def, return -4 on fail. */
+          return (-4); // for new def, return -4 on fail.
         }
-        strcpy(p, def); /* Copy def into new space (SAFE). */
+        strcpy(p, def); // Copy def into new space (SAFE).
       } else {
         p = NULL;
       }
     }
-    q[z] = p;                 /* Store pointer to it. */
-    if (x == 0) {             /* Arg vector array */
-      if (z >= 0 && z <= 9) { /* Copy values to corresponding  */
-        if (maclvl < 0) {     /* \%1..9 variables. */
+    q[z] = p;                 // Store pointer to it.
+    if (x == 0) {             // Arg vector array
+      if (z >= 0 && z <= 9) { // Copy values to corresponding
+        if (maclvl < 0) {     // \%1..9 variables.
           makestr(&(toparg[z]), p);
         } else {
           makestr(&(m_arg[maclvl][z]), p);
@@ -3925,9 +3865,9 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
     if (tra_asg) {
       traceval(nam, p);
     }
-    return (0); /* Done. */
+    return (0); // Done.
   }
-  /* Not a macro argument or a variable, so it's a macro definition */
+  // Not a macro argument or a variable, so it's a macro definition
 
 #ifdef USE_VARLEN
   if (flag) {
@@ -3936,19 +3876,19 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
     }
     return (0);
   }
-#endif            /* USE_VARLEN */
-  x = isaa(nam) ? /* If it's an associative array */
+#endif            // USE_VARLEN
+  x = isaa(nam) ? // If it's an associative array
           mxxlook(mactab, nam, nmac)
-                :                    /* look it up this way */
-          mxlook(mactab, nam, nmac); /* otherwise this way. */
-  if (x > -1) {                      /* If found... */
-    if (deflen > 0) {                /* and a new definition was given */
-      replacing = 1;                 /* we're replacing */
-    } else {                         /* otherwise */
-      deleting = 1;                  /* we're deleting */
+                :                    // look it up this way
+          mxlook(mactab, nam, nmac); // otherwise this way.
+  if (x > -1) {                      // If found...
+    if (deflen > 0) {                // and a new definition was given
+      replacing = 1;                 // we're replacing
+    } else {                         // otherwise
+      deleting = 1;                  // we're deleting
     }
   }
-  if (deleting) { /* Deleting... */
+  if (deleting) { // Deleting...
     if (delmac(nam, 0) < 0) {
       return (-1);
     }
@@ -3957,29 +3897,29 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
       traceval(nam, p);
     }
     return (0);
-  } else if (deflen < 1) { /* New macro with no definition */
-    return (0);            /* Nothing to do. */
+  } else if (deflen < 1) { // New macro with no definition
+    return (0);            // Nothing to do.
   }
 
-  if (replacing) {          /* Replacing an existing macro */
-    if (mactab[x].mval) {   /* If it currently has a definition, */
-      free(mactab[x].mval); /* free it. */
+  if (replacing) {          // Replacing an existing macro
+    if (mactab[x].mval) {   // If it currently has a definition,
+      free(mactab[x].mval); // free it.
       mactab[x].mval = NULL;
     }
     mtchanged++;
-    y = x; /* Replacement index. */
+    y = x; // Replacement index.
 
-  } else {       /* Adding a new macro... */
-    char c1, c2; /* Use fast lookup to find the */
-    c1 = *nam;   /* alphabetical slot. */
+  } else {       // Adding a new macro...
+    char c1, c2; // Use fast lookup to find the
+    c1 = *nam;   // alphabetical slot.
     if (isupper(c1)) {
       c1 = (char)tolower(c1);
     }
 
-    if (nmac < 5) { /* Not worth it for small tables */
+    if (nmac < 5) { // Not worth it for small tables
       y = 0;
-    } else {      /* First binary search to find */
-      int lo = 0; /* where to start */
+    } else {      // First binary search to find
+      int lo = 0; // where to start
       int hi = nmac;
       int count = 0;
       char c = 0;
@@ -3998,7 +3938,7 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
       y = (c < c1) ? lo + 1 : lo;
     }
 
-    /* Now search linearly from starting location */
+    // Now search linearly from starting location
     for (; y < MAC_MAX && mactab[y].kwd != NULL; y++) {
       c2 = *(mactab[y].kwd);
       if (isupper(c2)) {
@@ -4014,29 +3954,29 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
         break;
       }
     }
-    if (y == MAC_MAX) { /* Macro table is full. */
+    if (y == MAC_MAX) { // Macro table is full.
       debug(F101, "addmac table overflow", "", y);
       printf("?Macro table overflow\n");
       return (-1);
     }
-    if (mactab[y].kwd != NULL) {   /* Must insert */
-      for (i = nmac; i > y; i--) { /* Move the rest down one slot */
+    if (mactab[y].kwd != NULL) {   // Must insert
+      for (i = nmac; i > y; i--) { // Move the rest down one slot
         mactab[i].kwd = mactab[i - 1].kwd;
         mactab[i].mval = mactab[i - 1].mval;
         mactab[i].flgs = mactab[i - 1].flgs;
       }
     }
     mtchanged++;
-    p = malloc(namlen + 1); /* Allocate space for name */
+    p = malloc(namlen + 1); // Allocate space for name
     if (!p) {
       printf("?Addmac: Out of memory - \"%s\"\n", nam);
       return (-1);
     }
-    strcpy(p, nam);    /* Copy name into new space (SAFE) */
-    mactab[y].kwd = p; /* Add pointer to table */
+    strcpy(p, nam);    // Copy name into new space (SAFE)
+    mactab[y].kwd = p; // Add pointer to table
   }
-  if (deflen > 0) {         /* If we have a definition */
-    p = malloc(deflen + 1); /* Get space */
+  if (deflen > 0) {         // If we have a definition
+    p = malloc(deflen + 1); // Get space
     if (p == NULL) {
       printf("?Space exhausted - \"%s\"\n", nam);
       if (mactab[y].kwd) {
@@ -4045,15 +3985,15 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
       }
       return (-1);
     } else {
-      strcpy(p, def); /* Copy the definition (SAFE) */
+      strcpy(p, def); // Copy the definition (SAFE)
     }
-  } else { /* definition is empty */
+  } else { // definition is empty
     p = NULL;
   }
-  mactab[y].mval = p; /* Macro points to definition */
-  mactab[y].flgs = 0; /* No flags */
-  if (!replacing) {   /* If new macro */
-    nmac++;           /* count it */
+  mactab[y].mval = p; // Macro points to definition
+  mactab[y].flgs = 0; // No flags
+  if (!replacing) {   // If new macro
+    nmac++;           // count it
   }
   if (tra_asg) {
     traceval(nam, p);
@@ -4061,7 +4001,7 @@ int addmac(char *nam, char *def) /* Add a macro to the macro table */
   return (y);
 }
 
-int xdelmac(int x) /* Delete a macro given its index */
+int xdelmac(int x) // Delete a macro given its index
 {
   int i;
   extern int tra_asg;
@@ -4072,62 +4012,62 @@ int xdelmac(int x) /* Delete a macro given its index */
     traceval(mactab[x].kwd, NULL);
   }
 
-  if (mactab[x].kwd) { /* Free the storage for the name */
+  if (mactab[x].kwd) { // Free the storage for the name
     free(mactab[x].kwd);
     mactab[x].kwd = NULL;
   }
-  if (mactab[x].mval) { /* and for the definition */
+  if (mactab[x].mval) { // and for the definition
     free(mactab[x].mval);
     mactab[x].mval = NULL;
   }
-  for (i = x; i < nmac; i++) { /* Now move up the others. */
+  for (i = x; i < nmac; i++) { // Now move up the others.
     mactab[i].kwd = mactab[i + 1].kwd;
     mactab[i].mval = mactab[i + 1].mval;
     mactab[i].flgs = mactab[i + 1].flgs;
   }
-  nmac--; /* One less macro */
+  nmac--; // One less macro
 
-  mactab[nmac].kwd = NULL; /* Delete last item from table */
+  mactab[nmac].kwd = NULL; // Delete last item from table
   mactab[nmac].mval = NULL;
   mactab[nmac].flgs = 0;
   mtchanged++;
   return (0);
 }
 
-int delmac(char *nam, int exact) /* Delete the named macro */
+int delmac(char *nam, int exact) // Delete the named macro
 {
   int x, z;
   char *p, c;
   extern int tra_asg;
 
   if (!nam) {
-    return (0); /* Watch out for null pointer */
+    return (0); // Watch out for null pointer
   }
   debug(F110, "delmac nam", nam, 0);
 #ifdef IKSD
   if (inserver &&
 #ifdef IKSDCONF
       iksdcf
-#else  /* IKSDCONF */
+#else  // IKSDCONF
       1
-#endif /* IKSDCONF */
+#endif // IKSDCONF
   ) {
     if (!ckstrcmp("on_exit", nam, -1, 0) ||
         !ckstrcmp("on_logout", nam, -1, 0)) {
       return (-1);
     }
   }
-#endif /* IKSD */
+#endif // IKSD
 
   if (*nam == CMDQ) {
     nam++;
   }
-  if (*nam == '%') { /* If it's a variable name */
+  if (*nam == '%') { // If it's a variable name
     if (!(c = *(nam + 1))) {
-      return (0); /* Get variable name letter or digit */
+      return (0); // Get variable name letter or digit
     }
-    p = (char *)0;                            /* Initialize value pointer */
-    if (maclvl < 0 && c >= '0' && c <= '9') { /* Top-level digit? */
+    p = (char *)0;                            // Initialize value pointer
+    if (maclvl < 0 && c >= '0' && c <= '9') { // Top-level digit?
       p = toparg[c - '0'];
       if (p) {
         if (p != g_var[c]) {
@@ -4136,8 +4076,8 @@ int delmac(char *nam, int exact) /* Delete the named macro */
         }
       }
       p = g_var[c];
-      g_var[c] = NULL;                                /* Zero the table entry */
-    } else if (maclvl > -1 && c >= '0' && c <= '9') { /* Digit? */
+      g_var[c] = NULL;                                // Zero the table entry
+    } else if (maclvl > -1 && c >= '0' && c <= '9') { // Digit?
       p = m_xarg[maclvl][c - '0'];
       if (p) {
         if (p != g_var[c]) {
@@ -4145,18 +4085,18 @@ int delmac(char *nam, int exact) /* Delete the named macro */
           m_xarg[maclvl][c - '0'] = NULL;
         }
       }
-      p = m_arg[maclvl][c - '0'];    /* Get pointer from macro-arg table */
-      m_arg[maclvl][c - '0'] = NULL; /* Zero the table pointer */
-    } else {                         /* It's a global variable */
+      p = m_arg[maclvl][c - '0'];    // Get pointer from macro-arg table
+      m_arg[maclvl][c - '0'] = NULL; // Zero the table pointer
+    } else {                         // It's a global variable
       if (c < 33 || (unsigned int)c > GVARS) {
         return (0);
       }
-      p = g_var[c];    /* Get pointer from global-var table */
-      g_var[c] = NULL; /* Zero the table entry */
+      p = g_var[c];    // Get pointer from global-var table
+      g_var[c] = NULL; // Zero the table entry
     }
     if (p) {
       debug(F010, "delmac def", p, 0);
-      free(p); /* Free the storage */
+      free(p); // Free the storage
       p = NULL;
     } else {
       debug(F110, "delmac def", "(null pointer)", 0);
@@ -4166,27 +4106,27 @@ int delmac(char *nam, int exact) /* Delete the named macro */
     }
     return (0);
   }
-  if (*nam == '&') { /* An array reference? */
+  if (*nam == '&') { // An array reference?
     char **q;
-    if (arraynam(nam, &x, &z) < 0) { /* If syntax is bad */
-      return (-1);                   /* return -1. */
+    if (arraynam(nam, &x, &z) < 0) { // If syntax is bad
+      return (-1);                   // return -1.
     }
-    x -= ARRAYBASE;               /* Convert name to number. */
-    if ((q = a_ptr[x]) == NULL) { /* If array not declared, */
-      return (-2);                /* return -2. */
+    x -= ARRAYBASE;               // Convert name to number.
+    if ((q = a_ptr[x]) == NULL) { // If array not declared,
+      return (-2);                // return -2.
     }
-    if (z > a_dim[x]) { /* If subscript out of range, */
-      return (-3);      /* return -3. */
+    if (z > a_dim[x]) { // If subscript out of range,
+      return (-3);      // return -3.
     }
-    if (q[z]) { /* If there is an old value, */
+    if (q[z]) { // If there is an old value,
       debug(F010, "delmac def", q[z], 0);
-      if (x != 0) { /* Macro arg vector is just a copy */
-        free(q[z]); /* Others are real so free them */
+      if (x != 0) { // Macro arg vector is just a copy
+        free(q[z]); // Others are real so free them
       }
       q[z] = NULL;
-      if (x == 0) {             /* Arg vector array */
-        if (z >= 0 && z <= 9) { /* Copy values to corresponding  */
-          if (maclvl < 0) {     /* \%1..9 variables. */
+      if (x == 0) {             // Arg vector array
+        if (z >= 0 && z <= 9) { // Copy values to corresponding
+          if (maclvl < 0) {     // \%1..9 variables.
             makestr(&(toparg[z]), NULL);
           } else {
             makestr(&(m_arg[maclvl][z]), NULL);
@@ -4201,7 +4141,7 @@ int delmac(char *nam, int exact) /* Delete the named macro */
     }
   }
 
-  /* Not a variable or an array, so it must be a macro. */
+  // Not a variable or an array, so it must be a macro.
 
   z = isaa(nam);
   debug(F111, "delmac isaa", nam, z);
@@ -4216,37 +4156,37 @@ int delmac(char *nam, int exact) /* Delete the named macro */
   return (xdelmac(x));
 }
 
-void initmac() { /* Init macro & variable tables */
+void initmac() { // Init macro & variable tables
   int i, j, x;
 
-  nmac = 0;                       /* No macros */
-  for (i = 0; i < MAC_MAX; i++) { /* Initialize the macro table */
+  nmac = 0;                       // No macros
+  for (i = 0; i < MAC_MAX; i++) { // Initialize the macro table
     mactab[i].kwd = NULL;
     mactab[i].mval = NULL;
     mactab[i].flgs = 0;
   }
   mtchanged++;
   x = (MAXARGLIST + 1) * sizeof(char **);
-  for (i = 0; i < MACLEVEL; i++) { /* Init the macro argument tables */
+  for (i = 0; i < MACLEVEL; i++) { // Init the macro argument tables
     m_xarg[i] = (char **)malloc(x);
-    mrval[i] = NULL; /* Macro return value */
-    /* Pointer to entire argument vector, level i, for \&_[] array */
-    for (j = 0; j <= MAXARGLIST; j++) { /* Macro argument list */
-      if (j < 10) {                     /* For the \%0..\%9 variables */
-        m_arg[i][j] = NULL;             /* Pointer to arg j, level i. */
+    mrval[i] = NULL; // Macro return value
+    // Pointer to entire argument vector, level i, for \&_[] array
+    for (j = 0; j <= MAXARGLIST; j++) { // Macro argument list
+      if (j < 10) {                     // For the \%0..\%9 variables
+        m_arg[i][j] = NULL;             // Pointer to arg j, level i.
       }
-      if (m_xarg[i]) { /* For \&_[] - all args. */
+      if (m_xarg[i]) { // For \&_[] - all args.
         m_xarg[i][j] = NULL;
       }
     }
   }
-  for (i = 0; i < GVARS; i++) { /* And the global variables table */
+  for (i = 0; i < GVARS; i++) { // And the global variables table
     g_var[i] = NULL;
   }
-  /* And the table of arrays */
+  // And the table of arrays
   for (i = 0; i < (int)'z' - ARRAYBASE + 1; i++) {
-    a_ptr[i] = (char **)NULL; /* Null pointer for each */
-    a_dim[i] = 0;             /* and a dimension of zero */
+    a_ptr[i] = (char **)NULL; // Null pointer for each
+    a_dim[i] = 0;             // and a dimension of zero
     a_link[i] = -1;
     for (j = 0; j < CMDSTKL; j++) {
       aa_ptr[j][i] = (char **)NULL;
@@ -4255,80 +4195,78 @@ void initmac() { /* Init macro & variable tables */
   }
 }
 
-int popclvl() { /* Pop command level, return cmdlvl */
+int popclvl() { // Pop command level, return cmdlvl
   extern int tra_cmd;
   struct localvar *v;
   int i, topcmd;
   debug(F101, "popclvl cmdlvl", "", cmdlvl);
   if (cmdlvl > 0) {
-    if ((v = localhead[cmdlvl])) { /* Did we save any variables? */
-      while (v) {                  /* Yes */
-        if (v->lv_value) {         /* Copy old ones back */
+    if ((v = localhead[cmdlvl])) { // Did we save any variables?
+      while (v) {                  // Yes
+        if (v->lv_value) {         // Copy old ones back
           addmac(v->lv_name, v->lv_value);
         } else {
           delmac(v->lv_name, 1);
         }
         v = v->lv_next;
       }
-      freelocal(cmdlvl); /* Free local storage */
+      freelocal(cmdlvl); // Free local storage
     }
-    /* Automatic arrays do not use the localhead list */
+    // Automatic arrays do not use the localhead list
 
-    for (i = 0; i < 28; i++) {               /* Free any local arrays */
-      if (aa_ptr[cmdlvl][i]) {               /* Does this one exist? */
-        dclarray((char)(i + ARRAYBASE), -1); /* Destroy global one */
+    for (i = 0; i < 28; i++) {               // Free any local arrays
+      if (aa_ptr[cmdlvl][i]) {               // Does this one exist?
+        dclarray((char)(i + ARRAYBASE), -1); // Destroy global one
         a_ptr[i] = aa_ptr[cmdlvl][i];
         a_dim[i] = aa_dim[cmdlvl][i];
         aa_ptr[cmdlvl][i] = (char **)NULL;
         aa_dim[cmdlvl][i] = 0;
-      } else if (aa_dim[cmdlvl][i] == -23) { /* Secret code */
-        /*
-          A local array declared at this level when there was no
-          array of the same name at any higher level.  See comment
-          in pusharray().
-        */
+      } else if (aa_dim[cmdlvl][i] == -23) { // Secret code
+        // A local array declared at this level when there was no
+        // array of the same name at any higher level.  See comment
+        // in pusharray().
         dclarray((char)(i + ARRAYBASE), -1);
-        a_ptr[i] = (char **)NULL; /* Delete top-level array */
-        a_dim[i] = 0;             /* created by pusharray - Feb 2016 */
+        a_ptr[i] = (char **)NULL; // Delete top-level array
+        a_dim[i] = 0;             // created by pusharray - Feb 2016
         aa_ptr[cmdlvl][i] = (char **)NULL;
         aa_dim[cmdlvl][i] = 0;
       }
-      /* Otherwise do nothing - it is a local array that was declared */
-      /* at a level above this one so leave it alone. */
+      // Otherwise do nothing - it is a local array that was declared
+      // at a level above this one so leave it alone.
     }
   }
-  if (cmdlvl < 1) {                          /* If we're already at top level */
-    cmdlvl = 0;                              /* just make sure all the */
-    tlevel = -1;                             /* stack pointers are set right */
-    maclvl = -1;                             /* and return */
-  } else if (cmdstk[cmdlvl].src == CMD_TF) { /* Reading from TAKE file? */
+  if (cmdlvl < 1) {                          // If we're already at top level
+    cmdlvl = 0;                              // just make sure all the
+    tlevel = -1;                             // stack pointers are set right
+    maclvl = -1;                             // and return
+  } else if (cmdstk[cmdlvl].src == CMD_TF) { // Reading from TAKE file?
     debug(F101, "popclvl tlevel", "", tlevel);
-    if (tlevel > -1) {       /* Yes, */
-      fclose(tfile[tlevel]); /* close it */
+    if (tlevel > -1) {       // Yes,
+      fclose(tfile[tlevel]); // close it
 
       if (tra_cmd) {
         printf("[%d] -F: \"%s\"\n", cmdlvl, tfnam[tlevel]);
       }
       debug(F111, "CMD -F", tfnam[tlevel], cmdlvl);
-      if (tfnam[tlevel]) { /* free storage for name */
+      if (tfnam[tlevel]) { // free storage for name
         free(tfnam[tlevel]);
         tfnam[tlevel] = NULL;
       }
-      tlevel--; /* and pop take level */
-      cmdlvl--; /* and command level */
+      tlevel--; // and pop take level
+      cmdlvl--; // and command level
       quiet = xquiet[cmdlvl];
       vareval = xvarev[cmdlvl];
     } else {
       tlevel = -1;
     }
-  } else if (cmdstk[cmdlvl].src == CMD_MD) { /* In a macro? */
+  } else if (cmdstk[cmdlvl].src == CMD_MD) { // In a macro?
     topcmd = lastcmd[maclvl];
     debug(F101, "popclvl maclvl", "", maclvl);
-    if (maclvl > -1) {   /* Yes, */
-      macp[maclvl] = ""; /* set macro pointer to null string */
-      *cmdbuf = '\0';    /* clear the command buffer */
+    if (maclvl > -1) {   // Yes,
+      macp[maclvl] = ""; // set macro pointer to null string
+      *cmdbuf = '\0';    // clear the command buffer
 
-      if ((maclvl > 0) && /* 2 May 1999 */
+      if ((maclvl > 0) && // 2 May 1999
           (m_arg[maclvl - 1][0]) &&
           (!strncmp(m_arg[maclvl - 1][0], "_xif", 4) ||
            !strncmp(m_arg[maclvl - 1][0], "_for", 4) ||
@@ -4338,7 +4276,7 @@ int popclvl() { /* Pop command level, return cmdlvl */
         makestr(&(mrval[maclvl - 1]), mrval[maclvl + 1]);
       }
       if (maclvl + 1 < MACLEVEL) {
-        if (mrval[maclvl + 1]) { /* Free any deeper return values. */
+        if (mrval[maclvl + 1]) { // Free any deeper return values.
           free(mrval[maclvl + 1]);
           mrval[maclvl + 1] = NULL;
         }
@@ -4348,8 +4286,8 @@ int popclvl() { /* Pop command level, return cmdlvl */
       }
       debug(F111, "CMD -M", m_arg[cmdstk[cmdlvl].lvl][0], cmdlvl);
 
-      maclvl--; /* Pop macro level */
-      cmdlvl--; /* and command level */
+      maclvl--; // Pop macro level
+      cmdlvl--; // and command level
       debug(F101, "popclvl mac new maclvl", "", maclvl);
       debug(F010, "popclvl mac mrval[maclvl+1]", mrval[maclvl + 2], 0);
 
@@ -4373,7 +4311,7 @@ int popclvl() { /* Pop command level, return cmdlvl */
       extern char *sexpval;
       makestr(&(mrval[maclvl + 1]), sexpval);
     }
-#endif /* NOSEXP */
+#endif // NOSEXP
   } else {
     cmdlvl--;
   }
@@ -4382,42 +4320,42 @@ int popclvl() { /* Pop command level, return cmdlvl */
     cmsetp(prstring[cmdlvl]);
     makestr(&(prstring[cmdlvl]), NULL);
   }
-  if (cmdlvl < 1 || xcmdsrc == CMD_KB) { /* If at prompt */
+  if (cmdlvl < 1 || xcmdsrc == CMD_KB) { // If at prompt
     setint();
-    concb((char)escape); /* Go into cbreak mode */
+    concb((char)escape); // Go into cbreak mode
   }
   xcmdsrc = cmdstk[cmdlvl].src;
   debug(F101, "popclvl xcmdsrc", "", xcmdsrc);
   debug(F101, "popclvl tlevel", "", tlevel);
-  return (cmdlvl < 1 ? 0 : cmdlvl); /* Return command level */
+  return (cmdlvl < 1 ? 0 : cmdlvl); // Return command level
 }
-#else  /* No script programming language */
-int popclvl() {      /* Just close current take file. */
-  if (tlevel > -1) { /* if any... */
+#else  // No script programming language
+int popclvl() {      // Just close current take file.
+  if (tlevel > -1) { // if any...
     if (tfnam[tlevel]) {
       free(tfnam[tlevel]);
       tfnam[tlevel] = NULL;
     }
     fclose(tfile[tlevel--]);
   }
-  if (tlevel == -1) { /* And if back at top level */
+  if (tlevel == -1) { // And if back at top level
     setint();
-    concb((char)escape); /* and go back into cbreak mode. */
+    concb((char)escape); // and go back into cbreak mode.
   }
   xcmdsrc = tlevel > -1 ? CMD_TF : 0;
   return (tlevel + 1);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
-static int iseom(char *m) /* Test if at end of macro def */
+static int iseom(char *m) // Test if at end of macro def
 {
   if (!m) {
     m = "";
   }
   debug(F111, "iseom", m, maclvl);
   while (*m) {
-    /* Anything but Space and Comma means more macro is left */
+    // Anything but Space and Comma means more macro is left
     if ((*m > SP) && (*m != ',')) {
       debug(F111, "iseom return", m, 0);
       return (0);
@@ -4425,48 +4363,48 @@ static int iseom(char *m) /* Test if at end of macro def */
     m++;
   }
   debug(F111, "iseom return", m, 1);
-  return (1); /* Nothing left */
+  return (1); // Nothing left
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/* Pop all command levels that can be popped */
+// Pop all command levels that can be popped
 
 int prepop() {
-  if (cmdlvl > 0) { /* If command level is > 0 and... */
+  if (cmdlvl > 0) { // If command level is > 0 and...
     while (
 #ifndef NOSPL
-        ((cmdstk[cmdlvl].src == CMD_TF) &&     /* Command source is file */
-#endif                                         /* NOSPL */
-         (tlevel > -1) && feof(tfile[tlevel])) /* And at end of file... */
+        ((cmdstk[cmdlvl].src == CMD_TF) &&     // Command source is file
+#endif                                         // NOSPL
+         (tlevel > -1) && feof(tfile[tlevel])) // And at end of file...
 #ifndef NOSPL
-        /* Or command source is macro... */
+        // Or command source is macro...
         || ((cmdstk[cmdlvl].src == CMD_MD) && (maclvl > -1) &&
-            iseom(macp[maclvl]))) /* and at end of macro, then... */
-#endif                            /* NOSPL */
+            iseom(macp[maclvl]))) // and at end of macro, then...
+#endif                            // NOSPL
     {
-      popclvl(); /* pop command level. */
+      popclvl(); // pop command level.
     }
   }
-  return (cmdlvl < 1 ? 0 : cmdlvl); /* Return command level */
+  return (cmdlvl < 1 ? 0 : cmdlvl); // Return command level
 }
 
-/* STOP - get back to C-Kermit prompt, no matter where from. */
+// STOP - get back to C-Kermit prompt, no matter where from.
 
 int dostop() {
   extern int cmddep;
   while (popclvl())
-    ; /* Pop all macros & take files */
+    ; // Pop all macros & take files
 #ifndef NOSPL
-  if (cmddep > -1) { /* And all recursive cmd pkg invocations */
+  if (cmddep > -1) { // And all recursive cmd pkg invocations
     while (cmpop() > -1)
       ;
   }
-#endif           /* NOSPL */
-  cmini(ckxech); /* Clear the command buffer. */
+#endif           // NOSPL
+  cmini(ckxech); // Clear the command buffer.
   return (0);
 }
 
-/* Close the given log */
+// Close the given log
 
 int doclslog(int x) {
   int y;
@@ -4481,7 +4419,7 @@ int doclslog(int x) {
     *debfil = '\0';
     deblog = 0;
     return (zclose(ZDFILE));
-#endif /* DEBUG */
+#endif // DEBUG
 
 #ifndef NOXFER
   case LOGP:
@@ -4492,7 +4430,7 @@ int doclslog(int x) {
     *pktfil = '\0';
     pktlog = 0;
     return (zclose(ZPFILE));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOLOCAL
   case LOGS:
@@ -4503,17 +4441,17 @@ int doclslog(int x) {
     *sesfil = '\0';
     setseslog(0);
     return (zclose(ZSFILE));
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifdef TLOG
   case LOGT: {
 #ifdef IKSD
     extern int iklogopen, xferlog;
-#endif /* IKSD */
+#endif // IKSD
     if (tralog <= 0
 #ifdef IKSD
         && !iklogopen
-#endif /* IKSD */
+#endif // IKSD
     ) {
       if (msgflg) {
         printf("?Transaction log wasn't open\n");
@@ -4525,7 +4463,7 @@ int doclslog(int x) {
       close(xferlog);
       iklogopen = 0;
     }
-#endif /* IKSD */
+#endif // IKSD
     if (tralog) {
       tlog(F100, "Transaction Log Closed", "", 0L);
       zclose(ZTFILE);
@@ -4534,7 +4472,7 @@ int doclslog(int x) {
     tralog = 0;
     return (1);
   }
-#endif /* TLOG */
+#endif // TLOG
 
 #ifdef CKLOGDIAL
   case LOGM:
@@ -4547,17 +4485,17 @@ int doclslog(int x) {
     *diafil = '\0';
     dialog = 0;
     return (zclose(ZDIFIL));
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
 #ifndef NOSPL
-  case LOGW: /* WRITE file */
-  case LOGR: /* READ file */
+  case LOGW: // WRITE file
+  case LOGR: // READ file
     y = (x == LOGR) ? ZRFILE : ZWFILE;
-    if (chkfn(y) < 1) { /* If no file to close */
-      return (1);       /* succeed silently. */
+    if (chkfn(y) < 1) { // If no file to close
+      return (1);       // succeed silently.
     }
-    return (zclose(y)); /* Otherwise, close the file. */
-#endif                  /* NOSPL */
+    return (zclose(y)); // Otherwise, close the file.
+#endif                  // NOSPL
 
   default:
     printf("\n?Unexpected log designator - %d\n", x);
@@ -4565,7 +4503,7 @@ int doclslog(int x) {
   }
 }
 
-static int slc = 0; /* Screen line count */
+static int slc = 0; // Screen line count
 
 char *showstring(char *s) { return (s ? s : "(null)"); }
 
@@ -4596,7 +4534,7 @@ void shokeycode(int c) {
   km = mapkey(c);
 
 #ifndef NOKVERBS
-  if (IS_KVERB(km)) { /* \Kverb? */
+  if (IS_KVERB(km)) { // \Kverb?
     int i, kv;
     kv = km & ~(F_KVERB);
     printf("Verb: ");
@@ -4608,7 +4546,7 @@ void shokeycode(int c) {
     }
     printf("\n");
   } else
-#endif /* NOKVERBS */
+#endif // NOKVERBS
     if (IS_CSI(km)) {
       int xkm = km & 0xFF;
       if (xkm <= 32 || xkm >= 127) {
@@ -4623,23 +4561,21 @@ void shokeycode(int c) {
       } else {
         printf("String: \\{27}%c\n", xkm);
       }
-    } else if (macrotab[c]) { /* See if there's a macro */
-      printf("String: ");     /* If so, display its definition */
+    } else if (macrotab[c]) { // See if there's a macro
+      printf("String: ");     // If so, display its definition
       s = macrotab[c];
       shostrdef(s);
       printf("\n");
 #ifndef NOKVERBS
-    } else if (km >= 0x100) { /* This means "undefined" */
+    } else if (km >= 0x100) { // This means "undefined"
       printf("Undefined\n");
-#endif       /* NOKVERBS */
-    } else { /* No macro, show single character */
+#endif       // NOKVERBS
+    } else { // No macro, show single character
       printf("Character: ");
       ch = km;
       if (ch < 32 || ch == 127 || (ch > 127 && ch < 160)) {
-        /*
-          These used to be %d, but gcc 1.93 & later complain about type
-          mismatches. %u is supposed to be totally portable.
-        */
+        // These used to be %d, but gcc 1.93 & later complain about type
+        // mismatches. %u is supposed to be totally portable.
         printf("\\%u", (unsigned int)ch);
       } else {
         printf("%c \\%u", (CHAR)(ch & 0xff), (unsigned int)ch);
@@ -4651,7 +4587,7 @@ void shokeycode(int c) {
       }
     }
 }
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 void shostrdef(CHAR *s) {
   CHAR ch;
@@ -4661,13 +4597,11 @@ void shostrdef(CHAR *s) {
   while ((ch = *s++)) {
     if (ch < 32 || ch == 127 ||
         ch == 255
-        /*
-          Systems whose native character sets have graphic characters in C1...
-        */
+        // Systems whose native character sets have graphic characters in C1...
         || (ch > 127 && ch < 160)) {
-      printf("\\{%d}", ch); /* Display control characters */
+      printf("\\{%d}", ch); // Display control characters
     } else {
-      putchar((char)ch); /* in backslash notation */
+      putchar((char)ch); // in backslash notation
     }
   }
 }
@@ -4684,7 +4618,7 @@ void shover() {
   if (unm_nam[0]) {
     printf(" Running on: %s %s %s %s\n", unm_nam, unm_ver, unm_rel, unm_mch);
   }
-#endif /* CK_UTSNAME */
+#endif // CK_UTSNAME
   printf(" Patches: %s\n", *ck_patch ? ck_patch : "(none)");
   if (xxdiff(ckxv, ckxsys)) {
     printf(" %s for%s\n", ckxv, ckxsys);
@@ -4702,37 +4636,37 @@ void shover() {
   printf(" %s\n %s\n", cmdv, userv);
 #ifndef NOCSETS
   printf(" %s\n", xlav);
-#endif /* NOCSETS */
+#endif // NOCSETS
 #ifndef NOLOCAL
   printf(" %s\n", connv);
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifndef NODIAL
   printf(" %s\n", dialv);
-#endif /* NODIAL */
+#endif // NODIAL
 #ifndef NOSCRIPT
   printf(" %s\n", loginv);
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
 #ifdef NETCONN
   printf(" %s\n", cknetv);
-#endif /* NETCONN */
+#endif // NETCONN
 #ifdef TNCODE
   printf(" %s\n", cktelv);
-#endif /* TNCODE */
+#endif // TNCODE
 #ifdef SSHBUILTIN
   printf(" %s\n", cksshv);
 #ifdef SFTP_BUILTIN
   printf(" %s\n", cksftpv);
-#endif /* SFTP_BUILTIN */
-#endif /* SSHBUILTIN */
+#endif // SFTP_BUILTIN
+#endif // SSHBUILTIN
 
   printf("\n");
 }
 
 #ifdef CK_LABELED
 void sholbl() {}
-#endif /* CK_LABELED */
+#endif // CK_LABELED
 
-void shotcs(int csl, int csr) /* Show terminal character set */
+void shotcs(int csl, int csr) // Show terminal character set
 {
 #ifndef NOCSETS
   char *s;
@@ -4740,9 +4674,9 @@ void shotcs(int csl, int csr) /* Show terminal character set */
   debug(F101, "TERM LOCAL CSET", "", csl);
   debug(F101, "TERM REMOTE CSET", "", csr);
   printf(" Terminal character-set: ");
-  if (tcs_transp) { /* No translation */
+  if (tcs_transp) { // No translation
     printf("transparent\n");
-  } else { /* Translation */
+  } else { // Translation
     printf("%s (remote) %s (local)\n", fcsinfo[csr].keyword,
            fcsinfo[csl].keyword);
     if (csr != csl) {
@@ -4780,11 +4714,11 @@ void shotcs(int csl, int csr) /* Show terminal character set */
       }
     }
   }
-#endif /* NOCSETS */
+#endif // NOCSETS
 }
 
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOLOCAL
 void shotrm() {
@@ -4793,12 +4727,12 @@ void shotrm() {
   extern int tt_print, adl_err, adl_ask;
 #ifndef NOTRIGGER
   extern char *tt_trigger[];
-#endif /* NOTRIGGER */
+#endif // NOTRIGGER
 #ifdef CKTIDLE
   extern char *tt_idlesnd_str;
   extern int tt_idlesnd_tmo;
   extern int tt_idlelimit, tt_idleact;
-#endif /* CKTIDLE */
+#endif // CKTIDLE
 
   printf("\n");
   printf("Terminal parameters:\n");
@@ -4811,7 +4745,7 @@ void shotrm() {
          showoff(tt_print));
 #else
   printf(" %19s: %-13s\n", "Type", s ? s : "(unknown)");
-#endif /* XPRINT */
+#endif // XPRINT
   printf(" %19s: %-13s  %13s: %-15s\n", "Echo", duplex ? "local" : "remote",
          "Locking-shift", showoff(sosi));
   printf(" %19s: %-13s  %13s: %-15s\n", "Newline-mode", showoff(tnlm),
@@ -4835,14 +4769,14 @@ void shotrm() {
          autodl ? (adl_err ? "on, error stop" : "on, error continue") : "off"
 #else
          "", ""
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
   );
-#endif /* CK_APC */
+#endif // CK_APC
 
-#ifdef CK_TTGWSIZ /* Console terminal screen size */
-  ttgwsiz();      /* Try to get latest size */
+#ifdef CK_TTGWSIZ // Console terminal screen size
+  ttgwsiz();      // Try to get latest size
   printf(" %19s: %-13d  %13s: %-15d\n", "Height", tt_rows, "Width", tt_cols);
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
 
   printf(" %19s: %-13s  %13s: %-15s\n", "Debug", showoff(debses), "Session log",
          seslog ? sesfil : "(none)");
@@ -4850,36 +4784,36 @@ void shotrm() {
 #ifdef CKTIDLE
   printf(" %19s: %-13d  %13s: %s\n", "Idle-timeout", tt_idlelimit,
          "Idle-action", getiact());
-#endif /* CKTIDLE */
+#endif // CKTIDLE
 
   printf(" %19s: %-13s  ", "Lf-display", tt_lfd ? "crlf" : "normal");
 #ifdef UNIX
 #ifndef NOJC
   printf("%13s: %-15s", "Suspend", showoff(xsuspend));
-#endif /* NOJC */
-#endif /* UNIX */
+#endif // NOJC
+#endif // UNIX
   printf("\n");
 
 #ifndef NOTRIGGER
   printf(" %19s: %-13s\n", "Trigger", tt_trigger[0] ? tt_trigger[0] : "(none)");
-#endif /* NOTRIGGER */
+#endif // NOTRIGGER
   printf("\n");
 
   (void)shoesc(escape);
 #ifndef NOCSETS
-  shotcs(tcsl, tcsr); /* Show terminal character sets */
-#endif                /* NOCSETS */
+  shotcs(tcsl, tcsr); // Show terminal character sets
+#endif                // NOCSETS
 }
 
-void shmdmlin() { /* Briefly show modem & line */
+void shmdmlin() { // Briefly show modem & line
 #ifndef NODIAL
 #ifndef MINIDIAL
 #ifdef OLDTBCODE
   extern int tbmodel;
   char *gtbmodel(void);
-#endif /* OLDTBCODE */
-#endif /* MINIDIAL */
-#endif /* NODIAL */
+#endif // OLDTBCODE
+#endif // MINIDIAL
+#endif // NODIAL
   if (local) {
     printf(" Line: %s, Modem type: ", ttname);
   } else {
@@ -4891,13 +4825,13 @@ void shmdmlin() { /* Briefly show modem & line */
 #ifndef MINIDIAL
 #ifdef OLDTBCODE
   if (tbmodel) {
-    printf(" (%s)", gtbmodel()); /* Telebit model info */
+    printf(" (%s)", gtbmodel()); // Telebit model info
   }
-#endif /* OLDTBCODE */
-#endif /* MINIDIAL */
+#endif // OLDTBCODE
+#endif // MINIDIAL
 #else
   printf("(disabled)");
-#endif /* NODIAL */
+#endif // NODIAL
 }
 
 #ifdef CK_TAPI
@@ -4908,13 +4842,13 @@ void shotapi(int option) {
   LPCOMMCONFIG lpCommConfig = NULL;
   LPMODEMSETTINGS lpModemSettings = NULL;
   DCB *lpDCB = NULL;
-  extern struct keytab *tapiloctab; /* Microsoft TAPI Locations */
+  extern struct keytab *tapiloctab; // Microsoft TAPI Locations
   extern int ntapiloc;
-  extern struct keytab *tapilinetab; /* Microsoft TAPI Line Devices */
+  extern struct keytab *tapilinetab; // Microsoft TAPI Line Devices
   extern int ntapiline;
-  extern int tttapi;   /* TAPI in use */
-  extern int tapipass; /* TAPI Passthrough mode */
-  extern int tapiconv; /* TAPI Conversion mode */
+  extern int tttapi;   // TAPI in use
+  extern int tapipass; // TAPI Passthrough mode
+  extern int tapiconv; // TAPI Conversion mode
   extern int tapilights;
   extern int tapipreterm;
   extern int tapipostterm;
@@ -4941,8 +4875,8 @@ void shotapi(int option) {
       tapilocid = cktapiGetCurrentLocationID();
     }
 
-    /* Find the current tapiloc entry */
-    /* and use it as the default. */
+    // Find the current tapiloc entry
+    // and use it as the default.
     for (k = 0; k < ntapiloc; k++) {
       if (tapiloctab[k].kwval == tapilocid) {
         break;
@@ -5013,7 +4947,7 @@ void shotapi(int option) {
              "Location\n");
       printf("is changed.\n\n");
     }
-#endif /* TAPI_BETATEST */
+#endif // TAPI_BETATEST
 
     if (tapipass) {
       printf("Type SHOW MODEM to see MODEM configuration.\n");
@@ -5052,8 +4986,8 @@ void shotapi(int option) {
   }
   printf("\n");
 }
-#endif /* CK_TAPI */
-#endif /* NOLOCAL */
+#endif // CK_TAPI
+#endif // NOLOCAL
 
 #ifdef PATTERNS
 static void shopat() {
@@ -5062,10 +4996,10 @@ static void shopat() {
   char **p, *s;
   int i, j, k, n, flag, width;
 #ifdef CK_TTGWSIZ
-  ttgwsiz(); /* Try to get latest size */
+  ttgwsiz(); // Try to get latest size
   width = tt_cols;
   if (width < 1)
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
     width = 80;
   printf("\n");
   printf(" Set file type:            %s\n", gfmode(binary, 1));
@@ -5074,19 +5008,19 @@ static void shopat() {
   if (binary == XYFT_L) {
     printf(" (but SET FILE TYPE LABELED overrides)\n");
   } else
-#endif /* CK_LABELED */
+#endif // CK_LABELED
     if (filepeek) {
       printf(" (but SET FILE SCAN ON overrides)\n");
     } else {
       printf("\n");
     }
   printf(" Maximum patterns allowed: %d\n", FTPATTERNS);
-  for (k = 0; k < 2; k++) { /* For each kind of patter */
+  for (k = 0; k < 2; k++) { // For each kind of patter
     printf("\n");
-    if (k == 0) { /* binary... */
+    if (k == 0) { // binary...
       printf(" File binary-patterns: ");
       p = binpatterns;
-    } else { /* text... */
+    } else { // text...
       printf(" File text-patterns:   ");
       p = txtpatterns;
     }
@@ -5095,17 +5029,17 @@ static void shopat() {
     } else {
       printf("\n ");
       n = 2;
-      for (i = 0; i < FTPATTERNS; i++) { /* For each pattern */
-        if (!p[i]) {                     /* Done */
+      for (i = 0; i < FTPATTERNS; i++) { // For each pattern
+        if (!p[i]) {                     // Done
           break;
         }
-        s = p[i];                             /* Look for embedded space */
-        for (j = 0, flag = 1; *s; s++, j++) { /* and also get length */
+        s = p[i];                             // Look for embedded space
+        for (j = 0, flag = 1; *s; s++, j++) { // and also get length
           if (*s == SP) {
             flag = 3;
           }
         }
-        n += j + flag; /* Length of this line */
+        n += j + flag; // Length of this line
         if (n >= width - 1) {
           printf("\n ");
           n = j + 2;
@@ -5119,7 +5053,7 @@ static void shopat() {
   }
   printf("\n");
 }
-#endif /* PATTERNS */
+#endif // PATTERNS
 
 #ifndef NOSPL
 static void shooutput() {
@@ -5130,11 +5064,11 @@ static void shooutput() {
 static void shoinput() {
 #ifdef CKFLOAT
   extern char *inpscale;
-#endif /* CKFLOAT */
+#endif // CKFLOAT
 
 #ifdef CK_AUTODL
   printf(" Input autodownload:     %s\n", showoff(inautodl));
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
   printf(" Input cancellation:     %s\n", showoff(inintr));
   printf(" Input case:             %s\n",
          inpcas[cmdlvl] ? "observe" : "ignore");
@@ -5144,7 +5078,7 @@ static void shoinput() {
   printf(" Input timeout:          %s\n", intime[cmdlvl] ? "quit" : "proceed");
 #ifdef CKFLOAT
   printf(" Input scale-factor:     %s\n", inpscale ? inpscale : "1.0");
-#endif /* CKFLOAT */
+#endif // CKFLOAT
 
   if (instatus < 0) {
     printf(" Last INPUT:             -1 (INPUT command not yet given)\n");
@@ -5152,7 +5086,7 @@ static void shoinput() {
     printf(" Last INPUT:             %d (%s)\n", instatus, i_text[instatus]);
   }
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
 int showarray() {
@@ -5220,7 +5154,7 @@ int showarray() {
     return (1);
   }
 
-  /* All arrays - just show name and dimension */
+  // All arrays - just show name and dimension
 
   for (y = 0; y < (int)'z' - ARRAYBASE + 1; y++) {
     if (a_ptr[y]) {
@@ -5240,7 +5174,7 @@ int showarray() {
   }
   return (1);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
 int doshow(int x) {
   int y, z, i;
@@ -5252,7 +5186,7 @@ int doshow(int x) {
   char fnbuf[100];
 
 #ifndef NOSETKEY
-  if (x == SHKEY) { /* SHOW KEY */
+  if (x == SHKEY) { // SHOW KEY
     int c;
 
     if ((y = cmcfm()) < 0) {
@@ -5264,31 +5198,29 @@ int doshow(int x) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
 
     printf(" Press key: ");
 #ifdef UNIX
 #ifdef NOSETBUF
     fflush(stdout);
-#endif                    /* NOSETBUF */
-#endif                    /* UNIX */
-    conbin((char)escape); /* Put terminal in binary mode */
-    c = congks(0);        /* Get character or scan code */
-    concb((char)escape);  /* Restore terminal to cbreak mode */
-    if (c < 0) {          /* Check for error */
+#endif                    // NOSETBUF
+#endif                    // UNIX
+    conbin((char)escape); // Put terminal in binary mode
+    c = congks(0);        // Get character or scan code
+    concb((char)escape);  // Restore terminal to cbreak mode
+    if (c < 0) {          // Check for error
       printf("?Error reading key\n");
       return (0);
     }
-    /*
-      Do NOT mask when it can be a raw scan code, perhaps > 255
-    */
-    c &= cmdmsk; /* Apply command mask */
+    // Do NOT mask when it can be a raw scan code, perhaps > 255
+    c &= cmdmsk; // Apply command mask
     printf("\n");
     shokeycode(c);
     return (1);
   }
 #ifndef NOKVERBS
-  if (x == SHKVB) { /* SHOW KVERBS */
+  if (x == SHKVB) { // SHOW KVERBS
     if ((y = cmcfm()) < 0) {
       return (y);
     }
@@ -5297,77 +5229,77 @@ int doshow(int x) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     printf("\nThe following %d keyboard verbs are available:\n\n", nkverbs);
     kwdhelp(kverbs, nkverbs, "", "\\K", "", 3, 0);
     printf("\n");
     return (1);
   }
-#endif /* NOKVERBS */
-#endif /* NOSETKEY */
+#endif // NOKVERBS
+#endif // NOSETKEY
 
 #ifndef NOSPL
-  if (x == SHMAC) { /* SHOW MACRO */
+  if (x == SHMAC) { // SHOW MACRO
     struct FDB kw, fl, cm;
     int i, k, n = 0, left, flag, confirmed = 0;
     char *p, *q[64];
-    for (i = 0; i < nmac; i++) {     /* copy the macro table */
-      mackey[i].kwd = mactab[i].kwd; /* into a regular keyword table */
-      mackey[i].kwval = i;           /* with value = pointer to macro tbl */
+    for (i = 0; i < nmac; i++) {     // copy the macro table
+      mackey[i].kwd = mactab[i].kwd; // into a regular keyword table
+      mackey[i].kwval = i;           // with value = pointer to macro tbl
       mackey[i].flgs = mactab[i].flgs;
     }
     p = line;
     left = LINBUFSIZ;
     while (!confirmed && n < 64) {
-      cmfdbi(&kw,          /* First FDB - macro table */
-             _CMKEY,       /* fcode */
-             "Macro name", /* hlpmsg */
-             "",           /* default */
-             "",           /* addtl string data */
-             nmac,         /* addtl numeric data 1: tbl size */
-             0,            /* addtl numeric data 2: 4 = cmswi */
-             xxstring,     /* Processing function */
-             mackey,       /* Keyword table */
-             &fl           /* Pointer to next FDB */
+      cmfdbi(&kw,          // First FDB - macro table
+             _CMKEY,       // fcode
+             "Macro name", // hlpmsg
+             "",           // default
+             "",           // addtl string data
+             nmac,         // addtl numeric data 1: tbl size
+             0,            // addtl numeric data 2: 4 = cmswi
+             xxstring,     // Processing function
+             mackey,       // Keyword table
+             &fl           // Pointer to next FDB
       );
-      cmfdbi(&fl,    /* 2nd FDB - something not in mactab */
-             _CMFLD, /* fcode */
-             "",     /* hlpmsg */
-             "",     /* default */
-             "",     /* addtl string data */
-             0,      /* addtl numeric data 1 */
-             0,      /* addtl numeric data 2 */
+      cmfdbi(&fl,    // 2nd FDB - something not in mactab
+             _CMFLD, // fcode
+             "",     // hlpmsg
+             "",     // default
+             "",     // addtl string data
+             0,      // addtl numeric data 1
+             0,      // addtl numeric data 2
              xxstring, NULL, &cm);
-      cmfdbi(&cm,    /* 3rd FDB - Confirmation */
-             _CMCFM, /* fcode */
-             "",     /* hlpmsg */
-             "",     /* default */
-             "",     /* addtl string data */
-             0,      /* addtl numeric data 1 */
-             0,      /* addtl numeric data 2 */
+      cmfdbi(&cm,    // 3rd FDB - Confirmation
+             _CMCFM, // fcode
+             "",     // hlpmsg
+             "",     // default
+             "",     // addtl string data
+             0,      // addtl numeric data 1
+             0,      // addtl numeric data 2
              NULL, NULL, NULL);
-      x = cmfdb(&kw); /* Parse something */
+      x = cmfdb(&kw); // Parse something
       if (x < 0) {
         return (x);
       }
-      s = atmbuf; /* What the user typed */
+      s = atmbuf; // What the user typed
       switch (cmresult.fcode) {
-      case _CMKEY:                       /* If it was a keyword */
-        y = mlook(mactab, atmbuf, nmac); /* get full name */
+      case _CMKEY:                       // If it was a keyword
+        y = mlook(mactab, atmbuf, nmac); // get full name
         if (y > -1) {
-          s = mactab[y].kwd; /* (fall thru on purpose...) */
+          s = mactab[y].kwd; // (fall thru on purpose...)
         }
       case _CMFLD:
-        k = ckstrncpy(p, s, left) + 1; /* Copy result to list */
+        k = ckstrncpy(p, s, left) + 1; // Copy result to list
         left -= k;
         if (left <= 0) {
           *p = NUL;
           break;
         }
-        q[n++] = p; /* Point to this item */
-        p += k;     /* Move buffer pointer past it */
+        q[n++] = p; // Point to this item
+        p += k;     // Move buffer pointer past it
         break;
-      case _CMCFM: /* End of command */
+      case _CMCFM: // End of command
         confirmed++;
       default:
         break;
@@ -5393,7 +5325,7 @@ int doshow(int x) {
       if (!*s) {
         continue;
       }
-      if (iswild(s)) { /* Pattern match */
+      if (iswild(s)) { // Pattern match
         for (k = 0, x = 0; x < nmac; x++) {
           if (ckmatch(s, mactab[x].kwd, 0, 1)) {
             shomac(mactab[x].kwd, mactab[x].mval);
@@ -5405,7 +5337,7 @@ int doshow(int x) {
         } else {
           continue;
         }
-      } else { /* Exact match */
+      } else { // Exact match
         x = mxlook(mactab, s, nmac);
         flag = 1;
       }
@@ -5413,30 +5345,28 @@ int doshow(int x) {
         x = mlook(mactab, s, nmac);
       }
       switch (x) {
-      case -3: /* Nothing to look up */
-      case -1: /* Not found */
+      case -3: // Nothing to look up
+      case -1: // Not found
         printf("%s - (not defined)\n", s);
         break;
-      case -2: /* Ambiguous, matches more than one */
+      case -2: // Ambiguous, matches more than one
         printf("%s - ambiguous\n", s);
         break;
-      default: /* Matches one exactly */
+      default: // Matches one exactly
         shomac(mactab[x].kwd, mactab[x].mval);
         break;
       }
     }
     return (1);
   }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/*
-  Other SHOW commands only have two fields.  Get command confirmation here,
-  then handle with big switch() statement.
-*/
+// Other SHOW commands only have two fields.  Get command confirmation here,
+// then handle with big switch() statement.
 #ifndef NOSPL
   if (x != SHBUI && x != SHARR) {
-#endif                /* NOSPL */
-    if (x == SHFUN) { /* For SHOW FUNCTIONS */
+#endif                // NOSPL
+    if (x == SHFUN) { // For SHOW FUNCTIONS
       int y;
       if ((y = cmtxt("Match string for function names", "", &s, NULL)) < 0) {
         return (y);
@@ -5456,7 +5386,7 @@ int doshow(int x) {
     }
 #ifndef NOSPL
   }
-#endif /* NOSPL */
+#endif // NOSPL
 
   switch (x) {
 
@@ -5465,8 +5395,8 @@ int doshow(int x) {
   case SHPAD:
     shopad(0);
     break;
-#endif /* IBMX25 */
-#endif /* ANYX25 */
+#endif // IBMX25
+#endif // ANYX25
 
   case SHNET:
 #ifdef NOLOCAL
@@ -5476,8 +5406,8 @@ int doshow(int x) {
     printf(" No network support in this version of C-Kermit.\n");
 #else
     shonet();
-#endif /* NETCONN */
-#endif /* NOLOCAL */
+#endif // NETCONN
+#endif // NOLOCAL
     break;
 
   case SHPAR:
@@ -5488,16 +5418,16 @@ int doshow(int x) {
   case SHATT:
     shoatt();
     break;
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOSPL
   case SHCOU:
     printf(" %d\n", count[cmdlvl]);
     break;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSERVER
-  case SHSER: /* Show Server */
+  case SHSER: // Show Server
     i = 0;
 #ifndef NOFRILLS
     printf("Function:          Status:\n");
@@ -5513,13 +5443,13 @@ int doshow(int x) {
 #ifndef NOSPL
     printf(" REMOTE ASSIGN      %s\n", nm[en_asg]);
     i++;
-#endif /* NOSPL */
+#endif // NOSPL
     printf(" REMOTE CD/CWD      %s\n", nm[en_cwd]);
     i++;
 #ifdef ZCOPY
     printf(" REMOTE COPY        %s\n", nm[en_cpy]);
     i++;
-#endif /* ZCOPY */
+#endif // ZCOPY
     printf(" REMOTE DELETE      %s\n", nm[en_del]);
     printf(" REMOTE DIRECTORY   %s\n", nm[en_dir]);
     printf(" REMOTE HOST        %s\n", nm[inserver ? 0 : en_hos]);
@@ -5527,7 +5457,7 @@ int doshow(int x) {
 #ifndef NOSPL
     printf(" REMOTE QUERY       %s\n", nm[en_que]);
     i++;
-#endif /* NOSPL */
+#endif // NOSPL
     printf(" REMOTE MKDIR       %s\n", nm[en_mkd]);
     printf(" REMOTE RMDIR       %s\n", nm[en_rmd]);
     printf(" REMOTE RENAME      %s\n", nm[en_ren]);
@@ -5540,7 +5470,7 @@ int doshow(int x) {
     printf(" EXIT               %s\n", nm[en_xit]);
     printf(" ENABLE             %s\n", nm[en_ena]);
     i += 11;
-#endif /* NOFRILLS */
+#endif // NOFRILLS
     if (i > cmd_rows - 3) {
       if (!askmore()) {
         return (1);
@@ -5615,7 +5545,7 @@ int doshow(int x) {
         if (getpath[x]) {
           printf(" %d. %s\n", x, getpath[x]);
         }
-        if (++i > (cmd_rows - 3)) { /* More than a screenful... */
+        if (++i > (cmd_rows - 3)) { // More than a screenful...
           if (!askmore()) {
             break;
           } else {
@@ -5625,71 +5555,71 @@ int doshow(int x) {
       }
     }
     break;
-#endif /* NOSERVER */
+#endif // NOSERVER
 
-  case SHSTA: /* Status of last command */
+  case SHSTA: // Status of last command
     printf(" %s\n", success ? "SUCCESS" : "FAILURE");
-    return (0); /* Don't change it */
+    return (0); // Don't change it
 
-  case SHSTK: { /* Stack for MAC debugging */
+  case SHSTK: { // Stack for MAC debugging
     shostack();
     break;
   }
 
 #ifndef NOLOCAL
 
-  case SHTER: /* SHOW TERMINAL */
+  case SHTER: // SHOW TERMINAL
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shotrm();
     break;
 
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOFRILLS
   case SHVER:
     shover();
     break;
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOSPL
-  case SHBUI: /* Built-in variables */
+  case SHBUI: // Built-in variables
     line[0] = NUL;
     if ((y = cmtxt("Variable name or pattern", "", &s, xxstring)) < 0) {
       return (y);
     }
     ckstrncpy(line, s, LINBUFSIZ);
-    /* if (line[0]) ckstrncat(line,"*",LINBUFSIZ); */
+    // if (line[0]) ckstrncat(line,"*",LINBUFSIZ);
 
-  case SHFUN: /* or built-in functions */
+  case SHFUN: // or built-in functions
 #ifdef CK_TTGWSIZ
-    if (ttgwsiz() > 0) { /* Get current screen size */
+    if (ttgwsiz() > 0) { // Get current screen size
       if (tt_rows > 0 && tt_cols > 0) {
         cmd_rows = tt_rows;
         cmd_cols = tt_cols;
       }
     }
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
 
-    if (x == SHFUN) { /* Functions */
+    if (x == SHFUN) { // Functions
       printf("\nThe following functions are available:\n\n");
       kwdhelp(fnctab, nfuncs, (char *)fnbuf, "\\F", "()", 3, 8);
       printf("\n");
 #ifndef NOHELP
       printf("HELP FUNCTION <name> gives the calling conventions of the given "
              "function.\n\n");
-#endif /* NOHELP */
+#endif // NOHELP
       break;
-    } else { /* Variables */
+    } else { // Variables
       int j, flag = 0, havearg = 0;
       struct stringarray *q = NULL;
       char **pp;
-      if (line[0]) { /* Have something to search for */
-        havearg = 1; /* Maybe a list of things */
+      if (line[0]) { // Have something to search for
+        havearg = 1; // Maybe a list of things
         q = cksplit(1, 0, line, NULL, "_-^$*?[]{}", 0, 0, 0, 0);
         if (!q) {
           break;
@@ -5701,31 +5631,31 @@ int doshow(int x) {
         if ((vartab[y].flgs & CM_INV)) {
           continue;
         }
-        if (havearg) { /* If I have something to match */
+        if (havearg) { // If I have something to match
           char *s2;
           for (flag = 0, j = 1; j <= q->a_size && !flag; j++) {
             s2 = pp[j] ? pp[j] : "";
             if (ckmatch(s2, vartab[y].kwd, 0, 4) > 0) {
-              flag = 1; /* Matches */
+              flag = 1; // Matches
               break;
             }
           }
-          if (!flag) { /* Doesn't match */
+          if (!flag) { // Doesn't match
             continue;
           }
         }
         s = nvlook(vartab[y].kwd);
         printf(" \\v(%s) = ", vartab[y].kwd);
-        if (vartab[y].kwval == VN_NEWL) { /* \v(newline) */
-          while (*s) {                    /* Show control chars symbolically */
+        if (vartab[y].kwval == VN_NEWL) { // \v(newline)
+          while (*s) {                    // Show control chars symbolically
             printf("\\{%d}", *s++);
           }
           printf("\n");
-        } else if (vartab[y].kwval == VN_IBUF ||   /* \v(input) */
-                   vartab[y].kwval == VN_QUE ||    /* \v(query) */
-                   (vartab[y].kwval >= VN_M_AAA && /* modem ones */
+        } else if (vartab[y].kwval == VN_IBUF ||   // \v(input)
+                   vartab[y].kwval == VN_QUE ||    // \v(query)
+                   (vartab[y].kwval >= VN_M_AAA && // modem ones
                     vartab[y].kwval <= VN_M_ZZZ)) {
-          int r = 12; /* This one can wrap around */
+          int r = 12; // This one can wrap around
           char buf[10];
           while (*s) {
             if (isprint(*s)) {
@@ -5733,7 +5663,7 @@ int doshow(int x) {
               buf[1] = NUL;
               r++;
             } else {
-              sprintf(buf, "\\{%d}", *s); /* SAFE */
+              sprintf(buf, "\\{%d}", *s); // SAFE
               r += (int)strlen(buf);
             }
             if (r >= cmd_cols - 1) {
@@ -5748,7 +5678,7 @@ int doshow(int x) {
         } else {
           printf("%s\n", s);
         }
-        if (++i > (cmd_rows - 3)) { /* More than a screenful... */
+        if (++i > (cmd_rows - 3)) { // More than a screenful...
           if ((y >= nvars - 1) || !askmore()) {
             break;
           } else {
@@ -5759,15 +5689,15 @@ int doshow(int x) {
     }
     break;
 
-  case SHVAR: /* Global variables */
-    x = 0;    /* Variable count */
-    slc = 1;  /* Screen line count for "more?" */
+  case SHVAR: // Global variables
+    x = 0;    // Variable count
+    slc = 1;  // Screen line count for "more?"
     for (y = 33; y < GVARS; y++) {
       if (g_var[y]) {
         if (x++ == 0) {
           printf("Global variables:\n");
         }
-        sprintf(line, " \\%%%c", y); /* SAFE */
+        sprintf(line, " \\%%%c", y); // SAFE
         if (shomac(line, g_var[y]) < 0) {
           break;
         }
@@ -5778,7 +5708,7 @@ int doshow(int x) {
     }
     break;
 
-  case SHARG: { /* Args */
+  case SHARG: { // Args
     char *s1, *s2;
     if (maclvl > -1) {
       printf("Macro arguments at level %d (\\v(argc) = %d):\n", maclvl,
@@ -5815,19 +5745,19 @@ int doshow(int x) {
     }
   } break;
 
-  case SHARR: /* Arrays */
+  case SHARR: // Arrays
     return (showarray());
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOXFER
-  case SHPRO: /* Protocol parameters */
+  case SHPRO: // Protocol parameters
     shoparp();
     printf("\n");
     break;
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOLOCAL
-  case SHCOM: /* Communication parameters */
+  case SHCOM: // Communication parameters
     printf("\n");
     shoparc();
 
@@ -5836,44 +5766,45 @@ int doshow(int x) {
     if (!network
 #ifdef IKSD
         && !inserver
-#endif /* IKSD */
+#endif // IKSD
     ) {
-#endif /* NETCONN */
+#endif // NETCONN
       shomdm();
       printf("\n");
 #ifdef NETCONN
     }
-#endif /* NETCONN */
+#endif // NETCONN
 
 #ifndef NODIAL
 #ifdef IKSD
     if (!inserver)
-#endif /* IKSD */
+#endif // IKSD
     {
       printf("Type SHOW DIAL to see DIAL-related items.\n");
       printf("Type SHOW MODEM to see modem-related items.\n");
 #ifdef CK_TAPI
       printf("Type SHOW TAPI to see TAPI-related items.\n");
-#endif /* CK_TAPI */
+#endif // CK_TAPI
       printf("\n");
     }
-#endif /* NODIAL */
+#endif // NODIAL
     break;
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
-  case SHFIL: /* File parameters */
+  case SHFIL: // File parameters
     shofil();
-    /* printf("\n"); */ /* (out o' space) */
+    // printf("\n");
+    // (out o' space)
     break;
 
 #ifndef NOCSETS
-  case SHLNG: /* Languages */
+  case SHLNG: // Languages
     shoparl();
     break;
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 #ifndef NOSPL
-  case SHSCR: /* Scripts */
+  case SHSCR: // Scripts
     printf(" Command quoting:        %s\n", showoff(cmdgquo()));
     printf(" Take  echo:             %s\n", showoff(techo));
     printf(" Take  error:            %s\n", showoff(takerr[cmdlvl]));
@@ -5895,16 +5826,16 @@ int doshow(int x) {
         printf(" LEARN file:             (none)\n");
       }
     }
-#endif /* CKLEARN */
+#endif // CKLEARN
     shoinput();
     shooutput();
 #ifndef NOSCRIPT
     printf(" Script echo:            %s\n", showoff(secho));
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
     printf(" Command buffer length:  %d\n", CMDBL);
     printf(" Atom buffer length:     %d\n", ATMBL);
     break;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOXMIT
   case SHXMI:
@@ -5915,7 +5846,7 @@ int doshow(int x) {
     printf(" File character-set:              %s\n", fcsinfo[fcharset].keyword);
     printf(" Terminal character-set (remote): %s\n", fcsinfo[tcsr].keyword);
     printf(" Terminal character-set (local):  %s\n", fcsinfo[tcsl].keyword);
-#endif /* NOCSETS */
+#endif // NOCSETS
     printf(" Terminal bytesize:               %d\n", (cmask == 0xff) ? 8 : 7);
     printf(" Terminal echo:                   %s\n",
            duplex ? "local" : "remote");
@@ -5955,19 +5886,19 @@ int doshow(int x) {
            (xmitt == 1) ? "" : "s");
     printf("\n");
     break;
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 #ifndef NODIAL
-  case SHMOD: /* SHOW MODEM */
+  case SHMOD: // SHOW MODEM
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif          /* IKSD */
-    shomodem(); /* Show SET MODEM items */
+#endif          // IKSD
+    shomodem(); // Show SET MODEM items
     break;
-#endif /* NODIAL */
+#endif // NODIAL
 
   case SHDFLT:
     printf("%s\n", zgtdir());
@@ -5980,17 +5911,17 @@ int doshow(int x) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     return (shoesc(escape));
 
 #ifndef NODIAL
-  case SHDIA: /* SHOW DIAL */
+  case SHDIA: // SHOW DIAL
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shmdmlin();
     printf(", speed: ");
     if ((zz = ttgspd()) < 0) {
@@ -6024,27 +5955,27 @@ int doshow(int x) {
     if (local
 #ifdef NETCONN
         && !network
-#endif /* NETCONN */
+#endif // NETCONN
     ) {
       printf("Type SHOW MODEM to see modem settings.\n");
 #ifdef CK_TAPI
       printf("Type SHOW TAPI to see TAPI-related items\n");
-#endif /* CK_TAPI */
+#endif // CK_TAPI
       printf("Type SHOW COMMUNICATIONS to see modem signals.\n");
     }
     break;
-#endif /* NODIAL */
-#endif /* NOLOCAL */
+#endif // NODIAL
+#endif // NOLOCAL
 
 #ifndef NOXFER
 #ifdef CK_LABELED
-  case SHLBL: /* Labeled file info */
+  case SHLBL: // Labeled file info
     sholbl();
     break;
-#endif /* CK_LABELED */
-#endif /* NOXFER */
+#endif // CK_LABELED
+#endif // NOXFER
 
-  case SHCSE: /* Character sets */
+  case SHCSE: // Character sets
 #ifdef NOCSETS
     printf(" Character set translation is not supported in this version of "
            "C-Kermit\n");
@@ -6052,21 +5983,21 @@ int doshow(int x) {
     shocharset();
 #ifndef NOXFER
     printf("\n Unknown-Char-Set: %s\n", unkcs ? "Keep" : "Discard");
-#endif /* NOXFER */
+#endif // NOXFER
     shotcs(tcsl, tcsr);
     printf("\n");
-#endif /* NOCSETS */
+#endif // NOCSETS
     break;
 
-  case SHFEA: /* Features */
+  case SHFEA: // Features
     shofea();
     break;
 
 #ifdef CK_SPEED
-  case SHCTL: /* Control-Prefix table */
+  case SHCTL: // Control-Prefix table
     shoctl();
     break;
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
   case SHEXI: {
     extern int exithangup, exitmsg;
@@ -6086,27 +6017,27 @@ int doshow(int x) {
     extern int prncs;
 #ifdef BPRINT
     extern int printbidi;
-#endif /* BPRINT */
-#endif /* PRINTSWI */
+#endif // BPRINT
+#endif // PRINTSWI
 
 #ifdef IKSD
     if (inserver &&
 #ifdef CK_LOGIN
         isguest
-#else  /* CK_LOGIN */
+#else  // CK_LOGIN
         0
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
     ) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
 #ifdef PRINTSWI
     if (noprinter) {
       printf("Printer: (none)\n\n");
       break;
     }
-#endif /* PRINTSWI */
+#endif // PRINTSWI
 
     printf("Printer: %s%s\n",
 
@@ -6126,7 +6057,7 @@ int doshow(int x) {
     } else {
       printf(" /OUTPUT-ONLY\n");
     }
-#endif /* BPRINT */
+#endif // BPRINT
     switch (printertype) {
     case PRT_NON:
       printf(" /NONE\n");
@@ -6154,7 +6085,7 @@ int doshow(int x) {
     }
     printf(" /JOB-HEADER-FILE:%s\n", printsep ? printsep : "(none)");
     printf(" /CHARACTER-SET: %s\n", txrinfo[prncs]->keywd);
-#endif /* PRINTSWI */
+#endif // PRINTSWI
     printf("\n");
     break;
   }
@@ -6162,34 +6093,34 @@ int doshow(int x) {
   case SHCMD: {
 #ifdef DOUBLEQUOTING
     extern int dblquo;
-#endif /* DOUBLEQUOTING */
+#endif // DOUBLEQUOTING
 #ifdef CK_AUTODL
     printf(" Command autodownload: %s\n", showoff(cmdadl));
 #else
     printf(" Command autodownload: (not available)\n");
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
     printf(" Command bytesize: %d bits\n", (cmdmsk == 0377) ? 8 : 7);
     printf(" Command error-display: %d\n", cmd_err);
 #ifdef CK_RECALL
     printf(" Command recall-buffer-size: %d\n", cm_recall);
 #else
     printf(" Command recall-buffer not available in this version\n");
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 #ifdef CK_RECALL
     printf(" Command retry: %s\n", showoff(cm_retry));
 #else
     printf(" Command retry not available in this version\n");
-#endif /* CK_RECALL */
+#endif // CK_RECALL
     printf(" Command interruption: %s\n", showoff(cmdint));
     printf(" Command quoting: %s\n", showoff(cmdgquo()));
 #ifdef DOUBLEQUOTING
     printf(" Command doublequoting: %s\n", showoff(dblquo));
-#endif /* DOUBLEQUOTING */
+#endif // DOUBLEQUOTING
     printf(" Command more-prompting: %s\n", showoff(xaskmore));
     printf(" Command height: %d\n", cmd_rows);
     printf(" Command width:  %d\n", cmd_cols);
 #ifndef IKSDONLY
-#endif /* IKSDONLY */
+#endif // IKSDONLY
 #ifdef LOCUS
     printf(" Locus:          %s", autolocus ? (autolocus == 2 ? "ask" : "auto")
                                             : (locus ? "local" : "remote"));
@@ -6197,7 +6128,7 @@ int doshow(int x) {
       printf(" (%s)", locus ? "local" : "remote");
     }
     printf("\n");
-#endif /* LOCUS */
+#endif // LOCUS
     printf(" Hints:          %s\n", showoff(hints));
     printf(" Quiet:          %s\n", showoff(quiet));
     printf(" Maximum command length: %d\n", CMDBL);
@@ -6218,16 +6149,16 @@ int doshow(int x) {
       }
       printf(" ON_UNKNOWN_COMMAND: %s\n", s);
     }
-#endif /* NOSPL */
+#endif // NOSPL
 #ifdef UNIX
 #ifndef NOJC
     printf(" Suspend: %s\n", showoff(xsuspend));
-#endif /* NOJC */
-#endif /* UNIX */
+#endif // NOJC
+#endif // UNIX
     printf(" Access to external commands and programs%s allowed\n",
 #ifndef NOPUSH
            !nopush ? "" :
-#endif /* NOPUSH */
+#endif // NOPUSH
                    " not");
     break;
   }
@@ -6240,7 +6171,7 @@ int doshow(int x) {
       printf("(no alarm set)\n");
     }
     break;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOMSEND
   case SHSFL: {
@@ -6262,13 +6193,13 @@ int doshow(int x) {
       }
     }
   } break;
-#endif /* NOMSEND */
+#endif // NOMSEND
 
 #ifdef CKXXCHAR
   case SHDBL:
     shodbl();
     break;
-#endif /* CKXXCHAR */
+#endif // CKXXCHAR
 
 #ifndef NOPUSH
 #ifndef NOFRILLS
@@ -6302,71 +6233,71 @@ int doshow(int x) {
     }
     printf("\n");
     break;
-#endif /* BROWSER */
-#endif /*  NOFRILLS */
-#endif /* NOPUSH */
+#endif // BROWSER
+#endif //  NOFRILLS
+#endif // NOPUSH
 
 #ifndef NOLOCAL
 #ifdef CK_TAPI
-  case SHTAPI: /* TAPI options */
+  case SHTAPI: // TAPI options
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shotapi(0);
     break;
-  case SHTAPI_L: /* TAPI Locations */
+  case SHTAPI_L: // TAPI Locations
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shotapi(1);
     break;
-  case SHTAPI_M: /* TAPI Modem */
+  case SHTAPI_M: // TAPI Modem
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shotapi(2);
     break;
-  case SHTAPI_C: /* TAPI Comm */
+  case SHTAPI_C: // TAPI Comm
 #ifdef IKSD
     if (inserver) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     shotapi(3);
     break;
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
-  case SHTCP: /* SHOTCP */
+  case SHTCP: // SHOTCP
     printf("\n");
     shotcp(0);
     printf("\n");
     break;
 
 #ifdef TNCODE
-  case SHTEL: /* TELNET */
+  case SHTEL: // TELNET
     printf("\n");
     shotel(0);
     printf("\n");
     break;
 
-  case SHTOPT: /* TELNET OPTIONS */
+  case SHTOPT: // TELNET OPTIONS
     printf("\n");
     shotopt(0);
     printf("\n");
     break;
-#endif /* TNCODE */
+#endif // TNCODE
 
-  case SHOTMPDIR: /* TEMPORARY DIRECTORY */
+  case SHOTMPDIR: // TEMPORARY DIRECTORY
   {
     extern char *tempdir;
     if (!tempdir) {
@@ -6401,28 +6332,28 @@ int doshow(int x) {
     }
     break;
   }
-#endif /* CK_TRIGGER */
-#endif /* NOLOCAL */
+#endif // CK_TRIGGER
+#endif // NOLOCAL
 
 #ifndef NOSPL
   case SHINP:
     shoinput();
     break;
-#endif /* NOSPL */
+#endif // NOSPL
 
   case SHLOG: {
 #ifdef IKSD
     if (inserver &&
 #ifdef CK_LOGIN
         isguest
-#else  /* CK_LOGIN */
+#else  // CK_LOGIN
         0
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
     ) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
 #ifdef DEBUG
     printf("\n Debug log:       %s", deblog ? debfil : "(none)");
     {
@@ -6432,10 +6363,10 @@ int doshow(int x) {
       }
       printf("\n");
     }
-#endif /* DEBUG */
+#endif // DEBUG
 #ifndef NOXFER
     printf(" Packet log:      %s\n", pktlog ? pktfil : "(none)");
-#endif /* NOXFER */
+#endif // NOXFER
 #ifndef NOLOCAL
     printf(" Session log:     %s", seslog ? sesfil : "(none)");
     {
@@ -6460,33 +6391,33 @@ int doshow(int x) {
       printf("\n");
     }
 
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifdef TLOG
     printf(" Transaction log: %s (%s)\n",
            (tralog ? (*trafil ? trafil : "(none)") : "(none)"),
            (tlogfmt ? ((tlogfmt == 2) ? "ftp" : "verbose") : "brief"));
-#endif /* TLOG */
+#endif // TLOG
 #ifdef CKLOGDIAL
     printf(" Connection log:  %s\n", dialog ? diafil : "(none)");
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
     printf("\n");
     break;
   }
 
 #ifndef NOSPL
-  case SHOUTP: /* OUTPUT */
+  case SHOUTP: // OUTPUT
     shooutput();
     break;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef PATTERNS
-  case SHOPAT: /* PATTERNS */
+  case SHOPAT: // PATTERNS
     shopat();
     break;
-#endif /* PATTERNS */
+#endif // PATTERNS
 
 #ifdef STREAMING
-  case SHOSTR: { /* STREAMING */
+  case SHOSTR: { // STREAMING
     extern int streamrq, clearrq, cleared;
     extern long tfcps;
     debug(F101, "SHOW RELIABLE reliable", "", reliable);
@@ -6507,48 +6438,48 @@ int doshow(int x) {
     printf("\n");
     break;
   }
-#endif /* STREAMING */
+#endif // STREAMING
 
 #ifdef ISKD
   case SHOIKS:
     return (sho_iks());
     break;
-#endif /* IKSD */
+#endif // IKSD
 
 #ifndef NOCMDL
   case SHXOPT: {
 #ifdef IKSDB
     extern int dbenabled;
     extern char *dbfile, *dbdir;
-#endif /* IKSDB */
+#endif // IKSDB
 #ifdef CKWTMP
     extern int ckxwtmp;
     extern char *wtmpfile;
-#endif /* CKWTMP */
+#endif // CKWTMP
 #ifdef CK_LOGIN
     extern int ckxanon, xferlog, logintimo;
     extern char *xferfile;
 #ifdef UNIX
     extern int ckxpriv;
-#endif /* UNIX */
+#endif // UNIX
 #ifdef CK_PERMS
     extern int ckxperms;
-#endif /* CK_PERMS */
-#endif /* CK_LOGIN */
+#endif // CK_PERMS
+#endif // CK_LOGIN
     extern char *bannerfile, *helpfile;
 
 #ifdef IKSD
     if (inserver &&
 #ifdef CK_LOGIN
         isguest
-#else  /* CK_LOGIN */
+#else  // CK_LOGIN
         0
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
     ) {
       printf("Sorry, command disabled.\r\n");
       return (success = 0);
     }
-#endif /* IKSD */
+#endif // IKSD
     printf("\n");
     if (!cmdint) {
       printf(" --nointerrupts\n");
@@ -6566,43 +6497,43 @@ int doshow(int x) {
     printf(" --syslog:%d (forced)\n", ckxsyslog);
 #else
     printf(" --syslog:%d\n", ckxsyslog);
-#endif /* SYSLOGLEVEL */
-#endif /* CKSYSLOG */
+#endif // SYSLOGLEVEL
+#endif // CKSYSLOG
 #ifdef CKWTMP
     printf(" --wtmplog:%d\n", ckxwtmp);
     printf(" --wtmpfile=%s\n", wtmpfile ? wtmpfile : "(null)");
-#endif /* CKWTMP */
+#endif // CKWTMP
 #ifdef IKSD
 #ifdef CK_LOGIN
     printf(" --anonymous:%d\n", ckxanon);
 #ifdef UNIX
     printf(" --privid:%d\n", ckxpriv);
-#endif /* UNIX */
+#endif // UNIX
 #ifdef CK_PERMS
     printf(" --permission:%04o\n", ckxperms);
-#endif /* CK_PERMS */
+#endif // CK_PERMS
     printf(" --initfile:%s\n", anonfile ? anonfile : "(null)");
     printf(" --userfile:%s\n", userfile ? userfile : "(null)");
     printf(" --root:%s\n", anonroot ? anonroot : "(null)");
     printf(" --xferlog=%d\n", xferlog);
     printf(" --xferfile=%s\n", xferfile ? xferfile : "(null)");
     printf(" --timeout=%d\n", logintimo);
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 #ifdef IKSDB
     printf(" --database=%d\n", dbenabled);
     printf(" --dbfile=%s\n", dbfile ? dbfile : "(null)");
     if (dbdir) {
       printf("   (db directory=[%s])\n", dbdir);
     }
-#endif /* IKSDB */
+#endif // IKSDB
 #ifdef IKSDCONF
     printf(" IKSD conf=%s\n", iksdconf);
-#endif /* IKSDCONF */
-#endif /* IKSD */
+#endif // IKSDCONF
+#endif // IKSD
     printf("\n");
     break;
   }
-#endif /* NOCMDL */
+#endif // NOCMDL
 
   case SHCD: {
     extern char *myhome;
@@ -6623,25 +6554,25 @@ int doshow(int x) {
   case SHASSOC:
     (void)showassoc();
     break;
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 #ifdef CKLOGDIAL
   case SHCONNX:
     dologshow(1);
     break;
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 
   case SHOPTS:
     optlines = 0;
 #ifndef NOFRILLS
     (void)showdelopts();
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 #ifdef DOMYDIR
     (void)showdiropts();
-#endif /* DOMYDIR */
+#endif // DOMYDIR
 #ifdef CKPURGE
     (void)showpurgopts();
-#endif /* CKPURGE */
+#endif // CKPURGE
     (void)showtypopts();
     break;
 
@@ -6649,41 +6580,41 @@ int doshow(int x) {
   case SHOFLO:
     (void)shoflow();
     break;
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOXFER
   case SHOXFER:
     (void)shoxfer();
     break;
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifdef CK_RECALL
   case SHHISTORY:
     (void)cmhistory();
     break;
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 
 #ifndef NOSEXP
 #ifndef NOSPL
   case SHSEXP:
     (void)shosexp();
     break;
-#endif /* NOSPL */
-#endif /* NOSEXP */
+#endif // NOSPL
+#endif // NOSEXP
 
 #ifdef ANYSSH
   case SHOSSH:
     (void)shossh();
     break;
-#endif /* ANYSSH */
+#endif // ANYSSH
 
 #ifndef NOFRILLS
 #ifndef NORENAME
   case SHOREN:
     (void)shorename();
     break;
-#endif /* NORENAME */
-#endif /* NOFRILLS */
+#endif // NORENAME
+#endif // NOFRILLS
 
   case SHOLOC: {
 #ifdef HAVE_LOCALE
@@ -6739,7 +6670,7 @@ int doshow(int x) {
     printf("\n");
     printf("  Locale support is not included in this version of Kermit\n");
     printf("\n");
-#endif /* HAVE_LOCALE */
+#endif // HAVE_LOCALE
 
     break;
   }
@@ -6767,16 +6698,16 @@ int shoatt() {
 #ifdef CK_PERMS
   printf(" Permissions In:  %s\n", showoff(atlpri));
   printf(" Permissions Out: %s\n", showoff(atlpro));
-#endif /* CK_PERMS */
+#endif // CK_PERMS
   return (0);
 }
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOSPL
-int /* SHOW MACROS */
+int // SHOW MACROS
 shomac(char *s1, char *s2) {
   int x, n, pp;
-  pp = 0; /* Parenthesis counter */
+  pp = 0; // Parenthesis counter
 
   debug(F110, "shomac s1", s1, 0);
   debug(F110, "shomac s2", s2, 0);
@@ -6785,83 +6716,83 @@ shomac(char *s1, char *s2) {
   if (inserver &&
 #ifdef IKSDCONF
       iksdcf
-#else  /* IKSDCONF */
+#else  // IKSDCONF
       1
-#endif /* IKSDCONF */
+#endif // IKSDCONF
   ) {
     if (!ckstrcmp("on_exit", s1, -1, 0) || !ckstrcmp("on_logout", s1, -1, 0)) {
       return (0);
     }
   }
-#endif /* IKSD */
+#endif // IKSD
 
   if (!s1) {
     return (0);
   } else {
-    printf("%s = ", s1); /* Print blank line and macro name */
+    printf("%s = ", s1); // Print blank line and macro name
   }
-  n = (int)strlen(s1) + 4; /* Width of current line */
+  n = (int)strlen(s1) + 4; // Width of current line
   if (!s2) {
     s2 = "(not defined)";
   }
 
-  while ((x = *s2++)) { /* Loop thru definition */
+  while ((x = *s2++)) { // Loop thru definition
     if (x == '(') {
-      pp++; /* Treat commas within parens */
+      pp++; // Treat commas within parens
     }
     if (x == ')') {
-      pp--; /* as ordinary text */
+      pp--; // as ordinary text
     }
     if (pp < 0) {
-      pp = 0; /* Outside parens, */
+      pp = 0; // Outside parens,
     }
-    if (x == ',' && pp == 0) { /* comma becomes comma-dash-NL. */
+    if (x == ',' && pp == 0) { // comma becomes comma-dash-NL.
       putchar(',');
       putchar('-');
       x = '\n';
     }
-    if (inserver && (x == '\n')) { /* Send CR before LF */
+    if (inserver && (x == '\n')) { // Send CR before LF
       putchar(CK_CR);
     }
-    putchar((CHAR)x); /* Output the character */
-    if (x == '\n') {  /* If it was a newline */
+    putchar((CHAR)x); // Output the character
+    if (x == '\n') {  // If it was a newline
 #ifdef UNIX
 #ifdef NOSETBUF
       fflush(stdout);
-#endif              /* NOSETBUF */
-#endif              /* UNIX */
-      putchar(' '); /* Indent the next line 1 space */
+#endif              // NOSETBUF
+#endif              // UNIX
+      putchar(' '); // Indent the next line 1 space
       while (*s2 == ' ') {
-        s2++; /* skip past leading blanks */
+        s2++; // skip past leading blanks
       }
-      n = 2;                           /* restart the character counter */
-      slc++;                           /* and increment the line counter. */
-    } else if (++n > (cmd_cols - 1)) { /* If line is too wide */
-      putchar('-');                    /* output a dash */
+      n = 2;                           // restart the character counter
+      slc++;                           // and increment the line counter.
+    } else if (++n > (cmd_cols - 1)) { // If line is too wide
+      putchar('-');                    // output a dash
       if (inserver) {
-        putchar(CK_CR); /* and a carriage return */
+        putchar(CK_CR); // and a carriage return
       }
-      putchar(NL); /* and a newline */
+      putchar(NL); // and a newline
 #ifdef UNIX
 #ifdef NOSETBUF
       fflush(stdout);
-#endif       /* NOSETBUF */
-#endif       /* UNIX */
-      n = 1; /* and restart the char counter */
-      slc++; /* and increment the line counter */
+#endif       // NOSETBUF
+#endif       // UNIX
+      n = 1; // and restart the char counter
+      slc++; // and increment the line counter
     }
-    if (n < 3 && slc > (cmd_rows - 3)) { /* If new line and screen full */
+    if (n < 3 && slc > (cmd_rows - 3)) { // If new line and screen full
       if (!askmore()) {
-        return (-1); /* ask if they want more. */
+        return (-1); // ask if they want more.
       }
-      n = 1;   /* They do, start a new line */
-      slc = 0; /* and restart line counter */
+      n = 1;   // They do, start a new line
+      slc = 0; // and restart line counter
     }
   }
   if (inserver) {
     putchar(CK_CR);
   }
-  putchar(NL); /* End of definition */
+  putchar(NL); // End of definition
   if (++slc > (cmd_rows - 3)) {
     if (!askmore()) {
       return (-1);
@@ -6870,14 +6801,14 @@ shomac(char *s1, char *s2) {
   }
   return (0);
 }
-#endif /* NOSPL */
-#endif /* NOSHOW */
+#endif // NOSPL
+#endif // NOSHOW
 
-int x_ifnum = 0; /* Flag for IF NUMERIC active */
+int x_ifnum = 0; // Flag for IF NUMERIC active
 
 #ifndef NOSPL
-/* Evaluate an arithmetic expression. */
-/* Code adapted from ev, by Howie Kaye of Columbia U & others. */
+// Evaluate an arithmetic expression.
+// Code adapted from ev, by Howie Kaye of Columbia U & others.
 
 static int xerror = 0;
 int divbyzero = 0;
@@ -6890,12 +6821,11 @@ static CK_OFF_T expval;
 #define NUMBER 'N'
 #define N_EOT 'E'
 
-/*
- Replacement for strchr() and index(), neither of which seem to be universal.
-*/
+// Replacement for strchr() and index(), neither of which seem to be universal.
 
 static char *windex(char *s, char c)
-/* windex */ {
+// windex
+{
   while (*s != NUL && *s != c) {
     s++;
   }
@@ -6906,52 +6836,51 @@ static char *windex(char *s, char c)
   }
 }
 
-/*
- g e t t o k
-
- Returns the next token.  If token is a NUMBER, sets tokval appropriately.
-*/
+// g e t t o k
+//
+// Returns the next token.  If token is a NUMBER, sets tokval appropriately.
 static char gettok() {
-  char tbuf[80] /* ,*tp */; /* Buffer to accumulate number */
+  char tbuf[80] // ,*tp
+      ;         // Buffer to accumulate number
 
-  while (isspace(*cp)) { /* Skip past leading spaces */
+  while (isspace(*cp)) { // Skip past leading spaces
     cp++;
   }
 
   debug(F110, "GETTOK", cp, 0);
 
   switch (*cp) {
-  case '$': /* ??? */
-  case '+': /* Add */
-  case '-': /* Subtract or Negate */
-  case '@': /* Greatest Common Divisor */
-  case '*': /* Multiply */
-  case '/': /* Divide */
-  case '%': /* Modulus */
-  case '<': /* Left shift */
-  case '>': /* Right shift */
-  case '&': /* And */
-  case '|': /* Or */
-  case '#': /* Exclusive Or */
-  case '~': /* Not */
-  case '^': /* Exponent */
-  case '!': /* Factorial */
-  case '(': /* Parens for grouping */
+  case '$': // ???
+  case '+': // Add
+  case '-': // Subtract or Negate
+  case '@': // Greatest Common Divisor
+  case '*': // Multiply
+  case '/': // Divide
+  case '%': // Modulus
+  case '<': // Left shift
+  case '>': // Right shift
+  case '&': // And
+  case '|': // Or
+  case '#': // Exclusive Or
+  case '~': // Not
+  case '^': // Exponent
+  case '!': // Factorial
+  case '(': // Parens for grouping
   case ')':
-    return (*cp++); /* operator, just return it */
+    return (*cp++); // operator, just return it
   case '\n':
   case '\0':
-    return (N_EOT); /* End of line, return that */
+    return (N_EOT); // End of line, return that
   }
-  /* This code allows non-numbers to be treated as macro names */
+  // This code allows non-numbers to be treated as macro names
   {
     int i, x;
     char *s, *cp1;
     cp1 = cp;
     tp = tbuf;
     for (i = 0; i < 80; i++) {
-      /* Look ahead to next break character */
-      /* pretty much anything that is not in the switch() above. */
+      // Look ahead to next break character
+      // pretty much anything that is not in the switch() above.
       if (isalpha(*cp) || isdigit(*cp) || *cp == '_' || *cp == ':' ||
           *cp == '.' || *cp == '[' || *cp == ']' || *cp == '{' || *cp == '}') {
         tbuf[i] = *cp++;
@@ -6995,7 +6924,7 @@ static char gettok() {
     x = isfloat(s, 0);
 #else
     x = chknum(s);
-#endif /* CKFLOAT */
+#endif // CKFLOAT
     if (x > 0) {
       tokval = ckatofs(s);
     } else {
@@ -7011,7 +6940,8 @@ static char gettok() {
 }
 
 static CK_OFF_T expon(CK_OFF_T x, CK_OFF_T y)
-/* expon */ {
+// expon
+{
   CK_OFF_T result = 1;
   int sign = 1;
   if (y < 0) {
@@ -7035,10 +6965,8 @@ static CK_OFF_T expon(CK_OFF_T x, CK_OFF_T y)
   return (result * sign);
 }
 
-/*
- * factor ::= simple | simple ^ factor
- *
- */
+// factor ::= simple | simple ^ factor
+//
 static void factor() {
   CK_OFF_T oldval;
   simple();
@@ -7050,16 +6978,14 @@ static void factor() {
   }
 }
 
-/*
- * termp ::= NULL | {*,/,%,&} factor termp
- *
- */
+// termp ::= NULL | {*,/,%,&} factor termp
+//
 static void termp() {
   while (curtok == '*' || curtok == '/' || curtok == '%' || curtok == '&') {
     CK_OFF_T oldval;
     char op;
     op = curtok;
-    curtok = gettok(); /* skip past operator */
+    curtok = gettok(); // skip past operator
     oldval = expval;
     factor();
     switch (op) {
@@ -7087,7 +7013,8 @@ static void termp() {
 }
 
 static CK_OFF_T fact(CK_OFF_T x)
-/* fact */ { /* factorial */
+// fact
+{ // factorial
   CK_OFF_T result = 1;
   while (x > 1) {
     result *= x--;
@@ -7095,41 +7022,40 @@ static CK_OFF_T fact(CK_OFF_T x)
   return (result);
 }
 
-/*
- * term ::= factor termp
- *
- */
+// term ::= factor termp
+//
 static void term() {
   factor();
   termp();
 }
 
 static CK_OFF_T gcd(CK_OFF_T x, CK_OFF_T y)
-/* gcd */ { /* Greatest Common Divisor */
+// gcd
+{ // Greatest Common Divisor
   int nshift = 0;
   if (x < 0) {
     x = -x;
   }
   if (y < 0) {
-    y = -y; /* validate arguments */
+    y = -y; // validate arguments
   }
   if (x == 0 || y == 0) {
-    return (x + y); /* this is bogus */
+    return (x + y); // this is bogus
   }
 
-  while (!((x & 1) | (y & 1))) { /* get rid of powers of 2 */
+  while (!((x & 1) | (y & 1))) { // get rid of powers of 2
     nshift++;
     x >>= 1;
     y >>= 1;
   }
   while (x != 1 && y != 1 && x != 0 && y != 0) {
     while (!(x & 1)) {
-      x >>= 1; /* eliminate unnecessary */
+      x >>= 1; // eliminate unnecessary
     }
     while (!(y & 1)) {
-      y >>= 1; /* powers of 2 */
+      y >>= 1; // powers of 2
     }
-    if (x < y) { /* force x to be larger */
+    if (x < y) { // force x to be larger
       CK_OFF_T t;
       t = x;
       x = y;
@@ -7138,22 +7064,20 @@ static CK_OFF_T gcd(CK_OFF_T x, CK_OFF_T y)
     x -= y;
   }
   if (x == 0 || y == 0) {
-    return ((x + y) << nshift); /* gcd is non-zero one */
+    return ((x + y) << nshift); // gcd is non-zero one
   } else {
-    return ((CK_OFF_T)1 << nshift); /* else gcd is 1 */
+    return ((CK_OFF_T)1 << nshift); // else gcd is 1
   }
 }
 
-/*
- * exprp ::= NULL | {+,-,|,...} term exprp
- *
- */
+// exprp ::= NULL | {+,-,|,...} term exprp
+//
 static void exprp() {
   while (windex("+-|<>#@", curtok) != NULL) {
     CK_OFF_T oldval;
     char op;
     op = curtok;
-    curtok = gettok(); /* skip past operator */
+    curtok = gettok(); // skip past operator
     oldval = expval;
     term();
     switch (op) {
@@ -7182,10 +7106,8 @@ static void exprp() {
   }
 }
 
-/*
- * expr ::= term exprp
- *
- */
+// expr ::= term exprp
+//
 static void expr() {
   term();
   exprp();
@@ -7203,7 +7125,7 @@ static CK_OFF_T xparse() {
   return (expval);
 }
 
-char * /* Silent front end for evala() */
+char * // Silent front end for evala()
 evalx(char *s) {
   char *p;
   int t;
@@ -7215,28 +7137,26 @@ evalx(char *s) {
 }
 
 char *evala(char *s) {
-  CK_OFF_T v; /* Numeric value */
+  CK_OFF_T v; // Numeric value
   if (!s) {
     return ("");
   }
-  xerror = 0; /* Start out with no error */
+  xerror = 0; // Start out with no error
   divbyzero = 0;
-  cp = s;                            /* Make the argument global */
-  v = xparse();                      /* Parse the string */
-  return (xerror ? "" : ckfstoa(v)); /* Return empty string on error */
+  cp = s;                            // Make the argument global
+  v = xparse();                      // Parse the string
+  return (xerror ? "" : ckfstoa(v)); // Return empty string on error
 }
 
-/*
- * simplest ::= NUMBER | ( expr )
- *
- */
+// simplest ::= NUMBER | ( expr )
+//
 static void simplest() {
   char *p;
   p = cp;
   if (curtok == NUMBER) {
     expval = tokval;
   } else if (curtok == '(') {
-    curtok = gettok(); /* skip over paren */
+    curtok = gettok(); // skip over paren
     expr();
     if (curtok != ')') {
       if (cmdlvl == 0 && !x_ifnum && !xerror) {
@@ -7255,10 +7175,8 @@ static void simplest() {
   curtok = gettok();
 }
 
-/*
- * simpler ::= simplest | simplest !
- *
- */
+// simpler ::= simplest | simplest !
+//
 static void simpler() {
   simplest();
   if (curtok == '!') {
@@ -7267,16 +7185,14 @@ static void simpler() {
   }
 }
 
-/*
- * simple ::= {-,~,!} simpler | simpler
- *
- */
+// simple ::= {-,~,!} simpler | simpler
+//
 
 static void simple() {
   if (curtok == '-' || curtok == '~' || curtok == '!' || curtok == '+') {
     int op = curtok;
-    curtok = gettok(); /* skip over - sign */
-    simpler();         /* parse the factor again */
+    curtok = gettok(); // skip over - sign
+    simpler();         // parse the factor again
     if (op != '+') {
       expval = (op == '-') ? -expval : ((op == '!') ? !expval : ~expval);
     }
@@ -7285,86 +7201,85 @@ static void simple() {
   }
 }
 
-/*  D C L A R R A Y  --  Declare an array  */
-/*
-  Call with:
-   char a = single character designator for the array, e.g. "a".
-   int  n = size of array.  -1 means to undeclare the array.
-  Returns:
-   0 or greater on success, having created the requested array with
-     with n+1 elements, 0..n.  If an array of the same name existed
-     previously, it is destroyed.  The new array has all its elements
-     initialized to NULL pointers.  When an array is successfully created,
-     the return value is its index (0 = 'a', 1 = 'b', and so on.)
-  -1 on failure (because 'a' out of range or malloc failure).
-*/
+//  D C L A R R A Y  --  Declare an array
+// Call with:
+// char a = single character designator for the array, e.g. "a".
+// int  n = size of array.  -1 means to undeclare the array.
+// Returns:
+// 0 or greater on success, having created the requested array with
+//   with n+1 elements, 0..n.  If an array of the same name existed
+//   previously, it is destroyed.  The new array has all its elements
+//   initialized to NULL pointers.  When an array is successfully created,
+//   the return value is its index (0 = 'a', 1 = 'b', and so on.)
+// -1 on failure (because 'a' out of range or malloc failure).
 int dclarray(char a, int n)
-/* dclarray */ {
+// dclarray
+{
   char c, **p;
   int i, n2, rc;
 
   if (a > 63 && a < 91) {
-    a += 32; /* Convert letters to lowercase */
+    a += 32; // Convert letters to lowercase
   }
-  if (a < ARRAYBASE || a > 122) { /* Verify name */
+  if (a < ARRAYBASE || a > 122) { // Verify name
     return (-1);
   }
 
-  if (n < 0) { /* Check arg */
+  if (n < 0) { // Check arg
     return (-1);
   }
-  if (n + 1 < 0) { /* MAXINT+1 wraps around */
+  if (n + 1 < 0) { // MAXINT+1 wraps around
     return (-1);
   }
 
   c = a;
-  a -= ARRAYBASE;                 /* Convert name to number */
-  rc = a;                         /* Array index will be return code */
-  if ((p = a_ptr[a]) != NULL) {   /* Delete old array of same name */
-    if (a_link[a] > -1) {         /* Is it a link? */
-      if (n == 0) {               /* If we're just deleting it */
-        a_ptr[a] = (char **)NULL; /* clear all the info. */
+  a -= ARRAYBASE;                 // Convert name to number
+  rc = a;                         // Array index will be return code
+  if ((p = a_ptr[a]) != NULL) {   // Delete old array of same name
+    if (a_link[a] > -1) {         // Is it a link?
+      if (n == 0) {               // If we're just deleting it
+        a_ptr[a] = (char **)NULL; // clear all the info.
         a_dim[a] = 0;
         a_link[a] = -1;
         return (0);
-      } /* Not deleting */
-      a = a_link[a]; /* Switch to linked-to array */
+      } // Not deleting
+      a = a_link[a]; // Switch to linked-to array
     }
-    n2 = a_dim[a];              /* Real array */
-    for (i = 0; i <= n2; i++) { /* First delete its elements */
+    n2 = a_dim[a];              // Real array
+    for (i = 0; i <= n2; i++) { // First delete its elements
       if (p[i]) {
         free(p[i]);
         p[i] = NULL;
       }
     }
-    free((char *)a_ptr[a]);                   /* Then the element list */
-    if (n == 0) {                             /* If undeclaring this array... */
-      for (i = 0; i < 122 - ARRAYBASE; i++) { /* Any linked arrays? */
-        if (i != a && a_link[i] == a) {       /* Find them */
-          a_ptr[i] = (char **)NULL;           /* and remove them */
+    free((char *)a_ptr[a]);                   // Then the element list
+    if (n == 0) {                             // If undeclaring this array...
+      for (i = 0; i < 122 - ARRAYBASE; i++) { // Any linked arrays?
+        if (i != a && a_link[i] == a) {       // Find them
+          a_ptr[i] = (char **)NULL;           // and remove them
           a_dim[i] = 0;
           a_link[i] = -1;
         }
       }
     }
-    a_ptr[a] = (char **)NULL; /* Remove pointer to element list */
-    a_dim[a] = 0;             /* Set dimension at zero. */
-    a_link[a] = -1;           /* Unset link word */
+    a_ptr[a] = (char **)NULL; // Remove pointer to element list
+    a_dim[a] = 0;             // Set dimension at zero.
+    a_link[a] = -1;           // Unset link word
   }
-  if (n < 0) {  /* If only undeclaring, */
-    return (0); /*  we're done. */
+  if (n < 0) {  // If only undeclaring,
+    return (0); //  we're done.
   }
-  p = (char **)malloc((n + 1) * sizeof(char **)); /* Allocate for new array */
+  p = (char **)malloc((n + 1) * sizeof(char **)); // Allocate for new array
   if (p == NULL) {
-    return (-1); /* Check */
+    return (-1); // Check
   }
-  a_ptr[a] = p;              /* Save pointer to member list */
-  a_dim[a] = n;              /* Save dimension */
-  for (i = 0; i <= n; i++) { /* Initialize members to null */
+  a_ptr[a] = p;              // Save pointer to member list
+  a_dim[a] = n;              // Save dimension
+  for (i = 0; i <= n; i++) { // Initialize members to null
     p[i] = NULL;
   }
-  for (i = 0; i < (int)'z' - ARRAYBASE; i++) { /* Any linked arrays? */
-    if (i != a && a_link[i] == a) {            /* Find and update them */
+  for (i = 0; i < (int)'z' - ARRAYBASE; i++) { // Any linked arrays?
+    if (i != a && a_link[i] == a) {            // Find and update them
       a_ptr[i] = p;
       a_dim[i] = n;
     }
@@ -7372,7 +7287,7 @@ int dclarray(char a, int n)
   return (rc);
 }
 
-/*  X A R R A Y  -- Convert array name to array index  */
+//  X A R R A Y  -- Convert array name to array index
 
 int xarray(char *s) {
   char buf[8];
@@ -7431,24 +7346,22 @@ int xarray(char *s) {
   return (x);
 }
 
-/*
-  boundspair() -- parses blah[n:m]
-
-  For use with array segment specifiers and compact substring notation.
-  Ignores the "blah" part, gets the values of n and m, which can be
-  numbers, variables, or arithmetic expressions; anything that resolves
-  to a number.
-
-  Call with:
-   s    - string to parse
-   sep  - array of permissible bounds separator chars
-   lo   - pointer to low-bound result (or -1)
-   hi   - pointer to hi-bound result (or -1)
-   zz   - pointer to separator char that was encountered (or NUL)
-  Returns:
-   -1 on failure
-    0 on success
-*/
+// boundspair() -- parses blah[n:m]
+//
+// For use with array segment specifiers and compact substring notation.
+// Ignores the "blah" part, gets the values of n and m, which can be
+// numbers, variables, or arithmetic expressions; anything that resolves
+// to a number.
+//
+// Call with:
+// s    - string to parse
+// sep  - array of permissible bounds separator chars
+// lo   - pointer to low-bound result (or -1)
+// hi   - pointer to hi-bound result (or -1)
+// zz   - pointer to separator char that was encountered (or NUL)
+// Returns:
+// -1 on failure
+//  0 on success
 
 int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
   int i, y, range[2], bc = 0;
@@ -7457,25 +7370,25 @@ int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
   debug(F110, "boundspair s", s, 0);
   debug(F110, "boundspair sep", sep, 0);
 
-  *lo = -1; /* Default bounds */
+  *lo = -1; // Default bounds
   *hi = -1;
-  *zz = 0; /* Default bounds separator */
+  *zz = 0; // Default bounds separator
 
-  range[0] = -1; /* It's OK -- get contents */
-  range[1] = -1; /* of subscript brackets */
+  range[0] = -1; // It's OK -- get contents
+  range[1] = -1; // of subscript brackets
   if (!s) {
     s = "";
   }
   if (!*s) {
     return (-1);
   }
-  makestr(&tmp, s); /* Make a pokeable copy */
+  makestr(&tmp, s); // Make a pokeable copy
   p = tmp;
   q = NULL;
   r = NULL;
-  for (p = s; *p; p++) { /* Get the two elements */
+  for (p = s; *p; p++) { // Get the two elements
     if (*p == '[') {
-      bc++; /* Bracket counter */
+      bc++; // Bracket counter
       if (bc == 1 && !q) {
         q = p + 1;
       }
@@ -7484,8 +7397,8 @@ int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
       if (bc == 0 && q) {
         *p = NUL;
       }
-    } else if (bc == 1) {     /* If within brackers */
-      s2 = ckstrchr(sep, *p); /* Check for separator */
+    } else if (bc == 1) {     // If within brackers
+      s2 = ckstrchr(sep, *p); // Check for separator
       if (s2) {
         debug(F000, "boundspair *s2", "", *s2);
         if (c) {
@@ -7493,14 +7406,14 @@ int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
           makestr(&tmp, NULL);
           return (-1);
         }
-        c = *s2; /* Separator character */
+        c = *s2; // Separator character
         *p = NUL;
         r = p + 1;
       }
     }
   }
   if (bc == 0 && !q) {
-    /* This allows such constructions as "show array a" */
+    // This allows such constructions as "show array a"
     debug(F110, "boundspair", "no brackets", 0);
     makestr(&tmp, NULL);
     return (0);
@@ -7531,24 +7444,24 @@ int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
   debug(F110, "boundspair r", r, 0);
 
   for (i = 0; i < 2 && e[i]; i++) {
-    y = 255; /* Expand variables, etc. */
+    y = 255; // Expand variables, etc.
     s = buf;
     zzstring(e[i], &s, &y);
-    s = evalx(buf); /* Evaluate it arithmetically */
+    s = evalx(buf); // Evaluate it arithmetically
     if (s) {
       if (*s) {
         ckstrncpy(buf, s, 256);
       }
     }
-    if (!chknum(buf)) { /* Did we get a number? */
+    if (!chknum(buf)) { // Did we get a number?
       debug(F110, "boundspair element not numeric", buf, 0);
-      makestr(&tmp, NULL); /* No, fail. */
+      makestr(&tmp, NULL); // No, fail.
       return (-1);
     }
     range[i] = atoi(buf);
   }
-  makestr(&tmp, NULL); /* Free temporary poked string */
-  *lo = range[0];      /* Return what we got */
+  makestr(&tmp, NULL); // Free temporary poked string
+  *lo = range[0];      // Return what we got
   *hi = range[1];
   *zz = c;
   debug(F101, "boundspair lo", "", *lo);
@@ -7556,72 +7469,68 @@ int boundspair(char *s, char *sep, int *lo, int *hi, char *zz) {
   return (0);
 }
 
-/*  A R R A Y B O U N D S  --  Parse array segment notation \&a[n:m]  */
+//  A R R A Y B O U N D S  --  Parse array segment notation \&a[n:m]
 
-/*
-  Call with s = array name (like a or &a), plus two pointers to ints.
-  Returns -1 on error, or array index, with the two ints set as follows:
-   \&a[]     -1, -1
-   \&a[3]     3, -1
-   \&a[3:17]  3, 17
-  The array need not be declared -- this routine is just for parsing.
-*/
+// Call with s = array name (like a or &a), plus two pointers to ints.
+// Returns -1 on error, or array index, with the two ints set as follows:
+// \&a[]     -1, -1
+// \&a[3]     3, -1
+// \&a[3:17]  3, 17
+// The array need not be declared -- this routine is just for parsing.
 int arraybounds(char *s, int *lo, int *hi) {
   int x, y;
   char zz;
 
-  *lo = -1; /* Default bounds */
+  *lo = -1; // Default bounds
   *hi = -1;
 
   if (!s) {
-    s = ""; /* Defense de null args */
+    s = ""; // Defense de null args
   }
   if (!*s) {
     return (-1);
   }
 
-  x = xarray(s); /* Check basic structure */
+  x = xarray(s); // Check basic structure
   debug(F111, "arraybounds xarray", s, x);
-  if (x < 0) { /* Not OK, fail. */
+  if (x < 0) { // Not OK, fail.
     return (-1);
   }
   y = boundspair(s, ":", lo, hi, &zz);
   debug(F111, "arraybounds boundspair", s, y);
   debug(F101, "arraybounds lo", "", *lo);
   debug(F101, "arraybounds hi", "", *hi);
-  if (y < 0) { /* Get bounds */
+  if (y < 0) { // Get bounds
     return (-1);
   }
   return (x);
 }
 
-/*  A R R A Y N A M  --  Parse an array name  */
+//  A R R A Y N A M  --  Parse an array name
 
-/*
-  Call with pointer to string that starts with the array reference.
-  String may begin with either \& or just &.
-  On success,
-    Returns letter ID (always lowercase) in argument c,
-      which can also be accent grave (` = 96; '@' is converted to grave);
-    Dimension or subscript in argument n;
-    IMPORTANT: These arguments must be provided by the caller as addresses
-    of ints (not chars), for example:
-      char *s; int x, y;
-      arraynam(s,&x,&y);
-  On failure, returns a negative number, with args n and c set to zero.
-*/
+// Call with pointer to string that starts with the array reference.
+// String may begin with either \& or just &.
+// On success,
+//  Returns letter ID (always lowercase) in argument c,
+//    which can also be accent grave (` = 96; '@' is converted to grave);
+//  Dimension or subscript in argument n;
+//  IMPORTANT: These arguments must be provided by the caller as addresses
+//  of ints (not chars), for example:
+//    char *s; int x, y;
+//    arraynam(s,&x,&y);
+// On failure, returns a negative number, with args n and c set to zero.
 int arraynam(char *ss, int *c, int *n) {
   int i, y, pp, len;
   char x;
   char *s, *p, *sx, *vnp;
-  /* On stack to allow for recursive calls... */
-  char vnbuf[ARRAYREFLEN + 1]; /* Entire array reference */
-  char ssbuf[ARRAYREFLEN + 1]; /* Subscript in "plain text" */
-  char sxbuf[16];              /* Evaluated subscript */
+  // On stack to allow for recursive calls...
+  char vnbuf[ARRAYREFLEN + 1]; // Entire array reference
+  char ssbuf[ARRAYREFLEN + 1]; // Subscript in "plain text"
+  char sxbuf[16];              // Evaluated subscript
 
-  *c = *n = 0; /* Initialize return values */
+  *c = *n = 0; // Initialize return values
   len = strlen(ss);
-  for (pp = 0, i = 0; i < len; i++) { /* Check length */
+  for (pp = 0, i = 0; i < len; i++) { // Check length
     if (ss[i] == '[') {
       pp++;
     } else if (ss[i] == ']') {
@@ -7643,10 +7552,10 @@ int arraynam(char *ss, int *c, int *n) {
     printf("?Not an array - %s\n", vnbuf);
     return (-9);
   }
-  x = *(vnp + 1); /* Fold case of array name */
+  x = *(vnp + 1); // Fold case of array name
 
-  /* We don't use isupper & tolower here on purpose because these */
-  /* would produce undesired effects with accented letters. */
+  // We don't use isupper & tolower here on purpose because these
+  // would produce undesired effects with accented letters.
   if (x > 63 && x < 91) {
     x = *(vnp + 1) = (char)(x + 32);
   }
@@ -7658,11 +7567,11 @@ int arraynam(char *ss, int *c, int *n) {
       return (-2);
     }
   }
-  *c = x;      /* Return the array name */
-  s = vnp + 3; /* Get dimension */
+  *c = x;      // Return the array name
+  s = vnp + 3; // Get dimension
   p = ssbuf;
-  pp = 1;                                          /* Bracket counter */
-  for (i = 0; i < ARRAYREFLEN && *s != NUL; i++) { /* Copy up to ] */
+  pp = 1;                                          // Bracket counter
+  for (i = 0; i < ARRAYREFLEN && *s != NUL; i++) { // Copy up to ]
     if (*s == '[') {
       pp++;
     }
@@ -7675,43 +7584,43 @@ int arraynam(char *ss, int *c, int *n) {
     printf("?No closing bracket on array dimension - %s\n", vnbuf);
     return (-9);
   }
-  p--; /* Trim whitespace from end */
+  p--; // Trim whitespace from end
   while (*p == SP || *p == HT) {
     p--;
   }
   p++;
-  *p = NUL;                      /* Terminate subscript with null */
-  p = ssbuf;                     /* Point to beginning of subscript */
-  while (*p == SP || *p == HT) { /* Trim whitespace from beginning */
+  *p = NUL;                      // Terminate subscript with null
+  p = ssbuf;                     // Point to beginning of subscript
+  while (*p == SP || *p == HT) { // Trim whitespace from beginning
     p++;
   }
-  sx = sxbuf; /* Where to put expanded subscript */
+  sx = sxbuf; // Where to put expanded subscript
   y = 16;
   {
-    /* Even if VARIABLE-EVALUATION SIMPLE use RECURSIVE for subscripts */
-    /* NOTE: This is vulnerable to SIGINT and whatnot... */
-    int tmp = vareval;    /* Save VARIABLE-EVALUATION setting */
-    vareval = 1;          /* Force it to RECURSIVE */
-    zzstring(p, &sx, &y); /* Convert variables, etc. */
-    vareval = tmp;        /* Restore VARIABLE-EVALUATION */
+    // Even if VARIABLE-EVALUATION SIMPLE use RECURSIVE for subscripts
+    // NOTE: This is vulnerable to SIGINT and whatnot...
+    int tmp = vareval;    // Save VARIABLE-EVALUATION setting
+    vareval = 1;          // Force it to RECURSIVE
+    zzstring(p, &sx, &y); // Convert variables, etc.
+    vareval = tmp;        // Restore VARIABLE-EVALUATION
   }
   sx = sxbuf;
   while (*sx == SP) {
     sx++;
   }
-  /* debug(F110,"arraynam sx","",sx); */
-  if (!*sx) { /* Empty brackets... */
-    *n = -17; /* (Secret code :-) */
+  // debug(F110,"arraynam sx","",sx);
+  if (!*sx) { // Empty brackets...
+    *n = -17; // (Secret code :-)
     return (-2);
   }
-  p = evala(sx); /* Run it thru \fneval()... */
+  p = evala(sx); // Run it thru \fneval()...
   if (p) {
     if (*p) {
-      ckstrncpy(sxbuf, p, 16); /* We know it has to be a number. */
+      ckstrncpy(sxbuf, p, 16); // We know it has to be a number.
     }
   }
 
-  if (!chknum(sxbuf)) { /* Make sure it's all digits */
+  if (!chknum(sxbuf)) { // Make sure it's all digits
     if (msgflg) {
       printf("?Array dimension or subscript missing or not numeric\n");
       return (-9);
@@ -7730,56 +7639,54 @@ int arraynam(char *ss, int *c, int *n) {
       return (-2);
     }
   }
-  *n = y; /* Return the subscript or dimension */
+  *n = y; // Return the subscript or dimension
   return (0);
 }
 
-/* chkarray returns 0 or greater if array exists, negative otherwise */
+// chkarray returns 0 or greater if array exists, negative otherwise
 
-int chkarray(int a, int i) /* Check if array is declared */
+int chkarray(int a, int i) // Check if array is declared
 {
-  int x; /* and if subscript is in range */
+  int x; // and if subscript is in range
   if (a == 64) {
-    a = 96; /* Convert atsign to grave accent */
+    a = 96; // Convert atsign to grave accent
   }
-  x = a - ARRAYBASE;                  /* Values must be in range 95-122 */
-  if (x < 0 || x > 'z' - ARRAYBASE) { /* Not in range */
+  x = a - ARRAYBASE;                  // Values must be in range 95-122
+  if (x < 0 || x > 'z' - ARRAYBASE) { // Not in range
     return (-2);
   }
   if (a_ptr[x] == NULL) {
-    return (-1); /* Not declared */
+    return (-1); // Not declared
   }
   if (i > a_dim[x]) {
-    return (-2); /* Declared but out of range. */
+    return (-2); // Declared but out of range.
   }
-  return (a_dim[x]); /* All ok, return dimension */
+  return (a_dim[x]); // All ok, return dimension
 }
 
-/*
-  pusharray() is called when an array name is included in a LOCAL statement.
-  It moves the pointers from the global definition to the stack, and removes
-  the global definition.  Later, if the same array is declared in the local
-  context, it occupies the global definition in the normal way.  But when
-  popclvl() is called, it replaces the global definition with the one saved
-  here.  The "secret code" is used to indicate to popclv() that it should
-  remove the global array when popping through this level -- otherwise if a
-  local array were declared that had no counterpart at any higher level, it
-  would never be deleted.  This allows Algol-like inheritance to work both
-  on the way down and on the way back up.
-*/
+// pusharray() is called when an array name is included in a LOCAL statement.
+// It moves the pointers from the global definition to the stack, and removes
+// the global definition.  Later, if the same array is declared in the local
+// context, it occupies the global definition in the normal way.  But when
+// popclvl() is called, it replaces the global definition with the one saved
+// here.  The "secret code" is used to indicate to popclv() that it should
+// remove the global array when popping through this level -- otherwise if a
+// local array were declared that had no counterpart at any higher level, it
+// would never be deleted.  This allows Algol-like inheritance to work both
+// on the way down and on the way back up.
 int pusharray(int x, int z) {
   int y;
   debug(F000, "pusharray x", "", x);
   debug(F101, "pusharray z", "", z);
   y = chkarray(x, z);
   debug(F101, "pusharray y", "", y);
-  x -= ARRAYBASE; /* Convert name letter to index. */
+  x -= ARRAYBASE; // Convert name letter to index.
   if (x < 0 || x > 27) {
     return (-1);
   }
   if (y < 0) {
     aa_ptr[cmdlvl][x] = (char **)NULL;
-    aa_dim[cmdlvl][x] = -23; /* Secret code (see popclvl()) */
+    aa_dim[cmdlvl][x] = -23; // Secret code (see popclvl())
   } else {
     aa_ptr[cmdlvl][x] = a_ptr[x];
     aa_dim[cmdlvl][x] = y;
@@ -7789,27 +7696,25 @@ int pusharray(int x, int z) {
   return (0);
 }
 
-/*  P A R S E V A R  --  Parse a variable name or array reference.  */
-/*
- Call with:
-   s  = pointer to candidate variable name or array reference.
-   *c = address of integer in which to return variable ID.
-   *i = address of integer in which to return array subscript.
- Returns:
-   -2:  syntax error in variable name or array reference.
-    1:  successful parse of a simple variable, with ID in c.
-    2:  successful parse of an array reference, w/ID in c and subscript in i.
-*/
+//  P A R S E V A R  --  Parse a variable name or array reference.
+// Call with:
+// s  = pointer to candidate variable name or array reference.
+// *c = address of integer in which to return variable ID.
+// *i = address of integer in which to return array subscript.
+// Returns:
+// -2:  syntax error in variable name or array reference.
+//  1:  successful parse of a simple variable, with ID in c.
+//  2:  successful parse of an array reference, w/ID in c and subscript in i.
 int parsevar(char *s, int *c, int *i) {
   char *p;
   int x, y, z;
 
   p = s;
   if (*s == CMDQ) {
-    s++; /* Point after backslash */
+    s++; // Point after backslash
   }
 
-  if (*s != '%' && *s != '&') { /* Make sure it's % or & */
+  if (*s != '%' && *s != '&') { // Make sure it's % or &
     printf("?Not a variable name - %s\n", p);
     return (-9);
   }
@@ -7825,17 +7730,17 @@ int parsevar(char *s, int *c, int *i) {
     printf("?Array subscript expected - %s\n", p);
     return (-9);
   }
-  if (*s == '%') { /* Simple variable. */
-    y = *(s + 1);  /* Get variable ID letter/char */
+  if (*s == '%') { // Simple variable.
+    y = *(s + 1);  // Get variable ID letter/char
     if (isupper(y)) {
-      y -= ('a' - 'A'); /* Convert upper to lower case */
+      y -= ('a' - 'A'); // Convert upper to lower case
     }
-    *c = y;     /* Set the return values. */
-    *i = -1;    /* No array subscript. */
-    return (1); /* Return 1 = simple variable */
+    *c = y;     // Set the return values.
+    *i = -1;    // No array subscript.
+    return (1); // Return 1 = simple variable
   }
-  if (*s == '&') {           /* Array reference. */
-    y = arraynam(s, &x, &z); /* Go parse it. */
+  if (*s == '&') {           // Array reference.
+    y = arraynam(s, &x, &z); // Go parse it.
     debug(F101, "parsevar arraynam", "", y);
     if ((y) < 0) {
       if (y == -2) {
@@ -7846,135 +7751,129 @@ int parsevar(char *s, int *c, int *i) {
       }
       return (-9);
     }
-    if (chkarray(x, z) < 0) { /* Check if declared, etc. */
+    if (chkarray(x, z) < 0) { // Check if declared, etc.
       printf("?Array not declared or subscript out of range\n");
       return (-9);
     }
-    *c = x; /* Return array letter */
-    *i = z; /* and subscript. */
+    *c = x; // Return array letter
+    *i = z; // and subscript.
     return (2);
   }
-  return (-2); /* None of the above. */
+  return (-2); // None of the above.
 }
 
 #define VALN 32
 
-/* Get the numeric value of a variable */
-/*
-  Call with pointer to variable name, pointer to int for return value.
-  Returns:
-    0 on success with second arg containing the value.
-   -1 on failure (bad variable syntax, variable not defined or not numeric).
-*/
+// Get the numeric value of a variable
+// Call with pointer to variable name, pointer to int for return value.
+// Returns:
+//  0 on success with second arg containing the value.
+// -1 on failure (bad variable syntax, variable not defined or not numeric).
 int varval(char *s, CK_OFF_T *v) {
-  char valbuf[VALN + 1]; /* s is pointer to variable name */
+  char valbuf[VALN + 1]; // s is pointer to variable name
   char name[256];
   char *p;
   int y;
 
-  if (*s != CMDQ) { /* Handle macro names too */
+  if (*s != CMDQ) { // Handle macro names too
     ckmakmsg(name, 256, "\\m(", s, ")", NULL);
     s = name;
   }
-  p = valbuf; /* Expand variable into valbuf. */
+  p = valbuf; // Expand variable into valbuf.
   y = VALN;
   if (zzstring(s, &p, &y) < 0) {
     return (-1);
   }
-  p = valbuf;        /* Make sure value is numeric  */
-  if (!*p) {         /* Be nice -- let an undefined */
-    valbuf[0] = '0'; /* variable be treated as 0.   */
+  p = valbuf;        // Make sure value is numeric
+  if (!*p) {         // Be nice -- let an undefined
+    valbuf[0] = '0'; // variable be treated as 0.
     valbuf[1] = NUL;
   }
-  if (chknum(p)) {     /* Convert numeric string to int */
-    *v = ckatofs(p);   /* OK */
-  } else {             /* Not OK */
-    p = evala(p);      /* Maybe it's an expression */
-    if (!chknum(p)) {  /* Did it evaluate? */
-      return (-1);     /* No, failure. */
-    } else {           /* Yes, */
-      *v = ckatofs(p); /* success */
+  if (chknum(p)) {     // Convert numeric string to int
+    *v = ckatofs(p);   // OK
+  } else {             // Not OK
+    p = evala(p);      // Maybe it's an expression
+    if (!chknum(p)) {  // Did it evaluate?
+      return (-1);     // No, failure.
+    } else {           // Yes,
+      *v = ckatofs(p); // success
     }
   }
   return (0);
 }
 
 #define SVALN 2048
-/*
-  Like varval() but returns variable value as a string, not a number.
-  Added but not tested or used; it's usually easier to use zzstring().
-  - fdc  11 December 2022
-*/
+// Like varval() but returns variable value as a string, not a number.
+// Added but not tested or used; it's usually easier to use zzstring().
+// - fdc  11 December 2022
 int varsval(char *s, char **s2) {
-  char valbuf[SVALN + 1]; /* s is pointer to variable name */
+  char valbuf[SVALN + 1]; // s is pointer to variable name
   char name[256];
   char *p;
   int y;
 
-  if (*s != CMDQ) { /* Handle macro names too */
+  if (*s != CMDQ) { // Handle macro names too
     ckmakmsg(name, 256, "\\m(", s, ")", NULL);
     s = name;
   }
-  p = valbuf; /* Expand variable into valbuf. */
+  p = valbuf; // Expand variable into valbuf.
   y = SVALN;
   if (zzstring(s, &p, &y) < 0) {
     return (-1);
   }
-  *s2 = p; /* success */
+  *s2 = p; // success
   return (0);
 }
 
-/* Increment or decrement a variable */
-/* Returns -1 on failure, 0 on success */
+// Increment or decrement a variable
+// Returns -1 on failure, 0 on success
 
-int incvar(char *s, CK_OFF_T x, int z) /* Increment a numeric variable */
+int incvar(char *s, CK_OFF_T x, int z) // Increment a numeric variable
 {
-  CK_OFF_T n;              /* s is pointer to variable name */
-                           /* x is amount to increment by */
-                           /* z != 0 means add */
-                           /* z = 0 means subtract */
-  if (varval(s, &n) < 0) { /* Convert numeric string to int */
+  CK_OFF_T n;              // s is pointer to variable name
+                           // x is amount to increment by
+                           // z != 0 means add
+                           // z = 0 means subtract
+  if (varval(s, &n) < 0) { // Convert numeric string to int
     return (-1);
   }
-  if (z) { /* Increment it by the given amount */
+  if (z) { // Increment it by the given amount
     n += x;
-  } else { /* or decrement as requested. */
+  } else { // or decrement as requested.
     n -= x;
   }
-  addmac(s, ckfstoa(n)); /* Replace old variable */
+  addmac(s, ckfstoa(n)); // Replace old variable
   return (0);
 }
 
-/* D O D O  --  Do a macro */
+// D O D O  --  Do a macro
 
-/*
-  Call with x = macro table index, s = pointer to arguments.
-  Returns 0 on failure, 1 on success.
-*/
+// Call with x = macro table index, s = pointer to arguments.
+// Returns 0 on failure, 1 on success.
 int dodo(int x, char *s, int flags) {
   int y;
   extern int tra_asg, tra_cmd;
-  int tra_tmp; /* For TRACE */
+  int tra_tmp; // For TRACE
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
-  if (x < 0) { /* It can happen! */
+  if (x < 0) { // It can happen!
     return (-1);
   }
 
   tra_tmp = tra_asg;
 
-  if (++maclvl >= MACLEVEL) { /* Make sure we have storage */
+  if (++maclvl >= MACLEVEL) { // Make sure we have storage
     debug(F101, "dodo maclvl too deep", "", maclvl);
     --maclvl;
     printf("Macros nested too deeply\n");
     return (0);
   }
-  macp[maclvl] = mactab[x].mval; /* Point to the macro body */
-  macx[maclvl] = mactab[x].mval; /* Remember where the beginning is */
+  macp[maclvl] = mactab[x].mval; // Point to the macro body
+  macx[maclvl] = mactab[x].mval; // Remember where the beginning is
 
-  cmdlvl++;                /* Entering a new command level */
-  if (cmdlvl >= CMDSTKL) { /* Too many macros + TAKE files? */
+  cmdlvl++;                // Entering a new command level
+  if (cmdlvl >= CMDSTKL) { // Too many macros + TAKE files?
     debug(F101, "dodo cmdlvl too deep", "", cmdlvl);
     cmdlvl--;
     printf("?TAKE files and DO commands nested too deeply\n");
@@ -7985,61 +7884,61 @@ int dodo(int x, char *s, int flags) {
     debug(F111, "CMD +M", mactab[x].kwd, cmdlvl);
     debug(F010, "CMD ->", s, 0);
   }
-#endif /* DEBUG */
+#endif // DEBUG
 
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
   ifcmd[cmdlvl] = 0;
   iftest[cmdlvl] = 0;
-  count[cmdlvl] = count[cmdlvl - 1];   /* Inherit COUNT from previous level */
-  intime[cmdlvl] = intime[cmdlvl - 1]; /* Inherit previous INPUT TIMEOUT */
-  inpcas[cmdlvl] = inpcas[cmdlvl - 1]; /*   and INPUT CASE */
-  takerr[cmdlvl] = takerr[cmdlvl - 1]; /*   and TAKE ERROR */
-  merror[cmdlvl] = merror[cmdlvl - 1]; /*   and MACRO ERROR */
+  count[cmdlvl] = count[cmdlvl - 1];   // Inherit COUNT from previous level
+  intime[cmdlvl] = intime[cmdlvl - 1]; // Inherit previous INPUT TIMEOUT
+  inpcas[cmdlvl] = inpcas[cmdlvl - 1]; //   and INPUT CASE
+  takerr[cmdlvl] = takerr[cmdlvl - 1]; //   and TAKE ERROR
+  merror[cmdlvl] = merror[cmdlvl - 1]; //   and MACRO ERROR
   xquiet[cmdlvl] = quiet;
   xvarev[cmdlvl] = vareval;
   xcmdsrc = CMD_MD;
-  cmdstk[cmdlvl].src = CMD_MD;              /* Say we're in a macro */
-  cmdstk[cmdlvl].lvl = maclvl;              /* and remember the macro level */
-  cmdstk[cmdlvl].ccflgs = flags & ~CF_IMAC; /* Set flags */
+  cmdstk[cmdlvl].src = CMD_MD;              // Say we're in a macro
+  cmdstk[cmdlvl].lvl = maclvl;              // and remember the macro level
+  cmdstk[cmdlvl].ccflgs = flags & ~CF_IMAC; // Set flags
 
-  /* Initialize return value except in FOR, WHILE, IF, and SWITCH macros */
+  // Initialize return value except in FOR, WHILE, IF, and SWITCH macros
 
   if (!(flags & CF_IMAC) && mrval[maclvl]) {
     free(mrval[maclvl]);
     mrval[maclvl] = NULL;
   }
 
-  /* Clear old %0..%9 arguments */
+  // Clear old %0..%9 arguments
 
-  addmac("%0", mactab[x].kwd); /* Define %0 = name of macro */
+  addmac("%0", mactab[x].kwd); // Define %0 = name of macro
   makestr(&(m_xarg[maclvl][0]), mactab[x].kwd);
   varnam[0] = '%';
   varnam[2] = '\0';
   tra_asg = 0;
-  for (y = 1; y < 10; y++) {       /* Clear args %1..%9 */
-    if (m_arg[maclvl][y]) {        /* Don't call delmac() unless */
-      varnam[1] = (char)(y + '0'); /* we have to... */
+  for (y = 1; y < 10; y++) {       // Clear args %1..%9
+    if (m_arg[maclvl][y]) {        // Don't call delmac() unless
+      varnam[1] = (char)(y + '0'); // we have to...
       delmac(varnam, 0);
     }
   }
   tra_asg = tra_tmp;
 
-  /* Break the big "s" string up into macro arguments */
+  // Break the big "s" string up into macro arguments
 
   xwords(s, MAXARGLIST, NULL, 0);
 
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
   if (tra_cmd) {
     printf("[%d] +M: \"%s\"\n", cmdlvl, mactab[x].kwd);
   }
   return (1);
 }
 
-/* Insert "literal" quote around each comma-separated command to prevent */
-/* its premature expansion.  Only do this if object command is surrounded */
-/* by braces. */
+// Insert "literal" quote around each comma-separated command to prevent
+// its premature expansion.  Only do this if object command is surrounded
+// by braces.
 
 static char *flit = "\\flit(";
 
@@ -8053,55 +7952,55 @@ int litcmd(char **src, char **dest, int n) {
   debug(F010, "litcmd", s, 0);
 
   while (*s == SP) {
-    s++; /* Strip extra leading spaces */
+    s++; // Strip extra leading spaces
   }
 
-  if (*s == '{') { /* Starts with brace */
-    pp = 0;        /* Paren counter */
-    bc = 1;        /* Count leading brace */
-    *lp++ = *s++;  /* Copy it */
+  if (*s == '{') { // Starts with brace
+    pp = 0;        // Paren counter
+    bc = 1;        // Count leading brace
+    *lp++ = *s++;  // Copy it
     if (--n < 1) {
-      return (-1); /* Check space */
+      return (-1); // Check space
     }
     while (*s == SP) {
-      s++; /* Strip interior leading spaces */
+      s++; // Strip interior leading spaces
     }
-    ss = flit;                /* Point to "\flit(" */
-    while ((*lp++ = *ss++)) { /* Copy it */
-      if (--n < 1) {          /* and check space */
+    ss = flit;                // Point to "\flit("
+    while ((*lp++ = *ss++)) { // Copy it
+      if (--n < 1) {          // and check space
         return (-1);
       }
     }
-    lp--; /* Back up over null */
+    lp--; // Back up over null
 
-    while (*s) { /* Go thru rest of text */
+    while (*s) { // Go thru rest of text
       c = *s;
       if (c == '{') {
-        bc++; /* Count brackets */
+        bc++; // Count brackets
       }
       if (c == '(') {
-        pp++; /* and parens */
+        pp++; // and parens
       }
-      if (c == ')') { /* Right parenthesis. */
-        pp--;         /* Count it. */
-        if (pp < 0) { /* An unbalanced right paren... */
-          /* Here we rely on the fact the \nnn never takes more than 3 digits */
-          if (n < 4) {   /* Out of space in dest buffer? */
-            return (-1); /* If so, give up. */
+      if (c == ')') { // Right parenthesis.
+        pp--;         // Count it.
+        if (pp < 0) { // An unbalanced right paren...
+          // Here we rely on the fact the \nnn never takes more than 3 digits
+          if (n < 4) {   // Out of space in dest buffer?
+            return (-1); // If so, give up.
           }
-          *lp++ = CMDQ; /* Must be quoted to prevent */
-          *lp++ = '0';  /* premature termination of */
-          *lp++ = '4';  /* \flit(...) */
+          *lp++ = CMDQ; // Must be quoted to prevent
+          *lp++ = '0';  // premature termination of
+          *lp++ = '4';  // \flit(...)
           *lp++ = '1';
           n -= 4;
-          pp++; /* Uncount it. */
+          pp++; // Uncount it.
           s++;
           continue;
         }
       }
-      if (c == '}') {    /* Closing brace. */
-        if (--bc == 0) { /* Final one? */
-          *lp++ = ')';   /* Add closing paren for "\flit()" */
+      if (c == '}') {    // Closing brace.
+        if (--bc == 0) { // Final one?
+          *lp++ = ')';   // Add closing paren for "\flit()"
           if (--n < 1) {
             return (-1);
           }
@@ -8113,44 +8012,42 @@ int litcmd(char **src, char **dest, int n) {
           break;
         }
       }
-      *lp++ = c; /* General case */
+      *lp++ = c; // General case
       if (--n < 1) {
         return (-1);
       }
       s++;
     }
     *lp = NUL;
-  } else {                   /* No brackets around, */
-    while ((*lp++ = *s++)) { /* just copy. */
+  } else {                   // No brackets around,
+    while ((*lp++ = *s++)) { // just copy.
       if (--n < 1) {
         return (-1);
       }
     }
     lp--;
   }
-  *src = s;   /* Return updated source */
-  *dest = lp; /* and destination pointers */
-  if (bc) {   /* Fail if braces unbalanced */
+  *src = s;   // Return updated source
+  *dest = lp; // and destination pointers
+  if (bc) {   // Fail if braces unbalanced
     return (-1);
-  } else { /* Otherwise succeed. */
+  } else { // Otherwise succeed.
     return (0);
   }
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-/* Functions moved here from ckuusr.c to even out the module sizes... */
+// Functions moved here from ckuusr.c to even out the module sizes...
 
-/*
-  Breaks up string s -- IN PLACE! -- into a list of up to max words.
-  Pointers to each word go into the array list[].
-  max is the maximum number of words (pointers).
-  If list is NULL, then they are added to the macro table.
-  flag = 0 means the last field is to be one word, like all the other fields,
-         so anything after it is discarded.
-  flag = 1 means the last field extends to the end of the string, even if
-         there are lots of words left, so the last field contains the
-         remainder of the string.
-*/
+// Breaks up string s -- IN PLACE! -- into a list of up to max words.
+// Pointers to each word go into the array list[].
+// max is the maximum number of words (pointers).
+// If list is NULL, then they are added to the macro table.
+// flag = 0 means the last field is to be one word, like all the other fields,
+//       so anything after it is discarded.
+// flag = 1 means the last field extends to the end of the string, even if
+//       there are lots of words left, so the last field contains the
+//       remainder of the string.
 void xwords(char *s, int max, char *list[], int flag) {
   char *p;
   int b, i, k, q, y, z;
@@ -8165,31 +8062,29 @@ void xwords(char *s, int max, char *list[], int flag) {
   debug(F100, "xwords ENTRY", "", 0);
 
 #ifndef NOSPL
-  /*
-      debug(F110," xwords macro",(char *)m_xarg[maclvl][0],0);
-  */
+  //  debug(F110," xwords macro",(char *)m_xarg[maclvl][0],0);
   debug(F101, " xwords maclvl", "", maclvl);
   debug(F101, " xwords max", "", max);
   debug(F101, " xwords flag", "", flag);
   debug(F110, " xwords string", s, 0);
   debug(F101, " xwords macro", "", macro);
-#endif /* NOSPL */
+#endif // NOSPL
 
-  p = s; /* Pointer to beginning of string */
-  q = 0; /* Flag for doublequote removal */
-  b = 0; /* Flag for outer brace removal */
-  k = 0; /* Flag for in-word */
-  y = 0; /* Brace nesting level */
-  z = 0; /* "Word" counter, 0 thru max */
+  p = s; // Pointer to beginning of string
+  q = 0; // Flag for doublequote removal
+  b = 0; // Flag for outer brace removal
+  k = 0; // Flag for in-word
+  y = 0; // Brace nesting level
+  z = 0; // "Word" counter, 0 thru max
 
   if (!s) {
-    s = ""; /* Nothing to do */
+    s = ""; // Nothing to do
   }
   if (!*s) {
     return;
   }
   if (list) {
-    for (i = 0; i <= max; i++) { /* Initialize pointers */
+    for (i = 0; i <= max; i++) { // Initialize pointers
       list[i] = NULL;
     }
   }
@@ -8199,12 +8094,10 @@ void xwords(char *s, int max, char *list[], int flag) {
   }
 
 #ifndef NOSPL
-  /*
-    Macro arguments at this point are a single string... must split it up.
-    As of C-Kermit 9.0.304 Dev.22, 24 April 2017, we use cksplit() for
-    this instead of tons of messy code in xwords() written decades ago
-    to do what cksplit() does better.
-  */
+  // Macro arguments at this point are a single string... must split it up.
+  // As of C-Kermit 9.0.304 Dev.22, 24 April 2017, we use cksplit() for
+  // this instead of tons of messy code in xwords() written decades ago
+  // to do what cksplit() does better.
   if (macro) {
     struct stringarray *q = NULL;
     char **pp = NULL;
@@ -8214,147 +8107,143 @@ void xwords(char *s, int max, char *list[], int flag) {
     }
     debug(F101, " xwords splitting macro arguments.. maclvl", "", maclvl);
 
-    /* Space is the only separator; grouping is with "" or {} */
+    // Space is the only separator; grouping is with "" or {}
     q = cksplit(1, 0, p, " ", "ALL", 1 + 2, 0, 0, 1);
-    z = q->a_size; /* Number of "words" in string */
+    z = q->a_size; // Number of "words" in string
     if (z <= 0) {
       return;
     }
     pp = q->a_head;
     if (pp) {
-      /*
-        In C-Kermit 9.0.304 Dev.22, April 2017, we have to get the macro
-        arguments from the previous macro level (prev).  Up to now, the macro
-        arguments were evaluated when the DO command was parsed, before dodo()
-        or xwords() were ever called.  Now we're evaluating them after already
-        entering the new macro stack level: evalmacroarg() is just a front end
-        for zzstring(), which is at the heart of all variable-substitution
-        operations.  To evaluate a \%1-9 variable, zzstring() looks in the
-        CURRENT macro stack frame.  Rather than mess with zzstring(), I set
-        maclvl back before calling evalmacroarg() and restore it immediately
-        afterward.  It's the only safe way to do this, Because zzstring() has no
-        way of knowing whether (say) \%1 is on the DO command line or in some
-        other context.
-      */
+      // In C-Kermit 9.0.304 Dev.22, April 2017, we have to get the macro
+      // arguments from the previous macro level (prev).  Up to now, the macro
+      // arguments were evaluated when the DO command was parsed, before dodo()
+      // or xwords() were ever called.  Now we're evaluating them after already
+      // entering the new macro stack level: evalmacroarg() is just a front end
+      // for zzstring(), which is at the heart of all variable-substitution
+      // operations.  To evaluate a \%1-9 variable, zzstring() looks in the
+      // CURRENT macro stack frame.  Rather than mess with zzstring(), I set
+      // maclvl back before calling evalmacroarg() and restore it immediately
+      // afterward.  It's the only safe way to do this, Because zzstring() has
+      // no way of knowing whether (say) \%1 is on the DO command line or in
+      // some other context.
       debug(F101, " xwords macro cksplit items", "", z);
       if (z > max) {
         z = max;
       }
-      for (i = 1; i <= z; i++) { /* Loop through macro arguments. */
+      for (i = 1; i <= z; i++) { // Loop through macro arguments.
         p = pp[i];
         debug(F111, " xwords arg i", p, i);
-        maclvl--;         /* Get argument from previous level */
-        evalmacroarg(&p); /* Evaluate it */
-        maclvl++;         /* Use its value on currentlevel */
+        maclvl--;         // Get argument from previous level
+        evalmacroarg(&p); // Evaluate it
+        maclvl++;         // Use its value on currentlevel
         debug(F111, " xwords arg i evaluated", p, i);
         makestr(&(m_xarg[maclvl][i]), p);
         if (i < 10) {
-          varnam[1] = (char)(i + '0'); /* Assign last arg */
+          varnam[1] = (char)(i + '0'); // Assign last arg
           addmac(varnam, p);
           debug(F111, " xwords arg name", varnam, maclvl);
           debug(F111, " xwords def def ", p, maclvl);
         }
       }
-      /* Handle argc and the dimension of the \&_[] arg vector array */
+      // Handle argc and the dimension of the \&_[] arg vector array
 
-      if (maclvl < 0) {  /* (How can this be?) */
-        a_dim[0] = z;    /* Array dimension is one less */
-        topargc = z + 1; /* than \v(argc) */
+      if (maclvl < 0) {  // (How can this be?)
+        a_dim[0] = z;    // Array dimension is one less
+        topargc = z + 1; // than \v(argc)
         debug(F111, " xwords a_dim[0]", "IMPOSSIBLE", a_dim[0]);
       } else {
-        macargc[maclvl] = z + 1;   /* Set \v(argc) variable */
-        n_xarg[maclvl] = z + 1;    /* This is the actual number */
-        a_ptr[0] = m_xarg[maclvl]; /* Point \&_[] at the args */
-        a_dim[0] = z;              /* And give it this dimension */
+        macargc[maclvl] = z + 1;   // Set \v(argc) variable
+        n_xarg[maclvl] = z + 1;    // This is the actual number
+        a_ptr[0] = m_xarg[maclvl]; // Point \&_[] at the args
+        a_dim[0] = z;              // And give it this dimension
         debug(F111, " xwords a_dim[0]", "E", a_dim[0]);
       }
     }
     return;
   }
-#endif                        /* NOSPL */
-                              /*
-                                Not macro args, some other kind of list.
-                                This whole mess could be a cksplit() call...
-                              */
-  while (1) {                 /* Go thru word list */
-    if (!s || (*s == '\0')) { /* No more characters? */
-      if (k != 0) {           /* Was I in a word? */
+#endif                        // NOSPL
+                              // Not macro args, some other kind of list.
+                              // This whole mess could be a cksplit() call...
+  while (1) {                 // Go thru word list
+    if (!s || (*s == '\0')) { // No more characters?
+      if (k != 0) {           // Was I in a word?
         if (z == max) {
-          break; /* Yes, only go up to max. */
+          break; // Yes, only go up to max.
         }
-        z++;         /* Count this word. */
-        list[z] = p; /* Assign pointer. */
+        z++;         // Count this word.
+        list[z] = p; // Assign pointer.
         debug(F111, " xwords list item p z", p, z);
       }
-      break; /* And get out. */
+      break; // And get out.
     }
-    if (k == 0 && (*s == SP || *s == HT)) { /* Eat leading blanks */
+    if (k == 0 && (*s == SP || *s == HT)) { // Eat leading blanks
       s++;
       continue;
-    } else if (q == 0 && *s == '{') { /* An opening brace */
-      if (k == 0 && y == 0) {         /* If leading brace */
-        p = s + 1;                    /* point past it */
-        b = 1;                        /* and flag that we did this */
+    } else if (q == 0 && *s == '{') { // An opening brace
+      if (k == 0 && y == 0) {         // If leading brace
+        p = s + 1;                    // point past it
+        b = 1;                        // and flag that we did this
       }
-      k = 1;                          /* Flag that we're in a word */
-      y++;                            /* Count the brace. */
-    } else if (q == 0 && *s == '}') { /* A closing brace. */
-      y--;                            /* Count it. */
-      if (y <= 0 && b != 0) {         /* If it matches the leading brace */
+      k = 1;                          // Flag that we're in a word
+      y++;                            // Count the brace.
+    } else if (q == 0 && *s == '}') { // A closing brace.
+      y--;                            // Count it.
+      if (y <= 0 && b != 0) {         // If it matches the leading brace
         char c;
         c = *(s + 1);
-        if (!c || c == SP || c == HT) { /* at EOL or followed by SP */
-          *s = SP;                      /* change it to a space */
-          b = 0;                        /* and we're not in braces any more */
+        if (!c || c == SP || c == HT) { // at EOL or followed by SP
+          *s = SP;                      // change it to a space
+          b = 0;                        // and we're not in braces any more
         }
       }
 #ifdef DOUBLEQUOTING
-      /* Opening doublequote */
+      // Opening doublequote
     } else if (k == 0 && b == 0 && *s == '"' && dblquo) {
       y++;
-      p = s + 1; /* point past it */
-      q = 1;     /* and flag that we did this */
-      k = 1;     /* Flag that we're in a word */
-      /* Closing double quote */
+      p = s + 1; // point past it
+      q = 1;     // and flag that we did this
+      k = 1;     // Flag that we're in a word
+      // Closing double quote
     } else if (q > 0 && k > 0 && b == 0 && *s == '"' && dblquo) {
       char c;
       c = *(s + 1);
-      if (!c || c == SP || c == HT) { /* at EOL or followed by SP */
+      if (!c || c == SP || c == HT) { // at EOL or followed by SP
         y--;
-        *s = SP; /* change it to a space */
-        q = 0;   /* and we're not in quotes any more */
+        *s = SP; // change it to a space
+        q = 0;   // and we're not in quotes any more
       }
-#endif /* DOUBLEQUOTING */
+#endif // DOUBLEQUOTING
 
-    } else if (*s != SP && *s != HT) { /* Nonspace means we're in a word */
-      if (k == 0) {                    /* If we weren't in a word before, */
-        p = s;                         /* Mark the beginning */
-        if (flag && z == max) {        /* Want last word to be remainder? */
+    } else if (*s != SP && *s != HT) { // Nonspace means we're in a word
+      if (k == 0) {                    // If we weren't in a word before,
+        p = s;                         // Mark the beginning
+        if (flag && z == max) {        // Want last word to be remainder?
           z++;
-          list[z] = p; /* Yes, point to it */
-          break;       /* and quit */
+          list[z] = p; // Yes, point to it
+          break;       // and quit
         }
-        k = 1; /* Set in-word flag */
+        k = 1; // Set in-word flag
       }
     }
-    /* If we're not inside a braced quantity, and we are in a word, and */
-    /* we have hit whitespace, then we have a word. */
+    // If we're not inside a braced quantity, and we are in a word, and
+    // we have hit whitespace, then we have a word.
     if ((y < 1) && (k != 0) && (*s == SP || *s == HT) && !b) {
-      if (!flag || z < max) { /* if we don't want to keep rest */
-        *s = '\0';            /* terminate the arg with null */
+      if (!flag || z < max) { // if we don't want to keep rest
+        *s = '\0';            // terminate the arg with null
       }
-      k = 0; /* say we're not in a word any more */
-      y = 0; /* start braces off clean again */
+      k = 0; // say we're not in a word any more
+      y = 0; // start braces off clean again
       if (z == max) {
-        break; /* Only go up to max. */
+        break; // Only go up to max.
       }
-      z++; /* count this arg */
+      z++; // count this arg
       list[z] = p;
       p = s + 1;
     }
-    s++; /* Point past this character */
+    s++; // Point past this character
   }
-  if ((z == 0) && (y > 1)) { /* Extra closing brace(s) at end */
+  if ((z == 0) && (y > 1)) { // Extra closing brace(s) at end
     z++;
     list[z] = p;
   }
@@ -8363,21 +8252,22 @@ void xwords(char *s, int max, char *list[], int flag) {
 
 #ifndef NOSPL
 
-/*  D O S H I F T  --  Do the SHIFT Command; shift macro args left by n */
+//  D O S H I F T  --  Do the SHIFT Command; shift macro args left by n
 
-/*  Note: at some point let's consolidate m_arg[][] and m_xarg[][]. */
+//  Note: at some point let's consolidate m_arg[][] and m_xarg[][].
 
-int doshift(int n) /* n = shift count */
+int doshift(int n) // n = shift count
 {
   int i, top, level;
-  char /* *s, *m, */ buf[6]; /* Buffer to build scalar names */
+  char        // *s, *m,
+      buf[6]; // Buffer to build scalar names
   char *sx = tmpbuf;
   int nx = TMPBUFSIZ;
 
   debug(F101, "SHIFT count", "", n);
   debug(F101, "SHIFT topargc", "", topargc);
 
-  if (n < 1) { /* Stay in range */
+  if (n < 1) { // Stay in range
     return (n == 0 ? 1 : 0);
   }
 
@@ -8396,28 +8286,28 @@ int doshift(int n) /* n = shift count */
       debug(F101, "SHIFT macargc[level]", "", macargc[level]);
     }
   }
-#endif /* DEBUG */
+#endif // DEBUG
 
-  buf[0] = '\\'; /* Initialize name template */
+  buf[0] = '\\'; // Initialize name template
   buf[1] = '%';
   buf[2] = NUL;
   buf[3] = NUL;
 
-  for (i = 1; i <= n; i++) { /* Free shifted-over args */
+  for (i = 1; i <= n; i++) { // Free shifted-over args
     if (level < 0) {
       makestr(&(toparg[i]), NULL);
     } else {
       makestr(&(m_xarg[level][i]), NULL);
     }
-    if (i < 10) { /* Is this necessary? */
+    if (i < 10) { // Is this necessary?
       buf[2] = (char)(i + '0');
       delmac(buf, 0);
     }
   }
-  for (i = 1; i <= top - n; i++) { /* Shift remaining args */
+  for (i = 1; i <= top - n; i++) { // Shift remaining args
     if (level < 0) {
-      makestr(&(toparg[i]), toparg[i + n]); /* Full vector */
-      if (i < 10) {                         /* Scalars... */
+      makestr(&(toparg[i]), toparg[i + n]); // Full vector
+      if (i < 10) {                         // Scalars...
         makestr(&(g_var[i + '0']), toparg[i + n]);
       }
     } else {
@@ -8429,7 +8319,7 @@ int doshift(int n) /* n = shift count */
       }
     }
   }
-  for (i = top - n; i <= top; i++) { /* Clear n args from the end */
+  for (i = top - n; i <= top; i++) { // Clear n args from the end
     if (level < 0) {
       makestr(&(toparg[i]), NULL);
       if (i < 10) {
@@ -8443,13 +8333,13 @@ int doshift(int n) /* n = shift count */
       }
     }
   }
-  if (level > -1) {                  /* Macro args */
-    macargc[level] -= n;             /* Adjust count */
-    n_xarg[maclvl] = macargc[level]; /* Here too */
-    a_dim[0] = macargc[level] - 1;   /* Adjust array dimension */
+  if (level > -1) {                  // Macro args
+    macargc[level] -= n;             // Adjust count
+    n_xarg[maclvl] = macargc[level]; // Here too
+    a_dim[0] = macargc[level] - 1;   // Adjust array dimension
     debug(F111, "a_dim[0]", "F", a_dim[0]);
-    zzstring("\\fjoin(&_[],{ },1)", &sx, &nx); /* Handle \%* */
-  } else {                                     /* Ditto for top level */
+    zzstring("\\fjoin(&_[],{ },1)", &sx, &nx); // Handle \%*
+  } else {                                     // Ditto for top level
     topargc -= n;
     a_dim[0] = topargc - 1;
     debug(F111, "a_dim[0]", "G", a_dim[0]);
@@ -8457,9 +8347,9 @@ int doshift(int n) /* n = shift count */
   }
   return (1);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
-int docd(int cx) /* Do the CD command */
+int docd(int cx) // Do the CD command
 {
   int x;
   extern int server, srvcdmsg, cdactive;
@@ -8467,7 +8357,7 @@ int docd(int cx) /* Do the CD command */
   char *s, *p;
 #ifdef IKSDCONF
   extern int iksdcf;
-#endif /* IKSDCONF */
+#endif // IKSDCONF
 
 #ifndef NOFRILLS
   if (cx == XXBACK) {
@@ -8485,7 +8375,7 @@ int docd(int cx) /* Do the CD command */
     }
     return (cwdf);
   }
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
   if (cx == XXCDUP) {
     s = "..";
@@ -8493,50 +8383,50 @@ int docd(int cx) /* Do the CD command */
     goto gocd;
   }
 #ifndef NOSPL
-  if (cx == XXKCD) { /* Symbolic (Kermit) CD */
+  if (cx == XXKCD) { // Symbolic (Kermit) CD
     char *p;
     int n, k;
     x = cmkey(kcdtab, nkcdtab, "Symbolic directory name", "home", xxstring);
     if (x < 0) {
       return (x);
     }
-    x = lookup(kcdtab, atmbuf, nkcdtab, &k); /* Get complete keyword */
+    x = lookup(kcdtab, atmbuf, nkcdtab, &k); // Get complete keyword
     if (x < 0) {
-      printf("?Lookup error\n"); /* shouldn't happen */
+      printf("?Lookup error\n"); // shouldn't happen
       return (-9);
     }
     if ((x = cmcfm()) < 0) {
       return (x);
     }
-    if (k == VN_HOME) { /* HOME: allow SET HOME to override */
+    if (k == VN_HOME) { // HOME: allow SET HOME to override
       ckstrncpy(line, homepath(), LINBUFSIZ);
-    } else { /* Other symbolic name */
-      /* Convert to variable syntax */
+    } else { // Other symbolic name
+      // Convert to variable syntax
       ckmakmsg(tmpbuf, TMPBUFSIZ, "\\v(", kcdtab[k].kwd, ")", NULL);
-      p = line; /* Expand the variable */
+      p = line; // Expand the variable
       n = LINBUFSIZ;
       zzstring(tmpbuf, &p, &n);
-      if (!line[0]) { /* Fail if variable not defined */
+      if (!line[0]) { // Fail if variable not defined
         printf("?%s - not defined\n", tmpbuf);
         return (success = 0);
       }
     }
-    s = line; /* All OK, go try to CD... */
+    s = line; // All OK, go try to CD...
     goto gocd;
   }
-#endif /* NOSPL */
+#endif // NOSPL
 
   cdactive = 1;
   if ((x = cmdirp("Carriage return for home directory,\n\
 or name of directory on this computer",
-                  homepath(), /* In VMS this is "SYS$LOGIN:" */
+                  homepath(), // In VMS this is "SYS$LOGIN:"
                   &s, ckcdpath ? ckcdpath : getenv("CDPATH"), xxstring)) < 0) {
     return (x);
   }
-  ckstrncpy(line, s, LINBUFSIZ); /* Make a safe copy */
+  ckstrncpy(line, s, LINBUFSIZ); // Make a safe copy
   s = line;
   debug(F110, "docd", s, 0);
-  if ((x = cmcfm()) < 0) { /* Get confirmation */
+  if ((x = cmcfm()) < 0) { // Get confirmation
     return (x);
   }
 
@@ -8549,7 +8439,7 @@ gocd:
     if (ckrooterr) {
       printf("?Off limits: \"%s\"\n", s);
     } else
-#endif /* CKROOT */
+#endif // CKROOT
       perror(s);
   } else {
     cwdf = 1;
@@ -8562,7 +8452,7 @@ gocd:
     if (srvcdmsg
 #ifdef IKSDCONF
         && !(inserver && !iksdcf)
-#endif /* IKSDCONF */
+#endif // IKSDCONF
     ) {
       int i;
       for (i = 0; i < 8; i++) {
@@ -8575,11 +8465,11 @@ gocd:
       }
     }
   }
-  /* xdocd: */
+  // xdocd:
   if (!x && srvcdmsg && !server
 #ifdef IKSDCONF
       && !(inserver && !iksdcf)
-#endif /* IKSDCONF */
+#endif // IKSDCONF
       && !quiet && !xcmdsrc)
     printf("%s\n", zgtdir());
 
@@ -8588,57 +8478,55 @@ gocd:
 
 static int on_ctrlc = 0;
 
-void fixcmd() { /* Fix command parser after interruption */
+void fixcmd() { // Fix command parser after interruption
 #ifndef NOSPL
 #ifndef NOONCTRLC
-  if (nmac) {                      /* Any macros defined? */
-    int k;                         /* Yes */
-    char *s = "on_ctrlc";          /* Name of Ctrl-C handling macro */
-    k = mlook(mactab, s, nmac);    /* Look it up. */
-    if (k >= 0) {                  /* If found, */
-      if (on_ctrlc++ == 0) {       /* if not already executing, */
-        if (dodo(k, "", 0) > -1) { /* set it up, */
-          parser(1);               /* execute it, */
+  if (nmac) {                      // Any macros defined?
+    int k;                         // Yes
+    char *s = "on_ctrlc";          // Name of Ctrl-C handling macro
+    k = mlook(mactab, s, nmac);    // Look it up.
+    if (k >= 0) {                  // If found,
+      if (on_ctrlc++ == 0) {       // if not already executing,
+        if (dodo(k, "", 0) > -1) { // set it up,
+          parser(1);               // execute it,
         }
       }
-      delmac(s, 1); /* and undefine it. */
+      delmac(s, 1); // and undefine it.
     }
   }
   on_ctrlc = 0;
-#endif             /* NOONCTRLC */
-#endif             /* NOSPL */
-  dostop();        /* Back to top level (also calls conint()). */
-  bgchk();         /* Check background status */
-  if (*psave) {    /* If old prompt saved, */
-    cmsetp(psave); /* restore it. */
+#endif             // NOONCTRLC
+#endif             // NOSPL
+  dostop();        // Back to top level (also calls conint()).
+  bgchk();         // Check background status
+  if (*psave) {    // If old prompt saved,
+    cmsetp(psave); // restore it.
     *psave = NUL;
   }
-  success = 0; /* Tell parser last command failed */
+  success = 0; // Tell parser last command failed
 }
 
-#ifndef NOSHOW /* SHOW FEATURES */
-/*
-  Note, presently optlist[] index overflow is not checked.
-  There is plenty of room (less than 360 entries for 1000 slots).
-  When space starts to get tight, check for noptlist >= NOPTLIST
-  every time noptlist is incremented.
-*/
+#ifndef NOSHOW // SHOW FEATURES
+// Note, presently optlist[] index overflow is not checked.
+// There is plenty of room (less than 360 entries for 1000 slots).
+// When space starts to get tight, check for noptlist >= NOPTLIST
+// every time noptlist is incremented.
 #define NOPTLIST 1024
 static int noptlist = 0;
 static char *optlist[NOPTLIST + 1];
 static int hpos = 0;
 
-int prtopt(int *lines, char *s) /* Print an option */
+int prtopt(int *lines, char *s) // Print an option
 {
-  int y, i; /* Does word wrap. */
+  int y, i; // Does word wrap.
   if (!s) {
     s = "";
   }
   i = *lines;
-  if (!*s) {                      /* Empty argument */
-    if (hpos > 0) {               /* means to end this line. */
-      printf("\n");               /* Not needed if already at */
-      if (++i > (cmd_rows - 3)) { /* beginning of new line. */
+  if (!*s) {                      // Empty argument
+    if (hpos > 0) {               // means to end this line.
+      printf("\n");               // Not needed if already at
+      if (++i > (cmd_rows - 3)) { // beginning of new line.
         if (!askmore()) {
           return (0);
         } else {
@@ -8646,7 +8534,7 @@ int prtopt(int *lines, char *s) /* Print an option */
         }
       }
     }
-    printf("\n"); /* And then make a blank line */
+    printf("\n"); // And then make a blank line
     if (++i > (cmd_rows - 3)) {
       if (!askmore()) {
         return (0);
@@ -8692,703 +8580,701 @@ static void initoptlist() {
 
 #ifdef __386__
   makestr(&(optlist[noptlist++]), "__386__");
-#endif /* __386__ */
+#endif // __386__
 
-  /* Memory models... */
+  // Memory models...
 
 #ifdef __FLAT__
   makestr(&(optlist[noptlist++]), "__FLAT__");
-#endif /* __FLAT__ */
+#endif // __FLAT__
 #ifdef __SMALL__
   makestr(&(optlist[noptlist++]), "__SMALL__");
-#endif /* __SMALL__ */
+#endif // __SMALL__
 #ifdef __MEDIUM__
   makestr(&(optlist[noptlist++]), "__MEDIUM__");
-#endif /* __MEDIUM__ */
+#endif // __MEDIUM__
 #ifdef __COMPACT__
   makestr(&(optlist[noptlist++]), "__COMPACT__");
-#endif /* __COMPACT__ */
+#endif // __COMPACT__
 #ifdef __LARGE__
   makestr(&(optlist[noptlist++]), "__LARGE__");
-#endif /* __LARGE__ */
+#endif // __LARGE__
 
 #ifdef DEBUG
 #ifdef IFDEBUG
   makestr(&(optlist[noptlist++]), "IFDEBUG");
 #else
   makestr(&(optlist[noptlist++]), "DEBUG");
-#endif /* IFDEBUG */
-#endif /* DEBUG */
+#endif // IFDEBUG
+#endif // DEBUG
 #ifdef TLOG
   makestr(&(optlist[noptlist++]), "TLOG");
-#endif /* TLOG */
+#endif // TLOG
 #ifdef BIGBUFOK
   makestr(&(optlist[noptlist++]), "BIGBUFOK");
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
 #ifdef INPBUFSIZ
-  sprintf(line, "INPBUFSIZ=%d", INPBUFSIZ); /* SAFE */
+  sprintf(line, "INPBUFSIZ=%d", INPBUFSIZ); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* INPBUFSIZE */
+#endif // INPBUFSIZE
 #ifdef LINBUFSIZ
-  sprintf(line, "LINBUFSIZ=%d", LINBUFSIZ); /* SAFE */
+  sprintf(line, "LINBUFSIZ=%d", LINBUFSIZ); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* LINBUFSIZE */
+#endif // LINBUFSIZE
 #ifdef INBUFSIZE
-  sprintf(line, "INBUFSIZE=%d", INBUFSIZE); /* SAFE */
+  sprintf(line, "INBUFSIZE=%d", INBUFSIZE); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* INBUFSIZE */
+#endif // INBUFSIZE
 #ifdef OBUFSIZE
-  sprintf(line, "OBUFSIZE=%d", OBUFSIZE); /* SAFE */
+  sprintf(line, "OBUFSIZE=%d", OBUFSIZE); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* OBUFSIZE */
+#endif // OBUFSIZE
 #ifdef FD_SETSIZE
-  sprintf(line, "FD_SETSIZE=%d", FD_SETSIZE); /* SAFE */
+  sprintf(line, "FD_SETSIZE=%d", FD_SETSIZE); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* FD_SETSIZE */
+#endif // FD_SETSIZE
 #ifdef XFRCAN
   makestr(&(optlist[noptlist++]), "XFRCAN");
-#endif /* XFRCAN */
+#endif // XFRCAN
 #ifdef XPRINT
   makestr(&(optlist[noptlist++]), "XPRINT");
-#endif /* XPRINT */
+#endif // XPRINT
 #ifdef PIPESEND
   makestr(&(optlist[noptlist++]), "PIPESEND");
-#endif /* PIPESEND */
+#endif // PIPESEND
 
 #ifdef C89
   makestr(&(optlist[noptlist++]), "C89");
-#endif /* C89 */
+#endif // C89
 #ifdef C90
   makestr(&(optlist[noptlist++]), "C90");
-#endif /* C90 */
+#endif // C90
 #ifdef C99
   makestr(&(optlist[noptlist++]), "C99");
-#endif /* C99 */
+#endif // C99
 
 #ifdef CK_SPEED
   makestr(&(optlist[noptlist++]), "CK_SPEED");
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 #ifdef CK_FAST
   makestr(&(optlist[noptlist++]), "CK_FAST");
-#endif /* CK_FAST */
+#endif // CK_FAST
 #ifdef CK_APC
   makestr(&(optlist[noptlist++]), "CK_APC");
-#endif /* CK_APC */
+#endif // CK_APC
 #ifdef CK_AUTODL
   makestr(&(optlist[noptlist++]), "CK_AUTODL");
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 #ifdef CK_MKDIR
   makestr(&(optlist[noptlist++]), "CK_MKDIR");
-#endif /* CK_MKDIR */
+#endif // CK_MKDIR
 #ifdef HAVE_GSSAPI
   makestr(&(optlist[noptlist++]), "HAVE_GSSAPI");
-#endif /* HAVE_GSSAPI */
+#endif // HAVE_GSSAPI
 #ifdef HAVE_KRB4
   makestr(&(optlist[noptlist++]), "HAVE_KRB4");
-#endif /* HAVE_KRB4 */
+#endif // HAVE_KRB4
 #ifdef HAVE_KRB5
   makestr(&(optlist[noptlist++]), "HAVE_KRB5");
-#endif /* HAVE_KRB5 */
+#endif // HAVE_KRB5
 #ifdef HAVE_LOCALE
   makestr(&(optlist[noptlist++]), "HAVE_LOCALE");
-#endif /* HAVE_LOCALE */
+#endif // HAVE_LOCALE
 #ifdef HAVE_SNPRINTF
   makestr(&(optlist[noptlist++]), "HAVE_SNPRINTF");
-#endif /* HAVE_SNPRINTF */
+#endif // HAVE_SNPRINTF
 #ifdef NOMKDIR
   makestr(&(optlist[noptlist++]), "NOMKDIR");
-#endif /* NOMKDIR */
+#endif // NOMKDIR
 #ifdef CK_LABELED
   makestr(&(optlist[noptlist++]), "CK_LABELED");
-#endif /* CK_LABELED */
+#endif // CK_LABELED
 #ifdef NODIAL
   makestr(&(optlist[noptlist++]), "NODIAL");
-#endif /* NODIAL */
+#endif // NODIAL
 #ifdef MINIDIAL
   makestr(&(optlist[noptlist++]), "MINIDIAL");
-#endif /* MINIDIAL */
+#endif // MINIDIAL
 #ifdef WHATAMI
   makestr(&(optlist[noptlist++]), "WHATAMI");
-#endif /* WHATAMI */
+#endif // WHATAMI
 #ifdef DYNAMIC
   makestr(&(optlist[noptlist++]), "DYNAMIC");
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 #ifndef NOSPL
-  sprintf(line, "CMDDEP=%d", CMDDEP); /* SAFE */
+  sprintf(line, "CMDDEP=%d", CMDDEP); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef MAXPATHLEN
-  sprintf(line, "MAXPATHLEN=%d", MAXPATHLEN); /* SAFE */
+  sprintf(line, "MAXPATHLEN=%d", MAXPATHLEN); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAXPATHLEN */
+#endif // MAXPATHLEN
 
 #ifdef DEVNAMLEN
-  sprintf(line, "DEVNAMLEN=%d", DEVNAMLEN); /* SAFE */
+  sprintf(line, "DEVNAMLEN=%d", DEVNAMLEN); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* DEVNAMLEN */
+#endif // DEVNAMLEN
 
 #ifdef NO_PARAM_H
   makestr(&(optlist[noptlist++]), "NO_PARAM_H");
-#endif /* NO_PARAM_H */
+#endif // NO_PARAM_H
 
 #ifdef INCL_PARAM_H
   makestr(&(optlist[noptlist++]), "INCL_PARAM_H");
-#endif /* INCL_PARAM_H */
+#endif // INCL_PARAM_H
 
 #ifdef CKMAXPATH
-  sprintf(line, "CKMAXPATH=%d", CKMAXPATH); /* SAFE */
+  sprintf(line, "CKMAXPATH=%d", CKMAXPATH); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* CKMAXPATH */
+#endif // CKMAXPATH
 
-  sprintf(line, "CKMAXOPEN=%d", CKMAXOPEN); /* SAFE */
+  sprintf(line, "CKMAXOPEN=%d", CKMAXOPEN); // SAFE
   makestr(&(optlist[noptlist++]), line);
 
 #ifndef UNIX
-  /*
-    These aren't actually used... In Unix we get maximum number of open
-    files from sysconf() at runtime.
-  */
-  sprintf(line, "Z_MAXCHAN=%d", Z_MAXCHAN); /* SAFE */
+  // These aren't actually used... In Unix we get maximum number of open
+  // files from sysconf() at runtime.
+  sprintf(line, "Z_MAXCHAN=%d", Z_MAXCHAN); // SAFE
   makestr(&(optlist[noptlist++]), line);
 
 #ifdef OPEN_MAX
-  sprintf(line, "OPEN_MAX=%d", OPEN_MAX); /* SAFE */
+  sprintf(line, "OPEN_MAX=%d", OPEN_MAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* OPEN_MAX */
+#endif // OPEN_MAX
 
 #ifdef _POSIX_OPEN_MAX
-  sprintf(line, "_POSIX_OPEN_MAX=%d", _POSIX_OPEN_MAX); /* SAFE */
+  sprintf(line, "_POSIX_OPEN_MAX=%d", _POSIX_OPEN_MAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* _POSIX_OPEN_MAX */
-#endif /* UNIX */
+#endif // _POSIX_OPEN_MAX
+#endif // UNIX
 
 #ifdef CKCHANNELIO
   {
     extern int z_maxchan;
 #ifdef UNIX
     extern int ckmaxfiles;
-    sprintf(line, "ckmaxfiles=%d", ckmaxfiles); /* SAFE */
+    sprintf(line, "ckmaxfiles=%d", ckmaxfiles); // SAFE
     makestr(&(optlist[noptlist++]), line);
-#endif                                        /* UNIX */
-    sprintf(line, "z_maxchan=%d", z_maxchan); /* SAFE */
+#endif                                        // UNIX
+    sprintf(line, "z_maxchan=%d", z_maxchan); // SAFE
     makestr(&(optlist[noptlist++]), line);
   }
-#endif /* CKCHANNELIO */
+#endif // CKCHANNELIO
 
 #ifdef FOPEN_MAX
-  sprintf(line, "FOPEN_MAX=%d", FOPEN_MAX); /* SAFE */
+  sprintf(line, "FOPEN_MAX=%d", FOPEN_MAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* FOPEN_MAX */
+#endif // FOPEN_MAX
 
 #ifdef MAXGETPATH
-  sprintf(line, "MAXGETPATH=%d", MAXGETPATH); /* SAFE */
+  sprintf(line, "MAXGETPATH=%d", MAXGETPATH); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAXGETPATH */
+#endif // MAXGETPATH
 
 #ifdef CMDBL
-  sprintf(line, "CMDBL=%d", CMDBL); /* SAFE */
+  sprintf(line, "CMDBL=%d", CMDBL); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* CMDBL */
+#endif // CMDBL
 
 #ifdef VNAML
-  sprintf(line, "VNAML=%d", VNAML); /* SAFE */
+  sprintf(line, "VNAML=%d", VNAML); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* VNAML */
+#endif // VNAML
 
 #ifdef ARRAYREFLEN
-  sprintf(line, "ARRAYREFLEN=%d", ARRAYREFLEN); /* SAFE */
+  sprintf(line, "ARRAYREFLEN=%d", ARRAYREFLEN); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* ARRAYREFLEN */
+#endif // ARRAYREFLEN
 
 #ifdef UIDBUFLEN
-  sprintf(line, "UIDBUFLEN=%d", UIDBUFLEN); /* SAFE */
+  sprintf(line, "UIDBUFLEN=%d", UIDBUFLEN); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* UIDBUFLEN */
+#endif // UIDBUFLEN
 
 #ifdef FORDEPTH
-  sprintf(line, "FORDEPTH=%d", FORDEPTH); /* SAFE */
+  sprintf(line, "FORDEPTH=%d", FORDEPTH); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* FORDEPTH */
+#endif // FORDEPTH
 
 #ifdef MAXTAKE
-  sprintf(line, "MAXTAKE=%d", MAXTAKE); /* SAFE */
+  sprintf(line, "MAXTAKE=%d", MAXTAKE); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAXTAKE */
+#endif // MAXTAKE
 
 #ifdef MACLEVEL
-  sprintf(line, "MACLEVEL=%d", MACLEVEL); /* SAFE */
+  sprintf(line, "MACLEVEL=%d", MACLEVEL); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MACLEVEL */
+#endif // MACLEVEL
 
 #ifdef MAC_MAX
-  sprintf(line, "MAC_MAX=%d", MAC_MAX); /* SAFE */
+  sprintf(line, "MAC_MAX=%d", MAC_MAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAC_MAX */
+#endif // MAC_MAX
 
 #ifdef _LARGEFILE_SOURCE
   makestr(&(optlist[noptlist++]), "_LARGEFILE_SOURCE");
-#endif /* _LARGEFILE_SOURCE */
+#endif // _LARGEFILE_SOURCE
 
 #ifdef _FILE_OFFSET_BITS
-  sprintf(line, "_FILE_OFFSET_BITS=%d", _FILE_OFFSET_BITS); /* SAFE */
+  sprintf(line, "_FILE_OFFSET_BITS=%d", _FILE_OFFSET_BITS); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* _FILE_OFFSET_BITS */
+#endif // _FILE_OFFSET_BITS
 
 #ifdef __USE_FILE_OFFSET64
   makestr(&(optlist[noptlist++]), "__USE_FILE_OFFSET64");
-#endif /* __USE_FILE_OFFSET64 */
+#endif // __USE_FILE_OFFSET64
 
 #ifdef __USE_LARGEFILE64
   makestr(&(optlist[noptlist++]), "__USE_LARGEFILE64");
-#endif /* __USE_LARGEFILE64 */
+#endif // __USE_LARGEFILE64
 
 #ifdef TMPBUFSIZ
-  sprintf(line, "TMPBUFSIZ=%d", TMPBUFSIZ); /* SAFE */
+  sprintf(line, "TMPBUFSIZ=%d", TMPBUFSIZ); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* TMPBUFSIZ */
+#endif // TMPBUFSIZ
 
 #ifdef LINEBUFSIZ
-  sprintf(line, "LINEBUFSIZ=%d", LINEBUFSIZ); /* SAFE */
+  sprintf(line, "LINEBUFSIZ=%d", LINEBUFSIZ); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* LINEBUFSIZ */
+#endif // LINEBUFSIZ
 
 #ifdef MINPUTMAX
-  sprintf(line, "MINPUTMAX=%d", MINPUTMAX); /* SAFE */
+  sprintf(line, "MINPUTMAX=%d", MINPUTMAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MINPUTMAX */
+#endif // MINPUTMAX
 
 #ifdef MAXWLD
-  sprintf(line, "MAXWLD=%d", MAXWLD); /* SAFE */
+  sprintf(line, "MAXWLD=%d", MAXWLD); // SAFE
   makestr(&(optlist[noptlist++]), line);
 #else
-#endif /* MAXWLD */
+#endif // MAXWLD
 
 #ifdef MSENDMAX
-  sprintf(line, "MSENDMAX=%d", MSENDMAX); /* SAFE */
+  sprintf(line, "MSENDMAX=%d", MSENDMAX); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MSENDMAX */
+#endif // MSENDMAX
 
 #ifdef MAXDDIR
-  sprintf(line, "MAXDDIR=%d", MAXDDIR); /* SAFE */
+  sprintf(line, "MAXDDIR=%d", MAXDDIR); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAXDDIR */
+#endif // MAXDDIR
 
 #ifdef MAXDNUMS
-  sprintf(line, "MAXDNUMS=%d", MAXDNUMS); /* SAFE */
+  sprintf(line, "MAXDNUMS=%d", MAXDNUMS); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* MAXDNUMS */
+#endif // MAXDNUMS
 
 #ifdef UNIX
   makestr(&(optlist[noptlist++]), "UNIX");
-#endif /* UNIX */
+#endif // UNIX
 
 #ifdef NOARROWKEYS
   sprintf(line, "NOARROWKEYS");
   makestr(&(optlist[noptlist++]), line);
-#endif /* NOARROWKEYS */
+#endif // NOARROWKEYS
 
 #ifdef DOARROWKEYS
   sprintf(line, "DOARROWKEYS");
   makestr(&(optlist[noptlist++]), line);
-#endif /* DOARROWKEYS */
+#endif // DOARROWKEYS
 
 #ifdef MSDOS
   makestr(&(optlist[noptlist++]), "MSDOS");
-#endif /* MSDOS */
+#endif // MSDOS
 
 #ifdef DIRENT
   makestr(&(optlist[noptlist++]), "DIRENT");
-#endif /* DIRENT */
+#endif // DIRENT
 
 #ifdef SDIRENT
   makestr(&(optlist[noptlist++]), "SDIRENT");
-#endif /* SDIRENT */
+#endif // SDIRENT
 
 #ifdef NDIR
   makestr(&(optlist[noptlist++]), "NDIR");
-#endif /* NDIR */
+#endif // NDIR
 
 #ifdef XNDIR
   makestr(&(optlist[noptlist++]), "XNDIR");
-#endif /* XNDIR */
+#endif // XNDIR
 
 #ifdef SAVEDUID
   makestr(&(optlist[noptlist++]), "SAVEDUID");
-#endif /* SAVEDUID */
+#endif // SAVEDUID
 
 #ifdef RENAME
   makestr(&(optlist[noptlist++]), "RENAME");
-#endif /* RENAME */
+#endif // RENAME
 
 #ifdef CK_TMPDIR
   makestr(&(optlist[noptlist++]), "CK_TMPDIR");
-#endif /* CK_TMPDIR */
+#endif // CK_TMPDIR
 
 #ifdef NOCCTRAP
   makestr(&(optlist[noptlist++]), "NOCCTRAP");
-#endif /* NOCCTRAP */
+#endif // NOCCTRAP
 
 #ifdef NOCOTFMC
   makestr(&(optlist[noptlist++]), "NOCOTFMC");
-#endif /* NOCOTFMC */
+#endif // NOCOTFMC
 
 #ifdef NOFRILLS
   makestr(&(optlist[noptlist++]), "NOFRILLS");
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifdef PARSENSE
   makestr(&(optlist[noptlist++]), "PARSENSE");
-#endif /* PARSENSE */
+#endif // PARSENSE
 
 #ifdef TIMEH
   makestr(&(optlist[noptlist++]), "TIMEH");
-#endif /* TIMEH */
+#endif // TIMEH
 
 #ifdef NOTIMEH
   makestr(&(optlist[noptlist++]), "TIMEH");
-#endif /* NOTIMEH */
+#endif // NOTIMEH
 
 #ifdef SYSTIMEH
   makestr(&(optlist[noptlist++]), "SYSTIMEH");
-#endif /* SYSTIMEH */
+#endif // SYSTIMEH
 
 #ifdef NOSYSTIMEH
   makestr(&(optlist[noptlist++]), "SYSTIMEH");
-#endif /* NOSYSTIMEH */
+#endif // NOSYSTIMEH
 
 #ifdef SYSTIMEBH
   makestr(&(optlist[noptlist++]), "SYSTIMEBH");
-#endif /* SYSTIMEBH */
+#endif // SYSTIMEBH
 
 #ifdef NOSYSTIMEBH
   makestr(&(optlist[noptlist++]), "SYSTIMEBH");
-#endif /* NOSYSTIMEBH */
+#endif // NOSYSTIMEBH
 
 #ifdef UTIMEH
   makestr(&(optlist[noptlist++]), "UTIMEH");
-#endif /* UTIMEH */
+#endif // UTIMEH
 
 #ifdef SYSUTIMEH
   makestr(&(optlist[noptlist++]), "SYSUTIMEH");
-#endif /* SYSUTIMEH */
+#endif // SYSUTIMEH
 
 #ifdef CK_NEED_SIG
   makestr(&(optlist[noptlist++]), "CK_NEED_SIG");
-#endif /* CK_NEED_SIG */
+#endif // CK_NEED_SIG
 
 #ifdef CK_TTYFD
   makestr(&(optlist[noptlist++]), "CK_TTYFD");
-#endif /* CK_TTYFD */
+#endif // CK_TTYFD
 
 #ifdef NETCONN
   makestr(&(optlist[noptlist++]), "NETCONN");
-#endif /* NETCONN */
+#endif // NETCONN
 
 #ifdef TCPSOCKET
   makestr(&(optlist[noptlist++]), "TCPSOCKET");
 #ifdef NOTCPOPTS
   makestr(&(optlist[noptlist++]), "NOTCPOPTS");
-#endif /* NOTCPOPTS */
+#endif // NOTCPOPTS
 #ifdef CK_DNS_SRV
   makestr(&(optlist[noptlist++]), "CK_DNS_SRV");
-#endif /* CK_DNS_SRV */
+#endif // CK_DNS_SRV
 #ifdef NO_DNS_SRV
   makestr(&(optlist[noptlist++]), "NO_DNS_SRV");
-#endif /* NO_DNS_SRV */
+#endif // NO_DNS_SRV
 #ifdef CKGHNLHOST
   makestr(&(optlist[noptlist++]), "CKGHNLHOST");
-#endif /* CKGHNLHOST */
+#endif // CKGHNLHOST
 #ifdef NOLISTEN
   makestr(&(optlist[noptlist++]), "NOLISTEN");
-#endif /* NOLISTEN */
+#endif // NOLISTEN
 #ifdef SOL_SOCKET
   makestr(&(optlist[noptlist++]), "SOL_SOCKET");
-#endif /* SOL_SOCKET */
+#endif // SOL_SOCKET
 #ifdef SO_OOBINLINE
   makestr(&(optlist[noptlist++]), "SO_OOBINLINE");
-#endif /* SO_OOBINLNE */
+#endif // SO_OOBINLNE
 #ifdef SO_DONTROUTE
   makestr(&(optlist[noptlist++]), "SO_DONTROUTE");
-#endif /* SO_DONTROUTE */
+#endif // SO_DONTROUTE
 #ifdef SO_KEEPALIVE
   makestr(&(optlist[noptlist++]), "SO_KEEPALIVE");
-#endif /* SO_KEEPALIVE */
+#endif // SO_KEEPALIVE
 #ifdef SO_LINGER
   makestr(&(optlist[noptlist++]), "SO_LINGER");
-#endif /* SO_LINGER */
+#endif // SO_LINGER
 #ifdef TCP_NODELAY
   makestr(&(optlist[noptlist++]), "TCP_NODELAY");
-#endif /* TCP_NODELAY */
+#endif // TCP_NODELAY
 #ifdef SO_SNDBUF
   makestr(&(optlist[noptlist++]), "SO_SNDBUF");
-#endif /* SO_SNDBUF */
+#endif // SO_SNDBUF
 #ifdef SO_RCVBUF
   makestr(&(optlist[noptlist++]), "SO_RCVBUF");
-#endif /* SO_RCVBUF */
+#endif // SO_RCVBUF
 #ifdef h_addr
   makestr(&(optlist[noptlist++]), "h_addr");
-#endif /* h_addr */
+#endif // h_addr
 #ifdef HADDRLIST
   makestr(&(optlist[noptlist++]), "HADDRLIST");
-#endif /* HADDRLIST */
+#endif // HADDRLIST
 #ifdef CK_SOCKS
   makestr(&(optlist[noptlist++]), "CK_SOCKS");
 #ifdef CK_SOCKS5
   makestr(&(optlist[noptlist++]), "CK_SOCKS5");
-#endif /* CK_SOCKS5 */
+#endif // CK_SOCKS5
 #ifdef CK_SOCKS_NS
   makestr(&(optlist[noptlist++]), "CK_SOCKS_NS");
-#endif /* CK_SOCKS_NS */
-#endif /* CK_SOCKS */
+#endif // CK_SOCKS_NS
+#endif // CK_SOCKS
 #ifdef NETCMD
   makestr(&(optlist[noptlist++]), "NETCMD");
-#endif /* NETCMD */
+#endif // NETCMD
 #ifdef NONETCMD
   makestr(&(optlist[noptlist++]), "NONETCMD");
-#endif /* NONETCMD */
+#endif // NONETCMD
 #ifdef NETPTY
   makestr(&(optlist[noptlist++]), "NETPTY");
-#endif /* NETPTY */
+#endif // NETPTY
 #ifdef CK_ENVIRONMENT
   makestr(&(optlist[noptlist++]), "CK_ENVIRONMENT");
-#endif /* CK_ENVIRONMENT */
-#endif /* TCPSOCKET */
+#endif // CK_ENVIRONMENT
+#endif // TCPSOCKET
 #ifdef TNCODE
   makestr(&(optlist[noptlist++]), "TNCODE");
-#endif /* TNCODE */
+#endif // TNCODE
 #ifdef TN_COMPORT
   makestr(&(optlist[noptlist++]), "TN_COMPORT");
-#endif /* TN_COMPORT */
+#endif // TN_COMPORT
 #ifdef TCPWARE
   makestr(&(optlist[noptlist++]), "TCPWARE");
-#endif /* TCPWARE */
+#endif // TCPWARE
 #ifdef TTLEBUF
   makestr(&(optlist[noptlist++]), "TTLEBUF");
-#endif /* TTLEBUF */
+#endif // TTLEBUF
 #ifdef NETLEBUF
   makestr(&(optlist[noptlist++]), "NETLEBUF");
-#endif /* NETLEBUF */
+#endif // NETLEBUF
 #ifdef IKS_OPTION
   makestr(&(optlist[noptlist++]), "IKS_OPTION");
-#endif /* IKS_OPTION */
+#endif // IKS_OPTION
 #ifdef IKSDB
   makestr(&(optlist[noptlist++]), "IKSDB");
-#endif /* IKSDB */
+#endif // IKSDB
 #ifdef IKSDCONF
   makestr(&(optlist[noptlist++]), "IKSDCONF");
-#endif /* IKSDCONF */
+#endif // IKSDCONF
 #ifdef CK_LOGIN
   makestr(&(optlist[noptlist++]), "CK_LOGIN");
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 #ifdef CK_PAM
   makestr(&(optlist[noptlist++]), "CK_PAM");
-#endif /* CK_PAM */
+#endif // CK_PAM
 #ifdef CK_SHADOW
   makestr(&(optlist[noptlist++]), "CK_SHADOW");
-#endif /* CK_SHADOW */
+#endif // CK_SHADOW
 #ifdef CONGSPD
   makestr(&(optlist[noptlist++]), "CONGSPD");
-#endif /* CONGSPD */
+#endif // CONGSPD
 #ifdef IBMX25
   makestr(&(optlist[noptlist++]), "IBMX25");
-#endif /* IBMX25 */
+#endif // IBMX25
 #ifdef HPX25
   makestr(&(optlist[noptlist++]), "HPX25");
-#endif /* HPX25 */
+#endif // HPX25
 #ifdef DECNET
   makestr(&(optlist[noptlist++]), "DECNET");
-#endif /* DECNET */
+#endif // DECNET
 #ifdef SUPERLAT
   makestr(&(optlist[noptlist++]), "SUPERLAT");
-#endif /* SUPERLAT */
+#endif // SUPERLAT
 #ifdef NPIPE
   makestr(&(optlist[noptlist++]), "NPIPE");
-#endif /* NPIPE */
+#endif // NPIPE
 #ifdef CK_NETBIOS
   makestr(&(optlist[noptlist++]), "CK_NETBIOS");
-#endif /* CK_NETBIOS */
+#endif // CK_NETBIOS
 #ifdef HDBUUCP
   makestr(&(optlist[noptlist++]), "HDBUUCP");
-#endif /* HDBUUCP */
+#endif // HDBUUCP
 #ifdef USETTYLOCK
   makestr(&(optlist[noptlist++]), "USETTYLOCK");
-#endif /* USETTYLOCK */
+#endif // USETTYLOCK
 #ifdef USE_UU_LOCK
   makestr(&(optlist[noptlist++]), "USE_UU_LOCK");
-#endif /* USE_UU_LOCK */
+#endif // USE_UU_LOCK
 #ifdef HAVE_LOCKDEV
   makestr(&(optlist[noptlist++]), "HAVE_LOCKDEV");
-#endif /* HAVE_LOCKDEV */
+#endif // HAVE_LOCKDEV
 #ifdef HAVE_BAUDBOY
   makestr(&(optlist[noptlist++]), "HAVE_BAUDBOY");
-#endif /* HAVE_BAUDBOY */
+#endif // HAVE_BAUDBOY
 #ifdef HAVE_OPENPTY
   makestr(&(optlist[noptlist++]), "HAVE_OPENPTY");
-#endif /* HAVE_OPENPTY */
+#endif // HAVE_OPENPTY
 #ifdef TTPTYCMD
   makestr(&(optlist[noptlist++]), "TTPTYCMD");
-#endif /* TTPTYCMD */
+#endif // TTPTYCMD
 #ifdef NOUUCP
   makestr(&(optlist[noptlist++]), "NOUUCP");
-#endif /* NOUUCP */
+#endif // NOUUCP
 #ifdef LONGFN
   makestr(&(optlist[noptlist++]), "LONGFN");
-#endif /* LONGFN */
+#endif // LONGFN
 #ifdef RDCHK
   makestr(&(optlist[noptlist++]), "RDCHK");
-#endif /* RDCHK */
+#endif // RDCHK
 #ifdef SELECT
   makestr(&(optlist[noptlist++]), "SELECT");
-#endif /* SELECT */
+#endif // SELECT
 #ifdef USLEEP
   makestr(&(optlist[noptlist++]), "USLEEP");
-#endif /* USLEEP */
+#endif // USLEEP
 #ifdef NAP
   makestr(&(optlist[noptlist++]), "NAP");
-#endif /* NAP */
+#endif // NAP
 #ifdef NAPHACK
   makestr(&(optlist[noptlist++]), "NAPHACK");
-#endif /* NAPHACK */
+#endif // NAPHACK
 #ifdef CK_POLL
   makestr(&(optlist[noptlist++]), "CK_POLL");
-#endif /* CK_POLL */
+#endif // CK_POLL
 #ifdef NOIEXTEN
   makestr(&(optlist[noptlist++]), "NOIEXTEN");
-#endif /* NOIEXTEN */
+#endif // NOIEXTEN
 #ifdef INTERLAN
   makestr(&(optlist[noptlist++]), "INTERLAN");
-#endif /* INTERLAN */
+#endif // INTERLAN
 #ifdef NOFILEH
   makestr(&(optlist[noptlist++]), "NOFILEH");
-#endif /* NOFILEH */
+#endif // NOFILEH
 #ifdef NOSYSIOCTLH
   makestr(&(optlist[noptlist++]), "NOSYSIOCTLH");
-#endif /* NOSYSIOCTLH */
+#endif // NOSYSIOCTLH
 #ifdef DCLPOPEN
   makestr(&(optlist[noptlist++]), "DCLPOPEN");
-#endif /* DCLPOPEN */
+#endif // DCLPOPEN
 #ifdef NOSETBUF
   makestr(&(optlist[noptlist++]), "NOSETBUF");
-#endif /* NOWSETBUF */
+#endif // NOWSETBUF
 #ifdef NOWTMP
   makestr(&(optlist[noptlist++]), "NOWTMP");
-#endif /* NOWTMP */
+#endif // NOWTMP
 #ifdef NOXFER
   makestr(&(optlist[noptlist++]), "NOXFER");
-#endif /* NOXFER */
+#endif // NOXFER
 #ifdef NOCURSES
   makestr(&(optlist[noptlist++]), "NOCURSES");
-#endif /* NOCURSES */
+#endif // NOCURSES
 #ifdef NOSERVER
   makestr(&(optlist[noptlist++]), "NOSERVER");
-#endif /* NOSERVER */
+#endif // NOSERVER
 #ifdef NOPATTERNS
   makestr(&(optlist[noptlist++]), "NOPATTERNS");
 #else
 #ifdef PATTERNS
   makestr(&(optlist[noptlist++]), "PATTERNS");
-#endif /* PATTERNS */
-#endif /* NOPATTERNS */
+#endif // PATTERNS
+#endif // NOPATTERNS
 #ifdef NOCKEXEC
   makestr(&(optlist[noptlist++]), "NOCKEXEC");
 #else
 #ifdef CKEXEC
   makestr(&(optlist[noptlist++]), "CKEXEC");
-#endif /* CKEXEC */
-#endif /* NOCKEXEC */
+#endif // CKEXEC
+#endif // NOCKEXEC
 #ifdef NOAUTODL
   makestr(&(optlist[noptlist++]), "NOAUTODL");
-#endif /* NOAUTODL */
+#endif // NOAUTODL
 #ifdef NOMSEND
   makestr(&(optlist[noptlist++]), "NOMSEND");
-#endif /* NOMSEND */
+#endif // NOMSEND
 #ifdef NOFDZERO
   makestr(&(optlist[noptlist++]), "NOFDZERO");
-#endif /* NOFDZERO */
+#endif // NOFDZERO
 #ifdef NOPOPEN
   makestr(&(optlist[noptlist++]), "NOPOPEN");
-#endif /* NOPOPEN */
+#endif // NOPOPEN
 #ifdef NOPARTIAL
   makestr(&(optlist[noptlist++]), "NOPARTIAL");
-#endif /* NOPARTIAL */
+#endif // NOPARTIAL
 #ifdef NOKVERBS
   makestr(&(optlist[noptlist++]), "NOKVERBS");
-#endif /* NOKVERBS */
+#endif // NOKVERBS
 #ifdef NOPRINTFSUBST
   makestr(&(optlist[noptlist++]), "NOPRINTFSUBST");
-#endif /* NOPRINTFSUBST */
+#endif // NOPRINTFSUBST
 #ifdef NOSETREU
   makestr(&(optlist[noptlist++]), "NOSETREU");
-#endif /* NOSETREU */
+#endif // NOSETREU
 #ifdef NOSYSLOG
   makestr(&(optlist[noptlist++]), "NOSYSLOG");
-#endif /* NOSYSLOG */
+#endif // NOSYSLOG
 #ifdef LCKDIR
   makestr(&(optlist[noptlist++]), "LCKDIR");
-#endif /* LCKDIR */
+#endif // LCKDIR
 #ifdef ACUCNTRL
   makestr(&(optlist[noptlist++]), "ACUCNTRL");
-#endif /* ACUCNTRL */
+#endif // ACUCNTRL
 #ifdef BSD4
   makestr(&(optlist[noptlist++]), "BSD4");
-#endif /* BSD4 */
+#endif // BSD4
 #ifdef BSD44
   makestr(&(optlist[noptlist++]), "BSD44");
-#endif /* BSD44 */
+#endif // BSD44
 #ifdef __NetBSD__
   makestr(&(optlist[noptlist++]), "__NetBSD__");
-#endif /* __NetBSD__ */
+#endif // __NetBSD__
 #ifdef __OpenBSD__
   makestr(&(optlist[noptlist++]), "__OpenBSD__");
-#endif /* __OpenBSD__ */
+#endif // __OpenBSD__
 #ifdef __FreeBSD__
   makestr(&(optlist[noptlist++]), "__FreeBSD__");
-#endif /* __FreeBSD__ */
+#endif // __FreeBSD__
 #ifdef FREEBSD4
   makestr(&(optlist[noptlist++]), "FREEBSD4");
-#endif /* FREEBSD4 */
+#endif // FREEBSD4
 #ifdef FREEBSD8
   makestr(&(optlist[noptlist++]), "FREEBSD8");
-#endif /* FREEBSD8 */
+#endif // FREEBSD8
 #ifdef FREEBSD9
   makestr(&(optlist[noptlist++]), "FREEBSD9");
-#endif /* FREEBSD9 */
+#endif // FREEBSD9
 #ifdef __linux__
   makestr(&(optlist[noptlist++]), "__linux__");
-#endif /* __linux__ */
+#endif // __linux__
 #ifdef LINUX_HI_SPD
   makestr(&(optlist[noptlist++]), "LINUX_HI_SPD");
-#endif /* LINUX_HI_SPD */
+#endif // LINUX_HI_SPD
 #ifdef V7
   makestr(&(optlist[noptlist++]), "V7");
-#endif /* V7 */
+#endif // V7
 #ifdef ATTSV
   makestr(&(optlist[noptlist++]), "ATTSV");
-#endif /* ATTSV */
+#endif // ATTSV
 #ifdef SVR3
   makestr(&(optlist[noptlist++]), "SVR3");
-#endif /* SVR3 */
+#endif // SVR3
 #ifdef SVR4
   makestr(&(optlist[noptlist++]), "SVR4");
-#endif /* SVR4 */
+#endif // SVR4
 #ifdef POSIX
   makestr(&(optlist[noptlist++]), "POSIX");
-#endif /* POSIX */
+#endif // POSIX
 #ifdef BSD44ORPOSIX
   makestr(&(optlist[noptlist++]), "BSD44ORPOSIX");
-#endif /* BSD44ORPOSIX */
+#endif // BSD44ORPOSIX
 #ifdef SVORPOSIX
   makestr(&(optlist[noptlist++]), "SVORPOSIX");
-#endif /* SVORPOSIX */
+#endif // SVORPOSIX
 #ifdef SVR4ORPOSIX
   makestr(&(optlist[noptlist++]), "SVR4ORPOSIX");
-#endif /* SVR4ORPOSIX */
+#endif // SVR4ORPOSIX
   makestr(&(optlist[noptlist++]), "OS2ORUNIX");
   makestr(&(optlist[noptlist++]), "VMSORUNIX");
 #ifdef _POSIX_SOURCE
   makestr(&(optlist[noptlist++]), "_POSIX_SOURCE");
-#endif /* _POSIX_SOURCE */
+#endif // _POSIX_SOURCE
 #ifdef _XOPEN_SOURCE
   makestr(&(optlist[noptlist++]), "_XOPEN_SOURCE");
 #endif
@@ -9397,7 +9283,7 @@ static void initoptlist() {
 #endif
 #ifdef _SVID3
   makestr(&(optlist[noptlist++]), "_SVID3");
-#endif /* _SVID3 */
+#endif // _SVID3
 
 #ifdef vax
   makestr(&(optlist[noptlist++]), "vax");
@@ -9657,34 +9543,34 @@ static void initoptlist() {
 #ifdef __DECC
   makestr(&(optlist[noptlist++]), "__DECC");
 #ifdef __DECC_VER
-  sprintf(line, "__DECC_VER=%d", __DECC_VER); /* SAFE */
+  sprintf(line, "__DECC_VER=%d", __DECC_VER); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* __DECC_VER */
-#endif /* __DECC */
+#endif // __DECC_VER
+#endif // __DECC
 #ifdef __CRTL_VER
-  sprintf(line, "__CRTL_VER=%d", __CRTL_VER); /* SAFE */
+  sprintf(line, "__CRTL_VER=%d", __CRTL_VER); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif          /* __CRTL_VER */
-#ifdef __GNUC__ /* gcc in ansi mode */
+#endif          // __CRTL_VER
+#ifdef __GNUC__ // gcc in ansi mode
   makestr(&(optlist[noptlist++]), "__GNUC__");
 #endif
-#ifdef GNUC /* gcc in traditional mode */
+#ifdef GNUC // gcc in traditional mode
   makestr(&(optlist[noptlist++]), "GNUC");
 #endif
 #ifdef __clang__
   makestr(&(optlist[noptlist++]), "clang");
 #endif
-#ifdef __EGCS__ /* egcs in ansi mode */
+#ifdef __EGCS__ // egcs in ansi mode
   makestr(&(optlist[noptlist++]), "__EGCS__");
 #endif
-#ifdef __egcs__ /* egcs in ansi mode */
+#ifdef __egcs__ // egcs in ansi mode
   makestr(&(optlist[noptlist++]), "__egcs__");
 #endif
 #ifdef __WATCOMC__
   makestr(&(optlist[noptlist++]), "__WATCOMC__");
 #endif
 #ifdef _MSC_VER
-  sprintf(line, "_MSC_VER=%d", _MSC_VER); /* SAFE */
+  sprintf(line, "_MSC_VER=%d", _MSC_VER); // SAFE
   makestr(&(optlist[noptlist++]), line);
 #endif
   makestr(&(optlist[noptlist++]), "CK_ANSIC");
@@ -9693,10 +9579,10 @@ static void initoptlist() {
 #endif
 #ifdef CKCONINTB4CB
   makestr(&(optlist[noptlist++]), "CKCONINTB4CB");
-#endif /* CKCONINTB4CB */
+#endif // CKCONINTB4CB
 #ifdef NOTERMCAP
   makestr(&(optlist[noptlist++]), "NOTERMCAP");
-#endif /* NOTERMCAP */
+#endif // NOTERMCAP
 #ifdef __GLIBC__
   makestr(&(optlist[noptlist++]), "__GLIBC__");
 #endif
@@ -9714,52 +9600,52 @@ static void initoptlist() {
 #endif
 #ifdef USE_MEMCPY
   makestr(&(optlist[noptlist++]), "USE_MEMCPY");
-#endif /* USE_MEMCPY */
+#endif // USE_MEMCPY
 #ifdef USE_LSTAT
   makestr(&(optlist[noptlist++]), "USE_LSTAT");
-#endif /* USE_LSTAT */
+#endif // USE_LSTAT
 #ifdef TERMIOX
   makestr(&(optlist[noptlist++]), "TERMIOX");
-#endif /* TERMIOX */
+#endif // TERMIOX
 #ifdef STERMIOX
   makestr(&(optlist[noptlist++]), "STERMIOX");
-#endif /* STERMIOX */
+#endif // STERMIOX
 #ifdef CK_CURSES
   makestr(&(optlist[noptlist++]), "CK_CURSES");
-#endif /* CK_CURSES */
+#endif // CK_CURSES
 #ifdef CK_NEWTERM
   makestr(&(optlist[noptlist++]), "CK_NEWTERM");
-#endif /* CK_NEWTERM */
+#endif // CK_NEWTERM
 #ifdef CK_WREFRESH
   makestr(&(optlist[noptlist++]), "CK_WREFRESH");
-#endif /* CK_WREFRESH */
+#endif // CK_WREFRESH
 #ifdef CK_PCT_BAR
   makestr(&(optlist[noptlist++]), "CK_PCT_BAR");
-#endif /* CK_PCT_BAR */
+#endif // CK_PCT_BAR
 #ifdef CK_DTRCD
   makestr(&(optlist[noptlist++]), "CK_DTRCD");
-#endif /* CK_DTRCD */
+#endif // CK_DTRCD
 #ifdef CK_DTRCTS
   makestr(&(optlist[noptlist++]), "CK_DTRCTS");
-#endif /* CK_DTRCTS */
+#endif // CK_DTRCTS
 #ifdef CK_RTSCTS
   makestr(&(optlist[noptlist++]), "CK_RTSCTS");
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
 #ifdef CKT_NT31
   makestr(&(optlist[noptlist++]), "CKT_NT31");
-#endif /* CKT_NT31 */
+#endif // CKT_NT31
 #ifdef CKT_NT35
   makestr(&(optlist[noptlist++]), "CKT_NT35");
-#endif /* CKT_NT35 */
+#endif // CKT_NT35
 #ifdef POSIX_CRTSCTS
   makestr(&(optlist[noptlist++]), "POSIX_CRTSCTS");
-#endif /* POSIX_CRTSCTS */
+#endif // POSIX_CRTSCTS
 #ifdef FIXCRTSCTS
   makestr(&(optlist[noptlist++]), "FIXCRTSCTS");
-#endif /* FIXCRTSCTS */
+#endif // FIXCRTSCTS
 #ifdef HWPARITY
   makestr(&(optlist[noptlist++]), "HWPARITY");
-#endif /* HWPARITY */
+#endif // HWPARITY
 #ifdef CK_SYSINI
 #ifdef CK_INI_A
   makestr(&(optlist[noptlist++]), "CK_INI_A");
@@ -9772,154 +9658,154 @@ static void initoptlist() {
   makestr(&(optlist[noptlist++]), line);
 #else
   makestr(&(optlist[noptlist++]), "CK_SYSINI");
-#endif /* CK_INI_B */
-#endif /* CK_INI_A */
-#endif /* CK_DSYSINI */
+#endif // CK_INI_B
+#endif // CK_INI_A
+#endif // CK_DSYSINI
 #ifdef CK_DSYSINI
   makestr(&(optlist[noptlist++]), "CK_DSYSINI");
-#endif /* CK_DSYSINI */
+#endif // CK_DSYSINI
 #ifdef CK_TTGWSIZ
   makestr(&(optlist[noptlist++]), "CK_TTGWSIZ");
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
 #ifdef CK_NAWS
   makestr(&(optlist[noptlist++]), "CK_NAWS");
-#endif /* CK_NAWS */
+#endif // CK_NAWS
 #ifdef MDMHUP
   makestr(&(optlist[noptlist++]), "MDMHUP");
-#endif /* MDMHUP */
+#endif // MDMHUP
 #ifdef HUP_CLOSE_POSIX
   makestr(&(optlist[noptlist++]), "HUP_CLOSE_POSIX");
-#endif /* HUP_CLOSE_POSIX */
+#endif // HUP_CLOSE_POSIX
 #ifdef NO_HUP_CLOSE_POSIX
   makestr(&(optlist[noptlist++]), "NO_HUP_CLOSE_POSIX");
-#endif /* NO_HUP_CLOSE_POSIX */
+#endif // NO_HUP_CLOSE_POSIX
 #ifdef DCMDBUF
   makestr(&(optlist[noptlist++]), "DCMDBUF");
-#endif /* DCMDBUF */
+#endif // DCMDBUF
 #ifdef CK_RECALL
   makestr(&(optlist[noptlist++]), "CK_RECALL");
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 #ifdef BROWSER
   makestr(&(optlist[noptlist++]), "BROWSER");
-#endif /* BROWSER */
+#endif // BROWSER
 #ifdef CLSOPN
   makestr(&(optlist[noptlist++]), "CLSOPN");
-#endif /* CLSOPN */
+#endif // CLSOPN
 #ifdef __VOS__
   makestr(&(optlist[noptlist++]), "__VOS__");
-#endif /* __VOS__ */
+#endif // __VOS__
 #ifdef CK_REXX
   makestr(&(optlist[noptlist++]), "CK_REXX");
-#endif /* CK_REXX */
+#endif // CK_REXX
 #ifdef CK_TIMERS
   makestr(&(optlist[noptlist++]), "CK_TIMERS");
-#endif /* CK_TIMERS */
+#endif // CK_TIMERS
 #ifdef TTSPDLIST
   makestr(&(optlist[noptlist++]), "TTSPDLIST");
-#endif /* TTSPDLIST */
+#endif // TTSPDLIST
 #ifdef CK_PERMS
   makestr(&(optlist[noptlist++]), "CK_PERMS");
-#endif /* CK_PERMS */
+#endif // CK_PERMS
 #ifdef CKTUNING
   makestr(&(optlist[noptlist++]), "CKTUNING");
-#endif /* CKTUNING */
+#endif // CKTUNING
   makestr(&(optlist[noptlist++]), "NOFTP");
 #ifdef CKHTTP
   makestr(&(optlist[noptlist++]), "CKHTTP");
-#endif /* CKHTTP */
+#endif // CKHTTP
 #ifdef NOHTTP
   makestr(&(optlist[noptlist++]), "NOHTTP");
-#endif /* NOHTTP */
+#endif // NOHTTP
 #ifdef NONTLM
   makestr(&(optlist[noptlist++]), "NONTLM");
 #endif
 #ifdef CKROOT
   makestr(&(optlist[noptlist++]), "CKROOT");
-#endif /* CKROOT */
+#endif // CKROOT
 #ifdef CKREALPATH
   makestr(&(optlist[noptlist++]), "CKREALPATH");
-#endif /* CKREALPATH */
+#endif // CKREALPATH
 #ifdef STREAMING
   makestr(&(optlist[noptlist++]), "STREAMING");
-#endif /* STREAMING */
+#endif // STREAMING
 #ifdef UNPREFIXZERO
   makestr(&(optlist[noptlist++]), "UNPREFIXZERO");
-#endif /* UNPREFIXZERO */
+#endif // UNPREFIXZERO
 #ifdef CKREGEX
   makestr(&(optlist[noptlist++]), "CKREGEX");
-#endif /* CKREGEX */
+#endif // CKREGEX
 #ifdef ZXREWIND
   makestr(&(optlist[noptlist++]), "ZXREWIND");
-#endif /* ZXREWIND */
+#endif // ZXREWIND
 #ifdef CKSYSLOG
   makestr(&(optlist[noptlist++]), "CKSYSLOG");
-#endif /* CKSYSLOG */
+#endif // CKSYSLOG
 #ifdef SYSLOGLEVEL
-  sprintf(line, "SYSLOGLEVEL=%d", SYSLOGLEVEL); /* SAFE */
+  sprintf(line, "SYSLOGLEVEL=%d", SYSLOGLEVEL); // SAFE
   makestr(&(optlist[noptlist++]), line);
-#endif /* SYSLOGLEVEL */
+#endif // SYSLOGLEVEL
 #ifdef NOSEXP
   makestr(&(optlist[noptlist++]), "NOSEXP");
-#endif /* NOSEXP */
+#endif // NOSEXP
 #ifdef CKLEARN
   makestr(&(optlist[noptlist++]), "CKLEARN");
 #else
 #ifdef NOLOEARN
   makestr(&(optlist[noptlist++]), "NOLOEARN");
-#endif /* NOLOEARN */
-#endif /* CKLEARN */
+#endif // NOLOEARN
+#endif // CKLEARN
 #ifdef BETATEST
   makestr(&(optlist[noptlist++]), "BETATEST");
-#endif /* BETATEST */
+#endif // BETATEST
 
 #ifdef NOFLOAT
   makestr(&(optlist[noptlist++]), "NOFLOAT");
 #else
 #ifdef FNFLOAT
   makestr(&(optlist[noptlist++]), "FNFLOAT");
-#endif /* FNFLOAT */
+#endif // FNFLOAT
 #ifdef CKFLOAT
 #ifdef GFTIMER
   makestr(&(optlist[noptlist++]), "GFTIMER");
-#endif /* GFTIMER */
+#endif // GFTIMER
 #ifdef CKFLOAT_S
   ckmakmsg(line, LINBUFSIZ, "CKFLOAT=", CKFLOAT_S, NULL, NULL);
   makestr(&(optlist[noptlist++]), line);
 #else
   makestr(&(optlist[noptlist++]), "CKFLOAT");
-#endif /* CKFLOAT_S */
-#endif /* CKFLOAT */
-#endif /* NOFLOAT */
+#endif // CKFLOAT_S
+#endif // CKFLOAT
+#endif // NOFLOAT
 
 #ifdef COPYINTERPRET
   makestr(&(optlist[noptlist++]), "COPYINTERPRET");
-#endif /* COPYINTERPRET */
+#endif // COPYINTERPRET
 #ifdef TYPEINTERPRET
   makestr(&(optlist[noptlist++]), "TYPEINTERPRET");
-#endif /* TYPEINTERPRET */
+#endif // TYPEINTERPRET
 #ifdef GREPINTERPRET
   makestr(&(optlist[noptlist++]), "GREPINTERPRET");
-#endif /* GREPINTERPRET */
+#endif // GREPINTERPRET
 
 #ifdef TMX_TIME_T
   makestr(&(optlist[noptlist++]), " TMX_TIME_T");
-#endif /*  TMX_TIME_T */
+#endif //  TMX_TIME_T
 
 #ifdef SSH
   makestr(&(optlist[noptlist++]), "SSH");
-#endif /* SSH */
+#endif // SSH
 #ifdef NETDLL
   makestr(&(optlist[noptlist++]), "NETDLL");
-#endif /* NETDLL */
+#endif // NETDLL
 #ifdef NETFILE
   makestr(&(optlist[noptlist++]), "NETFILE");
-#endif /* NETFILE */
+#endif // NETFILE
 #ifdef CK_TAPI
   makestr(&(optlist[noptlist++]), "CK_TAPI");
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 #ifdef CK_CONPTY
   makestr(&(optlist[noptlist++]), "CK_CONPTY");
-#endif /* CK_CONPTY */
+#endif // CK_CONPTY
 
   debug(F101, "initoptlist noptlist", "", noptlist);
   sh_sort(optlist, NULL, noptlist, 0, 0, 0);
@@ -9931,7 +9817,7 @@ int shofea() {
   int lines = 1;
 #ifdef FNFLOAT
   extern int fp_digits, fp_rounding;
-#endif /* FNFLOAT */
+#endif // FNFLOAT
   extern int byteorder;
   printf("%s\n", versio);
   if (inserver) {
@@ -9941,8 +9827,8 @@ int shofea() {
   debug(F101, "shofea NOPTLIST", "", NOPTLIST);
   initoptlist();
   debug(F101, "shofea noptlist", "", noptlist);
-  {                   /* New 11 December 2022 - fdc */
-    char mebuf[2046]; /* Show Kermit's own pathname and size */
+  {                   // New 11 December 2022 - fdc
+    char mebuf[2046]; // Show Kermit's own pathname and size
     char *s;
     char *mestring =
         "\\v(exedir)\\v(name), size: \\fsize(\\v(exedir)\\v(name))";
@@ -9952,7 +9838,7 @@ int shofea() {
     x = zzstring(mestring, &s, &mysize);
     printf("%s\n\n", mebuf);
   }
-  /* END:NEW */
+  // END:NEW
 
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -9998,7 +9884,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* IKS_OPTION */
+#endif // IKS_OPTION
 #ifdef TN_COMPORT
   printf(" Telnet Remote Com Port Control Option\n");
   if (++lines > cmd_rows - 3) {
@@ -10008,7 +9894,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* TN_COMPORT */
+#endif // TN_COMPORT
 #ifdef CK_SOCKS
 #ifdef CK_SOCKS5
   printf(" SOCKS 5\n");
@@ -10019,7 +9905,7 @@ int shofea() {
       lines = 0;
     }
   }
-#else  /* CK_SOCKS5 */
+#else  // CK_SOCKS5
   printf(" SOCKS 4\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10028,8 +9914,8 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_SOCKS5 */
-#endif /* CK_SOCKS */
+#endif // CK_SOCKS5
+#endif // CK_SOCKS
 #ifdef CKHTTP
   printf(" Built-in HTTP client\n");
   if (++lines > cmd_rows - 3) {
@@ -10039,8 +9925,8 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CKHTTP */
-#endif /* NETCONN */
+#endif // CKHTTP
+#endif // NETCONN
 
 #ifdef CK_RTSCTS
   printf(" Hardware flow control\n");
@@ -10051,7 +9937,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
 
 #ifndef NOCSETS
   printf(" Latin-1 (West European) character-set translation\n");
@@ -10071,7 +9957,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* LATIN2 */
+#endif // LATIN2
 #ifdef CYRILLIC
   printf(" Cyrillic (Russian, Ukrainian, etc) character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10081,7 +9967,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CYRILLIC */
+#endif // CYRILLIC
 #ifdef GREEK
   printf(" Greek character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10091,7 +9977,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* GREEK */
+#endif // GREEK
 #ifdef HEBREW
   printf(" Hebrew character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10101,7 +9987,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* HEBREW */
+#endif // HEBREW
 #ifdef KANJI
   printf(" Japanese character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10111,7 +9997,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* KANJI */
+#endif // KANJI
 #ifdef UNICODE
   printf(" Unicode character-set translation\n");
   if (++lines > cmd_rows - 3) {
@@ -10121,7 +10007,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* UNICODE */
+#endif // UNICODE
 #ifdef CKOUNI
   if (ck_isunicode()) {
     printf(" Unicode support for ISO-2022 Terminal Emulation\n");
@@ -10135,8 +10021,8 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CKOUNI */
-#endif /* NOCSETS */
+#endif // CKOUNI
+#endif // NOCSETS
 
 #ifdef NETPTY
   printf(" Pseudoterminal control\n");
@@ -10147,7 +10033,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NETPTY */
+#endif // NETPTY
 
 #ifdef CK_REDIR
   printf(" REDIRECT command\n");
@@ -10158,7 +10044,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_REDIR */
+#endif // CK_REDIR
 
 #ifdef CK_RESEND
   printf(" RESEND command\n");
@@ -10169,7 +10055,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_RESEND */
+#endif // CK_RESEND
 
 #ifndef NOXFER
 #ifdef CK_CURSES
@@ -10181,8 +10067,8 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_CURSES */
-#endif /* NOXFER */
+#endif // CK_CURSES
+#endif // NOXFER
 
 #ifdef CK_SPEED
   printf(" Control-character unprefixing\n");
@@ -10193,7 +10079,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
 #ifdef STREAMING
   printf(" Streaming\n");
@@ -10204,7 +10090,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* STREAMING */
+#endif // STREAMING
 
 #ifdef CK_AUTODL
   printf(" Autodownload\n");
@@ -10215,7 +10101,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 
 #ifdef CK_REXX
   printf(" REXX script language interface\n");
@@ -10226,14 +10112,14 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_REXX */
+#endif // CK_REXX
 
 #ifdef IKSD
 #ifdef CK_LOGIN
   printf(" Internet Kermit Service with user login support\n");
-#else  /* CK_LOGIN */
+#else  // CK_LOGIN
   printf(" Internet Kermit Service without user login support\n");
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
       return (1);
@@ -10241,7 +10127,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* IKSD */
+#endif // IKSD
 
   printf("\n");
   if (++lines > cmd_rows - 3) {
@@ -10292,7 +10178,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_CURSES */
+#endif // CK_CURSES
 
 #ifdef NOSERVER
   printf(" No server mode\n");
@@ -10304,7 +10190,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 #ifndef CK_SPEED
   printf(" No control-character unprefixing\n");
@@ -10316,7 +10202,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
 #ifndef STREAMING
   printf(" No streaming\n");
@@ -10328,7 +10214,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* STREAMING */
+#endif // STREAMING
 
 #ifndef CK_AUTODL
   printf(" No autodownload\n");
@@ -10340,7 +10226,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 
   printf(" No built-in XYZMODEM protocols\n");
   if (++lines > cmd_rows - 3) {
@@ -10382,8 +10268,8 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOSEXP */
-#endif /* NOFLOAT */
+#endif // NOSEXP
+#endif // NOFLOAT
 
 #ifdef NOTLOG
   printf(" No transaction log\n");
@@ -10395,8 +10281,8 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOTLOG */
-#endif /* NOXFER */
+#endif // NOTLOG
+#endif // NOXFER
 
 #ifdef NODEBUG
   printf(" No debugging\n");
@@ -10408,7 +10294,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NODEBUG */
+#endif // NODEBUG
 
 #ifdef NOHELP
   printf(" No built-in help\n");
@@ -10420,7 +10306,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOHELP */
+#endif // NOHELP
 
 #ifdef NOLOCAL
   printf(" No making connections\n");
@@ -10443,7 +10329,7 @@ int shofea() {
     }
   }
   flag = 1;
-#else /* NETCONN */
+#else // NETCONN
 #ifndef IKS_OPTION
   printf(" No Telnet Kermit Option\n");
   if (++lines > cmd_rows - 3) {
@@ -10454,8 +10340,8 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* IKS_OPTION */
-#endif /* NETCONN */
+#endif // IKS_OPTION
+#endif // NETCONN
 
 #ifdef NOSSH
   printf(" No Secure Shell (SSH)\n");
@@ -10466,7 +10352,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NOSSH */
+#endif // NOSSH
   printf(" No Kerberos(TM) authentication\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10525,7 +10411,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* TN_COMPORT */
+#endif // TN_COMPORT
 #ifndef CK_SOCKS
   printf(" No SOCKS\n");
   if (++lines > cmd_rows - 3) {
@@ -10535,7 +10421,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_SOCKS */
+#endif // CK_SOCKS
   printf(" No built-in FTP client\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10561,10 +10447,10 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NOHTTP */
+#endif // NOHTTP
 #ifdef NOARROWKEYS
-  /* OS/2 and Windows always have arrow key support regardless of the
-   * NOARROWKEYS build option */
+  // OS/2 and Windows always have arrow key support regardless of the
+  // NOARROWKEYS build option
   printf(" No arrow-key support\n");
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
@@ -10573,7 +10459,7 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* NOARROWKEYS */
+#endif // NOARROWKEYS
 
 #ifdef NODIAL
   printf(" No DIAL command\n");
@@ -10596,9 +10482,9 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* MINIDIAL */
-#endif /* NODIAL */
-#endif /* NOLOCAL */
+#endif // MINIDIAL
+#endif // NODIAL
+#endif // NOLOCAL
 
 #ifndef CK_RTSCTS
   printf(" No hardware flow control\n");
@@ -10610,7 +10496,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
 
 #ifdef NOXMIT
   printf(" No TRANSMIT command\n");
@@ -10622,7 +10508,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 #ifdef NOSCRIPT
   printf(" No SCRIPT command\n");
@@ -10634,7 +10520,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
 
 #ifdef NOSPL
   printf(" No script programming features\n");
@@ -10646,7 +10532,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef NOCSETS
   printf(" No character-set translation\n");
@@ -10670,7 +10556,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* LATIN2 */
+#endif // LATIN2
 
 #ifdef NOGREEK
   printf(" No Greek character-set translation\n");
@@ -10682,7 +10568,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOGREEK */
+#endif // NOGREEK
 
 #ifdef NOHEBREW
   printf(" No Hebrew character-set translation\n");
@@ -10694,7 +10580,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOHEBREW */
+#endif // NOHEBREW
 
 #ifdef NOUNICODE
   printf(" No Unicode character-set translation\n");
@@ -10706,7 +10592,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOUNICODE */
+#endif // NOUNICODE
 
 #ifdef NOCYRIL
   printf(" No Cyrillic character-set translation\n");
@@ -10718,7 +10604,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOCYRIL */
+#endif // NOCYRIL
 
 #ifndef KANJI
   printf(" No Kanji character-set translation\n");
@@ -10730,8 +10616,8 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* KANJI */
-#endif /* NOCSETS */
+#endif // KANJI
+#endif // NOCSETS
 
 #ifdef NOCMDL
   printf(" No command-line arguments\n");
@@ -10743,7 +10629,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOCMDL */
+#endif // NOCMDL
 
 #ifdef NOPUSH
   printf(" No escape to system\n");
@@ -10755,7 +10641,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOPUSH */
+#endif // NOPUSH
 
 #ifdef NOJC
 #ifdef UNIX
@@ -10768,8 +10654,8 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* UNIX */
-#endif /* NOJC */
+#endif // UNIX
+#endif // NOJC
 
 #ifdef NOSETKEY
   printf(" No SET KEY command\n");
@@ -10781,7 +10667,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 #ifndef CK_REDIR
   printf(" No REDIRECT or PIPE command\n");
@@ -10793,7 +10679,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_REDIR */
+#endif // CK_REDIR
 
 #ifndef NETPTY
   printf(" No pseudoterminal control\n");
@@ -10805,7 +10691,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* NETPTY */
+#endif // NETPTY
 
 #ifndef CK_RESEND
   printf(" No RESEND command\n");
@@ -10817,7 +10703,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* CK_RESEND */
+#endif // CK_RESEND
 
 #ifndef IKSD
   printf(" No Internet Kermit Service\n");
@@ -10829,7 +10715,7 @@ int shofea() {
     }
   }
   flag = 1;
-#endif /* IKSD */
+#endif // IKSD
 
   if (flag == 0) {
     printf(" None\n");
@@ -10914,15 +10800,13 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* CK_UTSNAME */
+#endif // CK_UTSNAME
 
-/*
-  Print compile-time (-D) options, as well as C preprocessor
-  predefined symbols that might affect us...
-*/
+// Print compile-time (-D) options, as well as C preprocessor
+// predefined symbols that might affect us...
 #ifdef KTARGET
   {
-    char *s; /* Makefile target */
+    char *s; // Makefile target
     s = KTARGET;
     if (!s) {
       s = "";
@@ -10947,7 +10831,7 @@ int shofea() {
       }
     }
   }
-#endif /* KTARGET */
+#endif // KTARGET
 
 #ifdef __VERSION__
 #ifdef __clang__
@@ -10957,7 +10841,7 @@ int shofea() {
   printf("GCC version: %s\n", __VERSION__);
 #else
   printf("Compiler version: %s\n", __VERSION__);
-#endif /* __GNUC__ */
+#endif // __GNUC__
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
       return (1);
@@ -10965,18 +10849,18 @@ int shofea() {
       lines = 0;
     }
   }
-#endif /* __clang__ */
-#endif /* __VERSION__ */
+#endif // __clang__
+#endif // __VERSION__
 
-#ifdef __DATE__ /* GNU and other ANSI */
+#ifdef __DATE__ // GNU and other ANSI
 #ifdef __TIME__
   printf("Compiled %s %s, options:\n", __DATE__, __TIME__);
 #else
   printf("Compiled %s, options:\n", __DATE__);
-#endif /* __TIME__ */
-#else  /* !__DATE__ */
+#endif // __TIME__
+#else  // !__DATE__
   printf("Compiler options:\n");
-#endif /* __DATE__ */
+#endif // __DATE__
   if (++lines > cmd_rows - 3) {
     if (!askmore()) {
       return (1);
@@ -10985,90 +10869,90 @@ int shofea() {
     }
   }
 
-  for (i = 0; i < noptlist; i++) { /* Print sorted option list */
+  for (i = 0; i < noptlist; i++) { // Print sorted option list
     if (!prtopt(&lines, optlist[i])) {
       return (0);
     }
   }
 
   if (!prtopt(&lines, "")) {
-    return (0); /* Start a new section */
+    return (0); // Start a new section
   }
 
-  /* Sizes of data types */
+  // Sizes of data types
 
   ckmakmsg(line, LINBUFSIZ, "byte order: ", byteorder ? "little" : "big",
            " endian", NULL);
   {
-    /* Whether to use %d or %ld with sizeof is a portability issue, so... */
+    // Whether to use %d or %ld with sizeof is a portability issue, so...
     int size = 0;
 
     if (!prtopt(&lines, line)) {
       return (0);
     }
     if (!prtopt(&lines, "")) {
-      return (0); /* Start a new section */
+      return (0); // Start a new section
     }
 
     size = (int)sizeof(int);
-    sprintf(line, "sizeofs: int=%d", size); /* SAFE */
+    sprintf(line, "sizeofs: int=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(long);
-    sprintf(line, "long=%d", size); /* SAFE */
+    sprintf(line, "long=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
-    /* Windows doesn't have off_t */
+    // Windows doesn't have off_t
     size = (int)sizeof(off_t);
-    sprintf(line, "off_t=%d", size); /* SAFE */
+    sprintf(line, "off_t=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(CK_OFF_T);
-    sprintf(line, "CK_OFF_T=%d", size); /* SAFE */
+    sprintf(line, "CK_OFF_T=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
 #ifdef BIGBUFOK
     size = (int)sizeof(size_t);
-    sprintf(line, "size_t=%d", size); /* SAFE */
+    sprintf(line, "size_t=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
 
     size = (int)sizeof(short);
-    sprintf(line, "short=%d", size); /* SAFE */
+    sprintf(line, "short=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(char);
-    sprintf(line, "char=%d", size); /* SAFE */
+    sprintf(line, "char=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(char *);
-    sprintf(line, "char*=%d", size); /* SAFE */
+    sprintf(line, "char*=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(float);
-    sprintf(line, "float=%d", size); /* SAFE */
+    sprintf(line, "float=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
 
     size = (int)sizeof(double);
-    sprintf(line, "double=%d", size); /* SAFE */
+    sprintf(line, "double=%d", size); // SAFE
     if (!prtopt(&lines, line)) {
       return (0);
     }
@@ -11076,23 +10960,23 @@ int shofea() {
 
 #ifdef FNFLOAT
   if (!prtopt(&lines, "")) {
-    return (0); /* Start a new section */
+    return (0); // Start a new section
   }
   if (!prtopt(&lines, "floating-point:")) {
     return (0);
   }
-  sprintf(line, "precision=%d", fp_digits); /* SAFE */
+  sprintf(line, "precision=%d", fp_digits); // SAFE
   if (!prtopt(&lines, line)) {
     return (0);
   }
-  sprintf(line, "rounding=%d", fp_rounding); /* SAFE */
+  sprintf(line, "rounding=%d", fp_rounding); // SAFE
   if (!prtopt(&lines, line)) {
     return (0);
   }
-#endif /* FNFLOAT */
+#endif // FNFLOAT
 
   prtopt(&lines, "");
   return (0);
 }
-#endif /* NOSHOW */
-#endif /* NOICP */
+#endif // NOSHOW
+#endif // NOICP

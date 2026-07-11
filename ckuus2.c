@@ -1,59 +1,55 @@
-/*  C K U U S 2  --  User interface strings & help text module for C-Kermit  */
+//  C K U U S 2  --  User interface strings & help text module for C-Kermit
 
-/*
-  Authors:
-    Frank da Cruz <fdc@columbia.edu>,
-      The Kermit Project, New York City
-    Jeffrey E Altman <jaltman@secure-endpoints.com>
-      Secure Endpoints Inc., New York City
-    David Goodwin, New Zealand.
-
-  Copyright (C) 1985, 2024,
-    Trustees of Columbia University in the City of New York.
-    All rights reserved.  See the C-Kermit COPYING.TXT file or the
-    copyright text in the ckcmai.c module for disclaimer and permissions.
-    Last updates: 22 Aug 2022 (HELP TYPE adds /INTERPRET switch).
-                  20 Sep 2022 (HELP COPY adds /INTERPRET, /TOSCREEN switches).
-                  06 Nov 2022 (fixed formatting of HELP SET TELNET).
-                  12 Nov 2022 (converted four function help strings to arrays).
-                  02 Dec 2022 (changed ssh v2 macs list in windows "help ssh").
-                  03 Dec 2022 (fixed misplaced definition of cr_year).
-                  12 Apr 2023 (ANSI-ize function definitions)
-                  25 Jan 2024 (Added HELP REMOTE STATUS)
-                  03 Feb 2024 (Added HELP REMOTE CWD)
-
-  This module contains HELP command and other long text strings.
-
-  IMPORTANT: As of 2022, character string constants longer than about 509 are
-  not portable.  Longer strings should be broken up into arrays of strings and
-  accessed with hmsga() rather than hmsg().  The length limit might be lower
-  in older C compilers.
-*/
-/* clang-format off */
+// Authors:
+//  Frank da Cruz <fdc@columbia.edu>,
+//    The Kermit Project, New York City
+//  Jeffrey E Altman <jaltman@secure-endpoints.com>
+//    Secure Endpoints Inc., New York City
+//  David Goodwin, New Zealand.
+//
+// Copyright (C) 1985, 2024,
+//  Trustees of Columbia University in the City of New York.
+//  All rights reserved.  See the C-Kermit COPYING.TXT file or the
+//  copyright text in the ckcmai.c module for disclaimer and permissions.
+//  Last updates: 22 Aug 2022 (HELP TYPE adds /INTERPRET switch).
+//                20 Sep 2022 (HELP COPY adds /INTERPRET, /TOSCREEN switches).
+//                06 Nov 2022 (fixed formatting of HELP SET TELNET).
+//                12 Nov 2022 (converted four function help strings to arrays).
+//                02 Dec 2022 (changed ssh v2 macs list in windows "help ssh").
+//                03 Dec 2022 (fixed misplaced definition of cr_year).
+//                12 Apr 2023 (ANSI-ize function definitions)
+//                25 Jan 2024 (Added HELP REMOTE STATUS)
+//                03 Feb 2024 (Added HELP REMOTE CWD)
+//
+// This module contains HELP command and other long text strings.
+//
+// IMPORTANT: As of 2022, character string constants longer than about 509 are
+// not portable.  Longer strings should be broken up into arrays of strings and
+// accessed with hmsga() rather than hmsg().  The length limit might be lower
+// in older C compilers.
+// clang-format off
 #include "ckcdeb.h"
-/* clang-format on */
+// clang-format on
 #include "ckcasc.h"
 #include "ckcker.h"
 #include "ckcnet.h"
 #include "ckcxla.h"
 #include "ckuusr.h"
 
-#include "ckcfnp.h"      /* Prototypes (must be last) */
-static int dohfile(int); /* Prototype for static func */
+#include "ckcfnp.h"      // Prototypes (must be last)
+static int dohfile(int); // Prototype for static func
 
-extern char *ck_cryear; /* For copyright notice */
+extern char *ck_cryear; // For copyright notice
 extern xx_strp xxstring;
 extern char *ccntab[];
-/*
-  hlptok contains the string for which the user requested help.  This is
-  useful for distinguishing synonyms, in case different help text is needed
-  depending on which synonym was given.
-*/
+// hlptok contains the string for which the user requested help.  This is
+// useful for distinguishing synonyms, in case different help text is needed
+// depending on which synonym was given.
 extern char *hlptok;
 
 #ifndef NOIKSD
 extern int inserver;
-#endif /* IKSD */
+#endif // IKSD
 
 #ifndef NOICP
 extern int cmflgs;
@@ -62,8 +58,8 @@ extern int cmflgs;
 extern char *cmdbuf, *atmbuf;
 #else
 extern char cmdbuf[], atmbuf[];
-#endif /* DCMDBUF */
-#endif /* NOICP */
+#endif // DCMDBUF
+#endif // NOICP
 
 extern char *xarg0;
 extern int nrmt, nprm, dfloc, local, parity, escape;
@@ -77,17 +73,17 @@ extern long speed;
 extern char *dftty, *versio, *ckxsys;
 #ifndef NOHELP
 extern char *helpfile;
-#endif /* NOHELP */
+#endif // NOHELP
 extern struct keytab prmtab[];
 #ifndef NOXFER
 extern struct keytab remcmd[];
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOICP
 
-/*  Interactive help strings  */
+//  Interactive help strings
 
-/* Top-level HELP text.  IMPORTANT: Also see tophlpi[] for IKSD. */
+// Top-level HELP text.  IMPORTANT: Also see tophlpi[] for IKSD.
 
 static char *tophlp[] = {
     "Trustees of Columbia University in the City of New York.\n",
@@ -103,8 +99,8 @@ static char *tophlp[] = {
     "  Type MANUAL  to access the C-Kermit manual page.",
 #else
     "  Type MANUAL  to access the C-Kermit manual.",
-#endif /* UNIX */
-#endif /* NOPUSH */
+#endif // UNIX
+#endif // NOPUSH
     "  Type NEWS    for news about new features.",
     "  Type SUPPORT to learn how to get technical support.",
     "  Press ?      (question mark) at the prompt, or anywhere within a "
@@ -113,14 +109,14 @@ static char *tophlp[] = {
 #else
     "Press ? for a list of commands; see documentation for detailed "
     "descriptions.",
-#endif /* NOHELP */
+#endif // NOHELP
 
 #ifndef NOCMDL
 #ifndef NOHELP
     " ",
     "  Type HELP OPTIONS for help with command-line options.",
-#endif /* NOHELP */
-#endif /* NOCMDL */
+#endif // NOHELP
+#endif // NOCMDL
     " ",
     "DOCUMENTATION: \"Using C-Kermit\" by Frank da Cruz and Christine M. "
     "Gianone,",
@@ -131,39 +127,38 @@ static char *tophlp[] = {
 
 #ifndef NOIKSD
 #ifdef NOHELP
-static char *tophlpi[] =
-    {/* Top-level help for IKSD */
+static char *tophlpi[] = { // Top-level help for IKSD
 
-     "Trustees of Columbia University in the City of New York.\n",
+    "Trustees of Columbia University in the City of New York.\n",
 
 #ifndef NOHELP
-     "  Type INTRO   for a brief introduction to Kermit commands.",
-     "  Type VERSION for version and copyright information.",
-     "  Type HELP    followed by a command name for help about a specific "
-     "command.",
-     "  Type SUPPORT to learn how to get technical support.",
-     "  Type LOGOUT  (or EXIT) to log out.",
-     "  Press ?      (question mark) at the prompt, or anywhere within a "
-     "command,",
-     "               for a menu (context-sensitive help, menu on demand).",
+    "  Type INTRO   for a brief introduction to Kermit commands.",
+    "  Type VERSION for version and copyright information.",
+    "  Type HELP    followed by a command name for help about a specific "
+    "command.",
+    "  Type SUPPORT to learn how to get technical support.",
+    "  Type LOGOUT  (or EXIT) to log out.",
+    "  Press ?      (question mark) at the prompt, or anywhere within a "
+    "command,",
+    "               for a menu (context-sensitive help, menu on demand).",
 #else
-     "Press ? for a list of commands; see documentation for detailed "
-     "descriptions.",
-#endif /* NOHELP */
-     " ",
-     "DOCUMENTATION: \"Using C-Kermit\" by Frank da Cruz and Christine M. "
-     "Gianone,",
-     "2nd Edition, Digital Press (1997), ISBN 1-55558-164-1.  More info at the",
-     "Kermit Project website, http://www.kermitproject.org/.",
-     ""};
-#endif /* NOHELP */
-#endif /* NOIKSD */
+    "Press ? for a list of commands; see documentation for detailed "
+    "descriptions.",
+#endif // NOHELP
+    " ",
+    "DOCUMENTATION: \"Using C-Kermit\" by Frank da Cruz and Christine M. "
+    "Gianone,",
+    "2nd Edition, Digital Press (1997), ISBN 1-55558-164-1.  More info at the",
+    "Kermit Project website, http://www.kermitproject.org/.",
+    ""};
+#endif // NOHELP
+#endif // NOIKSD
 
 #ifndef NOHELP
 char *newstxt[] = {
     "Welcome to C-Kermit 10.0.",
     "New features since version 9.0 of 2011 include:",
-    /* For 10.0 */
+    // For 10.0
     " . Updated for longevity... Adapted to 2020s compilers and OS's without",
     "    sacrificing compatability with older platforms going back to the "
     "1970s",
@@ -191,10 +186,10 @@ char *newstxt[] = {
     "  https://www.kermitproject.org/ckupdates.html (C-Kermit change log)",
     "  https://www.kermitproject.org/ck10devbuilds.html (Beta test builds "
     "table)",
-#endif /* BETATEST */
+#endif // BETATEST
     " ", "If the Kermit Project website is gone, look on Github:", " ",
     "  https://github.com/KermitProject", ""};
-#endif /* NOHELP */
+#endif // NOHELP
 
 #ifndef NOHELP
 char *introtxt[] = {
@@ -205,25 +200,25 @@ char *introtxt[] = {
     "Welcome to VOS C-Kermit communications software for:",
 #else
     "Welcome to C-Kermit communications software for:",
-#endif /* VOS */
-#endif /* UNIX */
+#endif // VOS
+#endif // UNIX
 #ifndef NOXFER
     " . Error-free and efficient file transfer",
-#endif /* NOXFER */
+#endif // NOXFER
 #ifndef NOLOCAL
     " . Terminal connection",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifndef NOSPL
     " . Script programming",
-#endif /* NOSPL */
+#endif // NOSPL
 #ifndef NOICS
     " . International character set conversion",
-#endif /* NOICS */
+#endif // NOICS
 #ifndef NODIAL
 #ifndef NOSPL
     " . Numeric and alphanumeric paging",
-#endif /* NOSPL */
-#endif /* NODIAL */
+#endif // NOSPL
+#endif // NODIAL
 
 #ifndef NOLOCAL
     " ",
@@ -231,30 +226,30 @@ char *introtxt[] = {
     " . Serial connections, direct or dialed.",
 #ifndef NODIAL
     " . Automatic modem dialing",
-#endif /* NODIAL */
+#endif // NODIAL
 #ifdef TCPSOCKET
     " . TCP/IP network connections:",
 #ifdef TNCODE
     "   - Telnet sessions",
-#endif /* TNCODE */
+#endif // TNCODE
 #ifdef SSHBUILTIN
     "   - SSH v2 connections",
 #else
 #ifdef ANYSSH
     "   - SSH connections via external agent",
-#endif /* ANYSSH */
-#endif /* SSHBUILTIN */
+#endif // ANYSSH
+#endif // SSHBUILTIN
 #ifdef CKHTTP
     "   - HTTP 1.1 sessions",
-#endif /* CKHTTP */
+#endif // CKHTTP
 #ifdef IKSD
     "   - Internet Kermit Service",
-#endif /* IKSD */
-#endif /* TCPSOCKET */
+#endif // IKSD
+#endif // TCPSOCKET
 #ifdef ANYX25
     " . X.25 network connections",
-#endif /* ANYX25 */
-#endif /* NOLOCAL */
+#endif // ANYX25
+#endif // NOLOCAL
 
     " ",
     "While typing commands, you may use the following special characters:",
@@ -268,10 +263,10 @@ char *introtxt[] = {
     " . CTRL-P:      Command recall - go backwards in command recall buffer.",
     " . CTRL-B:      Command recall - same as Ctrl-P.",
     " . CTRL-N:      Command recall - go forward in command recall buffer.",
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 #ifndef NOLASTFILE
     " . CTRL-K:      Insert the most recently entered local file specifiction.",
-#endif /* NOLASTFILE */
+#endif // NOLASTFILE
 
     " . ?            (question mark) Display a menu for the current command "
     "field.",
@@ -281,7 +276,7 @@ char *introtxt[] = {
     "                or introduce a backslash code, variable, or function.",
 #else
     "                or introduce a numeric backslash code.",
-#endif /* NOSPL */
+#endif // NOSPL
     " ",
 
     "IMPORTANT: Since backslash (\\) is Kermit's command-line escape "
@@ -312,10 +307,10 @@ char *introtxt[] = {
 #ifdef CK_RESEND
     "  RESEND        Recover an interrupted send",
     "  REGET         Recover an interrupted get from a server",
-#endif /* CK_RESEND */
+#endif // CK_RESEND
 #ifndef NOSERVER
     "  SERVER        Be a Kermit server",
-#endif /* NOSERVER */
+#endif // NOSERVER
     " ",
     "File-transfer speed selection:",
     "  FAST          Use fast settings -- THIS IS THE DEFAULT",
@@ -326,7 +321,7 @@ char *introtxt[] = {
     "  SET RECEIVE PACKET-LENGTH  Kermit packet size",
     "  SET WINDOW                 Number of sliding window slots",
     "  SET PREFIXING              Amount of control-character prefixing",
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOLOCAL
     " ",
@@ -338,7 +333,7 @@ char *introtxt[] = {
     "  SET FLOW      Communications flow control, such as RTS/CTS",
 #else
     "  SET FLOW      Communications flow control, such as XON/XOFF",
-#endif /* CK_RTSCTS */
+#endif // CK_RTSCTS
     "  CONNECT       Begin terminal connection",
 
 #ifndef NODIAL
@@ -357,7 +352,7 @@ char *introtxt[] = {
     " ",
     "Further info:   HELP DIAL, HELP SET MODEM, HELP SET LINE, HELP SET DIAL",
     "(*) (For use with optional dialing directory)",
-#endif /* NODIAL */
+#endif // NODIAL
 
 #ifdef NETCONN
     " ",
@@ -365,21 +360,21 @@ char *introtxt[] = {
 #ifndef NODIAL
     "  SET NETWORK DIRECTORY  Specify a network services directory (optional)",
     "  LOOKUP                 Lookup entries in your network directory",
-#endif /* NODIAL */
+#endif // NODIAL
     "  SET NETWORK TYPE       Select network type (if more than one available)",
     "  SET HOST               Make a network connection but stay in command "
     "mode",
     "  CONNECT                Begin terminal connection",
 #ifdef TNCODE
     "  TELNET                 Select a Telnet host and CONNECT to it",
-#endif /* TNCODE */
+#endif // TNCODE
 #ifdef ANYSSH
     "  SSH [ OPEN ]           Select an SSH host and CONNECT to it",
-#endif /* ANYSSH */
+#endif // ANYSSH
 #ifdef CKHTTP
     "  HTTP OPEN              Make an HTTP connection",
-#endif /* CKHTTP */
-#endif /* NETCONN */
+#endif // CKHTTP
+#endif // NETCONN
 
     " ",
     "To return from a terminal connection to the C-Kermit prompt:",
@@ -390,11 +385,11 @@ char *introtxt[] = {
     " ",
     "To display other settings:",
     "  SHOW COMMUNICATIONS, SHOW TERMINAL, SHOW FILE, SHOW PROTOCOL, etc.",
-#else  /* !NOLOCAL */
+#else  // !NOLOCAL
     " ",
     "To display settings:",
     "  SHOW COMMUNICATIONS, SHOW FILE, SHOW PROTOCOL, etc.",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
     " ",
     "The manual for C-Kermit is the book \"Using C-Kermit\".  For information",
     "about the manual, visit:",
@@ -502,7 +497,7 @@ static char *hmxysexp[] = {
     "  part.  The default is OFF.  SHOW SEXPRESSION displays the current "
     "settings.",
     ""};
-#endif /* NOSEXP */
+#endif // NOSEXP
 
 static char *hmxxfunc[] = {
     "KERMIT FUNCTIONS",
@@ -545,16 +540,15 @@ static const char *hmxxskrm[] = {
     "server.",
     "  For more details on this, see: https://kermitproject.org/skermit.html",
     ""};
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
 
 #ifdef ANYSSH
 static char *hmxxssh[] = {
 #ifdef SSHBUILTIN
-/* In Kermit 95, help content is provided by the currently loaded SSH backend.
- * This help text will only be output when no backend is loaded. If K95 was
- * built with SSHBUILTIN and not SSH_DLL, then the SSH backend is compiled in
- * so can never not be loaded.
- */
+// In Kermit 95, help content is provided by the currently loaded SSH backend.
+// This help text will only be output when no backend is loaded. If K95 was
+// built with SSHBUILTIN and not SSH_DLL, then the SSH backend is compiled in
+// so can never not be loaded.
 #ifdef SSH_DLL
     "SSH LOAD filename",
     "  This command is only available when no SSH backend DLL was loaded on ",
@@ -573,34 +567,33 @@ static char *hmxxssh[] = {
     "  restarted.",
     " ",
 #endif
-#else  /* SSHBUILTIN */
+#else  // SSHBUILTIN
     "Syntax: SSH [ options ] <hostname> [ command ]",
     "  Makes an SSH connection using the external ssh program via the SET SSH",
     "  COMMAND string, which is \"ssh -e none\" by default.  Options for the",
     "  external ssh program may be included.  If the hostname is followed by a",
     "  command, the command is executed on the host instead of an interactive",
     "  shell.",
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
     ""};
 
 static char *hmxyssh[] = {
 #ifdef SSHBUILTIN
-/* In Kermit 95, help content is provided by the currently loaded SSH backend.
- * This help text will only be output when no backend is loaded. If K95 was
- * built with SSHBUILTIN and not SSH_DLL, then the SSH backend is compiled in
- * so can never not be loaded.
- */
+// In Kermit 95, help content is provided by the currently loaded SSH backend.
+// This help text will only be output when no backend is loaded. If K95 was
+// built with SSHBUILTIN and not SSH_DLL, then the SSH backend is compiled in
+// so can never not be loaded.
 #ifdef SSH_DLL
     "No SSH backend loaded. If you have a suitable backend DLL, you can load",
     "it with the SSH LOAD command.",
-#endif /* SSH_DLL */
-#else  /* SSHBUILTIN */
+#endif // SSH_DLL
+#else  // SSHBUILTIN
     "Syntax: SET SSH COMMAND command",
     "  Specifies the external command to be used to make an SSH connection.",
     "  By default it is \"ssh -e none\" (ssh with no escape character).",
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
     ""};
-#endif /* ANYSSH */
+#endif // ANYSSH
 
 #ifdef LOCUS
 static char *hmxylocus[] = {
@@ -624,7 +617,7 @@ static char *hmxylocus[] = {
     "  SET LOCUS AUTO restores automatic switching.",
     "",
 };
-#endif /* LOCUS */
+#endif // LOCUS
 
 #ifdef UNIX
 #ifndef NOPUTENV
@@ -650,8 +643,8 @@ static char *hmxxputenv[] = {
     "  not include an equal sign.",
     "",
 };
-#endif /* NOPUTENV */
-#endif /* UNIX */
+#endif // NOPUTENV
+#endif // UNIX
 
 static char *hmxxtak[] = {
     "Syntax: TAKE filename [ arguments ]",
@@ -677,7 +670,7 @@ static char *hmxxfirew[] = {
     "protocols.  Kermit can be built with support for HTTP Proxy Servers,",
     "SOCKS authorized firewall traversal, and FTP Passive connection modes.",
     " ",
-#else /* NOFIREWALL */
+#else // NOFIREWALL
 #ifdef CKHTTP
     "The simplist form of firewall traversal is the HTTP CONNECT command. The",
     "CONNECT command was implemented to allow a public web server which "
@@ -711,7 +704,7 @@ static char *hmxxfirew[] = {
     "  override any other values associated with the connection.",
     " ",
 
-#endif /* CKHTTP */
+#endif // CKHTTP
 #ifdef CK_SOCKS
 
     "In the early 1990s as firewalls were becoming prevalent, David Koblas",
@@ -747,20 +740,20 @@ static char *hmxxfirew[] = {
 
 #ifdef CK_SOCKS5
     "This version of C-Kermit supports SOCKS version 5.",
-#else  /* CK_SOCKS5 */
+#else  // CK_SOCKS5
     "This version of C-Kermit supports SOCKS version 4.",
-#endif /* CK_SOCKS5 */
+#endif // CK_SOCKS5
 
     "See the man page (or other system documentation) for information on",
     "configuring the SOCKS library via the /etc/socks.conf file.",
 
     " ",
-#endif /* CK_SOCKS */
+#endif // CK_SOCKS
 
-#endif /* NOFIREWALL */
+#endif // NOFIREWALL
 
     ""};
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
 static char *hmxxsave[] = {
     "Syntax: SAVE item filename { NEW, APPEND }",
@@ -769,11 +762,11 @@ static char *hmxxsave[] = {
     "  existing file.  Items:",
 #ifndef NOSETKEY
     "    KEYMAP               Saves the current key settings.",
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 #ifdef CK_RECALL
     "    COMMAND HISTORY      Saves the current command recall (history) "
     "buffer",
-#endif /* CK_RECALL */
+#endif // CK_RECALL
     ""};
 
 #ifdef CKROOT
@@ -788,7 +781,7 @@ static char *hmxxchroot[] = {
     "  command.  Primarily for use with server mode, to restrict access of",
     "  clients to a particular directory tree.  Synonym: CHROOT.",
     ""};
-#endif /* CKROOT */
+#endif // CKROOT
 
 static char *hmxxscrn[] = {
     "Syntax: SCREEN { CLEAR, CLEOL, MOVE row column }",
@@ -996,7 +989,7 @@ static char *hxxcsn[] = {
     "  \\s(name[n.])",
     "      The character at position n",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hxypari[] = {
     "SET PARITY NONE",
@@ -1013,7 +1006,7 @@ static char *hxypari[] = {
     "Also see SET TERMINAL BYTESIZE, SET SERIAL, and SET STOP-BITS.",
 #else
     "Also see SET TERMINAL BYTESIZE and SET SERIAL.",
-#endif /* HWPARITY */
+#endif // HWPARITY
     ""};
 
 #ifndef NOLOCAL
@@ -1032,7 +1025,7 @@ static char *hxyesc[] = {
     "character,",
     "either by typing it literally or by entering its numeric code.",
     ""};
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOSPL
 static char *hxyout[] = {
@@ -1053,7 +1046,7 @@ static char *hxyinp[] = {
     "  Controls whether autodownloads are allowed during INPUT command "
     "execution.",
     " ",
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
     "SET INPUT BUFFER-LENGTH number-of-bytes",
     "  Removes the old INPUT buffer and creates a new one with the given "
     "length.",
@@ -1081,7 +1074,7 @@ static char *hxyinp[] = {
     "  read-only variable \\v(inscale).  The default value is 1.0.",
     " ",
 
-#endif /* CKFLOAT */
+#endif // CKFLOAT
 
     "SET INPUT SILENCE <number>",
     "  The maximum number to seconds of silence (no input at all) before the",
@@ -1105,7 +1098,7 @@ static char *hxyfunc[] = {
     "  Whether an illegal function call or reference to a nonexistent built-in",
     "  variable should cause a command to fail.  OFF by default.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hxyxyz[] = {
     "Syntax: \
@@ -1145,8 +1138,8 @@ static char *hmxxchmod[] = {
     "   /NOPAGE       When listing, don't pause at end of each screen.",
     "   /SIMULATE     Show what would be done but don't actually do it.",
     ""};
-#endif /* UNIX */
-#endif /* CK_PERMS */
+#endif // UNIX
+#endif // CK_PERMS
 
 #ifndef NOSPL
 #ifndef NOSEXP
@@ -1244,8 +1237,8 @@ static char *hmxxsexp[] = {
     "function",
     "to evaluate an S-Expression anywhere in a Kermit command.",
     ""};
-#endif /* NOSEXP */
-#endif /* NOSPL */
+#endif // NOSEXP
+#endif // NOSPL
 
 static char *hmxxgrep[] = {
     "Syntax: GREP [ options ] pattern filespec",
@@ -1279,7 +1272,7 @@ static char *hmxxgrep[] = {
 #ifdef RECURSIVE
     "  /RECURSIVE",
     "    Searches through files in subdirectories too.",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
     "  /TYPE:TEXT",
     "    Search only text files (requires FILE SCAN ON).",
     "  /TYPE:BINARY",
@@ -1338,7 +1331,7 @@ static char *hmxxdir[] = {
     "  If LOCUS is REMOTE or LOCUS is AUTO and you have an FTP connection,",
     "  this command is equivalent to REMOTE DIRECTORY (RDIR).  Otherwise:",
     " ",
-#endif /* LOCUS */
+#endif // LOCUS
     "  Lists local files.  The filespec may be a filename, possibly containing",
     "  wildcard characters, or a directory name.  If no filespec is given, all",
     "  files in the current directory are listed.  If a directory name is "
@@ -1351,7 +1344,7 @@ static char *hmxxdir[] = {
     "   /VERBOSE       + Also list permissions, size, and date.",
 #else
     "   /VERBOSE       + Also list date and size.",
-#endif /* CK_PERMS */
+#endif // CK_PERMS
     "   /FILES           Show files but not directories.",
     "   /DIRECTORIES     Show directories but not files.",
     "   /ALL           + Show both files and directories.",
@@ -1383,7 +1376,7 @@ static char *hmxxdir[] = {
 #ifdef RECURSIVE
     "   /RECURSIVE       Descend through subdirectories.",
     "   /NORECURSIVE   + Don't descend through subdirectories.",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
     "   /SORT:key        Sort by key, NAME, DATE, or SIZE; default key is "
     "NAME.",
     "   /NOSORT        + Don't sort.",
@@ -1398,7 +1391,7 @@ static char *hmxxdir[] = {
     "Syntax: DIRECTORY [ filespec ]",
     "  Lists the specified file or files.  If no filespec is given, all files",
     "  in the current directory are listed.",
-#endif /* DOMYDIR */
+#endif // DOMYDIR
     ""};
 
 static char *hmxxtouch[] = {
@@ -1440,7 +1433,7 @@ static char *hmxxtouch[] = {
     "   /SIMULATE        List files that would be touched, but don't touch "
     "them.",
     "   /LIST            Show which files are being touched.",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
     " ",
     "Factory defaults are marked with +.  Use HELP DATE to learn the date-time",
     "formats usable with /MODTIME:.  If a /MODTIME: switch is not given, each",
@@ -1488,7 +1481,7 @@ static char *hmxxchange[] = {
 #ifdef RECURSIVE
     "   /RECURSIVE      Descend through subdirectories.",
     "   /NORECURSIVE  + Don't descend through subdirectories.",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
     " ",
     " File disposition switches:",
     " ",
@@ -1533,21 +1526,21 @@ static char *hmxxkcd[] = {
     "    inidir        The directory where Kermit's initialization was found",
 #ifdef UNIX
     "    lockdir       The UNIX UUCP lockfile directory on this computer",
-#endif /* UNIX */
+#endif // UNIX
     "    startup       Your current directory at the time Kermit started",
     "    textdir       The directory where Kermit text files reside, if any",
     "    tmpdir        Your temporary directory",
     " ",
     "  Also see CD, SET FILE DOWNLOAD, SET TEMP-DIRECTORY.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hmxxcwd[] = {
 #ifdef LOCUS
     "  If LOCUS is REMOTE or LOCUS is AUTO and you have an FTP connection,",
     "  this command is equivalent to REMOTE CD (RCD).  Otherwise:",
     " ",
-#endif /* LOCUS */
+#endif // LOCUS
 #ifdef vms
     "Syntax: CD [ directory or device:directory ]",
     "  Change Working Directory.  Equivalent to VMS SET DEFAULT command.",
@@ -1559,7 +1552,7 @@ static char *hmxxcwd[] = {
     "to",
     "  this directory.  If the directory name is omitted, your home (login)",
     "  directory is supplied.",
-#endif /* vms */
+#endif // vms
     "  C-Kermit's default prompt shows your current directory.",
     "  Synonyms: LCD, CWD.",
 #ifdef LOCUS
@@ -1567,10 +1560,10 @@ static char *hmxxcwd[] = {
     "PROMPT.",
 #else
     "  Also see: PWD, CDUP, BACK, REMOTE CD (RCD), SET CD, SET PROMPT.",
-#endif /* LOCUS */
+#endif // LOCUS
 #ifndef NOSPL
     "  And see: HELP KCD.",
-#endif /* NOSPL */
+#endif // NOSPL
     "  Relevant environment variables: CDPATH, HOME.",
     ""};
 
@@ -1580,7 +1573,7 @@ static char *hmxxdel[] = {
     "  If LOCUS is REMOTE or LOCUS is AUTO and you have an FTP connection,",
     "  this command is equivalent to REMOTE DELETE (RDELETE).  Otherwise:",
     " ",
-#endif /* LOCUS */
+#endif // LOCUS
     "  Deletes a file or files on the computer where C-Kermit is running.",
     "  The filespec may denote a single file or can include wildcard "
     "characters",
@@ -1649,7 +1642,7 @@ static char *hmxxdel[] = {
     "  given, Kermit deletes all the (matching) files in each directory before",
     "  attempting to delete the directory itself.",
     " ",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
 #ifdef UNIX
 #ifdef RECURSIVE
     "/ALL",
@@ -1657,16 +1650,16 @@ static char *hmxxdel[] = {
 #else
     "/ALL",
     "  This is a shortcut for /DIRECTORIES /DOTFILES.",
-#endif /* RECURSIVE */
-#else  /* !UNIX */
+#endif // RECURSIVE
+#else  // !UNIX
 #ifdef RECURSIVE
     "/ALL",
     "  This is a shortcut for /RECURSIVE /DIRECTORIES.",
 #else
     "/ALL",
     "  This is a synonym for /DIRECTORIES.",
-#endif /* RECURSIVE */
-#endif /* UNIX */
+#endif // RECURSIVE
+#endif // UNIX
     " ",
     "/LIST",
     "  List each file and tell whether it was deleted.  Synonyms: /LOG, "
@@ -1710,7 +1703,7 @@ unless you override them; use SHOW OPTIONS to see selections currently",
     "in effect.  Also see HELP SET LOCUS, HELP PURGE, HELP WILDCARD.",
 #else
     "in effect.  Also see HELP PURGE, HELP WILDCARD.",
-#endif /* LOCUS */
+#endif // LOCUS
     ""};
 
 #ifndef NOHTTP
@@ -1818,7 +1811,7 @@ static char *hmxxhttp[] = {
     "to a script to process the server responses for a POST or PUT command.",
     " ",
     ""};
-#endif /* NOHTTP */
+#endif // NOHTTP
 
 #ifndef NOCSETS
 static char *hmxxassoc[] = {
@@ -1842,7 +1835,7 @@ static char *hmxxassoc[] = {
     "Use SHOW ASSOCIATIONS to list the current character-set associations, and",
     "SHOW CHARACTER-SETS to list the current settings.",
     ""};
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 static char *hmxxpat[] = {
     "A \"pattern\" is notation used in a search string when searching through",
@@ -1886,7 +1879,7 @@ static char *hmxxpat[] = {
     "  Braces enclose a list of strings to be matched.  For example:",
     "  ker{mit,nel,beros} matches kermit, kernel, and kerberos.  The strings",
     "  may themselves contain *, ?, [abc], [a-z], or other lists of strings.",
-#endif /* CKREGEX */
+#endif // CKREGEX
 #ifndef NOSPL
     " ",
     "To force a special pattern character to be taken literally, precede it "
@@ -1931,7 +1924,7 @@ static char *hmxxpat[] = {
     "You can use anchored patterns not only in filenames, but also in SWITCH",
     "case labels, in the INPUT and MINPUT commands, and in file binary- and",
     "text-patterns for filenames.  The IF MATCH pattern is also anchored.",
-#endif /* NOSPL */
+#endif // NOSPL
     ""};
 
 static char *hmxxwild[] = {
@@ -1979,7 +1972,7 @@ static char *hmxxwild[] = {
     "  ck{ufio,vcon,cmai}.c matches ckufio.c, ckvcon.c, or ckcmai.c.  The "
     "strings",
     "  may themselves contain *, ?, [abc], [a-z], or other lists of strings.",
-#endif /* CKREGEX */
+#endif // CKREGEX
     " ",
     "To force a special pattern character to be taken literally, precede it "
     "with",
@@ -1992,7 +1985,7 @@ static char *hmxxwild[] = {
     "Similar notation can be used in general-purpose string matching.  Type "
     "HELP",
     "PATTERNS for details.  Also see HELP SET MATCH.",
-#endif /* NOSPL */
+#endif // NOSPL
     ""};
 
 #ifndef NOXFER
@@ -2012,7 +2005,7 @@ static char *hmxxfast[] = {
     "macro with the DEFINE command.  To see the current definitions, type",
     "\"show macro fast\", \"show macro cautious\", or \"show macro robust\".",
     ""};
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifdef CKPURGE
 static char *hmxxpurge[] = {
@@ -2068,7 +2061,7 @@ static char *hmxxpurge[] = {
     "/RECURSIVE",
     "  Descends through the current or specified directory tree.",
     " ",
-#endif /* RECURSIVE */
+#endif // RECURSIVE
     "/KEEP:n",
     "  Retain the 'n' most recent (highest-numbered) backup files for each "
     "file.",
@@ -2111,7 +2104,7 @@ static char *hmxxpurge[] = {
     "to",
     "display customized defaults.  Also see HELP DELETE, HELP WILDCARD.",
     ""};
-#endif /* CKPURGE */
+#endif // CKPURGE
 
 static char *hmxxclo[] = {
     "Syntax:  CLOSE [ item ]",
@@ -2120,21 +2113,21 @@ static char *hmxxclo[] = {
     " ",
 #ifdef CKLOGDIAL
     "    CX-LOG          (connection log, opened with LOG CX)",
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 #ifndef NOLOCAL
     "    SESSION-LOG     (opened with LOG SESSION)",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifdef TLOG
     "    TRANSACTION-LOG (opened with LOG TRANSACTIONS)",
-#endif /* TLOG */
+#endif // TLOG
     "    PACKET-LOG      (opened with LOG PACKETS)",
 #ifdef DEBUG
     "    DEBUG-LOG       (opened with LOG DEBUG)",
-#endif /* DEBUG */
+#endif // DEBUG
 #ifndef NOSPL
     "    READ-FILE       (opened with OPEN READ)",
     "    WRITE-FILE      (opened with OPEN WRITE or OPEN APPEND)",
-#endif /* NOSPL */
+#endif // NOSPL
     " ",
     "Type HELP LOG and HELP OPEN for further info.",
     ""};
@@ -2150,7 +2143,7 @@ static char *hmxxlearn[] = {
     "  or exit from Kermit, your script is available for execution by the TAKE",
     "  command.",
     ""};
-#endif /* CKLEARN */
+#endif // CKLEARN
 
 #ifdef CK_MINPUT
 static char *hmxxminp[] = {
@@ -2171,7 +2164,7 @@ static char *hmxxminp[] = {
     "switches",
     "  and other details of operation.",
     ""};
-#endif /* CK_MINPUT */
+#endif // CK_MINPUT
 
 #ifndef NOLOCAL
 static char *hmxxcon[] = {
@@ -2210,9 +2203,9 @@ static char *hmxxcon[] = {
     "  it is given, and overrides (temporarily) any global SET TERMINAL "
     "TRIGGER",
     "  string that might be in effect.",
-#endif /* CK_TRIGGER */
+#endif // CK_TRIGGER
     ""};
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 static char *hmxxmget[] = {
     "Syntax: MGET [ switches... ] remote-filespec [ remote-filespec ... ]", " ",
@@ -2273,7 +2266,7 @@ static char *hmxxget[] = {
     "/LABELED",
     "  VMS and OS/2 only: Specifies labeled transfer mode.",
     " ",
-#endif /* CK_LABELED */
+#endif // CK_LABELED
 
     "/MOVE-TO:directory-name",
     "  Specifies that each file that arrives should be moved to the specified",
@@ -2327,13 +2320,13 @@ static char *hmxxlg[] = {
     "  The default filename is CX.LOG in your home directory and APPEND is the",
     "  default mode for opening.",
     " ",
-#endif /* CKLOGDIAL */
+#endif // CKLOGDIAL
 #ifdef DEBUG
     "DEBUG",
     "  Debugging information, to help track down bugs in the C-Kermit program.",
     "  The default log name is debug.log in current directory.",
     " ",
-#endif /* DEBUG */
+#endif // DEBUG
     "PACKETS",
     "  Kermit packets, to help with protocol problems.  The default filename "
     "is",
@@ -2344,7 +2337,7 @@ static char *hmxxlg[] = {
     "  Records your CONNECT session (default: session.log in current "
     "directory).",
     " ",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 #ifdef TLOG
     "TRANSACTIONS",
     "  Names and statistics about files transferred (default: transact.log in",
@@ -2352,7 +2345,7 @@ static char *hmxxlg[] = {
     "format",
     "  options.)",
     " ",
-#endif /* TLOG */
+#endif // TLOG
     "If you include the APPEND keyword after the filename, the existing log "
     "file,",
     "if any, is appended to; otherwise a new file is created (except APPEND is",
@@ -2404,7 +2397,7 @@ Syntax: SCRIPT text",
     " ",
     "  where dashed sequences are followed as long as previous expects fail.",
     ""};
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
 
 #ifndef NOFRILLS
 static char *hmxxtyp[] = {
@@ -2443,11 +2436,11 @@ static char *hmxxtyp[] = {
     "charset).",
     "  /TRANSPARENT",
     "     Inhibits character-set translation.",
-#endif /* UNICODE */
+#endif // UNICODE
 #ifdef TYPEINTERPRET
     "  /INTERPRET",
     "     Shows the file with Kermit backslash escapes interpreted.",
-#endif /* TYPEINTERPRET */
+#endif // TYPEINTERPRET
 
     "  /OUTPUT:name",
     "     Sends results to the given file.  If this switch is omitted, the",
@@ -2466,10 +2459,10 @@ static char *hmxxcle[] = {
     "  ALARM            Clears any pending alarm (see SET ALARM).",
 #ifdef CK_APC
     "  APC-STATUS       Clears Application Program Command status.",
-#endif /* CK_APC */
+#endif // CK_APC
 #ifdef PATTERNS
     "  BINARY-PATTERNS  Clears the file binary-patterns list.",
-#endif /* PATTERNS */
+#endif // PATTERNS
     "  DEVICE           Clears the current port or network input buffer.",
     "  DEVICE-AND-INPUT Clears both the device and the INPUT buffer.",
     "  DIAL-STATUS      Clears the \\v(dialstatus) variable.",
@@ -2479,9 +2472,9 @@ INPUT            Clears the INPUT-command buffer and the \\v(input) variable.",
     "  SEND-LIST        Clears the current SEND list (see ADD).",
 #ifdef PATTERNS
     "  TEXT-PATTERNS    Clears the file text-patterns list.",
-#endif /* PATTERNS */
+#endif // PATTERNS
     ""};
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 static char *hmxxdate[] = {
     "Syntax: DATE [ date-time [ timezone ] ] [ delta-time ]",
@@ -2572,7 +2565,7 @@ static char *hmxxsen[] = {
     "with",
     "  the name _ARRAY_X_, where \"X\" is replaced by actual array letter.",
     " ",
-#endif /* NOSPL */
+#endif // NOSPL
 
     "/AS-NAME:<text>",
     "  Specifies <text> as the name to send the file under instead of its real",
@@ -2612,7 +2605,7 @@ static char *hmxxsen[] = {
     "  Performs this transfer in labeled mode without affecting the global",
     "  transfer mode.",
     " ",
-#endif /* CK_LABELED */
+#endif // CK_LABELED
     "/COMMAND",
     "  Sends the output from a command, rather than the contents of a file.",
     "  The first \"filename\" on the SEND command line is interpreted as the "
@@ -2728,7 +2721,7 @@ static char *hmxxrc[] = {
 #else
     "  the name it arrives with.  If the filespec denotes a directory, the",
     "  incoming file or files will be placed in that directory.",
-#endif /* CK_TMPDIR */
+#endif // CK_TMPDIR
     " ",
     "Optional switches include:",
     " ",
@@ -2767,7 +2760,7 @@ static char *hmxxrc[] = {
     "/LABELED",
     "  Specifies labeled transfer mode.",
     " ",
-#endif /* CK_LABELED */
+#endif // CK_LABELED
 
     "/MOVE-TO:directory-name",
     "  Specifies that each file that arrives should be moved to the specified",
@@ -2824,7 +2817,7 @@ Syntax: REGET filespec\n\n\
 static char *hmxxpsen = "\
 Syntax: PSEND filespec position [name]\n\n\
   Just like SEND, except sends the file starting at the given byte position.";
-#endif /* NORESEND */
+#endif // NORESEND
 
 #ifndef NOMSEND
 static char *hmxxmse[] = {
@@ -2838,7 +2831,7 @@ static char *hmxxmse[] = {
     "/RECOVER",
     "  /TEXT /TYPE; see HELP SEND for descriptions.",
     ""};
-#endif /* NOMSEND */
+#endif // NOMSEND
 
 static char *hmxxadd[] = {
 #ifndef NOMSEND
@@ -2847,7 +2840,7 @@ static char *hmxxadd[] = {
     "  SEND-LIST and CLEAR SEND-LIST to display and clear the list; use SEND",
     "  by itself to send the files from it.",
     " ",
-#endif /* NOMSEND */
+#endif // NOMSEND
 #ifdef PATTERNS
     "ADD BINARY-PATTERNS [ <pattern> [ <pattern> ... ] ]",
     "  Adds the pattern(s), if any, to the SET FILE BINARY-PATTERNS list.",
@@ -2856,7 +2849,7 @@ static char *hmxxadd[] = {
     "  Adds the pattern(s), if any, to the SET FILE TEXT-PATTERNS list.",
     "  Use SHOW PATTERNS to see the lists.  See HELP SET FILE for further "
     "info.",
-#endif /* PATTERNS */
+#endif // PATTERNS
     ""};
 
 static char *hmxxremv[] = {
@@ -2868,16 +2861,16 @@ static char *hmxxremv[] = {
     "  Removes the given patterns from the SET FILE TEXT-PATTERNS list.",
     "  Use SHOW PATTERNS to see the lists.  See HELP SET FILE for further "
     "info.",
-#endif /* PATTERNS */
+#endif // PATTERNS
     ""};
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOSERVER
 static char *hmxxser = "Syntax: SERVER\n\
   Enter server mode on the current connection.  All further commands\n\
   are taken in packet form from the other Kermit program.  Use FINISH,\n\
   BYE, or REMOTE EXIT to get C-Kermit out of server mode.";
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 static char *hmhset[] = {
     "  The SET command establishes communication, file, scripting, or other",
@@ -2898,12 +2891,12 @@ static char *hmhskey[] = {
     "  translation.",
 #else
     "  the key k.",
-#endif /* NOCSETS */
+#endif // NOCSETS
     " ",
     "  To find out the scan code and mapping for a particular key, use the",
     "  SHOW KEY command.",
     ""};
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 static char *hmxychkt[] = {
     "Syntax: SET BLOCK-CHECK number",
@@ -2946,7 +2939,7 @@ static char *hmxydeb[] = {
     "  Use LOG DEBUG if you want specify a different log file name or path.",
 #else
     "  (Has no effect in this version of Kermit.)",
-#endif /* DEBUG */
+#endif // DEBUG
     " ",
     "SET DEBUG OFF",
     "  Stops debug logging and session debugging.",
@@ -2957,7 +2950,7 @@ static char *hmxydeb[] = {
     "  Equivalent to SET TERMINAL DEBUG ON.",
 #else
     "  (Has no effect in this version of Kermit.)",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
     " ",
     "SET DEBUG TIMESTAMP { ON, OFF }",
     "  Enables/Disables timestamps on debug log entries.",
@@ -2989,7 +2982,7 @@ static char *hmxyqctl[] = {
     "  recommended for safety.  You can include multiple <code> values in one",
     "  command, separated by spaces.",
     ""};
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
 #ifndef NODIAL
 static char *hxymodm[] = {
@@ -3234,7 +3227,7 @@ static char *hmxydial[] = {
     "just",
     "  prior to dialing it, in order to perform any last-minute alterations.",
     " ",
-#endif /* NOSPL */
+#endif // NOSPL
     "SET DIAL METHOD {AUTO, DEFAULT, TONE, PULSE}",
     "  Whether to use the modem's DEFAULT dialing method, or to force TONE or",
     "  PULSE dialing.  AUTO (the default) means to choose tone or pulse "
@@ -3367,7 +3360,7 @@ static char *hmxydial[] = {
     "  \
 dialing.  Use this if internal calls from your PBX require a special prefix.",
     ""};
-#endif /* NODIAL */
+#endif // NODIAL
 
 static char *hmxyflo[] = {
     "Syntax: SET FLOW [ switch ] value",
@@ -3377,7 +3370,7 @@ static char *hmxyflo[] = {
     "  connection, and script execution.",
 #else
     "  Selects the type of flow control to use during file transfer.",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
     " ",
     "  Switches let you associate a particular kind of flow control with each",
     "  kind of connection: /REMOTE, /MODEM, /DIRECT-SERIAL, /TCPIP, etc; type",
@@ -3466,31 +3459,31 @@ static char *hmxyf[] = {
     "  LATIN2 is ISO 8859-2 for Eastern European languages that are written "
     "with",
     "  Roman letters.  Mazovia is a PC code page used in Poland.",
-#endif /* NOLATIN2 */
+#endif // NOLATIN2
 #ifdef CYRILLIC
     "  KOI-CYRILLIC, CYRILLIC-ISO, and CP866 are 8-bit Cyrillic character "
     "sets.",
     "  SHORT-KOI is a 7-bit ASCII coding for Cyrillic.  BULGARIA-PC is a PC "
     "code",
     "  page used in Bulgaria",
-#endif /* CYRILLIC */
+#endif // CYRILLIC
 #ifdef HEBREW
     "  HEBREW-ISO is ISO 8859-8 Latin/Hebrew.  CP862 is the Hebrew PC code "
     "page.",
     "  HEBREW-7 is like ASCII with the lowercase letters replaced by Hebrew.",
-#endif /* HEBREW */
+#endif // HEBREW
 #ifdef GREEK
     "  GREEK-ISO is ISO 8859-7 Latin/Greek.  CP869 is the Greek PC code page.",
     "  ELOT-927 is like ASCII with the lowercase letters replaced by Greek.",
-#endif /* GREEK */
+#endif // GREEK
 #ifdef KANJI
     "  JAPANESE-EUC, JIS7-KANJI, DEC-KANJI, and SHIFT-JIS-KANJI are Japanese",
     "  Kanji character sets.",
-#endif /* KANJI */
+#endif // KANJI
 #ifdef UNICODE
     "  UCS-2 is the 2-byte form of the Universal Character Set.",
     "  UTF-8 is the serialized form of the Universal Character Set.",
-#endif /* UNICODE */
+#endif // UNICODE
     "  Type SET FILE CHAR ? for a complete list of file character sets.",
     " ",
     "SET FILE DEFAULT 7BIT-CHARACTER-SET",
@@ -3502,7 +3495,7 @@ static char *hmxyf[] = {
     "  This tells the character set to be used for 8-bit text files when",
     "  switching automatically among different kinds of files.",
     " ",
-#endif /* NOCSETS */
+#endif // NOCSETS
 
     "SET FILE COLLISION option",
     "  Tells what to do when a file arrives that has the same name as",
@@ -3536,7 +3529,7 @@ static char *hmxyf[] = {
 #ifdef CK_CURSES
     "  FULLSCREEN A fully formatted 24x80 screen showing lots of information.",
     "             This requires a terminal or terminal emulator.",
-#endif /* CK_CURSES */
+#endif // CK_CURSES
     "  NONE       No file transfer display at all.",
     " ",
 
@@ -3545,7 +3538,7 @@ static char *hmxyf[] = {
     "default,",
     "  received files go into your current directory.",
     " ",
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifdef CK_CTRLZ
     "SET FILE EOF { CTRL-Z, LENGTH }",
@@ -3558,7 +3551,7 @@ static char *hmxyf[] = {
     "  receiver tack a Ctrl-Z onto the end of the output file if it does not",
     "  already end with Ctrl-Z.",
     " ",
-#endif /* CK_CTRLZ */
+#endif // CK_CTRLZ
 
     "SET FILE END-OF-LINE { CR, CRLF, LF }",
     "  Use this command to specify nonstandard line terminators for text "
@@ -3582,8 +3575,8 @@ static char *hmxyf[] = {
     "get",
     "  a \"?Too many files\" error.  Also see SET FILE STRINGSPACE.",
     " ",
-#endif /* DYNAMIC */
-#endif /* UNIX */
+#endif // DYNAMIC
+#endif // UNIX
 
     "SET FILE NAMES { CONVERTED, LITERAL }",
     "  File names are normally CONVERTED to \"common form\" during "
@@ -3610,7 +3603,7 @@ static char *hmxyf[] = {
     "  change the disk output buffer size; this might make a difference in",
     "  performance.",
     " ",
-#endif /* UNIX */
+#endif // UNIX
 
 #ifdef PATTERNS
     "SET FILE PATTERNS { ON, OFF, AUTO }",
@@ -3638,7 +3631,7 @@ static char *hmxyf[] = {
     "or",
     "  binary pattern, the prevailing SET FILE TYPE is used.",
     " ",
-#endif /* PATTERNS */
+#endif // PATTERNS
 
     "SET FILE SCAN { ON [ size ], OFF }",
     "  If TRANSFER MODE is AUTOMATIC and FILE SCAN is ON (as it is by default)",
@@ -3658,8 +3651,8 @@ static char *hmxyf[] = {
     "  current size.  Use this command to increase the size if you get a",
     "  \"?String space exhausted\" error.  Also see SET FILE LISTSIZE.",
     " ",
-#endif /* DYNAMIC */
-#endif /* UNIX */
+#endif // DYNAMIC
+#endif // UNIX
 
 #ifdef UNICODE
     "SET FILE UCS BOM { ON, OFF }",
@@ -3670,14 +3663,14 @@ static char *hmxyf[] = {
     "UCS-2",
     "  files that do not start with a Byte Order Mark.",
     " ",
-#endif /* UNICODE */
+#endif // UNICODE
 
     "SET FILE WARNING { ON, OFF }",
     "  SET FILE WARNING is superseded by the newer command, SET FILE",
     "  COLLISION.  SET FILE WARNING ON is equivalent to SET FILE COLLISION "
     "RENAME",
     "  and SET FILE WARNING OFF is equivalent to SET FILE COLLISION OVERWRITE.",
-#endif /* NOXFER */
+#endif // NOXFER
     ""};
 
 static char *hmxyhsh[] = {
@@ -3746,7 +3739,7 @@ static char *hsetsrv[] = {
     "all.",
     "  Default is 0.",
     ""};
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 static char *hmhrmt[] = {
     "The REMOTE command sends file management instructions or other commands",
@@ -3761,7 +3754,7 @@ static char *hmhrmt[] = {
     " ",
 #ifdef LOCUS
     "Also see: HELP SET LOCUS.",
-#endif /* LOCUS */
+#endif // LOCUS
     ""};
 
 #ifndef NOSPL
@@ -3792,7 +3785,7 @@ static char *ifhlp[] = {
     "  REMOTE-ONLY - C-Kermit was started with the -R command-line option",
 #else
     "  FOREGROUND  - C-Kermit is running in the foreground",
-#endif /* CK_IFRO */
+#endif // CK_IFRO
     "  KERBANG     - A Kerbang script is running",
     "  ALARM       - SET ALARM time has passed",
     "  ASKTIMEOUT  - The most recent ASK, ASKQ, GETC, or GETOK timed out",
@@ -3814,7 +3807,7 @@ static char *ifhlp[] = {
     "  MATCH string pattern              - Succeeds if string matches pattern",
 #ifdef CKFLOAT
     "  FLOAT number                      - Succeeds if floating-point number",
-#endif /* CKFLOAT */
+#endif // CKFLOAT
     "  COMMAND word                      - Succeeds if word is built-in "
     "command",
     "  DEFINED variablename or macroname - The named variable or macro is "
@@ -3830,20 +3823,20 @@ static char *ifhlp[] = {
 #ifdef CK_TMPDIR
     "  DIRECTORY string                  - The string is the name of a "
     "directory",
-#endif /* CK_TMPDIR */
+#endif // CK_TMPDIR
 #ifdef UNIX
     "  LINK string                       - The string is a symbolic link",
-#endif /* UNIX */
+#endif // UNIX
     "  READABLE filename                 - Succeeds if the file is readable",
     "  WRITEABLE filename                - Succeeds if the file is writeable",
 #ifdef ZFCDAT
     "  NEWER file1 file2                 - The 1st file is newer than the 2nd "
     "one",
-#endif /* ZFCDAT */
+#endif // ZFCDAT
     "  OPEN { READ-FILE,SESSION-LOG,...} - The given file or log is open",
 #ifndef NOLOCAL
     "  OPEN CONNECTION                   - A connection is open",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
     "  KBHIT                             - A key has been pressed",
     "  TRUE                              - always succeeds",
     "  FALSE                             - always fails",
@@ -3913,7 +3906,7 @@ static char *hmxxeval[] = {
     " ",
     "Alse see: HELP FUNCTION EVAL.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hmxxexit[] = {
     "Syntax: EXIT (or QUIT) [ number [ text ] ]",
@@ -4024,7 +4017,7 @@ static char *hxxgetc[] = {
     "appear;",
     "    if no character appears within n seconds, GETC fails and (if a /QUIET",
     "    switch was not given, an error message is printed.",
-    /* "Also see SET ASK-TIMER.", */
+    // "Also see SET ASK-TIMER.",
     ""};
 
 static char *hmxytimer[] = {
@@ -4125,7 +4118,7 @@ or an arithmetic expression that evaluates to a number, or any combination)",
     " ",
     "Examples: INCR \\%a, INCR dollars 100, INCR size \\%n, INCR total \\%x/10",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef ANYX25
 #ifndef IBMX25
@@ -4138,7 +4131,7 @@ static char *hxxpad[] = {
     "    PAD RESET     - Send a reset packet",
     "    PAD INTERRUPT - Send an interrupt packet",
     ""};
-#endif /* IBMX25 */
+#endif // IBMX25
 
 static char *hxyx25[] = {
     "Syntax: SET X.25 option { ON [ data ], OFF }",
@@ -4152,7 +4145,7 @@ static char *hxyx25[] = {
     "  CALL-USER-DATA { ON string, OFF }",
     "    Specify call user-data for the X.25 call.",
     ""};
-#endif /* ANYX25 */
+#endif // ANYX25
 
 static char *hxyprtr[] = {
 #ifdef PRINTSWI
@@ -4301,8 +4294,8 @@ in which case it",
     "  printer.  See HELP PRINT for further info.",
 #else
     "Sorry, SET PRINTER not available yet.",
-#endif /* UNIX */
-#endif /* PRINTSWI */
+#endif // UNIX
+#endif // PRINTSWI
     ""};
 
 static char *hxyexit[] = {
@@ -4326,7 +4319,7 @@ static char *hxyexit[] = {
 #else
     "  Set C-Kermit's program return code to the given number, which can be a",
     "  constant, variable, function result, or arithmetic expression.",
-#endif /* NOSPL */
+#endif // NOSPL
     " ",
     "Syntax: SET EXIT WARNING { ON, OFF, ALWAYS }",
     "  When EXIT WARNING is ON, issue a warning message and ask for "
@@ -4356,7 +4349,7 @@ static char *hxxmsl[] = {"Syntax:  MSLEEP [ number ]", "Example: MSLEEP 500",
                          "  Do nothing for the specified number of "
                          "milliseconds; if no number given,",
                          "  100 milliseconds.", ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOPUSH
 extern int nopush;
@@ -4370,7 +4363,7 @@ static char *hxxshe[] = {
     "for",
     "  this is usually EXIT or QUIT or LOGOUT) to return to Kermit.",
     ""};
-#endif /* NOPUSH */
+#endif // NOPUSH
 
 #ifndef NOXMIT
 static char *hxxxmit[] = {
@@ -4409,7 +4402,7 @@ static char *hxxxmit[] = {
     "  to disable character-set translation in text mode (/TRANSPARENT implies",
     "  /TEXT).",
     " ",
-#endif /* NOCSETS */
+#endif // NOCSETS
     "  There can be no guarantee that the other computer will receive the file",
     "  correctly and completely.  Before you start the TRANSMIT command, you",
     "  must put the other computer in data collection mode, for example by",
@@ -4417,7 +4410,7 @@ static char *hxxxmit[] = {
     "Synonym:",
     "  XMIT.  See HELP SET TRANSMIT for further information.",
     ""};
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 #ifndef NOCSETS
 static char *hxxxla[] = {
@@ -4435,7 +4428,7 @@ static char *hxxxla[] = {
     "name,",
     "  rather than a filename, or if file2 is omitted.",
     ""};
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 #ifndef NOSPL
 static char *hxxwai[] = {
@@ -4472,7 +4465,7 @@ static char *hxxwai[] = {
     "occur",
     "with the specified file, succeeds if it does, fails if it doesn't.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hxxwri[] = {
     "Syntax: WRITE name text",
@@ -4486,12 +4479,12 @@ static char *hxxwri[] = {
     "   ERROR (standard error)",
 #ifndef NOSPL
     "   FILE (the OPEN WRITE, OPEN !WRITE, or OPEN APPEND file, see HELP OPEN)",
-#endif /* NOSPL */
+#endif // NOSPL
     "   PACKET-LOG",
     "   SCREEN (compare with ECHO)",
 #ifndef NOLOCAL
     "   SESSION-LOG",
-#endif /* NOLOCAL */
+#endif // NOLOCAL
     "   TRANSACTION-LOG",
     ""};
 
@@ -4532,7 +4525,7 @@ Dials a number using an autodial modem.  First you must SET MODEM TYPE, then",
     "  If the modem is on a network modem server, SET HOST first, then SET "
     "MODEM",
     "  TYPE, then DIAL.",
-#endif /* NETCONN */
+#endif // NETCONN
     " ",
     "If you give the DIAL command interactively at the Kermit prompt, and the",
     "call is placed successfully, Kermit automatically enters CONNECT mode.",
@@ -4592,7 +4585,7 @@ Dials a number using an autodial modem.  First you must SET MODEM TYPE, then",
     "PDIAL.",
 #else
     "See also SET DIAL, SET MODEM, SET LINE, SET SPEED, PDIAL, and REDIAL.",
-#endif /* NETCONN */
+#endif // NETCONN
     ""};
 
 #ifdef CK_TAPI
@@ -4678,9 +4671,9 @@ static char *hxytapi[] = {
     "  within C-Kermit.",
     " ",
     ""};
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
-#endif /* NODIAL */
+#endif // NODIAL
 
 #ifdef TNCODE
 static char *hmxxiks[] = {
@@ -4748,21 +4741,21 @@ static char *hxtopt[] = {
     "  be detected until the second send is attempted.  This command is meant",
     "  primarily as a debugging tool for the expert user.",
     ""};
-#endif /* TNCODE */
+#endif // TNCODE
 
-#endif /* NOHELP */
+#endif // NOHELP
 
-/*  D O H L P  --  Give a help message  */
+//  D O H L P  --  Give a help message
 
 int dohset(int);
 #ifndef NOCMDL
 int dohopts(void);
-#endif /* NOCMDL */
+#endif // NOCMDL
 #ifndef NOSPL
 int dohfunc(int);
 extern struct keytab fnctab[];
 extern int nfuncs;
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
 static char *hxxdcl[] = {
@@ -4868,7 +4861,7 @@ Position (1-based column number) at which comparisons begin, 1 by default.",
 \\fsplit(),",
     "and many more.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef ZCOPY
 static char *hmxxcpy[] = {
@@ -4926,9 +4919,9 @@ static char *hmxxcpy[] = {
     "    file or in the screen version, if used in combination with /TOSCREEN.",
     "    This option is not compatible most of the other options.",
     "  ",
-#endif /* NOSPL */
+#endif // NOSPL
     ""};
-#endif /* ZCOPY */
+#endif // ZCOPY
 
 #ifndef NOFRILLS
 static char *hmxxren[] = {
@@ -4936,12 +4929,12 @@ static char *hmxxren[] = {
     "  If LOCUS is REMOTE or LOCUS is AUTO and you have an FTP connection,",
     "  this command is equivalent to REMOTE RENAME (RREN).  Otherwise:",
     " ",
-#endif /* LOCUS */
+#endif // LOCUS
 #ifndef OLDMOVE
     "Syntax: RENAME or MOVE or MV [ switches ] name1 [ name2 ]",
 #else
     "Syntax: RENAME or MV [ switches ] name1 [ name2 ]",
-#endif /* OLDMOVE */
+#endif // OLDMOVE
     "  Renames the source file (name1) to the target name2.  If name2 is a",
     "  directory, name1 is allowed to contain wildcards, and the file(s) "
     "matching",
@@ -5018,7 +5011,7 @@ static char *hmxxren[] = {
     "  Global values for /LIST and COLLISION can be set with SET RENAME and",
     "  displayed with SHOW RENAME.",
     ""};
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 static char *cmdlhlp[] = {
     "Command-line options are given after the program name in the system",
@@ -5074,7 +5067,7 @@ An option that does not require an argument can be bundled with other options:",
     "executed",
     "   automatically in this case.",
     " ",
-#endif /* KERBANG */
+#endif // KERBANG
     " . The -s option can accept multiple filenames, separated by spaces.",
     " ",
     " . the -j and -J options allow an optional second argument, the TCP port",
@@ -5114,14 +5107,14 @@ int doxopts() {
   extern int nxargs;
   int i, x, y, n = 0;
 #ifdef CK_TTGWSIZ
-  /* Check whether window size changed */
+  // Check whether window size changed
   if (ttgwsiz() > 0) {
     if (tt_rows > 0 && tt_cols > 0) {
       cmd_rows = tt_rows;
       cmd_cols = tt_cols;
     }
   }
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
   y = cmkey(xargtab, nxargs, "Extended argument without the \"--\" prefix", "",
             xxstring);
   if (y == -3) {
@@ -5171,7 +5164,7 @@ or the word ALL, or carriage return for an overview",
     msg = 1;
   } else if (!strcmp(s, "all") || (!strcmp(s, "ALL"))) {
     all = 1;
-  } else if (*s == '-') { /* Be tolerant of leading hyphen */
+  } else if (*s == '-') { // Be tolerant of leading hyphen
     s++;
   }
   if (!all && (int)strlen(s) > 1) {
@@ -5189,14 +5182,14 @@ or the word ALL, or carriage return for an overview",
     }
   }
 #ifdef CK_TTGWSIZ
-  /* Check whether window size changed */
+  // Check whether window size changed
   if (ttgwsiz() > 0) {
     if (tt_rows > 0 && tt_cols > 0) {
       cmd_rows = tt_rows;
       cmd_cols = tt_cols;
     }
   }
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
   printf("\n");
   for (i = 0, n = 1; msg != 0 && *cmdlhlp[i]; i++) {
     printf("%s\n", cmdlhlp[i]);
@@ -5216,21 +5209,21 @@ or the word ALL, or carriage return for an overview",
     if (!opthlp[i]) {
       continue;
     }
-    if (arghlp[i]) { /* Option with arg */
+    if (arghlp[i]) { // Option with arg
       printf(" -%c <arg>%s\n", (char)i, (optact[i] ? " (action option)" : ""));
 
       printf("     %s\n", opthlp[i]);
       printf("     Argument: %s\n\n", arghlp[i]);
       x = 4;
 
-      /* Prevent argument help that contains line breaks (such K95s -#)
-       * from breaking paging */
+      // Prevent argument help that contains line breaks (such K95s -#)
+      // from breaking paging
       for (j = 0; arghlp[i][j] != '\0'; j++) {
         if (arghlp[i][j] == '\n') {
           n += 1;
         }
       }
-    } else { /* Option without arg */
+    } else { // Option without arg
       printf(" -%c  %s%s\n", (char)i, opthlp[i],
              (optact[i] ? " (action option)" : ""));
       printf("     Argument: (none)\n\n");
@@ -5245,7 +5238,7 @@ or the word ALL, or carriage return for an overview",
       }
     }
   }
-  if (all) { /* Jeff, Jan 2003 */
+  if (all) { // Jeff, Jan 2003
     printf("\n");
     if (++n >= cmd_rows) {
       if (!askmore()) {
@@ -5288,8 +5281,8 @@ or the word ALL, or carriage return for an overview",
   }
   return (1);
 }
-#endif /* NOCMDL */
-#endif /* NOHELP */
+#endif // NOCMDL
+#endif // NOHELP
 
 #ifdef CKCHANNELIO
 static char *hxxfile[] = {
@@ -5367,7 +5360,7 @@ static char *hxxf_op[] = {
     "specify",
     "  a filename.",
     " ",
-#endif /* UNIX */
+#endif // UNIX
 
     "/WRITE",
     "  Open the file for writing.  If /READ was not also specified, this "
@@ -5387,7 +5380,7 @@ static char *hxxf_op[] = {
     "  This option is ignored in UNIX.",
 #else
     "  This option is ignored on this platform.",
-#endif /* UNIX */
+#endif // UNIX
     " ",
     "Switches can be combined in an way that makes sense and is supported by "
     "the",
@@ -5550,8 +5543,8 @@ static int dohfile(int cx) {
   extern struct keytab fctab[];
   extern int nfctab;
   int x;
-  if (cx == XXFILE) { /* FILE command was given */
-    /* Get subcommand */
+  if (cx == XXFILE) { // FILE command was given
+    // Get subcommand
     if ((cx = cmkey(fctab, nfctab, "Operation", "", xxstring)) < 0) {
       if (cx == -3) {
         if ((x = cmcfm()) < 0) {
@@ -5625,7 +5618,7 @@ static int dohfile(int cx) {
     return (-2);
   }
 }
-#endif /* CKCHANNELIO */
+#endif // CKCHANNELIO
 
 int dohlp(int xx) {
   int x, y;
@@ -5645,10 +5638,10 @@ int dohlp(int xx) {
   if (inserver) {
     return (hmsga(tophlpi));
   } else
-#endif /* IKSD */
+#endif // IKSD
     return (hmsga(tophlp));
 
-#else /* help is available */
+#else // help is available
 
   if (helpfile) {
     return (dotype(helpfile, xaskmore, 0, 0, NULL, 0, NULL, 0, 0, NULL, 0));
@@ -5662,38 +5655,38 @@ int dohlp(int xx) {
              xx == XXF_ST || xx == XXF_CO) {
     return (dohfile(xx));
   }
-#endif /* CKCHANNELIO */
+#endif // CKCHANNELIO
 
   switch (xx) {
 
 #ifndef NOSPL
-  case XXASS: /* ASSIGN */
+  case XXASS: // ASSIGN
     return (hmsga(hxxass));
 
-  case XXASK:  /* ASK */
-  case XXASKQ: /* ASKQ */
+  case XXASK:  // ASK
+  case XXASKQ: // ASKQ
     return (hmsga(hxxask));
 
   case XXAPC:
     return (hmsg("Syntax: APC text\n\
   Echoes the text within a VT220/320/420 Application Program Command."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOFRILLS
   case XXBUG:
     return (hmsg("Describes how to get technical support."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOSPL
   case XXBEEP:
     return (hmsg("Syntax: BEEP\n\
 Sends a BEL character to your terminal."));
-#endif /* NOSPL */
+#endif // NOSPL
 
-  case XXBYE: /* BYE */
+  case XXBYE: // BYE
     return (hmsg(hmxxbye));
 
-  case XXCHK: /* check */
+  case XXCHK: // check
     return (hmsg("\
 Syntax: CHECK name\n\
   Checks\
@@ -5701,14 +5694,14 @@ Syntax: CHECK name\n\
   To list the features you can check, type \"check ?\"."));
 
 #ifndef NOFRILLS
-  case XXCLE: /* clear */
+  case XXCLE: // clear
     return (hmsga(hmxxcle));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
-  case XXCLO: /* close */
+  case XXCLO: // close
     return (hmsga(hmxxclo));
 
-  case XXCOM: /* comment */
+  case XXCOM: // comment
     return (hmsg("\
 Syntax: COMMENT text\n\
 Example: COMMENT - this is a comment.\n\
@@ -5716,30 +5709,30 @@ Example: COMMENT - this is a comment.\n\
   have trailing comments, introduced by ; or #."));
 
 #ifndef NOLOCAL
-  case XXCON: /* CONNECT */
-  case XXCQ:  /* CQ == CONNECT /QUIETLY */
+  case XXCON: // CONNECT
+  case XXCQ:  // CQ == CONNECT /QUIETLY
     hmsga(hmxxcon);
     printf("Your escape character is Ctrl-%c (ASCII %d, %s)\r\n", ctl(escape),
            escape, (escape == 127 ? "DEL" : ccntab[escape]));
     return (0);
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifdef ZCOPY
   case XXCPY:
     return (hmsga(hmxxcpy));
-#endif /* ZCOPY */
+#endif // ZCOPY
 
 #ifndef NOFRILLS
-  case XXLREN: /* LRENAME */
+  case XXLREN: // LRENAME
     return (hmsg(
         "  LRENAME is an alias for the RENAME command forcing it to execute\n\
   on the local computer.  Also see: RENAME, RRENAME, SET LOCUS."));
 
   case XXREN:
     return (hmsga(hmxxren));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
-  case XXCDUP: /* CDUP */
+  case XXCDUP: // CDUP
   case XXLCDU:
     return (hmsg(
         "Change working directory to the one just above the current one."));
@@ -5749,7 +5742,7 @@ Example: COMMENT - this is a comment.\n\
         "  LCD (LCWD) is an alias for the CD (CWD) command forcing it to execute\n\
   on the local computer.  Also see: CD, CDUP, RCD, SET LOCUS."));
 
-  case XXCWD: /* CD / CWD */
+  case XXCWD: // CD / CWD
     return (hmsga(hmxxcwd));
 
 #ifndef NOSPL
@@ -5757,24 +5750,24 @@ Example: COMMENT - this is a comment.\n\
     return (hmsga(hmxxkcd));
 
   case XXARRAY:
-  case XXDCL: /* DECLARE */
+  case XXDCL: // DECLARE
   case XXSORT:
     return (hmsga(hxxdcl));
 
-  case XXDEF: /* DEFINE */
+  case XXDEF: // DEFINE
 #ifndef NOSPL
-    if (hlptok) { /* What they actually typed... */
+    if (hlptok) { // What they actually typed...
       if (hlptok[0] == '.') {
         return (hmsga(hxxdot));
       }
     }
-#endif /* NOSPL */
+#endif // NOSPL
     return (hmsga(hxxdef));
 
-  case XXUNDEF: /* UNDEFINE */
+  case XXUNDEF: // UNDEFINE
     return (hmsg("Syntax:  UNDEFINE variable-name\n\
   Undefines a macro or variable."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXMSG:
     return (hmsg("Syntax: MESSAGE text-to-print-if-debugging\n\
@@ -5795,15 +5788,15 @@ Example: COMMENT - this is a comment.\n\
         "  LDELETE is an alias for the DELETE command forcing it to execute\n\
   on the local computer.  Also see: DELETE, RDELETE, SET LOCUS."));
 
-  case XXDEL: /* delete */
+  case XXDEL: // delete
     return (hmsga(hmxxdel));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NODIAL
-  case XXDIAL: /* DIAL, etc... */
+  case XXDIAL: // DIAL, etc...
     return (hmsga(hxxdial));
 
-  case XXPDIA: /* PDIAL */
+  case XXPDIA: // PDIAL
     return (hmsg("Syntax: PDIAL phonenumber\n\
   Partially dials a phone number.  Like DIAL but does not wait for carrier\n\
   or CONNECT message."));
@@ -5811,53 +5804,53 @@ Example: COMMENT - this is a comment.\n\
   case XXRED:
     return (hmsg("Redial the number given in the most recent DIAL commnd."));
 
-  case XXANSW: /* ANSWER */
+  case XXANSW: // ANSWER
     return (hmsga(hxxansw));
 
-  case XXLOOK: /* LOOKUP number in directory */
+  case XXLOOK: // LOOKUP number in directory
     return (hmsga(hxxlook));
-#endif /* NODIAL */
+#endif // NODIAL
 
-  case XXLDIR: /* LDIRECTORY */
+  case XXLDIR: // LDIRECTORY
     return (hmsg(
         "  LDIRIRECTORY is an alias for the DIRECTORY command forcing it to execute\n\
   on the local computer.  Also see: DIRECTORY, SET LOCUS, RDIRECTORY."));
 
-  case XXDIR: /* DIRECTORY */
+  case XXDIR: // DIRECTORY
     return (hmsga(hmxxdir));
 
-  case XXTOUC: /* TOUCH */
+  case XXTOUC: // TOUCH
     return (hmsga(hmxxtouch));
 
-  case XXCHG: /* CHANGE */
+  case XXCHG: // CHANGE
     return (hmsga(hmxxchange));
 
-  case XXWDIR: /* WDIRECTORY */
+  case XXWDIR: // WDIRECTORY
     return (
         hmsg("  WDIRECTORY is shorthand for DIRECTORY /SORT:DATE /REVERSE;\n\
   it produces a listing in reverse chronological order.  See the DIRECTORY\n\
   command for further information."));
 
-  case XXHDIR: /* HDIRECTORY */
+  case XXHDIR: // HDIRECTORY
     return (
         hmsg("  HDIRECTORY is shorthand for DIRECTORY /SORT:SIZE /REVERSE;\n\
   it produces a listing showing the biggest files first.  See the DIRECTORY\n\
   command for further information."));
 
-  case XXLMKD: /* LMKDIR */
+  case XXLMKD: // LMKDIR
     return (hmsg(
         "  LMKDIR is an alias for the MKDIR command forcing it to execute\n\
   on the local computer.  Also see: MKDIR, RMKDIR, SET LOCUS."));
 
-  case XXMKDIR: /* MKDIR */
+  case XXMKDIR: // MKDIR
     return (hmsg("Creates a directory.  Also see LRMDIR, RRMDIR, SET LOCUS."));
 
-  case XXLRMD: /* LRMDIR */
+  case XXLRMD: // LRMDIR
     return (hmsg(
         "  LRMDIR is an alias for the RMDIR command forcing it to execute\n\
   on the local computer.  Also see: RMDIR, RRMDIR, SET LOCUS."));
 
-  case XXRMDIR: /* RMDIR */
+  case XXRMDIR: // RMDIR
     return (hmsg("Removes a directory.  Also see LRMDIR, RRMDIR, SET LOCUS."));
 
   case XXLS:
@@ -5870,29 +5863,29 @@ Example: COMMENT - this is a comment.\n\
     return (hmsg("Syntax: DISABLE command\n\
   Security for the Kermit server.  Prevents the client Kermit program from\n\
   executing the named REMOTE command, such as CD, DELETE, RECEIVE, etc."));
-#endif /* NOFRILLS */
-#endif /* NOSERVER */
+#endif // NOFRILLS
+#endif // NOSERVER
 
 #ifndef NOSPL
-  case XXDO: /* do */
+  case XXDO: // do
     return (hmsg("Syntax: [ DO ] macroname [ arguments ]\n\
   Executes a macro that was defined with the DEFINE command.  The word DO\n\
   can be omitted.  Trailing argument words, if any, are automatically\n\
   assigned to the macro argument variables \\%1 through \\%9."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
   case XXDEC:
     return (hmsga(hxxdec));
-#endif /* NOSPL */
+#endif // NOSPL
 
-  case XXECH: /* echo */
+  case XXECH: // echo
     return (hmsg("Syntax: ECHO text\n\
   Displays the text on the screen, followed by a line terminator.  The ECHO\n\
   text may contain backslash codes.  Example: ECHO \\7Wake up!\\7.  Also see\n\
   XECHO and WRITE SCREEN."));
 
-  case XXXECH: /* xecho */
+  case XXXECH: // xecho
     return (hmsg("Syntax: XECHO text\n\
   Just like ECHO but does not add a line terminator to the text.  See ECHO."));
 
@@ -5907,26 +5900,26 @@ Example: COMMENT - this is a comment.\n\
     return (hmsg("Syntax: ENABLE capability\n\
   For use with server mode.  Allows the client Kermit program access to the\n\
   named capability, such as CD, DELETE, RECEIVE, etc.  Opposite of DISABLE."));
-#endif /* NOFRILLS */
-#endif /* NOSERVER */
+#endif // NOFRILLS
+#endif // NOSERVER
 
 #ifndef NOSPL
-  case XXEND: /* end */
+  case XXEND: // end
     return (hmsg("Syntax: END [ number [ message ] ]\n\
   Exits from the current macro or TAKE file, back to wherever invoked from.\n\
   Number is return code.  Message, if given, is printed."));
 
-  case XXEVAL: /* evaluate */
+  case XXEVAL: // evaluate
     return (hmsga(hmxxeval));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOFRILLS
-  case XXERR: /* e-packet */
+  case XXERR: // e-packet
     return (hmsg("Syntax: E-PACKET\n\
   Sends an Error packet to the other Kermit."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
-  case XXEXI: /* exit */
+  case XXEXI: // exit
   case XXQUI:
     return (hmsga(hmxxexit));
 
@@ -5937,7 +5930,7 @@ Example: COMMENT - this is a comment.\n\
 #ifndef NOSPL
   case XXFOR:
     return (hmsga(forhlp));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXGET:
     return (hmsga(hmxxget));
@@ -5950,8 +5943,8 @@ Example: COMMENT - this is a comment.\n\
     return (hmsg("Syntax: GETOK [ switches ] prompt\n\
   Prints the prompt, makes user type 'yes', 'no', or 'ok', and sets SUCCESS\n\
   or FAILURE accordingly.  The optional switches are the same as for ASK."));
-#endif /* NOFRILLS */
-#endif /* NOSPL */
+#endif // NOFRILLS
+#endif // NOSPL
 
 #ifndef NOSPL
   case XXGOTO:
@@ -5961,19 +5954,17 @@ Example: COMMENT - this is a comment.\n\
   :oofa\n\
   echo Hello!\n\
   goto oofa"));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXHAN:
     return (hmsg("Syntax: HANGUP\n\
 Hang up the phone or network connection."));
 
   case XXHLP:
-    /*
-      We get confirmation here, even though we do it again in hmsga(), to
-      prevent the Copyright message from being printed prematurely.  This
-      doesn't do any harm, because the first call to cmcfm() sets cmflgs to 1,
-      making the second call return immediately.
-    */
+    // We get confirmation here, even though we do it again in hmsga(), to
+    // prevent the Copyright message from being printed prematurely.  This
+    // doesn't do any harm, because the first call to cmcfm() sets cmflgs to 1,
+    // making the second call return immediately.
     if ((x = cmcfm()) < 0) {
       return (x);
     }
@@ -6000,26 +5991,26 @@ Trustees of Columbia University in the City of New York.\n\n",
 
   case XXINP:
     return (hmsga(hxxinp));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef CK_MINPUT
   case XXMINP:
     return (hmsga(hmxxminp));
-#endif /* CK_MINPUT */
+#endif // CK_MINPUT
 
 #ifndef NOSPL
   case XXREI:
     return (hmsg("Syntax: REINPUT n string\n\
   Looks for the string in the text that has recently been INPUT, set SUCCESS\n\
   or FAILURE accordingly.  Timeout, n, must be specified but is ignored."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSPL
   case XXLBL:
     return (hmsg("\
   Introduces a label, like :loop, for use with GOTO in TAKE files or macros.\n\
 See GOTO."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXLOG:
     return (hmsga(hmxxlg));
@@ -6033,7 +6024,7 @@ See GOTO."));
   case XXMAI:
     return (hmsg("Syntax: MAIL filename address\n\
   Equivalent to SEND /MAIL:address filename."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOMSEND
   case XXMSE:
@@ -6045,12 +6036,12 @@ See GOTO."));
   case XXMMOVE:
     return (hmsg("MMOVE is exactly like MSEND, except each file that is\n\
 sent successfully is deleted after it is sent."));
-#endif /* NOMSEND */
+#endif // NOMSEND
 
 #ifndef NOSPL
   case XXOPE:
     return (hmsga(openhlp));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXNEW:
     return (hmsg("  Prints news of new features since publication of \"Using "
@@ -6063,14 +6054,14 @@ sent successfully is deleted after it is sent."));
 #ifndef NOSPL
   case XXOUT:
     return (hmsga(hxxout));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef ANYX25
 #ifndef IBMX25
   case XXPAD:
     return (hmsga(hxxpad));
-#endif /* IBMX25 */
-#endif /* ANYX25 */
+#endif // IBMX25
+#endif // ANYX25
 
 #ifndef NOSPL
   case XXPAU:
@@ -6078,14 +6069,14 @@ sent successfully is deleted after it is sent."));
 
   case XXMSL:
     return (hmsga(hxxmsl));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef TCPSOCKET
   case XXPNG:
     return (hmsg("Syntax: PING [ IP-hostname-or-number ]\n\
   Checks if the given IP network host is reachable.  Default host is from\n\
   most recent SET HOST or TELNET command.  Runs system PING program, if any."));
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
 #ifndef NOFRILLS
   case XXPRI:
@@ -6096,8 +6087,8 @@ sent successfully is deleted after it is sent."));
 #else
     return (hmsg("Syntax: PRINT file\n\
   Prints the local file on a local printer.  Also see HELP SET PRINTER."));
-#endif /* VMS */
-#endif /* NOFRILLS */
+#endif // VMS
+#endif // NOFRILLS
 
   case XXPWD:
   case XXLPWD:
@@ -6109,7 +6100,7 @@ Print the name of the current working directory."));
     return (hmsg("Syntax: READ variablename\n\
   Reads a line from the currently open READ or !READ file into the variable\n\
   (see OPEN)."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOXFER
   case XXREC:
@@ -6118,14 +6109,14 @@ Print the name of the current working directory."));
   case XXREM:
     y = cmkey(remcmd, nrmt, "Remote command", "", xxstring);
     return (dohrmt(y));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOSPL
   case XXRET:
     return (hmsg("Syntax: RETURN [ value ]\n\
   Return from a macro.  An optional return value can be given for use with\n\
   \\fexecute(macro), which allows macros to be used like functions."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOXFER
   case XXSEN:
@@ -6134,7 +6125,7 @@ Print the name of the current working directory."));
   case XXMOVE:
     return (hmsg("MOVE is exactly like SEND, except each file that is\n\
 sent successfully is deleted after it is sent."));
-#endif /* OLDMOVE */
+#endif // OLDMOVE
 #ifndef NORESEND
   case XXRSEN:
     return (hmsg(hmxxrsen));
@@ -6142,20 +6133,20 @@ sent successfully is deleted after it is sent."));
     return (hmsg(hmxxrget));
   case XXPSEN:
     return (hmsg(hmxxpsen));
-#endif /* NORESEND */
+#endif // NORESEND
 
 #ifndef NOSERVER
   case XXSER:
     return (hmsg(hmxxser));
-#endif /* NOSERVER */
-#endif /* NOXFER */
+#endif // NOSERVER
+#endif // NOXFER
 
 #ifndef NOJC
   case XXSUS:
     return (hmsg("Syntax: SUSPEND or Z\n\
   Suspends Kermit.  Continue Kermit with the appropriate system command,\n\
   such as fg."));
-#endif /* NOJC */
+#endif // NOJC
 
   case XXSET:
     y = cmkey(prmtab, nprm, "Parameter", "", xxstring);
@@ -6179,7 +6170,7 @@ sent successfully is deleted after it is sent."));
   Runs the given local command with its standard input and output redirected\n\
   to the current SET LINE or SET HOST communications path.\n\
   Synonym: < (Left angle bracket)."));
-#endif /* CK_REDIR */
+#endif // CK_REDIR
 
 #ifdef CK_REXX
   case XXREXX:
@@ -6189,15 +6180,15 @@ sent successfully is deleted after it is sent."));
   To execute a rexx program file, use:  REXX call <filename>\n\
   Rexx programs may call Kermit functions by placing the Kermit command\n\
   in single quotes.  For instance:  'set parity none'."));
-#endif /* CK_REXX */
-#endif /* NOPUSH */
+#endif // CK_REXX
+#endif // NOPUSH
 
 #ifndef NOSHOW
   case XXSHO:
     return (hmsg("\
   Display current values of various items (SET parameters, variables, etc).\n\
   Type SHOW ? for a list of categories."));
-#endif /* NOSHOW */
+#endif // NOSHOW
 
   case XXSPA:
     return (hmsg("Syntax: SPACE\n\
@@ -6212,7 +6203,7 @@ sent successfully is deleted after it is sent."));
     return (hmsg("Syntax: STOP [ number [ message ] ]\n\
   Stop executing the current macro or TAKE file and return immediately to\n\
   the Kermit prompt.  Number is a return code.  Message printed if given."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXTAK:
     return (hmsga(hmxxtak));
@@ -6227,14 +6218,14 @@ sent successfully is deleted after it is sent."));
 
   case XXTELOP:
     return (hmsga(hxtopt));
-#endif /* TNCODE */
+#endif // TNCODE
 
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
 #ifndef NOXMIT
   case XXTRA:
     return (hmsga(hxxxmit));
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 #ifndef NOFRILLS
   case XXTYP:
@@ -6251,7 +6242,7 @@ sent successfully is deleted after it is sent."));
   case XXTAIL:
     return (hmsg("Syntax: TAIL [ switches ] filename\n\
   Equivalent to TYPE /TAIL filename; see HELP TYPE."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOSPL
   case XXWHI:
@@ -6259,12 +6250,12 @@ sent successfully is deleted after it is sent."));
 
   case XXSWIT:
     return (hmsga(swihlp));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOCSETS
   case XXXLA:
     return (hmsga(hxxxla));
-#endif /* NOCSETS */
+#endif // NOCSETS
 
   case XXVER:
     return (hmsg("Syntax: VERSION\nDisplays the program version number."));
@@ -6272,7 +6263,7 @@ sent successfully is deleted after it is sent."));
 #ifndef NOSPL
   case XXWAI:
     return (hmsga(hxxwai));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOFRILLS
   case XXWHO:
@@ -6285,23 +6276,23 @@ sent successfully is deleted after it is sent."));
     return (hmsg(
         "WRITE-LINE (WRITELN) is just like WRITE, but includes a line terminator\n\
 at the end of text.  See WRITE."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOSPL
   case XXIFX:
     return (hmsga(ifxhlp));
 
-  case XXGETC: /* GETC */
+  case XXGETC: // GETC
     return (hmsga(hxxgetc));
 
-  case XXFWD: /* FORWARD */
+  case XXFWD: // FORWARD
     return (
         hmsg("Like GOTO, but searches only forward for the label.  See GOTO."));
 
-  case XXLOCAL: /* LOCAL */
+  case XXLOCAL: // LOCAL
     return (hmsg("Declares a variable to be local to the current macro or "
                  "command file."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXVIEW:
     return (hmsg("View the terminal emulation screen even when there is no "
@@ -6337,20 +6328,20 @@ sent successfully."));
     return (hmsg("Syntax: EDIT [ <file> ]\n\
 Starts your preferred editor on the given file, or if none given, the most\n\
 recently edited file, if any.  Also see SET EDITOR."));
-#endif /* NOPUSH */
-#endif /* NOFRILLS */
+#endif // NOPUSH
+#endif // NOFRILLS
 
 #ifdef BROWSER
   case XXBROWS:
     return (hmsg("Syntax: BROWSE [ <url> ]\n\
 Starts your preferred Web browser on the given URL, or if none given, the\n\
 most recently visited URL, if any.  Also see SET BROWSER."));
-#endif /* BROWSER */
+#endif // BROWSER
 
 #ifdef CK_TAPI
   case XXTAPI:
     return (hmsga(hxxtapi));
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
 #ifdef PIPESEND
   case XXCSEN:
@@ -6366,72 +6357,70 @@ RECEIVE /COMMAND; see HELP RECEIVE for details."));
   case XXCGET:
     return (hmsg("Syntax: CGET <remote-file-or-command> <local-command>\n\
 Equivalent to GET /COMMAND; see HELP GET for details."));
-#endif /* PIPESEND */
+#endif // PIPESEND
 
 #ifndef NOSPL
-  case XXCSN: /* Compact Substring Notation */
+  case XXCSN: // Compact Substring Notation
     return (hmsga(hxxcsn));
 
   case XXFUNC:
-    /*
-      Tricky parsing.  We want to let them type the function name in any format
-      at all: \fblah(), \fblah, \\fblah(), fblah, blah, blah(), etc, but of
-      course only one of these is recognized by cmkey().  So we call cmkeyx()
-      (the "no complaints" version of cmkey()), and if it fails, we try the
-      other formats silently, and still allow for <no-name-given>, editing and
-      reparse, etc.
-    */
+    // Tricky parsing.  We want to let them type the function name in any format
+    // at all: \fblah(), \fblah, \\fblah(), fblah, blah, blah(), etc, but of
+    // course only one of these is recognized by cmkey().  So we call cmkeyx()
+    // (the "no complaints" version of cmkey()), and if it fails, we try the
+    // other formats silently, and still allow for <no-name-given>, editing and
+    // reparse, etc.
     y = cmkeyx(fnctab, nfuncs, "Name of function", "", NULL);
-    if (y == -1) { /* Reparse needed */
+    if (y == -1) { // Reparse needed
       return (y);
     } else if (y == -3) {
-      if ((x = cmcfm()) < 0) { /* For recall buffer... */
+      if ((x = cmcfm()) < 0) { // For recall buffer...
         return (x);
       }
-      return (dohfunc(y)); /* -3 gives general message */
+      return (dohfunc(y)); // -3 gives general message
     }
-    if (y < 0) { /* Something given but didn't match */
+    if (y < 0) { // Something given but didn't match
       int dummy;
       char *p;
-      for (p = atmbuf; *p; p++) { /* Chop off trailing parens if any */
+      for (p = atmbuf; *p; p++) { // Chop off trailing parens if any
         if (*p == '(') {
           *p = NUL;
           break;
         }
       }
-      /* Chop off leading "\\f" or "\f" or "f" */
+      // Chop off leading "\\f" or "\f" or "f"
       p = atmbuf;
-      if (*p == CMDQ) { /* Allow for \\f... */
+      if (*p == CMDQ) { // Allow for \\f...
         p++;
       }
-      if (*p == CMDQ && (*(p + 1) == 'f' || *(p + 1) == 'F')) { /* or \f */
+      if (*p == CMDQ && (*(p + 1) == 'f' || *(p + 1) == 'F')) { // or \f
         p += 2;
-      } else if (*p == 'f' || *p == 'F') { /* or just f */
+      } else if (*p == 'f' || *p == 'F') { // or just f
         p++;
       }
-      y = lookup(fnctab, p, nfuncs, &dummy); /* Look up the result */
+      y = lookup(fnctab, p, nfuncs, &dummy); // Look up the result
     }
     if (y < 0) {
       printf("?No such function - \"%s\"\n", atmbuf);
       return (-9);
     }
-    x = cmgbrk();                /* Find out how user terminated */
-    if (x == LF || x == CK_CR) { /* if with CR or LF */
-      cmflgs = 1;                /* restore cmflgs to say so */
+    x = cmgbrk();                // Find out how user terminated
+    if (x == LF || x == CK_CR) { // if with CR or LF
+      cmflgs = 1;                // restore cmflgs to say so
     }
-    if ((x = cmcfm()) < 0) { /* And THEN confirm so command will */
-      return (x);            /* get into recall buffer. */
+    if ((x = cmcfm()) < 0) { // And THEN confirm so command will
+      return (x);            // get into recall buffer.
     }
     return (dohfunc(y));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOCMDL
-  case XXOPTS: /* Command-line options */
+  case XXOPTS: // Command-line options
     return (dohopts());
 
-  case XXXOPTS: /* Extended command-line options */
+  case XXXOPTS: // Extended command-line options
     return (doxopts());
-#endif /* NOCMDL */
+#endif // NOCMDL
 
   case XXKERMI:
     return (hmsg("Syntax: KERMIT [command-line-options]\n\
@@ -6447,19 +6436,19 @@ Equivalent to GET /COMMAND; see HELP GET for details."));
 #ifndef NOXFER
   case XXREMV:
     return (hmsga(hmxxremv));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOHTTP
   case XXHTTP:
     return (hmsga(hmxxhttp));
-#endif /* NOHTTP */
+#endif // NOHTTP
 
 #ifdef NETCMD
   case XXPIPE:
     return (hmsg("Syntax: PIPE [ command ]\n\
 Makes a connection through the program whose command line is given. Example:\n\
 \n pipe rlogin xyzcorp.com"));
-#endif /* NETCMD */
+#endif // NETCMD
 
 #ifdef NETPTY
 #endif
@@ -6479,14 +6468,14 @@ Succeeds or fails depending on <condition>; see HELP IF for <condition>s."));
 
   case XXSUCC:
     return (hmsg("Always succeeds."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef CK_LOGIN
   case XXLOGOUT:
     return (hmsg(
         "If you haved logged in to Kermit as an Internet Kermit server, the LOGOUT\n\
 command, given at the prompt, logs you out and closes your session."));
-#endif /* CK_LOGIN */
+#endif // CK_LOGIN
 
   case XXRESET:
     return (hmsg("Closes all open files and logs."));
@@ -6494,14 +6483,14 @@ command, given at the prompt, logs you out and closes your session."));
 #ifndef NOCSETS
   case XXASSOC:
     return (hmsga(hmxxassoc));
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 #ifndef NOSPL
   case XXSHIFT:
     return (hmsg("Syntax: SHIFT [ n ]\n\
   Shifts script command line or macro or TAKE file argument variables\n\
   \\%1..9 or \\&_[1..n] n places to the left; default n = 1."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOPUSH
   case XXMAN:
@@ -6511,8 +6500,8 @@ command, given at the prompt, logs you out and closes your session."));
 #else
     return (hmsg("Syntax: MANUAL [ topic ]\n\
   Runs the \"help\" command on the given topic (default \"kermit\")."));
-#endif /* UNIX */
-#endif /* NOPUSH */
+#endif // UNIX
+#endif // NOPUSH
 
   case XXWILD:
     return (hmsga(hmxxwild));
@@ -6520,7 +6509,7 @@ command, given at the prompt, logs you out and closes your session."));
 #ifdef LOCUS
   case XXLOCU:
     return (hmsga(hmxylocus));
-#endif /* LOCUS */
+#endif // LOCUS
 
   case XXPAT:
     return (hmsga(hmxxpat));
@@ -6530,13 +6519,13 @@ command, given at the prompt, logs you out and closes your session."));
   case XXCAU:
   case XXROB:
     return (hmsga(hmxxfast));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifdef CKPURGE
   case XXPURGE:
     return (hmsga(hmxxpurge));
 #else
-#endif /* CKPURGE */
+#endif // CKPURGE
 
 #ifndef NOXFER
   case XXRASG:
@@ -6581,7 +6570,7 @@ command, given at the prompt, logs you out and closes your session."));
     return (hmsg("  RWHO is a short form of REMOTE WHO."));
   case XXRCDUP:
     return (hmsg("  RCDUP is a short forms of REMOTE CDUP."));
-#endif /* NOXFER */
+#endif // NOXFER
 
   case XXSCRN:
     return (hmsga(hmxxscrn));
@@ -6591,31 +6580,31 @@ command, given at the prompt, logs you out and closes your session."));
     return (hmsg("Syntax: EXEC <command> [ <arg1> [ <arg2> [ ... ] ]\n\
   C-Kermit overlays itself with the given system command and starts it with\n\
   the given arguments.  Upon any error, control returns to C-Kermit."));
-#endif /* CKEXEC */
+#endif // CKEXEC
 
 #ifndef NOSPL
   case XXTRACE:
     return (
         hmsg("Syntax: TRACE { /ON, /OFF } { ASSIGNMENTS, COMMAND-LEVEL, ALL }\n\
   Turns tracing of the given object on or off."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef CK_PERMS
 #ifdef UNIX
   case XXCHMOD:
     return (hmsga(hmxxchmod));
-#endif /* UNIX */
-#endif /* CK_PERMS */
+#endif // UNIX
+#endif // CK_PERMS
 
 #ifdef CKROOT
   case XXCHRT:
     return (hmsga(hmxxchroot));
-#endif /* CKROOT */
+#endif // CKROOT
 
 #ifndef NOSPL
   case XXPROMP:
     return (hmsga(hmxxprompt));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XXGREP:
     return (hmsga(hmxxgrep));
@@ -6624,18 +6613,18 @@ command, given at the prompt, logs you out and closes your session."));
 #ifndef NOSPL
   case XXSEXP:
     return (hmsga(hmxxsexp));
-#endif /* NOSPL */
-#endif /* NOSEXP */
+#endif // NOSPL
+#endif // NOSEXP
 
 #ifdef CKLEARN
   case XXLEARN:
     return (hmsga(hmxxlearn));
-#endif /* CKLEARN */
+#endif // CKLEARN
 
 #ifdef SSHBUILTIN
   case XXSKRM:
     return (hmsga(hmxxskrm));
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
 
 #ifdef ANYSSH
   case XXSSH:
@@ -6651,13 +6640,13 @@ command, given at the prompt, logs you out and closes your session."));
   }
 #else
     return (hmsga(hmxxssh));
-#endif /* SSHBUILTIN */
-#endif /* ANYSSH */
+#endif // SSHBUILTIN
+#endif // ANYSSH
 
 #ifdef TCPSOCKET
   case XXFIREW:
     return (hmsga(hmxxfirew));
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
   case XXORIE:
     return (hmsg(" Shows the directories important to Kermit."));
@@ -6674,8 +6663,8 @@ command, given at the prompt, logs you out and closes your session."));
 #ifndef NOPUTENV
   case XXPUTE:
     return (hmsga(hmxxputenv));
-#endif /* NOPUTENV */
-#endif /* UNIX */
+#endif // NOPUTENV
+#endif // UNIX
 
   case XXNOTAV:
     return (hmsg(" This command is not configured in this version of Kermit."));
@@ -6698,13 +6687,13 @@ command, given at the prompt, logs you out and closes your session."));
     printf("Sorry, help not available for \"%s\"\n", s);
     break;
   }
-  } /* switch */
-#endif /* NOHELP */
+  } // switch
+#endif // NOHELP
 
   return (success = 0);
 }
 
-/*  H M S G  --  Get confirmation, then print the given message  */
+//  H M S G  --  Get confirmation, then print the given message
 
 int hmsg(char *s) {
   int x;
@@ -6717,56 +6706,56 @@ int hmsg(char *s) {
 
 #ifdef NOHELP
 
-int              /* Print an array of lines, */
-hmsga(char *s[]) /* cheap version. */
+int              // Print an array of lines,
+hmsga(char *s[]) // cheap version.
 {
   int i;
   if ((i = cmcfm()) < 0) {
     return (i);
   }
-  printf("\n");             /* Start off with a blank line */
-  for (i = 0; *s[i]; i++) { /* Print each line. */
+  printf("\n");             // Start off with a blank line
+  for (i = 0; *s[i]; i++) { // Print each line.
     printf("%s\n", s[i]);
   }
   printf("\n");
   return (0);
 }
 
-#else /* NOHELP not defined... */
+#else // NOHELP not defined...
 
-int              /* Print an array of lines, */
-hmsga(char *s[]) /* cheap version. */
+int              // Print an array of lines,
+hmsga(char *s[]) // cheap version.
 {
-  extern int hmtopline; /* (This should be a parameter...) */
+  extern int hmtopline; // (This should be a parameter...)
   int x, y, i, j, k, n;
   if ((x = cmcfm()) < 0) {
     return (x);
   }
 
 #ifdef CK_TTGWSIZ
-  /* Check whether window size changed */
+  // Check whether window size changed
   if (ttgwsiz() > 0) {
     if (tt_rows > 0 && tt_cols > 0) {
       cmd_rows = tt_rows;
       cmd_cols = tt_cols;
     }
   }
-#endif /* CK_TTGWSIZ */
+#endif // CK_TTGWSIZ
 
-  printf("\n");                        /* Start off with a blank line */
-  n = (hmtopline > 0) ? hmtopline : 1; /* Line counter */
+  printf("\n");                        // Start off with a blank line
+  n = (hmtopline > 0) ? hmtopline : 1; // Line counter
   for (i = 0; *s[i]; i++) {
-    printf("%s\n", s[i]); /* Print a line. */
+    printf("%s\n", s[i]); // Print a line.
     y = (int)strlen(s[i]);
     k = 1;
-    for (j = 0; j < y; j++) { /* See how many newlines were */
+    for (j = 0; j < y; j++) { // See how many newlines were
       if (s[i][j] == '\n') {
-        k++; /* in the string... */
+        k++; // in the string...
       }
     }
     n += k;
-    if (n > (cmd_rows - 3) && *s[i + 1]) { /* After a screenful, give them */
-      if (!askmore()) {                    /* a "more?" prompt. */
+    if (n > (cmd_rows - 3) && *s[i + 1]) { // After a screenful, give them
+      if (!askmore()) {                    // a "more?" prompt.
         return (0);
       } else {
         n = 0;
@@ -6816,9 +6805,9 @@ static char *supporttext[] = {
     "on a best-effort basis.",
     ""};
 
-/* Do the BUG command */
+// Do the BUG command
 int dobug() { return (hmsga(supporttext)); }
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOXMIT
 static char *hsetxmit[] = {
@@ -6862,7 +6851,7 @@ static char *hsetxmit[] = {
     " ",
     "Synonym: SET XMIT.  SHOW TRANSMIT displays current settings.",
     ""};
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 static char *hsetbkg[] = {
     "Syntax: SET BACKGROUND { OFF, ON }", " ",
@@ -6881,9 +6870,9 @@ static char *hsetbuf[] = {
     " ",
     "  NOTE: This command is not needed in this version of Kermit, which is",
     "  already configured for maximum-size packet buffers.",
-#endif /* BIGBUFOK */
+#endif // BIGBUFOK
     ""};
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 static char *hsetcmd[] = {
     "Syntax: SET COMMAND parameter value",
@@ -6894,7 +6883,7 @@ static char *hsetcmd[] = {
     "  Enables/Disables automatic recognition of Kermit packets while in",
     "  command mode.  ON by default.",
     " ",
-#endif /* CK_AUTODL */
+#endif // CK_AUTODL
 
     "SET COMMAND BYTESIZE { 7, 8 }",
     "  Informs Kermit of the bytesize of the communication path between itself",
@@ -6935,7 +6924,7 @@ static char *hsetcmd[] = {
     "  constraints of the computer.  A size of 0 disables command recall.",
     "  Whenever you give this command, previous command history is lost.",
     " ",
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 
     "SET COMMAND QUOTING { ON, OFF }",
     "  Whether to treat backslash and question mark as special characters "
@@ -6949,14 +6938,14 @@ static char *hsetcmd[] = {
     "  spaces.  ON by default; use OFF to force compatibility with older",
     "  versions.",
     " ",
-#endif /* DOUBLEQUOTING */
+#endif // DOUBLEQUOTING
 
 #ifdef CK_RECALL
     "SET COMMAND RETRY { ON, OFF }",
     "  Whether to reprompt you with the correct but incomplete portion of a",
     "  syntactically incorrect command.  ON by default.",
     " ",
-#endif /* CK_RECALL */
+#endif // CK_RECALL
 
     "Use SHOW COMMAND to display these settings.",
     ""};
@@ -6978,7 +6967,7 @@ static char *hsetcar[] = {
     "COMMUNICATIONS",
     "  to display the CARRIER-WATCH setting.",
     ""};
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 static char *hsetat[] = {
     "Syntax: SET ATTRIBUTES name ON or OFF",
@@ -6989,7 +6978,7 @@ static char *hsetat[] = {
     " ",
 #ifndef NOCSETS
     "   CHARACTER-SET:  The transfer character set for text files",
-#endif /* NOCSETS */
+#endif // NOCSETS
     "   DATE:           The file's creation date",
     "   DISPOSITION:    Unusual things to do with the file, like MAIL or PRINT",
     "   LENGTH:         The file's length",
@@ -7051,7 +7040,7 @@ static char *hxyterm[] = {
     "of",
     "  all APCs.  OFF is the default.",
     " ",
-#endif /* CK_APC */
+#endif // CK_APC
 
     "SET TERMINAL AUTODOWNLOAD { ON, OFF, ERROR { STOP, CONTINUE } }",
     "  Enables/disables automatic switching into file-transfer mode when a "
@@ -7089,7 +7078,7 @@ static char *hxyterm[] = {
     "  during CONNECT.  By default, both character sets are TRANSPARENT, and",
     "  no translation is done.",
     " ",
-#endif /* NOCSETS */
+#endif // NOCSETS
 
     "SET TERMINAL CR-DISPLAY { CRLF, NORMAL }",
     "  Specifies how incoming carriage return characters are to be displayed",
@@ -7138,9 +7127,9 @@ static char *hxyterm[] = {
     "  For TELNET connections only: Sends the indicated Telnet protocol "
     "message:",
     "  No Operation (NOP) or \"Are You There?\" (AYT).",
-#endif /* TNCODE */
+#endif // TNCODE
     " ",
-#endif /* CKTIDLE */
+#endif // CKTIDLE
 
     "SET TERMINAL LF-DISPLAY { CRLF, NORMAL }",
     "  Specifies how incoming linefeed characters are to be displayed",
@@ -7148,7 +7137,7 @@ static char *hxyterm[] = {
     " ",
 
 #ifndef NOCSETS
-#endif /* NOCSETS */
+#endif // NOCSETS
 
     "SET TERMINAL LOCKING-SHIFT { OFF, ON }",
     "  Tells Kermit whether to use Shift-In/Shift-Out (Ctrl-O and Ctrl-N) to",
@@ -7167,7 +7156,7 @@ static char *hxyterm[] = {
     "  Enables and disables host-initiated transparent printing in CONNECT "
     "mode.",
     " ",
-#endif /* XPRINT */
+#endif // XPRINT
 
 #ifdef CK_TRIGGER
     "SET TERMINAL TRIGGER <string>",
@@ -7177,7 +7166,7 @@ static char *hxyterm[] = {
     "  without a string to cancel the current trigger.  See HELP CONNECT for",
     "  additional information.",
     " ",
-#endif /* CK_TRIGGER */
+#endif // CK_TRIGGER
 
     "SET TERMINAL WIDTH <number>",
     " \
@@ -7185,7 +7174,7 @@ Tells Kermit how many columns (characters) are on your CONNECT-mode screen.",
     " ",
     "Type SHOW TERMINAL to see current terminal settings.",
     ""};
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifdef NETCONN
 static char *hxyhost[] = {
@@ -7206,7 +7195,7 @@ static char *hxyhost[] = {
     "   given system command, such as \"rlogin\" or \"cu\".",
 #else
     "   a list.",
-#endif /* NETCMD */
+#endif // NETCMD
     " ",
     " /CONNECT",
     "   \
@@ -7246,10 +7235,10 @@ Enter CONNECT (terminal) mode automatically if the connection is successful.",
     "  SET HOST xyzcorp.com 2000 /RAW-SOCKET",
 #ifdef SSHBUILTIN
     "  SET HOST /NET:SSH kermit.columbia.edu /x11-forwarding:on",
-#endif /* SSHBUILTIN */
+#endif // SSHBUILTIN
 #ifdef NETCMD
     "  SET HOST /CONNECT /COMMAND rlogin xyzcorp.com",
-#endif /* NETCMD */
+#endif // NETCMD
     " ",
 #ifdef SUPERLAT
     "Notes:",
@@ -7263,7 +7252,7 @@ Enter CONNECT (terminal) mode automatically if the connection is successful.",
 #else
     "The TELNET command is equivalent to SET NETWORK TYPE TCP/IP,",
     "SET HOST name [ port ] /TELNET, IF SUCCESS CONNECT",
-#endif /* SUPERLAT */
+#endif // SUPERLAT
     " ",
     "Also see SET NETWORK, TELNET, SET TELNET.",
     ""};
@@ -7280,35 +7269,35 @@ static char *hxynet[] = {
 #ifdef NETCMD
     "  SET NETWORK TYPE COMMAND   ; Make a connection through an external "
     "command",
-#endif /* NETCMD */
+#endif // NETCMD
 #ifdef TCPSOCKET
     "  SET NETWORK TYPE TCP/IP    ; Internet: Telnet, Rlogin, etc.",
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 #ifdef ANYX25
     "  SET NETWORK TYPE X.25      ; X.25 peer-to-peer connections.",
-#endif /* ANYX25 */
+#endif // ANYX25
 #ifdef DECNET
     "  SET NETWORK TYPE PATHWORKS { LAT, CTERM } ; DEC LAT or CTERM "
     "connections.",
-#endif /* DECNET */
+#endif // DECNET
 #ifdef NPIPE
     "  SET NETWORK TYPE NAMED-PIPE <pipename>  ; OS/2 Named Pipe connections.",
-#endif /* NPIPE */
+#endif // NPIPE
 #ifdef CK_NETBIOS
     "  SET NETWORK TYPE NETBIOS                ; NETBIOS peer-to-peer "
     "connections",
-#endif /* CK_NETBIOS */
+#endif // CK_NETBIOS
 #ifdef SUPERLAT
     "  SET NETWORK TYPE SUPERLAT ; LAT connections (Meridian Technology "
     "SuperLAT)",
-#endif /* SUPERLAT */
+#endif // SUPERLAT
     " ",
     "If only one network type is listed above, that is the default network for",
 #ifdef TNCODE
     "SET HOST commands.  Also see SET HOST, TELNET.",
 #else
     "SET HOST commands.  Also see SET HOST.",
-#endif /* TNCODE */
+#endif // TNCODE
     " ",
     "SET NETWORK DIRECTORY [ file [ file [ ... ] ] ]",
     "  Specifies the name(s) of zero or more network directory files, similar "
@@ -7374,7 +7363,7 @@ static char *hxytcp[] = {
     " ",
     "The following TCP and/or IP parameter(s) may also be changed:",
     " ",
-#endif /* SOL_SOCKET */
+#endif // SOL_SOCKET
     "SET TCP REVERSE-DNS-LOOKUP { AUTO, ON, OFF }",
     "  Tells Kermit whether to perform reverse DNS lookup on TCP/IP "
     "connections",
@@ -7400,7 +7389,7 @@ static char *hxytcp[] = {
     "  port other than 23, this feature allows Kermit to ask the host which",
     "  port it should use.  Since not all domain servers are set up to answer",
     "  such requests, this feature is OFF by default.",
-#endif /* CK_DNS_SRV */
+#endif // CK_DNS_SRV
 #ifndef NOHTTP
     " ",
     "SET TCP HTTP-PROXY [<hostname or ip-address>[:<port>]]",
@@ -7409,10 +7398,10 @@ static char *hxytcp[] = {
     "  ip-address is specified, any previously specified Proxy server will",
     "  be removed.  If no port number is specified, the \"http\" service",
     "  will be used.",
-#endif /* NOHTTP */
+#endif // NOHTTP
     ""};
-#endif /* NOTCPOPTS */
-#endif /* NETCONN */
+#endif // NOTCPOPTS
+#endif // NETCONN
 
 #ifdef TNCODE
 static char *hxytopt[] = {
@@ -7525,7 +7514,7 @@ static char *hxytel[] = {
     "environment;",
     "  use this command to change or remove them.  See RFC1572 for details.",
     " ",
-#endif /* CK_ENVIRONMENT */
+#endif // CK_ENVIRONMENT
 #ifdef CK_SNDLOC
     "SET TELNET LOCATION [ text ]",
     "  Location string to send to the Telnet server if it asks.  By default "
@@ -7533,7 +7522,7 @@ static char *hxytel[] = {
     "  is picked up from the LOCATION environment variable.  Give this command",
     "  with no text to disable this feature.",
     " ",
-#endif /* CK_SNDLOC */
+#endif // CK_SNDLOC
     "SET TELNET NEWLINE-MODE { NVT, BINARY-MODE } { OFF, ON, RAW }",
 
     "  Determines how carriage returns are handled on TELNET connections.  "
@@ -7556,7 +7545,7 @@ static char *hxytel[] = {
     "  authentication type that requires the transmission of a name, such as",
     "  Secure Remote Password.",
     " ",
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
     "SET TELNET REMOTE-ECHO { ON, OFF }",
     "  Applies only to incoming connections created with:",
     "    SET HOST * <port> /TELNET",
@@ -7588,7 +7577,7 @@ static char *hxytel[] = {
     "",
     "Type SHOW TELNET to see the current values of these parameters.",
     ""};
-#endif /* TNCODE */
+#endif // TNCODE
 
 #ifndef NOSPL
 static char *hxymacr[] = {
@@ -7604,7 +7593,7 @@ static char *hxymacr[] = {
     "  error.  This setting is local to the current macro, and inherited by",
     "  subordinate macros.",
     ""};
-#endif /* NOSPL */
+#endif // NOSPL
 
 static char *hmxyprm[] = {
     "Syntax: SET PROMPT [ text ]",
@@ -7641,7 +7630,7 @@ static char *hxywild[] = {
     "  used (for example) in creating backup files.",
     ""};
 #else
-#endif /* UNIX */
+#endif // UNIX
 
 #ifndef NOXFER
 static char *hxywind[] = {
@@ -7677,7 +7666,7 @@ static char *hxyrcv[] = {
     "file.",
     "  AUTOMATIC by default.  Also see HELP ASSOCIATE.",
     " ",
-#endif /* NOCSETS */
+#endif // NOCSETS
     "SET RECEIVE CONTROL-PREFIX number",
     "  ASCII value of prefix character used for quoting control characters in",
     "  packets that Kermit receives, normally 35 (number sign).  Don't change",
@@ -7693,7 +7682,7 @@ static char *hxyrcv[] = {
     "as",
     "  line folding characters.",
     " ",
-#endif /* CKXXCHAR */
+#endif // CKXXCHAR
     "SET RECEIVE MOVE-TO [ directory ]",
     "  If a directory name is specified, then every file that is received",
     "  successfully is moved to the given directory immediately after "
@@ -7727,7 +7716,7 @@ static char *hxyrcv[] = {
     "  AUTO, which is the default, means RELATIVE if the file sender indicates "
     "in",
     "  advance that this is a recursive transfer, otherwise OFF.",
-#endif /* CK_MKDIR */
+#endif // CK_MKDIR
     " ",
     "SET RECEIVE PAUSE number",
     "  Milliseconds to pause between packets, normally 0.",
@@ -7737,7 +7726,7 @@ static char *hxyrcv[] = {
     "SET RECEIVE PERMISSIONS { ON, OFF }",
     "  Whether to copy file permissions from inbound Attribute packets.",
     " ",
-#endif /* CK_PERMS */
+#endif // CK_PERMS
 
     "SET RECEIVE RENAME-TO [ template ]",
     "  If a template is specified, then every file that is received "
@@ -7777,7 +7766,7 @@ static char *hxysnd[] = {
     "by",
     "  default.  Also see HELP ASSOCIATE.",
     " ",
-#endif /* NOCSETS */
+#endif // NOCSETS
 
     "SET SEND CONTROL-PREFIX number",
     "  ASCII value of prefix character used for quoting control characters in",
@@ -7788,7 +7777,7 @@ static char *hxysnd[] = {
     "  ASCII value of character to be doubled when sending packets, such as an",
     "  X.25 PAD escape character.",
     " ",
-#endif /* CKXXCHAR */
+#endif // CKXXCHAR
     "SET SEND END-OF-PACKET number",
     "  ASCII value of control character to terminate an outbound packet,",
     "  normally 13 (carriage return).",
@@ -7829,7 +7818,7 @@ If a directory name is specified, then every file that is sent successfully",
     "SET SEND PERMISSIONS { ON, OFF }",
     "  Whether to include file permissions in outbound Attribute packets.",
     " ",
-#endif /* CK_PERMS */
+#endif // CK_PERMS
 
     "SET SEND RENAME-TO [ template ]",
     "  If a template is specified, then every file that is sent successfully",
@@ -7846,7 +7835,7 @@ The template should include variables like \\v(filename) or \\v(filenumber).",
     "SET SEND TIMEOUT number [ { DYNAMIC [ min max ] ], FIXED } ]",
 #else
     "SET SEND TIMEOUT number",
-#endif /* CK_TIMERS */
+#endif // CK_TIMERS
 
     "  Number of seconds to wait for a packet before sending NAK or",
 #ifdef CK_TIMERS
@@ -7860,7 +7849,7 @@ The template should include variables like \\v(filename) or \\v(filenumber).",
     "  SET SEND TIMEOUT -1 FIXED means no timeouts.",
 #else
     "  retransmitting.",
-#endif /* CK_TIMERS */
+#endif // CK_TIMERS
     ""};
 
 static char *hxyxfer[] = {
@@ -7878,7 +7867,7 @@ static char *hxyxfer[] = {
     "  cancellation; the optional <number> is how many consecutive occurrences",
     "  of the given control character are required for cancellation.",
     " ",
-#endif /* XFRCAN */
+#endif // XFRCAN
     "SET TRANSFER INTERRUPTION { ON, OFF }",
     "  TRANSFER INTERRUPTION is normally ON, allowing for interruption of a "
     "file",
@@ -7896,7 +7885,7 @@ static char *hxyxfer[] = {
     "Use",
     "  SET TRANSFER CRC OFF to disable.",
     " ",
-#endif /* NOSPL */
+#endif // NOSPL
 #ifndef NOCSETS
     "SET TRANSFER CHARACTER-SET name",
     "  Selects the character set used to represent textual data in Kermit",
@@ -7909,35 +7898,35 @@ static char *hxyxfer[] = {
     "  LATIN1 (ISO 8859-1 Latin Alphabet 1)",
 #ifndef NOLATIN2
     "  LATIN2 (ISO 8859-2 Latin Alphabet 2)",
-#endif /* NOLATIN2 */
+#endif // NOLATIN2
     "  LATIN9 (ISO 8859-15 Latin Alphabet 9)",
 #ifdef CYRILLIC
     "  CYRILLIC-ISO (ISO 8859-5 Latin/Cyrillic)",
-#endif /* CYRILLIC */
+#endif // CYRILLIC
 #ifdef GREEK
     "  GREEK-ISO (ISO 8859-7 Latin/Greek)",
-#endif /* GREEK */
+#endif // GREEK
 #ifdef HEBREW
     "  HEBREW-ISO (ISO 8859-8 Latin/Hebrew)",
-#endif /* HEBREW */
+#endif // HEBREW
 #ifdef KANJI
     "  JAPANESE-EUC (JIS X 0208 Kanji + Roman and Katakana)",
-#endif /* KANJI */
+#endif // KANJI
 #ifdef UNICODE
     "  UCS-2 (ISO 10646 / Unicode 2-byte form)",
     "  UTF-8 (ISO 10646 / Unicode 8-bit serialized transformation format)",
-#endif /* UNICODE */
+#endif // UNICODE
     " ",
     "SET TRANSFER TRANSLATION { ON, OFF }",
     "  Enables and disables file-transfer character-set translation.  It's",
     "  enabled by default.",
-#endif /* NOCSETS */
+#endif // NOCSETS
     " ",
 #ifdef CK_CURSES
     "SET TRANSFER DISPLAY { BRIEF, CRT, FULLSCREEN, NONE, SERIAL }",
 #else
     "SET TRANSFER DISPLAY { BRIEF, CRT, NONE, SERIAL }",
-#endif /* CK_CURSES */
+#endif // CK_CURSES
     "  Choose the desired format for the progress report to be displayed on",
     "  your screen during file transfers when Kermit is in local mode.",
 #ifdef CK_CURSES
@@ -7945,7 +7934,7 @@ static char *hxyxfer[] = {
     "  are independent of terminal type.",
 #else
     "  file transfer.",
-#endif /* CK_CURSES */
+#endif // CK_CURSES
     " ",
     "SET TRANSFER LOCKING-SHIFT { OFF, ON, FORCED }",
     "  Tell whether locking-shift protocol should be used during file transfer",
@@ -7967,7 +7956,7 @@ static char *hxyxfer[] = {
     "  mode automatically per file based on the SET FILE BINARY-PATTERNS and "
     "SET",
     "  FILE TEXT-PATTERNS.",
-#endif /* PATTERNS */
+#endif // PATTERNS
     " ",
 #ifdef PIPESEND
     "SET TRANSFER PIPES { ON, OFF }",
@@ -7975,7 +7964,7 @@ static char *hxyxfer[] = {
     "when",
     "  the incoming filename starts with '!'.  Also see CSEND, CRECEIVE.",
     " ",
-#endif /* PIPESEND */
+#endif // PIPESEND
     "SET TRANSFER REPORT { ON, OFF }",
     "  Enables/Disables the automatic post-transfer message telling what files",
     "  went where from C-Kermit when it is in remote mode.  ON by default.",
@@ -7988,7 +7977,7 @@ static char *hxyxfer[] = {
     " ",
     "Synonym: SET XFER.  Use SHOW TRANSFER (XFER) to see SET TRANSFER values.",
     ""};
-#endif /* NOXFER */
+#endif // NOXFER
 
 static char *hmxybel[] = {"Syntax: SET BELL { OFF, ON }",
                           "  ON (the default) enables ringing of the terminal "
@@ -8043,10 +8032,10 @@ static char *hmxycd[] = {
     " ",
     "   {{./.readme}{README.TXT}{READ.ME}}",
     " ",
-#endif /* DFCDMSG */
+#endif // DFCDMSG
 #ifndef NOSERVER
     "Synonym: SET SERVER CD-MESSAGE FILE.",
-#endif /* NOSERVER */
+#endif // NOSERVER
     " ",
     "Type SHOW CD to view current CD settings.  Also see HELP SET SERVER.",
     ""};
@@ -8123,7 +8112,7 @@ static char *hsetiks[] = {
     "  \"iksd.db\" in the /var/log directory.",
 #else
     "  information about active connections.",
-#endif /* UNIX */
+#endif // UNIX
     " ",
     " ",
     "SET IKS HELPFILE <filename>",
@@ -8182,7 +8171,7 @@ static char *hsetiks[] = {
     "  to Internet Kermit Service.  The syntax is: one username per line; "
     "lines",
     "  starting with \"#\" are ignored.",
-#endif /* UNIX */
+#endif // UNIX
     " ",
     "SET IKS XFERLOG { ON, OFF }",
 #ifdef UNIX
@@ -8191,15 +8180,15 @@ static char *hsetiks[] = {
     "  but no SET IKSD XFERFILE command is given, /var/log/iksd.log is used.",
 #else
     "  Whether a file-transfer log should be kept.  Off by default.",
-#endif /* UNIX */
+#endif // UNIX
     " ",
     "SET IKS XFERFILE <filename>",
     "  Use this option to specify an iksd log file name.  If you include this",
     "  option, it implies SET IKS XFERFILE ON.",
     ""};
-#endif /* NOIKSD */
+#endif // NOIKSD
 
-/*  D O H S E T  --  Give help for SET command  */
+//  D O H S E T  --  Give help for SET command
 
 int dohset(int xx) {
   int x;
@@ -8218,7 +8207,7 @@ int dohset(int xx) {
 #ifndef NOIKSD
   case XYIKS:
     return (hmsga(hsetiks));
-#endif /* NOIKSD */
+#endif // NOIKSD
 
   case XY_REN:
     return (hmsg("SET RENAME LIST { ON, OFF }\n\
@@ -8239,12 +8228,12 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
 #ifdef DYNAMIC
   case XYBUF:
     return (hmsga(hsetbuf));
-#endif /* DYNAMIC */
+#endif // DYNAMIC
 
 #ifndef NOLOCAL
   case XYCARR:
     return (hmsga(hsetcar));
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOSPL
   case XYCASE:
@@ -8253,7 +8242,7 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
   done by INPUT, IF, and other commands.  This setting is local to the\n\
   current macro or command file, and inherited by subordinates."));
 
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XYCMD:
     return (hmsga(hsetcmd));
@@ -8265,7 +8254,7 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
 #ifndef NOSPL
   case XYINPU:
     return (hmsga(hxyinp));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XYCHKT:
     return (hmsga(hmxychkt));
@@ -8276,7 +8265,7 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
  Example: SET COUNT 5\n\
   Set up a loop counter, for use with IF COUNT.  Local to current macro\n\
   or command file, inherited by subordinate macros and command files."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XYDEBU:
     return (hmsga(hmxydeb));
@@ -8292,7 +8281,7 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
 #ifndef NODIAL
   case XYDIAL:
     return (hmsga(hmxydial));
-#endif /* NODIAL */
+#endif // NODIAL
 
 #ifdef UNIX
   case XYSUSP:
@@ -8304,7 +8293,7 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
   case XYSCRI:
     return (hmsg("Syntax: SET SCRIPT ECHO { OFF, ON }\n\
   Disables/Enables echoing of SCRIPT command operation."));
-#endif /* NOSCRIPT */
+#endif // NOSCRIPT
 
   case XYTAKE:
     return (hmsga(hxytak));
@@ -8324,10 +8313,10 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
   does its own echoing.  Synonym for SET DUPLEX { FULL, HALF }."));
 
   case XYESC:
-    return (hmsga(hxyesc)); /* SET ESCAPE */
-#endif /* NOLOCAL */
+    return (hmsga(hxyesc)); // SET ESCAPE
+#endif // NOLOCAL
 
-  case XYPRTR: /* SET PRINTER */
+  case XYPRTR: // SET PRINTER
     return (hmsga(hxyprtr));
 
   case XYEXIT:
@@ -8354,8 +8343,8 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
 #ifdef SOL_SOCKET
   case XYTCP:
     return (hmsga(hxytcp));
-#endif /* SOL_SOCKET */
-#endif /* NOTCPOPTS */
+#endif // SOL_SOCKET
+#endif // NOTCPOPTS
 
 #ifdef ANYX25
   case XYX25:
@@ -8365,19 +8354,19 @@ SET RENAME COLLISION { FAIL, PROCEED, OVERWRITE }\n\
   case XYPAD:
     return (hmsg("Syntax: SET PAD name value\n\
 Set a PAD X.3 parameter with a desired value."));
-#endif /* IBMX25 */
-#endif /* ANYX25 */
-#endif /* NETCONN */
+#endif // IBMX25
+#endif // ANYX25
+#endif // NETCONN
 
 #ifndef NOSPL
   case XYOUTP:
     return (hmsga(hxyout));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOSETKEY
-  case XYKEY: /* SET KEY */
+  case XYKEY: // SET KEY
     return (hmsga(hmhskey));
-#endif /* NOSETKEY */
+#endif // NOSETKEY
 
 #ifndef NOCSETS
   case XYLANG:
@@ -8385,7 +8374,7 @@ Set a PAD X.3 parameter with a desired value."));
   Selects language-specific translation rules for text-mode file transfers.\n\
   Used with SET FILE CHARACTER-SET and SET TRANSFER CHARACTER-SET when one\n\
   of these is ASCII."));
-#endif /* NOCSETS */
+#endif // NOCSETS
 
   case XYLINE:
     printf("\nSyntax: SET LINE (or SET PORT) [ switches ] [ devicename ]\n\
@@ -8428,12 +8417,12 @@ Set a PAD X.3 parameter with a desired value."));
 #ifndef NOSPL
   case XYMACR:
     return (hmsga(hxymacr));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NODIAL
   case XYMODM:
     return (hmsga(hxymodm));
-#endif /* NODIAL */
+#endif // NODIAL
 
   case XYPARI:
     return (hmsga(hxypari));
@@ -8449,7 +8438,7 @@ Set a PAD X.3 parameter with a desired value."));
 #ifdef CK_SPEED
   case XYQCTL:
     return (hmsga(hmxyqctl));
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
   case XYRETR:
     return (hmsg("Syntax: SET RETRY number\n\
@@ -8465,7 +8454,7 @@ Set a PAD X.3 parameter with a desired value."));
   out CR, NUL, and XON/XOFF characters.  DEBUG is the same as BINARY but\n\
   also includes Telnet negotiations on TCP/IP connections."));
 #else
-#endif /* OS2ORUNIX */
+#endif // OS2ORUNIX
 
   case XYSPEE:
     return (hmsg("Syntax: SET SPEED number\n\
@@ -8473,7 +8462,7 @@ Set a PAD X.3 parameter with a desired value."));
   SET LINE command, in bits per second.  Type SET SPEED ? for a list of\n\
   possible speeds.  Some of the speeds shown might not be supported on the\n\
   computer you are using.  Has no effect on job's controlling terminal."));
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifndef NOXFER
   case XYRECV:
@@ -8482,12 +8471,12 @@ Set a PAD X.3 parameter with a desired value."));
     return (hmsga(hxysnd));
   case XYREPT:
     return (hmsga(hxyrpt));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOSERVER
   case XYSERV:
     return (hmsga(hsetsrv));
-#endif /* NOSERVER */
+#endif // NOSERVER
 
 #ifdef TNCODE
   case XYTEL:
@@ -8495,34 +8484,34 @@ Set a PAD X.3 parameter with a desired value."));
 
   case XYTELOP:
     return (hmsga(hxytopt));
-#endif /* TNCODE */
+#endif // TNCODE
 
 #ifndef NOXMIT
   case XYXMIT:
     return (hmsga(hsetxmit));
-#endif /* NOXMIT */
+#endif // NOXMIT
 
 #ifndef NOCSETS
   case XYUNCS:
     return (hmsg("Syntax: SET UNKNOWN-CHAR-SET action\n\
   DISCARD (default) means reject any arriving files encoded in unknown\n\
   character sets.  KEEP means to accept them anyway."));
-#endif /* NOCSETS */
+#endif // NOCSETS
 
 #ifdef UNIX
   case XYWILD:
     return (hmsga(hxywild));
-#endif /* UNIX */
+#endif // UNIX
 
 #ifndef NOXFER
   case XYWIND:
     return (hmsga(hxywind));
   case XYXFER:
     return (hmsga(hxyxfer));
-#endif /* NOXFER */
+#endif // NOXFER
 
 #ifndef NOLOCAL
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
   case XYALRM:
     return (hmsg("Syntax: SET ALARM [ { seconds, hh:mm:ss } ]\n\
@@ -8537,7 +8526,7 @@ Set a PAD X.3 parameter with a desired value."));
     return (hmsg("Syntax: SET PREFIXING { ALL, CAUTIOUS, MINIMAL }\n\
   \
 Selects the degree of control-character prefixing.  Also see HELP SET CONTROL."));
-#endif /* CK_SPEED */
+#endif // CK_SPEED
 
 #ifndef NOSPL
   case XYTMPDIR:
@@ -8548,7 +8537,7 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
   based on the operating system and any environment variables you might have\n\
   set.  Use SHOW TEMP-DIRECTORY or SHOW VARIABLE \\v(tmpdir) to see Kermit's\n\
   current temporary directory setting.  Synonym: SET TMP-DIRECTORY."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOPUSH
 #ifndef NOFRILLS
@@ -8556,32 +8545,32 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
     return (hmsg("Syntax: SET EDITOR pathname [ options ]\n\
   Specifies the name of your preferred editor, plus any command-line\n\
   options.  SHOW EDITOR displays it."));
-#endif /* NOFRILLS */
-#endif /* NOPUSH */
+#endif // NOFRILLS
+#endif // NOPUSH
 
 #ifdef BROWSER
   case XYBROWSE:
     return (hmsg("Syntax: SET BROWSER [ pathname [ options ] ]\n\
   Specifies the name of your preferred browser plus any command-line\n\
   options.  SHOW BROWSER displays it."));
-#endif /* BROWSER */
+#endif // BROWSER
 
 #ifdef CK_TAPI
   case XYTAPI:
     return (hmsga(hxytapi));
-#endif /* CK_TAPI */
+#endif // CK_TAPI
 
 #ifndef NOSPL
   case XYFUNC:
     return (hmsga(hxyfunc));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef BROWSER
   case XYFTP:
     return (hmsg("Syntax: SET FTP [ pathname [ options ] ]\n\
   Specifies the name of your ftp client, plus any command-line options.\n\
   SHOW FTP displays it."));
-#endif /* BROWSER */
+#endif // BROWSER
 
   case XYSLEEP:
     return (hmsg("Syntax: SET SLEEP CANCELLATION { ON, OFF }\n\
@@ -8600,21 +8589,21 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
   case XYSTOP:
     return (hmsg("Syntax: SET STOP-BITS { 1, 2 }\n\
   Number of stop bits to use on SET LINE connections, normally 1."));
-#endif /* HWPARITY */
+#endif // HWPARITY
 
 #ifndef NOLOCAL
   case XYDISC:
     return (hmsg("Syntax: SET DISCONNECT { ON, OFF }\n\
   Whether to close and release a SET LINE device automatically upon\n\
   disconnection; OFF = keep device open (default); ON = close and release."));
-#endif /* NOLOCAL */
+#endif // NOLOCAL
 
 #ifdef STREAMING
   case XYSTREAM:
     return (hmsg("Syntax: SET STREAMING { ON, OFF, AUTO }\n\
   Tells Kermit whether streaming protocol can be used during Kermit file\n\
   transfers.  Default is AUTO, meaning use it if connection is reliable."));
-#endif /* STREAMING */
+#endif // STREAMING
 
   case XYRELY:
     return (hmsg("Syntax: SET RELIABLE { ON, OFF, AUTO }\n\
@@ -8633,7 +8622,7 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
     return (hmsg("Syntax: SET TRANSACTION-LOG { BRIEF, FTP, VERBOSE }\n\
   Selects the transaction-log format; BRIEF and FTP have one line per file;\n\
   FTP is compatible with FTP log.  VERBOSE (the default) has more info."));
-#endif /* TLOG */
+#endif // TLOG
 
   case XYOPTS:
     return (hmsg("Syntax: SET OPTIONS command [ switches... ]\n\
@@ -8643,12 +8632,12 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
 #ifndef NOSPL
   case XYTIMER:
     return (hmsga(hmxytimer));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef CKROOT
   case XYROOT:
     return (hmsga(hmxxchroot));
-#endif /* XYROOT */
+#endif // XYROOT
 
 #ifdef ANYSSH
   case XYSSH:
@@ -8664,13 +8653,13 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
   }
 #else
     return (hmsga(hmxyssh));
-#endif /* SSHBUILTIN */
-#endif /* ANYCMD */
+#endif // SSHBUILTIN
+#endif // ANYCMD
 
 #ifdef LOCUS
   case XYLOCUS:
     return (hmsga(hmxylocus));
-#endif /* LOCUS */
+#endif // LOCUS
 
   case XYMATCH:
     return (hmsga(hmxymatch));
@@ -8678,7 +8667,7 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
 #ifndef NOSEXP
   case XYSEXP:
     return (hmsga(hmxysexp));
-#endif /* NOSEXP */
+#endif // NOSEXP
 
 #ifndef NOSPL
   case XYVAREV:
@@ -8688,7 +8677,7 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
   values like in any other programming language, making life much easier\n\
   when those values happen to be Windows or DOS pathnames, which contain\n\
   backslashes."));
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifdef HAVE_LOCALE
   case XYLOCALE:
@@ -8698,7 +8687,7 @@ Selects the degree of control-character prefixing.  Also see HELP SET CONTROL.")
   en_US.US-ASCII or es_VE.ISO8859-1.  C-Kermit's SET LOCALE command affects\n\
   C-Kermit itself and any subprocesses, but does not affect the environment\n\
   from which C-Kermit was invoked."));
-#endif /* HAVE_LOCALE */
+#endif // HAVE_LOCALE
 
   default:
     printf("Not available - \"%s\"\n", cmdbuf);
@@ -8762,21 +8751,21 @@ static char *hfsplit[] = {
     "  HELP FUNCTION WORD",
     ""};
 
-/*  D O H F U N C  --  Give help for a function  */
+//  D O H F U N C  --  Give help for a function
 
 int dohfunc(int xx) {
-  /* int x; */
+  // int x;
   if (xx == -3) {
     return (hmsga(hmxxfunc));
   }
-  if (xx == FN_WORD) { /* Long help message */
+  if (xx == FN_WORD) { // Long help message
     return (hmsga(hmfword));
   }
 
   printf("\n");
   switch (xx) {
-  case FN_IND: /* Index (of string 1 in string 2) */
-  case FN_RIX: /* Rindex (index from right) */
+  case FN_IND: // Index (of string 1 in string 2)
+  case FN_RIX: // Rindex (index from right)
     printf("\\f%sindex(s1,s2,n1,n2)\n\
   s1 = string to look for.\n\
   s2 = string to look in.\n\
@@ -8788,7 +8777,7 @@ int dohfunc(int xx) {
   (n1-1) characters in s2; returns 0 if s1 not found in s2.\n",
            xx == FN_IND ? "left" : "right", xx == FN_IND ? "left" : "right");
     break;
-  case FN_COUNT: /* Count occurrences of s1 in s2 */
+  case FN_COUNT: // Count occurrences of s1 in s2
     printf("\\fcount(s1,s2,n1)\n\
   s1 = string or character to look for.\n\
   s2 = string to look in.\n\
@@ -8797,8 +8786,8 @@ int dohfunc(int xx) {
   Number of occurrences of s1 in s2, 0 or more.\n");
     break;
 
-  case FN_SEARCH:  /* Search for pattern */
-  case FN_RSEARCH: /* Search for pattern from right */
+  case FN_SEARCH:  // Search for pattern
+  case FN_RSEARCH: // Search for pattern from right
     printf("\\f%ssearch(s1,s2,n1,n2)\n\
   s1 = pattern to look for.\n\
   s2 = string to look in.\n\
@@ -8812,52 +8801,52 @@ int dohfunc(int xx) {
            xx == FN_SEARCH ? "left" : "right");
     printf("  s1 is a \"floating pattern\"; see HELP PATTERNS for details.\n");
     break;
-  case FN_LEN: /* Length (of string) */
+  case FN_LEN: // Length (of string)
     printf("\\flength(s1)\n\
   s1 = string.\n");
     printf("Returns integer:\n\
   Length of string s1.\n");
     break;
-  case FN_LIT: /* Literal (don't expand the string) */
+  case FN_LIT: // Literal (don't expand the string)
     printf("\\fliteral(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   s1 literally without evaluation.\n");
     break;
-  case FN_LOW: /* Lower (convert to lowercase) */
+  case FN_LOW: // Lower (convert to lowercase)
     printf("\\flower(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   s1 with uppercase letters converted to lowercase.\n");
     break;
-  case FN_MAX: /* Max (maximum) */
+  case FN_MAX: // Max (maximum)
     printf("\\fmaximum(n1,n2)\n\
   n1 = integer.\n\
   n2 = integer.\n");
     printf("Returns integer:\n\
   The greater of n1 and n2.\n");
     break;
-  case FN_MIN: /* Min (minimum) */
+  case FN_MIN: // Min (minimum)
     printf("\\fminimum(n1,n2)\n\
   n1 = integer.\n\
   n2 = integer.\n");
     printf("Returns integer:\n\
   The lesser of n1 and n2.\n");
     break;
-  case FN_MOD: /* Mod (modulus) */
+  case FN_MOD: // Mod (modulus)
     printf("\\fmodulus(n1,n2)\n\
   n1 = integer.\n\
   n2 = integer.\n");
     printf("Returns integer:\n\
   The remainder after dividing n1 by n2.\n");
     break;
-  case FN_EVA: /* Eval (evaluate arith expression) */
+  case FN_EVA: // Eval (evaluate arith expression)
     printf("\\fevaluate(e)\n\
   e = arithmetic expression in ordinary algebraic notation.\n");
     printf("Returns integer:\n\
   The result of evaluating the expression.\n");
     break;
-  case FN_SUB: /* Substr (substring) */
+  case FN_SUB: // Substr (substring)
     printf("\\fsubstring(s1,n1,n2)\n\
   s1 = string.\n\
   n1 = integer, 1-based starting position, default = 1.\n\
@@ -8865,26 +8854,26 @@ int dohfunc(int xx) {
     printf("Returns string:\n\
   Substring of s1 starting at n1, length n2.\n");
     break;
-  case FN_UPP: /* Upper (convert to uppercase) */
+  case FN_UPP: // Upper (convert to uppercase)
     printf("\\fupper(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   s1 with lowercase letters converted to uppercase.\n");
     break;
-  case FN_REV: /* Reverse (a string) */
+  case FN_REV: // Reverse (a string)
     printf("\\freverse(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   s1 with its characters in reverse order.\n");
     break;
-  case FN_REP: /* Repeat (a string) */
+  case FN_REP: // Repeat (a string)
     printf("\\frepeat(s1,n1)\n\
   s1 = string.\n\
   n1 = integer.\n");
     printf("Returns string:\n\
   s1 repeated n1 times.\n");
     break;
-  case FN_EXE: /* Execute (a macro) */
+  case FN_EXE: // Execute (a macro)
     printf("\\fexecute(m1,a1,a2,a3,...)\n\
   m1 = macro name.\n\
   a1 = argument 1.\n\
@@ -8892,8 +8881,8 @@ int dohfunc(int xx) {
     printf("Returns string:\n\
   The return value of the macro (HELP RETURN for further info).\n");
     break;
-  case FN_LPA: /* LPAD (left pad) */
-  case FN_RPA: /* RPAD (right pad) */
+  case FN_LPA: // LPAD (left pad)
+  case FN_RPA: // RPAD (right pad)
     printf("\\f%cpad(s1,n1,c1)\n\
   s1 = string.\n\
   n1 = integer.\n\
@@ -8903,59 +8892,59 @@ int dohfunc(int xx) {
   s1 %s-padded with character c1 to length n1.\n",
            xx == FN_LPA ? "left" : "right");
     break;
-  case FN_DEF: /* Definition of a macro, unexpanded */
+  case FN_DEF: // Definition of a macro, unexpanded
     printf("\\fdefinition(m1)\n\
   m1 = macro name.\n");
     printf("Returns string:\n\
   Literal definition of macro m1.\n");
     break;
-  case FN_CON: /* Contents of a variable, ditto */
+  case FN_CON: // Contents of a variable, ditto
     printf("\\fcontents(v1)\n\
   v1 = variable name such as \\%%a.\n");
     printf("Returns string:\n\
   Literal definition of variable v1, evaluated one level only.\n");
     break;
-  case FN_FIL: /* Next file */
+  case FN_FIL: // Next file
     printf("\\fnextfile()\n");
     printf("Returns string:\n\
   Name of next file from list created by most recent \\f[r]files() or\n\
   \\f[r]dir()invocation, or an empty string if there are no more files in\n\
   the list.\n");
     break;
-  case FN_FC: /* File count */
+  case FN_FC: // File count
     printf("\\ffiles(f1[,&a]) - File list.\n\
   f1 = file specification, possibly containing wildcards.\n\
   &a = optional name of array to assign file list to.\n");
     printf("Returns integer:\n\
   The number of regular files that match f1.  Use with \\fnextfile().\n");
     break;
-  case FN_CHR: /* Character (like BASIC CHR$()) */
+  case FN_CHR: // Character (like BASIC CHR$())
     printf("\\fcharacter(n1)\n\
   n1 = integer.\n");
     printf("Returns character:\n\
   The character whose numeric code is n1.\n");
     break;
-  case FN_RIG: /* Right (like BASIC RIGHT$()) */
+  case FN_RIG: // Right (like BASIC RIGHT$())
     printf("\\fright(s1,n1)\n\
   s1 = string.\n\
   n1 = integer, default = length(s1).\n");
     printf("Returns string:\n\
   The rightmost n1 characters of string s1.\n");
     break;
-  case FN_LEF: /* Left (like BASIC LEFT$()) */
+  case FN_LEF: // Left (like BASIC LEFT$())
     printf("\\fleft(s1,n1)\n\
   s1 = string.\n\
   n1 = integer, default = length(s1).\n");
     printf("Returns string:\n\
   The leftmost n1 characters of string s1.\n");
     break;
-  case FN_COD: /* Code value of character */
+  case FN_COD: // Code value of character
     printf("\\fcode(s1)\n\
   c1 = character.\n");
     printf("Returns integer:\n\
   The numeric code of the first character in string s1, or 0 if s1 empty.\n");
     break;
-  case FN_RPL: /* Replace */
+  case FN_RPL: // Replace
     printf("\\freplace(s1,s2,[s3[,n1[,n2]]])\n\
   s1 = original string.\n\
   s2 = match string.\n\
@@ -8964,7 +8953,7 @@ int dohfunc(int xx) {
 #ifdef RPLWORDMODE
     printf("  n2 = word mode \
 (0 = ignore context; 1 = only if target is delimited).\n");
-#endif /* RPLWORDMODE */
+#endif // RPLWORDMODE
 
     printf("Returns string:\n\
   s1 with occurrence number n1 of s2 replaced by s3.\n\
@@ -8972,19 +8961,19 @@ int dohfunc(int xx) {
   If n1 < 0, occurrences are counted from the right.\n");
     break;
 
-  case FN_FD: /* File date */
+  case FN_FD: // File date
     printf("\\fdate(f1)\n\
   f1 = filename.\n");
     printf("Returns string:\n\
   Modification date of file f1, format: yyyymmdd hh:mm:ss.\n");
     break;
-  case FN_FS: /* File size */
+  case FN_FS: // File size
     printf("\\fsize(f1)\n\
   f1 = filename.\n");
     printf("Returns integer:\n\
   Size of file f1.\n");
     break;
-  case FN_VER: /* Verify */
+  case FN_VER: // Verify
     printf("\\fverify(s1,s2,n1)\n\
   s1 = string of characters to look for.\n\
   s2 = string to look in.\n\
@@ -8993,34 +8982,34 @@ int dohfunc(int xx) {
   1-based position of first character in s2 that is not also in s1,\n\
   or -1 if s1 is empty, or 0 if all characters in s2 are also in s1.\n");
     break;
-  case FN_IPA: /* Find and return IP address */
+  case FN_IPA: // Find and return IP address
     printf("\\fipaddress(s1,n1)\n\
   s1 = string.\n\
   n1 = 1-based integer starting position, default = 1.\n");
     printf("Returns string:\n\
   First IP address in s1, scanning from left starting at position n1.\n");
     break;
-  case FN_HEX: /* Hexify */
+  case FN_HEX: // Hexify
     printf("\\fhexify(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   The hexadecimal representation of s1.  Also see \\fn2hex().\n");
     break;
-  case FN_UNH: /* Unhexify */
+  case FN_UNH: // Unhexify
     printf("\\funhexify(h1)\n\
   h1 = Hexadecimal string.\n");
     printf("Returns string:\n\
   The result of unhexifying s1, or nothing if s1 is not a hex string.\n");
     break;
-  case FN_UNTAB: /* Untabify */
+  case FN_UNTAB: // Untabify
     printf("\\funtabify(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
   The result of converting tabs in s1 to spaces assuming tab stops every\n\
   8 spaces.\n");
     break;
-  case FN_BRK: /* Break */
-  case FN_SPN: /* Span */
+  case FN_BRK: // Break
+  case FN_SPN: // Span
     printf("\\f%s(s1,s2,n1)\n\
   s1 = string to look in.\n\
   s2 = string of characters to look for.\n\
@@ -9031,8 +9020,8 @@ int dohfunc(int xx) {
   scanning from the left starting at position n1.\n",
            xx == FN_SPN ? " not " : " ");
     break;
-  case FN_TRM: /* Trim */
-  case FN_LTR: /* Left-Trim */
+  case FN_TRM: // Trim
+  case FN_LTR: // Left-Trim
     printf("\\f%s(s1,s2)\n\
   s1 = string to look in.\n\
   s2 = string of characters to look for, default = blanks and tabs.\n",
@@ -9041,7 +9030,7 @@ int dohfunc(int xx) {
   s1 with all characters that are also in s2 trimmed from the %s.\n.",
            xx == FN_TRM ? "right" : "left");
     break;
-  case FN_CAP: /* Capitalize */
+  case FN_CAP: // Capitalize
     printf("\\fcapitalize(s1)\n\
   s1 = string.\n");
     printf("Returns string:\n\
@@ -9049,49 +9038,49 @@ int dohfunc(int xx) {
   letters to lowercase.\n");
     printf("Synonym: \\fcaps(s1)\n");
     break;
-  case FN_TOD: /* Time-of-day-to-secs-since-midnite */
+  case FN_TOD: // Time-of-day-to-secs-since-midnite
     printf("\\ftod2secs(s1)\n\
   s1 = time-of-day string, hh:mm:ss, 24-hour format.\n");
     printf("Returns number:\n\
   Seconds since midnight.\n");
     break;
-  case FN_FFN: /* Full file name */
+  case FN_FFN: // Full file name
     printf("\\fpathname(f1)\n\
   f1 = filename, possibly wild.\n");
     printf("Returns string:\n\
   Full pathname of f1.\n");
     break;
-  case FN_CHK: /* Checksum of text */
+  case FN_CHK: // Checksum of text
     printf("\\fchecksum(s1)\n\
   s1 = string.\n");
     printf("Returns integer:\n\
   16-bit checksum of string s1.\n");
     break;
-  case FN_CRC: /* CRC-16 of text */
+  case FN_CRC: // CRC-16 of text
     printf("\\fcrc16(s1)\n\
   s1 = string.\n");
     printf("Returns integer:\n\
   16-bit cyclic redundancy check of string s1.\n");
     break;
-  case FN_BSN: /* Basename of file */
+  case FN_BSN: // Basename of file
     printf("\\fbasename(f1)\n\
   f1 = filename, possibly wild.\n");
     printf("Returns string:\n\
   Filename f1 stripped of all device and directory information.\n");
     break;
-  case FN_CMD: /* Output of a command (cooked) */
+  case FN_CMD: // Output of a command (cooked)
     printf("\\fcommand(s1)\n\
   s1 = string\n");
     printf("Returns string:\n\
   Output of system command s1, if any, with final line terminator stripped.\n");
     break;
-  case FN_RAW: /* Output of a command (raw) */
+  case FN_RAW: // Output of a command (raw)
     printf("\\frawcommand(s1)\n\
   s1 = string\n");
     printf("Returns string:\n\
   Output of system command s1, if any.\n");
     break;
-  case FN_STX: /* Strip from right */
+  case FN_STX: // Strip from right
     printf("\\fstripx(s1,c1)\n\
   s1 = string to look in.\n\
   c1 = character to look for, default = \".\".\n");
@@ -9099,7 +9088,7 @@ int dohfunc(int xx) {
   s1 up to the rightmost occurrence of character c1.\n");
     break;
 
-  case FN_STL: /* Strip from left */
+  case FN_STL: // Strip from left
     printf("\\flop(s1[,c1[,n1]])\n\
   s1 = string to look in.\n\
   c1 = character to look for, default = \".\".\n\
@@ -9108,7 +9097,7 @@ int dohfunc(int xx) {
   The part of s1 after the n1th leftmost occurrence of character c1.\n");
     break;
 
-  case FN_LOPX: /* Strip from right */
+  case FN_LOPX: // Strip from right
     printf("\\flopx(s1,c1)\n\
   s1 = string to look in.\n\
   c1 = character to look for, default = \".\".\n\
@@ -9117,7 +9106,7 @@ int dohfunc(int xx) {
   The part of s1 after the n1th rightmost occurrence of character c1.\n");
     break;
 
-  case FN_STN: /* Strip n chars */
+  case FN_STN: // Strip n chars
     printf("\\fstripn(s1,n1)\n\
   s1 = string to look in.\n\
   n1 = integer, default = 0.\n");
@@ -9125,7 +9114,7 @@ int dohfunc(int xx) {
   s1 with n1 characters removed from the right.\n");
     break;
 
-  case FN_STB: /* Strip enclosing brackets */
+  case FN_STB: // Strip enclosing brackets
     printf("\\fstripb(s1[,c1[,c2]])\n\
   s1 = original string.\n\
   c1 = optional first character\n");
@@ -9142,18 +9131,18 @@ int dohfunc(int xx) {
   than one possibility at once; see \\fword() for details.\n");
     break;
 
-  case FN_2HEX: /* Num to hex */
+  case FN_2HEX: // Num to hex
     printf("\\fn2hex(n1) - Number to hex\n  n1 = integer.\n");
     printf("Returns string:\n  The hexadecimal representation of n1.\n");
     break;
 
-  case FN_2OCT: /* Num to hex */
+  case FN_2OCT: // Num to hex
     printf("\\fn2octal(n1) - Number to octal\n  n1 = integer.\n");
     printf("Returns string:\n  The octal representation of n1.\n");
     break;
 
 #ifdef RECURSIVE
-  case FN_DIR: /* Recursive directory count */
+  case FN_DIR: // Recursive directory count
     printf("\\fdirectories(f1,&a) - Directory list.\n\
   f1 = directory specification, possibly containing wildcards.\n\
   &a = optional name of array to assign directory list to.\n");
@@ -9161,7 +9150,7 @@ int dohfunc(int xx) {
   The number of directories that match f1; use with \\fnextfile().\n");
     break;
 
-  case FN_RFIL: /* Recursive file count */
+  case FN_RFIL: // Recursive file count
     printf("\\frfiles(f1[,&a]) - Recursive file list.\n\
   f1 = file specification, possibly containing wildcards.\n\
   &a = optional name of array to assign file list to.\n");
@@ -9170,7 +9159,7 @@ int dohfunc(int xx) {
   directory tree; use with \\fnextfile().\n");
     break;
 
-  case FN_RDIR: /* Recursive directory count */
+  case FN_RDIR: // Recursive directory count
     printf("\\frdirectories(f1) - Recursive directory list.\n\
   f1 = directory specification, possibly containing wildcards.\n\
   &a = optional name of array to assign directory list to.\n");
@@ -9178,9 +9167,9 @@ int dohfunc(int xx) {
   The number of directories that match f1 in the current or given directory\n\
   tree.  Use with \\fnextfile().\n");
     break;
-#endif /* RECURSIVE */
+#endif // RECURSIVE
 
-  case FN_DNAM: /* Directory part of a filename */
+  case FN_DNAM: // Directory part of a filename
     printf("\\fdirname(f) - Directory part of a filename.\n\
   f = a file specification.\n");
     printf("Returns directory name:\n\
@@ -9189,19 +9178,19 @@ int dohfunc(int xx) {
     break;
 
 #ifndef NORANDOM
-  case FN_RAND: /* Random number */
+  case FN_RAND: // Random number
     printf("\\frandom(n) - Random number.\n\
   n = a positive integer.\n");
     printf("Returns integer:\n\
   A random number between 0 and n-1.\n");
     break;
-#endif /* NORANDOM */
+#endif // NORANDOM
 
-  case FN_SPLIT: /* Split */
+  case FN_SPLIT: // Split
     hmsga(hfsplit);
     break;
 
-  case FN_DTIM: /* CVTDATE */
+  case FN_DTIM: // CVTDATE
     printf("\\fcvtdate([date-time][,n1]) - Date/time conversion.\n");
     printf("  Converts date and/or time to standard format.\n");
     printf("  If no date/time given, returns current date/time.\n");
@@ -9220,7 +9209,7 @@ int dohfunc(int xx) {
   If n1 is negative (-1 to -6), the result is date only.");
     break;
 
-  case FN_JDATE: /* DOY */
+  case FN_JDATE: // DOY
     printf("\\fdoy([date-time]) - Day of Year.\n");
     printf("  Converts date and/or time to day-of-year (DOY) format.\n");
     printf("  If no date/time given, returns current date.\n");
@@ -9240,7 +9229,7 @@ int dohfunc(int xx) {
   given to the DIAL command.\n");
     break;
 
-  case FN_DATEJ: /* DOY2DATE */
+  case FN_DATEJ: // DOY2DATE
     printf("\\fdoy2date([doy[ time]]) - Day of Year to Date.\n");
     printf("  Converts yyyymmm to yyyymmdd\n");
     printf("  If time included, it is converted to 24-hour format.");
@@ -9304,7 +9293,7 @@ int dohfunc(int xx) {
         "-l\".\n"
 #else
         "Returns the permissions of the given file.\n"
-#endif /* UNIX */
+#endif // UNIX
     );
     break;
 
@@ -9333,7 +9322,7 @@ int dohfunc(int xx) {
   HELP FUNC ARRAYLOOK for a similar function.\n  HELP ARRAY for arrays.\n");
     break;
 
-  case FN_ABS: /* Absolute */
+  case FN_ABS: // Absolute
     printf("\\fabsolute(n1)\n\
   n1 = integer.\n");
     printf("Returns integer:\n\
@@ -9484,7 +9473,7 @@ int dohfunc(int xx) {
     printf("Returns floating-point number:\n\
   The square root of f1 to d decimal places.\n");
     break;
-#endif /* FNFLOAT */
+#endif // FNFLOAT
 
 #ifdef CKCHANNELIO
   case FN_FEOF:
@@ -9563,7 +9552,7 @@ Returns number:\n");
   n1 = numeric error code, \\v(f_error) by default.\n");
     printf("  Returns the associated error message string.\n");
     break;
-#endif /* CKCHANNELIO */
+#endif // CKCHANNELIO
 
   case FN_AADUMP:
     printf("\\faaconvert(name,&a[,&b])\n\
@@ -9663,7 +9652,7 @@ Returns number:\n");
     printf("  Returns: The result of evaluating s1.\n");
     break;
 
-#endif /* NOSEXP */
+#endif // NOSEXP
 
   case FN_CMDSTK:
     printf("\\fcmdstack(n1,n2)\n\
@@ -9686,7 +9675,7 @@ Returns number:\n");
     printf("  Difference expressed as delta time:\n");
     printf("  Negative if d2 is later than d1, otherwise positive.\n");
     break;
-#endif /* CKFLOAT */
+#endif // CKFLOAT
 
   case FN_CMPDATE:
     printf("\\fcmpdates(d1,d2)\n\
@@ -9718,7 +9707,7 @@ Returns number:\n");
     printf("Returns:\n");
     printf("  Corresponding numeric IP address if found, else null.\n");
     break;
-#endif /* TCPSOCKET */
+#endif // TCPSOCKET
 
   case FN_DELSEC:
     printf("\\fdelta2secs(dt)\n\
@@ -9748,7 +9737,7 @@ Returns number:\n");
     printf("Returns:\n");
     printf("  The corresponding error string.\n");
     break;
-#endif /* FN_ERRMSG */
+#endif // FN_ERRMSG
 
   case FN_KWVAL:
     printf("\\fkeywordvalue(s1[,s2])\n\
@@ -9836,7 +9825,7 @@ width in pixels, element 2 the image height, and element 3 is the image's\n\
     and cset2 are names of File Character-Sets \
 ('set file char ?' for a list).\n");
     break;
-#endif /* NOCSETS */
+#endif // NOCSETS
 
   case FN_UNPCT:
     printf("\\fdecodehex(s1[,s2])\n\
@@ -9856,12 +9845,12 @@ represent.\n");
     other than 7BIT, 8BIT, or UTF8 (this probably will never appear).\n");
     break;
 
-  case FN_STRCMP:     /* fdc 12 November 2022 */
-    hmsga(hmfstrcmp); /* Literal string was too long */
+  case FN_STRCMP:     // fdc 12 November 2022
+    hmsga(hmfstrcmp); // Literal string was too long
     break;
 
-  case FN_FILEINF:      /* fdc 12 November 2022 */
-    hmsga(hmffileinfo); /* Literal string was too long */
+  case FN_FILEINF:      // fdc 12 November 2022
+    hmsga(hmffileinfo); // Literal string was too long
     break;
 
   case FN_FILECMP:
@@ -9874,12 +9863,12 @@ represent.\n");
     -1: Error opening or reading either file.\n");
     break;
 
-  case FN_DAYNAME:     /* fdc 12 November 2022 */
-    hmsga(hmfdayname); /* Literal string was too long */
+  case FN_DAYNAME:     // fdc 12 November 2022
+    hmsga(hmfdayname); // Literal string was too long
     break;
 
-  case FN_MONNAME:     /* fdc 12 November 2022 */
-    hmsga(hmfmonname); /* Literal string was too long */
+  case FN_MONNAME:     // fdc 12 November 2022
+    hmsga(hmfmonname); // Literal string was too long
     break;
 
   default:
@@ -9888,10 +9877,10 @@ represent.\n");
   printf("\n");
   return (0);
 }
-#endif /* NOSPL */
+#endif // NOSPL
 
 #ifndef NOXFER
-/*  D O H R M T  --  Give help about REMOTE command  */
+//  D O H R M T  --  Give help about REMOTE command
 
 static char *hrset[] = {
     "Syntax:  REMOTE SET parameter value",
@@ -9981,7 +9970,7 @@ int dohrmt(int xx) {
   Sends the specified file(s) to the remote Kermit and ask it to have the\n\
   file printed on the remote system's printer, using any specified options.\n\
   Synonym: RPRINT."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
   case XZREN:
     return (hmsg("Syntax: REMOTE RENAME filespec newname\n\
@@ -10005,7 +9994,7 @@ int dohrmt(int xx) {
     return (hmsg("Syntax: REMOTE WHO [ name ]\n\
   Asks the Kermit server to list who's logged in, or to give information\n\
   about the named user.  Synonym: RWHO."));
-#endif /* NOFRILLS */
+#endif // NOFRILLS
 
 #ifndef NOSPL
   case XZQUE:
@@ -10019,7 +10008,7 @@ int dohrmt(int xx) {
     return (hmsg("Syntax: REMOTE ASSIGN variable-name [ value ]\n\
   Assigns the given value to the named global variable on the server.\n\
   Synonyms: RASG, RASSIGN."));
-#endif /* NOSPL */
+#endif // NOSPL
 
   case XZPWD:
     return (hmsg("Syntax: REMOTE PWD\n\
@@ -10050,6 +10039,6 @@ int dohrmt(int xx) {
     return (-9);
   }
 }
-#endif /* NOXFER */
-#endif /* NOHELP */
-#endif /* NOICP */
+#endif // NOXFER
+#endif // NOHELP
+#endif // NOICP
