@@ -1,15 +1,20 @@
 //  C K C D E B . H
+// Master include file for all C-Kermit source code and header files.
+// Modified by Kenji Rikitake 11-JUL-2026
 
 // For recent additions search below for "2021" and "2022" and "2023".
 // Most recent updates: Sat Jul  1 10:27:16 2023 (David Goodwin, fdc)
 // More recent: Sun Feb  4 20:17:33 2024 (removed prototypes for malloc())
+
+// NOTE: The following C preprocessor directive restriction is lifted,
+// to modernize the source code. It's already 2026.
 //
-// NOTE TO CONTRIBUTORS: This file, and all the other C-Kermit files, must be
-// compatible with C preprocessors that support only #ifdef, #else, #endif,
-// #define, and #undef.  Please do not use #if, logical operators, or other
-// later-model preprocessor features in any of the portable C-Kermit modules.
-// You can, of course, use these constructions in platform-specific modules
-// when you know they are supported.
+// OBSOLETED: NOTE TO CONTRIBUTORS: This file, and all the other C-Kermit files,
+// must be compatible with C preprocessors that support only #ifdef, #else,
+// #endif, #define, and #undef.  Please do not use #if, logical operators, or
+// other later-model preprocessor features in any of the portable C-Kermit
+// modules. You can, of course, use these constructions in platform-specific
+// modules when you know they are supported.
 
 // This file is included by all C-Kermit modules, including the modules
 // that aren't specific to Kermit (like the command parser and the ck?tio and
@@ -49,27 +54,11 @@
 #endif // BETATEST
 
 // Now that WTMP and Syslog are "deprecated" don't include them by default
+#define NOWTMP   // No more WTMP logging
+#define NOSYSLOG // No more syslog
 
-#ifndef DOWTMP // Unless explicitly requested
-#ifndef NOWTMP // No more WTMP logging
-#define NOWTMP
-#endif           // NOWTMP
-#endif           // DOWTMP
-#ifndef DOSYSLOG // Unless explicitly requested
-#ifndef NOSYSLOG // No more syslog
-#define NOSYSLOG
-#endif // NOSYSLOG
-#endif // DOSYSLOG
-
-// FTP client removed 2026-07-09: the built-in FTP client (ckcftp.c) has been
-// deleted from this tree, so NOFTP is now hard-wired on.  There is no DOFTP
-// escape hatch -- re-enabling FTP would mean restoring ckcftp.c and its command
-// tables.  The old NOFTP/NEWFTP/SYSFTP arbitration and the scattered
-// feature-implied "#define NOFTP" blocks have been removed accordingly.  See
-// doc/NOFTP-20260709.md.
-#ifndef NOFTP
+// FTP client removed 2026-07-09. See doc/NOFTP-20260709.md.
 #define NOFTP
-#endif // NOFTP
 
 // 14 Sep 2022 - TYPE command's new /INTERPRET switch enabled by default
 // except in Windows where it doesn't work because of character-set issues.
@@ -102,23 +91,12 @@
 #endif // NOCOPYINTERPRET
 
 #endif // NOSPL
-// RLOGIN client removed 2026-07-10: the old NODEPRECATED flag (which defined
-// NOTELNET and NORLOGIN -- features "deprecated" in 2022, -fdc 12 May 2022)
-// is hard-wired on, so NORLOGIN is permanently defined and (via the former
-// RLOGCODE arbitration in ckcnet.h) RLOGCODE is permanently undefined: the
-// built-in Rlogin client is gone and the RLOGIN command always reports "not
-// configured".  There is no re-enable escape hatch.  NOTELNET is defined
-// too, for parity with NODEPRECATED, but it never disabled the TELNET
-// command or the Telnet protocol engine (ckctel.c), which remain fully
-// functional; the old block's "#undef TNCODE" was a no-op because the
-// TCPSOCKET-implies-TNCODE backstops further down re-define it.
+
+// RLOGIN client removed 2026-07-10.
 // See doc/NODEPRECATED-20260709.md.
-#ifndef NOTELNET
 #define NOTELNET
-#endif // NOTELNET
-#ifndef NORLOGIN
 #define NORLOGIN
-#endif // NORLOGIN
+
 // As of 26 September 2022, the Arrow-key feature is included only if
 // explicitly requested because the API is disappearing not only in glibc
 // but also other libcs like musl and whatever Android uses.
@@ -130,10 +108,15 @@
 
 // Unsigned numbers
 // Defined unconditionally - it's 2026 already
+// Use ANSI C and ANSI C library, always.
 
 #define USHORT unsigned short
 #define UINT unsigned int
 #define ULONG unsigned long
+
+// This definition is referred by other source files,
+// so always defined for the time being
+#define CK_ANSILIBS
 
 #ifdef MACOSX10 // Mac OS X 1.0
 #ifndef MACOSX  // implies Mac OS X
@@ -468,8 +451,6 @@
 #endif           // DEFPAR
                  // by all classes of modules
 
-// Kermit 95 can now be 64-bit so OS2ORWIN32 is a misnomer
-
 // Moved here from ckcfnp.h 3 May 2023
 // NEW PROTOTYPE FOR MAIN() ADDED 02 MAY 2023
 
@@ -608,12 +589,6 @@ extern int errno; // fdc 1 November 2022
 #endif // BSD44ORPOSIX
 #endif // POSIX
 
-#ifdef UNIX // For items common to OS/2 and UNIX
-#endif      // UNIX
-
-#ifdef UNIX // For items common to Win32 and UNIX
-#endif      // UNIX
-
 #ifdef UNIX // For items common to VMS and UNIX
 #define VMSORUNIX
 #else
@@ -680,10 +655,10 @@ extern int errno; // fdc 1 November 2022
 #endif                          // IKSDB
 #endif                          // NOIKSDB
 #endif                          // IKSD
+
 // Substitutes for printf() and friends used in IKS to compensate for
 // lack of a terminal driver, mainly to supply CR after LF.
 #ifndef NOPRINTFSUBST
-
 #ifndef CKWART_C
 #ifdef UNIX
 #ifndef CKXPRINTF
@@ -710,15 +685,7 @@ int ckxfprintf(FILE *, const char *, ...);
 #define perror(x) ckxperror(x)
 #endif // CKXPRINTF
 
-// Altos-specific items: 486, 586, 986 models...
-
 // Signal handling
-
-#ifdef CKNTSIG
-// This does not work, so don't use it.
-#define signal ckntsignal
-void (*ckntsignal(int type, void (*)(int)))(int);
-#endif // CKNTSIG
 
 // Signal-handler pointer type: void function of one int, returning void.
 typedef void (*ck_sig_t)(int);
@@ -746,6 +713,7 @@ union ck_short { // Mainly for Unicode
 
 // Systems whose mainline modules have access to the communication-line
 // file descriptor, ttyfd.
+
 #ifndef CK_TTYFD
 #ifdef UNIX
 #define CK_TTYFD
@@ -920,18 +888,10 @@ extern int tt_bell;
 // Can we use realpath()?
 
 #ifndef NOREALPATH
-#endif // NOREALPATH
-
-#ifndef NOREALPATH
-#ifdef UNIX
-#endif // NOREALPATH
-
-#ifndef NOREALPATH
 #ifndef CKREALPATH
 #define CKREALPATH
-#endif // NOREALPATH
 #endif // CKREALPATH
-#endif // UNIX
+#endif // NOREALPATH
 
 #ifdef CKREALPATH
 #ifndef CKROOT
@@ -945,8 +905,8 @@ extern int tt_bell;
 #ifndef NOSYMLINK
 #ifndef CKSYMLINK
 #define CKSYMLINK
-#endif // NOSYMLINK
 #endif // CKSYMLINK
+#endif // NOSYMLINK
 #endif // UNIX
 
 // Platforms where we can use lstat() instead of stat() (for symlinks)
@@ -990,6 +950,7 @@ extern int tt_bell;
 #endif // USE_UU_LOCK
 #endif // USETTYLOCK
 #endif // NOTTYLOCK
+
 // This could be more inclusive...  But better not to use snprintf() at all,
 // it's hard to find a way to test for its availability without using
 // nonportable preprocessor constructions.  Use ckclib.c: ckmakmsg() or
@@ -1168,11 +1129,7 @@ extern int tt_bell;
 
 #ifdef __alpha      // Why only __alpha?  Other 64-bit systems?
 #define FLT_NOT_DBL // (See also ckclib.c:ckround()).
-#else               // def __alpha
-#ifdef VMS64
-#define FLT_NOT_DBL // Was testing only __alpha below.
-#endif              // def VMS64
-#endif              // def __alpha [else]
+#endif              // def __alpha
 
 #ifndef CKFLOAT
 #ifdef FLT_NOT_DBL // 2024-05-16 SMS.  Use instead of __alpha.
@@ -1271,8 +1228,7 @@ extern long ztmsec, ztusec; // Fraction of sec of current time
 
 #ifndef NOURL // Parse URLs in SET HOST, etc
 #define CK_URL
-#define NO_FTP_AUTH // No auth "ftp" / "anonymous"
-#endif              // NOURL
+#endif // NOURL
 
 #ifndef NOTRIGGER
 #ifndef CK_TRIGGER // Trigger string to exit CONNECT
@@ -1358,15 +1314,6 @@ extern long ztmsec, ztusec; // Fraction of sec of current time
 #else  // __ia64__
 #endif // __ia64
 #endif // NOCKGETFQHOST
-// Regarding System V/68 (SV68) (from Gerry Belanger, Oct 2002):
-//
-//  1) The gethostbyname() appears to return the actual host IP
-//     address in the hostent struct, instead of the expected pointer
-//     to the address. Hence the bogus address in the bcopy/memcopy.
-//     This is despite the header agreeing with our expectations.
-//
-//  2) the expected argument swap between bcopy and memcopy
-//     did not happen.  What grief this might cause, I know not.
 #endif // TCPSOCKET
 
 #ifdef TCPSOCKET
@@ -1652,21 +1599,10 @@ int ttruncmd(char *);
 #endif // UNIX
 #endif // DOOMSDAY
 
-// Systems where we want the Thermometer to be used for fullscreen
-
-// Systems where we have a REXX command
-
 // Platforms that have a ZCHKPID function
-
-#define ZCHKPID
-
-#ifndef ZCHKPID
-// If we can't check pids then we have treat all pids as active & valid.
-#define zchkpid(x) 1
-#endif // ZCHKPID
+#define ZCHKPID // They all do
 
 // Systems that have a ZRENAME function
-
 #define ZRENAME // They all do
 
 // Systems that have a ZCOPY function
@@ -1697,9 +1633,9 @@ int ttruncmd(char *);
 
 // Systems that have select().
 // This is used for both msleep() and for read-buffer checking in in_chk().
-#define CK_SLEEPINT                                                            \
-  250 // milliseconds - set this to something that                             \
-      // divides evenly into 1000
+// CK_SLEEPINT is set to 250 milliseconds - set this to something that
+// divides evenly into 1000
+#define CK_SLEEPINT (250)
 #ifndef SELECT
 #ifndef NOSELECT
 #ifdef __linux__
@@ -1830,11 +1766,9 @@ typedef struct fd_set {
 #endif          // DYNAMIC
 
 #ifndef CK_LBRK // Can send Long BREAK
-
-#ifdef UNIX // (everybody but OS-9)
+#ifdef UNIX     // (everybody but OS-9)
 #define CK_LBRK
 #endif // UNIX
-
 #endif // CK_LBRK
 
 // Carrier treatment
@@ -1907,6 +1841,7 @@ typedef struct fd_set {
 long *ttspdlist(void);
 
 #else // TTSPDLIST not defined
+
 // We must use a long and convoluted series of #ifdefs that have to be kept in
 // sync with the code in the ck?tio.c module.
 //
@@ -1924,7 +1859,6 @@ long *ttspdlist(void);
 // The total symbol length should be 8 characters or less.  Some values are
 // enabled automatically below.  You can disable a particular value by defining
 // NOB_xxxx on the CC command line.
-//
 
 #ifndef NOB_50
 #define BPS_50 // 50 bps
@@ -2068,6 +2002,8 @@ long *ttspdlist(void);
 #endif
 #endif // TTSPDLIST
 
+// End of TTSPDLIST definitions
+
 #ifndef CONGSPD // Systems that can call congspd()
 #ifdef UNIX
 #define CONGSPD
@@ -2130,6 +2066,7 @@ long *ttspdlist(void);
 #ifdef CK_TTSETFLOW
 int ttsetflow(int);
 #endif // CK_TTSETFLOW
+
 // Systems where we can expand tilde at the beginning of file or directory names
 #ifdef POSIX
 #ifndef DTILDE
@@ -2785,18 +2722,9 @@ int ttinl(CHAR *, int, int, CHAR, CHAR);
 int ttinl(CHAR *, int, int, CHAR);
 #endif // PARSENSE
 
-// XYZMODEM support
-
-// XMODEM/YMODEM/ZMODEM support removed 2026-07-10: NOCKXYZ is now always
-// defined, so CK_XYZ (which enabled the external-protocol commands and
-// data structures) is never defined, and the XYZ_INTERNAL / XYZ_DLL
-// variants (built-in / loadable protocol engines, never enabled by any
-// makefile target in this tree) are gone with it.
+// XMODEM/YMODEM/ZMODEM support removed 2026-07-10.
 // See doc/NOCKXYZ-20260709.md.
-
-#ifndef NOCKXYZ
 #define NOCKXYZ
-#endif // NOCKXYZ
 
 // Console functions
 
@@ -3019,7 +2947,7 @@ typedef CHAR *MACRO;
 #endif // CKTIDLE
 #endif // IKSDONLY
 
-#ifdef CK_ANSILIBS
+// Set ANSI Library as default.
 // String library functions.
 // For ANSI C, get prototypes from <string.h>.
 // Otherwise, skip the prototypes.
@@ -3048,13 +2976,6 @@ extern int _flsbuf(char c, FILE *stream);
 #include <crypt.h>
 #endif // HAVE_CRYPT_H
 
-#else  // Not ANSI libs...
-
-// It is essential that these are declared correctly!
-// Which is not always easy.  Take malloc() for instance ...
-// NOTE: there were a bunch of protypes here for malloc() here
-// before but why???  The specs come from the header files.
-#endif // CK_ANSILIBS
 // <sys/param.h> generally picks up NULL, MAXPATHLEN, and MAXNAMLEN
 // and seems to present on all Unixes going back at least to SCO Xenix
 // with the exception(s) noted.
@@ -3127,16 +3048,12 @@ extern int _flsbuf(char c, FILE *stream);
 // On VMS, this is ill-defined, and depends on the file system:
 // ODS2: 39.39 + version (;32767), so 84.
 // ODS5: 238 + version (;32767), so 233.
-#ifndef CKMAXNAM
 // Non-VMS definitions moved here from ckufio.c. with MAXNAMLEN -> CKMAXNAM.
 
-#ifndef CKMAXNAM // If MAXNAMLEN is defined, then use that.
+#ifndef CKMAXNAM
 #ifdef MAXNAMLEN
 #define CKMAXNAM MAXNAMLEN
-#endif // def MAXNAMLEN
-#endif // ndef CKMAXNAM
-
-#ifndef CKMAXNAM
+#else
 #ifdef FILENAME_MAX
 #define CKMAXNAM FILENAME_MAX
 #else
@@ -3156,11 +3073,10 @@ extern int _flsbuf(char c, FILE *stream);
 #endif // DIRSIZ
 #endif // _D_NAME_MAX
 #endif // _POSIX_NAME_MAX
-#endif // _POSIX_NAME_MAX
 #endif // NAME_MAX
-#endif // sun
-
-#endif // def VMS [else]
+#endif // FILENAME_MAX
+#endif // MAXNAMLEN
+#endif // CKMAXNAM
 
 // Maximum length for the name of a tty device
 #ifndef DEVNAMLEN
