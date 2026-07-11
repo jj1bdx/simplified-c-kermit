@@ -10,7 +10,7 @@
 #include "ckcker.h"
 #include "ckclib.h"
 
-char *wartv = "Wart Version 2.17, 04 February 2024 ";
+char *wartv = "Wart Version 2.18, 11 July 2026 ";
 
 #ifdef MDEBUG
 /* Use the real ones in this module only */
@@ -130,6 +130,7 @@ void epilogue(FILE *);
 void copyrest(FILE *, FILE *);
 int gettoken(FILE *);
 void rdcmnt(FILE *);
+void rdcmns(FILE *);
 void clrhash(void);
 int hash(char *);
 void enter(char *, int);
@@ -606,8 +607,13 @@ int gettoken(FILE *fp) {
     case ',':
       return (COMMA);
     case '/':
+      /* For traditional C comment */
       if ((c = getc(fp)) == '*') {
         rdcmnt(fp); /* skip over the comment */
+        continue;
+      } else if (c == '/') {
+        /* C++-style single line comment */
+        rdcmns(fp); /* skip over the single-line comment */
         continue;
       } else {         /* and keep looping */
         ungetc(c, fp); /* put this back into input */
@@ -643,6 +649,20 @@ void rdcmnt(FILE *fp) {
       lines++;
     }
   }
+}
+
+/*
+ * skip over a C++-style single-line comment
+ */
+
+void rdcmns(FILE *fp) {
+  int c;
+  while ((c = getc(fp)) != '\n') {
+    if (c == EOF) {
+      fatal("Unterminated single-line comment");
+    }
+  }
+  lines++;
 }
 
 /*
