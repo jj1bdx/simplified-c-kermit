@@ -102,33 +102,23 @@ char *ckgetfqhostname(char *);
 /*
   We should just pull in ckcnet.h here, but it causes a conflict with curses.h.
 */
-#ifdef TCPSOCKET
+#if defined(TCPSOCKET)
 #define NETCONN
-#else
-#ifdef IBMX25
+#elif defined(IBMX25)
 #define NETCONN
-#else
-#ifdef HPX25
+#elif defined(HPX25)
 #define NETCONN
-#else
-#ifdef DECNET
+#elif defined(DECNET)
 #define NETCONN
-#else
-#ifdef NPIPE
+#elif defined(NPIPE)
 #define NETCONN
-#else
-#ifdef CK_NETBIOS
+#elif defined(CK_NETBIOS)
 #define NETCONN
 #ifdef SUPERLAT
 #define NETCONN
 #else
 #endif /* SUPERLAT */
-#endif /* TCPSOCKET */
-#endif /* SUNX25 */
-#endif /* STRATUSX25 */
-#endif /* IBMX25 */
-#endif /* HPX25 */
-#endif /* CK_NETBIOS */
+#endif /* TCPSOCKET / IBMX25 / HPX25 / DECNET / NPIPE / CK_NETBIOS */
 #endif /* NETCONN */
 
 #ifndef TCPSOCKET

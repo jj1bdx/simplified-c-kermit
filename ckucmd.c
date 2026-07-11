@@ -7367,39 +7367,35 @@ int cmdgetc(int timelimit) /* Get a character from the tty. */
 */
 int cmdconchk() {
   int x = 0, y;
-  y = pushc ? 1 : 0; /* Have command character pushed? */
-#ifdef CMD_CONINC    /* See cmdgetc() */
-  x = conchk();      /* Check device-driver buffer */
+  y = pushc ? 1 : 0;    /* Have command character pushed? */
+#if defined(CMD_CONINC) /* See cmdgetc() */
+  x = conchk();         /* Check device-driver buffer */
   if (x < 0) {
     x = 0;
   }
-#else /* CMD_CONINC */
 
   /* Here we must look inside the stdin buffer - highly platform dependent */
 
-#ifdef __FILE_defined /* glibc 2.28 1 Aug 2018 */
+#elif defined(__FILE_defined) /* glibc 2.28 1 Aug 2018 */
   x = (int)((stdin->_IO_read_end) - (stdin->_IO_read_ptr));
   debug(F101, "cmdconchk __FILE_defined", "", x);
-#else                 /* __FILE_defined */
-#ifdef _IO_file_flags /* Linux (glibc 2.28 removed this symbol */
+#elif defined(_IO_file_flags) /* Linux (glibc 2.28 removed this symbol */
   x = (int)((stdin->_IO_read_end) - (stdin->_IO_read_ptr));
   debug(F101, "cmdconchk _IO_file_flags", "", x);
-#else                 /* _IO_file_flags */
-#ifdef USE_FILE_CNT   /* Traditional */
+#elif defined(USE_FILE_CNT)   /* Traditional */
 #ifdef NOARROWKEYS
   debug(F101, "cmdconchk NOARROWKEYS x", "", 0);
 #else
   debug(F101, "cmdconchk stdin->_cnt", "", stdin->_cnt);
   x = stdin->_cnt; /* THIS BLOWS UP IN GLIBC >= 2.28 */
-#endif               /* NOARROWKEYS */
+#endif                       /* NOARROWKEYS */
   if (x == 0) {
     x = conchk();
   }
   if (x < 0) {
     x = 0;
   }
-#else                /* USE_FILE_CNT */
-#ifdef USE_FILE__CNT /* HP-UX */
+#elif defined(USE_FILE__CNT) /* HP-UX */
   debug(F101, "cmdconchk stdin->__cnt", "", stdin->__cnt);
   x = stdin->__cnt;
   if (x == 0) {
@@ -7408,8 +7404,7 @@ int cmdconchk() {
   if (x < 0) {
     x = 0;
   }
-#else                /* USE_FILE_CNT */
-#ifdef USE_FILE_R    /* FreeBSD, OpenBSD, etc */
+#elif defined(USE_FILE_R)    /* FreeBSD, OpenBSD, etc */
   debug(F101, "cmdconchk stdin->_r", "", stdin->_r);
   x = stdin->_r;
   if (x == 0) {
@@ -7421,12 +7416,8 @@ int cmdconchk() {
 
   /* Fill in any others here... */
 
-#endif /* USE_FILE_R */
-#endif /* USE_FILE__CNT */
-#endif /* USE_FILE_CNT */
-#endif /* _IO_file_flags */
-#endif /* __FILE_defined */
-#endif /* CMD_CONINC */
+#endif /* CMD_CONINC / __FILE_defined / _IO_file_flags / USE_FILE_CNT /        \
+          USE_FILE__CNT / USE_FILE_R */
   return (x + y);
 }
 /* #endif */ /* USE_ARROWKEYS */

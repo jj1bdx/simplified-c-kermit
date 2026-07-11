@@ -1279,15 +1279,13 @@ int iks_tn_sb(CHAR *sb, int n) {
     } else if (TELOPT_SB(TELOPT_KERMIT).kermit.me_start) {
       tn_siks(KERMIT_RESP_START);
     } else {
-#ifndef IKSDONLY
-#ifdef CK_AUTODL
+#if !defined(IKSDONLY) && defined(CK_AUTODL)
       if ((local && what == W_CONNECT && autodl) ||
           (local && what != W_CONNECT &&
            (inautodl || sstate == 'x' || sstate == 'v'))) {
         tn_siks(KERMIT_RESP_START); /* START */
       } else
-#endif /* CK_AUTODL */
-#endif /* IKSDONLY */
+#endif /* IKSDONLY / CK_AUTODL */
         tn_siks(KERMIT_RESP_STOP);
     }
 #else  /* NOXFER */
@@ -1322,8 +1320,7 @@ int iks_tn_sb(CHAR *sb, int n) {
         tn_siks(KERMIT_RESP_START);
       }
     }
-#ifndef IKSDONLY
-#ifdef CK_AUTODL
+#if !defined(IKSDONLY) && defined(CK_AUTODL)
     else if ((local && what == W_CONNECT && autodl) ||
              (local && what != W_CONNECT && inautodl)) {
       /* If we are a pseudo-server and the other side requests */
@@ -1333,8 +1330,7 @@ int iks_tn_sb(CHAR *sb, int n) {
 
       tn_siks(KERMIT_RESP_STOP); /* STOP */
     }
-#endif /* CK_AUTODL */
-#endif /* IKSDONLY */
+#endif /* IKSDONLY / CK_AUTODL */
     else
 #endif /* NOXFER */
     {

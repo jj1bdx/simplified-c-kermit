@@ -5198,15 +5198,6 @@ zsperms:
   return (r);
 }
 
-/* Find initialization file. */
-
-#ifdef NOTUSED
-int zkermini() {
-  /*  nothing here for Unix.  This function added for benefit of VMS Kermit.  */
-  return (0);
-}
-#endif /* NOTUSED */
-
 #ifndef UNIX
 /* Historical -- not used in Unix any more (2001-11-03) */
 #ifndef NOFRILLS
