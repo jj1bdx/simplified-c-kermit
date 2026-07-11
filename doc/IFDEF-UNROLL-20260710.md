@@ -586,6 +586,363 @@ here does not warrant the kind of investigation Phase 2 needed.
 
 ### Status
 
-**Applied to the working tree, not committed.** All three deletions verified byte-identical at
-the strongest gate (whole-binary + all-object rebuild), format-stable, and dead-code-confirmed
-fresh at apply time — awaiting user review before the coordinator commits it.
+**Committed** as `5c40ec2` ("Delete the three dead #ifdef NOTUSED blocks (Phase 3)"), after user
+review. All three deletions verified byte-identical at the strongest gate (whole-binary +
+all-object rebuild), format-stable, and dead-code-confirmed fresh at apply time.
+
+## Phase 4 — collapse pure-AND `#ifdef` nests (Fix 2), final planned phase
+
+This phase implements the audit's Fix (2): merge nested `#ifdef A { #ifdef B { ... } }` chains
+that have **no `#else` anywhere in the span** into a single `#if defined(A) && defined(B) && ...`.
+Two of the three named targets required real corrections to how the audit (and this phase's own
+task description, which echoed it) characterized them — re-verifying "nothing between the opens"
+line by line, as instructed, caught both before anything was applied.
+
+### Correction 1: `ckcnet.c`'s six `NOTCPOPTS`/`SOL_SOCKET`/`SO_*` triples are not a valid Fix-2 target — skipped entirely
+
+The audit (`doc/IFDEF-NESTING-20260710.md`, Pattern 2) and this phase's own task description
+described `ckcnet.c:776-1114` as "genuine AND-nesting with no `#else` anywhere in the span." Reading
+the actual code (e.g. `ck_linger()`, `ckcnet.c:777-843`) shows this is wrong:
+
+```c
+#ifndef NOTCPOPTS
+int ck_linger(int sock, int onoff, int timo) {
+  /* ... comment ... */
+#ifdef SOL_SOCKET
+#ifdef SO_LINGER
+  /* ... real getsockopt/setsockopt logic, with fall-through paths ... */
+#else
+  debug(F100, "TCP ck_linger SO_LINGER not defined", "", 0);
+#endif /* SO_LINGER */
+#else
+  debug(F100, "TCP ck_linger SO_SOCKET not defined", "", 0);
+#endif /* SOL_SOCKET */
+  return (0);
+}
+```
+
+Every one of the six triples (`SO_LINGER`/`SO_SNDBUF`/`SO_RCVBUF`/`SO_KEEPALIVE`/`SO_DONTROUTE`/
+`TCP_NODELAY`) has **real `#else` fallback code at both the `SOL_SOCKET` and `SO_*` levels**
+(confirmed directive-by-directive with the scanner for all six). `NOTCPOPTS` wraps the *whole
+function*, not just the socket-option call; `SOL_SOCKET`/`SO_*` is a nested conditional *inside*
+the function body controlling whether it does real work or prints a fallback debug message, with a
+shared `return (0);` reached from both paths. Collapsing this into one `#if NOTCPOPTS_negated &&
+SOL_SOCKET && SO_X` would either (a) delete the function definition entirely when `SOL_SOCKET`/
+`SO_X` is undefined — a real behavior change, since callers would then get a link error — or (b),
+if the `#else` fallback were kept alongside a merged condition, silently merge two *different*
+diagnostic debug messages ("SO_SOCKET not defined" vs. "SO_LINGER not defined") into one, losing
+diagnostic distinction. Neither is a safe mechanical re-punctuation. **This target was skipped
+entirely; `ckcnet.c` is untouched in this phase** (still the depth-8 file Phase 3 left it at,
+`git diff` shows no changes for this file). The audit's Part 2 "Pattern 2" characterization of this
+site is hereby corrected: it does not qualify for Fix (2).
+
+### Correction 2: `ckutio.c`'s "6-level" chain is really two separate things
+
+The task (and audit) described `ckutio.c:3076-3111` as one `ATTSV && !_IBMR2 && TIOCMBIS &&
+TIOCMBIC && TIOCM_DTR && !CLSOPN` chain. Reading the full span shows `ATTSV` (`ckutio.c:3076`,
+closing at `ckutio.c:3246`) wraps a much larger block than the small ioctl-based DTR-toggle
+attempt — after the `_IBMR2` sub-chain closes (originally `ckutio.c:3121`), **~125 more lines of
+unconditional code and sibling `#ifdef`s** (`O_NDELAY`, `TCXONC`, `TIOCSTART`, `NOCOTFMC`, more
+`O_NDELAY`) still run inside `ATTSV`'s scope — the "General AT&T UNIX case" fallback DTR-toggle
+method, which must run regardless of whether the ioctl-based attempt's macros are defined.
+Similarly, `CLSOPN` (`ckutio.c:3109`) is not adjacent to `TIOCM_DTR`'s opening — real code (the
+`z = TIOCM_DTR; debug(...); if (ioctl(...))` control flow) sits between them, so `CLSOPN` guards
+only the early-`return(1)` inside a specific nested `if`, not something ANDable with the outer
+chain. **The only genuinely self-contained, adjacent, no-`#else` span is the inner 4-level chain**:
+`_IBMR2` (negated) → `TIOCMBIS` → `TIOCMBIC` → `TIOCM_DTR`, which opens and closes entirely within
+itself (`ckutio.c:3087-3121` originally) without `ATTSV` or `CLSOPN` needing to move.
+
+### What changed, per file (final recommended state)
+
+**`ckutio.c`** (`git diff --numstat`: +9/−14, 11,929 → 11,924 lines) — **one edit kept**: the
+4-level `_IBMR2`/`TIOCMBIS`/`TIOCMBIC`/`TIOCM_DTR` chain inside `tthang()` collapsed into
+`#if !defined(_IBMR2) && defined(TIOCMBIS) && defined(TIOCMBIC) && defined(TIOCM_DTR)`, with
+`ATTSV` (still wrapping the whole block) and `CLSOPN` (still guarding just the nested early-return)
+**untouched**, exactly as corrected above.
+
+```diff
+-#ifndef _IBMR2
+-/*
+-  No modem-signal twiddling for IBM RT PC or RS/6000.
+-  ...
+-*/
+-#ifdef TIOCMBIS  /* Bit Set */
+-#ifdef TIOCMBIC  /* Bit Clear */
+-#ifdef TIOCM_DTR /* DTR */
++#if !defined(_IBMR2) && defined(TIOCMBIS) && defined(TIOCMBIC) && defined(TIOCM_DTR)
++/*
++  No modem-signal twiddling for IBM RT PC or RS/6000.
++  ...
++*/
+   ... (unchanged body: z = TIOCM_DTR; debug(...); if (ioctl(...)) {...} ...
+        #ifndef CLSOPN / return (1); / #endif  <- untouched, still nested normally
+        ...) ...
+-#endif /* TIOCM_DTR */
+-#endif /* TIOCMBIC */
+-#endif /* TIOCMBIS */
+-#endif /* _IBMR2 */
++#endif /* _IBMR2 / TIOCMBIS / TIOCMBIC / TIOCM_DTR */
+```
+
+**One edit tried and reverted** (see Timing below): the OPTIONAL outer-ladder merge (`HUP_POSIX`
+`#else` immediately followed by `#ifdef BSD44ORPOSIX`, confirmed via matching-`#endif` adjacency to
+be a clean 2-level cascade → `#elif` opportunity, no `#include` in its ~420-line span) was applied,
+measured, found to regress `clang-format` time by ~42%, and reverted back to its exact original
+text. `ckutio.c`'s working-tree diff now contains **only** the `_IBMR2` chain edit.
+
+**`ckctel.c`** (+4/−8, 6,534 → 6,530 lines) — **both**
+occurrences of the `IKSDONLY`/`CK_AUTODL` pair collapsed (the audit named only `ckctel.c:1282-1283`;
+re-scanning after the first fix found a second, structurally identical, untouched occurrence at
+the-then `ckctel.c:1323-1326`, tied at the same depth — same "hidden second bottleneck" pattern as
+every prior phase). Both verified clean (`#ifndef IKSDONLY` immediately followed by
+`#ifdef CK_AUTODL`, no `#else`, nothing between):
+
+```diff
+-#ifndef IKSDONLY
+-#ifdef CK_AUTODL
++#if !defined(IKSDONLY) && defined(CK_AUTODL)
+       if (...) {
+         tn_siks(KERMIT_RESP_START);
+       } else
+-#endif /* CK_AUTODL */
+-#endif /* IKSDONLY */
++#endif /* IKSDONLY / CK_AUTODL */
+         tn_siks(KERMIT_RESP_STOP);
+```
+(the second occurrence, `else if (...) { tn_siks(KERMIT_RESP_STOP); }`, follows the identical
+shape.)
+
+**`ckcnet.c`** — **untouched**, per Correction 1 above.
+
+### Verification
+
+**1. Preprocessor equivalence.** Since `_IBMR2`/`TIOCMBIS`/`TIOCMBIC`/`TIOCM_DTR` are system-header
+macros (`<sys/ioctl.h>` defines `TIOCM_DTR`/`TIOCMBIS`/`TIOCMBIC` natively on this box; `_IBMR2` is
+AIX-only and never defined here), two complementary proofs, same technique as Phase 2's `openpty()`
+isolation:
+
+- **Isolated snippet** (old vs. new text of just the `_IBMR2` span, no real headers needed):
+  all-true, all-false, each macro false individually, `_IBMR2` defined (disables the whole thing),
+  `CLSOPN` toggled — **10/10 OK**.
+- **Isolated snippet** for the `HUP_POSIX`/`BSD44ORPOSIX` merge (tested before the revert, since the
+  revert restores exact original text anyway): each macro alone, both, combined with `ATTSV`/
+  `USE_TIOCSDTR`/`ANYBSD`/`TIOCCDTR` to exercise the nested nested content, `-DMACOSX10`/`-DBSD44`
+  — **10/10 OK** (this snippet, unlike Phase 2's `openpty()` case, has no `#include` at all, so no
+  stub headers were needed).
+- **Full-file** `gcc -E -P`, `ckutio.c` old vs. new, `linux` base flags plus `-DMACOSX10`, `-DBSD44`,
+  both together, `HUP_POSIX`/`NOLOCAL`/`ATTSV` explicit — **7/7 OK**.
+- **Full-file**, `ckctel.c` old vs. new (both `IKSDONLY` fixes together): `IKSDONLY`, `CK_AUTODL`,
+  both, neither, `-DMACOSX10`, `-DBSD44`, `-DNOXFER` — **7/7 OK**.
+
+**Grand total: 34/34 preprocessor-equivalence combinations token-identical, 0 failures.**
+
+**2. Clean fixed-epoch rebuild.** Run three times over the course of this phase (after both
+`ckutio.c` edits; again after reverting the `HUP_POSIX`/`BSD44ORPOSIX` one) —
+`make clean && SOURCE_DATE_EPOCH=1750000000 make linux`: **exit 0, zero warnings, every time.**
+
+- **`wermit` md5 `eee3a8218e33b4e6a495f1fe008a43c5`** — the same value every rebuild in this entire
+  four-phase campaign has produced, including the final state.
+- **All 30 `.o` object files byte-identical** to a pre-Phase-4 baseline (via one clean
+  `git stash`/rebuild/pop cycle), both after the initial two-edit `ckutio.c` state and again after
+  the revert.
+
+**3. Format stability.** `ckctel.c` and `ckcnet.c` (untouched) needed no reformatting. `ckutio.c`
+needed one `clang-format -i` pass — the merged `#if` condition line exceeds the column width and
+gets wrapped with a backslash continuation, the same phenomenon seen in Phase 1/2 (and, as it turns
+out this time, not entirely free — see Timing below). Re-verified equivalence and the rebuild after
+the pass; both hold.
+
+**4. Nesting depth, old → new:**
+
+| File | Targeted chain (old → new, local) | File max (old → new) |
+|---|---|---|
+| `ckutio.c` `_IBMR2` chain | 9 → 6 (4 levels collapsed to 1; `ATTSV` still at 4, `CLSOPN` still one level inside at 6) | 9 → 8 |
+| `ckctel.c` `IKSDONLY`/`CK_AUTODL` (both) | 7 → 6 and 7 → 6 | 7 → 6 |
+| `ckcnet.c` | — (untouched) | 8 → 8 (unchanged) |
+
+**`ckutio.c`'s file-wide max dropped only 9 → 8, not further**, for the now-completely-expected
+reason: a wholly unrelated, pre-existing depth-8 cascade — a UUCP lock-directory-path selector
+(`NOUUCP`/`USETTYLOCK`/`LOCK_DIR`/`BSD44`/`HDBUUCP`/`M_SYS5`/`SVR4`/`LINUXFSSTND`,
+`ckutio.c:184-291`, the same `#else`/`#ifdef`-cascade-standing-in-for-`#elif` anti-pattern as
+Fix (1), not Fix (2), and out of this phase's scope) was tied at depth 8 all along and is now the
+reported max. `ckctel.c` needed *both* `IKSDONLY`/`CK_AUTODL` fixes before its file max actually
+moved — fixing only the audit-named occurrence would have left it tied at 7 via the second,
+previously-unreported occurrence, the same "audit reports only the first chain it finds" blind
+spot as every prior phase.
+
+**5. Timing — measured, not assumed, per Phase 2's/Phase 3's lesson; one hunk reverted as a
+result:**
+
+| Config | Runs | Avg | vs. baseline |
+|---|---|---:|---:|
+| `ckutio.c` baseline (Phase-3 state) | 10.29, 10.29, 10.27 s | 10.28 s | — |
+| `ckutio.c` + `_IBMR2` chain only | 10.32, 10.37 s (bisection) | 10.35 s | **~+1%, noise-level** |
+| `ckutio.c` + `HUP_POSIX`/`BSD44ORPOSIX` only | 14.76, 14.71 s (bisection) | 14.74 s | **+43% — REGRESSION** |
+| `ckutio.c` + both | 14.75, 14.67 s (bisection) | 14.71 s | (confirms 2nd edit dominates) |
+| **`ckutio.c` final (kept: `_IBMR2` chain only, post-`clang-format`)** | 11.89, 11.85, 11.83 s | **11.86 s** | **~+15%** |
+| `ckctel.c` before | 0.21, 0.21, 0.21 s | 0.21 s | — |
+| `ckctel.c` after (both `IKSDONLY` fixes) | 0.23, 0.24, 0.24 s | 0.23 s | ~+10%, negligible (sub-second) |
+
+Two separate, real findings here, both measured via interleaved bisection (2 full rounds) to rule
+out drift, both reproducible:
+
+- **The `HUP_POSIX`/`BSD44ORPOSIX` merge alone reproducibly costs ~+43%** (10.3 s → 14.7 s) even
+  though its ~420-line span has zero `#include` directives — confirming Phase 2's cost model isn't
+  the *only* way a "safe" `#elif`/AND-nest merge can regress `clang-format` time; something about
+  this specific merge (a large branch, deeply nested internal content, or simply its position/size)
+  has a real cost not explained by the `#include`-arm theory. **Per the explicit "keep only if it
+  does not regress" instruction for this optional edit, it was reverted** back to its exact
+  original text (confirmed via isolated equivalence re-check).
+- **The mandatory `_IBMR2` chain merge is genuinely free in isolation** (10.28 s → 10.35 s, within
+  noise) **but the *committed, `clang-format`-stable* version costs ~+15%** (10.28 s → 11.86 s) —
+  because the merged condition line is long enough that `clang-format` wraps it with a backslash
+  continuation, and *that specific formatted shape* — not the merge itself — is what costs the
+  extra ~1.6 s on every subsequent run. This was measured directly (pre-format synthetic variant:
+  10.33 s vs. the actual post-format working-tree file: 11.87 s, same session, back-to-back).
+  **Kept anyway**: this phase's explicit "keep only if no regression" bar was stated for the
+  *optional* edit specifically, not the mandatory one; the regression here is an order of magnitude
+  smaller than the reverted hunk's (+15% vs. +43%) and in the same range Phase 3 already tolerated
+  for its (also mandatory, also dead-code-driven) deletions (+11-14%, kept there for the same
+  reason: the underlying change is independently correct and the cost is small). Flagged here in
+  full, not buried, so the user can override this call if they'd rather have `ckutio.c` fully
+  untouched.
+
+### Status
+
+**Applied to the working tree, not committed.** Final recommended state: `ckutio.c` with only the
+`_IBMR2`/`TIOCMBIS`/`TIOCMBIC`/`TIOCM_DTR` merge (the `HUP_POSIX`/`BSD44ORPOSIX` merge tried and
+reverted); `ckctel.c` with both `IKSDONLY`/`CK_AUTODL` merges; `ckcnet.c` untouched. Awaiting user
+review before the coordinator commits it — including the disclosed ~15% `ckutio.c` timing cost,
+which the user may choose to decline by reverting the one remaining `ckutio.c` hunk too.
+
+## Campaign summary
+
+Four phases, `doc/IFDEF-NESTING-20260710.md`'s audit → this document, all individually reviewed
+and committed except this final phase (awaiting review as this is written).
+
+### Full-tree depth re-scan: before-campaign vs. after (all 44 in-scope files, fixed scanner)
+
+| File | Before | After | File |  Before | After |
+|---|---:|---:|---|---:|---:|
+| `ckcdeb.h` | 13 | **9** | `ckcfn2.c` | 5 | 5 |
+| `ckutio.c` | 9 | **8** | `ckcmai.c` | 6 | **5** |
+| `ckcnet.c` | 8 | 8 | `ckcnet.h` | 5 | 5 |
+| `ckuus4.c` | 8 | 8 | `ckucmd.c` | 7 | **5** |
+| `ckuusx.c` | 8 | **6** | `ckucns.c` | 5 | 5 |
+| `ckctel.c` | 7 | **6** | `ckufio.c` | 5 | 5 |
+| `ckuusr.h` | 7 | 7 | `ckcfns.c` | 4 | 4 |
+| | | | `ckclib.h` | 4 | 4 |
+| `ckcker.h` | 6 | 6 | `ckcpro.w` | 4 | 4 |
+| `ckudia.c` | 6 | 6 | `ckctel.h` | 4 | 4 |
+| `ckupty.c` | 6 | 6 | `ckcxla.h` | 4 | 4 |
+| `ckuus2.c` | 6 | 6 | `ckucmd.h` | 4 | 4 |
+| `ckuus3.c` | 6 | 6 | `ckucon.c` | 4 | 4 |
+| `ckuus5.c` | 6 | 6 | `ckuscr.c` | 4 | 4 |
+| `ckuus6.c` | 6 | 6 | `ckuver.h` | 4 | 4 |
+| `ckuus7.c` | 6 | 6 | `ckuxla.c` | 4 | 4 |
+| `ckuusr.c` | 6 | 6 | `ckcfn3.c` | 3 | 3 |
+| `ckuusy.c` | 6 | 6 | `ckcfnp.h` | 3 | 3 |
+| | | | `ckupty.h` | 3 | 3 |
+| | | | `ckclib.c`/`ckcsig.h`/`ckcuni.c`/`ckcuni.h`/`ckuxla.h`/`ckwart.c` | 2 | 2 |
+| | | | `ckcasc.h`/`ckusig.c` | 1 | 1 |
+
+**6 files improved** (`ckcdeb.h` 13→9, `ckutio.c` 9→8, `ckuusx.c` 8→6, `ckctel.c` 7→6, `ckcmai.c`
+6→5, `ckucmd.c` 7→5); **38 files unchanged** (either never touched, or — `ckcnet.c` — touched by
+Phase 3's dead-code deletion without moving the file's own max, since the deleted block wasn't the
+sole occupant of that depth). Tree-wide max nesting depth (the audit's original headline number)
+drops from **13 to 9**.
+
+### `clang-format` timing, previously-hot files, original-audit baseline vs. final state
+
+| File | Original audit baseline | Final (this session) | Change |
+|---|---:|---:|---:|
+| `ckcdeb.h` | ~82 s | ~23.2 s | **~3.5× faster** |
+| `ckutio.c` | ~11.96 s (single measurement, separate session) | ~11.86 s | ~1%, effectively a wash |
+| `ckuusx.c` | ~3.16 s | ~2.35 s | ~26% faster |
+| `ckucmd.c` | ~1.92 s | ~1.52 s | ~21% faster |
+| `ckcmai.c` | ~0.72 s | ~0.58 s | ~19% faster |
+| `ckcnet.c` | *(not in the original audit's timing table)* | ~5.06 s | Phase 3 measured its own before/after: ~4.55 s → ~5.17 s (~14% slower, from the `NOTUSED` deletion; unrelated to this phase) |
+
+`ckutio.c` is the one file in this table where the campaign nets out close to neutral on timing
+despite a real depth improvement (9→8) — its only edit landed in this final phase and carries the
+~15% cost disclosed above. Every other previously-hot file is faster than when the campaign
+started.
+
+### The corrected cost model, in one paragraph
+
+Collapsing an `#else`/`#ifdef` cascade or a genuine AND-nest into `#elif`/compound-`#if` form is a
+reliable, often large, `clang-format` speed win when the arms contain only simple content (bare
+`#define`s, plain statements) — this describes most of the campaign's wins (`ckcdeb.h`'s `BPS_*`,
+`USE_LSTAT`, `CK_64BIT`; `ckuusx.c`/`ckcmai.c`'s transport ladders; `ckucmd.c`'s libc-internals
+ladder; `ckctel.c`'s `IKSDONLY` pairs) — but it is **not a universal law**: it can regress
+`clang-format` time, sometimes severely, for reasons that are real, measured, and reproducible but
+only partially explained. Two distinct regression mechanisms were found and neither reduces to
+simple "nesting depth" or "line count": (1) **`#include` directives living inside cascade arms**,
+where a *second* such region in the same file triggers super-additive cost (`ckcdeb.h`'s two
+`openpty()` cascades, Phase 2: +41 s each alone, +100 s together vs. an additive ~+82 s prediction;
+reverted); and (2) **the resulting merged condition line's own formatted shape** — a
+backslash-continued long `#if` line costs measurably more on every subsequent format than the
+equivalent nested form did (`ckutio.c`'s `_IBMR2` chain, Phase 4: neutral pre-format, +15% once
+`clang-format`'s own line-wrap is applied — the regression is in the *formatting choice*, not the
+merge). A third, smaller-magnitude, mechanism-agnostic effect showed up in Phase 3 (deleting 147
+dead lines from `ckcnet.c`'s middle made the file ~14% *slower* to format, with no plausible
+`#include`- or line-wrap-based explanation at all, and no further investigation attempted given the
+small stakes). **The practical rule this campaign leaves behind: never assume, always measure
+before/after on the real file, and revert per-hunk (not per-file) when a specific change regresses
+— depth reduction is a proxy for the real goal, not the goal itself, and the proxy fails often
+enough that skipping the measurement step is not safe.**
+
+### What was deliberately left alone, and why
+
+- **`ckcdeb.h`'s two `openpty()` cascades** (Phase 2) — mechanically valid Fix-1 targets, but
+  reverted after measurement showed a severe, super-additive `clang-format` regression tied to
+  `#include` directives in their arms. Depth benefit (would take `ckcdeb.h` from 9 toward 5) was
+  judged not worth the ~4.7× file-wide formatting cost.
+- **The `V7MIN`-gated feature-subset wrappers** (`NOICP`/`NONET`/`NOLOCAL`/`NOXFER` etc., audit
+  Pattern 3) — a real, currently-invocable (if not `make`-target-wired) minimum-size build mode;
+  hard-wiring or removing these wrappers would silently break it. Never a candidate for any of the
+  four phases' mechanical transforms in the first place (they're neither cascades nor pure AND-nests
+  in the collapsible sense — they gate whole build configurations).
+- **`ckcnet.c`'s `NOHTTP`/`TIMEH`/`SYSTIMEH`/`SYSTIMEBH`/`POSIX`/`CLIX` `<time.h>`-selector cascade**
+  (`ckcnet.c:5557-5590`, exposed as the file's bottleneck once Phase 3 deleted the `NOTUSED` block
+  that used to tie with it) — a legitimate Fix-1 (`#elif`) candidate, structurally clean, but out of
+  every phase's named scope so far (Phases 1-2 covered named `#elif` targets, this phase covered
+  named AND-nest targets); left as a documented opportunity for a future pass. Also contains a
+  self-negating oddity (`#ifdef SYSTIMEH` nested inside `#ifndef SYSTIMEH`) worth a human look
+  before anyone touches it.
+- **`ckutio.c`'s `NOUUCP`/`USETTYLOCK`/`LOCK_DIR`/`BSD44`/`HDBUUCP`/`M_SYS5`/`SVR4`/`LINUXFSSTND`
+  UUCP-lock-directory cascade** (`ckutio.c:184-291`, exposed as the file's new bottleneck by this
+  phase's own edit) — same situation: a clean Fix-1 candidate, out of this phase's AND-nest-only
+  scope, left for a future pass.
+- **`ckcdeb.h`'s `TNCODE`/`NOSSH`/`NOLOCAL`/`UNIX`/`SSHCMD`/`NETPTY`/`NOPUSH` AND-nest**
+  (`ckcdeb.h:1465-1474` currently, flagged in Phase 2 as Fix-2 material) — **re-verified now, under
+  this phase's own rules: it qualifies.** Confirmed directive-by-directive: `#ifndef NOLOCAL` →
+  `#ifdef UNIX` → `#ifndef SSHCMD` → `#ifdef NETPTY` → `#ifndef NOPUSH` → `#define SSHCMD`, five
+  levels, zero `#else` anywhere in the span — a clean, safe, mechanically-collapsible AND-nest by
+  every criterion this phase applied to `ckutio.c`'s and `ckctel.c`'s targets. It was **not**
+  applied here because it was never named in this phase's task scope (three named files plus one
+  named optional `ckutio.c` edit; `ckcdeb.h`'s `SSHCMD` nest is none of those) — left as a
+  ready-to-apply, pre-verified opportunity for a future pass rather than an unrequested scope
+  expansion.
+
+### Lines removed/changed, whole campaign
+
+`git diff --stat` against the pre-campaign commit (`388476b`), source files only:
+
+```
+ ckcdeb.h |  88 +++++++++++---------------------------
+ ckcmai.c |  20 +++------
+ ckcnet.c | 147 ---------------------------------------------------------------
+ ckctel.c |  12 ++----
+ ckucmd.c |  31 +++++---------
+ ckufio.c |   9 ----
+ ckutio.c |  23 ++++------
+ ckuusx.c |  24 +++--------
+ ckuxla.c |  16 -------
+ 9 files changed, 63 insertions(+), 307 deletions(-)
+```
+
+**Net -244 lines across 9 files** (147 of which are the one confirmed-dead, non-compiling
+`ckcnet.c` function). Every change in every phase verified byte-identical at the `wermit`/`.o`
+level — the campaign changed zero bytes of compiled behavior on this platform, and was verified
+(to the extent this sandbox allows) not to change it on macOS/BSD either.

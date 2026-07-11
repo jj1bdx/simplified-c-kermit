@@ -3084,16 +3084,14 @@ int tthang() {
   Unixware has the TIOCMxxx symbols defined, but calling ioctl() with them
   gives error 22 (invalid argument).
 */
-#ifndef _IBMR2
-/*
-  No modem-signal twiddling for IBM RT PC or RS/6000.
-  In AIX 3.1 and earlier, the ioctl() call is broken.
-  This code could be activated for AIX 3.1 with PTF 2006 or later
-  (e.g. AIX 3.2), but close/open does the job too, so why bother.
-*/
-#ifdef TIOCMBIS  /* Bit Set */
-#ifdef TIOCMBIC  /* Bit Clear */
-#ifdef TIOCM_DTR /* DTR */
+#if !defined(_IBMR2) && defined(TIOCMBIS) && defined(TIOCMBIC) &&              \
+    defined(TIOCM_DTR)
+  /*
+    No modem-signal twiddling for IBM RT PC or RS/6000.
+    In AIX 3.1 and earlier, the ioctl() call is broken.
+    This code could be activated for AIX 3.1 with PTF 2006 or later
+    (e.g. AIX 3.2), but close/open does the job too, so why bother.
+  */
 
   /* Clear DTR, sleep 300 msec, turn it back on. */
   /* If any of the ioctl's return failure, go on to the next section. */
@@ -3115,10 +3113,7 @@ int tthang() {
   } else { /* Couldn't lower, continue. */
     debug(F101, "tthang TIOCMBIC errno", "", errno);
   }
-#endif /* TIOCM_DTR */
-#endif /* TIOCMBIC */
-#endif /* TIOCMBIS */
-#endif /* _IBMR2 */
+#endif /* _IBMR2 / TIOCMBIS / TIOCMBIC / TIOCM_DTR */
 
   /*
     General AT&T UNIX case, not HPUX.  The following code is highly suspect.  No
