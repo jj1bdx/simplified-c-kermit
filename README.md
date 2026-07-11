@@ -1,5 +1,6 @@
 # Simplified C-Kermit
 
+* C-Kermit 10.0.416-jj1bdx-simplified Dev.1
 * Based on C-Kermit 10.0 Beta.12
 
 ## Objectives
@@ -16,19 +17,11 @@
 
 ## Achievements
 
-* Removed dead code (old UNIXes)
-* Removed code for Android, Windows and VMS
-* Removed SSL/TLS and Kerberos support
-  * Use SSH for interactive Kermit sessions
-* Removed unusable/dead makefile targets
-* Removed non-ANSI / K&R code
-* Removed unusable files
-* Streamlined include files 
-* Applied clang-format with the flags InsertBraces and SortIncludes enabled
-* Performed basic vulnerability check and the fixes
-* Remove FTP support (equivalent to `-DNOFTP`)
-* Remove RLOGIN support
-* Remove XMODEM/YMODEM/ZMODEM support
+See the following summary documents:
+
+* [doc/BASE_20260616.md](doc/BASE_20260616.md)
+* [doc/BASE_20260709.md](doc/BASE_20260709.md)
+* [doc/BASE_20260711.md](doc/BASE_20260711.md)
 
 ### For removing possible network vulnerabilities
 
