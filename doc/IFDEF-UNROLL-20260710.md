@@ -395,9 +395,197 @@ as the trade for that speed.
 
 ### Status
 
-**Applied to the working tree, not committed.** This reflects the *recommended* final state
-(three `.c` files as originally written; `ckcdeb.h` with `USE_LSTAT`/`CK_64BIT` kept and both
-`openpty()` cascades reverted) — awaiting user review before the coordinator commits it. The
+**Committed** as `b5cdee6` ("Flatten four #else/#ifdef cascades to #elif chains (Phase 2)"),
+exactly as recommended above (three `.c` files as originally written; `ckcdeb.h` with
+`USE_LSTAT`/`CK_64BIT` kept and both `openpty()` cascades reverted), after user review. The
 `openpty()` cascades remain a legitimate depth-reduction opportunity (`ckcdeb.h` would drop to
-depth 8 or lower) but are **not recommended** without a real fix for the timing regression, since
-depth reduction alone was never the actual goal.
+depth 8 or lower) but were **not** applied, per the investigation above, without a real fix for
+the timing regression — depth reduction alone was never the actual goal.
+
+## Phase 3 — delete the three `#ifdef NOTUSED` dead-code blocks
+
+This phase implements the audit's Fix (3): three blocks gated by `#ifdef NOTUSED`, a macro that
+is `#define`d nowhere in the tree, are unreachable on every platform this tree builds for and were
+deleted outright — a stronger move than a `#elif`/AND-nest re-punctuation (Fixes 1/2), since it
+removes dead weight rather than restructuring live logic. This is the kind of change the tree's
+own convention (`doc/NOCKXYZ-20260709.md` et al.) says deserves its own dated write-up; this
+section is written to stand as that record, folded into the running campaign doc per the
+coordinator's direction.
+
+### Re-verified `NOTUSED` evidence (re-checked at apply time, not just trusted from the audit)
+
+```
+$ grep -rn "define NOTUSED" *.c *.h makefile     # no output — never defined
+$ grep -rn "NOTUSED" *.c *.h
+ckcnet.c:1154:#ifdef NOTUSED
+ckcnet.c:1299:#endif /* NOTUSED */
+ckuxla.c:2326:#ifdef NOTUSED
+ckuxla.c:2340:#endif /* NOTUSED */
+ckufio.c:5203:#ifdef NOTUSED
+ckufio.c:5208:#endif /* NOTUSED */
+```
+`gcc -E -dM` full-macro dumps of `ckcdeb.h` (which every `.c` file includes first) for `linux`,
+`-DMACOSX10`, and `-DBSD44` all show **no `NOTUSED` macro at all** — confirmed fresh, not just
+carried over from the original audit. Line numbers matched the audit exactly (no drift since
+`doc/IFDEF-NESTING-20260710.md` was written).
+
+### What was deleted
+
+**`ckcnet.c:1154-1299`** (146 lines + 1 trailing blank = **147 lines removed**) — the entire dead
+`tcpsocket_open()` function, including its nested `NOTCPOPTS`/`SOL_SOCKET`/`TCP_NODELAY` block
+(the depth-8 hot spot the audit and Phase 1/2 reports pointed at). This function's body does not
+even parse as valid C (`int timo {` — a missing close-paren on the K&R-style parameter list,
+`ckcnet.c:1161`), further confirming it hasn't compiled in a very long time. Deleted the directive
+pair and everything between; collapsed the resulting double blank line (the block's own
+leading/trailing blank plus the pre-existing separator before/after it) back to the file's normal
+single-blank-line spacing between functions.
+
+**`ckuxla.c:2326-2340`** (15 lines + 1 trailing blank = **16 lines removed**) — the dead `yasl1[]`
+"ASCII to Latin-1" translation table. The section-header comment immediately above it
+(`/* Local file character sets to ISO Latin Alphabet 1 */`) was **kept**, since it introduces the
+whole group of tables in this section, not just the deleted one — `yaql1[]` (the still-live
+"Extended Mac Latin" table) follows immediately and the comment still correctly describes it.
+
+**`ckufio.c:5203-5208`** (6 lines) plus its now-orphaned **2-line** lead-in
+(`/* Find initialization file. */` and the blank line after it) = **9 lines removed**. Unlike the
+`ckuxla.c` case, this comment specifically documented the deleted function's *purpose*
+("find initialization file"), not a section of surrounding code, so it would have dangled
+meaninglessly in front of the next (unrelated, `#ifndef UNIX`-guarded) block if left in place —
+removed along with the dead `int zkermini()` no-op.
+
+**Total: 172 lines removed across 3 files**, all confirmed dead — `git diff --stat`:
+
+```
+ ckcnet.c | 147 ---------------------------------------------------------------
+ ckufio.c |   9 ----
+ ckuxla.c |  16 -------
+ 3 files changed, 172 deletions(-)
+```
+
+### A scanner bug found and fixed along the way
+
+While re-locating these blocks, the accurate depth/line-number scanner (used throughout this
+whole campaign) was caught misreporting line numbers by a small, file-dependent offset — e.g. it
+initially reported `ckcnet.c`'s post-deletion hot spot as line 5589 when the true line (confirmed
+by `grep -n`) is 5590. Root cause: the scanner's directive-line parser skips over `/* ... */`
+comments that trail a directive on the same logical line, but a comment that itself *spans*
+multiple physical lines (legal — comment removal happens before line-splicing, so a directive
+line can contain a multi-line trailing comment without a backslash) was skipped without counting
+its embedded newlines, permanently under-counting `line_no` by one for every subsequent directive
+in the file once such a construct is hit. This is a **line-number reporting bug only** — the
+depth *values* it computes never depended on `line_no` and were unaffected (spot-checked: `ckuus3.c`'s
+line 3852 anomaly and every depth number in all three reports remain correct); only specific
+`file:line` citations after the first such construct in a given file could be off by one or a
+small constant. Fixed (one line, `ifdef_depth.py`: count `\n` inside a directive's skipped inline
+comment before advancing past it) and reverified against both a synthetic
+reproduction (`#ifdef FOO /* comment\nspanning two lines */`) and every number in this section.
+Not re-auditing Phases 1/2's line citations retroactively — out of scope for this phase — but
+noting it here since it explains a discrepancy a careful reader might otherwise spot.
+
+### Verification
+
+**1. Fixed-epoch clean rebuild** (the strongest gate this phase should hit, since the deleted code
+was dead on every platform, including this one): `make clean && SOURCE_DATE_EPOCH=1750000000 make
+linux`, before (via `git stash`, one clean stash/pop cycle just for this baseline snapshot — not
+the repeated back-and-forth Phase 2's bisection needed) and after the three deletions:
+
+- Exit 0 both times, **zero warnings**.
+- **`wermit` byte-for-byte identical**, both before and after: md5 **`eee3a8218e33b4e6a495f1fe008a43c5`**
+  — the same value every single rebuild in this entire campaign (Phase 1 baseline, Phase 1 after,
+  Phase 2 after, Phase 2's final recommended state, and now Phase 3) has produced.
+- **All 30 `.o` object files byte-identical** before/after (compared pairwise, all match).
+
+This is the strongest-possible confirmation that the three deletions are genuinely inert — not
+just "the same modulo some rebuild noise," but bit-for-bit the same linked binary.
+
+**2. Level 4 — platform-path checks.** Two complementary proofs, since this box has no real BSD/
+macOS system headers to compile fully against:
+
+- `gcc -E -P` token-stream comparison (old vs. new file) under the `linux` base flags plus
+  `-DMACOSX10`, `-DBSD44`, and `-DMACOSX10 -DBSD44` together, for all three files —
+  **12/12 combinations token-identical.** (`NOTUSED` being undefined in all of them means the
+  deleted regions were already contributing zero tokens under every one of these configurations
+  before deletion too — this proves it directly rather than just inferring it from the `-dM`
+  dumps.)
+- `cc -fsyntax-only` with the real `macos` target's flags (`-DMACOSX10 -DMACOSX103 -DCK_NCURSES
+  -DTCPSOCKET -DCKHTTP -DUSE_STRERROR -DUSE_NAMESER_COMPAT -DNOCHECKOVERFLOW -DFNFLOAT
+  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -funsigned-char -DNODCLINITGROUPS -DNOUUCP`, taken
+  verbatim from the makefile's `macos:` target) on old vs. new: `ckuxla.c` is clean (exit 0) both
+  times; `ckcnet.c` and `ckufio.c` both produce the **same pre-existing errors** before and after
+  (missing declarations for `gethostbyname`/`time`/etc. — an artifact of syntax-checking a single
+  translation unit standalone without this box's real BSD network/time headers, not something
+  either version of the file introduces), with every error's line number shifted by **exactly**
+  the number of lines removed before that point in the file (147 for `ckcnet.c`; `ckufio.c`'s
+  errors sit before its deletion point and are unshifted). One cosmetic wrinkle in `ckufio.c`:
+  a single compiler "note" suggesting where to add `#include <time.h>` reports a context line
+  1 off (700 vs. 699) between the two runs; the actual source at that location (lines 690-705)
+  was directly diffed and is byte-identical, so this is a `gcc` diagnostic-rendering artifact —
+  possibly tied to running the two checks against different absolute paths — not a real
+  discrepancy. Every substantive error/warning otherwise matches exactly.
+
+**3. Format stability**: `clang-format FILE | diff FILE -` is clean (no changes needed) for all
+three files immediately after the hand-deletions — the blank-line tidying was done correctly by
+hand, no `clang-format -i` pass was required this time.
+
+**4. Nesting depth, old → new:**
+
+| File | Naive openers (old → new) | File max depth (old → new) |
+|---|---|---|
+| `ckcnet.c` | 405 → 392 | **8 → 8 (unchanged — see below)** |
+| `ckuxla.c` | 124 → 123 | 4 → 4 (unchanged, as expected) |
+| `ckufio.c` | 453 → 452 | 5 → 5 (unchanged, as expected) |
+
+**`ckcnet.c`'s file-wide max did *not* drop to 6 as the task expected — it stayed at 8**, for the
+now-familiar reason from Phases 1 and 2: the audit's per-file methodology reports only the first
+chain it finds at a file's maximum depth, so a second, wholly unrelated depth-8 cascade elsewhere
+in `ckcnet.c` was invisible while the `NOTUSED` block's chain was (one of) the reported max(es).
+Deleting `NOTUSED` correctly removed *that* depth-8 chain — confirmed it is simply gone, not
+relocated — but this tied second chain, at `ckcnet.c:5557-5590`, was there all along:
+
+```
+#ifdef  NETCONN                    (3762)
+ #ifndef NOHTTP                     (5557)
+  #ifndef TIMEH                       (5581)
+   #ifndef SYSTIMEH                    (5582)
+    #ifndef SYSTIMEBH                    (5583)
+     #ifdef  SYSTIMEH                     (5584)  — nested inside its own negation, see below
+      #ifdef  POSIX                          (5587)
+       #ifdef  CLIX                            (5590)
+```
+This selects which `<time.h>`-family header to pull in for the HTTP-proxy code
+(`SYSTIMEH`/`POSIX`/`CLIX`), and is the same `#else`/`#ifdef`-cascade-standing-in-for-`#elif`
+pattern as Fix (1), **not** part of this phase's scope (deletion only) and not touched. One
+structural oddity worth flagging for whoever eventually looks at it: line 5584's `#ifdef
+SYSTIMEH` sits *inside* the `#ifndef SYSTIMEH` branch opened three lines above (5582) — i.e. it
+tests the same macro's negation and then its assertion in immediate succession, which looks like
+dead/unreachable code in its own right (upstream oddity, not introduced by any change in this
+campaign; left exactly as found, consistent with this phase's delete-only scope).
+
+**5. `clang-format` timing, measured (not assumed) per Phase 2's lesson** — the deleted regions
+contain no `#include` directives, so no repeat of Phase 2's regression was expected, but it was
+checked directly rather than assumed:
+
+| File | Before | After | Change |
+|---|---:|---:|---:|
+| `ckcnet.c` | 4.61 s, 4.53 s, 4.53 s, 4.55 s, 4.53 s (avg **4.55 s**) | 5.19 s, 5.20 s, 5.15 s, 5.16 s, 5.15 s (avg **5.17 s**) | **~14% slower** |
+| `ckuxla.c` | 0.54 s (1 run) | 0.60 s (1 run) | ~11% slower |
+| `ckufio.c` | 1.44 s (1 run) | 1.62 s (1 run) | ~13% slower |
+
+**A small, real, reproducible increase, not a Phase-2-scale regression.** Runs were interleaved
+(before/after/before/after) for `ckcnet.c` specifically to rule out drift, and the two groups are
+tightly clustered (4.53-4.61 s vs. 5.15-5.20 s, zero overlap) — this is a genuine effect, not
+noise, but two orders of magnitude smaller than Phase 2's ~5× blowup and does not change the
+recommendation (deleting confirmed-dead, non-compiling code is correct regardless of its effect
+on `clang-format` wall time). Plausible explanation, not investigated further given the small
+stakes: removing 147 lines from the *middle* of a large file shifts everything after it, and
+`clang-format`'s cost is apparently not simply proportional to line count either direction (recall
+`ckcuni.c` — 23,312 lines, depth 2 — formats in under a second; raw size was never the driver).
+Flagging rather than burying: if a future phase stacks several more same-file deletions/edits and
+sees this compound, it's worth a real look, but a single-digit-percent, sub-second-per-file change
+here does not warrant the kind of investigation Phase 2 needed.
+
+### Status
+
+**Applied to the working tree, not committed.** All three deletions verified byte-identical at
+the strongest gate (whole-binary + all-object rebuild), format-stable, and dead-code-confirmed
+fresh at apply time — awaiting user review before the coordinator commits it.
