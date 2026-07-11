@@ -5024,16 +5024,19 @@ zsperms:
 #endif // V7
 #endif // BSD44
 
-  switch (x) {  // Execute desired function
-  case 0:       // Set the creation date of the file
-#ifdef CK_PERMS // And permissions
-                // NOTE: If we are inheriting permissions from a previous file,
-                // and the previous file was a directory, this would turn the
-                // new file into a directory             too, but it's not, so
-                // we try to unset the right bit. Luckily,             this code
-                // will probably never be executed since the             upper
-                // level modules do             not allow reception of a file
-                // that has             the same name as a directory.
+  // Execute desired function
+  // Set the creation date of the file
+  // And permissions
+  switch (x) {
+  case 0:
+#ifdef CK_PERMS
+    // NOTE: If we are inheriting permissions from a previous file,
+    // and the previous file was a directory, this would turn the
+    // new file into a directory             too, but it's not, so
+    // we try to unset the right bit. Luckily,             this code
+    // will probably never be executed since the             upper
+    // level modules do             not allow reception of a file
+    // that has             the same name as a directory.
     //
     // NOTE 2: We change the permissions *before* we change the modification
     // time,             otherwise changing the permissions would set the mod
