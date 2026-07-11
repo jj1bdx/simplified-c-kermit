@@ -965,27 +965,19 @@ char *clienthost = NULL; /* Peer host name or address */
 int tcp_incoming = 0;    /* Incoming TCP connection? */
 
 #ifdef NETCONN
-#ifdef TCPSOCKET
+#if defined(TCPSOCKET)
 int nettype = NET_TCPB; /* Default network type */
-#else
-#ifdef IBMX25
+#elif defined(IBMX25)
 int nettype = NET_IX25;
-#else
-#ifdef HPX25
+#elif defined(HPX25)
 int nettype = NET_HX25;
-#else
-#ifdef DECNET
+#elif defined(DECNET)
 int nettype = NET_DEC;
-#else
-#ifdef SUPERLAT
+#elif defined(SUPERLAT)
 int nettype = NET_SLAT;
 #else
 int nettype = NET_NONE;
-#endif /* SUPERLAT */
-#endif /* DECNET */
-#endif /* HPX25 */
-#endif /* IBMX25 */
-#endif /* TCPSOCKET */
+#endif /* TCPSOCKET / IBMX25 / HPX25 / DECNET / SUPERLAT */
 #else  /* NETCONN */
 int nettype = NET_NONE;
 #endif /* NETCONN */

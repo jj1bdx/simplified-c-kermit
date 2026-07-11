@@ -994,18 +994,13 @@ extern int tt_bell;
 #ifndef USE_LSTAT
 #ifdef UNIX
 #ifdef CKSYMLINK
-#ifdef SVR4 /* SVR4 has lstat() */
+#if defined(SVR4) /* SVR4 has lstat() */
 #define USE_LSTAT
-#else
-#ifdef BSD44 /* 4.4BSD has it */
+#elif defined(BSD44) /* 4.4BSD has it */
 #define USE_LSTAT
-#else
-#ifdef LINUX /* LINUX has it */
+#elif defined(LINUX) /* LINUX has it */
 #define USE_LSTAT
-#else
-#endif /* LINUX */
-#endif /* BSD44 */
-#endif /* SVR4 */
+#endif /* SVR4 / BSD44 / LINUX */
 #endif /* CKSYMLINK */
 #endif /* UNIX */
 #endif /* USE_LSTAT */
@@ -2569,33 +2564,22 @@ struct zfnfp {
 /* meaning that longs and pointers are 64 bits */
 
 #ifndef CK_64BIT
-#ifdef _LP64 /* Solaris */
+#if defined(_LP64) /* Solaris */
 #define CK_64BIT
-#else
-#ifdef __LP64__ /* MacOS X 10.4 (or _LP64,__ppc64__) */
+#elif defined(__LP64__) /* MacOS X 10.4 (or _LP64,__ppc64__) */
 #define CK_64BIT
-#else
-#ifdef __arch64__ /* gcc alpha, sparc */
+#elif defined(__arch64__) /* gcc alpha, sparc */
 #define CK_64BIT
-#else
-#ifdef __alpha /* Alpha decc (or __ALPHA) */
+#elif defined(__alpha) /* Alpha decc (or __ALPHA) */
 #define CK_64BIT
-#else
-#ifdef __amd64 /* AMD x86_64 */
+#elif defined(__amd64) /* AMD x86_64 */
 #define CK_64BIT
-#else
-#ifdef __x86_64 /* AMD/Intel x86_64 */
+#elif defined(__x86_64) /* AMD/Intel x86_64 */
 #define CK_64BIT
-#else
-#ifdef __ia64 /* Intel IA64 */
+#elif defined(__ia64) /* Intel IA64 */
 #define CK_64BIT
-#endif /* __ia64 */
-#endif /* __x86_64 */
-#endif /* __amd64 */
-#endif /* __alpha */
-#endif /* __arch64__ */
-#endif /* __LP64__ */
-#endif /* _LP64 */
+#endif /* _LP64 / __LP64__ / __arch64__ / __alpha / __amd64 / __x86_64 /       \
+          __ia64 */
 #endif /* CK_64BIT */
 
 #ifndef CK_OFF_T
