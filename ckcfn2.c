@@ -1146,6 +1146,19 @@ int spack(char pkttyp, int n, int len, CHAR *d)
   }
   debug(F101, "SPACK LP decision longpkt", "", longpkt);
 
+  // Last-resort guard: without long-packet format the LEN field,
+  // tochar(len+bctl+2), is only legal for values 0..94.  If a producer
+  // hands us more data than that (an encstr()-based command/filename/error
+  // packet, a memory-string source that overran getpkt()'s bound, a
+  // corrupt peer MAXL), refuse to send rather than emit a packet the
+  // receiver's framer will silently discard, stalling the session in a
+  // retransmission loop.  Truncating here is not an option: it would
+  // silently corrupt the already-encoded data.
+  if (!longpkt && (len + bctl + 2) > 94) {
+    debug(F101, "SPACK refusing unencodable short packet len", "", len);
+    return (-1);
+  }
+
   mydata = data - 7 + (longpkt ? 0 : 3); // Starting position of header
   k = sseqtbl[n];                        // Packet structure info for pkt n
   if (k > -1) {

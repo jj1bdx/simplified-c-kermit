@@ -1756,7 +1756,10 @@ a {
 	lastxfer = W_SEND;
 	x = sfile(xflg);		// Send X or F header packet
 	cancel = 0;			// Reset cancellation counter
-	if (x) {			// If the packet was sent OK
+	if (x > 0) {			// If the packet was sent OK
+					// (sfile() returns a negative
+					// spack() error if the packet
+					// could not be framed or sent)
 	    if (!xflg && filcnt == 1)	// and it's a real file
 	      crc16 = 0L;		// Clear the file CRC
 	    resetc();			// reset per-transaction counters
@@ -2008,7 +2011,7 @@ a {
 	    if (g == 0 && gnferror == 0) // No more, stop trying
 	      break;
 	    if (g > 0) {		// Have one
-		if (sfile(xflg)) {	// Try to open and send F packet
+		if (sfile(xflg) > 0) {	// Try to open and send F packet
 		    BEGIN ssfile;	// If OK, enter send-file state
 		    break;		// and break out of loop.
 		}

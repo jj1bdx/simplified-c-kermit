@@ -352,7 +352,7 @@ int encstr(CHAR *s) {
   // Also, to return a failure code if the entire encoded string would not fit.
   // Modified 14 Jul 1998 to return length of encoded string.
   // Modified 18 Oct 2021 to not truncate filename in F packet.
-  int m, rc, slen;
+  int m, rc, slen, bufmax;
   char *p;
   // data is a pointer to send-packet data declared in ckcmai.c
   if (!data) { // Watch out for null pointers.
@@ -382,7 +382,15 @@ int encstr(CHAR *s) {
   // shorter then 90 bytes.
   debug(F101, "encstr rpsiz", "", rpsiz);
   debug(F101, "encstr urpsiz", "", urpsiz);
-  rc = getpkt(rpsiz, 0); // Fill a packet from the string.
+  bufmax = rpsiz;
+  // Without long-packet capability the real ceiling is the short-packet
+  // LEN field, tochar(len+bctl+2), legal only for values 0..94: the data
+  // must not exceed 92-bctl bytes, not rpsiz (~4094 under NEWDEFAULTS).
+  // Same constraint as sdata()'s clamp; see LPCAPU_RESIDUAL_GAP_20260712.md.
+  if (!lpcapu && bufmax > 92 - bctl) {
+    bufmax = 92 - bctl;
+  }
+  rc = getpkt(bufmax, 0); // Fill a packet from the string.
   debug(F101, "encstr getpkt rc", "", rc);
   if (rc > -1 && memptr < (char *)(s + slen)) { // Means we didn't encode
     rc = -1;                                    // the whole string.
@@ -4194,9 +4202,15 @@ int sfile(int x) {
   // Now s points to the string that goes in the packet data field.
 
   debug(F101, "sfile binary", "", binary); // Log debugging info
-  encstr((CHAR *)s);                       // Encode the name.
-                                           // Send the F or X packet
-  // If the encoded string did not fit into the packet, it was truncated.
+  if (encstr((CHAR *)s) < 0) {             // Encode the name.
+    // The encoded string did not fit into the packet.  Fail cleanly
+    // instead of silently sending a truncated name, which the receiver
+    // would store the file under.  (Completes the 18 Oct 2021 change
+    // that made encstr() report truncation.)
+    debug(F110, "sfile name too long for packet", s, 0);
+    return (0);
+  }
+  // Send the F or X packet
 
   if (nxtpkt() < 0) {
     return (0); // Bump packet number, get buffer
@@ -4357,8 +4371,14 @@ int sdata() {
     // or other factors might push the packet over the edge,
     // causing (for example) the LEN field of a short packet
     // to be out of range. - fdc, 14 September 2022
-    if (spsiz <= 94 && spsiz > 90) {
-      spsiz = 90;
+    //
+    // The clamp must be block-check-aware: a short packet's LEN field is
+    // tochar(len+bctl+2), legal only for values 0..94, so the data length
+    // must not exceed 92-bctl.  The original flat clamp to 90 still let
+    // len reach 90 with bctl 3 (LEN = 95 = DEL), which the receiving
+    // framer discards without replying.  See LPCAPU_RESIDUAL_GAP_20260712.md.
+    if (spsiz <= 94 && spsiz > 92 - bctl) {
+      spsiz = 92 - bctl;
     }
 
 #ifdef CKTUNING
@@ -4969,6 +4989,10 @@ int spar(CHAR *s) // Set parameters
         spsiz = 80; // Be defensive...
       }
     }
+  }
+  if (!lpcapu && spsiz > 94) {
+    spsiz = 94; // Defend against a corrupt/nonconforming peer MAXL byte:
+                // without long packets 94 is the largest usable size.
   }
   // (PWP) save current send packet size for optimal packet size calcs
   spmax = spsiz;                 // Maximum negotiated length
