@@ -598,6 +598,7 @@ void ckscreen(int, char, CK_OFF_T, char *);
 #define SKP_SIM 12 // Simulation (WOULD BE SENT)
 #define SKP_XUP 13 // Simulation: Would be sent because remote file older
 #define SKP_XNX 14 // Simulation: ditto, because remote file does not exist
+#define SKP_TLN 15 // Name too long for negotiated packet length
 
 // Macros
 

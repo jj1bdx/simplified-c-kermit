@@ -281,6 +281,7 @@ static char *skreason[] = {
     "Simulated",                     // SKP_SIM
     "Simulated - Remote file older", // SKP_XUP
     "Simulated - No remote file",    // SKP_XNX
+    "Name too long for packet",      // SKP_TLN
 };
 static int nskreason = (sizeof(skreason) / sizeof(char *));
 

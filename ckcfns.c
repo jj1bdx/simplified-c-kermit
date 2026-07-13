@@ -2413,6 +2413,8 @@ int getpkt(int bufmax, int xlate) // Fill one packet buffer
   register int a7;                          // Low 7 bits of character
 
   CHAR xxls, xxdl, xxrc, xxss, xxcq; // Pieces of prefixed sequence
+  int seqchars;                      // Source chars [odp,dp) represents
+  int lsstate_save;                  // lsstate snapshot for truncation
 
   if (binary) {
     xlate = 0; // We don't translate if binary
@@ -2689,7 +2691,9 @@ int getpkt(int bufmax, int xlate) // Fill one packet buffer
 #endif // KANJI
        // At this point, the character we just read is in rnext,
        // and the character we are about to encode into the packet is in rt.
-    odp = dp; // Remember where we started.
+    odp = dp;               // Remember where we started.
+    seqchars = 1;           // Source chars this sequence will represent
+    lsstate_save = lsstate; // For rollback if the sequence is dropped
     xxls = xxdl = xxrc = xxss = xxcq =
         NUL; // Clear these.
              // Now encode the character according to the options that are in
@@ -2713,12 +2717,14 @@ int getpkt(int bufmax, int xlate) // Fill one packet buffer
         } else if (rpt == 94) {     // Reached max, must dump
           xxrc = (CHAR)tochar(rpt); // Put the repeat count here
           rptn += rpt;              // Accumulate it for statistics
+          seqchars = rpt;           // Sequence stands for this many chars
           rpt = 0;                  // And reset it
         }
       } else if (rpt > 1) {         // More than two
         xxrc = (CHAR)tochar(++rpt); // and count.
         rptn += rpt;
-        rpt = 0; // Reset repeat counter.
+        seqchars = rpt; // Sequence stands for this many chars
+        rpt = 0;        // Reset repeat counter.
       }
       // If (rpt == 1) we must encode exactly two characters.
       // This is done later, after the first character is encoded.
@@ -2850,12 +2856,15 @@ int getpkt(int bufmax, int xlate) // Fill one packet buffer
 
     if (rpt == 1) { // Exactly two copies?
       rpt = 0;
+      seqchars = 2;                    // Both copies, if odp stays put
       p2 = dp;                         // Save place temporarily
       for (p1 = odp2; p1 < p2; p1++) { // Copy the old chars over again
         *dp++ = *p1;
       }
       if ((p2 - data) <= bufmax) {
-        odp = p2; // Check packet bounds
+        odp = p2;               // Check packet bounds: [odp,dp) is now
+        seqchars = 1;           // only the second copy (one char), and
+        lsstate_save = lsstate; // any shift went out with the kept copy
       }
       if ((p2 - data) < bufmax) {
         odp = p2; // Check packet bounds
@@ -2871,10 +2880,40 @@ int getpkt(int bufmax, int xlate) // Fill one packet buffer
 
       size = (dp - data); // Calculate the size.
       *dp = '\0';         // Mark the end.
-      if (memstr) {       // No leftovers for memory strings
-        if (rt) {         // Char we didn't encode yet
-          memptr--;       // (for encstr())
+      if (memstr) {       // Memory-string source: no leftover[] mechanism.
+#ifdef KANJI
+        if (xlate && tcharset == TC_JEUC) {
+          // zkanji()/kgetm() buffer pending bytes and shift state across
+          // calls with no fixed bytes-per-char relation to memptr, so
+          // the rewind arithmetic below does not apply.  Keep the
+          // original behavior (possibly overfull packet) for this case.
+          if (rt) { // Char we didn't encode yet
+            memptr--;
+          }
+          return (size);
         }
+#endif                              // KANJI
+        if ((dp - data) > bufmax) { // Overfull: the last sequence must
+          memptr -= seqchars;       // not go out; un-read its source
+          memptr--;                 // chars, plus this iteration's own
+                                    // lookahead fetch (a real char or
+                                    // the terminating NUL -- always
+                                    // exactly one *memptr++).
+          lsstate = lsstate_save;   // Undo any locking-shift change
+          size = (odp - data);      // Return only what fit
+          *odp = '\0';
+          first = 1; // Resume via fresh priming from memptr
+        } else if (rt) {
+          // Exact fit with a char pending: un-read it so encstr() sees
+          // the string was not fully encoded, and so a continuation
+          // call (sndstring()) re-primes from memptr rather than using
+          // the stale static t, which this branch never updated -- the
+          // old first==0 resume path inserted one stale byte per packet
+          // boundary into multi-packet memory-string transfers.
+          memptr--;
+          first = 1;
+        }
+        // Exact fit with rt == 0: true EOF, first is already -1.
         return (size);
       }
       if ((dp - data) > bufmax) { // if packet is overfull
@@ -3905,6 +3944,7 @@ int sfile(int x) {
   int rc;
   int notafile = 0;
   extern int filepeek;
+  extern int i_isopen; // Input file open (set by openi(), ckcfn3.c)
 #ifdef PIPESEND
   extern char *sndfilter;
 
@@ -4208,6 +4248,16 @@ int sfile(int x) {
     // would store the file under.  (Completes the 18 Oct 2021 change
     // that made encstr() report truncation.)
     debug(F110, "sfile name too long for packet", s, 0);
+    ckstrncpy((char *)epktmsg, "Filename too long for packet length",
+              PKTMSGLEN);
+    if (x == 0 && i_isopen) { // Close the input file opened above, or
+      if (memstr) {           // the next sfile() of a batch send would
+        memstr = 0;           // fail on the still-open input channel
+      } else {                // (same close logic as clsif(), without
+        zclose(ZIFILE);       // its statistics/display side effects).
+      }
+      i_isopen = 0;
+    }
     return (0);
   }
   // Send the F or X packet
@@ -4891,6 +4941,21 @@ int spar(CHAR *s) // Set parameters
     }
     if ((x < 1) || (x > 5)) {
       x = 1; // "5" 20110605
+    }
+    // CHKT '5' ("force Type 3") is a valid forcing signal only in an I
+    // or S packet, where rpack() has already recognized it and set bctf,
+    // so ckcpro.w's "if (bctf) bctu = bctl = 3" branch masks whatever is
+    // stored in bctr here.  In a Y (ACK) -- e.g. from a receiver whose
+    // user gave SET BLOCK 5 while our side did not -- bctf stays 0, and
+    // bctr = 5 would reach "bctu = bctr" in ckcpro.w: spack()'s block
+    // check switch has no case 5, so every packet would go out with a
+    // LEN that counts 5 check bytes that are never written.  Map it to
+    // type 3, the same fallback the REMOTE SET BLOCK-CHECK handler
+    // (case 400 below) applies to an incoming '5'; do not set bctf from
+    // a mere ACK field -- forcing is declared in I/S packets only, and
+    // bctf is never reset once set.
+    if (x == 5 && !bctf) {
+      x = 3;
     }
   }
   bctr = x;

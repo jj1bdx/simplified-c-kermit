@@ -2015,6 +2015,20 @@ a {
 		    BEGIN ssfile;	// If OK, enter send-file state
 		    break;		// and break out of loop.
 		}
+		// Could not encode, open, or send its F packet: tell the
+		// user which file is being passed over instead of skipping
+		// it silently.  SCR_FN must come first -- it loads the
+		// filename buffer that the ST_SKIP display reads.
+		xxscreen(SCR_FN,0,0l,filnam);
+		xxscreen(SCR_ST,ST_SKIP,SKP_TLN,filnam);
+#ifdef TLOG
+		if (tralog)
+		  tlog(F110,"Skipped, cannot send:",filnam,0);
+#endif // TLOG
+		if (fatalio) {		// Connection is gone: pointless to
+		    g = 0;		// grind through the rest of the
+		    break;		// batch; fail out via seot().
+		}
 	    } // Otherwise keep trying to get one we can send...
 	}
     }

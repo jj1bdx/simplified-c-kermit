@@ -1241,6 +1241,14 @@ int spack(char pkttyp, int n, int len, CHAR *d)
     mydata[i++] = (unsigned)(tochar((unsigned)(((j >> 6) & 077) + 1)));
     mydata[i++] = (unsigned)(tochar((unsigned)((j & 077) + 1)));
     break;
+  default:
+    // Should be unreachable: spar() clamps a negotiated CHKT to a type
+    // this switch handles.  An unknown bctu used to fall through
+    // silently, sending a packet whose LEN counted bctl check bytes
+    // that were never appended -- unparseable by any receiver.  Refuse
+    // instead (same failure contract as the short-packet guard above).
+    debug(F101, "SPACK unknown block check type", "", bctu);
+    return (-1);
   }
   loglen = i;
   mydata[i++] = seol; // End of line (packet terminator)
@@ -2511,6 +2519,23 @@ void rcalcpsz(void) {
       }
 #endif // STREAMING
 
+      if (j == -4) {
+        // Malformed packet header (garbage or rubout LEN byte, or an
+        // out-of-range SEQ) detected by ttinl().  Report it as a
+        // crunched packet so input() NAKs it immediately.  This must be
+        // checked before the j < -1 fatal-error branch below, and must
+        // not fall through to the -1 timeout case: input()'s timeout
+        // handler withholds the NAK while more input is pending, which
+        // it nearly always is at this point (ttinl() bails at the LEN
+        // byte while the packet's tail is still arriving), so the old
+        // conflation with -1 turned every corrupt-LEN packet into a
+        // silent mutual wait.  See doc/BUGFIX_20260712.md.
+        debug(F100, "rpack: ttinl malformed header", "", 0);
+        freerbuf(k);
+        logpkt('r', -1, (CHAR *)"<crunched:hdr>", 0);
+        xxscreen(SCR_PT, '%', (long)pktnum, "Bad packet header");
+        return ('Q');
+      }
       if (j < 0) {
         // -1 == timeout, -2 == ^C, -3 == connection lost or fatal i/o
         debug(F101, "rpack: ttinl fails", "", j); // Otherwise,

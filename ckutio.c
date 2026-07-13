@@ -8027,12 +8027,30 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
       // upwards.)
       if (!havelen) {
         if (i == 2) {
+          // A malformed LEN (or SEQ, below) returns -4, not -1: the
+          // caller (rpack()) treats -1 as a timeout, and input()'s
+          // timeout handler withholds the NAK whenever more input is
+          // pending -- which it nearly always is here, since we bail at
+          // the LEN byte while the packet's tail is still arriving.
+          // That converted every corrupt-LEN packet into a silent
+          // mutual wait.  -4 lets rpack() report a crunched packet,
+          // which is NAKed immediately.  Also disarm the alarm on the
+          // way out (the bad-SEQ return below always did; these two
+          // returns left it armed).
           if ((dest[1] & 0x7f) < 32) { // Garbage in length field
-            return (-1);               // fdc - 13 Apr 2010
+            debug(F101, "ttinl bad LEN", "", (dest[1] & 0x7f));
+            if (timo) {
+              ttimoff();
+            }
+            return (-4); // fdc - 13 Apr 2010; -4 since BUGFIX_20260712
           }
           pktlen = xunchar(dest[1] & 0x7f);
           if (pktlen > 94) { // Rubout in length field
-            return (-1);     // fdc - 13 Apr 2010
+            debug(F101, "ttinl bad LEN", "", pktlen);
+            if (timo) {
+              ttimoff();
+            }
+            return (-4); // fdc - 13 Apr 2010; -4 since BUGFIX_20260712
           }
           if (pktlen > 1) {
             havelen = 1;
@@ -8078,7 +8096,7 @@ ttinl(CHAR *dest, int max,int timo, CHAR eol)
           if (timo) {
             ttimoff();
           }
-          return (-1); // return a nonfatal error
+          return (-4); // Malformed header, same class as bad LEN above
         }
       }
 
