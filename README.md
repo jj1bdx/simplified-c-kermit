@@ -1,6 +1,6 @@
 # Simplified C-Kermit
 
-*Note: this project is archived. Please use [OpenKermit's C-Kermit] for a modern version.*
+*Note: this project is archived. Please use [OpenKermit's C-Kermit](https://github.com/OpenKermit/ckermit) for a modernized version.*
 
 ## Description
 
