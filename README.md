@@ -1,5 +1,9 @@
 # Simplified C-Kermit
 
+*Note: this project is archived. Please use [OpenKermit's C-Kermit] for a modern version.*
+
+## Description
+
 * C-Kermit 10.0.416-jj1bdx-simplified Dev.1
 * Based on C-Kermit 10.0 Beta.12
 
